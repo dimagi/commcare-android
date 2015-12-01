@@ -180,7 +180,7 @@ public class EntityView extends LinearLayout {
                 setupImageLayout(view, (String) field);
             } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
                 int orientation = getResources().getConfiguration().orientation;
-                GraphView g = new GraphView(context, "");
+                GraphView g = new GraphView(context, "", false);
                 View rendered = null;
                 if (renderedGraphsCache.get(i) != null) {
                     rendered = renderedGraphsCache.get(i).get(orientation);
@@ -189,7 +189,7 @@ public class EntityView extends LinearLayout {
                 }
                 if (rendered == null) {
                     try {
-                        rendered = g.getView((GraphData) field);
+                        rendered = g.getView(g.getHTML((GraphData) field));
                     } catch (InvalidStateException ise) {
                         rendered = new TextView(context);
                         ((TextView) rendered).setText(ise.getMessage());
@@ -515,12 +515,12 @@ public class EntityView extends LinearLayout {
             }
         }
 
-        // Re-calculate the view's measurements based on the percentage adjustments above
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
         onMeasureCalled = true;
         if (imageViewsToRedraw.size() > 0) {
             redrawImageLayoutsInQueue();
         }
+
+        // Re-calculate the view's measurements based on the percentage adjustments above
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
 }

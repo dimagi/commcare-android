@@ -40,7 +40,6 @@ dependencies {
     compile project(':javarosa')
     compile project(':commcare')
     compile project(':libraries:mapballoons')
-    compile project(':libraries:achartengine')
     compile project(':libraries:AndroidStaggeredGrid:library')
     compile fileTree(dir: 'app/libs', include: '*.jar')
     compile 'in.srain.cube:grid-view-with-header-footer:1.0.12'

@@ -19,7 +19,6 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.xform.parse.XFormParser;
@@ -110,12 +109,11 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             // if we have binary, deserialize binary
             Log.i(TAG, "Attempting to load " + formXml.getName() +
                     " from cached file: " + formBin.getAbsolutePath());
-            fd = deserializeFormDef(formBin);
+            fd = deserializeFormDef((Context)activity, formBin);
             if (fd == null) {
-                // some error occured with deserialization. Remove the file, and make a new .formdef
-                // from xml
-                Log.w(TAG, "Deserialization FAILED!  Deleting cache file: " +
-                        formBin.getAbsolutePath());
+                Logger.log(AndroidLogger.SOFT_ASSERT,
+                        "Deserialization of " + formXml.getName() + " form failed.");
+                // Remove the file, and make a new .formdef from xml
                 formBin.delete();
             }
         }
@@ -242,10 +240,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
      * @param formDef serialized FormDef file
      * @return {@link FormDef} object
      */
-    public FormDef deserializeFormDef(File formDef) {
-        // TODO: any way to remove reliance on jrsp?
-
-        // need a list of classes that formdef uses
+    private static FormDef deserializeFormDef(Context context, File formDef) {
         FileInputStream fis;
         FormDef fd;
         try {
@@ -255,15 +250,8 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             DataInputStream dis = new DataInputStream(new BufferedInputStream(fis));
 
             // read serialized formdef into new formdef
-            fd.readExternal(dis, ApkUtils.getPrototypeFactory((Context)activity));
+            fd.readExternal(dis, ApkUtils.getPrototypeFactory(context));
             dis.close();
-
-        } catch (FileNotFoundException | DeserializationException e) {
-            e.printStackTrace();
-            fd = null;
-        } catch (IOException e) {
-            e.printStackTrace();
-            fd = null;
         } catch (Throwable e) {
             e.printStackTrace();
             fd = null;

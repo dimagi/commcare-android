@@ -1,13 +1,25 @@
 <OpenRosaResponse>
-	<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="test_case_id_child"
-		date_modified="2015-02-18T21:06:25Z" user_id="test_user_id">
-		<create>
-			<case_type>unit_test_child</case_type>
-			<case_name>Child Case</case_name>
-			<owner_id>test_case_id</owner_id>
-		</create>
-		<index>
-		    <parent case_type="unit_test">test_case_id</parent>
-		</index>
-	</case>
+    <case case_id="test_case_id_child" date_modified="2015-02-18T21:06:25Z"
+          user_id="test_user_id" xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>unit_test_child</case_type>
+            <case_name>Child Case</case_name>
+            <owner_id>test_case_id</owner_id>
+        </create>
+        <index>
+            <parent case_type="unit_test">test_case_id</parent>
+        </index>
+    </case>
+
+    <case case_id="test_case_id_child_2" date_modified="2015-02-18T21:06:25Z"
+          user_id="test_user_id" xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>unit_test_child</case_type>
+            <case_name>Child Case 2</case_name>
+            <owner_id>test_case_id</owner_id>
+        </create>
+        <index>
+            <parent case_type="unit_test">test_case_id_2</parent>
+        </index>
+    </case>
 </OpenRosaResponse>

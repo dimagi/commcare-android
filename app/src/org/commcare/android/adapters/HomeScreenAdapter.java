@@ -23,10 +23,11 @@ public class HomeScreenAdapter extends BaseAdapter {
 
     private static final int[] buttonsResources = new int[]{
             R.layout.home_start_button,
+            R.layout.home_report_button,
             R.layout.home_savedforms_button,
             R.layout.home_incompleteforms_button,
             R.layout.home_sync_button,
-            R.layout.home_disconnect_button,
+            R.layout.home_logout_button,
     };
 
     private final SquareButtonWithNotification[] buttons =

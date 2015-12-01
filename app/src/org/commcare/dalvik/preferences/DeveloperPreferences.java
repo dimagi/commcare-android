@@ -1,25 +1,8 @@
-/*
- * Copyright (C) 2009 University of Washington
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.commcare.dalvik.preferences;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.DisplayMetrics;
 
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
 import org.commcare.android.session.DevSessionRestorer;
@@ -37,7 +20,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public final static String MARKDOWN_ENABLED = "cc-markdown-enabled";
     public final static String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
     public final static String LIST_REFRESH_ENABLED = "cc-list-refresh";
-
+    public final static String HOME_REPORT_ENABLED = "cc-home-report";
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -50,11 +33,16 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      */
     public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
 
-    public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
-    public static final String KEY_USE_SMART_INFLATION = "cc-use-smart-inflation";
-    private static final String KEY_TARGET_DENSITY = "cc-target-density";
+    /**
+     * The current default for constraint checking during form saving (as of
+     * CommCare 2.24) is to re-answer all the questions, causing a lot of
+     * triggers to fire. We probably don't need to do this, but it is hard to
+     * know, so allow the adventurous to use form saving that doesn't re-fire
+     * triggers.
+     */
+    public final static String FIRE_TRIGGERS_ON_SAVE = "cc-fire-triggers-on-save";
 
-    private static final String DEFAULT_TARGET_DENSITY = "" + DisplayMetrics.DENSITY_DEFAULT;
+    public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +61,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         if (key.equals(ENABLE_AUTO_LOGIN) &&
                 (sharedPreferences.getString(ENABLE_AUTO_LOGIN, CommCarePreferences.NO).equals(CommCarePreferences.NO))) {
             DevSessionRestorer.clearPassword(sharedPreferences);
+            DevSessionRestorer.clearSession(sharedPreferences);
         }
     }
 
@@ -154,6 +143,11 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         return properties.getString(NEWEST_APP_VERSION_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
+    public static boolean shouldFireTriggersOnSave() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(FIRE_TRIGGERS_ON_SAVE, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+
     public static boolean isAutoLoginEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(ENABLE_AUTO_LOGIN, CommCarePreferences.NO).equals(CommCarePreferences.YES);
@@ -167,15 +161,10 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         return doesPropertyMatch(ALTERNATE_QUESTION_LAYOUT_ENABLED, CommCarePreferences.NO,
                 CommCarePreferences.YES);
     }
-
-    public static boolean isSmartInflationEnabled() {
-        return doesPropertyMatch(KEY_USE_SMART_INFLATION, CommCarePreferences.NO,
+                
+    public static boolean isHomeReportEnabled() {
+        return doesPropertyMatch(HOME_REPORT_ENABLED, CommCarePreferences.NO,
                 CommCarePreferences.YES);
-    }
-
-    public static int getTargetInflationDensity() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return Integer.parseInt(properties.getString(KEY_TARGET_DENSITY, DEFAULT_TARGET_DENSITY));
     }
 
 }

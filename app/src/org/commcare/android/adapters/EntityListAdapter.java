@@ -577,7 +577,9 @@ public class EntityListAdapter implements ListAdapter {
 
     @Override
     public void registerDataSetObserver(DataSetObserver observer) {
-        this.observers.add(observer);
+        if (!observers.contains(observer)) {
+            this.observers.add(observer);
+        }
     }
 
     @Override

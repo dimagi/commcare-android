@@ -31,9 +31,6 @@ import org.javarosa.core.services.Logger;
 @ManagedUi(R.layout.screen_recovery)
 public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActivity> {
     
-    private static final int SEND_TASK_ID = 100;
-    private static final int RECOVER_TASK_ID = 101;
-
     @UiElement(R.id.screen_recovery_unsent_message)
     TextView txtUnsentForms;
     
@@ -53,10 +50,8 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        if(this.getDestroyedActivityState() != null) {
-            //We just rotated or whatever, don't re-initialize everything
-        } else {
-            //Fresh Start, statewise.
+        if (savedInstanceState == null) {
+            // launching activity, not just changing orientation
             updateSendFormsState();
             updateRecoverAppState();
         }
@@ -70,7 +65,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                 SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
                 
                 ProcessAndSendTask<RecoveryActivity> mProcess = new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this, settings.getString("PostURL", 
-                        RecoveryActivity.this.getString(R.string.PostURL)), SEND_TASK_ID, true){
+                        RecoveryActivity.this.getString(R.string.PostURL)), true){
 
                     @Override
                     protected void onPreExecute() {
@@ -81,6 +76,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                     @Override
                     protected void deliverResult(RecoveryActivity receiver, Integer result) {
                          if(result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
+
                             receiver.displayMessage("Log-in expired during send. Please press back and log in again");
                             return;
                         }

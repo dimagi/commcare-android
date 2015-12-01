@@ -61,6 +61,7 @@ import org.commcare.android.references.ArchiveFileRoot;
 import org.commcare.android.references.AssetFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
 import org.commcare.android.resource.ResourceInstallUtils;
+import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ExceptionReportTask;
@@ -899,7 +900,11 @@ public class CommCareApplication extends MultiDexApplication {
                     if (user != null) {
                         mBoundService.startSession(user);
                         attachCallListener();
-                        CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
+                        if (DevSessionRestorer.autoLoginEnabled()) {
+                            CommCareApplication.this.sessionWrapper = DevSessionRestorer.restoreSessionFromPrefs(getCommCarePlatform());
+                        } else {
+                            CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
+                        }
 
                         if (shouldAutoUpdate()) {
                             startAutoUpdate();

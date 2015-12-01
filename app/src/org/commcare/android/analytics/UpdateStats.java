@@ -184,9 +184,12 @@ public class UpdateStats implements InstallStatsLogger, Serializable {
     private static String serialize(Serializable o) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
-        oos.writeObject(o);
-        oos.close();
-        return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+        try {
+            oos.writeObject(o);
+            return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+        } finally {
+            oos.close();
+        }
     }
 
     public int getRestartCount() {
