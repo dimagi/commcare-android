@@ -61,7 +61,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         if (key.equals(ENABLE_AUTO_LOGIN) &&
                 (sharedPreferences.getString(ENABLE_AUTO_LOGIN, CommCarePreferences.NO).equals(CommCarePreferences.NO))) {
             DevSessionRestorer.clearPassword(sharedPreferences);
-            DevSessionRestorer.clearSession(sharedPreferences);
         }
     }
 
