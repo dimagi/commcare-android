@@ -31,7 +31,7 @@ public class GraphActivity extends CommCareActivity {
         }
 
         String html = extras.getString(GraphView.HTML);
-        GraphView mView = new GraphView(this, title, true);
+        GraphView view = new GraphView(this, title, true);
         try {
             WebView view = (WebView) mView.getView(html);
             setContentView(view);
