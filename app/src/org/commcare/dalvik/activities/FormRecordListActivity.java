@@ -31,6 +31,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.adapters.IncompleteFormListAdapter;
+import org.commcare.android.analytics.GoogleAnalyticsFields;
+import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -90,6 +92,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     private MenuItem searchItem;
 
     private View.OnClickListener barcodeScanOnClickListener;
+
+    private boolean incompleteMode;
 
     public enum FormRecordFilter {
 
@@ -176,6 +180,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         if (this.getIntent().hasExtra(FormRecord.META_STATUS)) {
             String incomingFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
             if (incomingFilter.equals(FormRecord.STATUS_INCOMPLETE)) {
+                incompleteMode = true;
                 //special case, no special filtering options
                 adapter.setFormFilter(FormRecordFilter.Incomplete);
             }
@@ -360,6 +365,11 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
      */
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
+        if (incompleteMode) {
+            GoogleAnalyticsUtils.reportOpenSavedForm(GoogleAnalyticsFields.LABEL_INCOMPLETE);
+        } else {
+            GoogleAnalyticsUtils.reportOpenSavedForm(GoogleAnalyticsFields.LABEL_COMPLETE);
+        }
         returnItem(position);
     }
 

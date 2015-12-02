@@ -13,6 +13,7 @@ public final class GoogleAnalyticsFields {
     public static String CATEGORY_CC_PREFS = "CommCare Preferences";
     public static String CATEGORY_FORM_PREFS = "Form Entry Preferences";
     public static String CATEGORY_SERVER_COMMUNICATION = "Server Communication";
+    public static String CATEGORY_SAVED_FORMS = "Saved Forms";
 
     // Actions for multiple categories
     public static String ACTION_OPTIONS_MENU = "Open Options Menu";
@@ -31,6 +32,10 @@ public final class GoogleAnalyticsFields {
     // Actions for CATEGORY_SERVER_COMMUNICATION only
     public static String ACTION_USER_SYNC_ATTEMPT = "User Sync Attempt";
     public static String ACTION_AUTO_SYNC_ATTEMPT = "Auto Sync Attempt";
+
+    // Actions for CATEGORY_SAVED_FORMS only
+    public static String ACTION_VIEW_SAVED_FORMS = "View Saved Forms List";
+    public static String ACTION_OPEN_SAVED_FORM = "Open a Saved Form";
 
     // Labels for ACTION_BUTTON
     public static String LABEL_START = "Start Button";
@@ -80,6 +85,10 @@ public final class GoogleAnalyticsFields {
     // Labels for ACTION_USER_SYNC_ATTEMPT and ACTION_AUTO_SYNC_ATTEMPT
     public static String LABEL_SYNC_SUCCESS;
     public static String LABEL_SYNC_FAILURE;
+
+    // Labels for ACTION_VIEW_SAVED_FORMS and ACTION_OPEN_SAVED_FORM
+    public static String LABEL_INCOMPLETE = "Incomplete";
+    public static String LABEL_COMPLETE = "Complete";
 
     // Values for LABEL_SYNC_SUCCESS
     public static int VALUE_JUST_PULL_DATA = 0;

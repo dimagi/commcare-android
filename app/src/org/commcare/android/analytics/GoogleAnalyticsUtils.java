@@ -97,6 +97,16 @@ public class GoogleAnalyticsUtils {
         reportAction(GoogleAnalyticsFields.CATEGORY_SERVER_COMMUNICATION, action, label, value);
     }
 
+    public static void reportViewSavedForms(String label) {
+        reportAction(GoogleAnalyticsFields.CATEGORY_SAVED_FORMS,
+                GoogleAnalyticsFields.ACTION_VIEW_SAVED_FORMS, label);
+    }
+
+    public static void reportOpenSavedForm(String label) {
+        reportAction(GoogleAnalyticsFields.CATEGORY_SAVED_FORMS,
+                GoogleAnalyticsFields.ACTION_OPEN_SAVED_FORM, label);
+    }
+
     private static Tracker getTracker(String screenName) {
         Tracker t = CommCareApplication._().getDefaultTracker();
         t.setScreenName(screenName);
