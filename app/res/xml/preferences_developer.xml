@@ -49,6 +49,12 @@
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-enable-session-saving"
+        android:title="Enable Session Saving" />
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
         android:key="cc-css-enabled"
         android:title="CSS Enabled" />
     <ListPreference

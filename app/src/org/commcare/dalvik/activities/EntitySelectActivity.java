@@ -40,8 +40,8 @@ import android.widget.Toast;
 
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.fragments.ContainerFragment;
-import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UserfacingErrorHandling;
+import org.commcare.android.framework.SaveSessionCommCareActivity;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
@@ -89,7 +89,7 @@ import java.util.TimerTask;
  *
  * @author ctsims
  */
-public class EntitySelectActivity extends SessionAwareCommCareActivity
+public class EntitySelectActivity extends SaveSessionCommCareActivity
         implements TextWatcher,
         EntityLoaderListener,
         OnItemClickListener,
@@ -108,9 +108,9 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
     private static final int BARCODE_FETCH = 1;
     private static final int CALLOUT = 3;
 
-    private static final int MENU_SORT = Menu.FIRST;
-    private static final int MENU_MAP = Menu.FIRST + 1;
-    private static final int MENU_ACTION = Menu.FIRST + 2;
+    private static final int MENU_SORT = Menu.FIRST + 1;
+    private static final int MENU_MAP = Menu.FIRST + 2;
+    private static final int MENU_ACTION = Menu.FIRST + 3;
 
     private EditText searchbox;
     private TextView searchResultStatus;
