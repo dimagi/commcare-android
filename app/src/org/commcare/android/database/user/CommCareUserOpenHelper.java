@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.database.user;
 
 import android.content.Context;
@@ -47,9 +44,9 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 
-    private Context context;
+    private final Context context;
 
-    private String mUserId;
+    private final String mUserId;
 
     public CommCareUserOpenHelper(Context context, String userId) {
         super(context, getDbName(userId), null, USER_DB_VERSION);
@@ -144,13 +141,10 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
                         CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense")) {
                     inSenseMode = true;
                 }
-            } else {
-                //Hold off on update?
             }
         } catch (Exception e) {
 
         }
         new UserDatabaseUpgrader(context, inSenseMode).upgrade(db, oldVersion, newVersion);
     }
-
 }

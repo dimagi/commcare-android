@@ -58,11 +58,6 @@ public class MediaLayout extends RelativeLayout {
 
     public void setAVT(TextView text, String audioURI, String imageURI,
                        final String videoURI, final String bigImageURI) {
-        setAVT(text, audioURI, imageURI, videoURI, bigImageURI, null);
-    }
-
-    public void setAVT(TextView text, String audioURI, String imageURI,
-                       final String videoURI, final String bigImageURI, final String qrCodeContent) {
         setAVT(text, audioURI, imageURI, videoURI, bigImageURI, null, null);
     }
 
@@ -209,7 +204,7 @@ public class MediaLayout extends RelativeLayout {
                     Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI, maxBounds[0],
                                 maxBounds[1]);
                     if (b != null) {
-                        ImageView mImageView = new ImageView(getContext());;
+                        ImageView mImageView = new ImageView(getContext());
                         if (useResizingImageView()) {
                             mImageView = new ResizingImageView(getContext(), imageURI, bigImageURI);
                             mImageView.setAdjustViewBounds(true);
@@ -285,7 +280,7 @@ public class MediaLayout extends RelativeLayout {
      *                         mutated by this method
      */
     private View getInlineVideoView(String inlineVideoURI, RelativeLayout.LayoutParams viewLayoutParams) {
-        String error = null;
+        String error;
         try {
             final String videoFilename = ReferenceManager._().DeriveReference(inlineVideoURI).getLocalURI();
 

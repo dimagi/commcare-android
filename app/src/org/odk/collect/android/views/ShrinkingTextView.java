@@ -15,21 +15,20 @@ import android.widget.TextView;
 
 /**
  * @author ctsims
- *
  */
 public class ShrinkingTextView extends TextView {
     
-    boolean mExpanded = false;
-    boolean mInteractive = true;
-    int mAnimationDuration = 500;
+    private boolean mExpanded = false;
+    private boolean mInteractive = true;
+    private static final int mAnimationDuration = 500;
     
-    ExpandAnimation mCurrentAnimation;
+    private ExpandAnimation mCurrentAnimation;
     
-    int mFullHeight = -1;
-    int mMaxHeight;
-    int mSetMaxHeight = -1;
+    private int mFullHeight = -1;
+    private int mMaxHeight;
+    private int mSetMaxHeight = -1;
     
-    int mAnimatingHeight= -1;
+    private int mAnimatingHeight= -1;
 
     public ShrinkingTextView(Context context, int max) {
         super(context);
@@ -64,11 +63,8 @@ public class ShrinkingTextView extends TextView {
             
             if(countUp + tH < contentHeight) {
                 countUp = countUp + tH;
-            } else {
-                //countUp -= (lH - tH);
             }
-            
-                
+
             mMaxHeight = (int)(countUp + contentHeightAdj);
         }
         
@@ -79,7 +75,6 @@ public class ShrinkingTextView extends TextView {
         this.requestLayout();
     }
 
-    
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
@@ -163,10 +158,7 @@ public class ShrinkingTextView extends TextView {
     }
 
     private boolean isAnimating() {
-        if(mCurrentAnimation == null || mCurrentAnimation.hasEnded() || !mCurrentAnimation.hasStarted()){
-            return false;
-        }
-        return true;
+        return !(mCurrentAnimation == null || mCurrentAnimation.hasEnded() || !mCurrentAnimation.hasStarted());
     }
 
     private class ExpandAnimation extends Animation {

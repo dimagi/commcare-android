@@ -17,19 +17,18 @@ import java.util.Date;
 
 /**
  * @author ctsims
- *
  */
 public abstract class KeyRecordParser extends TransactionParser<ArrayList<UserKeyRecord>> {
     
-    String username;
-    String currentpwd;
-    ArrayList<UserKeyRecord> keyRecords;
+    private final String username;
+    private final String currentpwd;
+    private final ArrayList<UserKeyRecord> keyRecords;
 
-    public KeyRecordParser(KXmlParser parser, String username, String currentpwd, ArrayList<UserKeyRecord> keyRecords) {
+    public KeyRecordParser(KXmlParser parser, String username, String currentpwd) {
         super(parser);
         this.username = username;
         this.currentpwd = currentpwd;
-        this.keyRecords = new ArrayList<UserKeyRecord>();
+        this.keyRecords = new ArrayList<>();
     }
 
     @Override
@@ -47,14 +46,14 @@ public abstract class KeyRecordParser extends TransactionParser<ArrayList<UserKe
             
             this.nextTag("uuid");
             
-            String title = parser.getAttributeValue(null, "title");
+            parser.getAttributeValue(null, "title");
             String uuid = parser.nextText();
             if(uuid == null) { throw new InvalidStructureException("No <uuid> value found for incoming key record", parser); } 
             
             this.nextTag("key");
             
             //We don't really use this for now
-            String type = parser.getAttributeValue(null, "type");
+            parser.getAttributeValue(null, "type");
     
             //Base64 Encoded AES key
             String encodedKey = parser.nextText();
@@ -76,10 +75,8 @@ public abstract class KeyRecordParser extends TransactionParser<ArrayList<UserKe
         commit(keyRecords);
         return keyRecords;
     }
-    
-    
+
     protected Date parseDateTime(String dateValue) {
         return ISODateTimeFormat.dateTimeNoMillis().parseDateTime(dateValue).toDate();
     }
-
 }

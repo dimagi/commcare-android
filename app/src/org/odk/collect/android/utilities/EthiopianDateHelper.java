@@ -19,19 +19,16 @@ import java.util.Date;
 
 public class EthiopianDateHelper {
 
-    private final static String TAG = EthiopianDateHelper.class.getSimpleName();
-    
-    public static String ConvertToEthiopian(Context context, int gregorianYear, int gregorianMonth, int gregorianDay){
+    private static String ConvertToEthiopian(Context context, int gregorianYear, int gregorianMonth, int gregorianDay){
         Chronology chron_eth = EthiopicChronology.getInstance();
         Chronology chron_greg = GregorianChronology.getInstance();
         DateTime jodaDateTime = new DateTime(gregorianYear, gregorianMonth, gregorianDay, 0, 0, 0, chron_greg);
         DateTime dtEthiopic = jodaDateTime.withChronology(chron_eth);
         String[] monthsArray = context.getResources().getStringArray(R.array.ethiopian_months);
-        
-        String dateInEthiopian = dtEthiopic.getDayOfMonth() + " " 
-                                + monthsArray[dtEthiopic.getMonthOfYear()-1] + " "
-                                + dtEthiopic.getYear();
-        return dateInEthiopian;
+
+        return dtEthiopic.getDayOfMonth() + " "
+                + monthsArray[dtEthiopic.getMonthOfYear() - 1] + " "
+                + dtEthiopic.getYear();
     }
 
     public static Object ConvertToEthiopian(Context context, Date d) {

@@ -4,14 +4,13 @@ package org.odk.collect.android.views.media;
  * Used to represent the unique id of each view in a ListAdapter
  * 
  * @author amstone326
- *
  */
 
 public class ViewId {
     
-    private long rowId;
-    private long colId;
-    private boolean isDetail;
+    private final long rowId;
+    private final long colId;
+    private final boolean isDetail;
     
     public ViewId(long a, long b, boolean isDetail) {
         rowId = a;
@@ -24,16 +23,16 @@ public class ViewId {
         return "(" + getRow() + "," + getCol() + "," + getDetailBool() + ")";  
     }
 
-    
-    public boolean getDetailBool() {
+
+    private boolean getDetailBool() {
         return isDetail;
     }
     
-    public long getRow() {
+    private long getRow() {
         return rowId;
     }
     
-    public long getCol() {
+    private long getCol() {
         return colId;
     }
 
@@ -64,8 +63,4 @@ public class ViewId {
             return false;
         return true;
     }
-    
-    
-
-
 }

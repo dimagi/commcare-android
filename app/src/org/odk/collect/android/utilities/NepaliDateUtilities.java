@@ -15,7 +15,7 @@ public class NepaliDateUtilities {
     
     private static final SparseArray<int[]> NEPALI_YEAR_MONTHS = new SparseArray<int[]>();
     
-    public static final int MIN_YEAR = 1970;
+    private static final int MIN_YEAR = 1970;
     
     /*
      * Nepali calendar system has no discernible cyclic month pattern, so we must manually
@@ -147,11 +147,11 @@ public class NepaliDateUtilities {
         NEPALI_YEAR_MONTHS.put(2090, new int[] { 0, 30, 32, 31, 32, 31, 30, 30, 30, 29, 30, 30, 30 });
     }
 
-    public static final int MAX_YEAR = 2090;
+    private static final int MAX_YEAR = 2090;
 
     // milliseconds from Java epoch to minimum known Nepali date, as entered above
     // (negative)
-    private static long MIN_MILLIS_FROM_JAVA_EPOCH =
+    private static final long MIN_MILLIS_FROM_JAVA_EPOCH =
             -countDaysFromMinDay(2026, 9, 17) * MILLIS_IN_DAY;
 
     /**

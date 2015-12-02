@@ -35,7 +35,6 @@ import org.javarosa.core.services.locale.Localization;
 public class SingleAppManagerActivity extends Activity {
 
     private ApplicationRecord appRecord;
-    private AlertDialog dialog;
     private static final int LOGOUT_FOR_UPDATE = 0;
     private static final int LOGOUT_FOR_VERIFY_MM = 1;
     private static final int LOGOUT_FOR_ARCHIVE = 2;

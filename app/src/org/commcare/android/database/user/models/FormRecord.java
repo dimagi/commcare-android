@@ -83,9 +83,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
     @MetaField(META_LAST_MODIFIED)
     private Date lastModified;
 
-    //Placeholder
-    private Hashtable<String, String> metadata = null;
-
     public FormRecord() {
     }
 
@@ -149,12 +146,6 @@ public class FormRecord extends Persisted implements EncryptedModel {
 
     public boolean isBlobEncrypted() {
         return true;
-    }
-
-    String[] cached;
-
-    private void decache() throws SessionUnavailableException {
-
     }
 
     /**

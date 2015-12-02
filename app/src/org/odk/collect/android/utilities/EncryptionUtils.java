@@ -50,13 +50,13 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class EncryptionUtils {
     private static final String t = "EncryptionUtils";
-    public static final String RSA_ALGORITHM = "RSA";
+    private static final String RSA_ALGORITHM = "RSA";
     // the symmetric key we are encrypting with RSA is only 256 bits... use SHA-256
-    public static final String ASYMMETRIC_ALGORITHM = "RSA/NONE/OAEPWithSHA256AndMGF1Padding"; 
-    public static final String SYMMETRIC_ALGORITHM = "AES/CFB/PKCS5Padding";
-    public static final String UTF_8 = "UTF-8";
-    public static final int SYMMETRIC_KEY_LENGTH = 256;
-    public static final int IV_BYTE_LENGTH = 16;
+    private static final String ASYMMETRIC_ALGORITHM = "RSA/NONE/OAEPWithSHA256AndMGF1Padding";
+    private static final String SYMMETRIC_ALGORITHM = "AES/CFB/PKCS5Padding";
+    private static final String UTF_8 = "UTF-8";
+    private static final int SYMMETRIC_KEY_LENGTH = 256;
+    private static final int IV_BYTE_LENGTH = 16;
 
     // tags in the submission manifest
 
@@ -106,9 +106,8 @@ public class EncryptionUtils {
             SecureRandom r = new SecureRandom();
             byte[] key = new byte[SYMMETRIC_KEY_LENGTH/8];
             r.nextBytes(key);
-            SecretKeySpec sk = new SecretKeySpec(key, SYMMETRIC_ALGORITHM);
-            symmetricKey = sk;
-        
+            symmetricKey = new SecretKeySpec(key, SYMMETRIC_ALGORITHM);
+
             // construct the fixed portion of the iv -- the ivSeedArray
             // this is the md5 hash of the instanceID and the symmetric key
             try {
@@ -120,11 +119,7 @@ public class EncryptionUtils {
                 for ( int i = 0 ; i < IV_BYTE_LENGTH ; ++i ) {
                     ivSeedArray[i] = messageDigest[(i % messageDigest.length)];
                 }
-            } catch (NoSuchAlgorithmException e) {
-                Log.e(t, e.toString());
-                e.printStackTrace();
-                throw new IllegalArgumentException(e.getMessage());
-            } catch (UnsupportedEncodingException e) {
+            } catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
                 Log.e(t, e.toString());
                 e.printStackTrace();
                 throw new IllegalArgumentException(e.getMessage());
@@ -142,23 +137,9 @@ public class EncryptionUtils {
                 base64RsaEncryptedSymmetricKey = wrapper
                         .encodeToString(pkEncryptedKey);
 
-            } catch (NoSuchAlgorithmException e) {
-                Log.e(t, "Unable to encrypt the symmetric key");
-                e.printStackTrace();
-                throw new IllegalArgumentException(e.getMessage());
-            } catch (NoSuchPaddingException e) {
-                Log.e(t, "Unable to encrypt the symmetric key");
-                e.printStackTrace();
-                throw new IllegalArgumentException(e.getMessage());
-            } catch (InvalidKeyException e) {
-                Log.e(t, "Unable to encrypt the symmetric key");
-                e.printStackTrace();
-                throw new IllegalArgumentException(e.getMessage());
-            } catch (IllegalBlockSizeException e) {
-                Log.e(t, "Unable to encrypt the symmetric key");
-                e.printStackTrace();
-                throw new IllegalArgumentException(e.getMessage());
-            } catch (BadPaddingException e) {
+            } catch (BadPaddingException | IllegalBlockSizeException
+                    | InvalidKeyException | NoSuchPaddingException
+                    | NoSuchAlgorithmException e) {
                 Log.e(t, "Unable to encrypt the symmetric key");
                 e.printStackTrace();
                 throw new IllegalArgumentException(e.getMessage());
@@ -227,23 +208,9 @@ public class EncryptionUtils {
                 byte[] pkEncryptedKey = pkCipher.doFinal(messageDigest);
                 return wrapper.encodeToString(pkEncryptedKey);
 
-            } catch (NoSuchAlgorithmException e) {
-                Log.e(t, "Unable to encrypt the symmetric key");
-                e.printStackTrace();
-                throw new IllegalArgumentException(e.getMessage());
-            } catch (NoSuchPaddingException e) {
-                Log.e(t, "Unable to encrypt the symmetric key");
-                e.printStackTrace();
-                throw new IllegalArgumentException(e.getMessage());
-            } catch (InvalidKeyException e) {
-                Log.e(t, "Unable to encrypt the symmetric key");
-                e.printStackTrace();
-                throw new IllegalArgumentException(e.getMessage());
-            } catch (IllegalBlockSizeException e) {
-                Log.e(t, "Unable to encrypt the symmetric key");
-                e.printStackTrace();
-                throw new IllegalArgumentException(e.getMessage());
-            } catch (BadPaddingException e) {
+            } catch (BadPaddingException | IllegalBlockSizeException
+                    | InvalidKeyException | NoSuchPaddingException
+                    | NoSuchAlgorithmException e) {
                 Log.e(t, "Unable to encrypt the symmetric key");
                 e.printStackTrace();
                 throw new IllegalArgumentException(e.getMessage());
@@ -279,7 +246,7 @@ public class EncryptionUtils {
 
         Cursor formCursor = null;
         try {
-            if (cr.getType(mUri) == InstanceProviderAPI.InstanceColumns.CONTENT_ITEM_TYPE) {
+            if (InstanceProviderAPI.InstanceColumns.CONTENT_ITEM_TYPE.equals(cr.getType(mUri))) {
                 // chain back to the Form record...
                 String[] selectionArgs = null;
                 Cursor instanceCursor = null;
@@ -307,7 +274,7 @@ public class EncryptionUtils {
                     return null; // save unencrypted
                 }
                 formCursor.moveToFirst();
-            } else if (cr.getType(mUri) == FormsProviderAPI.FormsColumns.CONTENT_ITEM_TYPE) {
+            } else if (FormsProviderAPI.FormsColumns.CONTENT_ITEM_TYPE.equals(cr.getType(mUri))) {
                 formCursor = cr.query(mUri, null, null, null, null);
                 if ( formCursor.getCount() != 1 ) {
                     Log.e(t, "Not exactly one blank form!");
@@ -417,27 +384,9 @@ public class EncryptionUtils {
             Log.i(t,
                     "Encrpyted:" + file.getName() + " -> "
                             + encryptedFile.getName());
-        } catch (IOException e) {
-            Log.e(t, "Error encrypting: " + file.getName() + " -> "
-                    + encryptedFile.getName());
-            e.printStackTrace();
-            throw e;
-        } catch (NoSuchAlgorithmException e) {
-            Log.e(t, "Error encrypting: " + file.getName() + " -> "
-                    + encryptedFile.getName());
-            e.printStackTrace();
-            throw e;
-        } catch (NoSuchPaddingException e) {
-            Log.e(t, "Error encrypting: " + file.getName() + " -> "
-                    + encryptedFile.getName());
-            e.printStackTrace();
-            throw e;
-        } catch (InvalidKeyException e) {
-            Log.e(t, "Error encrypting: " + file.getName() + " -> "
-                    + encryptedFile.getName());
-            e.printStackTrace();
-            throw e;
-        } catch (InvalidAlgorithmParameterException e) {
+        } catch (InvalidAlgorithmParameterException | InvalidKeyException
+                | NoSuchPaddingException | NoSuchAlgorithmException
+                | IOException e) {
             Log.e(t, "Error encrypting: " + file.getName() + " -> "
                     + encryptedFile.getName());
             e.printStackTrace();
@@ -477,7 +426,7 @@ public class EncryptionUtils {
         // encrypt files that do not end with ".enc", and do not start with ".";
         // ignore directories
         File[] allFiles = instanceDir.listFiles();
-        List<File> filesToProcess = new ArrayList<File>();
+        List<File> filesToProcess = new ArrayList<>();
         for (File f : allFiles) {
             if (f.equals(instanceXml))
                 continue; // don't touch restore file
@@ -553,10 +502,7 @@ public class EncryptionUtils {
 
         // Step 2: build the encrypted-submission manifest (overwrites
         // submission.xml)...
-        if (!writeSubmissionManifest(formInfo, submissionXml, mediaFiles)) {
-            return false;
-        }
-        return true;
+        return writeSubmissionManifest(formInfo, submissionXml, mediaFiles);
     }
     
     private static boolean writeSubmissionManifest(

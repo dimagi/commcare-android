@@ -197,7 +197,7 @@ public class CommCareVerificationActivity
             if (problemList.containsKey(res)) {
                 list = problemList.get(res);
             } else {
-                list = new Vector<String>();
+                list = new Vector<>();
             }
             list.addElement(ure.getMessage());
 

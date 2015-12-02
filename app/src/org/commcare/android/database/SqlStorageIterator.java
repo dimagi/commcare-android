@@ -23,7 +23,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
      * only for use by subclasses which re-implement this behavior strategically (Note: Should be an interface pullout
      * not a subclass)
      */
-    protected SqlStorageIterator() {
+    SqlStorageIterator() {
 
     }
 
@@ -105,20 +105,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
     }
 
     public int peekID() {
-        int id = c.getInt(c.getColumnIndexOrThrow(DbUtil.ID_COL));
-        return id;
-    }
-
-    //TESTING ONLY
-
-    private byte[] getBlob() {
-        byte[] data = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
-
-        return data;
-    }
-
-    private Cursor getRawCursor() {
-        return c;
+        return c.getInt(c.getColumnIndexOrThrow(DbUtil.ID_COL));
     }
 
     public String getPrimaryId() {

@@ -10,7 +10,7 @@ import android.media.MediaPlayer;
  * @author amstone326
  */
 
-public class MediaEntity {
+class MediaEntity {
 
     private final String source;
     private final ViewId idOfOriginView;
@@ -36,7 +36,7 @@ public class MediaEntity {
         this.MediaState = state;
     }
 
-    protected MediaPlayer getPlayer() {
+    MediaPlayer getPlayer() {
         return player;
     }
 

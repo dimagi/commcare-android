@@ -252,7 +252,7 @@ public class AndroidResourceManager extends ResourceManager {
         }, exponentionalRetryDelay(numberOfRestarts));
     }
 
-    protected void launchRetryTask(Context ctx) {
+    private void launchRetryTask(Context ctx) {
         String ref = ResourceInstallUtils.getDefaultProfileRef();
         try {
             if (canUpdateRetryRun()) {

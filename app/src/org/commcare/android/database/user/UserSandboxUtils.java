@@ -76,7 +76,7 @@ public class UserSandboxUtils {
 
             //TODO: At some point we should really just encode the existence/operations on files in the record models themselves
             //Models with Files: Form Record. Log Record
-            SqlStorage<DeviceReportRecord> reports = new SqlStorage<DeviceReportRecord>(DeviceReportRecord.STORAGE_KEY, DeviceReportRecord.class, dbh);
+            SqlStorage<DeviceReportRecord> reports = new SqlStorage<>(DeviceReportRecord.STORAGE_KEY, DeviceReportRecord.class, dbh);
 
             //Log records
             for (DeviceReportRecord r : reports) {
@@ -93,7 +93,7 @@ public class UserSandboxUtils {
 
             //Form records are sadly a bit more complex. We need to both move all of the files, 
             //insert a new record in the content provider, and then update the form record.
-            SqlStorage<FormRecord> formRecords = new SqlStorage<FormRecord>(FormRecord.STORAGE_KEY, FormRecord.class, dbh);
+            SqlStorage<FormRecord> formRecords = new SqlStorage<>(FormRecord.STORAGE_KEY, FormRecord.class, dbh);
             for (FormRecord record : formRecords) {
                 Uri instanceURI = record.getInstanceURI();
 
@@ -174,8 +174,8 @@ public class UserSandboxUtils {
 
     public static String getSqlCipherEncodedKey(byte[] bytes) {
         String hexString = "x\"";
-        for (int i = 0; i < bytes.length; i++) {
-            String hexDigits = Integer.toHexString(0xFF & bytes[i]).toUpperCase();
+        for (byte aByte : bytes) {
+            String hexDigits = Integer.toHexString(0xFF & aByte).toUpperCase();
             while (hexDigits.length() < 2) {
                 hexDigits = "0" + hexDigits;
             }
@@ -210,7 +210,7 @@ public class UserSandboxUtils {
                 }
             };
 
-            SqlStorage<DeviceReportRecord> reports = new SqlStorage<DeviceReportRecord>(DeviceReportRecord.STORAGE_KEY, DeviceReportRecord.class, dbh);
+            SqlStorage<DeviceReportRecord> reports = new SqlStorage<>(DeviceReportRecord.STORAGE_KEY, DeviceReportRecord.class, dbh);
 
             //Log records
             for (DeviceReportRecord r : reports) {
@@ -224,7 +224,7 @@ public class UserSandboxUtils {
 
             //Form records are sadly a bit more complex. We need to both move all of the files, 
             //insert a new record in the content provider, and then update the form record.
-            SqlStorage<FormRecord> formRecords = new SqlStorage<FormRecord>(FormRecord.STORAGE_KEY, FormRecord.class, dbh);
+            SqlStorage<FormRecord> formRecords = new SqlStorage<>(FormRecord.STORAGE_KEY, FormRecord.class, dbh);
             for (FormRecord record : formRecords) {
                 Uri formUri = record.getInstanceURI();
                 if (formUri == null) {

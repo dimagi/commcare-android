@@ -25,15 +25,14 @@ import dalvik.system.DexFile;
 public class DbUtil {
     private static final String TAG = DbUtil.class.getSimpleName();
     
-    public static String ID_COL = "commcare_sql_id";
-    public static String DATA_COL = "commcare_sql_record";
+    public static final String ID_COL = "commcare_sql_id";
+    public static final String DATA_COL = "commcare_sql_record";
     
     private static PrototypeFactory factory;
 
     public static void setDBUtilsPrototypeFactory(PrototypeFactory factory) {
         DbUtil.factory = factory;
     }
-
 
     /**
      * Basically this is our PrototypeManager for Android
@@ -70,7 +69,7 @@ public class DbUtil {
     private static List<String> getClasses(String[] packageNames, Context c)
            throws IOException 
    {
-       ArrayList<String> classNames = new ArrayList<String>();
+       ArrayList<String> classNames = new ArrayList<>();
        
        String zpath = c.getApplicationInfo().sourceDir;
        
@@ -111,9 +110,9 @@ public class DbUtil {
            } catch(IllegalAccessError e) {
                //nothing
            } catch (SecurityException e) {
-               
+
            } catch(Exception e) {
-               
+
            } catch(Error e) {
                
            }
@@ -169,7 +168,7 @@ public class DbUtil {
     public static void explainSql(SQLiteDatabase handle, String sql, String[] args) {
         Cursor explain = handle.rawQuery("EXPLAIN QUERY PLAN " + sql, args);
         Log.d(TAG, "SQL: " + sql);
-        DatabaseUtils.dumpCursor((net.sqlcipher.Cursor)explain);
+        DatabaseUtils.dumpCursor(explain);
         explain.close();
     }
 }

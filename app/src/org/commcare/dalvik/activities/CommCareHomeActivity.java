@@ -490,8 +490,7 @@ public class CommCareHomeActivity
         boolean neededDataUnchanged = session.getNeededData().equals(
                 intent.getStringExtra(KEY_PENDING_SESSION_DATA));
         String intentDatum = intent.getStringExtra(KEY_PENDING_SESSION_DATUM_ID);
-        boolean datumIdsUnchanged = intentDatum  == null ? true :
-                intentDatum.equals(session.getNeededDatum().getDataId());
+        boolean datumIdsUnchanged = intentDatum == null || intentDatum.equals(session.getNeededDatum().getDataId());
         return neededDataUnchanged && datumIdsUnchanged;
     }
 
