@@ -41,15 +41,11 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
     private MapController mMapController;
     private LocationManager mLocationManager;
     private Overlay mLocationOverlay;
-    private Overlay mGeoPointOverlay;
 
     private GeoPoint mGeoPoint;
     private Location mLocation;
-    private Button mAcceptLocation;
-    private Button mCancelLocation;
 
     private boolean mCaptureLocation = true;
-    private Button mShowLocation;
 
     private boolean mGPSOn = false;
     private boolean mNetworkOn = false;
@@ -69,7 +65,7 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
         }
 
         mMapView = (MapView) findViewById(R.id.mapview);
-        mCancelLocation = (Button) findViewById(R.id.cancel_location);
+        Button mCancelLocation = (Button)findViewById(R.id.cancel_location);
         mCancelLocation.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -106,7 +102,7 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
 
         if (mCaptureLocation) {
             mLocationStatus = (TextView) findViewById(R.id.location_status);
-            mAcceptLocation = (Button) findViewById(R.id.accept_location);
+            Button mAcceptLocation = (Button)findViewById(R.id.accept_location);
             mAcceptLocation.setOnClickListener(new OnClickListener() {
 
                 @Override
@@ -117,12 +113,12 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
 
         } else {
 
-            mGeoPointOverlay = new Marker(mGeoPoint);
+            Overlay mGeoPointOverlay = new Marker(mGeoPoint);
             mMapView.getOverlays().add(mGeoPointOverlay);
 
             ((Button) findViewById(R.id.accept_location)).setVisibility(View.GONE);
             ((TextView) findViewById(R.id.location_status)).setVisibility(View.GONE);
-            mShowLocation = ((Button) findViewById(R.id.show_location));
+            Button mShowLocation = ((Button)findViewById(R.id.show_location));
             mShowLocation.setVisibility(View.VISIBLE);
             mShowLocation.setOnClickListener(new OnClickListener() {
 

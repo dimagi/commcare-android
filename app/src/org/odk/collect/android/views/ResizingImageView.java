@@ -38,14 +38,14 @@ public class ResizingImageView extends ImageView {
     private int mMaxWidth;
     private int mMaxHeight;
 
-    GestureDetector gestureDetector;
-    ScaleGestureDetector scaleGestureDetector;
+    private final GestureDetector gestureDetector;
+    private final ScaleGestureDetector scaleGestureDetector;
 
-    String imageURI;
-    String bigImageURI;
+    private final String imageURI;
+    private final String bigImageURI;
 
     private float scaleFactor = 1.0f;
-    private float scaleFactorThreshhold = 1.2f;
+    private final static float scaleFactorThreshhold = 1.2f;
 
     public ResizingImageView(Context context) {
         this(context, null, null);
@@ -110,7 +110,7 @@ public class ResizingImageView extends ImageView {
         }
     }
 
-    public void setFullScreen(){
+    private void setFullScreen(){
         String imageFileURI;
 
         if(bigImageURI != null){
@@ -213,7 +213,7 @@ public class ResizingImageView extends ImageView {
         }
     }
     // helper method for algorithm above
-    public static float dipToPixels(Context context, float dipValue) {
+    private static float dipToPixels(Context context, float dipValue) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dipValue, metrics);
     }

@@ -70,8 +70,6 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     public static final String KEY_NUMBER_DUMPED ="wd_num_dumped";
 
-    public static final int UNZIP_TASK_ID = 392582;
-
     public WifiP2pManager mManager;
     public Channel mChannel;
     WiFiDirectBroadcastReceiver mReceiver;
@@ -181,7 +179,9 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         showDialog(this, "Transfer, Receive, Submit?", "Do you want to transfer, receive, or submit forms?");
     }
 
-    /*register the broadcast receiver */
+    /**
+     * register the broadcast receiver
+     */
     protected void onResume() {
         super.onResume();
 
@@ -209,7 +209,6 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     }
 
     public void hostGroup(){
-
         Logger.log(TAG, "Hosting Wi-fi direct group");
 
         final FileServerFragment fsFragment = (FileServerFragment) getSupportFragmentManager()
@@ -223,7 +222,6 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
             Logger.log(TAG, "returning because Wi-fi direct is not available");
             Toast.makeText(CommCareWiFiDirectActivity.this, "WiFi Direct is Off - Turn it on, and press the \"Host\" button",
                     Toast.LENGTH_SHORT).show();
-            //hostButton.setVisibility(View.VISIBLE);
             return;
         }
 
@@ -232,13 +230,6 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     public void changeState(){
         showDialog(this, "Send, Receive, Submit?", "Do you want to send, receive, or submit forms?");
-    }
-
-    public void hostWiFiGroup(){
-        Logger.log(TAG, "creating wi-fi group");
-        WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.wifi_manager_fragment);
-        mManager.createGroup(mChannel, fragment);
     }
 
     public void showDialog(Activity activity, String title, String message) {
@@ -491,7 +482,6 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     }
 
     public boolean unzipFilesHelper(){
-
         File receiveZipDir = new File(receiveDirectory);
         if(!receiveZipDir.exists() || !(receiveZipDir.isDirectory())){
             return false;
@@ -504,8 +494,8 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
         myStatusText.setText("Zip file exists, unzipping...");
 
-        for(int i=0; i< zipDirContents.length; i++){
-            unzipFiles(zipDirContents[i].getAbsolutePath());
+        for (File zipDirContent : zipDirContents) {
+            unzipFiles(zipDirContent.getAbsolutePath());
         }
 
         return true;
@@ -522,7 +512,6 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
                 Log.d(TAG, "delivering unzip result");
                 if(result > 0){
                     receiver.onUnzipSuccessful(result);
-                    return;
                 } else {
                     //assume that we've already set the error message, but make it look scary
                     receiver.transplantStyle(myStatusText, R.layout.template_text_notification_problem);
@@ -772,11 +761,9 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
             protected void deliverResult(CommCareWiFiDirectActivity receiver, FormRecord[] result) {
                 if(result != null){
                     receiver.onZipSuccesful(result);
-                    return;
                 } else {
                     receiver.onZipError();
                     receiver.transplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
-                    return;
                 }
             }
         };
@@ -802,13 +789,10 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
                     Boolean result) {
                 if(result == Boolean.TRUE){
                     receiver.onSendSuccessful();
-                    return;
                 } else {
                     receiver.onSendFail();
                     receiver.transplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
-                    return;
                 }
-
             }
 
             @Override
@@ -971,7 +955,6 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
                     + "any valid possibilities in CommCareWifiDirectActivity");
             return null;
         }
-        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
-        return dialog;
+        return CustomProgressDialog.newInstance(title, message, taskId);
     }
 }

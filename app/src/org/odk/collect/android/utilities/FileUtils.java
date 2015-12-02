@@ -14,11 +14,6 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.xform.parse.XFormParseException;
-import org.javarosa.xform.parse.XFormParser;
-import org.kxml2.kdom.Document;
-import org.kxml2.kdom.Element;
-import org.kxml2.kdom.Node;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -27,14 +22,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.channels.FileChannel;
 import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
@@ -50,7 +42,7 @@ public class FileUtils {
     private final static String TAG = FileUtils.class.getSimpleName();
 
     //highest allowable file size without warning
-    public static int WARNING_SIZE = 3000;
+    private static final int WARNING_SIZE = 3000;
 
     public static boolean createFolder(String path) {
         boolean made = true;
@@ -97,7 +89,9 @@ public class FileUtils {
         } catch (FileNotFoundException e) {
             Log.e(TAG, "Cannot find " + file.getName());
             e.printStackTrace();
-        } catch (InvalidKeyException | NoSuchPaddingException | NoSuchAlgorithmException e) {
+            return null;
+        } catch (InvalidKeyException | NoSuchPaddingException
+                | NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
         } finally {
@@ -111,7 +105,6 @@ public class FileUtils {
                 e.printStackTrace();
             }
         }
-        return null;
     }
 
     public static String getMd5Hash(File file) {
@@ -135,7 +128,7 @@ public class FileUtils {
             InputStream is;
             is = new FileInputStream(file);
 
-            int l = 0;
+            int l;
             for (l = 0; l + chunkSize < length; l += chunkSize) {
                 is.read(chunk, 0, chunkSize);
                 md.update(chunk, 0, chunkSize);
@@ -289,114 +282,6 @@ public class FileUtils {
 
     }
 
-    public static String FORMID = "formid";
-    public static String UI = "uiversion";
-    public static String MODEL = "modelversion";
-    public static String TITLE = "title";
-    public static String SUBMISSIONURI = "submission";
-    public static String BASE64_RSA_PUBLIC_KEY = "base64RsaPublicKey";
-    
-    public static HashMap<String, String> parseXML(File xmlFile) {
-        HashMap<String, String> fields = new HashMap<String, String>();
-        InputStream is;
-        try {
-            is = new FileInputStream(xmlFile);
-        } catch (FileNotFoundException e1) {
-            throw new IllegalStateException(e1);
-        }
-
-        InputStreamReader isr;
-        try {
-            isr = new InputStreamReader(is, "UTF-8");
-        } catch (UnsupportedEncodingException uee) {
-            Log.w(TAG, "UTF 8 encoding unavailable, trying default encoding");
-            isr = new InputStreamReader(is);
-        }
-
-        if (isr != null) {
-
-            Document doc;
-            try {
-                doc = XFormParser.getXMLDocument(isr);
-            } catch(IOException e) {
-                e.printStackTrace();
-                throw new XFormParseException("IO Exception during form parsing: " + e.getMessage());
-            } finally {
-                try {
-                    isr.close();
-                } catch (IOException e) {
-                    Log.w(TAG, xmlFile.getAbsolutePath() + " Error closing form reader");
-                    e.printStackTrace();
-                }
-            }
-
-            String xforms = "http://www.w3.org/2002/xforms";
-            String html = doc.getRootElement().getNamespace();
-            
-            Element head = doc.getRootElement().getElement(html, "head");
-            Element title = head.getElement(html, "title");
-            if (title != null) {
-                fields.put(TITLE, XFormParser.getXMLText(title, true));
-            } 
-            
-            Element model = getChildElement(head, "model");
-            Element cur = getChildElement(model,"instance");
-            
-            int idx = cur.getChildCount();
-            int i;
-            for (i = 0; i < idx; ++i) {
-                if (cur.isText(i))
-                    continue;
-                if (cur.getType(i) == Node.ELEMENT) {
-                    break;
-                }
-            }
-
-            if (i < idx) {
-                cur = cur.getElement(i); // this is the first data element
-                String id = cur.getAttributeValue(null, "id");
-                String xmlns = cur.getNamespace();
-                String modelVersion = cur.getAttributeValue(null, "version");
-                String uiVersion = cur.getAttributeValue(null, "uiVersion");
-
-                fields.put(FORMID, (id == null) ? xmlns : id);
-                fields.put(MODEL, (modelVersion == null) ? null : modelVersion);
-                fields.put(UI, (uiVersion == null) ? null : uiVersion);
-            } else {
-                throw new IllegalStateException(xmlFile.getAbsolutePath() + " could not be parsed");
-            }
-            try {
-                Element submission = model.getElement(xforms, "submission");
-                String submissionUri = submission.getAttributeValue(null, "action");
-                fields.put(SUBMISSIONURI, (submissionUri == null) ? null : submissionUri);
-                String base64RsaPublicKey = submission.getAttributeValue(null, "base64RsaPublicKey");
-                fields.put(BASE64_RSA_PUBLIC_KEY,
-                  (base64RsaPublicKey == null || base64RsaPublicKey.trim().length() == 0) 
-                  ? null : base64RsaPublicKey.trim());
-            } catch (Exception e) {
-                Log.i(TAG, xmlFile.getAbsolutePath() + " does not have a submission element");
-                // and that's totally fine.
-            }
-
-        }
-        return fields;
-    }
-
-    // needed because element.getelement fails when there are attributes
-    private static Element getChildElement(Element parent, String childName) {
-        Element e = null;
-        int c = parent.getChildCount();
-        int i = 0;
-        for (i = 0; i < c; i++) {
-            if (parent.getType(i) == Node.ELEMENT) {
-                if (parent.getElement(i).getName().equalsIgnoreCase(childName)) {
-                    return parent.getElement(i);
-                }
-            }
-        }
-        return e;
-    }
-    
     public static boolean isFileOversized(File mf){
         double length = getFileSize(mf);
         return length > WARNING_SIZE;
@@ -486,8 +371,8 @@ public class FileUtils {
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      */
-    public static String getDataColumn(Context context, Uri uri, String selection,
-            String[] selectionArgs) {
+    private static String getDataColumn(Context context, Uri uri, String selection,
+                                        String[] selectionArgs) {
 
         Cursor cursor = null;
         final String column = "_data";
@@ -513,7 +398,7 @@ public class FileUtils {
      * @param uri The Uri to check.
      * @return Whether the Uri authority is ExternalStorageProvider.
      */
-    public static boolean isExternalStorageDocument(Uri uri) {
+    private static boolean isExternalStorageDocument(Uri uri) {
         return "com.android.externalstorage.documents".equals(uri.getAuthority());
     }
 
@@ -521,7 +406,7 @@ public class FileUtils {
      * @param uri The Uri to check.
      * @return Whether the Uri authority is DownloadsProvider.
      */
-    public static boolean isDownloadsDocument(Uri uri) {
+    private static boolean isDownloadsDocument(Uri uri) {
         return "com.android.providers.downloads.documents".equals(uri.getAuthority());
     }
 
@@ -529,7 +414,7 @@ public class FileUtils {
      * @param uri The Uri to check.
      * @return Whether the Uri authority is MediaProvider.
      */
-    public static boolean isMediaDocument(Uri uri) {
+    private static boolean isMediaDocument(Uri uri) {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
@@ -537,7 +422,7 @@ public class FileUtils {
      * @param uri The Uri to check.
      * @return Whether the Uri authority is Google Photos.
      */
-    public static boolean isGooglePhotosUri(Uri uri) {
+    private static boolean isGooglePhotosUri(Uri uri) {
         return "com.google.android.apps.photos.content".equals(uri.getAuthority());
     }
 }

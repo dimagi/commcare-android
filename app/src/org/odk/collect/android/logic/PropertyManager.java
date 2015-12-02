@@ -54,10 +54,6 @@ public class PropertyManager implements IPropertyManager {
         mProperties.put(PHONE_NUMBER_PROPERTY, mTelephonyManager.getLine1Number());
     }
 
-    public String getName() {
-        return "Property Manager";
-    }
-
     @Override
     public Vector<String> getProperty(String propertyName) {
         return null;

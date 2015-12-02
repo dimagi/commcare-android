@@ -3,16 +3,12 @@ package org.commcare.dalvik.activities;
 import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.webkit.WebView;
-import android.widget.LinearLayout;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.view.GraphView;
-import org.commcare.suite.model.graph.GraphData;
 
 /**
  * Full-screen view of a graph.
@@ -20,7 +16,6 @@ import org.commcare.suite.model.graph.GraphData;
  * Created by jschweers on 11/20/2015.
  */
 public class GraphActivity extends CommCareActivity {
-    private GraphView mView;
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
@@ -36,10 +31,10 @@ public class GraphActivity extends CommCareActivity {
         }
 
         String html = extras.getString(GraphView.HTML);
-        mView = new GraphView(this, title, true);
+        GraphView graphView = new GraphView(this, title, true);
         try {
-            WebView view = (WebView) mView.getView(html);
-            setContentView(view);
+            WebView webView = (WebView) graphView.getView(html);
+            setContentView(webView);
         } catch (InvalidStateException e) {
             e.printStackTrace();
             finish();

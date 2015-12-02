@@ -12,7 +12,7 @@ import net.sqlcipher.database.SQLiteDatabase;
  *
  */
 public class ConcreteAndroidDbHelper extends AndroidDbHelper {
-    private SQLiteDatabase handle;
+    private final SQLiteDatabase handle;
 
     public ConcreteAndroidDbHelper(Context c, SQLiteDatabase handle) {
         super(c);

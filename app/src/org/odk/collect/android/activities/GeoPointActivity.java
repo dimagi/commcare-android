@@ -31,7 +31,7 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
     private Location mLocation;
     private Set<String> mProviders;
 
-    private int millisToWait = 60000; //allow to accept location after 60 seconds
+    private final static int millisToWait = 60000; //allow to accept location after 60 seconds
 
     private ODKTimer mTimer;
 

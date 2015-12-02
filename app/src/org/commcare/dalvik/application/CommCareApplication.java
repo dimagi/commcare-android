@@ -109,7 +109,6 @@ import java.util.Vector;
 
 import javax.crypto.SecretKey;
 
-
 /**
  * @author ctsims
  */
@@ -484,7 +483,7 @@ public class CommCareApplication extends Application {
     /**
      * @return all ApplicationRecords that have status installed and are NOT archived
      */
-    public ArrayList<ApplicationRecord> getVisibleAppRecords() {
+    private ArrayList<ApplicationRecord> getVisibleAppRecords() {
         ArrayList<ApplicationRecord> visible = new ArrayList<>();
         for (ApplicationRecord r : getInstalledAppRecords()) {
             if (r.isVisible()) {
@@ -776,7 +775,7 @@ public class CommCareApplication extends Application {
         CommCareApplication._().closeUserSession();
     }
 
-    public void prepareTemporaryStorage() {
+    private void prepareTemporaryStorage() {
         String tempRoot = this.getAndroidFsTemp();
         FileUtil.deleteFileOrDir(tempRoot);
         boolean success = FileUtil.createFolder(tempRoot);
@@ -908,7 +907,7 @@ public class CommCareApplication extends Application {
     }
 
     @SuppressLint("NewApi")
-    protected void doReportMaintenance(boolean force) {
+    private void doReportMaintenance(boolean force) {
         //OK. So for now we're going to daily report sends and not bother with any of the frequency properties.
 
 
@@ -1132,7 +1131,7 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public void updateMessageNotification() {
+    private void updateMessageNotification() {
         NotificationManager mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         synchronized (pendingMessages) {
             if (pendingMessages.size() == 0) {
