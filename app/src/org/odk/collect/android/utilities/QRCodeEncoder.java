@@ -41,7 +41,7 @@ public final class QRCodeEncoder {
 
     private int dimension = Integer.MIN_VALUE;
     private String contents = null;
-    private BarcodeFormat format = BarcodeFormat.QR_CODE;
+    private static final BarcodeFormat format = BarcodeFormat.QR_CODE;
 
     public QRCodeEncoder(String data, int dimension) {
         this.dimension = dimension;
