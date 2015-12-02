@@ -49,11 +49,18 @@ public final class GoogleAnalyticsFields {
     public static String LABEL_FONT_SIZE = "Font Size";
     public static String LABEL_INLINE_HELP = "Rich Help Inline";
 
-    // Labels for ACTION_MENU_ITEM in CATEGORY_FORM_ENTRY
+    // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_FORM_ENTRY
     public static String LABEL_SAVE_FORM = "Save Form";
     public static String LABEL_FORM_HIERARCHY = "Form Hierarchy";
     public static String LABEL_CHANGE_LANGUAGE = "Change Language";
     public static String LABEL_CHANGE_SETTINGS = "Change Settings";
+
+    // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_CC_PREFS
+    public static String LABEL_CLEAR_USER_DATA = "Clear User Data";
+    public static String LABEL_CLEAR_SAVED_SESSION = "Clear Saved Session";
+    public static String LABEL_FORCE_LOG_SUBMISSION = "Force Log Submission";
+    public static String LABEL_RECOVERY_MODE = "Recovery Mode";
+    public static String LABEL_DEVELOPER_OPTIONS = "Developer Options";
 
     // Labels for ACTION_FORWARD and ACTION_BACKWARD (in CATEGORY_FORM_ENTRY)
     public static String LABEL_ARROW = "Press Arrow";

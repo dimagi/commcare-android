@@ -241,21 +241,36 @@ public class CommCarePreferences
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case CLEAR_USER_DATA:
+                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
+                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                        GoogleAnalyticsFields.LABEL_CLEAR_USER_DATA);
                 CommCareApplication._().clearUserData();
                 this.finish();
                 return true;
             case FORCE_LOG_SUBMIT:
+                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
+                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                        GoogleAnalyticsFields.LABEL_FORCE_LOG_SUBMISSION);
                 CommCareUtil.triggerLogSubmission(this);
                 return true;
             case RECOVERY_MODE:
+                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
+                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                        GoogleAnalyticsFields.LABEL_RECOVERY_MODE);
                 Intent i = new Intent(this, RecoveryActivity.class);
                 this.startActivity(i);
                 return true;
             case SUPERUSER_PREFS:
+                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
+                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                        GoogleAnalyticsFields.LABEL_DEVELOPER_OPTIONS);
                 Intent intent = new Intent(this, DeveloperPreferences.class);
                 this.startActivity(intent);
                 return true;
             case MENU_CLEAR_SAVED_SESSION:
+                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
+                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                        GoogleAnalyticsFields.LABEL_CLEAR_SAVED_SESSION);
                 DevSessionRestorer.clearSession();
                 return true;
         }
