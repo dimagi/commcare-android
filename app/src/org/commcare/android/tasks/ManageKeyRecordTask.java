@@ -237,7 +237,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
             public TransactionParser getParser(KXmlParser parser) {
                 String name = parser.getName();
                 if("auth_keys".equals(name)) {
-                    return new KeyRecordParser(parser, username, password, keyRecords) {
+                    return new KeyRecordParser(parser, username, password) {
 
                         @Override
                         public void commit(ArrayList<UserKeyRecord> parsed) throws IOException {
