@@ -28,7 +28,7 @@ import android.widget.GridView;
 import org.commcare.android.adapters.GridMenuAdapter;
 import org.commcare.android.adapters.MenuAdapter;
 import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.SessionAwareCommCareActivity;
+import org.commcare.android.framework.SaveSessionCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -50,7 +50,7 @@ import java.io.IOException;
  */
 
 @ManagedUi(R.layout.grid_menu_layout)
-public class MenuGrid extends SessionAwareCommCareActivity implements OnItemClickListener, OnItemLongClickListener {
+public class MenuGrid extends SaveSessionCommCareActivity implements OnItemClickListener, OnItemLongClickListener {
     
     private CommCarePlatform platform;
     
@@ -152,4 +152,5 @@ public class MenuGrid extends SessionAwareCommCareActivity implements OnItemClic
         onBackPressed();
         return true;
     }
+
 }

@@ -12,7 +12,7 @@ import android.widget.TextView;
 import org.commcare.android.adapters.MenuAdapter;
 import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.SessionAwareCommCareActivity;
+import org.commcare.android.framework.SaveSessionCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -23,7 +23,7 @@ import org.commcare.suite.model.Menu;
 import org.commcare.util.CommCarePlatform;
 
 @ManagedUi(R.layout.screen_suite_menu)
-public class MenuList extends SessionAwareCommCareActivity implements OnItemClickListener {
+public class MenuList extends SaveSessionCommCareActivity implements OnItemClickListener {
 
     private MenuAdapter adapter;
 
@@ -106,4 +106,5 @@ public class MenuList extends SessionAwareCommCareActivity implements OnItemClic
         onBackPressed();
         return true;
     }
+
 }

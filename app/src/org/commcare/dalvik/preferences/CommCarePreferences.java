@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
+import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.TemplatePrinterUtils;
@@ -96,6 +97,7 @@ public class CommCarePreferences
     private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 1;
     private static final int RECOVERY_MODE = Menu.FIRST + 2;
     private static final int SUPERUSER_PREFS = Menu.FIRST + 3;
+    private static final int MENU_CLEAR_SAVED_SESSION = Menu.FIRST + 4;
 
     // Fields for setting print template
     private static final int REQUEST_TEMPLATE = 0;
@@ -166,6 +168,7 @@ public class CommCarePreferences
         super.onCreateOptionsMenu(menu);
         menu.add(0, CLEAR_USER_DATA, 0, "Clear User Data").setIcon(
                 android.R.drawable.ic_menu_delete);
+        menu.add(0, MENU_CLEAR_SAVED_SESSION, 1, Localization.get("menu.clear.saved.session"));
         menu.add(0, FORCE_LOG_SUBMIT, 2, "Force Log Submission").setIcon(
                 android.R.drawable.ic_menu_upload);
         menu.add(0, RECOVERY_MODE, 3, "Recovery Mode").setIcon(android.R.drawable.ic_menu_report_image);
@@ -177,6 +180,7 @@ public class CommCarePreferences
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         menu.findItem(SUPERUSER_PREFS).setVisible(DeveloperPreferences.isSuperuserEnabled());
+        menu.findItem(MENU_CLEAR_SAVED_SESSION).setVisible(DevSessionRestorer.savedSessionPresent());
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -197,6 +201,9 @@ public class CommCarePreferences
             case SUPERUSER_PREFS:
                 Intent intent = new Intent(this, DeveloperPreferences.class);
                 this.startActivity(intent);
+                return true;
+            case MENU_CLEAR_SAVED_SESSION:
+                DevSessionRestorer.clearSession();
                 return true;
         }
         return super.onOptionsItemSelected(item);
