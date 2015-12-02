@@ -25,20 +25,20 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
 
     public static final String STORAGE_KEY = "geocodecache";
 
-    public static final String META_LAST_QUERY = "lastquery";
+    private static final String META_LAST_QUERY = "lastquery";
     public static final String META_LOCATION = "location";
-    public static final String META_HIT = "hit";
+    private static final String META_HIT = "hit";
 
-    public static final String META_HIT_TRUE = "t";
-    public static final String META_HIT_FALSE = "f";
+    private static final String META_HIT_TRUE = "t";
+    private static final String META_HIT_FALSE = "f";
 
 
     private int recordId = -1;
-    int lat = -1;
-    int lon = -1;
-    Date lastQueried;
-    String location;
-    boolean hit;
+    private int lat = -1;
+    private int lon = -1;
+    private Date lastQueried;
+    private String location;
+    private boolean hit;
 
     public GeocodeCacheModel() {
 
@@ -48,7 +48,7 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
         this(location, lat, lon, new Date());
     }
 
-    public GeocodeCacheModel(String location, int lat, int lon, Date queried) {
+    private GeocodeCacheModel(String location, int lat, int lon, Date queried) {
         hit = true;
         this.location = location;
         this.lat = lat;
@@ -66,10 +66,7 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
 
 
     public boolean isEncrypted(String data) {
-        if (data.equals(META_LAST_QUERY) || data.equals(META_HIT)) {
-            return false;
-        }
-        return true;
+        return !(data.equals(META_LAST_QUERY) || data.equals(META_HIT));
     }
 
     public boolean isBlobEncrypted() {

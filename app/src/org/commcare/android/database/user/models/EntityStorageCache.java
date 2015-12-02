@@ -12,23 +12,22 @@ import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.services.Logger;
 
 /**
  * @author ctsims
  */
 public class EntityStorageCache {
     private static final String TAG = EntityStorageCache.class.getSimpleName();
-    public static final String TABLE_NAME = "entity_cache";
+    private static final String TABLE_NAME = "entity_cache";
 
-    public static final String COL_CACHE_NAME = "cache_name";
-    public static final String COL_ENTITY_KEY = "entity_key";
-    public static final String COL_CACHE_KEY = "cache_key";
-    public static final String COL_VALUE = "value";
-    public static final String COL_TIMESTAMP = "timestamp";
+    private static final String COL_CACHE_NAME = "cache_name";
+    private static final String COL_ENTITY_KEY = "entity_key";
+    private static final String COL_CACHE_KEY = "cache_key";
+    private static final String COL_VALUE = "value";
+    private static final String COL_TIMESTAMP = "timestamp";
 
     public static String getTableDefinition() {
-        String tableCreate = "CREATE TABLE " + TABLE_NAME + "(" +
+        return "CREATE TABLE " + TABLE_NAME + "(" +
                 DbUtil.ID_COL + " INTEGER PRIMARY KEY, " +
                 COL_CACHE_NAME + ", " +
                 COL_ENTITY_KEY + ", " +
@@ -36,7 +35,6 @@ public class EntityStorageCache {
                 COL_VALUE + ", " +
                 COL_TIMESTAMP +
                 ")";
-        return tableCreate;
     }
 
     public static void createIndexes(SQLiteDatabase db) {
@@ -60,8 +58,8 @@ public class EntityStorageCache {
         this.mCacheName = cacheName;
     }
 
-    SQLiteDatabase db;
-    String mCacheName;
+    private SQLiteDatabase db;
+    private String mCacheName;
 
     public EntityStorageCache(String cacheName, SQLiteDatabase db) {
         this.db = db;
@@ -114,21 +112,6 @@ public class EntityStorageCache {
         }
     }
 
-    public void clearCache() {
-        long now = System.currentTimeMillis();
-        db.beginTransaction();
-        try {
-            int removed = db.delete(TABLE_NAME, COL_CACHE_NAME + " = ?", new String[]{this.mCacheName});
-            db.setTransactionSuccessful();
-            Logger.log("cache", "Cleared " + removed + " records from cache: " + COL_CACHE_NAME + " - in " + (System.currentTimeMillis() - now) + "ms");
-        } finally {
-            db.endTransaction();
-        }
-
-
-    }
-
-
     /**
      * TODO: This is the wrong place for this, I think? Hard to say where it should go...
      */
@@ -145,5 +128,4 @@ public class EntityStorageCache {
             return -1;
         }
     }
-
 }

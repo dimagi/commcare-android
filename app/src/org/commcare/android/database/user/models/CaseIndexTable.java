@@ -20,23 +20,22 @@ import java.util.Vector;
  * @author ctsims
  */
 public class CaseIndexTable {
-    public static final String TABLE_NAME = "case_index_storage";
+    private static final String TABLE_NAME = "case_index_storage";
 
-    public static final String COL_CASE_RECORD_ID = "case_rec_id";
-    public static final String COL_INDEX_NAME = "name";
-    public static final String COL_INDEX_TYPE = "type";
-    public static final String COL_INDEX_TARGET = "target";
+    private static final String COL_CASE_RECORD_ID = "case_rec_id";
+    private static final String COL_INDEX_NAME = "name";
+    private static final String COL_INDEX_TYPE = "type";
+    private static final String COL_INDEX_TARGET = "target";
 
 
     public static String getTableDefinition() {
-        String tableCreate = "CREATE TABLE " + TABLE_NAME + "(" +
+        return "CREATE TABLE " + TABLE_NAME + "(" +
                 DbUtil.ID_COL + " INTEGER PRIMARY KEY, " +
                 COL_CASE_RECORD_ID + ", " +
                 COL_INDEX_NAME + ", " +
                 COL_INDEX_TYPE + ", " +
                 COL_INDEX_TARGET +
                 ")";
-        return tableCreate;
     }
 
     public static void createIndexes(SQLiteDatabase db) {
@@ -58,7 +57,7 @@ public class CaseIndexTable {
         }
     }
 
-    SQLiteDatabase db;
+    private SQLiteDatabase db;
 
     public CaseIndexTable(SQLiteDatabase dbHandle) {
         this.db = dbHandle;

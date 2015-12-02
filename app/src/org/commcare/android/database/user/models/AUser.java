@@ -40,15 +40,15 @@ import java.util.Hashtable;
 public class AUser implements Persistable, IMetaData
 {
     public static final String STORAGE_KEY = "USER";
-    public static final String TYPE_STANDARD = "standard";
+    private static final String TYPE_STANDARD = "standard";
     public static final String TYPE_DEMO = "demo";
-    public static final String KEY_USER_TYPE = "user_type";
+    private static final String KEY_USER_TYPE = "user_type";
 
-    public static final String META_UID = "uid";
-    public static final String META_USERNAME = "username";
-    public static final String META_ID = "userid";
-    public static final String META_WRAPPED_KEY = "wrappedkey";
-    public static final String META_SYNC_TOKEN = "synctoken";
+    private static final String META_UID = "uid";
+    private static final String META_USERNAME = "username";
+    private static final String META_ID = "userid";
+    private static final String META_WRAPPED_KEY = "wrappedkey";
+    private static final String META_SYNC_TOKEN = "synctoken";
 
     private int recordId = -1; //record id on device
     private String username;
@@ -63,7 +63,7 @@ public class AUser implements Persistable, IMetaData
     /**
      * String -> String *
      */
-    private Hashtable<String, String> properties = new Hashtable<String, String>();
+    private Hashtable<String, String> properties = new Hashtable<>();
 
     public AUser() {
         setUserType(TYPE_STANDARD);
@@ -120,7 +120,7 @@ public class AUser implements Persistable, IMetaData
         return recordId;
     }
 
-    public String getUserType() {
+    private String getUserType() {
         if (properties.containsKey(KEY_USER_TYPE)) {
             return properties.get(KEY_USER_TYPE);
         } else {
@@ -128,7 +128,7 @@ public class AUser implements Persistable, IMetaData
         }
     }
 
-    public void setUserType(String userType) {
+    private void setUserType(String userType) {
         properties.put(KEY_USER_TYPE, userType);
     }
 
@@ -156,11 +156,11 @@ public class AUser implements Persistable, IMetaData
         this.wrappedKey = key;
     }
 
-    public byte[] getWrappedKey() {
+    private byte[] getWrappedKey() {
         return wrappedKey;
     }
 
-    public Hashtable<String, String> getProperties() {
+    private Hashtable<String, String> getProperties() {
         return this.properties;
     }
 

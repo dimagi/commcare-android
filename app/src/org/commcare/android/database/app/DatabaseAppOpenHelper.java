@@ -32,9 +32,9 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
 
     private static final String DB_LOCATOR_PREF_APP = "database_app_";
 
-    private Context context;
+    private final Context context;
 
-    private String mAppId;
+    private final String mAppId;
 
     public DatabaseAppOpenHelper(Context context, String appId) {
         super(context, getDbName(appId), null, DB_VERSION_APP);
@@ -118,7 +118,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        new AppDatabaseUpgrader(context).upgrade(db, oldVersion, newVersion);
+        new AppDatabaseUpgrader().upgrade(db, oldVersion, newVersion);
     }
 
 }
