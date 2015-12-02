@@ -129,7 +129,7 @@ public class EntityDetailActivity
         }
 
         mDetailView.setRoot((ViewGroup)container.findViewById(R.id.entity_detail_tabs));
-        mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
+        mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex);
 
         mDetailView.setDetail(factory.getDetail());
     }
@@ -157,7 +157,7 @@ public class EntityDetailActivity
         switch (requestCode) {
             case DetailCalloutListenerDefaultImpl.CALL_OUT:
                 if (resultCode == RESULT_CANCELED) {
-                    mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
+                    mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex);
                     return;
                 } else {
                     long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);

@@ -436,7 +436,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
                 if (inAwesomeMode) {
                     if (adapter != null) {
                         displayReferenceAwesome(entity, adapter.getPosition(entity));
-                        adapter.setAwesomeMode(true);
                         updateSelectedItem(entity, true);
                     }
                 } else {
@@ -1112,7 +1111,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
             rightFrameSetup = true;
         }
 
-        detailView.refresh(factory.getDetail(), selection, detailIndex, false);
+        detailView.refresh(factory.getDetail(), selection, detailIndex);
     }
 
     @Override
