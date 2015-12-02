@@ -29,7 +29,6 @@ import org.commcare.android.adapters.GridMenuAdapter;
 import org.commcare.android.adapters.MenuAdapter;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SaveSessionCommCareActivity;
-import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -153,4 +152,5 @@ public class MenuGrid extends SaveSessionCommCareActivity implements OnItemClick
         onBackPressed();
         return true;
     }
+
 }

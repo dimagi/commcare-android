@@ -13,7 +13,6 @@ import org.commcare.android.adapters.MenuAdapter;
 import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SaveSessionCommCareActivity;
-import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -107,4 +106,5 @@ public class MenuList extends SaveSessionCommCareActivity implements OnItemClick
         onBackPressed();
         return true;
     }
+
 }

@@ -27,6 +27,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      */
     public final static String ENABLE_AUTO_LOGIN = "cc-enable-auto-login";
 
+    public final static String ENABLE_SAVE_SESSION = "cc-enable-session-saving";
+
     /**
      * Does the user want to download the latest app version deployed (built),
      * not just the latest app version released (starred)?
@@ -58,9 +60,10 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(ENABLE_AUTO_LOGIN) &&
-                (sharedPreferences.getString(ENABLE_AUTO_LOGIN, CommCarePreferences.NO).equals(CommCarePreferences.NO))) {
+        if (key.equals(ENABLE_AUTO_LOGIN) && !isAutoLoginEnabled()) {
             DevSessionRestorer.clearPassword(sharedPreferences);
+        } else if (key.equals(ENABLE_SAVE_SESSION) && !isSessionSavingEnabled()) {
+            DevSessionRestorer.clearSession();
         }
     }
 
@@ -150,6 +153,12 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static boolean isAutoLoginEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(ENABLE_AUTO_LOGIN, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+
+    public static boolean isSessionSavingEnabled() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(ENABLE_SAVE_SESSION, CommCarePreferences.NO).
+                equals(CommCarePreferences.YES);
     }
 
     public static boolean isMarkdownEnabled(){

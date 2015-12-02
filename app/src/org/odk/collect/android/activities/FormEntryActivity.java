@@ -51,7 +51,6 @@ import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.SaveSessionCommCareActivity;
-import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -179,10 +178,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private static final String KEY_FORM_LOAD_HAS_TRIGGERED = "newform";
     private static final String KEY_FORM_LOAD_FAILED = "form-failed";
 
-    private static final int MENU_LANGUAGES = Menu.FIRST;
-    private static final int MENU_HIERARCHY_VIEW = Menu.FIRST + 1;
-    private static final int MENU_SAVE = Menu.FIRST + 2;
-    private static final int MENU_PREFERENCES = Menu.FIRST + 3;
+    private static final int MENU_LANGUAGES = Menu.FIRST + 1;
+    private static final int MENU_HIERARCHY_VIEW = Menu.FIRST + 2;
+    private static final int MENU_SAVE = Menu.FIRST + 3;
+    private static final int MENU_PREFERENCES = Menu.FIRST + 4;
 
     public static final String NAV_STATE_NEXT = "next";
 
