@@ -60,7 +60,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
         switch (item.getItemId()) {
             case MENU_CONNECTION_DIAGNOSTIC:
                 Intent i = new Intent(this, ConnectionDiagnosticActivity.class);
-                startActivityForResult(i, CommCareHomeActivity.CONNECTION_DIAGNOSTIC_ACTIVITY);
+                startActivity(i);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -139,8 +139,6 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
                 break;
-            case CommCareHomeActivity.CONNECTION_DIAGNOSTIC_ACTIVITY:
-                return;
         }
     }
 

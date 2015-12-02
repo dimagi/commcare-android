@@ -22,8 +22,8 @@ import java.io.File;
 /**
  * @author ctsims
  */
-public class GlobalDatabaseUpgrader {
-    private Context c;
+class GlobalDatabaseUpgrader {
+    private final Context c;
 
     public GlobalDatabaseUpgrader(Context c) {
         this.c = c;

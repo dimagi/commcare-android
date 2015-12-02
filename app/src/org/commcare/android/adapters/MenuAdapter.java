@@ -50,8 +50,8 @@ import java.util.Vector;
 public class MenuAdapter implements ListAdapter {
 
     private AndroidSessionWrapper asw;
-    protected Context context;
-    protected MenuDisplayable[] displayableData;
+    Context context;
+    MenuDisplayable[] displayableData;
 
     public MenuAdapter(Context context, CommCarePlatform platform, String menuID) {
         this.context = context;
@@ -250,7 +250,7 @@ public class MenuAdapter implements ListAdapter {
 
         // First set up the audio button
         AudioButton mAudioButton = (AudioButton) menuListItem.findViewById(R.id.row_soundicon);
-        if (audioFilename != "" && audioFile.exists()) {
+        if (!"".equals(audioFilename) && audioFile.exists()) {
             // Set not focusable so that list onclick will work
             mAudioButton.setFocusable(false);
             mAudioButton.setFocusableInTouchMode(false);
@@ -293,10 +293,6 @@ public class MenuAdapter implements ListAdapter {
                     mIconView.setVisibility(View.GONE);
                     break;
             }
-        } else {
-            if (mIconView != null) {
-                mIconView.setVisibility(View.GONE);
-            }
         }
         return mIconView;
     }
@@ -304,7 +300,7 @@ public class MenuAdapter implements ListAdapter {
     /*
      * Helper to build the TextView for the HorizontalMediaView constructor
      */
-    public String textViewHelper(MenuDisplayable e) {
+    String textViewHelper(MenuDisplayable e) {
         return e.getDisplayText();
     }
 

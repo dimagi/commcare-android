@@ -39,9 +39,9 @@ public class AndroidTableBuilder extends TableBuilder {
      * String containing (?, ?,...) to be used in the SQL query and the array of args
      * to replace them with
      */
-    public static List<Pair<String, String[]>> sqlList(List<Integer> input, int maxArgs) {
+    private static List<Pair<String, String[]>> sqlList(List<Integer> input, int maxArgs) {
 
-        List<Pair<String, String[]>> ops = new ArrayList<Pair<String, String[]>>();
+        List<Pair<String, String[]>> ops = new ArrayList<>();
 
         //figure out how many iterations we'll need
         int numIterations = (int)Math.ceil(((double)input.size()) / maxArgs);

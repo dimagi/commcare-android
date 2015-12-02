@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2014 Dimagi
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.commcare.dalvik.activities;
 
 import android.content.Intent;
@@ -46,14 +30,10 @@ import java.io.IOException;
  * Handles the alternative Grid appearance for Module and Form navigation
  * 
  * @author wspride
- *
  */
 
 @ManagedUi(R.layout.grid_menu_layout)
 public class MenuGrid extends SaveSessionCommCareActivity implements OnItemClickListener, OnItemLongClickListener {
-    
-    private CommCarePlatform platform;
-    
     private MenuAdapter adapter;
     
     @UiElement(R.id.grid_menu_grid)
@@ -62,7 +42,7 @@ public class MenuGrid extends SaveSessionCommCareActivity implements OnItemClick
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        platform = CommCareApplication._().getCommCarePlatform();
+        CommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         
         String menuId = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
         
@@ -70,7 +50,7 @@ public class MenuGrid extends SaveSessionCommCareActivity implements OnItemClick
            menuId= "root";
        }
        
-       adapter = new GridMenuAdapter(this,platform,menuId);
+       adapter = new GridMenuAdapter(this, platform,menuId);
        refreshView();
        
        grid.setOnItemClickListener(this);
@@ -135,11 +115,8 @@ public class MenuGrid extends SaveSessionCommCareActivity implements OnItemClick
                 mp.prepare();
                 mp.start();
                 
-            } catch (InvalidReferenceException e) {
-                e.printStackTrace();
-            } catch (IllegalStateException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+            } catch (IOException | IllegalStateException
+                    | InvalidReferenceException e) {
                 e.printStackTrace();
             }
         }

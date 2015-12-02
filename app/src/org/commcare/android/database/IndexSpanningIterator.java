@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.database;
 
 import android.database.Cursor;
@@ -25,30 +22,29 @@ import org.javarosa.core.services.storage.Persistable;
  */
 public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIterator<T> {
 
-    Cursor mCursor;
-    SqlStorage<T> storage;
-    boolean isClosedByProgress = false;
+    private final SqlStorage<T> storage;
+    private boolean isClosedByProgress = false;
 
     /**
      * Total expected records *
      */
-    int count;
+    private final int count;
 
     /**
      * The largest integer that is _not_ included in the walk *
      */
-    int end;
+    private int end;
 
     /**
      * The walker. Must be an integer which is included in the result set
      * while the iterator is still valid/open.
      */
-    int current;
+    private int current;
 
     /**
      * The next integer which will _not_ be included in the result set
      */
-    int nextGap;
+    private int nextGap;
 
     /**
      * Create an iterator that will walk and return Id's between minValue (inclusive) and max value (exclusive)
@@ -191,10 +187,6 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
 
     public int peekID() {
         return current;
-    }
-
-    private Cursor getRawCursor() {
-        throw new RuntimeException("Raw cursor unavailable for cover index iterator");
     }
 
     public String getPrimaryId() {

@@ -7,7 +7,7 @@ package org.commcare.android.database;
  */
 public class MigrationException extends RuntimeException {
 
-    private boolean definiteFailure;
+    private final boolean definiteFailure;
 
     public MigrationException(boolean b) {
         this.definiteFailure = b;

@@ -141,7 +141,7 @@ public class ODKView extends ScrollView
         addView(mView);
     }
 
-    void removeQuestionFromIndex(int i){
+    private void removeQuestionFromIndex(int i){
         int dividerIndex = Math.max(i - 1, 0);
 
         if (dividerIndex < dividers.size()) {
@@ -203,7 +203,7 @@ public class ODKView extends ScrollView
      * @return a HashMap of answers entered by the user for this set of widgets
      */
     public HashMap<FormIndex, IAnswerData> getAnswers() {
-        HashMap<FormIndex, IAnswerData> answers = new HashMap<FormIndex, IAnswerData>();
+        HashMap<FormIndex, IAnswerData> answers = new HashMap<>();
         for (QuestionWidget q : widgets) {
             // The FormEntryPrompt has the FormIndex, which is where the answer gets stored. The
             // QuestionWidget has the answer the user has entered.
@@ -240,8 +240,8 @@ public class ODKView extends ScrollView
      */
     private SpannableStringBuilder deriveGroupText(FormEntryCaption[] groups) {
         SpannableStringBuilder s = new SpannableStringBuilder("");
-        String t = "";
-        String m = "";
+        String t;
+        String m;
         int i;
         // list all groups in one string
         for (FormEntryCaption g : groups) {
@@ -258,7 +258,7 @@ public class ODKView extends ScrollView
             }
 
             if (g.repeats() && i > 0) {
-                s.append(" (" + i + ")");
+                s.append(" (").append(String.valueOf(i)).append(")");
             }
             s.append(" > ");
         }
@@ -395,7 +395,7 @@ public class ODKView extends ScrollView
         updateLastQuestion();
     }
     
-    void updateLastQuestion(){
+    private void updateLastQuestion(){
         StringWidget last = null;
         
         for(QuestionWidget q: widgets){

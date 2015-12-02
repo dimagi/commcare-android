@@ -40,7 +40,7 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 /**
  * @author ctsims
  */
-public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCarePlatform> {
+abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCarePlatform> {
 
     //TODO:HAAACKY.
     private static final String STAGING_EXT = "cc_app-staging";
@@ -48,13 +48,13 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
 
     String localLocation;
     String localDestination;
-    String upgradeDestination;
+    private String upgradeDestination;
 
-    public FileSystemInstaller() {
+    FileSystemInstaller() {
 
     }
 
-    public FileSystemInstaller(String localDestination, String upgradeDestination) {
+    FileSystemInstaller(String localDestination, String upgradeDestination) {
         this.localDestination = localDestination;
         this.upgradeDestination = upgradeDestination;
     }
@@ -212,12 +212,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
         if (!oldFile.exists()) {
             //Nothing should be allowed to exist in the new location except for the incoming file
             //due to the staging rules. If there's a file there, it's this one.
-            if (newFile.exists()) {
-                return true;
-            } else {
-                //... soo.... we don't have a file. 
-                return false;
-            }
+            return newFile.exists();
         }
 
         if (oldFile.exists() && newFile.exists()) {
@@ -237,11 +232,7 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
             }
         }
 
-        if (!(oldFile.renameTo(newFile))) {
-            return false;
-        } else {
-            return true;
-        }
+        return oldFile.renameTo(newFile);
     }
 
     @Override
@@ -405,20 +396,20 @@ public abstract class FileSystemInstaller implements ResourceInstaller<AndroidCo
     }
 
     //TODO: Put files into an arbitrary name and keep the reference. This confuses things too much
-    public Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
+    Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
         String input = loc.getLocation();
         String extension = "";
         int lastDot = input.lastIndexOf(".");
         if (lastDot != -1) {
             extension = input.substring(lastDot);
         }
-        return new Pair<String, String>(r.getResourceId(), extension(extension));
+        return new Pair<>(r.getResourceId(), extension(extension));
     }
 
     //Hate this
     private static final String validExtChars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
-    protected String extension(String input) {
+    private String extension(String input) {
         int invalid = -1;
         //we wanna go from the last "." to the next non-alphanumeric character.
         for (int i = 1; i < input.length(); ++i) {
