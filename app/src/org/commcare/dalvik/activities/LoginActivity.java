@@ -452,7 +452,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                         r.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                         break;
                     default:
-                        return;
+                        break;
                     }
                 }
             }) {
@@ -684,7 +684,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
-        return;
     }
 
     /**

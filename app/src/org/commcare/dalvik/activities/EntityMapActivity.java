@@ -55,8 +55,7 @@ public class EntityMapActivity extends MapActivity {
     LocationManager mLocationManager;
     
     CommCareSession session;
-    Entry prototype;
-    
+
     EntityOverlay mEntityOverlay;
     Vector<Entity<TreeReference>> entities;
     
@@ -80,15 +79,14 @@ public class EntityMapActivity extends MapActivity {
 
         session = CommCareApplication._().getCurrentSession();
         Vector<Entry> entries = session.getEntriesForCommand(session.getCommand());
-        prototype = entries.elementAt(0);
-        
+
         SessionDatum selectDatum = session.getNeededDatum();
         Detail detail = session.getDetail(selectDatum.getShortDetail());
         NodeEntityFactory factory = new NodeEntityFactory(detail, this.getEC());
         
         Vector<TreeReference> references = getEC().expandReference(selectDatum.getNodeset());
         
-        entities = new Vector<Entity<TreeReference>>();
+        entities = new Vector<>();
         for(TreeReference ref : references) {
             entities.add(factory.getEntity(ref));
         }
@@ -119,10 +117,8 @@ public class EntityMapActivity extends MapActivity {
             boundHints[3] = lng + 1;
             
             
-        } else {
-            //no location
         }
-        
+
         Drawable defaultMarker = this.getResources().getDrawable(R.drawable.marker);
         mEntityOverlay = new EntityOverlay(this, defaultMarker, map) {
 
@@ -149,7 +145,7 @@ public class EntityMapActivity extends MapActivity {
             for(int i = 0 ; i < detail.getHeaderForms().length; ++i ){
                 if("address".equals(detail.getTemplateForms()[i])) {
                     String val = e.getFieldString(i).trim();
-                    if(val != null && val != "") {
+                    if(val != null && !"".equals(val)) {
                         GeoPoint gp = null;
                         try {
                             GeoPointData data = new GeoPointData().cast(new UncastData(val));

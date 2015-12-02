@@ -56,8 +56,6 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
 
     public static final String AIRPLANE_MODE_CATEGORY = "airplane-mode";
 
-    boolean done = false;
-
     static boolean acknowledgedRisk = false;
 
     static final String KEY_NUMBER_DUMPED = "num_dumped";
@@ -66,8 +64,6 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
 
     private int formsOnPhone;
     private int formsOnSD;
-
-    protected String filepath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +92,6 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                         settings.getString("PostURL", url), getFolderPath()){
                     @Override
                     protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
-
                         if(result == Boolean.TRUE){
                             CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
                             Intent i = new Intent(getIntent());
@@ -104,7 +99,6 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                             receiver.setResult(BULK_SEND_ID, i);
                             Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Successfully dumped " + formsOnSD + " forms.");
                             receiver.finish();
-                            return;
                         } else {
                             //assume that we've already set the error message, but make it look scary
                             CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
@@ -226,8 +220,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
     
     public String getFolderName(){
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        String folderName = settings.getString(CommCarePreferences.DUMP_FOLDER_PATH    , Localization.get("bulk.form.foldername"));
-        return folderName;
+        return settings.getString(CommCarePreferences.DUMP_FOLDER_PATH    , Localization.get("bulk.form.foldername"));
     }
     
     public File getFolderPath() {

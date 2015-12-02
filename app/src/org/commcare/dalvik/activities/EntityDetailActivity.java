@@ -15,7 +15,6 @@ import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
@@ -94,7 +93,7 @@ public class EntityDetailActivity
         String shortDetailId = getIntent().getStringExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID);
         if (shortDetailId != null) {
             Detail shortDetail = session.getDetail(shortDetailId);
-            this.mEntityContext = new Pair<Detail, TreeReference>(shortDetail, mTreeReference);
+            this.mEntityContext = new Pair<>(shortDetail, mTreeReference);
         }
 
         super.onCreate(savedInstanceState);

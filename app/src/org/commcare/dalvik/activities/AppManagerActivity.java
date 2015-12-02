@@ -140,7 +140,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                 }
                 break;
             case CommCareHomeActivity.CONNECTION_DIAGNOSTIC_ACTIVITY:
-                return;
+                break;
         }
     }
 
