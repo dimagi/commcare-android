@@ -133,6 +133,15 @@
                                 android:textStyle="bold"
                                 android:visibility="gone"/>
 
+                            <CheckBox
+                                android:id="@+id/restore_session_checkbox"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginBottom="@dimen/standard_spacer"
+                                android:text="@string/restore_session_prompt"
+                                android:textSize="16dp"
+                                android:visibility="gone" />
+
                             <Button
                                 android:id="@+id/login_button"
                                 android:layout_width="fill_parent"

@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -98,6 +99,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @UiElement(value=R.id.login_button, locale="login.button")
     private Button loginButton;
 
+    @UiElement(value=R.id.restore_session_checkbox)
+    private CheckBox restoreSessionCheckbox;
+
     @UiElement(R.id.app_selection_spinner)
     private Spinner spinner;
 
@@ -139,13 +143,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-
-        username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-        setLoginBoxesColorNormal();
-
-        //Only on the initial creation
+        // Only on the initial creation
         if(savedInstanceState == null) {
+            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
             String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
             if(lastUser != null) {
                 username.setText(lastUser);
@@ -153,9 +153,18 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             }
         }
 
+        setupUIElements();
+    }
+
+    private void setupUIElements() {
+        username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS |
+                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+
+        setLoginBoxesColorNormal();
+
         loginButton.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
-                loginButtonPressed();
+                loginButtonPressed(isRestoreSessionChecked());
             }
         });
 
@@ -166,6 +175,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         password.setHint(Localization.get("login.password"));
 
         final View activityRootView = findViewById(R.id.screen_login_main);
+        final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -183,7 +193,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                     if (!"".equals(customBannerURI)) {
                         Bitmap bitmap = MediaUtil.inflateDisplayImage(LoginActivity.this, customBannerURI);
                         if (bitmap != null) {
-                            ImageView bannerView = (ImageView)banner.findViewById(R.id.main_top_banner);
+                            ImageView bannerView = (ImageView) banner.findViewById(R.id.main_top_banner);
                             bannerView.setImageBitmap(bitmap);
                         }
                     }
@@ -193,7 +203,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         });
     }
 
-    private void loginButtonPressed() {
+    private boolean isRestoreSessionChecked() {
+        return restoreSessionCheckbox.isChecked();
+    }
+
+    private void loginButtonPressed(boolean restoreSession) {
         errorBox.setVisibility(View.GONE);
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
 
@@ -203,7 +217,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             // install update, which triggers login upon completion
             installPendingUpdate();
         } else {
-            localLoginOrPullAndLogin();
+            localLoginOrPullAndLogin(restoreSession);
         }
     }
 
@@ -244,7 +258,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                             receiver.raiseLoginMessage(StockMessages.Storage_Full, true);
                             break;
                         case DataPullTask.DOWNLOAD_SUCCESS:
-                            if(!tryLocalLogin(true)) {
+                            if(!tryLocalLogin(true, isRestoreSessionChecked())) {
                                 receiver.raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
                             }
                             break;
@@ -331,7 +345,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             password.setText(userAndPass.second);
 
             if (!getIntent().getBooleanExtra(USER_TRIGGERED_LOGOUT, false)) {
-                loginButtonPressed();
+                // If we are attempting auto-login, assume that we want to restore a saved session
+                loginButtonPressed(true);
             }
         }
     }
@@ -358,13 +373,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         return username.getText().toString().toLowerCase().trim();
     }
     
-    private boolean tryLocalLogin(final boolean warnMultipleAccounts) {
+    private boolean tryLocalLogin(final boolean warnMultipleAccounts, boolean restoreSession) {
         //TODO: check username/password for emptiness
-        return tryLocalLogin(getUsername(), password.getText().toString(), warnMultipleAccounts);
+        return tryLocalLogin(getUsername(), password.getText().toString(), warnMultipleAccounts,
+                restoreSession);
     }
         
     private boolean tryLocalLogin(final String username, String password,
-                                  final boolean warnMultipleAccounts) {
+                                  final boolean warnMultipleAccounts, final boolean restoreSession) {
         try{
             // TODO: We don't actually even use this anymore other than for hte
             // local login count, which seems super silly.
@@ -398,7 +414,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             ManageKeyRecordTask<LoginActivity> task =
                 new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE,
                         username, password,
-                        CommCareApplication._().getCurrentApp(),
+                        CommCareApplication._().getCurrentApp(), restoreSession,
                         new ManageKeyRecordListener<LoginActivity>() {
 
                 @Override
@@ -500,7 +516,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         switch(item.getItemId()) {
         case MENU_DEMO:
             DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
-            tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false);
+            tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false ,false);
             return true;
         case MENU_ABOUT:
             DialogCreationHelpers.buildAboutCommCareDialog(this).show();
@@ -666,6 +682,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
         // Refresh welcome msg separately bc cannot set a single locale for its UiElement
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
+
+        // Update checkbox visibility 
+        if (DevSessionRestorer.savedSessionPresent()) {
+            restoreSessionCheckbox.setVisibility(View.VISIBLE);
+        } else {
+            restoreSessionCheckbox.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -708,7 +731,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                             CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(result));
                         }
 
-                        localLoginOrPullAndLogin();
+                        localLoginOrPullAndLogin(isRestoreSessionChecked());
                     }
 
                     @Override
@@ -725,15 +748,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                                 Localization.get("login.update.install.failure"),
                                 Toast.LENGTH_LONG).show();
 
-                        localLoginOrPullAndLogin();
+                        localLoginOrPullAndLogin(isRestoreSessionChecked());
                     }
                 };
         task.connect(this);
         task.execute();
     }
 
-    private void localLoginOrPullAndLogin() {
-        if (tryLocalLogin(false)) {
+    private void localLoginOrPullAndLogin(boolean restoreSession) {
+        if (tryLocalLogin(false, restoreSession)) {
             return;
         }
 

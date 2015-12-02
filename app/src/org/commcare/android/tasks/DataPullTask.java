@@ -74,7 +74,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     private int mTotalItems = -1;
     private long mSyncStartTime;
     
-    private boolean wasKeyLoggedIn = false;
+    private boolean wasKeyLoggedIn;
+    private boolean restoreSession;
     
     public static final int DATA_PULL_TASK_ID = 10;
     
@@ -98,16 +99,21 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     public static final int PROGRESS_PROCESSING = 128;
     public static final int PROGRESS_DOWNLOADING = 256;
     private DataPullRequester dataPullRequester;
-    
-    public DataPullTask(String username, String password, String server, Context context) {
+
+    public DataPullTask(String username, String password, String server, Context context, boolean restoreOldSession) {
         this.server = server;
         this.username = username;
         this.password = password;
         this.context = context;
         this.taskId = DATA_PULL_TASK_ID;
         this.dataPullRequester = new DataPullResponseFactory();
+        this.restoreSession = restoreOldSession;
 
         TAG = DataPullTask.class.getSimpleName();
+    }
+    
+    public DataPullTask(String username, String password, String server, Context context) {
+        this(username, password, server, context, false);
     }
 
     public DataPullTask(String username, String password, String server, Context context, DataPullRequester dataPullRequester) {
@@ -230,7 +236,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     if(loginNeeded) {                        
                         //This is necessary (currently) to make sure that data
                         //is encoded. Probably a better way to do this.
-                        CommCareApplication._().startUserSession(CryptUtil.unWrapKey(ukr.getEncryptedKey(), password), ukr);
+                        CommCareApplication._().startUserSession(CryptUtil.unWrapKey(
+                                ukr.getEncryptedKey(), password), ukr, restoreSession);
                         wasKeyLoggedIn = true;
                     }
                     
