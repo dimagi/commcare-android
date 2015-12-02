@@ -47,7 +47,7 @@ public class UserKeyRecord extends Persisted {
     // Hashed passwords should contain 3 groupings that are delimited by '$'.
     // The 1st group describes the hashing algorithm, the 2nd is the salt, and
     // the 3rd group is the digest.
-    public static final Pattern HASH_STRING_PATTERN = Pattern.compile("([^\\$]+)\\$([^\\$]+)\\$([^\\$]+)");
+    private static final Pattern HASH_STRING_PATTERN = Pattern.compile("([^\\$]+)\\$([^\\$]+)\\$([^\\$]+)");
 
     private static final int DEFAULT_SALT_LENGTH = 6;
 
@@ -155,7 +155,7 @@ public class UserKeyRecord extends Persisted {
      *                  containing the salt
      * @return salt String out of a hashed password
      */
-    public static String extractSalt(String pwdString) {
+    private static String extractSalt(String pwdString) {
         Matcher m = HASH_STRING_PATTERN.matcher(pwdString);
         if (m.matches()) {
             // grab the salt segment out of the hashed password
@@ -173,7 +173,7 @@ public class UserKeyRecord extends Persisted {
      *             against hash dictionary attacks.
      * @return SHA-1 hashed password
      */
-    public static String generatePwdHash(String pwd, String salt) {
+    private static String generatePwdHash(String pwd, String salt) {
         String alg = "sha1";
         int hashLength = 41;
 
