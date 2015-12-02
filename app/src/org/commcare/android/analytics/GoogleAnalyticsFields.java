@@ -12,6 +12,7 @@ public final class GoogleAnalyticsFields {
     public static String CATEGORY_FORM_ENTRY = "Form Entry";
     public static String CATEGORY_CC_PREFS = "CommCare Preferences";
     public static String CATEGORY_FORM_PREFS = "Form Entry Preferences";
+    public static String CATEGORY_SERVER_COMMUNICATION = "Server Communication";
 
     // Actions for multiple categories
     public static String ACTION_OPTIONS_MENU = "Open Options Menu";
@@ -26,6 +27,10 @@ public final class GoogleAnalyticsFields {
     public static String ACTION_FORWARD = "Navigate Forward";
     public static String ACTION_BACKWARD = "Navigate Backward";
     public static String ACTION_QUIT_ATTEMPT = "Attempt Quit Form Entry";
+
+    // Actions for CATEGORY_SERVER_COMMUNICATION only
+    public static String ACTION_USER_SYNC_ATTEMPT = "User Sync Attempt";
+    public static String ACTION_AUTO_SYNC_ATTEMPT = "Auto Sync Attempt";
 
     // Labels for ACTION_BUTTON
     public static String LABEL_START = "Start Button";
@@ -71,6 +76,23 @@ public final class GoogleAnalyticsFields {
     public static String LABEL_SAVE_AND_EXIT = "Save and Exit";
     public static String LABEL_EXIT_NO_SAVE = "Exit without Saving";
     public static String LABEL_BACK_TO_FORM = "Back to Form";
+
+    // Labels for ACTION_USER_SYNC_ATTEMPT and ACTION_AUTO_SYNC_ATTEMPT
+    public static String LABEL_SYNC_SUCCESS;
+    public static String LABEL_SYNC_FAILURE;
+
+    // Values for LABEL_SYNC_SUCCESS
+    public static int VALUE_JUST_PULL_DATA = 0;
+    public static int VALUE_WITH_SEND_FORMS = 1;
+
+    // Values for LABEL_SYNC_FAILURE
+    public static int VALUE_NO_CONNECTION = 0;
+    public static int VALUE_AUTH_FAILED = 1;
+    public static int VALUE_BAD_DATA = 2;
+    public static int VALUE_SERVER_ERROR = 3;
+    public static int VALUE_UNREACHABLE_HOST = 4;
+    public static int VALUE_CONNECTION_TIMEOUT = 5;
+    public static int VALUE_UNKNOWN_FAILURE = 6;
 
     // Values for LABEL_AUTO_UPDATE
     public static int VALUE_NEVER = 0;

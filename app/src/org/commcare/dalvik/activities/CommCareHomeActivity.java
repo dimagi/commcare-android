@@ -903,6 +903,10 @@ public class CommCareHomeActivity
                 displayMessage(Localization.get("notification.sync.connections.action"), true, true);
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_NoConnections, AIRPLANE_MODE_CATEGORY));
             }
+            GoogleAnalyticsUtils.reportSyncAttempt(
+                    GoogleAnalyticsFields.ACTION_USER_SYNC_ATTEMPT,
+                    GoogleAnalyticsFields.LABEL_SYNC_FAILURE,
+                    GoogleAnalyticsFields.VALUE_NO_CONNECTION);
             return;
         }
         CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
@@ -932,7 +936,7 @@ public class CommCareHomeActivity
         }
     }
 
-    private void syncData(boolean formsToSend, boolean userTriggeredSync) {
+    private void syncData(final boolean formsToSend, final boolean userTriggeredSync) {
         User u;
         try {
             u = CommCareApplication._().getSession().getLoggedInUser();
@@ -959,33 +963,64 @@ public class CommCareHomeActivity
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
                 receiver.getUiController().refreshView();
-
+                String reportSyncLabel;
+                int reportSyncValue;
                 //TODO: SHARES _A LOT_ with login activity. Unify into service
                 switch (result) {
                     case DataPullTask.AUTH_FAILED:
+                        reportSyncLabel = GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
+                        reportSyncValue = GoogleAnalyticsFields.VALUE_AUTH_FAILED;
                         receiver.displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
                         break;
                     case DataPullTask.BAD_DATA:
+                        reportSyncLabel = GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
+                        reportSyncValue = GoogleAnalyticsFields.VALUE_BAD_DATA;
                         receiver.displayMessage(Localization.get("sync.fail.bad.data"), true);
                         break;
                     case DataPullTask.DOWNLOAD_SUCCESS:
+                        reportSyncLabel = GoogleAnalyticsFields.LABEL_SYNC_SUCCESS;
+                        if (formsToSend) {
+                            reportSyncValue = GoogleAnalyticsFields.VALUE_WITH_SEND_FORMS;
+                        } else {
+                            reportSyncValue = GoogleAnalyticsFields.VALUE_JUST_PULL_DATA;
+                        }
                         receiver.displayMessage(Localization.get("sync.success.synced"));
                         break;
                     case DataPullTask.SERVER_ERROR:
+                        reportSyncLabel = GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
+                        reportSyncValue = GoogleAnalyticsFields.VALUE_SERVER_ERROR;
                         receiver.displayMessage(Localization.get("sync.fail.server.error"));
                         break;
                     case DataPullTask.UNREACHABLE_HOST:
+                        reportSyncLabel = GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
+                        reportSyncValue = GoogleAnalyticsFields.VALUE_UNREACHABLE_HOST;
                         receiver.displayMessage(Localization.get("sync.fail.bad.network"), true);
                         break;
                     case DataPullTask.CONNECTION_TIMEOUT:
+                        reportSyncLabel = GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
+                        reportSyncValue = GoogleAnalyticsFields.VALUE_CONNECTION_TIMEOUT;
                         receiver.displayMessage(Localization.get("sync.fail.timeout"), true);
                         break;
                     case DataPullTask.UNKNOWN_FAILURE:
+                        reportSyncLabel = GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
+                        reportSyncValue = GoogleAnalyticsFields.VALUE_UNKNOWN_FAILURE;
                         receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
                         break;
+                    default:
+                        reportSyncLabel = GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
+                        reportSyncValue = GoogleAnalyticsFields.VALUE_UNKNOWN_FAILURE;
+                }
+                if (userTriggeredSync) {
+                    GoogleAnalyticsUtils.reportSyncAttempt(
+                            GoogleAnalyticsFields.ACTION_USER_SYNC_ATTEMPT,
+                            reportSyncLabel, reportSyncValue);
+
+                } else {
+                    GoogleAnalyticsUtils.reportSyncAttempt(
+                            GoogleAnalyticsFields.ACTION_AUTO_SYNC_ATTEMPT,
+                            reportSyncLabel, reportSyncValue);
                 }
                 //TODO: What if the user info was updated?
-
             }
 
             @Override
@@ -1029,7 +1064,7 @@ public class CommCareHomeActivity
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         FormRecord[] records = StorageUtils.getUnsentRecords(storage);
 
-        if(records.length > 0) {
+        if (records.length > 0) {
             processAndSend(records, syncAfterwards, userTriggered);
             return true;
         } else {

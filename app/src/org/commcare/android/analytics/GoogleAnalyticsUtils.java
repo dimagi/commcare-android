@@ -93,6 +93,10 @@ public class GoogleAnalyticsUtils {
         reportAction(category, GoogleAnalyticsFields.ACTION_VIEW_PREF, label);
     }
 
+    public static void reportSyncAttempt(String action, String label, int value) {
+        reportAction(GoogleAnalyticsFields.CATEGORY_SERVER_COMMUNICATION, action, label, value);
+    }
+
     private static Tracker getTracker(String screenName) {
         Tracker t = CommCareApplication._().getDefaultTracker();
         t.setScreenName(screenName);
