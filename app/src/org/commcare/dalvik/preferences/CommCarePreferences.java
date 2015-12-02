@@ -228,6 +228,7 @@ public class CommCarePreferences
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
         menu.findItem(SUPERUSER_PREFS).setVisible(DeveloperPreferences.isSuperuserEnabled());
         return super.onPrepareOptionsMenu(menu);
     }
