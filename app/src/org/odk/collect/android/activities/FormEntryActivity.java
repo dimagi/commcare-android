@@ -295,7 +295,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         savingFormOnKeySessionExpiration = true;
         // start saving form, which will call the key session logout completion
         // function when it finishes.
-        saveIncompleteFormToDisk(EXIT, null, true);
+        saveIncompleteFormToDisk();
     }
 
     private void registerFormEntryReceiver() {
@@ -535,7 +535,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
         Uri imageURI =
                 getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-        Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
+        Log.i(TAG, "Inserting image returned uri = " + imageURI);
 
         mCurrentView.setBinaryData(imageURI, mFormController);
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
@@ -787,7 +787,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 createLanguageDialog();
                 return true;
             case MENU_SAVE:
-                saveFormToDisk(DO_NOT_EXIT, null, false);
+                saveFormToDisk(DO_NOT_EXIT);
                 return true;
             case MENU_HIERARCHY_VIEW:
                 if (currentPromptIsQuestion()) {
@@ -1347,21 +1347,21 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         dialog.show();
     }
 
-    private void saveFormToDisk(boolean exit, String updatedSaveName, boolean headless) {
+    private void saveFormToDisk(boolean exit) {
         if (formHasLoaded()) {
             boolean isFormComplete = isInstanceComplete();
-            saveDataToDisk(exit, isFormComplete, updatedSaveName, headless);
+            saveDataToDisk(exit, isFormComplete, null, false);
         } else if (exit) {
             showSaveErrorAndExit();
         }
     }
 
-    private void saveCompletedFormToDisk(boolean exit, String updatedSaveName, boolean headless) {
-        saveDataToDisk(exit, true, updatedSaveName, headless);
+    private void saveCompletedFormToDisk(String updatedSaveName) {
+        saveDataToDisk(EXIT, true, updatedSaveName, false);
     }
 
-    private void saveIncompleteFormToDisk(boolean exit, String updatedSaveName, boolean headless) {
-        saveDataToDisk(exit, false, updatedSaveName, headless);
+    private void saveIncompleteFormToDisk() {
+        saveDataToDisk(EXIT, false, null, true);
     }
 
     private void showSaveErrorAndExit() {
@@ -1453,7 +1453,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             View.OnClickListener saveIncompleteListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    saveFormToDisk(EXIT, null, false);
+                    saveFormToDisk(EXIT);
                 }
             };
             DialogChoiceItem saveIncompleteItem = new DialogChoiceItem(
@@ -1477,7 +1477,9 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         int instanceCount = 0;
         try {
             c = getContentResolver().query(instanceProviderContentURI, null, selection, null, null);
-            instanceCount = c.getCount();
+            if (c != null) {
+                instanceCount = c.getCount();
+            }
         } finally {
             if (c != null) {
                 c.close();
@@ -1799,6 +1801,10 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             Uri uri = intent.getData();
             final String contentType = getContentResolver().getType(uri);
             Uri formUri;
+            if (contentType == null){
+                CommCareHomeActivity.createErrorDialog(this, "form URI resolved to null", EXIT);
+                return;
+            }
 
             boolean isInstanceReadOnly = false;
             try {
@@ -1928,13 +1934,13 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
      */
     private String getDefaultFormTitle() {
         String saveName = mFormController.getFormTitle();
-        if (getContentResolver().getType(getIntent().getData()).equals(InstanceColumns.CONTENT_ITEM_TYPE)) {
+        if (InstanceColumns.CONTENT_ITEM_TYPE.equals(getContentResolver().getType(getIntent().getData()))) {
             Uri instanceUri = getIntent().getData();
 
             Cursor instance = null;
             try {
                 instance = getContentResolver().query(instanceUri, null, null, null, null);
-                if (instance.getCount() == 1) {
+                if (instance != null && instance.getCount() == 1) {
                     instance.moveToFirst();
                     saveName =
                         instance.getString(instance
@@ -1956,7 +1962,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         if (mFormController.isFormReadOnly()) {
             finishReturnInstance(false);
         } else {
-            saveCompletedFormToDisk(EXIT, getDefaultFormTitle(), false);
+            saveCompletedFormToDisk(getDefaultFormTitle());
         }
     }
 
@@ -2169,7 +2175,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             Cursor c = null;
             try {
                 c = getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs, null);
-                if (c.getCount() > 0) {
+                if (c != null && c.getCount() > 0) {
                     // should only be one...
                     c.moveToFirst();
                     String id = c.getString(c.getColumnIndex(InstanceColumns._ID));
@@ -2201,7 +2207,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         finish();
     }
 
-    protected boolean isBlockingUserInput() {
+    private boolean isBlockingUserInput() {
         View cover = this.findViewById(R.id.form_entry_cover);
 
         return cover != null && cover.getVisibility() == View.VISIBLE;
@@ -2340,7 +2346,9 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         Cursor c = null;
         try {
             c = getContentResolver().query(uri, null, null, null, null);
-            if (c.getCount() != 1) {
+            if (c == null) {
+                throw new FormQueryException("Bad URI: resolved to null");
+            } else if (c.getCount() != 1) {
                 throw new FormQueryException("Bad URI: " + uri);
             } else {
                 c.moveToFirst();
@@ -2360,7 +2368,9 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         Uri formUri = null;
         try {
             instanceCursor = getContentResolver().query(uri, null, null, null, null);
-            if (instanceCursor.getCount() != 1) {
+            if (instanceCursor == null) {
+                throw new FormQueryException("Bad URI: resolved to null");
+            } else if (instanceCursor.getCount() != 1) {
                 throw new FormQueryException("Bad URI: " + uri);
             } else {
                 instanceCursor.moveToFirst();
@@ -2385,14 +2395,14 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 final String selection = FormsColumns.JR_FORM_ID + " like ?";
 
                 formCursor = getContentResolver().query(formProviderContentURI, null, selection, selectionArgs, null);
-                if (formCursor.getCount() == 1) {
+                if (formCursor == null || formCursor.getCount() < 1) {
+                    throw new FormQueryException("Parent form does not exist");
+                } else if (formCursor.getCount() == 1) {
                     formCursor.moveToFirst();
                     mFormPath =
                             formCursor.getString(formCursor
                                     .getColumnIndex(FormsColumns.FORM_FILE_PATH));
                     formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsColumns._ID)));
-                } else if (formCursor.getCount() < 1) {
-                    throw new FormQueryException("Parent form does not exist");
                 } else if (formCursor.getCount() > 1) {
                     throw new FormQueryException("More than one possible parent form");
                 }
