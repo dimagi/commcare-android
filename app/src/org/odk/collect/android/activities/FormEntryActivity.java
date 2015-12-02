@@ -357,8 +357,14 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             @Override
             public void onClick(View v) {
                 if (!"done".equals(v.getTag())) {
+                    GoogleAnalyticsUtils.reportFormNavForward(
+                            GoogleAnalyticsFields.LABEL_ARROW,
+                            GoogleAnalyticsFields.VALUE_NOT_ON_LAST_SCREEN);
                     FormEntryActivity.this.showNextView();
                 } else {
+                    GoogleAnalyticsUtils.reportFormNavForward(
+                            GoogleAnalyticsFields.LABEL_ARROW,
+                            GoogleAnalyticsFields.VALUE_ON_LAST_SCREEN);
                     triggerUserFormComplete();
                 }
             }
@@ -368,6 +374,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             @Override
             public void onClick(View v) {
                 if (!"quit".equals(v.getTag())) {
+                    GoogleAnalyticsUtils.reportFormNavBackward(GoogleAnalyticsFields.LABEL_ARROW);
                     FormEntryActivity.this.showPreviousView(true);
                 } else {
                     FormEntryActivity.this.triggerUserQuitInput();
@@ -1446,6 +1453,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         View.OnClickListener stayInFormListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_BACK_TO_FORM);
                 dialog.dismiss();
             }
         };
@@ -1457,6 +1465,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         View.OnClickListener exitFormListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_EXIT_NO_SAVE);
                 discardChangesAndExit();
             }
         };
@@ -1470,6 +1479,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             View.OnClickListener saveIncompleteListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_SAVE_AND_EXIT);
                     saveFormToDisk(EXIT, null, false);
                 }
             };
@@ -2227,6 +2237,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
     @Override
     protected boolean onBackwardSwipe() {
+        GoogleAnalyticsUtils.reportFormNavBackward(GoogleAnalyticsFields.LABEL_SWIPE);
         if(isBlockingUserInput()) {
             return true;
         }
@@ -2244,9 +2255,15 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         //swipe forward.
         ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
         if(nextButton.getTag().equals(NAV_STATE_NEXT)) {
+            GoogleAnalyticsUtils.reportFormNavForward(
+                    GoogleAnalyticsFields.LABEL_SWIPE,
+                    GoogleAnalyticsFields.VALUE_NOT_ON_LAST_SCREEN);
             next();
             return true;
         } else {
+            GoogleAnalyticsUtils.reportFormNavForward(
+                    GoogleAnalyticsFields.LABEL_SWIPE,
+                    GoogleAnalyticsFields.VALUE_ON_LAST_SCREEN);
             FormNavigationUI.animateFinishArrow(this, mFormController, mCurrentView);
             return true;
         }

@@ -25,6 +25,29 @@ public class GoogleAnalyticsUtils {
                 .build());
     }
 
+    public static void reportAction(String category, String action, String label, int value) {
+        getTracker().send(new HitBuilders.EventBuilder()
+                .setCategory(category)
+                .setAction(action)
+                .setLabel(label)
+                .setValue(value)
+                .build());
+    }
+
+    public static void reportFormNavForward(String label, int value) {
+        reportAction(
+                GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
+                GoogleAnalyticsFields.ACTION_FORWARD,
+                label, value);
+    }
+
+    public static void reportFormNavBackward(String label) {
+        reportAction(
+                GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
+                GoogleAnalyticsFields.ACTION_BACKWARD,
+                label);
+    }
+
     public static void reportFormQuitAttempt(String label) {
         reportAction(GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
                 GoogleAnalyticsFields.ACTION_QUIT_ATTEMPT, label);

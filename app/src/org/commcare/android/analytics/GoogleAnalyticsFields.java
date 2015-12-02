@@ -74,8 +74,11 @@ public final class GoogleAnalyticsFields {
     public static int VALUE_DISABLED = 0;
     public static int VALUE_ENABLED = 1;
 
+    // Values for LABEL_ARROW and LABEL_SWIPE (in ACTION_FORWARD)
+    public static int VALUE_NOT_ON_LAST_SCREEN = 0;
+    public static int VALUE_ON_LAST_SCREEN = 1;
+
     // Screen Names
     public static String SCREEN_HOME = "CommCareHomeActivity";
-
 
 }
