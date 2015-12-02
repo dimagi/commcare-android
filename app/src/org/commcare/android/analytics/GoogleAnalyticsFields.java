@@ -38,11 +38,11 @@ public final class GoogleAnalyticsFields {
     public static String ACTION_OPEN_SAVED_FORM = "Open a Saved Form";
 
     // Labels for ACTION_BUTTON
-    public static String LABEL_START = "Start Button";
-    public static String LABEL_SAVED_FORMS = "Saved Forms Button";
-    public static String LABEL_INCOMPLETE_FORMS = "Incomplete Forms Button";
-    public static String LABEL_SYNC = "Sync Button";
-    public static String LABEL_LOGOUT = "Logout Button";
+    public static String LABEL_START_BUTTON = "Start Button";
+    public static String LABEL_SAVED_FORMS_BUTTON = "Saved Forms Button";
+    public static String LABEL_INCOMPLETE_FORMS_BUTTON = "Incomplete Forms Button";
+    public static String LABEL_SYNC_BUTTON = "Sync Button";
+    public static String LABEL_LOGOUT_BUTTON = "Logout Button";
 
     // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_CC_PREFS
     public static String LABEL_APP_SERVER = "CC Application Server";
@@ -58,6 +58,18 @@ public final class GoogleAnalyticsFields {
     // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_FORM_PREFS
     public static String LABEL_FONT_SIZE = "Font Size";
     public static String LABEL_INLINE_HELP = "Rich Help Inline";
+
+    // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_HOME_SCREEN
+    public static String LABEL_SETTINGS = "Settings";
+    public static String LABEL_UPDATE_CC = "Update CommCare";
+    public static String LABEL_CALL_LOG = "Call Log";
+    public static String LABEL_REPORT_PROBLEM = "Report Problem";
+    public static String LABEL_VALIDATE_MM = "Validate Media";
+    public static String LABEL_MANAGE_SD = "Manage SD";
+    public static String LABEL_WIFI_DIRECT = "Wifi Direct";
+    public static String LABEL_CONNECTION_TEST = "Connection Test";
+    public static String LABEL_SAVED_FORMS = "Saved Forms";
+    public static String LABEL_ABOUT_CC = "About CommCare";
 
     // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_FORM_ENTRY
     public static String LABEL_SAVE_FORM = "Save Form";

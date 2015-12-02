@@ -1428,38 +1428,53 @@ public class CommCareHomeActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case MENU_PREFERENCES:
+                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_SETTINGS);
                 createPreferencesMenu(this);
                 return true;
             case MENU_UPDATE:
+                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_UPDATE_CC);
                 Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
                 startActivity(i);
                 return true;
             case MENU_CALL_LOG:
+                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_CALL_LOG);
                 createCallLogActivity();
                 return true;
             case MENU_REPORT_PROBLEM:
+                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_REPORT_PROBLEM);
                 startReportActivity();
                 return true;
             case MENU_VALIDATE_MEDIA:
+                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_VALIDATE_MM);
                 startValidationActivity();
                 return true;
             case MENU_DUMP_FORMS:
+                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_MANAGE_SD);
                 startFormDumpActivity();
                 return true;
             case MENU_WIFI_DIRECT:
+                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_WIFI_DIRECT);
                 startWifiDirectActivity();
                 return true;
             case MENU_CONNECTION_DIAGNOSTIC:
+                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_CONNECTION_TEST);
                 startMenuConnectionActivity();
                 return true;
             case MENU_SAVED_FORMS:
+                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_SAVED_FORMS);
                 goToFormArchive(false);
                 return true;
             case MENU_ABOUT:
+                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_ABOUT_CC);
                 showAboutCommCareDialog();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private static void reportOptionsItemEntry(String label) {
+        GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
+                GoogleAnalyticsFields.CATEGORY_HOME_SCREEN, label);
     }
 
     public static void createPreferencesMenu(Activity activity) {

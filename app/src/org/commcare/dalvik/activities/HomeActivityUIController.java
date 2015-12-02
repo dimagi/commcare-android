@@ -193,7 +193,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getViewOldFormsListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
-                reportButtonClick(GoogleAnalyticsFields.LABEL_SAVED_FORMS);
+                reportButtonClick(GoogleAnalyticsFields.LABEL_SAVED_FORMS_BUTTON);
                 activity.goToFormArchive(false);
             }
         };
@@ -202,7 +202,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getSyncButtonListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
-                reportButtonClick(GoogleAnalyticsFields.LABEL_SYNC);
+                reportButtonClick(GoogleAnalyticsFields.LABEL_SYNC_BUTTON);
                 activity.syncButtonPressed();
             }
         };
@@ -211,7 +211,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getStartButtonListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
-                reportButtonClick(GoogleAnalyticsFields.LABEL_START);
+                reportButtonClick(GoogleAnalyticsFields.LABEL_START_BUTTON);
                 activity.enterRootModule();
             }
         };
@@ -220,7 +220,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getIncompleteButtonListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
-                reportButtonClick(GoogleAnalyticsFields.LABEL_INCOMPLETE_FORMS);
+                reportButtonClick(GoogleAnalyticsFields.LABEL_INCOMPLETE_FORMS_BUTTON);
                 activity.goToFormArchive(true);
             }
         };
@@ -229,7 +229,7 @@ public class HomeActivityUIController {
     private View.OnClickListener getLogoutButtonListener() {
         return new View.OnClickListener() {
             public void onClick(View v) {
-                reportButtonClick(GoogleAnalyticsFields.LABEL_LOGOUT);
+                reportButtonClick(GoogleAnalyticsFields.LABEL_LOGOUT_BUTTON);
                 CommCareApplication._().closeUserSession();
                 activity.userTriggeredLogout();
             }
