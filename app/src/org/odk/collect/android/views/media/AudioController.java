@@ -137,19 +137,19 @@ public enum AudioController {
         }
     }
 
-    protected boolean isMediaLoaded() {
+    boolean isMediaLoaded() {
         return currentEntity != null;
     }
 
-    protected ViewId getMediaViewId() {
+    ViewId getMediaViewId() {
         return currentEntity.getId();
     }
 
-    protected String getMediaUri() {
+    String getMediaUri() {
         return currentEntity.getSource();
     }
 
-    protected MediaState getMediaState() {
+    MediaState getMediaState() {
         return currentEntity.getState();
     }
 }

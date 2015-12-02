@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.odk.collect.android.utilities;
 
 import android.content.Context;
@@ -20,11 +17,9 @@ import dalvik.system.DexFile;
 
 /**
  * @author ctsims
- *
  */
 public class ApkUtils {
     private static PrototypeFactory factory;
-
 
     public static PrototypeFactory getPrototypeFactory(Context c) {
         if(factory != null) {
@@ -61,22 +56,18 @@ public class ApkUtils {
         
     }
     
-    /* Scans all classes accessible from the context class loader which belong to the given package and subpackages.
-    *
-    * @param packageName The base package
-    * @return The classes
-    * @throws ClassNotFoundException
-    * @throws IOException
-    */
+    /**
+     *  Scans all classes accessible from the context class loader which belong to the given package and subpackages.
+     *
+     * @param packageName The base package
+     */
    @SuppressWarnings("unchecked")
     private static List<String> getClasses(String packageName, Context c)
-           throws IOException 
-   {
-       ArrayList<String> classNames = new ArrayList<String>();
+           throws IOException {
+       ArrayList<String> classNames = new ArrayList<>();
        
        String zpath = c.getApplicationInfo().sourceDir;
-       
-       
+
        if(zpath == null) {
            zpath = "/data/app/org.odk.collect.apk";
        }
@@ -110,5 +101,4 @@ public class ApkUtils {
        
        return classNames;
    }
-
 }

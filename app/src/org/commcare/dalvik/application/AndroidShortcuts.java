@@ -24,8 +24,8 @@ public class AndroidShortcuts extends Activity {
 
     public static final String EXTRA_KEY_SHORTCUT = "org.commcare.dalvik.application.shortcut.command";
 
-    String[] commands;
-    String[] names;
+    private String[] commands;
+    private String[] names;
     
     @Override
     protected void onCreate(Bundle bundle) {
@@ -48,7 +48,6 @@ public class AndroidShortcuts extends Activity {
                 AndroidShortcuts sc = AndroidShortcuts.this;
                 sc.setResult(RESULT_CANCELED);
                 sc.finish();
-                return;
             }
         });
         dialog.show();
@@ -66,8 +65,8 @@ public class AndroidShortcuts extends Activity {
                 }
             }
         }
-        this.names = names.toArray(new String[0]);
-        this.commands = commands.toArray(new String[0]);
+        this.names = names.toArray(new String[names.size()]);
+        this.commands = commands.toArray(new String[commands.size()]);
 
         DialogChoiceItem[] choiceItems = new DialogChoiceItem[names.size()];
         for (int i = 0; i < names.size(); i++) {
@@ -86,9 +85,6 @@ public class AndroidShortcuts extends Activity {
         return choiceItems;
     }
     
-    /**
-     * 
-     */
     private void returnShortcut(String name, String command) {
         Intent shortcutIntent = new Intent(Intent.ACTION_MAIN);
         shortcutIntent.setClassName(this, CommCareHomeActivity.class.getName());
@@ -107,6 +103,5 @@ public class AndroidShortcuts extends Activity {
 
         setResult(RESULT_OK, intent);
         finish();
-        return;
     }
 }

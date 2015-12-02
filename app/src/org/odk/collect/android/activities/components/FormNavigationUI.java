@@ -33,7 +33,7 @@ public class FormNavigationUI {
      * @param view ODKView to update
      */
     public static void updateNavigationCues(CommCareActivity activity, FormController formController, View view) {
-        updateFloatingLabels(activity, formController, view);
+        updateFloatingLabels(activity, view);
 
         FormNavigationController.NavigationDetails details;
         try {
@@ -91,7 +91,7 @@ public class FormNavigationUI {
         progressBar.getProgressDrawable().setBounds(bounds);  //Set the bounds to the saved value
     }
 
-    public static void animateFinishArrow(CommCareActivity activity, FormController formController, View view) {
+    public static void animateFinishArrow(CommCareActivity activity) {
         ImageButton nextButton = (ImageButton)activity.findViewById(R.id.nav_btn_next);
         final View coverView = activity.findViewById(R.id.form_entry_cover);
 
@@ -135,7 +135,7 @@ public class FormNavigationUI {
         }
     }
 
-    private static void updateFloatingLabels(CommCareActivity activity, FormController formController, View currentView) {
+    private static void updateFloatingLabels(CommCareActivity activity, View currentView) {
         //TODO: this should actually be set up to scale per screen size.
         ArrayList<Pair<String, FloatingLabel>> smallLabels = new ArrayList<>();
         ArrayList<Pair<String, FloatingLabel>> largeLabels = new ArrayList<>();

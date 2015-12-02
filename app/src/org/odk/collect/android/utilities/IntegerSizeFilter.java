@@ -9,7 +9,6 @@ import android.text.Spanned;
  * An InputFilter that limits the characters a user can enter,
  * based on whether or not they represent a valid integer in Java.
  * Used by IntegerWidget.java.
- *
  */
 
 public class IntegerSizeFilter implements InputFilter {
@@ -23,10 +22,10 @@ public class IntegerSizeFilter implements InputFilter {
         }
         String part1 = destString.substring(0, dstart);
         String part2 = destString.substring(dend);
-        String newString = part1 + (String)source.subSequence(start, end).toString() + part2;
+        String newString = part1 + source.subSequence(start, end).toString() + part2;
         
         try {
-            Integer x = Integer.parseInt((String)newString);
+            Integer x = Integer.parseInt(newString);
             return null; //keep original
         }
         catch (NumberFormatException e) {

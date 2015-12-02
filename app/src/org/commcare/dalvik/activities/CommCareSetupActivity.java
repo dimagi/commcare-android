@@ -78,12 +78,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public static final String KEY_INSTALL_FAILED = "install_failed";
 
     /**
-     * Activity is being launched by auto update, instead of being triggered
-     * manually.
-     */
-    public static final String KEY_LAST_INSTALL = "last_install_time";
-
-    /**
      * How many sms messages to scan over looking for commcare install link
      */
     private static final int SMS_CHECK_COUNT = 100;
@@ -94,8 +88,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public enum UiState {
         IN_URL_ENTRY,
         CHOOSE_INSTALL_ENTRY_METHOD,
-        READY_TO_INSTALL,
-        ERROR
+        READY_TO_INSTALL
     }
 
     private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;

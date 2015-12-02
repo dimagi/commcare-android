@@ -62,10 +62,8 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             if (e instanceof EncryptedModel) {
                 em = (EncryptedModel) e;
             }
-        } catch (InstantiationException ie) {
+        } catch (IllegalAccessException | InstantiationException ie) {
             ie.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
         }
     }
 
@@ -547,16 +545,18 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                     continue;
                 case EntityFilter.PREFILTER_EXCLUDE:
                     continue;
-            }
-            if (ef.matches(read(id))) {
-                removed.add(id);
+                case EntityFilter.PREFILTER_FILTER:
+                    if (ef.matches(read(id))) {
+                        removed.add(id);
+                    }
             }
         }
-        
-        if(removed.size() == 0) { return removed; }
+
+        if (removed.size() == 0) {
+            return removed;
+        }
         
         List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(removed);
-
 
         SQLiteDatabase db;
         try {

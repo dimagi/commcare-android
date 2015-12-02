@@ -31,12 +31,11 @@ import java.util.Vector;
  */
 public class FormController implements PendingCalloutInterface {
 
-    private static final String t = "FormController";
-    private FormEntryController mFormEntryController;
+    private final FormEntryController mFormEntryController;
 
     private FormIndex mPendingCalloutFormIndex = null;
     
-    private boolean mReadOnly;
+    private final boolean mReadOnly;
 
     public static final boolean STEP_OVER_GROUP = true;
     public static final boolean STEP_INTO_GROUP = false;
@@ -63,22 +62,13 @@ public class FormController implements PendingCalloutInterface {
         }
     }
 
-
-    public FormController(FormEntryController fec) {
-        this(fec, false);
-    }
-    
     public FormController(FormEntryController fec, boolean readOnly) {
         mFormEntryController = fec;
         mReadOnly = readOnly;
     }
-    
-
 
     /**
      * returns the event for the current FormIndex.
-     * 
-     * @return
      */
     public int getEvent() {
         return mFormEntryController.getModel().getEvent();
@@ -87,22 +77,11 @@ public class FormController implements PendingCalloutInterface {
 
     /**
      * returns the event for the given FormIndex.
-     * 
-     * @param index
-     * @return
      */
     public int getEvent(FormIndex index) {
         return mFormEntryController.getModel().getEvent(index);
     }
 
-
-    /**
-     * @return true if current FormIndex is readonly. false otherwise.
-     */
-    public boolean isIndexReadonly() {
-        return mFormEntryController.getModel().isIndexReadonly();
-    }
-    
     /**
      * @return true if this form session is in read only mode
      */
@@ -110,14 +89,12 @@ public class FormController implements PendingCalloutInterface {
         return mReadOnly;
     }
 
-
     /**
      * @return current FormIndex.
      */
     public FormIndex getFormIndex() {
         return mFormEntryController.getModel().getFormIndex();
     }
-
 
     /**
      * Return the langauges supported by the currently loaded form.
@@ -128,14 +105,12 @@ public class FormController implements PendingCalloutInterface {
         return mFormEntryController.getModel().getLanguages();
     }
 
-
     /**
      * @return A String containing the title of the current form.
      */
     public String getFormTitle() {
         return mFormEntryController.getModel().getFormTitle();
     }
-
 
     /**
      * @return the currently selected language.
@@ -144,66 +119,33 @@ public class FormController implements PendingCalloutInterface {
         return mFormEntryController.getModel().getLanguage();
     }
 
-
-    /**
-     * @return an array of FormEntryCaptions for the current FormIndex. This is how we get group
-     *         information Group 1 > Group 2> etc... The element at [size-1] is the current question
-     *         text, with group names decreasing in hierarchy until array element at [0] is the root
-     */
-    public FormEntryCaption[] getCaptionHierarchy() {
-        return mFormEntryController.getModel().getCaptionHierarchy();
-    }
-
-
     /**
      * Returns a caption prompt for the given index. This is used to create a multi-question per
      * screen view.
-     * 
-     * @param index
-     * @return
      */
     public FormEntryCaption getCaptionPrompt(FormIndex index) {
         return mFormEntryController.getModel().getCaptionPrompt(index);
     }
 
-
     /**
      * Return the caption for the current FormIndex. This is usually used for a repeat prompt.
-     * 
-     * @return
      */
     public FormEntryCaption getCaptionPrompt() {
         return mFormEntryController.getModel().getCaptionPrompt();
     }
 
-
-    /**
-     * TODO: We need a good description of what this does, exactly, and why.
-     * 
-     * @return
-     */
     public boolean postProcessInstance() {
         return mFormEntryController.getModel().getForm().postProcessInstance();
     }
 
-
-    /**
-     * TODO: We need a good description of what this does, exactly, and why.
-     * 
-     * @return
-     */
     public FormInstance getInstance() {
         return mFormEntryController.getModel().getForm().getInstance();
     }
-
 
     /**
      * A convenience method for determining if the current FormIndex is a group that is/should be
      * displayed as a multi-question view of all of its descendants. This is useful for returning 
      * from the formhierarchy view to a selected index.
-     * 
-     * @param index
-     * @return
      */
     private boolean isFieldListHost(FormIndex index) {
         // if this isn't a group, return right away
@@ -219,18 +161,15 @@ public class FormController implements PendingCalloutInterface {
         return (ODKView.FIELD_LIST.equalsIgnoreCase(gd.getAppearanceAttr()));
     }
 
-
     /**
      * Tests if the FormIndex 'index' is located inside a group that is marked as a "field-list"
      * 
-     * @param index
      * @return true if index is in a "field-list". False otherwise.
      */
-    public boolean indexIsInFieldList(FormIndex index) {
+    private boolean indexIsInFieldList(FormIndex index) {
     	FormIndex fieldListHost = this.getFieldListHost(index);
     	return fieldListHost != null;
     }
-
 
     /**
      * Tests if the current FormIndex is located inside a group that is marked as a "field-list"
@@ -240,7 +179,6 @@ public class FormController implements PendingCalloutInterface {
     public boolean indexIsInFieldList() {
         return indexIsInFieldList(mFormEntryController.getModel().getFormIndex());
     }
-
 
     /**
      * Attempts to save answer at the current FormIndex into the data model.
@@ -272,31 +210,17 @@ public class FormController implements PendingCalloutInterface {
     }
 
     /**
-     * saveAnswer attempts to save the current answer into the data model without doing any
-     * constraint checking. Only use this if you know what you're doing. For normal form filling you
-     * should always use answerQuestion().
-     * 
-     * @return true if saved successfully, false otherwise.
-     */
-    public boolean saveAnswer(IAnswerData data) {
-        return mFormEntryController.saveAnswer(data);
-    }
-
-    /**
      * Navigates forward in the form, expanding any repeats encountered.
      * 
      * @return the next event that should be handled by a view.
      */
     public int stepToNextEvent(boolean stepOverGroup) {
-       return stepToNextEvent(stepOverGroup, true);
+        FormIndex nextIndex = getNextFormIndex(mFormEntryController.getModel().getFormIndex(), stepOverGroup, true);
+        return jumpToIndex(nextIndex);
     }
-    
-    
+
     /**
      * Get the FormIndex after the given one.
-     * @param index
-     * @param stepOverGroup
-     * @return FormIndex
      */
     public FormIndex getNextFormIndex(FormIndex index, boolean stepOverGroup) {
         return getNextFormIndex(index, stepOverGroup, true);
@@ -304,10 +228,6 @@ public class FormController implements PendingCalloutInterface {
     
     /**
      * Get the FormIndex after the given one.
-     * @param index
-     * @param stepOverGroup
-     * @param expandRepeats
-     * @return FormIndex
      */
     public FormIndex getNextFormIndex(FormIndex index, boolean stepOverGroup, boolean expandRepeats) {
         //TODO: this won't actually catch the case where there are nested field lists properly
@@ -323,17 +243,6 @@ public class FormController implements PendingCalloutInterface {
     }
 
     /**
-     * Navigates forward in the form.
-     * 
-     * @return the next event that should be handled by a view.
-     */
-    public int stepToNextEvent(boolean stepOverGroup, boolean expandRepeats) {
-        FormIndex nextIndex = getNextFormIndex(mFormEntryController.getModel().getFormIndex(), stepOverGroup, expandRepeats);
-        return jumpToIndex(nextIndex);
-    }
-
-
-    /**
      * From the given FormIndex which must be a group element, 
      * find the next index which is outside of that group.
      * @return FormIndex
@@ -346,7 +255,6 @@ public class FormController implements PendingCalloutInterface {
         }
         return walker;
     }
-
 
     /**
      * Navigates backward in the form.
@@ -380,9 +288,6 @@ public class FormController implements PendingCalloutInterface {
     
     /**
      * Retrieves the index of the Group that is the host of a given field list. 
-     * 
-     * @param child
-     * @return
      */
     private FormIndex getFieldListHost(FormIndex child) {
         int event = mFormEntryController.getModel().getEvent(child);
@@ -415,23 +320,11 @@ public class FormController implements PendingCalloutInterface {
     /**
      * Jumps to a given FormIndex.
      * 
-     * @param index
      * @return EVENT for the specified Index.
      */
     public int jumpToIndex(FormIndex index) {
         return mFormEntryController.jumpToIndex(index);
     }
-
-
-    /**
-     * Creates a new repeated instance of the group referenced by the specified FormIndex.
-     * 
-     * @param questionIndex
-     */
-    public void newRepeat(FormIndex questionIndex) {
-        mFormEntryController.newRepeat(questionIndex);
-    }
-
 
     /**
      * Creates a new repeated instance of the group referenced by the current FormIndex.
@@ -440,22 +333,8 @@ public class FormController implements PendingCalloutInterface {
         mFormEntryController.newRepeat();
     }
 
-
-    /**
-     * If the current FormIndex is within a repeated group, will find the innermost repeat, delete
-     * it, and jump the FormEntryController to the previous valid index. That is, if you have group1
-     * (2) > group2 (3) and you call deleteRepeat, it will delete the 3rd instance of group2.
-     */
-    public void deleteRepeat() {
-        FormIndex fi = mFormEntryController.deleteRepeat();
-        mFormEntryController.jumpToIndex(fi);
-    }
-
-
     /**
      * Sets the current language.
-     * 
-     * @param language
      */
     public void setLanguage(String language) {
         mFormEntryController.setLanguage(language);
@@ -463,7 +342,6 @@ public class FormController implements PendingCalloutInterface {
 
     /**
      * Expand any unexpanded repeats at the given FormIndex
-     * @param index
      */
     public void expandRepeats(FormIndex index) {
         mFormEntryController.expandRepeats(index);
@@ -471,8 +349,6 @@ public class FormController implements PendingCalloutInterface {
 
     /**
      * getQuestionPrompts for the current index 
-     * @return Array of FormEntryPrompt objects
-     * @throws RuntimeException
      */
     public FormEntryPrompt[] getQuestionPrompts() throws RuntimeException {
         return getQuestionPrompts(mFormEntryController.getModel().getFormIndex());
@@ -482,8 +358,6 @@ public class FormController implements PendingCalloutInterface {
      * Returns an array of relevant question prompts that should be displayed as a single screen.
      * If the given form index is a question, it is returned. Otherwise if the 
      * given index is a field list (and _only_ when it is a field list)
-     * 
-     * @return
      */
     public FormEntryPrompt[] getQuestionPrompts(FormIndex currentIndex) throws RuntimeException {
         
@@ -495,7 +369,7 @@ public class FormController implements PendingCalloutInterface {
         	if(!this.isFieldListHost(currentIndex)) { throw new RuntimeException("Cannot get question prompts from a non-field-list group"); }
 
             // Questions to collect
-            ArrayList<FormEntryPrompt> questionList = new ArrayList<FormEntryPrompt>();
+            ArrayList<FormEntryPrompt> questionList = new ArrayList<>();
                         
             //Step over all events in this field list and collect them
             FormIndex walker = currentIndex;
@@ -525,21 +399,16 @@ public class FormController implements PendingCalloutInterface {
         }   
     }
 
-    
     public FormEntryPrompt getQuestionPrompt(FormIndex index) {
         return mFormEntryController.getModel().getQuestionPrompt(index);
     }
-
 
     public FormEntryPrompt getQuestionPrompt() {
         return mFormEntryController.getModel().getQuestionPrompt();
     }
 
-
     /**
      * Returns an array of FormEntryCaptions for current FormIndex.
-     * 
-     * @return
      */
     public FormEntryCaption[] getGroupsForCurrentIndex() {
         // return an empty array if you ask for something impossible
@@ -562,59 +431,6 @@ public class FormController implements PendingCalloutInterface {
         System.arraycopy(v, 0, groups, 0, v.length - lastquestion);
         return groups;
     }
-
-
-    /**
-     * This is used to enable/disable the "Delete Repeat" menu option.
-     * 
-     * @return
-     */
-    public boolean indexContainsRepeatableGroup() {
-        FormEntryCaption[] groups = mFormEntryController.getModel().getCaptionHierarchy();
-        if (groups.length == 0) {
-            return false;
-        }
-        for (int i = 0; i < groups.length; i++) {
-            if (groups[i].repeats())
-                return true;
-        }
-        return false;
-    }
-
-
-    /**
-     * The count of the closest group that repeats or -1.
-     */
-    public int getLastRepeatedGroupRepeatCount() {
-        FormEntryCaption[] groups = mFormEntryController.getModel().getCaptionHierarchy();
-        if (groups.length > 0) {
-            for (int i = groups.length - 1; i > -1; i--) {
-                if (groups[i].repeats()) {
-                    return groups[i].getMultiplicity();
-
-                }
-            }
-        }
-        return -1;
-    }
-
-
-    /**
-     * The name of the closest group that repeats or null.
-     */
-    public String getLastRepeatedGroupName() {
-        FormEntryCaption[] groups = mFormEntryController.getModel().getCaptionHierarchy();
-        // no change
-        if (groups.length > 0) {
-            for (int i = groups.length - 1; i > -1; i--) {
-                if (groups[i].repeats()) {
-                    return groups[i].getLongText();
-                }
-            }
-        }
-        return null;
-    }
-
 
     /**
      * The closest group the prompt belongs to.
@@ -641,7 +457,6 @@ public class FormController implements PendingCalloutInterface {
 
     }
 
-
     /**
      * The text of closest group the prompt belongs to.
      */
@@ -654,8 +469,6 @@ public class FormController implements PendingCalloutInterface {
     
     /**
      * Find the portion of the form that is to be submitted
-     * 
-     * @return
      */
     private XPathReference getSubmissionDataReference() {
         FormDef formDef = mFormEntryController.getModel().getForm();
@@ -685,25 +498,17 @@ public class FormController implements PendingCalloutInterface {
     
     /**
      * Extract the portion of the form that should be uploaded to the server.
-     * 
-     * @return
-     * @throws IOException
      */
     public ByteArrayPayload getSubmissionXml() throws IOException {
         FormInstance instance = getInstance();
         XFormSerializingVisitor serializer = new XFormSerializingVisitor();
-        ByteArrayPayload payload = 
-                (ByteArrayPayload) serializer.createSerializedPayload(instance,
+
+        return (ByteArrayPayload) serializer.createSerializedPayload(instance,
                                                    getSubmissionDataReference());
-        return payload;
     }
     
     /**
      * Traverse the submission looking for the first matching tag in depth-first order.
-     * 
-     * @param parent
-     * @param name
-     * @return
      */
     private TreeElement findDepthFirst(TreeElement parent, String name) {
         int len = parent.getNumChildren();
@@ -721,7 +526,6 @@ public class FormController implements PendingCalloutInterface {
     
     /**
      * Get the OpenRosa required metadata of the portion of the form beng submitted
-     * @return
      */
     public InstanceMetadata getSubmissionMetadata() {
         FormDef formDef = mFormEntryController.getModel().getForm();

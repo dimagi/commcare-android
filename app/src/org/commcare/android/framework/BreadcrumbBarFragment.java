@@ -265,7 +265,7 @@ public class BreadcrumbBarFragment extends Fragment {
                         Detail detail = factory.getDetail();
                         mInternalDetailView.setDetail(detail);
 
-                        mInternalDetailView.refresh(factory.getDetail(), tileData.second,0, false);
+                        mInternalDetailView.refresh(factory.getDetail(), tileData.second,0);
                     }
                     infoButton.setImageResource(R.drawable.icon_info_fill_brandbg);
                     expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
