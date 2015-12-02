@@ -2235,7 +2235,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             next();
             return true;
         } else {
-            FormNavigationUI.animateFinishArrow(this, mFormController, mCurrentView);
+            FormNavigationUI.animateFinishArrow(this);
             return true;
         }
     }
