@@ -100,7 +100,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
      * @param viewId  Set button's residing view id to this ListAdapter view id.
      * @param visible Should the button be visible?
      */
-    void resetButton(String URI, ViewId viewId, boolean visible) {
+    private void resetButton(String URI, ViewId viewId, boolean visible) {
         resetButton(URI, visible);
         this.residingViewId = viewId;
     }
@@ -146,7 +146,7 @@ public class AudioButton extends ImageButton implements OnClickListener {
     /**
      * Change button appearance to match the playback state.
      */
-    void refreshAppearance() {
+    private void refreshAppearance() {
         switch (currentState) {
             case Ready:
                 this.setImageResource(R.drawable.icon_audioplay_lightcool);

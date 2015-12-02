@@ -36,13 +36,13 @@ public class MetaDataXmlParser extends TransactionParser<String[]> {
             if("timestart".equals(item.toLowerCase())) {
                 String start = parser.nextText().trim();
                 //Only update modified if time end hasn't set it
-                if(lastModified == null || lastModified == "") {
+                if(lastModified == null || "".equals(lastModified)) {
                     lastModified = start;
                 }
             }
             else if("timeend".equals(item.toLowerCase())) {
                 String end = parser.nextText().trim();
-                if(end != null && end != "") {
+                if(!"".equals(end)) {
                     lastModified = end;
                 }
             }

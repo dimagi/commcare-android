@@ -31,19 +31,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-import javax.crypto.Cipher;
-
 /**
  * @author ctsims
  */
 public class AndroidCaseXmlParser extends CaseXmlParser {
-    Cipher attachmentCipher;
-    Cipher userCipher;
-    File folder;
-    boolean processAttachments = true;
-    HttpRequestGenerator generator;
-    EntityStorageCache mEntityCache;
-    CaseIndexTable mCaseIndexTable;
+    private File folder;
+    private final boolean processAttachments = true;
+    private HttpRequestGenerator generator;
+    private final EntityStorageCache mEntityCache;
+    private final CaseIndexTable mCaseIndexTable;
     
     public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage,
                                 EntityStorageCache entityCache, CaseIndexTable indexTable) {
@@ -56,16 +52,6 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         this(parser, storage, new EntityStorageCache("case"), new CaseIndexTable());
     }
     
-    //TODO: Sync the following two constructors!
-    public AndroidCaseXmlParser(KXmlParser parser, IStorageUtilityIndexed storage,
-                                Cipher attachmentCipher, Cipher userCipher, File folder) {
-        this(parser, storage);
-        this.attachmentCipher = attachmentCipher;
-        this.userCipher = userCipher;
-        this.folder = folder;
-        processAttachments = true;
-    }
-
     public AndroidCaseXmlParser(KXmlParser parser, int[] tallies,
                                 boolean b, IStorageUtilityIndexed<Case> storage,
                                 HttpRequestGenerator generator) {
@@ -214,9 +200,8 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
             }
         }
         
-        return new Pair<File, String>(new File(storagePath, dest), GlobalConstants.ATTACHMENT_REF + dest);
+        return new Pair<>(new File(storagePath, dest), GlobalConstants.ATTACHMENT_REF + dest);
     }
-
 
     @Override
     protected Case CreateCase(String name, String typeId) {
