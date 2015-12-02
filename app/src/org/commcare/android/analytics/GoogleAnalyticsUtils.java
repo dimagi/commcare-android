@@ -74,10 +74,12 @@ public class GoogleAnalyticsUtils {
         reportAction(category, GoogleAnalyticsFields.ACTION_PREF_MENU);
     }
 
-    public static void reportEditPref(String category, String label) {
-        reportEditPref(category, label, -1);
+    // Report viewing the value of an item in a preferences menu
+    public static void reportPrefItemClick(String category, String label) {
+        reportAction(category, GoogleAnalyticsFields.ACTION_VIEW_PREF, label);
     }
 
+    // Report actually changing the value of an item in a preferences menu
     public static void reportEditPref(String category, String label, int value) {
         HitBuilders.EventBuilder builder = new HitBuilders.EventBuilder();
         builder.setCategory(category).
@@ -89,8 +91,8 @@ public class GoogleAnalyticsUtils {
         getTracker().send(builder.build());
     }
 
-    public static void reportPrefItemClick(String category, String label) {
-        reportAction(category, GoogleAnalyticsFields.ACTION_VIEW_PREF, label);
+    public static void reportEditPref(String category, String label) {
+        reportEditPref(category, label, -1);
     }
 
     public static void reportSyncAttempt(String action, String label, int value) {

@@ -820,7 +820,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
                         GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
                         GoogleAnalyticsFields.LABEL_CHANGE_SETTINGS);
-                GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_FORM_PREFS);
                 Intent pref = new Intent(this, FormEntryPreferences.class);
                 startActivityForResult(pref, FORM_PREFERENCES_KEY);
                 return true;

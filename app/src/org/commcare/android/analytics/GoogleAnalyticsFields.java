@@ -14,6 +14,7 @@ public final class GoogleAnalyticsFields {
     public static String CATEGORY_FORM_PREFS = "Form Entry Preferences";
     public static String CATEGORY_SERVER_COMMUNICATION = "Server Communication";
     public static String CATEGORY_SAVED_FORMS = "Saved Forms";
+    public static String CATEGORY_DEV_OPTIONS = "Developer Options / Advanced Actions";
 
     // Actions for multiple categories
     public static String ACTION_OPTIONS_MENU = "Open Options Menu";
@@ -58,6 +59,8 @@ public final class GoogleAnalyticsFields {
     // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_FORM_PREFS
     public static String LABEL_FONT_SIZE = "Font Size";
     public static String LABEL_INLINE_HELP = "Rich Help Inline";
+
+    // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_DEV_OPTIONS
 
     // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_HOME_SCREEN
     public static String LABEL_SETTINGS = "Settings";

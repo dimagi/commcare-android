@@ -122,6 +122,8 @@ public class CommCarePreferences
         prefMgr.setSharedPreferencesName((CommCareApplication._().getCurrentApp().getPreferencesFilename()));
         addPreferencesFromResource(R.xml.server_preferences);
 
+        GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
+
         ListPreference lp = new ListPreference(this);
         lp.setEntries(ChangeLocaleUtil.getLocaleNames());
         lp.setEntryValues(ChangeLocaleUtil.getLocaleCodes());

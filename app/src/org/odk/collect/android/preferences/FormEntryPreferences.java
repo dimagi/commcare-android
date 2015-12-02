@@ -25,6 +25,7 @@ public class FormEntryPreferences extends SessionAwarePreferenceActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
+        GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_FORM_PREFS);
         setTitle(getString(R.string.application_name) + " > " + getString(R.string.form_entry_settings));
         updateFontSize();
         createPreferenceOnClickListeners();

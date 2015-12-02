@@ -4,6 +4,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
+import org.commcare.android.analytics.GoogleAnalyticsFields;
+import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
 import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.dalvik.BuildConfig;
@@ -49,6 +51,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_DEV_OPTIONS);
 
         PreferenceManager prefMgr = getPreferenceManager();
 

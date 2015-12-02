@@ -1478,7 +1478,6 @@ public class CommCareHomeActivity
     }
 
     public static void createPreferencesMenu(Activity activity) {
-        GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
         Intent i = new Intent(activity, CommCarePreferences.class);
         activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
     }
