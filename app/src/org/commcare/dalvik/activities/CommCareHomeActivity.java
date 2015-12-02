@@ -372,6 +372,15 @@ public class CommCareHomeActivity
                     return;
                 } else if(resultCode == RESULT_OK) {
                     if (!intent.getBooleanExtra(LoginActivity.ALREADY_LOGGED_IN, false)) {
+                        CommCareSession session = CommCareApplication._().getCurrentSession();
+                        if (session.getCommand() != null) {
+                            // restore the session state if there is a command.
+                            // For debugging and occurs when a serialized
+                            // session is stored upon login
+                            sessionNavigator.startNextSessionStep();
+                            return;
+                        }
+
                         uiController.refreshView();
                         
                         //Unless we're about to sync (which will handle this
