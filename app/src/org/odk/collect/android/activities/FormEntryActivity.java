@@ -125,7 +125,7 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * Displays questions, animates transitions between
  * questions, and allows the user to enter data.
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  */
 public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryActivity>
@@ -190,7 +190,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     public static String mInstancePath;
     private String mInstanceDestination;
     private GestureDetector mGestureDetector;
-    
+
     private SecretKeySpec symetricKey = null;
 
     public static FormController mFormController;
@@ -211,12 +211,12 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
     private FormLoaderTask<FormEntryActivity> mFormLoaderTask;
     private SaveToDiskTask<FormEntryActivity> mSaveToDiskTask;
-    
+
     private Uri formProviderContentURI = FormsColumns.CONTENT_URI;
     private Uri instanceProviderContentURI = InstanceColumns.CONTENT_URI;
-    
+
     private static String mHeaderString;
-    
+
     // Was the form saved? Used to set activity return code.
     private boolean hasSaved = false;
 
@@ -402,7 +402,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         outState.putBoolean(KEY_INCOMPLETE_ENABLED, mIncompleteEnabled);
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
-        
+
         if(symetricKey != null) {
             try {
                 outState.putString(KEY_AES_STORAGE_KEY, new Base64Wrapper().encodeToString(symetricKey.getEncoded()));
@@ -601,15 +601,15 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         if(pendingIntentWidget != null) {
             //Set our instance destination for binary data if needed
             String destination = mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
-            
+
             //get the original intent callout
             IntentCallout ic = pendingIntentWidget.getIntentCallout();
-            
+
             quick = "quick".equals(ic.getAppearance());
 
             //And process it 
             advance = ic.processResponse(response, context, new File(destination));
-            
+
             ic.setCancelled(cancelled);
         }
 
@@ -655,7 +655,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
         // Now go through add add any new prompts that we need
         for (int i = 0; i < newValidPrompts.length; ++i) {
-        	FormEntryPrompt prompt = newValidPrompts[i]; 
+        	FormEntryPrompt prompt = newValidPrompts[i];
         	if (!promptsLeftInView.contains(prompt)) {
                 // If the old version of this prompt was NOT left in the view, then add it
                 mCurrentView.addQuestionToIndex(prompt, mFormController.getWidgetFactory(), i);
@@ -720,7 +720,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     private void refreshCurrentView() {
         refreshCurrentView(true);
     }
-    
+
     /**
      * Refreshes the current view. the controller and the displayed view can get out of sync due to
      * dialogs and restarts caused by screen orientation changes, so they're resynchronized here.
@@ -741,7 +741,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 || (mFormController.indexIsInFieldList() && !(event == FormEntryController.EVENT_GROUP))) {
             event = mFormController.stepToPreviousEvent();
         }
-        
+
         //If we're at the beginning of form event, but don't show the screen for that, we need 
         //to get the next valid screen
         if(event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
@@ -774,7 +774,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 .setIcon(R.drawable.ic_menu_start_conversation)
                 .setEnabled(hasMultipleLanguages);
 
-        
+
         menu.add(0, MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.form_entry_settings)).setIcon(
                 android.R.drawable.ic_menu_preferences);
         return true;
@@ -925,7 +925,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         }
         return null;
     }
-    
+
     private String getHeaderString() {
         if(mHeaderString != null) {
             //Localization?
@@ -1005,7 +1005,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
         if (mFormController.getEvent() != FormEntryController.EVENT_END_OF_FORM) {
             int event;
-            
+
             try{
             group_skip: do {
                 event = mFormController.stepToNextEvent(FormController.STEP_OVER_GROUP);
@@ -1073,7 +1073,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         if (currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         }
-        
+
         FormIndex startIndex = mFormController.getFormIndex();
         FormIndex lastValidIndex = startIndex;
 
@@ -1095,7 +1095,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 // we can't go all the way back to the beginning, so we've
                 // gotta hit the last index that was valid
                 mFormController.jumpToIndex(lastValidIndex);
-                
+
                 //Did we jump at all? (not sure how we could have, but there might be a mismatch)
                 if(lastValidIndex.equals(startIndex)) {
                     //If not, don't even bother changing the view. 
@@ -1104,7 +1104,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                     FormEntryActivity.this.triggerUserQuitInput();
                     return;
                 }
-                
+
                 //We might have walked all the way back still, which isn't great, 
                 //so keep moving forward again until we find it
                 if(lastValidIndex.isBeginningOfFormIndex()) {
@@ -1197,7 +1197,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 constraintText = StringUtils.getStringRobust(this, R.string.required_answer_error);
                 break;
         }
-        
+
         boolean displayed = false;
         //We need to see if question in violation is on the screen, so we can show this cleanly.
         for(QuestionWidget q : mCurrentView.getWidgets()) {
@@ -1468,7 +1468,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         dialog.setChoiceItems(items);
         dialog.show();
     }
-    
+
     private void discardChangesAndExit() {
         String selection =
             InstanceColumns.INSTANCE_FILE_PATH + " like '"
@@ -1928,7 +1928,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             createQuitDialog();
         }
     }
-    
+
     /**
      * Get the default title for ODK's "Form title" field
      */
@@ -1956,7 +1956,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     }
 
     /**
-     * Call when the user is ready to save and return the current form as complete 
+     * Call when the user is ready to save and return the current form as complete
      */
     private void triggerUserFormComplete() {
         if (mFormController.isFormReadOnly()) {
@@ -2091,7 +2091,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
     /**
      * Attempts to save an answer to the specified index.
-     * 
+     *
      * @param evaluateConstraints Should form contraints be checked when saving answer?
      * @return status as determined in FormEntryController
      */
@@ -2114,7 +2114,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     /**
      * Checks the database to determine if the current instance being edited has already been
      * 'marked completed'. A form can be 'unmarked' complete and then resaved.
-     * 
+     *
      * @return true if form has been marked completed, false otherwise.
      */
     private boolean isInstanceComplete() {
@@ -2317,7 +2317,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             }
             if (savedInstanceState.containsKey(KEY_INSTANCEDESTINATION)) {
                 mInstanceDestination = savedInstanceState.getString(KEY_INSTANCEDESTINATION);
-            } 
+            }
             if(savedInstanceState.containsKey(KEY_INCOMPLETE_ENABLED)) {
                 mIncompleteEnabled = savedInstanceState.getBoolean(KEY_INCOMPLETE_ENABLED);
             }
@@ -2475,7 +2475,6 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         determineNumberOfValidGroupLines(newRootViewDimensions);
     }
 
-
     private void determineNumberOfValidGroupLines(Rect newRootViewDimensions) {
         FrameLayout header = (FrameLayout)findViewById(R.id.form_entry_header);
         TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
@@ -2549,7 +2548,5 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
         return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeInPx,
                 getResources().getDisplayMetrics());
-
     }
-
 }
