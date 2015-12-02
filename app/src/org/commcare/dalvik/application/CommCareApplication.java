@@ -249,14 +249,14 @@ public class CommCareApplication extends Application {
         c.startActivity(i);
     }
 
-    public void startUserSession(byte[] symetricKey, UserKeyRecord record) {
+    public void startUserSession(byte[] symetricKey, UserKeyRecord record, boolean restoreSession) {
         synchronized (serviceLock) {
             // if we already have a connection established to
             // CommCareSessionService, close it and open a new one
             if (this.mIsBound) {
                 releaseUserResourcesAndServices();
             }
-            bindUserSessionService(symetricKey, record);
+            bindUserSessionService(symetricKey, record, restoreSession);
         }
     }
 
@@ -837,7 +837,8 @@ public class CommCareApplication extends Application {
         }
     }
 
-    private void bindUserSessionService(final byte[] key, final UserKeyRecord record) {
+    private void bindUserSessionService(final byte[] key, final UserKeyRecord record,
+                                        final boolean restoreSession) {
         mConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
                 // This is called when the connection with the service has been
@@ -874,7 +875,7 @@ public class CommCareApplication extends Application {
                     if (user != null) {
                         mBoundService.startSession(user);
                         attachCallListener();
-                        if (DevSessionRestorer.autoLoginEnabled()) {
+                        if (restoreSession) {
                             CommCareApplication.this.sessionWrapper = DevSessionRestorer.restoreSessionFromPrefs(getCommCarePlatform());
                         } else {
                             CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());

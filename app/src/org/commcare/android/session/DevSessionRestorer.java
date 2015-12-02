@@ -130,6 +130,17 @@ public class DevSessionRestorer {
         }
     }
 
+    public static boolean savedSessionPresent() {
+        SharedPreferences prefs =
+                CommCareApplication._().getCurrentApp().getAppPreferences();
+        String serializedSession = prefs.getString(CommCarePreferences.CURRENT_SESSION, null);
+        return serializedSession != null;
+    }
+
+    public static void clearSession() {
+        clearSession(CommCareApplication._().getCurrentApp().getAppPreferences());
+    }
+
     public static void clearSession(SharedPreferences prefs) {
         prefs.edit().remove(CommCarePreferences.CURRENT_SESSION).commit();
     }
