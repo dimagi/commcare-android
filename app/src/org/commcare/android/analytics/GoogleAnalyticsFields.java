@@ -61,6 +61,19 @@ public final class GoogleAnalyticsFields {
     public static String LABEL_INLINE_HELP = "Rich Help Inline";
 
     // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_DEV_OPTIONS
+    public static String LABEL_DEV_MODE = "Developer Mode Enabled";
+    public static String LABEL_ACTION_BAR = "Action Bar Enabled";
+    public static String LABEL_GRID_MENUS = "Grid Menus Enabled";
+    public static String LABEL_NAV_UI = "Navigation UI";
+    public static String LABEL_ENTITY_LIST_REFRESH = "Entity List Screen Auto-Refresh";
+    public static String LABEL_NEWEST_APP_VERSION = "Use Newest App Version From HQ";
+    public static String LABEL_AUTO_LOGIN = "Auto-login While Debugging";
+    public static String LABEL_SESSION_SAVING = "Enable Session Saving";
+    public static String LABEL_CSS = "CSS Enabled";
+    public static String LABEL_MARKDOWN = "Markdown Enabled";
+    public static String LABEL_IMAGE_ABOVE_TEXT = "Image Above Question Text Enabled";
+    public static String LABEL_TRIGGERS_ON_SAVE = "Fire triggers on form save";
+    public static String LABEL_REPORT_BUTTON = "Home Report Button enabled";
 
     // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_HOME_SCREEN
     public static String LABEL_SETTINGS = "Settings";
@@ -123,7 +136,8 @@ public final class GoogleAnalyticsFields {
     public static int VALUE_DAILY = 1;
     public static int VALUE_WEEKLY = 2;
 
-    // Values for LABEL_FUZZY_SEARCH
+    // Values for all labels under ACTION_EDIT_PREF in CATEGORY_DEV_OPTIONS,
+    // and for LABEL_FUZZY_SEARCH
     public static int VALUE_DISABLED = 0;
     public static int VALUE_ENABLED = 1;
 

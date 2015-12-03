@@ -33,10 +33,10 @@ public class FormEntryPreferences extends SessionAwarePreferenceActivity
 
     private void createPreferenceOnClickListeners() {
         PreferenceManager prefMgr = getPreferenceManager();
-        CommCarePreferences.createPreferenceOnClickListener(prefMgr,
+        GoogleAnalyticsUtils.createPreferenceOnClickListener(prefMgr,
                 GoogleAnalyticsFields.CATEGORY_FORM_PREFS, KEY_FONT_SIZE,
                 GoogleAnalyticsFields.LABEL_FONT_SIZE);
-        CommCarePreferences.createPreferenceOnClickListener(prefMgr,
+        GoogleAnalyticsUtils.createPreferenceOnClickListener(prefMgr,
                 GoogleAnalyticsFields.CATEGORY_FORM_PREFS, KEY_HELP_MODE_TRAY,
                 GoogleAnalyticsFields.LABEL_INLINE_HELP);
     }

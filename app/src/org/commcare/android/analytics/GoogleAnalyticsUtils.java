@@ -1,5 +1,8 @@
 package org.commcare.android.analytics;
 
+import android.preference.Preference;
+import android.preference.PreferenceManager;
+
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
@@ -107,6 +110,20 @@ public class GoogleAnalyticsUtils {
     public static void reportOpenSavedForm(String label) {
         reportAction(GoogleAnalyticsFields.CATEGORY_SAVED_FORMS,
                 GoogleAnalyticsFields.ACTION_OPEN_SAVED_FORM, label);
+    }
+
+    public static void createPreferenceOnClickListener(PreferenceManager manager,
+                                                          final String category,
+                                                          String prefKey,
+                                                          final String analyticsLabel) {
+        Preference pref = manager.findPreference(prefKey);
+        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                GoogleAnalyticsUtils.reportPrefItemClick(category, analyticsLabel);
+                return true;
+            }
+        });
     }
 
     private static Tracker getTracker(String screenName) {

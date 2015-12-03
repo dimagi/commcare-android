@@ -158,7 +158,7 @@ public class CommCarePreferences
                 GoogleAnalyticsFields.LABEL_LOCALE };
 
         for (int i = 0; i < prefKeys.length; i++) {
-            createPreferenceOnClickListener(prefManager,
+            GoogleAnalyticsUtils.createPreferenceOnClickListener(prefManager,
                     GoogleAnalyticsFields.CATEGORY_CC_PREFS, prefKeys[i], analyticsLabels[i]);
         }
 
@@ -176,18 +176,6 @@ public class CommCarePreferences
                         return true;
                 }
                 return false;
-            }
-        });
-    }
-
-    public static void createPreferenceOnClickListener(PreferenceManager manager, final String category,
-                                                       String prefKey, final String analyticsLabel) {
-        Preference pref = manager.findPreference(prefKey);
-        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportPrefItemClick(category, analyticsLabel);
-                return true;
             }
         });
     }

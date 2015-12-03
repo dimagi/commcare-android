@@ -51,22 +51,118 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_DEV_OPTIONS);
 
         PreferenceManager prefMgr = getPreferenceManager();
-
         prefMgr.setSharedPreferencesName((CommCareApplication._().getCurrentApp().getPreferencesFilename()));
 
         addPreferencesFromResource(R.xml.preferences_developer);
         setTitle("Developer Preferences");
+
+        createPreferenceOnClickListeners(prefMgr);
+    }
+
+    private void createPreferenceOnClickListeners(PreferenceManager prefManager) {
+        String[] prefKeys = {
+                SUPERUSER_ENABLED,
+                ACTION_BAR_ENABLED,
+                GRID_MENUS_ENABLED,
+                NAV_UI_ENABLED,
+                LIST_REFRESH_ENABLED,
+                NEWEST_APP_VERSION_ENABLED,
+                ENABLE_AUTO_LOGIN,
+                ENABLE_SAVE_SESSION,
+                CSS_ENABLED,
+                MARKDOWN_ENABLED,
+                ALTERNATE_QUESTION_LAYOUT_ENABLED,
+                FIRE_TRIGGERS_ON_SAVE,
+                HOME_REPORT_ENABLED};
+        String[] analyticsLabels = {
+                GoogleAnalyticsFields.LABEL_DEV_MODE,
+                GoogleAnalyticsFields.LABEL_ACTION_BAR,
+                GoogleAnalyticsFields.LABEL_GRID_MENUS,
+                GoogleAnalyticsFields.LABEL_NAV_UI,
+                GoogleAnalyticsFields.LABEL_ENTITY_LIST_REFRESH,
+                GoogleAnalyticsFields.LABEL_NEWEST_APP_VERSION,
+                GoogleAnalyticsFields.LABEL_AUTO_LOGIN,
+                GoogleAnalyticsFields.LABEL_SESSION_SAVING,
+                GoogleAnalyticsFields.LABEL_CSS,
+                GoogleAnalyticsFields.LABEL_MARKDOWN,
+                GoogleAnalyticsFields.LABEL_IMAGE_ABOVE_TEXT,
+                GoogleAnalyticsFields.LABEL_TRIGGERS_ON_SAVE,
+                GoogleAnalyticsFields.LABEL_REPORT_BUTTON};
+
+        for (int i = 0; i < prefKeys.length; i++) {
+            GoogleAnalyticsUtils.createPreferenceOnClickListener(prefManager,
+                    GoogleAnalyticsFields.CATEGORY_DEV_OPTIONS, prefKeys[i], analyticsLabels[i]);
+        }
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(ENABLE_AUTO_LOGIN) && !isAutoLoginEnabled()) {
-            DevSessionRestorer.clearPassword(sharedPreferences);
-        } else if (key.equals(ENABLE_SAVE_SESSION) && !isSessionSavingEnabled()) {
-            DevSessionRestorer.clearSession();
+        int editPrefValue = getEditPrefValue(key);
+        String editPrefLabel = "";
+        switch(key) {
+            case SUPERUSER_ENABLED:
+                editPrefLabel = GoogleAnalyticsFields.LABEL_DEV_MODE;
+                break;
+            case ACTION_BAR_ENABLED:
+                editPrefLabel = GoogleAnalyticsFields.LABEL_ACTION_BAR;
+                break;
+            case GRID_MENUS_ENABLED:
+                editPrefLabel = GoogleAnalyticsFields.LABEL_GRID_MENUS;
+                break;
+            case NAV_UI_ENABLED:
+                editPrefLabel = GoogleAnalyticsFields.LABEL_NAV_UI;
+                break;
+            case LIST_REFRESH_ENABLED:
+                editPrefLabel = GoogleAnalyticsFields.LABEL_ENTITY_LIST_REFRESH;
+                break;
+            case NEWEST_APP_VERSION_ENABLED:
+                editPrefLabel = GoogleAnalyticsFields.LABEL_NEWEST_APP_VERSION;
+                break;
+            case ENABLE_AUTO_LOGIN:
+                editPrefLabel = GoogleAnalyticsFields.LABEL_AUTO_LOGIN;
+                if (!isAutoLoginEnabled()) {
+                    DevSessionRestorer.clearPassword(sharedPreferences);
+                }
+                break;
+            case ENABLE_SAVE_SESSION:
+                editPrefLabel = GoogleAnalyticsFields.LABEL_SESSION_SAVING;
+                if (!isSessionSavingEnabled()) {
+                    DevSessionRestorer.clearSession();
+                }
+                break;
+            case CSS_ENABLED:
+                editPrefLabel = GoogleAnalyticsFields.LABEL_CSS;
+                break;
+            case MARKDOWN_ENABLED:
+                editPrefLabel = GoogleAnalyticsFields.LABEL_MARKDOWN;
+                break;
+            case ALTERNATE_QUESTION_LAYOUT_ENABLED:
+                editPrefLabel = GoogleAnalyticsFields.LABEL_IMAGE_ABOVE_TEXT;
+                break;
+            case FIRE_TRIGGERS_ON_SAVE:
+                editPrefLabel = GoogleAnalyticsFields.LABEL_TRIGGERS_ON_SAVE;
+                break;
+            case HOME_REPORT_ENABLED:
+                editPrefLabel = GoogleAnalyticsFields.LABEL_REPORT_BUTTON;
+                break;
+        }
+
+        if (!"".equals(editPrefLabel)) {
+            GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_DEV_OPTIONS,
+                    editPrefLabel, editPrefValue);
+        }
+    }
+
+    private static int getEditPrefValue(String key) {
+        if (CommCareApplication._().getCurrentApp().getAppPreferences().
+                getString(key, CommCarePreferences.NO).equals(CommCarePreferences.YES)) {
+            return GoogleAnalyticsFields.VALUE_ENABLED;
+        } else {
+            return GoogleAnalyticsFields.VALUE_DISABLED;
         }
     }
 
