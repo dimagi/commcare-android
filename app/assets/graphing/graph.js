@@ -11,30 +11,42 @@ document.addEventListener("DOMContentLoaded", function(event) {
 
         // Turn off default hover/click behaviors
         config.interaction = { enabled: true };
+        var formatXTooltip = function(x) {
+            return x;
+        }
+        if (type === "time") {
+            formatXTooltip = d3.time.format(config.axis.x.tick.format);
+        }
         config.tooltip = {
             show: true,
             grouped: type === "bar",
-            contents: function(data, defaultTitleFormat, defaultValueFormat, color) {
+            contents: function(yData, defaultTitleFormat, defaultValueFormat, color) {
                 var html = "";
-                for (var i = 0; i < data.length; i++) {
-                    if (isData[data[i].id]) {
-                        var yName = config.data.names[data[i].id];
-                        html += "<tr><td>" + yName + "</td><td>" + data[i].value + "</td></tr>";
+
+                // Add rows for y values
+                for (var i = 0; i < yData.length; i++) {
+                    if (data.isData[yData[i].id]) {
+                        var yName = config.data.names[yData[i].id];
+                        html += "<tr><td>" + yName + "</td><td>" + yData[i].value + "</td></tr>";
                     }
                 }
                 if (!html) {
                     return "";
                 }
+
+                // Add a top row for x value
                 if (type === "bar") {
-                    html = "<tr><td colspan='2'>" + barLabels[data[0].x] + "</td></tr>" + html;
+                    html = "<tr><td colspan='2'>" + data.barLabels[yData[0].x] + "</td></tr>" + html;
                 } else {
-                    // TODO: this displays an unecessarily long, English-only string for time charts
-                    // "Sat May 02 2015 00:00:00 GMT-0400 (Eastern Daylight Time)"
-                    html = "<tr><td>" + xNames[data[0].id] + "</td><td>" + data[0].x + "</td></tr>" + html;
+                    html = "<tr><td>" + data.xNames[yData[0].id] + "</td><td>"
+                            + formatXTooltip(yData[0].x) + "</td></tr>"
+                            + html;
                 }
+
                 if (type === "bubble") {
-                    html += "<tr><td>Radius</td><td>" + radii[d.id][d.index] + "</td></tr>";
+                    html += "<tr><td>Radius</td><td>" + data.radii[d.id][d.index] + "</td></tr>";
                 }
+
                 html = "<table>" + html + "</table>";
                 html = "<div id='tooltip'>" + html + "</div>";
                 return html;
@@ -45,9 +57,9 @@ document.addEventListener("DOMContentLoaded", function(event) {
         // for other charts (we'll be using custom point shapes)
         config.point = {
             r: function(d) {
-                if (radii[d.id]) {
+                if (data.radii[d.id]) {
                     // Arbitrary max size of 30
-                    return 30 * radii[d.id][d.index] / maxRadii[d.id];
+                    return 30 * data.radii[d.id][d.index] / data.maxRadii[d.id];
                 }
                 return 0;
             },
@@ -64,25 +76,25 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     key = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + time;
 
                 }
-                var label = xLabels[key] || d;
+                var label = axis.xLabels[key] || d;
                 return Math.round(label) || label;
             };
         }
         if (config.axis.y.tick) {
             config.axis.y.tick.format = function(d) {
-                return yLabels[String(d)] || Math.round(d);
+                return axis.yLabels[String(d)] || Math.round(d);
             };
         }
         if (config.axis.y2.tick) {
             config.axis.y2.tick.format = function(d) {
-                return y2Labels[String(d)] || Math.round(d);
+                return axis.y2Labels[String(d)] || Math.round(d);
             };
         }
 
         // Hide any system-generated series from legend
         var hideSeries = [];
         for (var yID in config.data.xs) {
-            if (!isData[yID]) {
+            if (!data.isData[yID]) {
                 hideSeries.push(yID);
             }
         }
@@ -91,7 +103,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
         // Configure data labels, which we use only to display annotations
         config.data.labels = {
             format: function(value, id, index) {
-                return annotations[id] || '';
+                return data.annotations[id] || '';
             },
         };
 
@@ -104,8 +116,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
             d3.selectAll("g.c3-texts text").attr("dy", 10);
 
             // Support point-style
-            for (var yID in pointStyles) {
-                var symbol = pointStyles[yID];
+            for (var yID in data.pointStyles) {
+                var symbol = data.pointStyles[yID];
                 if (type === "bar") {
                     symbol = "none";
                 } else if (type=== "bubble") {
@@ -123,21 +135,21 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     var bars = d3.selectAll(".c3-bars-" + yID + " path")[0];
                     for (var i = 0; i < bars.length; i++) {
                         // If there's a bar-specific color, set it
-                        if (barColors[yID] && barColors[yID][i]) {
-                            bars[i].style.fill = barColors[yID][i];
+                        if (data.barColors[yID] && data.barColors[yID][i]) {
+                            bars[i].style.fill = data.barColors[yID][i];
                         }
                         // Get opacity: bar-specific if it's there, otherwise series-specific
                         var opacity;
-                        if (barOpacities[yID]) {
-                            opacity = barOpacities[yID][i];
+                        if (data.barOpacities[yID]) {
+                            opacity = data.barOpacities[yID][i];
                         }
-                        opacity = opacity || lineOpacities[yID];
+                        opacity = opacity || data.lineOpacities[yID];
                         bars[i].style.opacity = opacity;
                     }
                 } else {
                     var line = d3.selectAll(".c3-lines-" + yID + " path")[0][0];
                     if (line) {
-                        line.style.opacity = lineOpacities[yID];
+                        line.style.opacity = data.lineOpacities[yID];
                     }
                 }
 
@@ -148,7 +160,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                 }
                 if (legend.length) {
                     legend = legend[0];
-                    legend.style.opacity = lineOpacities[yID];
+                    legend.style.opacity = data.lineOpacities[yID];
                 }
 
                 // Point shapes
@@ -157,13 +169,15 @@ document.addEventListener("DOMContentLoaded", function(event) {
                     points = d3.selectAll(".c3-circles-" + yID + " circle")[0];
                 }
                 for (var i = 0; i < points.length; i++) {
-                    points[i].style.opacity = lineOpacities[yID];
+                    points[i].style.opacity = data.lineOpacities[yID];
                 }
             }
-            for (var yID in areaColors) {
+            for (var yID in data.areaColors) {
                 var area = d3.selectAll(".c3-areas-" + yID + " path")[0][0];
-                area.style.fill = areaColors[yID];
-                area.style.opacity = areaOpacities[yID];
+                if (area) {
+                    area.style.fill = data.areaColors[yID];
+                    area.style.opacity = data.areaOpacities[yID];
+                }
             }
         };
 
