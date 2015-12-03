@@ -78,6 +78,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public static final String ALREADY_LOGGED_IN = "la_loggedin";
     public final static String KEY_LAST_APP = "id_of_last_selected";
+    public final static String KEY_ENTERED_USER = "entered-username";
+    public final static String KEY_ENTERED_PW = "entered-password";
 
     private static final int SEAT_APP_ACTIVITY = 0;
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
@@ -116,6 +118,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     private SqlStorage<UserKeyRecord> storage;
     private final ArrayList<String> appIdDropdownList = new ArrayList<>();
 
+    private String usernameBeforeRotation;
+    private String passwordBeforeRotation;
+
     private final TextWatcher textWatcher = new TextWatcher() {
 
         @Override
@@ -145,14 +150,22 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Only on the initial creation
-        if(savedInstanceState == null) {
+        username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+        setLoginBoxesColorNormal();
+
+        if (savedInstanceState == null) {
+            // Only restore last user on the initial creation
             SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
             String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
-            if(lastUser != null) {
+            if (lastUser != null) {
                 username.setText(lastUser);
                 password.requestFocus();
             }
+        } else {
+            // If the screen was rotated with entered text present, we will want to restore it
+            // in onResume (can't do it here b/c will get overriden by logic in refreshForNewApp())
+            usernameBeforeRotation = savedInstanceState.getString(KEY_ENTERED_USER);
+            passwordBeforeRotation = savedInstanceState.getString(KEY_ENTERED_PW);
         }
 
         setupUIElements();
@@ -209,6 +222,18 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
     private boolean isRestoreSessionChecked() {
         return restoreSessionCheckbox.isChecked();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        String enteredUsername = username.getText().toString();
+        if (!"".equals(enteredUsername) && enteredUsername != null) {
+            savedInstanceState.putString(KEY_ENTERED_USER, enteredUsername);
+        }
+        String enteredPassword = password.getText().toString();
+        if (!"".equals(enteredPassword) && enteredPassword != null) {
+            savedInstanceState.putString(KEY_ENTERED_PW, enteredPassword);
+        }
     }
 
     private void loginButtonPressed(boolean restoreSession) {
@@ -605,6 +630,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         // In case the seated app has changed since last time we were in LoginActivity
         refreshForNewApp();
 
+        restoreEnteredTextFromRotation();
+
         updateCommCareBanner();
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
@@ -636,6 +663,17 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             int position = appIdDropdownList.indexOf(currAppId);
             spinner.setSelection(position);
             spinner.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void restoreEnteredTextFromRotation() {
+        if (usernameBeforeRotation != null) {
+            username.setText(usernameBeforeRotation);
+            usernameBeforeRotation = null;
+        }
+        if (passwordBeforeRotation != null) {
+            password.setText(passwordBeforeRotation);
+            passwordBeforeRotation = null;
         }
     }
 
