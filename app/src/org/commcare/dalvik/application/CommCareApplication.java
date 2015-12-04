@@ -810,6 +810,14 @@ public class CommCareApplication extends MultiDexApplication {
         CommCareApplication._().closeUserSession();
     }
 
+    public String getCurrentUserId() {
+        try {
+            return this.getSession().getLoggedInUser().getUniqueId();
+        } catch (SessionUnavailableException e) {
+            return "";
+        }
+    }
+
     private void prepareTemporaryStorage() {
         String tempRoot = this.getAndroidFsTemp();
         FileUtil.deleteFileOrDir(tempRoot);

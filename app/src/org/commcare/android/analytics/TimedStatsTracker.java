@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;
@@ -20,6 +21,7 @@ public class TimedStatsTracker {
     private static String KEY_LAST_FORM_NAME = "last-form-name";
     private static String KEY_LAST_FORM_START_TIME = "last-form-start-time";
     private static String KEY_LAST_SESSION_START_TIME = "last-session-start-time";
+    private static String KEY_LAST_LOGGED_IN_USER = "last-logged-in-user";
 
     public static void registerEnterForm(String formTitle) {
         SharedPreferences.Editor editor =
@@ -38,11 +40,11 @@ public class TimedStatsTracker {
                 reportTimedEvent(GoogleAnalyticsFields.ACTION_TIME_IN_A_FORM, formTitle,
                         computeElapsedTimeInSeconds(enterTime, currentTime()));
             } else {
-                Log.i(TAG, "Attempting to log exit form time for a different form than the last " +
-                        "form logged as entered");
+                Log.i(TAG, "Attempting to report exit form time for a different form than the " +
+                        "last form logged as entered");
             }
         } else {
-            Log.i(TAG, "Attempting to log exit form time when there was no start form time " +
+            Log.i(TAG, "Attempting to report exit form time when there was no start form time " +
                     "saved in prefs");
         }
     }
@@ -50,11 +52,35 @@ public class TimedStatsTracker {
     public static void registerStartSession() {
         SharedPreferences.Editor editor =
                 CommCareApplication._().getCurrentApp().getAppPreferences().edit();
-        editor.putLong(KEY_LAST_SESSION_START_TIME, (new Date()).getTime());
+        String currentUserId = CommCareApplication._().getCurrentUserId();
+        if (!"".equals(currentUserId)) {
+            editor.putLong(KEY_LAST_SESSION_START_TIME, currentTime())
+                    .putString(KEY_LAST_LOGGED_IN_USER, currentUserId);
+            editor.commit();
+        } else {
+            Log.i(TAG, "Attempting to report starting a session with no logged in user");
+        }
     }
 
     public static void registerEndSession() {
-
+        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        String lastLoggedInUser = prefs.getString(KEY_LAST_LOGGED_IN_USER, "");
+        String currentUserId = CommCareApplication._().getCurrentUserId();
+        if (currentUserId == null || "".equals(currentUserId)) {
+            Log.i(TAG, "Attempting to report ending a session when there is no currently logged in user");
+        }
+        if (!"".equals(lastLoggedInUser)) {
+            if (lastLoggedInUser.equals(currentUserId)) {
+                long startTime = prefs.getLong(KEY_LAST_SESSION_START_TIME, -1);
+                reportTimedEvent(GoogleAnalyticsFields.ACTION_SESSION_LENGTH,
+                        computeElapsedTimeInSeconds(startTime, currentTime()));
+            } else {
+                Log.i(TAG, "Attempting to report ending a session for a different user than the " +
+                        "last user reported as logged in");
+            }
+        } else {
+            Log.i(TAG, "Attempting to report ending a session when there is no last logged in user");
+        }
     }
 
     private static int computeElapsedTimeInSeconds(long startTime, long endTime) {
