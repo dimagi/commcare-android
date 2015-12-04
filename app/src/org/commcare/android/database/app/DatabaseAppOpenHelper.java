@@ -27,8 +27,9 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
      * V.4 - Table parent resource indices
      * V.5 - Added numbers table
      * V.6 - Added temporary upgrade table for ease of checking for new updates
+     * V.7 - Update serialized fixtures in db to use new schema
      */
-    private static final int DB_VERSION_APP = 6;
+    private static final int DB_VERSION_APP = 7;
 
     private static final String DB_LOCATOR_PREF_APP = "database_app_";
 
