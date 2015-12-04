@@ -260,31 +260,6 @@ public class DataConfiguration extends Configuration {
     }
 
     /**
-     * Fetch all points associated with a given series. Bar charts will have their points sorted:
-     * - By value if the user specified bar-sort (note this is nonsensical for multi-series bar charts)
-     * - Otherwise, alphabetically by label
-     * @param s
-     */
-    private List<XYPointData> getPoints(SeriesData s) {
-        Vector<XYPointData> points = new Vector<>(s.size());
-        points.addAll(s.getPoints());
-        if (Graph.TYPE_BAR.equals(mData.getType())) {
-            String barSort = s.getConfiguration("bar-sort");
-            Comparator<XYPointData> comparator = new StringPointComparator();
-            if (barSort != null) {
-                if (barSort.equalsIgnoreCase("ascending")) {
-                    comparator = new AscendingValuePointComparator();
-                } else if (barSort.equalsIgnoreCase("descending")) {
-                    comparator = new DescendingValuePointComparator();
-                }
-            }
-            Collections.sort(points, comparator);
-        }
-
-        return points;
-    }
-
-    /**
      * For bar charts, set up bar labels and force the x axis min and max so bars are spaced nicely
      */
     private void normalizeBoundaries() throws JSONException {
@@ -378,7 +353,7 @@ public class DataConfiguration extends Configuration {
         boolean addBarLabels = mData.getType().equals(Graph.TYPE_BAR) && mBarLabels.length() == 1;
         JSONArray rValues = new JSONArray();
         double maxRadius = parseDouble(s.getConfiguration("max-radius", "0"), "max-radius");
-        for (XYPointData p : getPoints(s)) {
+        for (XYPointData p : s.getPoints()) {
             String description = "data (" + p.getX() + ", " + p.getY() + ")";
             if (mData.getType().equals(Graph.TYPE_BAR)) {
                 // In CommCare, bar graphs are specified with x as a set of text labels
@@ -489,52 +464,5 @@ public class DataConfiguration extends Configuration {
     private void setYAxis(String yID, SeriesData s) throws JSONException {
         boolean isSecondaryY = Boolean.valueOf(s.getConfiguration("secondary-y", "false"));
         mAxes.put(yID, isSecondaryY ? "y2" : "y");
-    }
-
-    /**
-     * Comparator to sort XYPointData-derived objects by x value without parsing them.
-     * Useful for bar graphs, where x values are text.
-     *
-     * @author jschweers
-     */
-    private static class StringPointComparator implements Comparator<XYPointData> {
-        @Override
-        public int compare(XYPointData lhs, XYPointData rhs) {
-            return lhs.getX().compareTo(rhs.getX());
-        }
-    }
-
-    /**
-     * Comparator to sort XYPoint-derived data by y value, in ascending order.
-     * Useful for bar graphs, nonsensical for other graphs.
-     *
-     * @author jschweers
-     */
-    private class AscendingValuePointComparator implements Comparator<XYPointData> {
-        @Override
-        public int compare(XYPointData lhs, XYPointData rhs) {
-            try {
-                return Double.valueOf(parseDouble(lhs.getY(), "")).compareTo(parseDouble(rhs.getY(), ""));
-            } catch (InvalidStateException e) {
-                return 0;
-            }
-        }
-    }
-
-    /**
-     * Comparator to sort XYPoint-derived data by y value, in descending order.
-     * Useful for bar graphs, nonsensical for other graphs.
-     *
-     * @author jschweers
-     */
-    private class DescendingValuePointComparator implements Comparator<XYPointData> {
-        @Override
-        public int compare(XYPointData lhs, XYPointData rhs) {
-            try {
-                return Double.valueOf(parseDouble(rhs.getY(), "")).compareTo(parseDouble(lhs.getY(), ""));
-            } catch (InvalidStateException e) {
-                return 0;
-            }
-        }
     }
 }
