@@ -11,6 +11,7 @@ import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
+import org.commcare.android.database.migration.FixtureSerializationMigration;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.ACasePreV6Model;
 import org.commcare.android.database.user.models.AUser;
@@ -76,6 +77,11 @@ public class UserDatabaseUpgrader {
         if(oldVersion == 7) {
             if(upgradeSevenEight(db, oldVersion, newVersion)) {
                 oldVersion = 8;
+            }
+        }
+        if (oldVersion == 8) {
+            if (upgradeEightNine(db, oldVersion, newVersion)) {
+                oldVersion = 9;
             }
         }
     }
@@ -200,6 +206,14 @@ public class UserDatabaseUpgrader {
             db.endTransaction();
             Log.d(TAG, "Case model update complete in " + (System.currentTimeMillis() - start) + "ms");
         }
+    }
+
+    /**
+     * deserialize all user fixtures in db using old serialization scheme,
+     * and re-serialize them using the new scheme.
+     */
+    private boolean upgradeEightNine(SQLiteDatabase db, int oldVersion, int newVersion) {
+        return FixtureSerializationMigration.migrateFixtureDbBytes(db, c);
     }
 
     private void updateIndexes(SQLiteDatabase db) {
