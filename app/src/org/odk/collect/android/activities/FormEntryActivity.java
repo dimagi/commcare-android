@@ -51,6 +51,7 @@ import android.widget.Toast;
 
 import org.commcare.android.analytics.GoogleAnalyticsFields;
 import org.commcare.android.analytics.GoogleAnalyticsUtils;
+import org.commcare.android.analytics.TimedStatsTracker;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.SaveSessionCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -116,6 +117,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -260,7 +262,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         org.javarosa.core.services.PropertyManager.setPropertyManager(new PropertyManager(
                 getApplicationContext()));
 
-        loadStateFromBundle(savedInstanceState);
+        if (savedInstanceState == null) {
+            reportFormEntry();
+        } else {
+            loadStateFromBundle(savedInstanceState);
+        }
 
         // Check to see if this is a screen flip or a new form load.
         Object data = this.getLastCustomNonConfigurationInstance();
@@ -2231,6 +2237,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         dismissProgressDialog();
+        reportFormExit();
         finish();
     }
 
@@ -2333,46 +2340,44 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void loadStateFromBundle(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(KEY_FORMPATH)) {
-                mFormPath = savedInstanceState.getString(KEY_FORMPATH);
+        if (savedInstanceState.containsKey(KEY_FORMPATH)) {
+            mFormPath = savedInstanceState.getString(KEY_FORMPATH);
+        }
+        if (savedInstanceState.containsKey(KEY_FORM_LOAD_HAS_TRIGGERED)) {
+            hasFormLoadBeenTriggered = savedInstanceState.getBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, false);
+        }
+        if (savedInstanceState.containsKey(KEY_FORM_LOAD_FAILED)) {
+            hasFormLoadFailed = savedInstanceState.getBoolean(KEY_FORM_LOAD_FAILED, false);
+        }
+        if (savedInstanceState.containsKey(KEY_FORM_CONTENT_URI)) {
+            formProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_FORM_CONTENT_URI));
+        }
+        if (savedInstanceState.containsKey(KEY_INSTANCE_CONTENT_URI)) {
+            instanceProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_INSTANCE_CONTENT_URI));
+        }
+        if (savedInstanceState.containsKey(KEY_INSTANCEDESTINATION)) {
+            mInstanceDestination = savedInstanceState.getString(KEY_INSTANCEDESTINATION);
+        }
+        if(savedInstanceState.containsKey(KEY_INCOMPLETE_ENABLED)) {
+            mIncompleteEnabled = savedInstanceState.getBoolean(KEY_INCOMPLETE_ENABLED);
+        }
+        if(savedInstanceState.containsKey(KEY_RESIZING_ENABLED)) {
+            ResizingImageView.resizeMethod = savedInstanceState.getString(KEY_RESIZING_ENABLED);
+        }
+        if (savedInstanceState.containsKey(KEY_AES_STORAGE_KEY)) {
+             String base64Key = savedInstanceState.getString(KEY_AES_STORAGE_KEY);
+             try {
+                byte[] storageKey = new Base64Wrapper().decode(base64Key);
+                symetricKey = new SecretKeySpec(storageKey, "AES");
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException("Base64 encoding not available on this platform");
             }
-            if (savedInstanceState.containsKey(KEY_FORM_LOAD_HAS_TRIGGERED)) {
-                hasFormLoadBeenTriggered = savedInstanceState.getBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, false);
-            }
-            if (savedInstanceState.containsKey(KEY_FORM_LOAD_FAILED)) {
-                hasFormLoadFailed = savedInstanceState.getBoolean(KEY_FORM_LOAD_FAILED, false);
-            }
-            if (savedInstanceState.containsKey(KEY_FORM_CONTENT_URI)) {
-                formProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_FORM_CONTENT_URI));
-            }
-            if (savedInstanceState.containsKey(KEY_INSTANCE_CONTENT_URI)) {
-                instanceProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_INSTANCE_CONTENT_URI));
-            }
-            if (savedInstanceState.containsKey(KEY_INSTANCEDESTINATION)) {
-                mInstanceDestination = savedInstanceState.getString(KEY_INSTANCEDESTINATION);
-            }
-            if(savedInstanceState.containsKey(KEY_INCOMPLETE_ENABLED)) {
-                mIncompleteEnabled = savedInstanceState.getBoolean(KEY_INCOMPLETE_ENABLED);
-            }
-            if(savedInstanceState.containsKey(KEY_RESIZING_ENABLED)) {
-                ResizingImageView.resizeMethod = savedInstanceState.getString(KEY_RESIZING_ENABLED);
-            }
-            if (savedInstanceState.containsKey(KEY_AES_STORAGE_KEY)) {
-                 String base64Key = savedInstanceState.getString(KEY_AES_STORAGE_KEY);
-                 try {
-                    byte[] storageKey = new Base64Wrapper().decode(base64Key);
-                    symetricKey = new SecretKeySpec(storageKey, "AES");
-                } catch (ClassNotFoundException e) {
-                    throw new RuntimeException("Base64 encoding not available on this platform");
-                }
-            }
-            if(savedInstanceState.containsKey(KEY_HEADER_STRING)) {
-                mHeaderString = savedInstanceState.getString(KEY_HEADER_STRING);
-            }
-            if(savedInstanceState.containsKey(KEY_HAS_SAVED)) {
-                hasSaved = savedInstanceState.getBoolean(KEY_HAS_SAVED);
-            }
+        }
+        if(savedInstanceState.containsKey(KEY_HEADER_STRING)) {
+            mHeaderString = savedInstanceState.getString(KEY_HEADER_STRING);
+        }
+        if(savedInstanceState.containsKey(KEY_HAS_SAVED)) {
+            hasSaved = savedInstanceState.getBoolean(KEY_HAS_SAVED);
         }
     }
 
@@ -2582,5 +2587,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeInPx,
                 getResources().getDisplayMetrics());
+    }
+
+    private void reportFormEntry() {
+        TimedStatsTracker.registerExitForm(getCurrentFormTitle());
+    }
+
+    private void reportFormExit() {
+        TimedStatsTracker.registerEnterForm(getCurrentFormTitle());
+    }
+
+    private String getCurrentFormTitle() {
+        return mFormController.getFormTitle();
     }
 }

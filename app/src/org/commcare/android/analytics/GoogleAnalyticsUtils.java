@@ -126,6 +126,17 @@ public class GoogleAnalyticsUtils {
         });
     }
 
+    public static void reportTimedEvent(String action, String label, int value) {
+        HitBuilders.EventBuilder builder = new HitBuilders.EventBuilder();
+        builder.setCategory(GoogleAnalyticsFields.CATEGORY_TIMED_EVENTS).
+                setAction(action).
+                setValue(value);
+        if (!"".equals(label)) {
+            builder.setLabel(label);
+        }
+        getTracker().send(builder.build());
+    }
+
     private static Tracker getTracker(String screenName) {
         Tracker t = CommCareApplication._().getDefaultTracker();
         t.setScreenName(screenName);

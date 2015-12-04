@@ -15,6 +15,7 @@ public final class GoogleAnalyticsFields {
     public static String CATEGORY_SERVER_COMMUNICATION = "Server Communication";
     public static String CATEGORY_SAVED_FORMS = "Saved Forms";
     public static String CATEGORY_DEV_OPTIONS = "Developer Options / Advanced Actions";
+    public static String CATEGORY_TIMED_EVENTS = "Timed Events";
 
     // Actions for multiple categories
     public static String ACTION_OPTIONS_MENU = "Open Options Menu";
@@ -37,6 +38,11 @@ public final class GoogleAnalyticsFields {
     // Actions for CATEGORY_SAVED_FORMS only
     public static String ACTION_VIEW_SAVED_FORMS = "View Saved Forms List";
     public static String ACTION_OPEN_SAVED_FORM = "Open a Saved Form";
+
+    // Actions for CATEGORY_TIMED_EVENTS only
+    public static String ACTION_TIME_BETWEEN_SYNCS = "Time Between Successful Syncs";
+    public static String ACTION_TIME_IN_A_FORM = "Time Spent in A Form";
+    public static String ACTION_SESSION_LENGTH = "Session Length";
 
     // Labels for ACTION_BUTTON
     public static String LABEL_START_BUTTON = "Start Button";
