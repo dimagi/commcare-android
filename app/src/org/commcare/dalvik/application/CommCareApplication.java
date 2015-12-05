@@ -38,6 +38,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.acra.annotation.ReportsCrashes;
+import org.commcare.android.analytics.TimedStatsTracker;
 import org.commcare.android.database.AndroidDbHelper;
 import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
@@ -273,6 +274,7 @@ public class CommCareApplication extends MultiDexApplication {
                 releaseUserResourcesAndServices();
             }
             bindUserSessionService(symetricKey, record, restoreSession);
+            TimedStatsTracker.registerStartSession();
         }
     }
 
@@ -303,6 +305,7 @@ public class CommCareApplication extends MultiDexApplication {
     }
 
     public void releaseUserResourcesAndServices() {
+        String userBeingLoggedOut = CommCareApplication._().getCurrentUserId();
         try {
             CommCareApplication._().getSession().closeServiceResources();
         } catch (SessionUnavailableException e) {
@@ -311,6 +314,7 @@ public class CommCareApplication extends MultiDexApplication {
         }
 
         unbindUserSessionService();
+        TimedStatsTracker.registerEndSession(userBeingLoggedOut);
     }
 
     public SecretKey createNewSymetricKey() throws SessionUnavailableException {

@@ -58,19 +58,19 @@ public class TimedStatsTracker {
                     .putString(KEY_LAST_LOGGED_IN_USER, currentUserId);
             editor.commit();
         } else {
-            Log.i(TAG, "Attempting to report starting a session with no logged in user");
+            Log.i(TAG, "Attempting to report starting a session with no logged in user available");
         }
     }
 
-    public static void registerEndSession() {
+    public static void registerEndSession(String loggedOutUser) {
+        if (loggedOutUser == null || "".equals(loggedOutUser)) {
+            Log.i(TAG, "Attempting to report ending a session with no logged in user available");
+            return;
+        }
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         String lastLoggedInUser = prefs.getString(KEY_LAST_LOGGED_IN_USER, "");
-        String currentUserId = CommCareApplication._().getCurrentUserId();
-        if (currentUserId == null || "".equals(currentUserId)) {
-            Log.i(TAG, "Attempting to report ending a session when there is no currently logged in user");
-        }
         if (!"".equals(lastLoggedInUser)) {
-            if (lastLoggedInUser.equals(currentUserId)) {
+            if (lastLoggedInUser.equals(loggedOutUser)) {
                 long startTime = prefs.getLong(KEY_LAST_SESSION_START_TIME, -1);
                 reportTimedEvent(GoogleAnalyticsFields.ACTION_SESSION_LENGTH,
                         computeElapsedTimeInSeconds(startTime, currentTime()));
@@ -79,7 +79,8 @@ public class TimedStatsTracker {
                         "last user reported as logged in");
             }
         } else {
-            Log.i(TAG, "Attempting to report ending a session when there is no last logged in user");
+            Log.i(TAG, "Attempting to report ending a session when there is no last logged in " +
+                    "user in prefs");
         }
     }
 
