@@ -158,7 +158,7 @@ public abstract class TemplatePrinterUtils {
     }
 
     public static void showPrintStatusDialog(final Activity activity, String title, String msg,
-                                             final boolean reportSuccess) {
+                                             final boolean printInitiated) {
         AlertDialogFactory.getBasicAlertFactory(activity, title, msg,
                 new DialogInterface.OnClickListener() {
             @Override
@@ -166,7 +166,7 @@ public abstract class TemplatePrinterUtils {
                 dialog.dismiss();
                 Intent intent = new Intent();
                 Bundle responses = new Bundle();
-                responses.putString("print_executed", "" + reportSuccess);
+                responses.putString("print_initiated", "" + printInitiated);
                 intent.putExtra("odk_intent_bundle", responses);
                 activity.setResult(activity.RESULT_OK, intent);
                 activity.finish();

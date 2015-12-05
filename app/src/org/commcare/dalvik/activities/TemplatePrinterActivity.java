@@ -238,7 +238,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             delegate.onFinish();
             String printDialogTitle = Localization.get("print.dialog.title");
             String msg = "";
-            boolean reportSuccess = false;
+            boolean printInitiated = false;
             switch (printJob.getInfo().getState()) {
                 case PrintJobInfo.STATE_BLOCKED:
                     msg = Localization.get("printjob.blocked");
@@ -248,7 +248,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
                     break;
                 case PrintJobInfo.STATE_COMPLETED:
                     msg = Localization.get("printing.done");
-                    reportSuccess = true;
+                    printInitiated = true;
                     break;
                 case PrintJobInfo.STATE_FAILED:
                     msg = Localization.get("print.error");
@@ -257,10 +257,10 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
                 case PrintJobInfo.STATE_QUEUED:
                 case PrintJobInfo.STATE_STARTED:
                     msg = Localization.get("printjob.started");
-                    reportSuccess = true;
+                    printInitiated = true;
             }
             TemplatePrinterUtils.showPrintStatusDialog(activity, printDialogTitle, msg,
-                    reportSuccess);
+                    printInitiated);
         }
     }
 
