@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.util;
 
 import android.content.Intent;
@@ -19,7 +16,6 @@ import java.io.IOException;
 
 /**
  * @author ctsims
- *
  */
 public class SerializationUtil {
     public static byte[] serialize(Externalizable data) {
@@ -38,23 +34,14 @@ public class SerializationUtil {
         try {
             t = type.newInstance();
             t.readExternal(new DataInputStream(new ByteArrayInputStream(bytes)), DbUtil.getPrototypeFactory(CommCareApplication._()));
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (DeserializationException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e1) {
-            e1.printStackTrace();
-            throw new RuntimeException(e1);
-        } catch (InstantiationException e1) {
+        } catch (IOException | InstantiationException
+                | DeserializationException | IllegalAccessException e1) {
             e1.printStackTrace();
             throw new RuntimeException(e1);
         }
         return t;
     }
 
-    
     public static void serializeToIntent(Intent i, String name, Externalizable data) {
         i.putExtra(name, serialize(data));
     }

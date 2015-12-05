@@ -70,7 +70,7 @@ public class SeatAppActivity extends Activity {
 
     private static class ThreadHandler extends Handler {
 
-        private SeatAppActivity activity;
+        private final SeatAppActivity activity;
 
         public ThreadHandler(SeatAppActivity a) {
             this.activity = a;
@@ -85,10 +85,10 @@ public class SeatAppActivity extends Activity {
         }
     }
 
-    private class SeatAppProcess implements Runnable {
+    private static class SeatAppProcess implements Runnable {
 
-        private ApplicationRecord record;
-        private ThreadHandler handler;
+        private final ApplicationRecord record;
+        private final ThreadHandler handler;
 
         public SeatAppProcess(ApplicationRecord record, ThreadHandler handler) {
             this.record = record;
@@ -100,6 +100,5 @@ public class SeatAppActivity extends Activity {
             CommCareApplication._().initializeAppResources(new CommCareApp(this.record));
             handler.sendEmptyMessage(0);
         }
-
     }
 }

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.database.global.models;
 
 import android.content.Intent;
@@ -69,24 +66,20 @@ public class AndroidSharedKeyRecord extends Persisted {
         }
     }
 
-    public byte[] getPrivateKey() {
-        return privateKey;
-    }
-
-    public String getKeyId() {
+    private String getKeyId() {
         return keyId;
     }
 
     public final static String EXTRA_KEY_ID = "commcare_sharing_key_id";
-    public final static String EXTRA_KEY_PAYLOAD = "commcare_sharing_key_payload";
+    private final static String EXTRA_KEY_PAYLOAD = "commcare_sharing_key_payload";
 
     public void writeResponseToIntent(Intent response) {
         response.putExtra(EXTRA_KEY_ID, this.getKeyId());
         response.putExtra(EXTRA_KEY_PAYLOAD, this.publicKey);
     }
 
-    public final static String EXTRA_KEY_CALLOUT = "commcare_sharing_key_callout";
-    public final static String EXTRA_KEY_CALLOUT_SYMETRIC_KEY = "commcare_sharing_key_symetric";
+    private final static String EXTRA_KEY_CALLOUT = "commcare_sharing_key_callout";
+    private final static String EXTRA_KEY_CALLOUT_SYMETRIC_KEY = "commcare_sharing_key_symetric";
 
     public Bundle getIncomingCallout(Intent incoming) {
         byte[] incomingCallout = incoming.getByteArrayExtra(EXTRA_KEY_CALLOUT);

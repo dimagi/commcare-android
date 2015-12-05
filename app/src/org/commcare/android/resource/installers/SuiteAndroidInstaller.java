@@ -21,15 +21,11 @@ import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathException;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -42,13 +38,12 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     private static final String TAG = SuiteAndroidInstaller.class.getSimpleName();
 
     public SuiteAndroidInstaller() {
-
+        // for externalization
     }
 
     public SuiteAndroidInstaller(String localDestination, String upgradeDestination) {
         super(localDestination, upgradeDestination);
     }
-
 
     @Override
     public boolean initialize(final AndroidCommCarePlatform instance) throws ResourceInitializationException {
@@ -71,20 +66,9 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             instance.registerSuite(s);
 
             return true;
-        } catch (InvalidReferenceException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InvalidStructureException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (XmlPullParserException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (UnfullfilledRequirementsException e) {
-            // TODO Auto-generated catch block
+        } catch (InvalidStructureException | InvalidReferenceException
+                | IOException | XmlPullParserException
+                | UnfullfilledRequirementsException e) {
             e.printStackTrace();
         }
 
@@ -108,21 +92,11 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 
             table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
             return true;
-        } catch (InvalidReferenceException e) {
+        } catch (XmlPullParserException | InvalidStructureException
+                | InvalidReferenceException | IOException
+                | XPathException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InvalidStructureException e) {
-            e.printStackTrace();
-            throw new UnresolvedResourceException(r, e.getMessage(), true);
-        } catch (XmlPullParserException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (XPathException xpe) {
-            xpe.printStackTrace();
-            throw new UnresolvedResourceException(r, xpe.getMessage(), true);
         }
 
         return false;
@@ -132,20 +106,9 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         return Resource.RESOURCE_STATUS_LOCAL;
     }
 
-
     @Override
     public boolean requiresRuntimeInitialization() {
         return true;
-    }
-
-    @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        super.readExternal(in, pf);
-    }
-
-    @Override
-    public void writeExternal(DataOutputStream out) throws IOException {
-        super.writeExternal(out);
     }
 
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
@@ -189,11 +152,6 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             e.printStackTrace();
         }
 
-        if (problems.size() == 0) {
-            return false;
-        }
-        return true;
+        return problems.size() != 0;
     }
-
-
 }

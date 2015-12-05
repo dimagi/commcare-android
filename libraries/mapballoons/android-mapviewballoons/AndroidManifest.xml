@@ -5,7 +5,7 @@
     android:versionName="1.5.1" >
 
     <application>
-        <uses-library android:name="com.google.android.maps" />
+      <uses-library android:name="com.google.android.maps" android:required="false" />
     </application>
 
     <uses-sdk

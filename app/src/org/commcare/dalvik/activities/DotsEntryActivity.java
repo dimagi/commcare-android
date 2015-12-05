@@ -39,7 +39,6 @@ import java.util.Date;
 
 /**
  * @author ctsims
- *
  */
 public class DotsEntryActivity extends Activity implements DotsEditListener, AnimationListener {
     
@@ -58,7 +57,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     private static final String DOTS_DAY = "dots_day";
     private static final String DOTS_BOX = "dots_box";
     private static final String CURRENT_FOCUS = "dots_focus";
-    
+
     private int curday = -1;
     private int curdose = -1;
     private DotsDay d;
@@ -72,9 +71,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        if(savedInstanceState != null) {
-            //Will get restored in onRestoreInstanceState
-        } else {
+        if(savedInstanceState == null) {
             String regimen = getIntent().getStringExtra("regimen");
             int[] regimens = new int[2];
             
@@ -124,7 +121,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
             }
             
             String currentDoseCheckTwo = getIntent().getStringExtra("currentdosetwo");
-            if(populateAnchor && currentDoseCheckTwo != null && currentDoseCheckTwo != "") {
+            if(populateAnchor && currentDoseCheckTwo != null && !"".equals(currentDoseCheckTwo)) {
                 int box = Integer.parseInt(getIntent().getStringExtra("currentboxtwo"));
                 
                 // now fill in the box specified
@@ -210,8 +207,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     Animation mInAnimation;
     Animation mOutAnimation;
     View mCurrentView;
-    View mNextView;
-    
+
     private void showView(View next, AnimationType anim) {
         showView(next,anim, null);
     }

@@ -4,10 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 
-import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
@@ -105,12 +103,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
             c.getContentResolver().insert(InstanceColumns.CONTENT_URI,values);
 
         // Find the form record attached to the form instance during insertion
-        IStorageUtilityIndexed<FormRecord> storage;
-        try {
-            storage = cachedStorage();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        IStorageUtilityIndexed<FormRecord> storage = cachedStorage();
         FormRecord attachedRecord =
             storage.getRecordForValue(FormRecord.META_INSTANCE_URI,
                     instanceRecord.toString());
@@ -151,7 +144,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         }
         return attachedRecord;
     }
-    public IStorageUtilityIndexed<FormRecord> cachedStorage() throws SessionUnavailableException{
+    private IStorageUtilityIndexed<FormRecord> cachedStorage() {
         if(storage == null) {
             storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         } 

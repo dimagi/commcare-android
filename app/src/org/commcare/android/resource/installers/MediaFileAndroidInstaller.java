@@ -22,10 +22,10 @@ import java.io.IOException;
  */
 public class MediaFileAndroidInstaller extends FileSystemInstaller {
 
-    String path;
+    private String path;
 
     public MediaFileAndroidInstaller() {
-
+        // For externalization
     }
 
     public MediaFileAndroidInstaller(String destination, String upgradeDestination, String path) {
@@ -42,11 +42,6 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
         }
         //cleanup dirs
         return FileUtil.cleanFilePath(this.localDestination, path);
-    }
-
-    @Override
-    public boolean upgrade(Resource r) {
-        return super.upgrade(r);
     }
 
     protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
@@ -79,7 +74,7 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
     public Pair<String, String> getResourceName(Resource r, ResourceLocation loc) {
         int index = loc.getLocation().lastIndexOf("/");
         if (index == -1) {
-            return new Pair<String, String>(loc.getLocation(), ".dat");
+            return new Pair<>(loc.getLocation(), ".dat");
         }
         String fileName = loc.getLocation().substring(index);
 
@@ -89,6 +84,6 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
             extension = fileName.substring(lastDot);
             fileName = fileName.substring(0, lastDot);
         }
-        return new Pair<String, String>(fileName, extension);
+        return new Pair<>(fileName, extension);
     }
 }

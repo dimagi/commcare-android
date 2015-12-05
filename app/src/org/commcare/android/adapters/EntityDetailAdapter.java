@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.adapters;
 
 import android.content.Context;
@@ -24,15 +21,15 @@ import java.util.List;
  */
 public class EntityDetailAdapter implements ListAdapter, ModifiableEntityDetailAdapter {
 
-    Context context;
-    CommCareSession session;
-    Detail detail;
-    Entity entity;
-    DetailCalloutListener listener;
-    List<Integer> valid;
-    int detailIndex;
+    private final Context context;
+    private final CommCareSession session;
+    private final Detail detail;
+    private final Entity entity;
+    private final DetailCalloutListener listener;
+    private final List<Integer> valid;
+    private final int detailIndex;
 
-    ListItemViewModifier modifier;
+    private ListItemViewModifier modifier;
 
     public EntityDetailAdapter(Context context, CommCareSession session, Detail detail, Entity entity,
                                DetailCalloutListener listener, int detailIndex, ListItemViewModifier modifier) {
@@ -41,7 +38,7 @@ public class EntityDetailAdapter implements ListAdapter, ModifiableEntityDetailA
         this.detail = detail;
         this.entity = entity;
         this.listener = listener;
-        valid = new ArrayList<Integer>();
+        valid = new ArrayList<>();
         for (int i = 0; i < entity.getNumFields(); ++i) {
             if (entity.isValidField(i)) {
                 valid.add(i);

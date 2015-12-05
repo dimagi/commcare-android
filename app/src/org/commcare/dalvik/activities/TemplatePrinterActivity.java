@@ -211,7 +211,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     class PrintDocumentAdapterWrapper extends PrintDocumentAdapter {
 
         private final PrintDocumentAdapter delegate;
-        private Activity activity;
+        private final Activity activity;
 
         public PrintDocumentAdapterWrapper(Activity activity, PrintDocumentAdapter adapter) {
             super();

@@ -8,6 +8,5 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/javarosa-core"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.commcare"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.commcare.cases"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/AChartEngine"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

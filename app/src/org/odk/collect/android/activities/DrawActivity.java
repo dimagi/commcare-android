@@ -1,24 +1,7 @@
-/*
- * Copyright (C) 2012 University of Washington
- * Copyright (C) 2007 The Android Open Source Project
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.activities;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
@@ -42,6 +25,8 @@ import android.widget.RelativeLayout;
 
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.dialogs.DialogChoiceItem;
+import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.utilities.FileUtils;
 
@@ -57,15 +42,15 @@ import java.io.FileOutputStream;
  * 
  */
 public class DrawActivity extends Activity {
-    public static final String t = "DrawActivity";
+    private static final String t = "DrawActivity";
 
     public static final String OPTION = "option";
     public static final String OPTION_SIGNATURE = "signature";
-    public static final String OPTION_ANNOTATE = "annotate";
-    public static final String OPTION_DRAW = "draw";
+    private static final String OPTION_ANNOTATE = "annotate";
+    private static final String OPTION_DRAW = "draw";
     public static final String REF_IMAGE = "refImage";
     public static final String EXTRA_OUTPUT = android.provider.MediaStore.EXTRA_OUTPUT;
-    public static final String SAVEPOINT_IMAGE = "savepointImage"; // during
+    private static final String SAVEPOINT_IMAGE = "savepointImage"; // during
     // restore
 
     // incoming options...
@@ -74,14 +59,10 @@ public class DrawActivity extends Activity {
     private File output = null;
     private File savepointImage = null;
 
-    private Button btnFinished;
-    private Button btnReset;
-    private Button btnCancel;
     private Paint paint;
     private Paint pointPaint;
     private DrawView drawView;
     private String alertTitleString;
-    private AlertDialog alertDialog;
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -175,7 +156,7 @@ public class DrawActivity extends Activity {
         LinearLayout ll = (LinearLayout) v.findViewById(R.id.drawViewLayout);
 
         drawView = new DrawView(this, OPTION_SIGNATURE.equals(loadOption),
-                savepointImage);
+                savepointImage, paint, pointPaint);
 
         ll.addView(drawView);
 
@@ -196,7 +177,7 @@ public class DrawActivity extends Activity {
         pointPaint.setStrokeWidth(10);
         pointPaint.setColor(Color.BLACK);
 
-        btnFinished = (Button) findViewById(R.id.btnFinishDraw);
+        Button btnFinished = (Button)findViewById(R.id.btnFinishDraw);
         btnFinished.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -204,14 +185,14 @@ public class DrawActivity extends Activity {
                 SaveAndClose();
             }
         });
-        btnReset = (Button) findViewById(R.id.btnResetDraw);
+        Button btnReset = (Button)findViewById(R.id.btnResetDraw);
         btnReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Reset();
             }
         });
-        btnCancel = (Button) findViewById(R.id.btnCancelDraw);
+        Button btnCancel = (Button)findViewById(R.id.btnCancelDraw);
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -248,10 +229,8 @@ public class DrawActivity extends Activity {
             drawView.draw(canvas);
             bitmap.compress(Bitmap.CompressFormat.JPEG, 70, fos);
             try {
-                if ( fos != null ) {
-                    fos.flush();
-                    fos.close();
-                }
+                fos.flush();
+                fos.close();
             } catch ( Exception e) {
             }
         }
@@ -270,11 +249,6 @@ public class DrawActivity extends Activity {
     private void CancelAndClose() {
         setResult(Activity.RESULT_CANCELED);
         this.finish();
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
     }
 
     @Override
@@ -307,56 +281,52 @@ public class DrawActivity extends Activity {
      * saving
      */
     private void createQuitDrawDialog() {
-        String[] items = { getString(R.string.keep_changes),
-                getString(R.string.do_not_save) };
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, alertTitleString);
 
-
-        alertDialog = new AlertDialog.Builder(this)
-        .setIcon(android.R.drawable.ic_dialog_info)
-        .setTitle(alertTitleString)
-        .setNeutralButton(getString(R.string.do_not_exit),
-                new DialogInterface.OnClickListener() {
+        View.OnClickListener keepChangesListener = new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int id) {
-
-
-                dialog.cancel();
-
+            public void onClick(View v) {
+                SaveAndClose();
             }
-        })
-        .setItems(items, new DialogInterface.OnClickListener() {
+        };
+        DialogChoiceItem keepOption = new DialogChoiceItem(getString(R.string.keep_changes), -1,
+                keepChangesListener);
+
+        View.OnClickListener discardChangesListener = new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
-                switch (which) {
-
-                case 0: // save and exit
-                    SaveAndClose();
-                    break;
-
-                case 1: // discard changes and exit
-
-                    CancelAndClose();
-                    break;
-
-                case 2:// do nothing
-
-                    break;
-                }
+            public void onClick(View v) {
+                CancelAndClose();
             }
-        }).create();
-        alertDialog.show();
+        };
+        DialogChoiceItem discardOption = new DialogChoiceItem(getString(R.string.do_not_save), -1,
+                discardChangesListener);
+
+        dialog.setChoiceItems(new DialogChoiceItem[]{keepOption, discardOption});
+
+        dialog.addButton(getString(R.string.cancel), new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
     }
 
-    public class DrawView extends View {
+    private static class DrawView extends View {
         private boolean isSignature;
         private Bitmap mBitmap;
         private Canvas mCanvas;
-        private Path mCurrentPath;
-        private Paint mBitmapPaint;
+        private final Path mCurrentPath;
+        private final Paint mBitmapPaint;
         private File mBackgroundBitmapFile;
+        private final Paint paint;
+        private final Paint pointPaint;
 
-        public DrawView(final Context c) {
+        public DrawView(final Context c, Paint paint, Paint pointPaint) {
             super(c);
+            this.paint = paint;
+            this.pointPaint = pointPaint;
             isSignature = false;
             mBitmapPaint = new Paint(Paint.DITHER_FLAG);
             mCurrentPath = new Path();
@@ -364,8 +334,8 @@ public class DrawActivity extends Activity {
             mBackgroundBitmapFile = new File(ODKStorage.TMPDRAWFILE_PATH);
         }
 
-        public DrawView(Context c, boolean isSignature, File f) {
-            this(c);
+        public DrawView(Context c, boolean isSignature, File f, Paint paint, Paint pointPaint) {
+            this(c, paint, pointPaint);
             this.isSignature = isSignature;
             mBackgroundBitmapFile = f;
         }
@@ -382,7 +352,7 @@ public class DrawActivity extends Activity {
             if (mBackgroundBitmapFile.exists()) {
                 mBitmap = MediaUtil.getBitmapScaledToContainer(
                         mBackgroundBitmapFile, w, h).copy(
-                                Bitmap.Config.ARGB_8888, true);
+                        Bitmap.Config.ARGB_8888, true);
                 // mBitmap =
                 // Bitmap.createScaledBitmap(BitmapFactory.decodeFile(mBackgroundBitmapFile.getPath()),
                 // w, h, true);
@@ -447,18 +417,18 @@ public class DrawActivity extends Activity {
             float y = event.getY();
 
             switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                touch_start(x, y);
-                invalidate();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                touch_move(x, y);
-                invalidate();
-                break;
-            case MotionEvent.ACTION_UP:
-                touch_up();
-                invalidate();
-                break;
+                case MotionEvent.ACTION_DOWN:
+                    touch_start(x, y);
+                    invalidate();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    touch_move(x, y);
+                    invalidate();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    touch_up();
+                    invalidate();
+                    break;
             }
             return true;
         }

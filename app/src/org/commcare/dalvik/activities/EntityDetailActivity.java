@@ -15,7 +15,6 @@ import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
@@ -94,10 +93,8 @@ public class EntityDetailActivity
         String shortDetailId = getIntent().getStringExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID);
         if (shortDetailId != null) {
             Detail shortDetail = session.getDetail(shortDetailId);
-            this.mEntityContext = new Pair<Detail, TreeReference>(shortDetail, mTreeReference);
+            this.mEntityContext = new Pair<>(shortDetail, mTreeReference);
         }
-
-        Entity<TreeReference> entity = factory.getEntity(mTreeReference);
 
         super.onCreate(savedInstanceState);
         
@@ -131,7 +128,7 @@ public class EntityDetailActivity
         }
 
         mDetailView.setRoot((ViewGroup)container.findViewById(R.id.entity_detail_tabs));
-        mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
+        mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex);
 
         mDetailView.setDetail(factory.getDetail());
     }
@@ -159,7 +156,7 @@ public class EntityDetailActivity
         switch (requestCode) {
             case DetailCalloutListenerDefaultImpl.CALL_OUT:
                 if (resultCode == RESULT_CANCELED) {
-                    mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex, true);
+                    mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex);
                     return;
                 } else {
                     long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);

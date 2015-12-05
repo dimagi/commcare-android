@@ -31,7 +31,7 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
 
     private static final String GLOBAL_DB_LOCATOR = "database_global";
 
-    private Context mContext;
+    private final Context mContext;
 
     public DatabaseGlobalOpenHelper(Context context) {
         super(context, GLOBAL_DB_LOCATOR, null, GLOBAL_DB_VERSION);

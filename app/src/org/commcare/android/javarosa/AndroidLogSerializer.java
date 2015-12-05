@@ -16,16 +16,16 @@ import java.util.Hashtable;
  * @author ctsims
  */
 public class AndroidLogSerializer extends StreamLogSerializer implements DeviceReportElement {
-    SqlStorage<AndroidLogEntry> storage;
-    LogEntry entry;
+    private SqlStorage<AndroidLogEntry> storage;
+    private LogEntry entry;
 
-    XmlSerializer serializer;
+    private XmlSerializer serializer;
 
     public AndroidLogSerializer(LogEntry entry) {
         this.entry = entry;
     }
 
-    public AndroidLogSerializer(SqlStorage<AndroidLogEntry> logStorage) throws IOException {
+    public AndroidLogSerializer(SqlStorage<AndroidLogEntry> logStorage) {
         super();
         this.storage = logStorage;
 

@@ -25,11 +25,11 @@ import org.javarosa.core.services.storage.Persistable;
 /**
  * @author ctsims
  */
-public class UserDatabaseUpgrader {
+class UserDatabaseUpgrader {
     private static final String TAG = UserDatabaseUpgrader.class.getSimpleName();
 
-    boolean inSenseMode = false;
-    Context c;
+    private boolean inSenseMode = false;
+    private final Context c;
 
     public UserDatabaseUpgrader(Context c, boolean inSenseMode) {
         this.inSenseMode = inSenseMode;
@@ -220,7 +220,7 @@ public class UserDatabaseUpgrader {
         if (inSenseMode) {
 
             //Get form record storage
-            SqlStorage<FormRecord> storage = new SqlStorage<FormRecord>(FormRecord.STORAGE_KEY, FormRecord.class,new ConcreteAndroidDbHelper(c,db));
+            SqlStorage<FormRecord> storage = new SqlStorage<>(FormRecord.STORAGE_KEY, FormRecord.class, new ConcreteAndroidDbHelper(c, db));
 
             //Iterate through all forms currently saved
             for (FormRecord record : storage) {

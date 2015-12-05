@@ -18,7 +18,7 @@ import org.javarosa.core.services.storage.IStorageUtilityIndexed;
  */
 public class AndroidSandbox extends UserSandbox {
 
-    CommCareApplication app;
+    private final CommCareApplication app;
 
     public AndroidSandbox(CommCareApplication app){
         this.app = app;

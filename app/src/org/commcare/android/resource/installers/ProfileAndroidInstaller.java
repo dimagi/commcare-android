@@ -22,14 +22,10 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.util.externalizable.DeserializationException;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -39,7 +35,7 @@ import java.util.ArrayList;
 public class ProfileAndroidInstaller extends FileSystemInstaller {
 
     public ProfileAndroidInstaller() {
-
+        // For externalization
     }
 
     public ProfileAndroidInstaller(String localDestination, String upgradeDestination) {
@@ -60,20 +56,9 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             instance.setProfile(p);
 
             return true;
-        } catch (InvalidReferenceException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (InvalidStructureException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (XmlPullParserException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (UnfullfilledRequirementsException e) {
-            // TODO Auto-generated catch block
+        } catch (UnfullfilledRequirementsException | XmlPullParserException
+                | InvalidStructureException | IOException
+                | InvalidReferenceException e) {
             e.printStackTrace();
         }
 
@@ -101,17 +86,10 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
             table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
             return true;
-        } catch (InvalidReferenceException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
+        } catch (XmlPullParserException | InvalidReferenceException | IOException e) {
             e.printStackTrace();
         } catch (InvalidStructureException e) {
             throw new UnresolvedResourceException(r, "Invalid content in the Profile Definition: " + e.getMessage(), true);
-        } catch (XmlPullParserException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
         }
 
         return false;
@@ -185,15 +163,5 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     @Override
     public boolean requiresRuntimeInitialization() {
         return true;
-    }
-
-    @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
-        super.readExternal(in, pf);
-    }
-
-    @Override
-    public void writeExternal(DataOutputStream out) throws IOException {
-        super.writeExternal(out);
     }
 }

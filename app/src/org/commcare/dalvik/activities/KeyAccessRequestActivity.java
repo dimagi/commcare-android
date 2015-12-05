@@ -57,7 +57,6 @@ public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestA
                 setResult(Activity.RESULT_OK, response);
                 finish();
             }
-            
         });
         
         denyButton.setOnClickListener(new OnClickListener() {
@@ -69,13 +68,5 @@ public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestA
             }
             
         });
-    }
-    
-    
-
-    @Override
-    protected void onResume() {
-        // TODO Auto-generated method stub
-        super.onResume();
     }
 }
