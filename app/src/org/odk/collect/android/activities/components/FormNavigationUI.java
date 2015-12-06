@@ -33,7 +33,7 @@ public class FormNavigationUI {
      */
     public static void updateNavigationCues(CommCareActivity activity,
                                             FormController formController,
-                                            View view) {
+                                            ODKView view) {
         updateFloatingLabels(activity, view);
 
         FormNavigationController.NavigationDetails details;
@@ -67,19 +67,13 @@ public class FormNavigationUI {
 
         progressBar.setMax(details.totalQuestions);
 
-        if (isFormDone(details)) {
+        if (details.isFormDone()) {
             setDoneState(nextButton, activity, progressBar, details.totalQuestions);
         } else {
             setMoreQuestionsState(nextButton, activity, progressBar, details.completedQuestions);
         }
 
         progressBar.getProgressDrawable().setBounds(bounds);  //Set the bounds to the saved value
-    }
-
-    private static boolean isFormDone(FormNavigationController.NavigationDetails details) {
-        return details.relevantAfterCurrentScreen == 0 &&
-                (details.requiredOnScreen == details.answeredOnScreen ||
-                        details.requiredOnScreen < 1);
     }
 
     private static void setDoneState(ImageButton nextButton,
@@ -150,27 +144,26 @@ public class FormNavigationUI {
         }
     }
 
-    private static void updateFloatingLabels(CommCareActivity activity, View currentView) {
+    private static void updateFloatingLabels(CommCareActivity activity,
+                                             ODKView currentView) {
         //TODO: this should actually be set up to scale per screen size.
         ArrayList<Pair<String, FloatingLabel>> smallLabels = new ArrayList<>();
         ArrayList<Pair<String, FloatingLabel>> largeLabels = new ArrayList<>();
 
         FloatingLabel[] labelTypes = FloatingLabel.values();
 
-        if (currentView instanceof ODKView) {
-            for (QuestionWidget widget : ((ODKView)currentView).getWidgets()) {
-                String hint = widget.getPrompt().getAppearanceHint();
-                if (hint == null) {
-                    continue;
-                }
-                for (FloatingLabel type : labelTypes) {
-                    if (type.getAppearance().equals(hint)) {
-                        String widgetText = widget.getPrompt().getQuestionText();
-                        if (widgetText != null && widgetText.length() < 15) {
-                            smallLabels.add(new Pair<>(widgetText, type));
-                        } else {
-                            largeLabels.add(new Pair<>(widgetText, type));
-                        }
+        for (QuestionWidget widget : currentView.getWidgets()) {
+            String hint = widget.getPrompt().getAppearanceHint();
+            if (hint == null) {
+                continue;
+            }
+            for (FloatingLabel type : labelTypes) {
+                if (type.getAppearance().equals(hint)) {
+                    String widgetText = widget.getPrompt().getQuestionText();
+                    if (widgetText != null && widgetText.length() < 15) {
+                        smallLabels.add(new Pair<>(widgetText, type));
+                    } else {
+                        largeLabels.add(new Pair<>(widgetText, type));
                     }
                 }
             }
