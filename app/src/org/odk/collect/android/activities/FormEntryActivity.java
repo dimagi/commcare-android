@@ -184,6 +184,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private static final int MENU_PREFERENCES = Menu.FIRST + 4;
 
     public static final String NAV_STATE_NEXT = "next";
+    public static final String NAV_STATE_DONE = "done";
+    public static final String NAV_STATE_QUIT = "quit";
+    public static final String NAV_STATE_BACK = "back";
 
     private String mFormPath;
     // Path to a particular form instance
@@ -354,7 +357,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         nextButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!"done".equals(v.getTag())) {
+                if (!NAV_STATE_DONE.equals(v.getTag())) {
                     FormEntryActivity.this.showNextView();
                 } else {
                     triggerUserFormComplete();
@@ -365,7 +368,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         prevButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!"quit".equals(v.getTag())) {
+                if (!NAV_STATE_QUIT.equals(v.getTag())) {
                     FormEntryActivity.this.showPreviousView(true);
                 } else {
                     FormEntryActivity.this.triggerUserQuitInput();
