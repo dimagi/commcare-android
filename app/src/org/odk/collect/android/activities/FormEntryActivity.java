@@ -55,6 +55,7 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -2551,5 +2552,16 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeInPx,
                 getResources().getDisplayMetrics());
+    }
+
+    /**
+     * For Testing purposes only
+     */
+    public ODKView getODKView() {
+        if (BuildConfig.DEBUG) {
+            return mCurrentView;
+        } else {
+            throw new RuntimeException("On principal of design, only meant for testing purposes");
+        }
     }
 }

@@ -46,6 +46,7 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.HorizontalMediaView;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
@@ -1543,4 +1544,14 @@ public class CommCareHomeActivity
         return false;
     }
 
+    /**
+     * For Testing purposes only
+     */
+    public SessionNavigator getSessionNavigator() {
+        if (BuildConfig.DEBUG) {
+            return sessionNavigator;
+        } else {
+            throw new RuntimeException("On principal of design, only meant for testing purposes");
+        }
+    }
 }

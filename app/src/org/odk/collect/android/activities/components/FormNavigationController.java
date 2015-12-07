@@ -25,7 +25,6 @@ public class FormNavigationController {
                     (requiredOnScreen == answeredOnScreen ||
                             requiredOnScreen < 1);
         }
-
     }
 
     public static NavigationDetails calculateNavigationStatus(FormController formEntryController,
