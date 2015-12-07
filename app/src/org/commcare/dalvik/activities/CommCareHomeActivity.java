@@ -46,6 +46,7 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.HorizontalMediaView;
+import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
@@ -483,7 +484,7 @@ public class CommCareHomeActivity
     private void startNextSessionStepSafe() {
         try {
             sessionNavigator.startNextSessionStep();
-        } catch (RuntimeException e) {
+        } catch (CommCareInstanceInitializer.FixtureInitializationException e) {
             sessionNavigator.stepBack();
             if (isDemoUser()) {
                 // most likely crashing due to data not being available in demo mode
