@@ -435,6 +435,9 @@ public class DataConfiguration extends Configuration {
         } else {
             symbol = s.getConfiguration("point-style", "circle").toLowerCase();
         }
+        if (symbol.equals("triangle")) {
+            symbol = "triangle-up";
+        }
         mPointStyles.put(yID, symbol);
     }
 
