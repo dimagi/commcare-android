@@ -475,9 +475,25 @@ public class CommCareHomeActivity
                 }
                 break;
             }
-            sessionNavigator.startNextSessionStep();
+            startNextSessionStepSafe();
         }
         super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    private void startNextSessionStepSafe() {
+        try {
+            sessionNavigator.startNextSessionStep();
+        } catch (RuntimeException e) {
+            sessionNavigator.stepBack();
+            if (isDemoUser()) {
+                // most likely crashing due to data not being available in demo mode
+                CommCareActivity.createErrorDialog(this,
+                        Localization.get("demo.mode.feature.unavailable"),
+                        false);
+            } else {
+                CommCareActivity.createErrorDialog(this, e.getMessage(), false);
+            }
+        }
     }
 
     /**
