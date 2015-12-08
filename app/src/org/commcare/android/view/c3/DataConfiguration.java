@@ -216,12 +216,12 @@ public class DataConfiguration extends Configuration {
         if (min != null && max != null) {
             mXs.put(yID, xID);
             mTypes.put(yID, "line");
-            mAxes.put(yID, "y2");
+            mAxes.put(yID, prefix.startsWith("secondary") ? "y2" : "y");
 
             JSONArray yValues = new JSONArray();
             yValues.put(yID);
-            yValues.put(parseDouble(min, "secondary-y-min"));
-            yValues.put(parseDouble(max, "secondary-y-max"));
+            yValues.put(parseDouble(min, prefix + "-min"));
+            yValues.put(parseDouble(max, prefix + "-max"));
             mColumns.put(yValues);
             return true;
         }
