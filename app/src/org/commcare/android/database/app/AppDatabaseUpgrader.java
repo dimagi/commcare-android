@@ -133,8 +133,9 @@ public class AppDatabaseUpgrader {
     }
 
     /**
-     * deserialize all user fixtures in db using old serialization scheme,
-     * and re-serialize them using the new scheme.
+     * Deserialize app fixtures in db using old form instance serialization
+     * scheme, and re-serialize them using the new scheme that preserves
+     * attributes.
      */
     private boolean upgradeSixSeven(SQLiteDatabase db) {
         return FixtureSerializationMigration.migrateFixtureDbBytes(db, context);

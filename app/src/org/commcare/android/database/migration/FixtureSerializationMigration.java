@@ -20,8 +20,17 @@ import java.io.DataInputStream;
 import java.util.Vector;
 
 /**
- * Deserialize all fixtures in a db using old serialization scheme,
- * and re-serialize them using the new scheme.
+ * Deserialize all fixtures in a db using old form instance serialization
+ * scheme, and re-serialize them using the new scheme.
+ *
+ * The updated form instance serialization scheme provides more comprehensive
+ * handling of attributes, preserving datatypes, and other attributes across
+ * serializations.
+ *
+ * Used in app database migration V.7 and user database migration V.9
+ *
+ * This code becomes irrelevant once no more devices need to be migrated off of
+ * 2.24
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
@@ -53,6 +62,12 @@ public class FixtureSerializationMigration {
             db.setTransactionSuccessful();
             return true;
         } catch (Exception e) {
+            // Even if it failed, let the migration think it was successful,
+            // otherwise the app will crash. It's important to let user get to
+            // a point where they can sync data and then clear user data and
+            // restore, which ultimately has the same effect as running the
+            // fixture serialization migration.
+            db.setTransactionSuccessful();
             Logger.log(AndroidLogger.SOFT_ASSERT, "fixture serialization db migration failed");
             Logger.exception(e);
             return false;
@@ -67,7 +82,8 @@ public class FixtureSerializationMigration {
                 cur.close();
             }
             db.endTransaction();
-            Log.d(TAG, "Serialized fixture update complete in " + (System.currentTimeMillis() - start) + "ms");
+            long elapse = System.currentTimeMillis() - start;
+            Log.d(TAG, "Serialized fixture update complete in " + elapse + "ms");
         }
     }
 }

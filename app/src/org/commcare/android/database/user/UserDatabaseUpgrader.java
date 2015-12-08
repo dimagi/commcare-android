@@ -209,8 +209,9 @@ public class UserDatabaseUpgrader {
     }
 
     /**
-     * deserialize all user fixtures in db using old serialization scheme,
-     * and re-serialize them using the new scheme.
+     * Deserialize user fixtures in db using old form instance serialization
+     * scheme, and re-serialize them using the new scheme that preserves
+     * attributes.
      */
     private boolean upgradeEightNine(SQLiteDatabase db, int oldVersion, int newVersion) {
         return FixtureSerializationMigration.migrateFixtureDbBytes(db, c);
