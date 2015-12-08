@@ -27,8 +27,7 @@ public class AxisConfiguration extends Configuration {
             x.put("type", "timeseries");
         }
 
-        // Display secondary y axis labels only if it has at least one associated series.
-        // The axis itself gets displayed regardless of if it has data; this makes the
+        // Display secondary y axis, regardless of if it has data; this makes the
         // whitespace around the graph look more reasonable. X and primary Y axis show by default.
         y2.put("show", true);
 
@@ -134,6 +133,7 @@ public class AxisConfiguration extends Configuration {
         }
 
         if (key.startsWith("secondary-y")) {
+            // If there aren't any series for the secondary y axis, don't label it
             boolean hasSecondaryAxis = false;
             for (SeriesData s : mData.getSeries()) {
                 hasSecondaryAxis = hasSecondaryAxis || Boolean.valueOf(s.getConfiguration("secondary-y", "false"));
