@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -32,6 +33,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.DemoUserBuilder;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.ManagedUiFramework;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;
@@ -47,7 +49,6 @@ import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.ACRAUtil;
-import org.commcare.android.util.DialogCreationHelpers;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.ViewUtil;
@@ -55,6 +56,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.dialogs.DialogCreationHelpers;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -76,6 +78,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public static final String ALREADY_LOGGED_IN = "la_loggedin";
     public final static String KEY_LAST_APP = "id_of_last_selected";
+    public final static String KEY_ENTERED_USER = "entered-username";
+    public final static String KEY_ENTERED_PW = "entered-password";
 
     private static final int SEAT_APP_ACTIVITY = 0;
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
@@ -99,6 +103,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     @UiElement(value=R.id.login_button, locale="login.button")
     private Button loginButton;
 
+    @UiElement(value=R.id.restore_session_checkbox)
+    private CheckBox restoreSessionCheckbox;
+
     @UiElement(R.id.app_selection_spinner)
     private Spinner spinner;
 
@@ -110,6 +117,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
     private SqlStorage<UserKeyRecord> storage;
     private final ArrayList<String> appIdDropdownList = new ArrayList<>();
+
+    private String usernameBeforeRotation;
+    private String passwordBeforeRotation;
 
     private final TextWatcher textWatcher = new TextWatcher() {
 
@@ -140,23 +150,36 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         setLoginBoxesColorNormal();
 
-        //Only on the initial creation
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
+            // Only restore last user on the initial creation
+            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
             String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
-            if(lastUser != null) {
+            if (lastUser != null) {
                 username.setText(lastUser);
                 password.requestFocus();
             }
+        } else {
+            // If the screen was rotated with entered text present, we will want to restore it
+            // in onResume (can't do it here b/c will get overriden by logic in refreshForNewApp())
+            usernameBeforeRotation = savedInstanceState.getString(KEY_ENTERED_USER);
+            passwordBeforeRotation = savedInstanceState.getString(KEY_ENTERED_PW);
         }
+
+        setupUIElements();
+    }
+
+    private void setupUIElements() {
+        username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS |
+                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+
+        setLoginBoxesColorNormal();
 
         loginButton.setOnClickListener(new OnClickListener() {
             public void onClick(View arg0) {
-                loginButtonPressed();
+                loginButtonPressed(isRestoreSessionChecked());
             }
         });
 
@@ -168,6 +191,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         password.setHint(Localization.get("login.password"));
 
         final View activityRootView = findViewById(R.id.screen_login_main);
+        final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
@@ -186,7 +210,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                     if (!"".equals(customBannerURI)) {
                         Bitmap bitmap = MediaUtil.inflateDisplayImage(LoginActivity.this, customBannerURI);
                         if (bitmap != null) {
-                            ImageView bannerView = (ImageView)banner.findViewById(R.id.main_top_banner);
+                            ImageView bannerView = (ImageView) banner.findViewById(R.id.main_top_banner);
                             bannerView.setImageBitmap(bitmap);
                         }
                     }
@@ -196,7 +220,23 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         });
     }
 
-    private void loginButtonPressed() {
+    private boolean isRestoreSessionChecked() {
+        return restoreSessionCheckbox.isChecked();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        String enteredUsername = username.getText().toString();
+        if (!"".equals(enteredUsername) && enteredUsername != null) {
+            savedInstanceState.putString(KEY_ENTERED_USER, enteredUsername);
+        }
+        String enteredPassword = password.getText().toString();
+        if (!"".equals(enteredPassword) && enteredPassword != null) {
+            savedInstanceState.putString(KEY_ENTERED_PW, enteredPassword);
+        }
+    }
+
+    private void loginButtonPressed(boolean restoreSession) {
         errorBox.setVisibility(View.GONE);
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
 
@@ -206,7 +246,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             // install update, which triggers login upon completion
             installPendingUpdate();
         } else {
-            localLoginOrPullAndLogin();
+            localLoginOrPullAndLogin(restoreSession);
         }
     }
 
@@ -247,7 +287,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                             receiver.raiseLoginMessage(StockMessages.Storage_Full, true);
                             break;
                         case DataPullTask.DOWNLOAD_SUCCESS:
-                            if(!tryLocalLogin(true)) {
+                            if(!tryLocalLogin(true, isRestoreSessionChecked())) {
                                 receiver.raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
                             }
                             break;
@@ -334,7 +374,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             password.setText(userAndPass.second);
 
             if (!getIntent().getBooleanExtra(USER_TRIGGERED_LOGOUT, false)) {
-                loginButtonPressed();
+                // If we are attempting auto-login, assume that we want to restore a saved session
+                loginButtonPressed(true);
             }
         }
     }
@@ -361,13 +402,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         return username.getText().toString().toLowerCase().trim();
     }
     
-    private boolean tryLocalLogin(final boolean warnMultipleAccounts) {
+    private boolean tryLocalLogin(final boolean warnMultipleAccounts, boolean restoreSession) {
         //TODO: check username/password for emptiness
-        return tryLocalLogin(getUsername(), password.getText().toString(), warnMultipleAccounts);
+        return tryLocalLogin(getUsername(), password.getText().toString(), warnMultipleAccounts,
+                restoreSession);
     }
         
     private boolean tryLocalLogin(final String username, String password,
-                                  final boolean warnMultipleAccounts) {
+                                  final boolean warnMultipleAccounts, final boolean restoreSession) {
         try{
             // TODO: We don't actually even use this anymore other than for hte
             // local login count, which seems super silly.
@@ -401,7 +443,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             ManageKeyRecordTask<LoginActivity> task =
                 new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE,
                         username, password,
-                        CommCareApplication._().getCurrentApp(),
+                        CommCareApplication._().getCurrentApp(), restoreSession,
                         new ManageKeyRecordListener<LoginActivity>() {
 
                 @Override
@@ -451,7 +493,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                         r.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                         break;
                     default:
-                        return;
+                        break;
                     }
                 }
             }) {
@@ -503,7 +545,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         switch(item.getItemId()) {
         case MENU_DEMO:
             DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
-            tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false);
+            tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false ,false);
             return true;
         case MENU_ABOUT:
             DialogCreationHelpers.buildAboutCommCareDialog(this).show();
@@ -588,6 +630,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         // In case the seated app has changed since last time we were in LoginActivity
         refreshForNewApp();
 
+        restoreEnteredTextFromRotation();
+
         updateCommCareBanner();
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
@@ -622,13 +666,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode) {
-            case SEAT_APP_ACTIVITY:
-                if (resultCode == RESULT_OK) {
-                    refreshForNewApp();
-                }
+    private void restoreEnteredTextFromRotation() {
+        if (usernameBeforeRotation != null) {
+            username.setText(usernameBeforeRotation);
+            usernameBeforeRotation = null;
+        }
+        if (passwordBeforeRotation != null) {
+            password.setText(passwordBeforeRotation);
+            passwordBeforeRotation = null;
         }
     }
 
@@ -657,10 +702,17 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         }
 
         // Refresh UI for potential new language
-        loadFields(false);
+        ManagedUiFramework.loadUiElements(this);
 
         // Refresh welcome msg separately bc cannot set a single locale for its UiElement
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
+
+        // Update checkbox visibility 
+        if (DevSessionRestorer.savedSessionPresent()) {
+            restoreSessionCheckbox.setVisibility(View.VISIBLE);
+        } else {
+            restoreSessionCheckbox.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -683,7 +735,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
-        return;
     }
 
     /**
@@ -703,7 +754,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                             CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(result));
                         }
 
-                        localLoginOrPullAndLogin();
+                        localLoginOrPullAndLogin(isRestoreSessionChecked());
                     }
 
                     @Override
@@ -720,15 +771,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                                 Localization.get("login.update.install.failure"),
                                 Toast.LENGTH_LONG).show();
 
-                        localLoginOrPullAndLogin();
+                        localLoginOrPullAndLogin(isRestoreSessionChecked());
                     }
                 };
         task.connect(this);
         task.execute();
     }
 
-    private void localLoginOrPullAndLogin() {
-        if (tryLocalLogin(false)) {
+    private void localLoginOrPullAndLogin(boolean restoreSession) {
+        if (tryLocalLogin(false, restoreSession)) {
             return;
         }
 

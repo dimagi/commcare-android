@@ -5,9 +5,7 @@ import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.kxml2.io.KXmlParser;
 
-
-
-public class AndroidUserXmlParser extends UserXmlParser {
+class AndroidUserXmlParser extends UserXmlParser {
 
     private final byte[] wrappedKey;
     

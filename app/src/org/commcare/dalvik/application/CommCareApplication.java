@@ -57,6 +57,7 @@ import org.commcare.android.references.ArchiveFileRoot;
 import org.commcare.android.references.AssetFileRoot;
 import org.commcare.android.references.JavaHttpRoot;
 import org.commcare.android.resource.ResourceInstallUtils;
+import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ExceptionReportTask;
@@ -106,7 +107,6 @@ import java.util.Set;
 import java.util.Vector;
 
 import javax.crypto.SecretKey;
-
 
 /**
  * @author ctsims
@@ -248,14 +248,14 @@ public class CommCareApplication extends Application {
         c.startActivity(i);
     }
 
-    public void startUserSession(byte[] symetricKey, UserKeyRecord record) {
+    public void startUserSession(byte[] symetricKey, UserKeyRecord record, boolean restoreSession) {
         synchronized (serviceLock) {
             // if we already have a connection established to
             // CommCareSessionService, close it and open a new one
             if (this.mIsBound) {
                 releaseUserResourcesAndServices();
             }
-            bindUserSessionService(symetricKey, record);
+            bindUserSessionService(symetricKey, record, restoreSession);
         }
     }
 
@@ -492,7 +492,7 @@ public class CommCareApplication extends Application {
     /**
      * @return all ApplicationRecords that have status installed and are NOT archived
      */
-    public ArrayList<ApplicationRecord> getVisibleAppRecords() {
+    private ArrayList<ApplicationRecord> getVisibleAppRecords() {
         ArrayList<ApplicationRecord> visible = new ArrayList<>();
         for (ApplicationRecord r : getInstalledAppRecords()) {
             if (r.isVisible()) {
@@ -784,7 +784,7 @@ public class CommCareApplication extends Application {
         CommCareApplication._().closeUserSession();
     }
 
-    public void prepareTemporaryStorage() {
+    private void prepareTemporaryStorage() {
         String tempRoot = this.getAndroidFsTemp();
         FileUtil.deleteFileOrDir(tempRoot);
         boolean success = FileUtil.createFolder(tempRoot);
@@ -836,7 +836,8 @@ public class CommCareApplication extends Application {
         }
     }
 
-    private void bindUserSessionService(final byte[] key, final UserKeyRecord record) {
+    private void bindUserSessionService(final byte[] key, final UserKeyRecord record,
+                                        final boolean restoreSession) {
         mConnection = new ServiceConnection() {
             public void onServiceConnected(ComponentName className, IBinder service) {
                 // This is called when the connection with the service has been
@@ -873,7 +874,11 @@ public class CommCareApplication extends Application {
                     if (user != null) {
                         mBoundService.startSession(user);
                         attachCallListener();
-                        CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
+                        if (restoreSession) {
+                            CommCareApplication.this.sessionWrapper = DevSessionRestorer.restoreSessionFromPrefs(getCommCarePlatform());
+                        } else {
+                            CommCareApplication.this.sessionWrapper = new AndroidSessionWrapper(CommCareApplication.this.getCommCarePlatform());
+                        }
 
                         if (shouldAutoUpdate()) {
                             startAutoUpdate();
@@ -912,7 +917,7 @@ public class CommCareApplication extends Application {
     }
 
     @SuppressLint("NewApi")
-    protected void doReportMaintenance(boolean force) {
+    private void doReportMaintenance(boolean force) {
         //OK. So for now we're going to daily report sends and not bother with any of the frequency properties.
 
 
@@ -1136,7 +1141,7 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public void updateMessageNotification() {
+    private void updateMessageNotification() {
         NotificationManager mNM = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         synchronized (pendingMessages) {
             if (pendingMessages.size() == 0) {

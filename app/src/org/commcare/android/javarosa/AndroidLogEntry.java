@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.javarosa;
 
 import org.javarosa.core.log.LogEntry;
@@ -18,7 +15,6 @@ import java.util.Date;
 
 /**
  * @author ctsims
- *
  */
 public class AndroidLogEntry extends LogEntry implements Persistable, IMetaData {
     
@@ -47,12 +43,12 @@ public class AndroidLogEntry extends LogEntry implements Persistable, IMetaData 
     }
 
     @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
         recordId = ExtUtil.readInt(in);
         date = ExtUtil.readDate(in);
         type = ExtUtil.readString(in);
         message = ExtUtil.readString(in);
-
     }
 
     @Override
@@ -63,23 +59,14 @@ public class AndroidLogEntry extends LogEntry implements Persistable, IMetaData 
         ExtUtil.writeString(out,message);
     }
 
-    /**
-     * @return the time
-     */
     public Date getTime() {
         return date;
     }
 
-    /**
-     * @return the type
-     */
     public String getType() {
         return type;
     }
 
-    /**
-     * @return the message
-     */
     public String getMessage() {
         return message;
     }
@@ -97,7 +84,6 @@ public class AndroidLogEntry extends LogEntry implements Persistable, IMetaData 
             return type;
         } 
         throw new IllegalArgumentException("No metadata field " + fieldName  + " for Log Entry Cache models");
-
     }
 
     @Override
@@ -109,5 +95,4 @@ public class AndroidLogEntry extends LogEntry implements Persistable, IMetaData 
     public int getID() {
         return this.recordId;
     }
-
 }

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.resource.installers;
 
 import org.commcare.android.util.AndroidCommCarePlatform;
@@ -22,10 +19,10 @@ import java.io.IOException;
  */
 public class LocaleAndroidInstaller extends FileSystemInstaller {
 
-    String locale;
+    private String locale;
 
     public LocaleAndroidInstaller() {
-
+        // For externalization
     }
 
     public LocaleAndroidInstaller(String destination, String upgradeDestination, String locale) {

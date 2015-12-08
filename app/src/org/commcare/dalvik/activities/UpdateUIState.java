@@ -120,7 +120,6 @@ class UpdateUIState {
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(false);
 
-        progressBar.setEnabled(false);
         updateProgressText("");
         updateProgressBar(0, 100);
     }
@@ -137,7 +136,6 @@ class UpdateUIState {
         stopUpdateButton.setEnabled(true);
         installUpdateButton.setEnabled(false);
 
-        progressBar.setEnabled(true);
         updateProgressBar(0, 100);
         updateProgressText(beginCheckingText);
     }
@@ -149,7 +147,6 @@ class UpdateUIState {
         installUpdateButton.setEnabled(true);
 
         updateProgressBar(100, 100);
-        progressBar.setEnabled(false);
 
         int version = ResourceInstallUtils.upgradeTableVersion();
         String versionMsg =
@@ -165,7 +162,6 @@ class UpdateUIState {
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(false);
 
-        progressBar.setEnabled(false);
         updateProgressText(cancellingMsg);
     }
 
@@ -175,7 +171,6 @@ class UpdateUIState {
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(false);
 
-        progressBar.setEnabled(false);
         updateProgressText(errorMsg);
     }
 
@@ -185,7 +180,6 @@ class UpdateUIState {
         stopUpdateButton.setEnabled(false);
         installUpdateButton.setEnabled(false);
 
-        progressBar.setEnabled(false);
         updateProgressText(noConnectivityMsg);
     }
 
@@ -194,8 +188,8 @@ class UpdateUIState {
     }
 
     protected void updateProgressBar(int currentProgress, int max) {
-        progressBar.setProgress(currentProgress);
         progressBar.setMax(max);
+        progressBar.setProgress(currentProgress);
     }
 
     public void refreshStatusText() {

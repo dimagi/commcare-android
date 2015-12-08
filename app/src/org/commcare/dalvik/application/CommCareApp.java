@@ -78,7 +78,7 @@ public class CommCareApp {
         return CommCareApplication._().getAndroidFsRoot() + "app/" + record.getApplicationId() + "/";
     }
 
-    void createPaths() {
+    private void createPaths() {
         String[] paths = new String[]{"", GlobalConstants.FILE_CC_INSTALL,
             GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE,
             GlobalConstants.FILE_CC_FORMS, GlobalConstants.FILE_CC_MEDIA,
@@ -178,7 +178,7 @@ public class CommCareApp {
         return appReady;
     }
     
-    public boolean initializeApplicationHelper() {
+    private boolean initializeApplicationHelper() {
         setupSandbox();
 
         ResourceTable global = platform.getGlobalResourceTable();
@@ -272,7 +272,7 @@ public class CommCareApp {
     }
 
     public <T extends Persistable> SqlStorage<T> getStorage(String name, Class<T> c) {
-        return new SqlStorage<T>(name, c, new AndroidDbHelper(CommCareApplication._().getApplicationContext()) {
+        return new SqlStorage<>(name, c, new AndroidDbHelper(CommCareApplication._().getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (appDbHandleLock) {

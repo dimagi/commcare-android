@@ -26,10 +26,9 @@ import org.javarosa.core.services.locale.Localization;
 
 /**
  * Activity that will diagnose various connection problems that a user may be facing.
- * @author srengesh
  *
+ * @author srengesh
  */
-
 @ManagedUi(R.layout.connection_diagnostic)
 public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<ConnectionDiagnosticActivity> {
     private static final String TAG = ConnectionDiagnosticActivity.class.getSimpleName();
@@ -47,32 +46,24 @@ public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<C
     
     @UiElement(value = R.id.report_button, locale="connection.test.report.button.message")
     Button reportButton;
-        
-    
-    
+
     @Override
-    protected void onCreate(Bundle savedInstanceState)
-    {
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        btnRunTest.setOnClickListener(new OnClickListener() 
-        {
+        btnRunTest.setOnClickListener(new OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 ConnectionDiagnosticTask<ConnectionDiagnosticActivity> mConnectionDiagnosticTask = 
                 new ConnectionDiagnosticTask<ConnectionDiagnosticActivity>(
                         getApplicationContext(),
-                        CommCareApplication._().getCurrentApp().getCommCarePlatform())
-                {    
+                        CommCareApplication._().getCurrentApp().getCommCarePlatform()) {
                 @Override
                     //<R> receiver, <C> result. 
                     //<C> is the return from DoTaskBackground, of type ArrayList<Boolean>
-                    protected void deliverResult(ConnectionDiagnosticActivity receiver, ConnectionDiagnosticTask.Test failedTest) 
-                    {
+                    protected void deliverResult(ConnectionDiagnosticActivity receiver, ConnectionDiagnosticTask.Test failedTest) {
                         //user-caused connection issues
                         if(failedTest == ConnectionDiagnosticTask.Test.isOnline ||
-                            failedTest == ConnectionDiagnosticTask.Test.googlePing)
-                        {
+                            failedTest == ConnectionDiagnosticTask.Test.googlePing) {
                             //get the appropriate display message based on what the problem is
                             String displayMessage = failedTest == ConnectionDiagnosticTask.Test.isOnline ? 
                                     Localization.get("connection.task.internet.fail") 
@@ -82,39 +73,28 @@ public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<C
                             receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
                             
                             receiver.settingsButton.setVisibility(View.VISIBLE);
-                        }
-                        
-                        //unable to ping commcare -- report this to cchq
-                        else if(failedTest == ConnectionDiagnosticTask.Test.commCarePing)
-                        {
+                        } else if(failedTest == ConnectionDiagnosticTask.Test.commCarePing) {
+                            //unable to ping commcare -- report this to cchq
                             receiver.txtInteractiveMessages.setText(
                                     Localization.get("connection.task.commcare.html.fail"));
                             receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
                             
                             receiver.reportButton.setVisibility(View.VISIBLE);
-                        }
-                        
-                        //all is well
-                        else if(failedTest == null)
-                        {
+                        } else if(failedTest == null) {
                             receiver.txtInteractiveMessages.setText(Localization.get("connection.task.success"));
                             receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
                             receiver.settingsButton.setVisibility(View.INVISIBLE);
                             receiver.reportButton.setVisibility(View.INVISIBLE);
                         }
-                        
-                        return;
                     }
 
                     @Override
-                    protected void deliverUpdate(ConnectionDiagnosticActivity receiver, String... update) 
-                    {
+                    protected void deliverUpdate(ConnectionDiagnosticActivity receiver, String... update) {
                         receiver.txtInteractiveMessages.setText((Localization.get("connection.test.update.message")));
                     }
                     
                     @Override
-                    protected void deliverError(ConnectionDiagnosticActivity receiver, Exception e)
-                    {
+                    protected void deliverError(ConnectionDiagnosticActivity receiver, Exception e) {
                         receiver.txtInteractiveMessages.setText(Localization.get("connection.test.error.message"));
                         receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
@@ -126,20 +106,16 @@ public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<C
         });
         
         //Set a button that allows you to change your airplane mode settings
-        this.settingsButton.setOnClickListener( new OnClickListener()
-        {
+        this.settingsButton.setOnClickListener( new OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
             }
         });
         
-        this.reportButton.setOnClickListener( new OnClickListener()
-        {
+        this.reportButton.setOnClickListener( new OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 SharedPreferences settings = 
                         CommCareApplication._().getCurrentApp().getAppPreferences();
                 String url = settings.getString("PostURL", null);

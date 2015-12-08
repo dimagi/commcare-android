@@ -111,26 +111,20 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         /**
          * Incomplete forms
          **/
-        Incomplete("form.record.filter.incomplete", new String[]{FormRecord.STATUS_INCOMPLETE}, false),
+        Incomplete("form.record.filter.incomplete", new String[]{FormRecord.STATUS_INCOMPLETE}),
 
         /**
          * Limbo forms
          **/
-        Limbo("form.record.filter.limbo", new String[]{FormRecord.STATUS_LIMBO}, false);
+        Limbo("form.record.filter.limbo", new String[]{FormRecord.STATUS_LIMBO});
 
         FormRecordFilter(String message, String[] statuses) {
-            this(message, statuses, true);
-        }
-
-        FormRecordFilter(String message, String[] statuses, boolean visible) {
             this.message = message;
             this.statuses = statuses;
-            this.visible = visible;
         }
 
         private final String message;
         private final String[] statuses;
-        public final boolean visible;
 
         public String getMessage() {
             return message;
@@ -139,7 +133,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         public String[] getStatus() {
             return statuses;
         }
-
     }
 
     @Override

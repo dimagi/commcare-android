@@ -2,11 +2,8 @@ package org.commcare.dalvik.activities;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
@@ -17,6 +14,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -41,8 +39,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.adapters.EntityListAdapter;
+import org.commcare.android.fragments.ContainerFragment;
 import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.SessionAwareCommCareActivity;
+import org.commcare.android.framework.SaveSessionCommCareActivity;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
@@ -58,6 +57,8 @@ import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.DialogChoiceItem;
+import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
@@ -88,7 +89,7 @@ import java.util.TimerTask;
  *
  * @author ctsims
  */
-public class EntitySelectActivity extends SessionAwareCommCareActivity
+public class EntitySelectActivity extends SaveSessionCommCareActivity
         implements TextWatcher,
         EntityLoaderListener,
         OnItemClickListener,
@@ -107,9 +108,9 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
     private static final int BARCODE_FETCH = 1;
     private static final int CALLOUT = 3;
 
-    private static final int MENU_SORT = Menu.FIRST;
-    private static final int MENU_MAP = Menu.FIRST + 1;
-    private static final int MENU_ACTION = Menu.FIRST + 2;
+    private static final int MENU_SORT = Menu.FIRST + 1;
+    private static final int MENU_MAP = Menu.FIRST + 2;
+    private static final int MENU_ACTION = Menu.FIRST + 3;
 
     private EditText searchbox;
     private TextView searchResultStatus;
@@ -158,6 +159,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
     private Timer myTimer;
     private final Object timerLock = new Object();
     private boolean cancelled;
+    private ContainerFragment<EntityListAdapter> containerFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,14 +167,18 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
         this.createDataSetObserver();
 
-        EntitySelectActivity oldActivity = (EntitySelectActivity)this.getDestroyedActivityState();
-
         if (savedInstanceState != null) {
             mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
         }
 
         asw = CommCareApplication._().getCurrentSessionWrapper();
         session = asw.getSession();
+
+        if (session.getCommand() == null) {
+            // session ended, avoid (session dependent) setup because session
+            // management will exit the activity in onResume
+            return;
+        }
 
         selectDatum = session.getNeededDatum();
 
@@ -200,7 +206,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
                 setContentView(R.layout.entity_select_layout);
                 //So we're not in landscape mode anymore, but were before. If we had something selected, we 
                 //need to go to the detail screen instead.
-                if (oldActivity != null) {
+                if (savedInstanceState != null) {
                     Intent intent = this.getIntent();
 
                     TreeReference selectedRef = SerializationUtil.deserializeFromIntent(intent,
@@ -264,20 +270,8 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         searchbox.addTextChangedListener(this);
         searchbox.requestFocus();
 
-        if (oldActivity != null) {
-            adapter = oldActivity.adapter;
-            // on orientation change
-            if (adapter != null) {
-                view.setAdapter(adapter);
-                setupDivider(view);
-                findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+        persistAdapterState(view);
 
-                //Disconnect the old adapter
-                adapter.unregisterDataSetObserver(oldActivity.mListStateObserver);
-                //connect the new one
-                adapter.registerDataSetObserver(this.mListStateObserver);
-            }
-        }
         //cts: disabling for non-demo purposes
         //tts = new TextToSpeech(this, this);
 
@@ -285,6 +279,27 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
         if (!isUsingActionBar()) {
             searchbox.setText(lastQueryString);
+        }
+    }
+
+    private void persistAdapterState(ListView view) {
+        FragmentManager fm = this.getSupportFragmentManager();
+
+        containerFragment = (ContainerFragment)fm.findFragmentByTag("entity-adapter");
+
+        // stateHolder and its previous state aren't null if the activity is
+        // being created due to an orientation change.
+        if (containerFragment == null) {
+            containerFragment = new ContainerFragment<>();
+            fm.beginTransaction().add(containerFragment, "entity-adapter").commit();
+        } else {
+            adapter = containerFragment.getData();
+            // on orientation change
+            if (adapter != null) {
+                view.setAdapter(adapter);
+                setupDivider(view);
+                findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+            }
         }
     }
 
@@ -408,6 +423,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
             return;
         }
 
+        if (adapter != null) {
+            adapter.registerDataSetObserver(mListStateObserver);
+        }
+
         if (!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
             TreeReference entity =
                     selectDatum.getEntityFromID(asw.getEvaluationContext(),
@@ -417,7 +436,6 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
                 if (inAwesomeMode) {
                     if (adapter != null) {
                         displayReferenceAwesome(entity, adapter.getPosition(entity));
-                        adapter.setAwesomeMode(true);
                         updateSelectedItem(entity, true);
                     }
                 } else {
@@ -481,7 +499,12 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
     @Override
     protected void onPause() {
         super.onPause();
+
         stopTimer();
+
+        if (adapter != null) {
+            adapter.unregisterDataSetObserver(mListStateObserver);
+        }
     }
 
     @Override
@@ -704,10 +727,12 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
             menu.add(0, MENU_MAP, MENU_MAP, Localization.get("select.menu.map")).setIcon(
                     android.R.drawable.ic_menu_mapmode);
         }
-        Action action = shortSelect.getCustomAction();
-        if (action != null) {
-            ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION,
-                    action.getDisplay().evaluate());
+        if (shortSelect != null) {
+            Action action = shortSelect.getCustomAction();
+            if (action != null) {
+                ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION,
+                        action.getDisplay().evaluate());
+            }
         }
 
         tryToAddActionSearchBar(this, menu, new ActionBarInstantiator() {
@@ -780,10 +805,10 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-
-        //only display the sort menu if we're going to be able to sort
-        //(IE: not until the items have loaded)
+        // only enable sorting once entity loading is complete
         menu.findItem(MENU_SORT).setEnabled(adapter != null);
+        // hide sorting menu when using async loading strategy
+        menu.findItem(MENU_SORT).setVisible((shortSelect == null || !shortSelect.useAsyncStrategy()));
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -830,18 +855,18 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
     }
 
     private void createSortMenu() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        //use the old method here because some Android versions don't like Spannables for titles
-        builder.setTitle(Localization.get("select.menu.sort"));
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, Localization.get("select.menu.sort"));
+        dialog.setChoiceItems(getSortOptionsList(dialog));
+        dialog.show();
+    }
+
+    private DialogChoiceItem[] getSortOptionsList(final PaneledChoiceDialog dialog) {
         SessionDatum datum = session.getNeededDatum();
         DetailField[] fields = session.getDetail(datum.getShortDetail()).getFields();
+        List<String> namesList = new ArrayList<>();
 
-        List<String> namesList = new ArrayList<String>();
-
-        final int[] keyarray = new int[fields.length];
-
+        final int[] keyArray = new int[fields.length];
         int[] sorts = adapter.getCurrentSort();
-
         int currentSort = sorts.length == 1 ? sorts[0] : -1;
         boolean reversed = adapter.isCurrentSortReversed();
 
@@ -860,28 +885,25 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
                     prepend = reversed ^ fields[i].getSortDirection() == DetailField.DIRECTION_DESCENDING ? "(v) " : "(^) ";
                 }
                 namesList.add(prepend + result);
-                keyarray[added] = i;
+                keyArray[added] = i;
                 added++;
             }
         }
 
-        final String[] names = namesList.toArray(new String[namesList.size()]);
-
-        builder.setItems(names, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
-                adapter.sortEntities(new int[]{keyarray[item]});
-                adapter.applyFilter(getSearchText().toString());
-            }
-        });
-
-        builder.setOnCancelListener(new OnCancelListener() {
-            public void onCancel(DialogInterface dialog) {
-                //
-            }
-        });
-
-        AlertDialog alert = builder.create();
-        alert.show();
+        DialogChoiceItem[] choiceItems = new DialogChoiceItem[namesList.size()];
+        for (int i = 0; i < namesList.size(); i++) {
+            final int index = i;
+            View.OnClickListener listener = new View.OnClickListener() {
+                public void onClick(View v) {
+                    adapter.sortEntities(new int[]{keyArray[index]});
+                    adapter.applyFilter(getSearchText().toString());
+                    dialog.dismiss();
+                }
+            };
+            DialogChoiceItem item = new DialogChoiceItem(namesList.get(i), -1, listener);
+            choiceItems[i] = item;
+        }
+        return choiceItems;
     }
 
     @Override
@@ -939,6 +961,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
 
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
+        containerFragment.setData(adapter);
 
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
@@ -1088,7 +1111,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
             rightFrameSetup = true;
         }
 
-        detailView.refresh(factory.getDetail(), selection, detailIndex, false);
+        detailView.refresh(factory.getDetail(), selection, detailIndex);
     }
 
     @Override

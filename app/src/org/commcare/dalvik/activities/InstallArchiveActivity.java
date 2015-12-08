@@ -36,8 +36,6 @@ import java.io.File;
 public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActivity> {
     private static final int REQUEST_FILE_LOCATION = 1;
 
-    public static final String EXTRA_FILE_DESTINATION = "ccodk_mia_filedest";
-
     @UiElement(value = R.id.screen_multimedia_inflater_prompt, locale="archive.install.prompt")
     TextView txtDisplayPrompt;
 
@@ -53,13 +51,12 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     @UiElement(value = R.id.screen_multimedia_inflater_install, locale="archive.install.button")
     Button btnInstallArchive;
 
-    boolean done = false;
+    final boolean done = false;
 
-    public static String TAG = InstallArchiveActivity.class.getSimpleName();
+    public static final String TAG = InstallArchiveActivity.class.getSimpleName();
     
-    public static String ARCHIVE_REFERENCE = "archive-ref";
+    public static final String ARCHIVE_REFERENCE = "archive-ref";
 
-    private String currentRef;
     private String targetDirectory;
 
     @Override
@@ -84,32 +81,20 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         btnInstallArchive.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 InstallArchiveActivity.this.createArchive(editFileLocation.getText().toString());
-
             }
-
         });
     }
     
-    public void fireOnceOnStart(){
-        if(this.getIntent().hasExtra(InstallArchiveActivity.ARCHIVE_REFERENCE)) {
-            editFileLocation.setText(this.getIntent().getStringExtra(InstallArchiveActivity.ARCHIVE_REFERENCE));
-            InstallArchiveActivity.this.createArchive(editFileLocation.getText().toString());
-        }
-    }
-
-    public void createArchive(String filepath){
-        currentRef = filepath;
+    private void createArchive(String filepath){
+        String currentRef = filepath;
 
         UnzipTask<InstallArchiveActivity> mUnzipTask = new UnzipTask<InstallArchiveActivity>() {
-
             @Override
             protected void deliverResult( InstallArchiveActivity receiver, Integer result) {
                 Log.d(TAG, "delivering unzip result");
                 if(result > 0){
-                    receiver.onUnzipSuccessful(result);
-                    return;
+                    receiver.onUnzipSuccessful();
                 } else {
                     //assume that we've already set the error message, but make it look scary
                     receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
@@ -143,8 +128,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
     }
 
-    protected void onUnzipSuccessful(Integer result) {
-
+    protected void onUnzipSuccessful() {
         ArchiveFileRoot afr = CommCareApplication._().getArchiveFileRoot();
         String mGUID = afr.addArchiveFile(getTargetFolder());
 
@@ -154,7 +138,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         i.putExtra(InstallArchiveActivity.ARCHIVE_REFERENCE, ref);
         setResult(RESULT_OK, i);
         finish();
-
     }
 
     @Override
@@ -199,14 +182,10 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             txtInteractiveMessages.setText(Localization.get("archive.install.state.invalid.path"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             btnInstallArchive.setEnabled(false);
-            return;
-        }
-
-        else {
+        } else {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.ready"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallArchive.setEnabled(true);
-            return;
         }
     }
 
@@ -242,5 +221,4 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             return null;
         }
     }
-
 }

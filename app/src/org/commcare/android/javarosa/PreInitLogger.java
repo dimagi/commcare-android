@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.javarosa;
 
 import org.javarosa.core.api.ILogger;
@@ -18,7 +15,7 @@ import java.util.Date;
  * @author ctsims
  */
 public class PreInitLogger implements ILogger {
-    private ArrayList<AndroidLogEntry> logs = new ArrayList<AndroidLogEntry>();
+    private final ArrayList<AndroidLogEntry> logs = new ArrayList<>();
 
     public PreInitLogger() {
 
@@ -74,7 +71,5 @@ public class PreInitLogger implements ILogger {
     @Override
     public void halt() {
         // TODO Auto-generated method stub
-
     }
-
 }

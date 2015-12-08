@@ -59,14 +59,18 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     
     boolean calloutNeeded = false;
     boolean calloutRequired = false;
+    boolean restoreSession;
     
     User loggedIn = null;
     
-    public ManageKeyRecordTask(Context c, int taskId, String username, String password, CommCareApp app, ManageKeyRecordListener<R> listener) {
+    public ManageKeyRecordTask(Context c, int taskId, String username, String password,
+                               CommCareApp app, boolean restoreSession,
+                               ManageKeyRecordListener<R> listener) {
         super(c);
         this.username = username;
         this.password = password;
         this.app = app;
+        this.restoreSession = restoreSession;
         
         keyServerUrl = app.getAppPreferences().getString("key_server", null);
         //long story
@@ -237,7 +241,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
             public TransactionParser getParser(KXmlParser parser) {
                 String name = parser.getName();
                 if("auth_keys".equals(name)) {
-                    return new KeyRecordParser(parser, username, password, keyRecords) {
+                    return new KeyRecordParser(parser, username, password) {
 
                         @Override
                         public void commit(ArrayList<UserKeyRecord> parsed) throws IOException {
@@ -358,7 +362,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         }
         
         //Ok, so we're done with everything now. We should log in our local sandbox and proceed to the next step.
-        CommCareApplication._().startUserSession(current.unWrapKey(password), current);
+        CommCareApplication._().startUserSession(current.unWrapKey(password), current, restoreSession);
         
         //So we may have logged in a key record but not a user (if we just received the
         //key, but not the user's data, for instance). 

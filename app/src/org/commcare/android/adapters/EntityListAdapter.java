@@ -1,6 +1,5 @@
 package org.commcare.android.adapters;
 
-
 import android.app.Activity;
 import android.database.DataSetObserver;
 import android.speech.tts.TextToSpeech;
@@ -57,36 +56,34 @@ public class EntityListAdapter implements ListAdapter {
 
     private boolean mFuzzySearchEnabled = true;
 
-    Activity context;
-    Detail detail;
+    private Activity context;
+    private Detail detail;
 
-    List<DataSetObserver> observers;
+    private List<DataSetObserver> observers;
 
-    List<Entity<TreeReference>> full;
-    List<Entity<TreeReference>> current;
-    List<TreeReference> references;
+    private List<Entity<TreeReference>> full;
+    private List<Entity<TreeReference>> current;
+    private List<TreeReference> references;
 
-    TextToSpeech tts;
+    private TextToSpeech tts;
 
     private TreeReference selected;
 
     private boolean hasWarned;
 
-    int currentSort[] = {};
-    boolean reverseSort = false;
+    private int[] currentSort = {};
+    private boolean reverseSort = false;
 
     private NodeEntityFactory mNodeFactory;
-    boolean mAsyncMode = false;
+    private boolean mAsyncMode = false;
 
     private String[] currentSearchTerms;
 
-    EntitySearcher mCurrentSortThread = null;
-    Object mSyncLock = new Object();
+    private EntitySearcher mCurrentSortThread = null;
+    private final Object mSyncLock = new Object();
 
     private CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
     private boolean usesGridView = false;  // false until we determine the Detail has at least one <grid> block
-
-    private boolean inAwesomeMode = false;
 
     public EntityListAdapter(Activity activity, Detail detail,
                              List<TreeReference> references,
@@ -101,7 +98,7 @@ public class EntityListAdapter implements ListAdapter {
         this.references = references;
 
         this.context = activity;
-        this.observers = new ArrayList<DataSetObserver>();
+        this.observers = new ArrayList<>();
 
         mNodeFactory = factory;
 
@@ -116,7 +113,7 @@ public class EntityListAdapter implements ListAdapter {
             }
             filterValues("");
         } else {
-            setCurrent(new ArrayList<Entity<TreeReference>>(full));
+            setCurrent(new ArrayList<>(full));
         }
 
         this.tts = tts;
@@ -125,8 +122,7 @@ public class EntityListAdapter implements ListAdapter {
         } else {
             mImageLoader = null;
         }
-        if (detail.getCustomAction() != null) {
-        }
+
         usesGridView = detail.usesGridView();
         this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();
     }
@@ -182,8 +178,8 @@ public class EntityListAdapter implements ListAdapter {
         public EntitySearcher(String filterRaw, String[] searchTerms) {
             this.filterRaw = filterRaw;
             this.searchTerms = searchTerms;
-            matchList = new ArrayList<Entity<TreeReference>>();
-            matchScores = new ArrayList<Pair<Integer, Integer>>();
+            matchList = new ArrayList<>();
+            matchScores = new ArrayList<>();
         }
 
         public void startThread() {
@@ -252,7 +248,7 @@ public class EntityListAdapter implements ListAdapter {
                     add = false;
                     for (int i = 0; i < e.getNumFields(); ++i) {
                         String field = e.getNormalizedField(i);
-                        if (field != "" && field.toLowerCase(currentLocale).contains(filter)) {
+                        if (!"".equals(field) && field.toLowerCase(currentLocale).contains(filter)) {
                             add = true;
                             continue filter;
                         } else {
@@ -277,7 +273,6 @@ public class EntityListAdapter implements ListAdapter {
                 if (add) {
                     //matchList.add(e);
                     matchScores.add(Pair.create(index, score));
-                    continue full;
                 }
             }
             if (mAsyncMode) {
@@ -321,7 +316,7 @@ public class EntityListAdapter implements ListAdapter {
 
     private void sort(int[] fields) {
         //The reversing here is only relevant if there's only one sort field and we're on it
-        sort(fields, (currentSort.length == 1 && currentSort[0] == fields[0]) ? !reverseSort : false);
+        sort(fields, (currentSort.length == 1 && currentSort[0] == fields[0]) && !reverseSort);
     }
 
     private void sort(int[] fields, boolean reverse) {
@@ -336,9 +331,9 @@ public class EntityListAdapter implements ListAdapter {
 
 
             public int compare(Entity<TreeReference> object1, Entity<TreeReference> object2) {
-                for (int i = 0; i < currentSort.length; ++i) {
-                    boolean reverseLocal = (detail.getFields()[currentSort[i]].getSortDirection() == DetailField.DIRECTION_DESCENDING) ^ reverseSort;
-                    int cmp = (reverseLocal ? -1 : 1) * getCmp(object1, object2, currentSort[i]);
+                for (int aCurrentSort : currentSort) {
+                    boolean reverseLocal = (detail.getFields()[aCurrentSort].getSortDirection() == DetailField.DIRECTION_DESCENDING) ^ reverseSort;
+                    int cmp = (reverseLocal ? -1 : 1) * getCmp(object1, object2, aCurrentSort);
                     if (cmp != 0) {
                         return cmp;
                     }
@@ -447,14 +442,7 @@ public class EntityListAdapter implements ListAdapter {
         return getCount(false, false);
     }
 
-    /*
-     * Returns total number of items, ignoring any filter.
-     */
-    public int getFullCount() {
-        return getCount(false, true);
-    }
-
-    /*
+    /**
      * Get number of items, with a parameter to decide whether or not action counts as an item.
      */
     public int getCount(boolean ignoreAction, boolean fullCount) {
@@ -577,7 +565,9 @@ public class EntityListAdapter implements ListAdapter {
 
     @Override
     public void registerDataSetObserver(DataSetObserver observer) {
-        this.observers.add(observer);
+        if (!observers.contains(observer)) {
+            this.observers.add(observer);
+        }
     }
 
     @Override
@@ -588,10 +578,6 @@ public class EntityListAdapter implements ListAdapter {
     public void notifyCurrentlyHighlighted(TreeReference chosen) {
         this.selected = chosen;
         update();
-    }
-
-    public void setAwesomeMode(boolean awesome) {
-        inAwesomeMode = awesome;
     }
 
     public int getPosition(TreeReference chosen) {

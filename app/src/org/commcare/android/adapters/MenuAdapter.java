@@ -1,8 +1,4 @@
-/**
- *
- */
 package org.commcare.android.adapters;
-
 
 import android.content.Context;
 import android.database.DataSetObserver;
@@ -53,22 +49,18 @@ import java.util.Vector;
 public class MenuAdapter implements ListAdapter {
 
     private AndroidSessionWrapper asw;
-    private CommCarePlatform mPlatform;
-    protected Context context;
-    protected MenuDisplayable[] displayableData;
-
-    private String menuTitle = null;
+    Context context;
+    MenuDisplayable[] displayableData;
 
     public MenuAdapter(Context context, CommCarePlatform platform, String menuID) {
-
-        this.mPlatform = platform;
         this.context = context;
+        String menuTitle = null;
 
-        Vector<MenuDisplayable> items = new Vector<MenuDisplayable>();
+        Vector<MenuDisplayable> items = new Vector<>();
 
         Hashtable<String, Entry> map = platform.getMenuMap();
         asw = CommCareApplication._().getCurrentSessionWrapper();
-        EvaluationContext ec = null;
+        EvaluationContext ec;
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
                 String xpathExpression = "";
@@ -180,7 +172,6 @@ public class MenuAdapter implements ListAdapter {
 
     @Override
     public long getItemId(int i) {
-
         Object tempItem = displayableData[i];
 
         if (tempItem instanceof Menu) {
@@ -189,7 +180,6 @@ public class MenuAdapter implements ListAdapter {
             return ((Entry) tempItem).getCommandId().hashCode();
         }
     }
-
 
     @Override
     public int getItemViewType(int i) {
@@ -202,7 +192,6 @@ public class MenuAdapter implements ListAdapter {
 
     @Override
     public View getView(int i, View v, ViewGroup vg) {
-
         MenuDisplayable mObject = displayableData[i];
 
         // inflate view
@@ -222,11 +211,11 @@ public class MenuAdapter implements ListAdapter {
         // set up the image, if available
         ImageView mIconView = (ImageView) menuListItem.findViewById(R.id.row_img);
         setupImageView(mIconView, mObject);
-
         return menuListItem;
     }
 
     public void setupAudioButton(AudioButton mAudioButton, MenuDisplayable mObject){
+
         // set up audio
         final String audioURI = mObject.getAudioURI();
         String audioFilename = "";
@@ -240,7 +229,8 @@ public class MenuAdapter implements ListAdapter {
         }
 
         File audioFile = new File(audioFilename);
-        if (audioFilename != "" && audioFile.exists()) {
+        // First set up the audio button
+        if (!"".equals(audioFilename) && audioFile.exists()) {
             // Set not focusable so that list onclick will work
             mAudioButton.setFocusable(false);
             mAudioButton.setFocusableInTouchMode(false);
@@ -292,28 +282,15 @@ public class MenuAdapter implements ListAdapter {
                     mIconView.setVisibility(View.GONE);
                     break;
             }
-        } else {
-            if (mIconView != null) {
-                mIconView.setVisibility(View.GONE);
-            }
-        }
-
-        String imageURI = mObject.getImageURI();
-
-        Bitmap image = MediaUtil.inflateDisplayImage(context, imageURI);
-        if (image != null && mIconView != null) {
-            mIconView.setImageBitmap(image);
-            mIconView.setAdjustViewBounds(true);
         }
     }
 
     /*
      * Helper to build the TextView for the HorizontalMediaView constructor
      */
-    public String textViewHelper(MenuDisplayable e) {
+    String textViewHelper(MenuDisplayable e) {
         return e.getDisplayText();
     }
-
 
     @Override
     public int getViewTypeCount() {

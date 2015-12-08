@@ -12,8 +12,8 @@ import org.odk.collect.android.listeners.TimerListener;
  */
 
 public class ODKTimer extends CountDownTimer{
-    TimerListener mTimerListener;
-    long mUntilFinished;
+    private final TimerListener mTimerListener;
+    private long mUntilFinished;
 
     public ODKTimer(long millisInFuture, TimerListener tl) {
         super(millisInFuture, 1000);

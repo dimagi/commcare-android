@@ -2,7 +2,6 @@ package org.odk.collect.android.activities;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -13,7 +12,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -45,7 +43,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
@@ -53,7 +50,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.SessionAwareCommCareActivity;
+import org.commcare.android.framework.SaveSessionCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -63,6 +60,9 @@ import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.dialogs.DialogChoiceItem;
+import org.commcare.dalvik.dialogs.HorizontalPaneledChoiceDialog;
+import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
@@ -125,10 +125,10 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * Displays questions, animates transitions between
  * questions, and allows the user to enter data.
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  */
-public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryActivity>
+public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActivity>
         implements AnimationListener, FormSavedListener, FormSaveCallback,
         AdvanceToNextListener, WidgetChangedListener {
     private static final String TAG = FormEntryActivity.class.getSimpleName();
@@ -178,10 +178,10 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     private static final String KEY_FORM_LOAD_HAS_TRIGGERED = "newform";
     private static final String KEY_FORM_LOAD_FAILED = "form-failed";
 
-    private static final int MENU_LANGUAGES = Menu.FIRST;
-    private static final int MENU_HIERARCHY_VIEW = Menu.FIRST + 1;
-    private static final int MENU_SAVE = Menu.FIRST + 2;
-    private static final int MENU_PREFERENCES = Menu.FIRST + 3;
+    private static final int MENU_LANGUAGES = Menu.FIRST + 1;
+    private static final int MENU_HIERARCHY_VIEW = Menu.FIRST + 2;
+    private static final int MENU_SAVE = Menu.FIRST + 3;
+    private static final int MENU_PREFERENCES = Menu.FIRST + 4;
 
     public static final String NAV_STATE_NEXT = "next";
 
@@ -190,7 +190,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     public static String mInstancePath;
     private String mInstanceDestination;
     private GestureDetector mGestureDetector;
-    
+
     private SecretKeySpec symetricKey = null;
 
     public static FormController mFormController;
@@ -211,12 +211,12 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
     private FormLoaderTask<FormEntryActivity> mFormLoaderTask;
     private SaveToDiskTask<FormEntryActivity> mSaveToDiskTask;
-    
+
     private Uri formProviderContentURI = FormsColumns.CONTENT_URI;
     private Uri instanceProviderContentURI = InstanceColumns.CONTENT_URI;
-    
+
     private static String mHeaderString;
-    
+
     // Was the form saved? Used to set activity return code.
     private boolean hasSaved = false;
 
@@ -295,7 +295,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         savingFormOnKeySessionExpiration = true;
         // start saving form, which will call the key session logout completion
         // function when it finishes.
-        saveIncompleteFormToDisk(EXIT, null, true);
+        saveIncompleteFormToDisk();
     }
 
     private void registerFormEntryReceiver() {
@@ -402,7 +402,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         outState.putBoolean(KEY_INCOMPLETE_ENABLED, mIncompleteEnabled);
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
-        
+
         if(symetricKey != null) {
             try {
                 outState.putString(KEY_AES_STORAGE_KEY, new Base64Wrapper().encodeToString(symetricKey.getEncoded()));
@@ -535,7 +535,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
         Uri imageURI =
                 getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
-        Log.i(TAG, "Inserting image returned uri = " + imageURI.toString());
+        Log.i(TAG, "Inserting image returned uri = " + imageURI);
 
         mCurrentView.setBinaryData(imageURI, mFormController);
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
@@ -601,15 +601,15 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         if(pendingIntentWidget != null) {
             //Set our instance destination for binary data if needed
             String destination = mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
-            
+
             //get the original intent callout
             IntentCallout ic = pendingIntentWidget.getIntentCallout();
-            
+
             quick = "quick".equals(ic.getAppearance());
 
             //And process it 
             advance = ic.processResponse(response, context, new File(destination));
-            
+
             ic.setCancelled(cancelled);
         }
 
@@ -655,7 +655,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
         // Now go through add add any new prompts that we need
         for (int i = 0; i < newValidPrompts.length; ++i) {
-        	FormEntryPrompt prompt = newValidPrompts[i]; 
+        	FormEntryPrompt prompt = newValidPrompts[i];
         	if (!promptsLeftInView.contains(prompt)) {
                 // If the old version of this prompt was NOT left in the view, then add it
                 mCurrentView.addQuestionToIndex(prompt, mFormController.getWidgetFactory(), i);
@@ -720,7 +720,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     private void refreshCurrentView() {
         refreshCurrentView(true);
     }
-    
+
     /**
      * Refreshes the current view. the controller and the displayed view can get out of sync due to
      * dialogs and restarts caused by screen orientation changes, so they're resynchronized here.
@@ -741,7 +741,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 || (mFormController.indexIsInFieldList() && !(event == FormEntryController.EVENT_GROUP))) {
             event = mFormController.stepToPreviousEvent();
         }
-        
+
         //If we're at the beginning of form event, but don't show the screen for that, we need 
         //to get the next valid screen
         if(event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
@@ -774,7 +774,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 .setIcon(R.drawable.ic_menu_start_conversation)
                 .setEnabled(hasMultipleLanguages);
 
-        
+
         menu.add(0, MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.form_entry_settings)).setIcon(
                 android.R.drawable.ic_menu_preferences);
         return true;
@@ -787,7 +787,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 createLanguageDialog();
                 return true;
             case MENU_SAVE:
-                saveFormToDisk(DO_NOT_EXIT, null, false);
+                saveFormToDisk(DO_NOT_EXIT);
                 return true;
             case MENU_HIERARCHY_VIEW:
                 if (currentPromptIsQuestion()) {
@@ -925,7 +925,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         }
         return null;
     }
-    
+
     private String getHeaderString() {
         if(mHeaderString != null) {
             //Localization?
@@ -1005,7 +1005,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
         if (mFormController.getEvent() != FormEntryController.EVENT_END_OF_FORM) {
             int event;
-            
+
             try{
             group_skip: do {
                 event = mFormController.stepToNextEvent(FormController.STEP_OVER_GROUP);
@@ -1073,7 +1073,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         if (currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         }
-        
+
         FormIndex startIndex = mFormController.getFormIndex();
         FormIndex lastValidIndex = startIndex;
 
@@ -1095,7 +1095,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 // we can't go all the way back to the beginning, so we've
                 // gotta hit the last index that was valid
                 mFormController.jumpToIndex(lastValidIndex);
-                
+
                 //Did we jump at all? (not sure how we could have, but there might be a mismatch)
                 if(lastValidIndex.equals(startIndex)) {
                     //If not, don't even bother changing the view. 
@@ -1104,7 +1104,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                     FormEntryActivity.this.triggerUserQuitInput();
                     return;
                 }
-                
+
                 //We might have walked all the way back still, which isn't great, 
                 //so keep moving forward again until we find it
                 if(lastValidIndex.isBeginningOfFormIndex()) {
@@ -1197,7 +1197,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 constraintText = StringUtils.getStringRobust(this, R.string.required_answer_error);
                 break;
         }
-        
+
         boolean displayed = false;
         //We need to see if question in violation is on the screen, so we can show this cleanly.
         for(QuestionWidget q : mCurrentView.getWidgets()) {
@@ -1238,26 +1238,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     private void createRepeatDialog() {
         isDialogShowing = true;
 
-        ContextThemeWrapper wrapper = new ContextThemeWrapper(this, R.style.DialogBaseTheme);
-
-        View view = LayoutInflater.from(wrapper).inflate(R.layout.component_repeat_new_dialog, null);
-
-        AlertDialog repeatDialog = new AlertDialog.Builder(wrapper).create();
-
-        final AlertDialog theDialog = repeatDialog;
-
-        repeatDialog.setView(view);
-
-        repeatDialog.setIcon(android.R.drawable.ic_dialog_info);
-        repeatDialog.setOnDismissListener(
-                new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface d) {
-                        isDialogShowing = false;
-                    }
-                }
-        );
-        
+        // Determine the effect that back and next buttons should have
         FormNavigationController.NavigationDetails details;
         try {
             details = FormNavigationController.calculateNavigationStatus(mFormController, mCurrentView);
@@ -1266,113 +1247,121 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
             return;
         }
-
         final boolean backExitsForm = !details.relevantBeforeCurrentScreen;
         final boolean nextExitsForm = details.relevantAfterCurrentScreen == 0;
-        
-        Button back = (Button)view.findViewById(R.id.component_repeat_back);
 
-        back.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				if(backExitsForm) {
-					FormEntryActivity.this.triggerUserQuitInput();
-				} else {
-					theDialog.dismiss();
-		            FormEntryActivity.this.refreshCurrentView(false);
-				}
-			}
-        });
-        
-        Button newButton = (Button)view.findViewById(R.id.component_repeat_new);
-
-        newButton.setOnClickListener(new OnClickListener() {
-            @Override
-			public void onClick(View v) {
-                            theDialog.dismiss();
-                            try {
-                                mFormController.newRepeat();
-                            } catch (XPathTypeMismatchException e) {
-                                Logger.exception(e);
-                                CommCareActivity.createErrorDialog(FormEntryActivity.this, e.getMessage(), EXIT);
-                                return;
-                            }
-                            showNextView();
-			}
-        });
-
-        Button skip = (Button)view.findViewById(R.id.component_repeat_skip);
-
-        skip.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				theDialog.dismiss();
-            	if(!nextExitsForm) {
-            		showNextView();
-            	} else {
-                    triggerUserFormComplete();
-            	}
-			}
-        });
-
-        back.setText(StringUtils.getStringSpannableRobust(this, R.string.repeat_go_back));
-
-        //Load up our icons
-        Drawable exitIcon = getResources().getDrawable(R.drawable.icon_exit);
-        exitIcon.setBounds(0, 0, exitIcon.getIntrinsicWidth(), exitIcon.getIntrinsicHeight());
-
-        Drawable doneIcon = getResources().getDrawable(R.drawable.icon_done);
-        doneIcon.setBounds(0, 0, doneIcon.getIntrinsicWidth(), doneIcon.getIntrinsicHeight());
-        
+        // Assign title and text strings based on the current state
+        String title, addAnotherText, skipText, backText;
+        backText = StringUtils.getStringSpannableRobust(this, R.string.repeat_go_back).toString();
         if (mFormController.getLastRepeatCount() > 0) {
-            repeatDialog.setTitle(StringUtils.getStringRobust(this, R.string.leaving_repeat_ask));
-                    repeatDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.add_another_repeat,
-                            mFormController.getLastGroupText()));
-            newButton.setText(StringUtils.getStringSpannableRobust(this, R.string.add_another));
-            if(!nextExitsForm) {
-            	skip.setText(StringUtils.getStringSpannableRobust(this, R.string.leave_repeat_yes));
+            title = StringUtils.getStringSpannableRobust(this, R.string.add_another_repeat,
+                    mFormController.getLastGroupText()).toString();
+            addAnotherText = StringUtils.getStringSpannableRobust(this, R.string.add_another).toString();
+            if (!nextExitsForm) {
+                skipText = StringUtils.getStringSpannableRobust(this, R.string.leave_repeat_yes).toString();
             } else {
-            	skip.setText(StringUtils.getStringSpannableRobust(this, R.string.leave_repeat_yes_exits));
+                skipText = StringUtils.getStringSpannableRobust(this, R.string.leave_repeat_yes_exits).toString();
             }
         } else {
-            repeatDialog.setTitle(StringUtils.getStringRobust(this, R.string.entering_repeat_ask));
-                    repeatDialog.setMessage(StringUtils.getStringSpannableRobust(this, R.string.add_repeat,
-                            mFormController.getLastGroupText()));
-            newButton.setText(StringUtils.getStringSpannableRobust(this, R.string.entering_repeat));
-            if(!nextExitsForm) {
-            	skip.setText(StringUtils.getStringSpannableRobust(this, R.string.add_repeat_no));
+            title = StringUtils.getStringSpannableRobust(this, R.string.add_repeat,
+                    mFormController.getLastGroupText()).toString();
+            addAnotherText = StringUtils.getStringSpannableRobust(this, R.string.entering_repeat).toString();
+            if (!nextExitsForm) {
+                skipText = StringUtils.getStringSpannableRobust(this, R.string.add_repeat_no).toString();
             } else {
-            	skip.setText(StringUtils.getStringSpannableRobust(this, R.string.add_repeat_no_exits));
+                skipText = StringUtils.getStringSpannableRobust(this, R.string.add_repeat_no_exits).toString();
             }
         }
-        
-        repeatDialog.setCancelable(false);
-        repeatDialog.show();
 
-        if(nextExitsForm) {
-        	skip.setCompoundDrawables(null, doneIcon, null, null);
-        } 
-        
-        if(backExitsForm) {
-        	back.setCompoundDrawables(null, exitIcon, null, null);
+        // Create the choice dialog
+        ContextThemeWrapper wrapper = new ContextThemeWrapper(this, R.style.DialogBaseTheme);
+        final PaneledChoiceDialog dialog = new HorizontalPaneledChoiceDialog(wrapper, title);
+
+        // Panel 1: Back option
+        View.OnClickListener backListener = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (backExitsForm) {
+                    FormEntryActivity.this.triggerUserQuitInput();
+                } else {
+                    dialog.dismiss();
+                    FormEntryActivity.this.refreshCurrentView(false);
+                }
+            }
+        };
+        int backIconId;
+        if (backExitsForm) {
+            backIconId = R.drawable.icon_exit;
+        } else {
+            backIconId = R.drawable.icon_back;
         }
+        DialogChoiceItem backItem = new DialogChoiceItem(backText, backIconId, backListener);
+
+        // Panel 2: Add another option
+        View.OnClickListener addAnotherListener = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                try {
+                    mFormController.newRepeat();
+                } catch (XPathTypeMismatchException e) {
+                    Logger.exception(e);
+                    CommCareActivity.createErrorDialog(FormEntryActivity.this, e.getMessage(), EXIT);
+                    return;
+                }
+                showNextView();
+            }
+        };
+        DialogChoiceItem addAnotherItem = new DialogChoiceItem(addAnotherText, R.drawable.icon_new, addAnotherListener);
+
+        // Panel 3: Skip option
+        View.OnClickListener skipListener = new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                if (!nextExitsForm) {
+                    showNextView();
+                } else {
+                    triggerUserFormComplete();
+                }
+            }
+        };
+        int skipIconId;
+        if (nextExitsForm) {
+            skipIconId = R.drawable.icon_done;
+        } else {
+            skipIconId = R.drawable.icon_next;
+        }
+        DialogChoiceItem skipItem = new DialogChoiceItem(skipText, skipIconId, skipListener);
+
+        dialog.setChoiceItems(new DialogChoiceItem[]{backItem, addAnotherItem, skipItem});
+        dialog.makeNotCancelable();
+        dialog.setOnDismissListener(
+                new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface d) {
+                        isDialogShowing = false;
+                    }
+                }
+        );
+        dialog.show();
     }
 
-    private void saveFormToDisk(boolean exit, String updatedSaveName, boolean headless) {
+    private void saveFormToDisk(boolean exit) {
         if (formHasLoaded()) {
             boolean isFormComplete = isInstanceComplete();
-            saveDataToDisk(exit, isFormComplete, updatedSaveName, headless);
+            saveDataToDisk(exit, isFormComplete, null, false);
         } else if (exit) {
             showSaveErrorAndExit();
         }
     }
 
-    private void saveCompletedFormToDisk(boolean exit, String updatedSaveName, boolean headless) {
-        saveDataToDisk(exit, true, updatedSaveName, headless);
+    private void saveCompletedFormToDisk(String updatedSaveName) {
+        saveDataToDisk(EXIT, true, updatedSaveName, false);
     }
 
-    private void saveIncompleteFormToDisk(boolean exit, String updatedSaveName, boolean headless) {
-        saveDataToDisk(exit, false, updatedSaveName, headless);
+    private void saveIncompleteFormToDisk() {
+        saveDataToDisk(EXIT, false, null, true);
     }
 
     private void showSaveErrorAndExit() {
@@ -1423,51 +1412,63 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             mSaveToDiskTask.connect(this);
         }
         mSaveToDiskTask.setFormSavedListener(this);
-        mSaveToDiskTask.execute();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            mSaveToDiskTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            mSaveToDiskTask.execute();
+        }
     }
 
     /**
      * Create a dialog with options to save and exit, save, or quit without saving
      */
     private void createQuitDialog() {
-        final String[] items = mIncompleteEnabled ?  
-                new String[] {StringUtils.getStringRobust(this, R.string.keep_changes), StringUtils.getStringRobust(this, R.string.do_not_save)} :
-                new String[] {StringUtils.getStringRobust(this, R.string.do_not_save)};
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this,
+                StringUtils.getStringRobust(this, R.string.quit_form_title));
 
-        AlertDialog dialog = new AlertDialog.Builder(this)
-                .setIcon(android.R.drawable.ic_dialog_info)
-                .setTitle(StringUtils.getStringRobust(this, R.string.quit_application, mFormController.getFormTitle()))
-                .setNeutralButton(StringUtils.getStringSpannableRobust(this, R.string.do_not_exit),
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int id) {
+        View.OnClickListener stayInFormListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        };
+        DialogChoiceItem stayInFormItem = new DialogChoiceItem(
+                StringUtils.getStringRobust(this, R.string.do_not_exit),
+                R.drawable.ic_blue_forward,
+                stayInFormListener);
 
-                            dialog.cancel();
+        View.OnClickListener exitFormListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                discardChangesAndExit();
+            }
+        };
+        DialogChoiceItem quitFormItem = new DialogChoiceItem(
+                StringUtils.getStringRobust(this, R.string.do_not_save),
+                R.drawable.ic_trashcan,
+                exitFormListener);
 
-                        }
-                }).setItems(items, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        switch (which) {
-                            case 0: // save and exit
-                                if(items.length == 1) {
-                                    discardChangesAndExit();
-                                } else {
-                                    saveFormToDisk(EXIT, null, false);
-                                }
-                                break;
-                            case 1: // discard changes and exit
-                                discardChangesAndExit();
-                                break;
-                            case 2:// do nothing
-                                break;
-                        }
-                    }
-        }).create();
-        dialog.getListView().setSelector(R.drawable.selector);
+        DialogChoiceItem[] items;
+        if (mIncompleteEnabled) {
+            View.OnClickListener saveIncompleteListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    saveFormToDisk(EXIT);
+                }
+            };
+            DialogChoiceItem saveIncompleteItem = new DialogChoiceItem(
+                    StringUtils.getStringRobust(this, R.string.keep_changes),
+                    R.drawable.ic_incomplete_orange,
+                    saveIncompleteListener);
+            items = new DialogChoiceItem[] {stayInFormItem, quitFormItem, saveIncompleteItem};
+        } else {
+            items = new DialogChoiceItem[] {stayInFormItem, quitFormItem};
+        }
+
+        dialog.setChoiceItems(items);
         dialog.show();
     }
-    
+
     private void discardChangesAndExit() {
         String selection =
             InstanceColumns.INSTANCE_FILE_PATH + " like '"
@@ -1476,7 +1477,9 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         int instanceCount = 0;
         try {
             c = getContentResolver().query(instanceProviderContentURI, null, selection, null, null);
-            instanceCount = c.getCount();
+            if (c != null) {
+                instanceCount = c.getCount();
+            }
         } finally {
             if (c != null) {
                 c.close();
@@ -1653,51 +1656,52 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
      * Creates and displays a dialog allowing the user to set the language for the form.
      */
     private void createLanguageDialog() {
-        final String[] languages = mFormController.getLanguages();
-        int selected = -1;
-        if (languages != null) {
-            String language = mFormController.getLanguage();
-            for (int i = 0; i < languages.length; i++) {
-                if (language.equals(languages[i])) {
-                    selected = i;
-                }
-            }
-        }
-        AlertDialog dialog =
-            new AlertDialog.Builder(this)
-                    .setSingleChoiceItems(languages, selected,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                // Update the language in the content provider when selecting a new
-                                // language
-                                ContentValues values = new ContentValues();
-                                values.put(FormsColumns.LANGUAGE, languages[whichButton]);
-                                String selection = FormsColumns.FORM_FILE_PATH + "=?";
-                                String selectArgs[] = {
-                                    mFormPath
-                                };
-                                int updated =
-                                    getContentResolver().update(formProviderContentURI, values,
-                                        selection, selectArgs);
-                                Log.i(TAG, "Updated language to: " + languages[whichButton] + " in "
-                                        + updated + " rows");
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this,
+                StringUtils.getStringRobust(this, R.string.choose_language));
 
-                                mFormController.setLanguage(languages[whichButton]);
-                                dialog.dismiss();
-                                if (currentPromptIsQuestion()) {
-                                    saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-                                }
-                                refreshCurrentView();
-                            }
-                        })
-                    .setTitle(StringUtils.getStringRobust(this, R.string.change_language))
-                    .setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.do_not_change),
-                            new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int whichButton) {
-                                }
-                            }).create();
+        final String[] languages = mFormController.getLanguages();
+        DialogChoiceItem[] choiceItems = new DialogChoiceItem[languages.length];
+        for (int i = 0; i < languages.length; i++) {
+            final int index = i;
+            View.OnClickListener listener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Update the language in the content provider when selecting a new
+                    // language
+                    ContentValues values = new ContentValues();
+                    values.put(FormsColumns.LANGUAGE, languages[index]);
+                    String selection = FormsColumns.FORM_FILE_PATH + "=?";
+                    String selectArgs[] = {
+                            mFormPath
+                    };
+                    int updated =
+                            getContentResolver().update(formProviderContentURI, values,
+                                    selection, selectArgs);
+                    Log.i(TAG, "Updated language to: " + languages[index] + " in "
+                            + updated + " rows");
+
+                    mFormController.setLanguage(languages[index]);
+                    dialog.dismiss();
+                    if (currentPromptIsQuestion()) {
+                        saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
+                    }
+                    refreshCurrentView();
+                }
+            };
+            choiceItems[i] = new DialogChoiceItem(languages[i], -1, listener);
+        }
+
+        dialog.addButton(StringUtils.getStringSpannableRobust(this, R.string.cancel).toString(),
+                new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                }
+        );
+
+        dialog.setChoiceItems(choiceItems);
         dialog.show();
     }
 
@@ -1797,6 +1801,10 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             Uri uri = intent.getData();
             final String contentType = getContentResolver().getType(uri);
             Uri formUri;
+            if (contentType == null){
+                CommCareHomeActivity.createErrorDialog(this, "form URI resolved to null", EXIT);
+                return;
+            }
 
             boolean isInstanceReadOnly = false;
             try {
@@ -1848,7 +1856,11 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 }
             };
             mFormLoaderTask.connect(this);
-            mFormLoaderTask.execute(formUri);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                mFormLoaderTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, formUri);
+            } else {
+                mFormLoaderTask.execute(formUri);
+            }
             hasFormLoadBeenTriggered = true;
         }
     }
@@ -1916,19 +1928,19 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             createQuitDialog();
         }
     }
-    
+
     /**
      * Get the default title for ODK's "Form title" field
      */
     private String getDefaultFormTitle() {
         String saveName = mFormController.getFormTitle();
-        if (getContentResolver().getType(getIntent().getData()).equals(InstanceColumns.CONTENT_ITEM_TYPE)) {
+        if (InstanceColumns.CONTENT_ITEM_TYPE.equals(getContentResolver().getType(getIntent().getData()))) {
             Uri instanceUri = getIntent().getData();
 
             Cursor instance = null;
             try {
                 instance = getContentResolver().query(instanceUri, null, null, null, null);
-                if (instance.getCount() == 1) {
+                if (instance != null && instance.getCount() == 1) {
                     instance.moveToFirst();
                     saveName =
                         instance.getString(instance
@@ -1944,13 +1956,13 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     }
 
     /**
-     * Call when the user is ready to save and return the current form as complete 
+     * Call when the user is ready to save and return the current form as complete
      */
     private void triggerUserFormComplete() {
         if (mFormController.isFormReadOnly()) {
             finishReturnInstance(false);
         } else {
-            saveCompletedFormToDisk(EXIT, getDefaultFormTitle(), false);
+            saveCompletedFormToDisk(getDefaultFormTitle());
         }
     }
 
@@ -2067,10 +2079,11 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                     break;
                 case FormEntryController.ANSWER_CONSTRAINT_VIOLATED:
                 case FormEntryController.ANSWER_REQUIRED_BUT_EMPTY:
-                    // an answer constraint was violated, so do a 'swipe' to the next
-                    // question to display the proper toast(s)
-                    next();
-                    break;
+                    // an answer constraint was violated, so try to save the
+                    // current question to trigger the constraint violation message
+                    refreshCurrentView();
+                    saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS);
+                    return;
             }
             refreshCurrentView();
         }
@@ -2078,7 +2091,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
     /**
      * Attempts to save an answer to the specified index.
-     * 
+     *
      * @param evaluateConstraints Should form contraints be checked when saving answer?
      * @return status as determined in FormEntryController
      */
@@ -2101,7 +2114,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     /**
      * Checks the database to determine if the current instance being edited has already been
      * 'marked completed'. A form can be 'unmarked' complete and then resaved.
-     * 
+     *
      * @return true if form has been marked completed, false otherwise.
      */
     private boolean isInstanceComplete() {
@@ -2162,7 +2175,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             Cursor c = null;
             try {
                 c = getContentResolver().query(instanceProviderContentURI, null, selection, selectionArgs, null);
-                if (c.getCount() > 0) {
+                if (c != null && c.getCount() > 0) {
                     // should only be one...
                     c.moveToFirst();
                     String id = c.getString(c.getColumnIndex(InstanceColumns._ID));
@@ -2194,14 +2207,26 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         finish();
     }
 
+    private boolean isBlockingUserInput() {
+        View cover = this.findViewById(R.id.form_entry_cover);
+
+        return cover != null && cover.getVisibility() == View.VISIBLE;
+    }
+
     @Override
     protected boolean onBackwardSwipe() {
+        if(isBlockingUserInput()) {
+            return true;
+        }
         showPreviousView(true);
         return true;
     }
 
     @Override
     protected boolean onForwardSwipe() {
+        if(isBlockingUserInput()) {
+            return true;
+        }
         //We've already computed the "is there more coming" stuff intensely in the the nav details
         //and set the forward button tag appropriately, so use that to determine whether we can
         //swipe forward.
@@ -2209,8 +2234,10 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         if(nextButton.getTag().equals(NAV_STATE_NEXT)) {
             next();
             return true;
+        } else {
+            FormNavigationUI.animateFinishArrow(this);
+            return true;
         }
-        return false;
     }
 
     @Override
@@ -2290,7 +2317,7 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
             }
             if (savedInstanceState.containsKey(KEY_INSTANCEDESTINATION)) {
                 mInstanceDestination = savedInstanceState.getString(KEY_INSTANCEDESTINATION);
-            } 
+            }
             if(savedInstanceState.containsKey(KEY_INCOMPLETE_ENABLED)) {
                 mIncompleteEnabled = savedInstanceState.getBoolean(KEY_INCOMPLETE_ENABLED);
             }
@@ -2319,7 +2346,9 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         Cursor c = null;
         try {
             c = getContentResolver().query(uri, null, null, null, null);
-            if (c.getCount() != 1) {
+            if (c == null) {
+                throw new FormQueryException("Bad URI: resolved to null");
+            } else if (c.getCount() != 1) {
                 throw new FormQueryException("Bad URI: " + uri);
             } else {
                 c.moveToFirst();
@@ -2339,7 +2368,9 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
         Uri formUri = null;
         try {
             instanceCursor = getContentResolver().query(uri, null, null, null, null);
-            if (instanceCursor.getCount() != 1) {
+            if (instanceCursor == null) {
+                throw new FormQueryException("Bad URI: resolved to null");
+            } else if (instanceCursor.getCount() != 1) {
                 throw new FormQueryException("Bad URI: " + uri);
             } else {
                 instanceCursor.moveToFirst();
@@ -2364,14 +2395,14 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
                 final String selection = FormsColumns.JR_FORM_ID + " like ?";
 
                 formCursor = getContentResolver().query(formProviderContentURI, null, selection, selectionArgs, null);
-                if (formCursor.getCount() == 1) {
+                if (formCursor == null || formCursor.getCount() < 1) {
+                    throw new FormQueryException("Parent form does not exist");
+                } else if (formCursor.getCount() == 1) {
                     formCursor.moveToFirst();
                     mFormPath =
                             formCursor.getString(formCursor
                                     .getColumnIndex(FormsColumns.FORM_FILE_PATH));
                     formUri = ContentUris.withAppendedId(formProviderContentURI, formCursor.getLong(formCursor.getColumnIndex(FormsColumns._ID)));
-                } else if (formCursor.getCount() < 1) {
-                    throw new FormQueryException("Parent form does not exist");
                 } else if (formCursor.getCount() > 1) {
                     throw new FormQueryException("More than one possible parent form");
                 }
@@ -2443,7 +2474,6 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
     protected void onMajorLayoutChange(Rect newRootViewDimensions) {
         determineNumberOfValidGroupLines(newRootViewDimensions);
     }
-
 
     private void determineNumberOfValidGroupLines(Rect newRootViewDimensions) {
         FrameLayout header = (FrameLayout)findViewById(R.id.form_entry_header);
@@ -2518,7 +2548,5 @@ public class FormEntryActivity extends SessionAwareCommCareActivity<FormEntryAct
 
         return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeInPx,
                 getResources().getDisplayMetrics());
-
     }
-
 }

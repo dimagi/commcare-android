@@ -24,7 +24,6 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
-
 /**
  * A small DB record for keeping track of serialized device reports which we are planning
  * on submitting. Keeps track of the location on disk, and the key we use to encrypt it.
@@ -104,5 +103,4 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
             throw new IOException("Bad key while trying to generate output stream for device report");
         }
     }
-
 }

@@ -94,7 +94,6 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
                             receiver.evalState();
                             receiver.setResult(Activity.RESULT_OK);
                             receiver.finish();
-                            return;
                         } else {
                             //assume that we've already set the error message, but make it look scary
                             receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
@@ -176,14 +175,10 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
             txtInteractiveMessages.setText(Localization.get("mult.install.state.invalid.path"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             btnInstallMultimedia.setEnabled(false);
-            return;
-        }
-        
-        else {
+        } else {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.ready"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallMultimedia.setEnabled(true);
-            return;
         }
     }
     
@@ -203,11 +198,12 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
         long start = System.currentTimeMillis();
         
         //Get all of the "roots" where stuff might be
-        ArrayList<File> roots = new ArrayList<File>();
+        ArrayList<File> roots = new ArrayList<>();
         //And stage a place to list folders we'll scan
-        ArrayList<File> folders = new ArrayList<File>();
+        ArrayList<File> folders = new ArrayList<>();
         
-        if(Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED || Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED_READ_ONLY) {
+        if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(Environment.getExternalStorageState())) {
             roots.add(Environment.getExternalStorageDirectory());
         }
         

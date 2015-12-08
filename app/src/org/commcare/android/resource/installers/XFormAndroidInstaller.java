@@ -51,12 +51,12 @@ import java.util.Vector;
 public class XFormAndroidInstaller extends FileSystemInstaller {
     private static final String TAG = XFormAndroidInstaller.class.getSimpleName();
 
-    String namespace;
+    private String namespace;
 
-    String contentUri;
+    private String contentUri;
 
     public XFormAndroidInstaller() {
-
+        // for externalization
     }
 
     public XFormAndroidInstaller(String localDestination, String upgradeDestination) {
@@ -150,11 +150,8 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     @Override
     public boolean upgrade(Resource r) {
         boolean fileUpgrade = super.upgrade(r);
-        if (!fileUpgrade) {
-            return false;
-        }
+        return fileUpgrade && updateFilePath();
 
-        return updateFilePath();
     }
 
     /**
@@ -181,17 +178,11 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         if (updatedRows > 1) {
             throw new RuntimeException("Bad URI stored for xforms installer: " + this.contentUri);
         }
-        if (updatedRows == 0) {
-            return false;
-        }
-        return true;
+        return updatedRows != 0;
     }
 
     public boolean revert(Resource r, ResourceTable table) {
-        if (!super.revert(r, table)) {
-            return false;
-        }
-        return updateFilePath();
+        return super.revert(r, table) && updateFilePath();
     }
 
     public int rollback(Resource r) {
@@ -285,9 +276,6 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
                 }
             }
         }
-        if (problems.size() == 0) {
-            return false;
-        }
-        return true;
+        return problems.size() != 0;
     }
 }
