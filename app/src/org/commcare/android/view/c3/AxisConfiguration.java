@@ -27,14 +27,10 @@ public class AxisConfiguration extends Configuration {
             x.put("type", "timeseries");
         }
 
-        // Display secondary y axis only if it has at least one associated series
-        for (SeriesData s : mData.getSeries()) {
-            boolean hasSecondaryAxis = Boolean.valueOf(s.getConfiguration("secondary-y", "false"));
-            if (hasSecondaryAxis) {
-                y2.put("show", true);
-                break;
-            }
-        }
+        // Display secondary y axis labels only if it has at least one associated series.
+        // The axis itself gets displayed regardless of if it has data; this makes the
+        // whitespace around the graph look more reasonable. X and primary Y axis show by default.
+        y2.put("show", true);
 
         mConfiguration.put("x", x);
         mConfiguration.put("y", y);
@@ -133,11 +129,26 @@ public class AxisConfiguration extends Configuration {
             }
         }
 
-        if (!usingCustomText && mData.getType().equals(Graph.TYPE_TIME)) {
+        if (key.startsWith("x") && !usingCustomText && mData.getType().equals(Graph.TYPE_TIME)) {
             tick.put("format", mData.getConfiguration("x-labels-time-format", "%Y-%m-%d"));
         }
 
-        axis.put("tick", tick);
+        if (key.startsWith("secondary-y")) {
+            boolean hasSecondaryAxis = false;
+            for (SeriesData s : mData.getSeries()) {
+                hasSecondaryAxis = hasSecondaryAxis || Boolean.valueOf(s.getConfiguration("secondary-y", "false"));
+                if (hasSecondaryAxis) {
+                    break;
+                }
+            }
+            if (!hasSecondaryAxis) {
+                tick.put("values", new JSONArray());
+            }
+        }
+
+        if (tick.length() > 0) {
+            axis.put("tick", tick);
+        }
     }
 
     /**
@@ -154,12 +165,11 @@ public class AxisConfiguration extends Configuration {
         title = title.replaceAll("^\\s*", "");
         title = title.replaceAll("\\s*$", "");
 
-        if (!"".equals(title)) {
-            JSONObject label = new JSONObject();
-            label.put("text", title);
-            label.put("position", position);
-            axis.put("label", label);
-        }
+        // Show title regardless of whether or not it exists, to give all graphs consistent padding
+        JSONObject label = new JSONObject();
+        label.put("text", title);
+        label.put("position", position);
+        axis.put("label", label);
     }
 
     /**
