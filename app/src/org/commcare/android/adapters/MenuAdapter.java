@@ -213,18 +213,20 @@ public class MenuAdapter implements ListAdapter {
             menuListItem = LayoutInflater.from(context).inflate(R.layout.menu_list_item_modern, vg, false);
         }
 
-        // set up text
-        String mQuestionText = textViewHelper(mObject);
-
-        //Final change, remove any numeric context requests. J2ME uses these to
-        //help with numeric navigation.
-        if (mQuestionText != null) {
-            mQuestionText = Localizer.processArguments(mQuestionText, new String[]{""}).trim();
-        }
-
         TextView rowText = (TextView) menuListItem.findViewById(R.id.row_txt);
-        rowText.setText(mQuestionText);
+        setupTextView(rowText, mObject);
 
+        AudioButton mAudioButton = (AudioButton) menuListItem.findViewById(R.id.row_soundicon);
+        setupAudioButton(mAudioButton, mObject);
+
+        // set up the image, if available
+        ImageView mIconView = (ImageView) menuListItem.findViewById(R.id.row_img);
+        setupImageView(mIconView, mObject);
+
+        return menuListItem;
+    }
+
+    public void setupAudioButton(AudioButton mAudioButton, MenuDisplayable mObject){
         // set up audio
         final String audioURI = mObject.getAudioURI();
         String audioFilename = "";
@@ -238,9 +240,6 @@ public class MenuAdapter implements ListAdapter {
         }
 
         File audioFile = new File(audioFilename);
-
-        // First set up the audio button
-        AudioButton mAudioButton = (AudioButton) menuListItem.findViewById(R.id.row_soundicon);
         if (audioFilename != "" && audioFile.exists()) {
             // Set not focusable so that list onclick will work
             mAudioButton.setFocusable(false);
@@ -253,10 +252,21 @@ public class MenuAdapter implements ListAdapter {
                 ((LinearLayout) mAudioButton.getParent()).removeView(mAudioButton);
             }
         }
+    }
 
-        // set up the image, if available
-        ImageView mIconView = (ImageView) menuListItem.findViewById(R.id.row_img);
+    public void setupTextView(TextView textView, MenuDisplayable mObject){
+        // set up text
+        String mQuestionText = textViewHelper(mObject);
 
+        //Final change, remove any numeric context requests. J2ME uses these to
+        //help with numeric navigation.
+        if (mQuestionText != null) {
+            mQuestionText = Localizer.processArguments(mQuestionText, new String[]{""}).trim();
+        }
+        textView.setText(mQuestionText);
+    }
+
+    public void setupImageView(ImageView mIconView, MenuDisplayable mObject){
         NavIconState iconChoice = NavIconState.NEXT;
 
         //figure out some icons
@@ -295,8 +305,6 @@ public class MenuAdapter implements ListAdapter {
             mIconView.setImageBitmap(image);
             mIconView.setAdjustViewBounds(true);
         }
-
-        return menuListItem;
     }
 
     /*
