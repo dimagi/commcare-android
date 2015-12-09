@@ -189,7 +189,7 @@ public class MediaLayout extends RelativeLayout {
 
                 image = qrCodeEncoder.encodeAsBitmap();
 
-                mImageView = new ResizingImageView(getContext());
+                ImageView mImageView = new ImageView(getContext());
                 mImageView.setPadding(10, 10, 10, 10);
                 mImageView.setAdjustViewBounds(true);
                 mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
