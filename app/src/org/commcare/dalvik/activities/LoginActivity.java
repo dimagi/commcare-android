@@ -681,16 +681,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         }
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch(requestCode) {
-            case SEAT_APP_ACTIVITY:
-                if (resultCode == RESULT_OK) {
-                    refreshForNewApp();
-                }
-        }
-    }
-
     private void refreshForNewApp() {
         // Remove any error content from trying to log into a different app
         setStyleDefault();
