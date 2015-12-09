@@ -13,9 +13,6 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import org.javarosa.core.io.StreamsUtil;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,14 +21,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.channels.FileChannel;
-import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-
-import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Static methods used for common file operations.
@@ -52,63 +43,6 @@ public class FileUtils {
         }
         return made;
     }
-
-    public static byte[] getFileAsBytes(File file, SecretKeySpec symetricKey) {
-        byte[] bytes;
-        InputStream is = null;
-        try {
-            is = new FileInputStream(file);
-            if(symetricKey != null) {
-                Cipher cipher = Cipher.getInstance("AES");
-                cipher.init(Cipher.DECRYPT_MODE, symetricKey);
-                is = new CipherInputStream(is, cipher);
-            }
-            
-            //CTS - Removed a lot of weird checks  here. file size < max int? We're shoving this 
-            //form into a _Byte array_, I don't think there's a lot of concern than 2GB of data
-            //are gonna sneak by.
-            
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            
-            try {
-                StreamsUtil.writeFromInputToOutput(is, baos);
-                bytes = baos.toByteArray();
-            } catch (IOException e) {
-                Log.e(t, "Cannot read " + file.getName());
-                e.printStackTrace();
-                return null;
-            }
-
-            //CTS - Removed the byte array length check here. Plenty of
-            //files are smaller than their contents (padded encryption data, etc),
-            //so you can't actually know that's correct. We should be relying on the
-            //methods we use to read data to make sure it's all coming out.
-
-            return bytes;
-
-        } catch (FileNotFoundException e) {
-            Log.e(t, "Cannot find " + file.getName());
-            e.printStackTrace();
-            return null;
-
-        } catch (InvalidKeyException | NoSuchPaddingException
-                | NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } finally {
-            // Close the input stream
-            try {
-                if (is != null) {
-                    is.close();
-                }
-            } catch (IOException e) {
-                Log.e(t, "Cannot close input stream for " + file.getName());
-                e.printStackTrace();
-                return null;
-            }
-        }
-    }
-
 
     public static String getMd5Hash(File file) {
         try {
