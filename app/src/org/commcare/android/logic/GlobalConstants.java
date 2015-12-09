@@ -13,7 +13,8 @@ public class GlobalConstants {
     public static final String FILE_CC_ATTACHMENTS = "attachments/";
     
     public static final String FILE_CC_FORMS = "formdata/";
-    
+    public static final String FILE_CC_FIXTURES = "fixtures/";
+
     public static final String CC_DB_NAME = "commcare";
     
     /**
