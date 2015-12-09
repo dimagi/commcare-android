@@ -553,6 +553,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                             activity.setResult(RESULT_CANCELED);
                             activity.finish();
                         }
+                        dialog.dismiss();
                     }
                 };
         factory.setOnCancelListener(cancelListener);
@@ -567,6 +568,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                             activity.setResult(RESULT_CANCELED);
                             activity.finish();
                         }
+                        dialog.dismiss();
                     }
                 };
         factory.setPositiveButton(buttonDisplayText, buttonListener);
