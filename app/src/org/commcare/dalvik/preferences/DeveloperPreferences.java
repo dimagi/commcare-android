@@ -147,7 +147,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     public static boolean shouldFireTriggersOnSave() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return properties.getString(FIRE_TRIGGERS_ON_SAVE, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+        return properties.getString(FIRE_TRIGGERS_ON_SAVE, CommCarePreferences.YES).equals(CommCarePreferences.YES);
     }
 
     public static boolean isAutoLoginEnabled() {
