@@ -216,25 +216,20 @@ class UserDatabaseUpgrader {
      * Adding an appId field to FormRecords
      */
     private boolean upgradeEightNine(SQLiteDatabase db) {
-        SqlStorage<ApplicationRecordV1> appRecordStorage = new SqlStorage<>(
-                ApplicationRecord.STORAGE_KEY,
-                ApplicationRecordV1.class,
-                new ConcreteAndroidDbHelper(c, db));
-
-        if (DbUtil.multipleInstalledAppRecords(appRecordStorage)) {
+        if (DbUtil.multipleInstalledAppRecords(c, db)) {
             // Cannot migrate FormRecords once this device has already started installing multiple
             // applications, because there is no way to know which of those apps the existing
             // FormRecords belong to
             throw new MigrationException(true);
         }
 
-        SqlStorage<FormRecordV1> formRecordStorage = new SqlStorage<>(
+        SqlStorage<FormRecordV1> storage = new SqlStorage<>(
                 FormRecord.STORAGE_KEY,
                 FormRecordV1.class,
                 new ConcreteAndroidDbHelper(c, db));
 
         String appId = DbUtil.getInstalledAppRecord(c, db).getApplicationId();
-        for (FormRecordV1 oldRecord : formRecordStorage) {
+        for (FormRecordV1 oldRecord : storage) {
             FormRecord newRecord = new FormRecord(
                     oldRecord.getInstanceURIString(),
                     oldRecord.getStatus(),
@@ -245,7 +240,7 @@ class UserDatabaseUpgrader {
                     appId);
             // Set the new FormRecord to overwrite the old one when it is written to storage
             newRecord.setID(oldRecord.getID());
-            formRecordStorage.write(newRecord);
+            storage.write(newRecord);
         }
         return true;
     }

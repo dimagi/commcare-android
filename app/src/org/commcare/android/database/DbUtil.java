@@ -8,8 +8,10 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteDatabaseHook;
 
+import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.global.models.ApplicationRecordV1;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.util.externalizable.AndroidPrototypeFactory;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.PrefixTree;
@@ -175,15 +177,40 @@ public class DbUtil {
         explain.close();
     }
 
-    public static boolean multipleInstalledAppRecords(SqlStorage<ApplicationRecordV1> storage) {
-        int count = 0;
-        for (Persistable p : storage) {
-            ApplicationRecordV1 r = (ApplicationRecordV1) p;
-            if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
-                count++;
+    public static boolean multipleInstalledAppRecords(Context c, SQLiteDatabase db) {
+        int globalDbVersionNumber = CommCareApplication._().getGlobalDbVersion();
+        if (globalDbVersionNumber >= 3) {
+            // If the 1st multiple apps migration has already occurred, then app records will be
+            // stored in the db as an ApplicationRecord
+            SqlStorage<ApplicationRecord> storage = new SqlStorage<>(
+                    ApplicationRecord.STORAGE_KEY,
+                    ApplicationRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+            int count = 0;
+            for (Persistable p : storage) {
+                ApplicationRecord r = (ApplicationRecord)p;
+                if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
+                    count++;
+                }
             }
+            return (count > 1);
+        } else {
+            // If the 1st multiple apps migration has NOT already occurred, then app records will
+            // be stored in the db as an ApplicationRecordV1
+            SqlStorage<ApplicationRecordV1> storage = new SqlStorage<>(
+                    ApplicationRecord.STORAGE_KEY,
+                    ApplicationRecordV1.class,
+                    new ConcreteAndroidDbHelper(c, db));
+            int count = 0;
+            for (Persistable p : storage) {
+                ApplicationRecordV1 r = (ApplicationRecordV1)p;
+                if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
+                    count++;
+                }
+            }
+            return (count > 1);
         }
-        return (count > 1);
+
     }
 
     public static ApplicationRecord getInstalledAppRecord(Context c, SQLiteDatabase db) {
