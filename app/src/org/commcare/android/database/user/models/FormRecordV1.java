@@ -2,6 +2,7 @@ package org.commcare.android.database.user.models;
 
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
+import org.commcare.android.storage.framework.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
 
@@ -10,6 +11,7 @@ import java.util.Date;
 /**
  * Created by amstone326 on 12/14/15.
  */
+@Table(FormRecord.STORAGE_KEY)
 public class FormRecordV1 extends Persisted implements EncryptedModel {
 
     @Persisting(1)
