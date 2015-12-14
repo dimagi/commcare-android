@@ -246,7 +246,10 @@ class UserDatabaseUpgrader {
             newRecord.setID(oldRecord.getID());
             newStorage.write(newRecord);
         }
+        
         oldStorage.removeAll();
+        db.setTransactionSuccessful();
+        db.endTransaction();
         return true;
     }
 
