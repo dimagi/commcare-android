@@ -223,13 +223,14 @@ class UserDatabaseUpgrader {
             throw new MigrationException(true);
         }
 
-        SqlStorage<FormRecordV1> storage = new SqlStorage<>(
+        SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
                 FormRecord.STORAGE_KEY,
                 FormRecordV1.class,
                 new ConcreteAndroidDbHelper(c, db));
 
         String appId = getInstalledAppRecord().getApplicationId();
-        for (FormRecordV1 oldRecord : storage) {
+        for (Persistable p : storage) {
+            FormRecordV1 oldRecord = (FormRecordV1)p;
             FormRecord newRecord = new FormRecord(
                     oldRecord.getInstanceURIString(),
                     oldRecord.getStatus(),
