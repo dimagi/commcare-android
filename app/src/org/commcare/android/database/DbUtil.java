@@ -187,8 +187,7 @@ public class DbUtil {
                     ApplicationRecord.class,
                     new ConcreteAndroidDbHelper(c, db));
             int count = 0;
-            for (Persistable p : storage) {
-                ApplicationRecord r = (ApplicationRecord)p;
+            for (ApplicationRecord r : storage) {
                 if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
                     count++;
                 }
@@ -202,8 +201,7 @@ public class DbUtil {
                     ApplicationRecordV1.class,
                     new ConcreteAndroidDbHelper(c, db));
             int count = 0;
-            for (Persistable p : storage) {
-                ApplicationRecordV1 r = (ApplicationRecordV1)p;
+            for (ApplicationRecordV1 r : storage) {
                 if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
                     count++;
                 }
