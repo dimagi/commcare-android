@@ -12,6 +12,8 @@ import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
+import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.database.global.models.ApplicationRecordV1;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.ACasePreV6Model;
 import org.commcare.android.database.user.models.AUser;
@@ -214,7 +216,7 @@ class UserDatabaseUpgrader {
      * Adding an appId field to FormRecords
      */
     private boolean upgradeEightNine(SQLiteDatabase db) {
-        if (DbUtil.multipleInstalledAppRecords()) {
+        if (multipleInstalledAppRecords()) {
             // Cannot migrate FormRecords once this device has already started installing multiple
             // applications, because there is no way to know which of those apps the existing
             // FormRecords belong to
@@ -226,7 +228,7 @@ class UserDatabaseUpgrader {
                 FormRecordV1.class,
                 new ConcreteAndroidDbHelper(c, db));
 
-        String appId = DbUtil.getInstalledAppRecord(c, db).getApplicationId();
+        String appId = getInstalledAppRecord().getApplicationId();
         for (FormRecordV1 oldRecord : storage) {
             FormRecord newRecord = new FormRecord(
                     oldRecord.getInstanceURIString(),
@@ -282,5 +284,46 @@ class UserDatabaseUpgrader {
         for (T t : storage) {
             storage.write(t);
         }
+    }
+
+    private static boolean multipleInstalledAppRecords() {
+        int globalDbVersionNumber = CommCareApplication._().getGlobalDbVersion();
+        if (globalDbVersionNumber >= 3) {
+            // If the 1st multiple apps migration has already occurred, then app records will be
+            // stored in the db as an ApplicationRecord
+            SqlStorage<ApplicationRecord> storage =
+                    CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
+            int count = 0;
+            for (ApplicationRecord r : storage) {
+                if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
+                    count++;
+                }
+            }
+            return (count > 1);
+        } else {
+            // If the 1st multiple apps migration has NOT already occurred, then app records will
+            // be stored in the db as an ApplicationRecordV1
+            SqlStorage<ApplicationRecordV1> storage =
+                    CommCareApplication._().getGlobalStorage(ApplicationRecordV1.class);
+            int count = 0;
+            for (ApplicationRecordV1 r : storage) {
+                if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
+                    count++;
+                }
+            }
+            return (count > 1);
+        }
+    }
+
+    public static ApplicationRecord getInstalledAppRecord() {
+        SqlStorage<ApplicationRecord> storage =
+                CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
+        for (Persistable p : storage) {
+            ApplicationRecord r = (ApplicationRecord) p;
+            if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
+                return r;
+            }
+        }
+        return null;
     }
 }

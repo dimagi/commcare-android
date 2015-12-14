@@ -59,12 +59,12 @@ class GlobalDatabaseUpgrader {
         //First, migrate the old ApplicationRecord in storage to the new version being used for
         // multiple apps.
         try {
-            SqlStorage<ApplicationRecordV1> storage = new SqlStorage<>(
+            SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
                     ApplicationRecord.STORAGE_KEY,
                     ApplicationRecordV1.class,
                     new ConcreteAndroidDbHelper(c, db));
 
-            if (DbUtil.multipleInstalledAppRecords()) {
+            if (multipleInstalledAppRecords(storage)) {
                 // If a device has multiple installed ApplicationRecords before the multiple apps
                 // db upgrade has occurred, something has definitely gone wrong
                 throw new MigrationException(true);
@@ -110,8 +110,7 @@ class GlobalDatabaseUpgrader {
         File oldDbFile = CommCareApplication._().getDatabasePath(type.getOldDbName());
         if (oldDbFile.exists()) {
             File newDbFile = CommCareApplication._().getDatabasePath(
-                    ProviderUtils.getProviderDbName(type,
-                            DbUtil.getInstalledAppRecord(c, db).getApplicationId()));
+                    ProviderUtils.getProviderDbName(type, getInstalledAppRecord(c, db).getApplicationId()));
             if (!oldDbFile.renameTo(newDbFile)) {
                 throw new MigrationException(false);
             } else {
@@ -119,6 +118,31 @@ class GlobalDatabaseUpgrader {
             }
         }
         return true;
+    }
+
+    private static boolean multipleInstalledAppRecords(SqlStorage<Persistable> storage) {
+        int count = 0;
+        for (Persistable p : storage) {
+            ApplicationRecordV1 r = (ApplicationRecordV1) p;
+            if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
+                count++;
+            }
+        }
+        return (count > 1);
+    }
+
+    private static ApplicationRecord getInstalledAppRecord(Context c, SQLiteDatabase db) {
+        SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
+                ApplicationRecord.STORAGE_KEY,
+                ApplicationRecord.class,
+                new ConcreteAndroidDbHelper(c, db));
+        for (Persistable p : storage) {
+            ApplicationRecord r = (ApplicationRecord) p;
+            if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
+                return r;
+            }
+        }
+        return null;
     }
 
 }
