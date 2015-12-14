@@ -223,14 +223,18 @@ class UserDatabaseUpgrader {
             throw new MigrationException(true);
         }
 
-        SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
+        SqlStorage<FormRecordV1> oldStorage = new SqlStorage<>(
                 FormRecord.STORAGE_KEY,
                 FormRecordV1.class,
                 new ConcreteAndroidDbHelper(c, db));
 
+        SqlStorage<FormRecord> newStorage = new SqlStorage<>(
+                FormRecord.STORAGE_KEY,
+                FormRecord.class,
+                new ConcreteAndroidDbHelper(c, db));
+
         String appId = getInstalledAppRecord().getApplicationId();
-        for (Persistable p : storage) {
-            FormRecordV1 oldRecord = (FormRecordV1)p;
+        for (FormRecordV1 oldRecord : oldStorage) {
             FormRecord newRecord = new FormRecord(
                     oldRecord.getInstanceURIString(),
                     oldRecord.getStatus(),
@@ -239,10 +243,10 @@ class UserDatabaseUpgrader {
                     oldRecord.getInstanceID(),
                     oldRecord.lastModified(),
                     appId);
-            // Set the new FormRecord to overwrite the old one when it is written to storage
             newRecord.setID(oldRecord.getID());
-            storage.write(newRecord);
+            newStorage.write(newRecord);
         }
+        oldStorage.removeAll();
         return true;
     }
 
