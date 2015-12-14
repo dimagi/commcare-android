@@ -13,6 +13,7 @@ import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
@@ -184,7 +185,9 @@ public class AndroidSessionWrapper {
 
         //TODO: this has two components which can fail. be able to roll them back
 
-        FormRecord r = new FormRecord("", FormRecord.STATUS_UNSTARTED, getSession().getForm(), key.getEncoded(), null, new Date(0));
+        FormRecord r = new FormRecord("", FormRecord.STATUS_UNSTARTED, getSession().getForm(),
+                key.getEncoded(), null, new Date(0),
+                CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId());
         storage.write(r);
         setFormRecordId(r.getID());
 

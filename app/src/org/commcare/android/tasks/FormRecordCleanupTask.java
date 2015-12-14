@@ -277,11 +277,11 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             }
         }
 
-        // TODO: We should be committing all changes to form record models via
-        // the ASW objects, not manually.
+        // TODO: We should be committing all changes to form record models via the ASW objects,
+        // not manually.
         FormRecord parsed = new FormRecord(r.getInstanceURI().toString(),
                 r.getStatus(), r.getFormNamespace(), r.getAesKey(),
-                uuid[0], modified[0]);
+                uuid[0], modified[0], r.getAppId());
         parsed.setID(r.getID());
 
         // Make sure that the instance is no longer editable

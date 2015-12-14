@@ -8,7 +8,10 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteDatabaseHook;
 
+import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.database.global.models.ApplicationRecordV1;
 import org.commcare.util.externalizable.AndroidPrototypeFactory;
+import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -170,5 +173,30 @@ public class DbUtil {
         Log.d(TAG, "SQL: " + sql);
         DatabaseUtils.dumpCursor(explain);
         explain.close();
+    }
+
+    public static boolean multipleInstalledAppRecords(SqlStorage<ApplicationRecordV1> storage) {
+        int count = 0;
+        for (Persistable p : storage) {
+            ApplicationRecordV1 r = (ApplicationRecordV1) p;
+            if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
+                count++;
+            }
+        }
+        return (count > 1);
+    }
+
+    public static ApplicationRecord getInstalledAppRecord(Context c, SQLiteDatabase db) {
+        SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
+                ApplicationRecord.STORAGE_KEY,
+                ApplicationRecord.class,
+                new ConcreteAndroidDbHelper(c, db));
+        for (Persistable p : storage) {
+            ApplicationRecord r = (ApplicationRecord) p;
+            if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
+                return r;
+            }
+        }
+        return null;
     }
 }
