@@ -165,7 +165,7 @@ public class DbUtil {
        String createStatement = "CREATE TABLE integers (i INTEGER);";
        db.execSQL(createStatement);
        
-       for(long i =0 ; i < 10; ++i) {
+       for (long i = 0; i < 10; ++i) {
            db.execSQL("INSERT INTO integers VALUES (" + i + ");");
        }
    }

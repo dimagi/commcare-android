@@ -12,8 +12,6 @@ import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
-import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.database.global.models.ApplicationRecordV1;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.ACasePreV6Model;
 import org.commcare.android.database.user.models.AUser;
