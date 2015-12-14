@@ -64,7 +64,7 @@ class GlobalDatabaseUpgrader {
                     ApplicationRecordV1.class,
                     new ConcreteAndroidDbHelper(c, db));
 
-            if (DbUtil.multipleInstalledAppRecords(c, db)) {
+            if (DbUtil.multipleInstalledAppRecords()) {
                 // If a device has multiple installed ApplicationRecords before the multiple apps
                 // db upgrade has occurred, something has definitely gone wrong
                 throw new MigrationException(true);

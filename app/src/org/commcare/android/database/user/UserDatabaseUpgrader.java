@@ -214,7 +214,7 @@ class UserDatabaseUpgrader {
      * Adding an appId field to FormRecords
      */
     private boolean upgradeEightNine(SQLiteDatabase db) {
-        if (DbUtil.multipleInstalledAppRecords(c, db)) {
+        if (DbUtil.multipleInstalledAppRecords()) {
             // Cannot migrate FormRecords once this device has already started installing multiple
             // applications, because there is no way to know which of those apps the existing
             // FormRecords belong to

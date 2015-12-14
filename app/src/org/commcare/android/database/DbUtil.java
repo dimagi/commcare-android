@@ -177,15 +177,13 @@ public class DbUtil {
         explain.close();
     }
 
-    public static boolean multipleInstalledAppRecords(Context c, SQLiteDatabase db) {
+    public static boolean multipleInstalledAppRecords() {
         int globalDbVersionNumber = CommCareApplication._().getGlobalDbVersion();
         if (globalDbVersionNumber >= 3) {
             // If the 1st multiple apps migration has already occurred, then app records will be
             // stored in the db as an ApplicationRecord
-            SqlStorage<ApplicationRecord> storage = new SqlStorage<>(
-                    ApplicationRecord.STORAGE_KEY,
-                    ApplicationRecord.class,
-                    new ConcreteAndroidDbHelper(c, db));
+            SqlStorage<ApplicationRecord> storage =
+                    CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
             int count = 0;
             for (ApplicationRecord r : storage) {
                 if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
@@ -196,10 +194,8 @@ public class DbUtil {
         } else {
             // If the 1st multiple apps migration has NOT already occurred, then app records will
             // be stored in the db as an ApplicationRecordV1
-            SqlStorage<ApplicationRecordV1> storage = new SqlStorage<>(
-                    ApplicationRecord.STORAGE_KEY,
-                    ApplicationRecordV1.class,
-                    new ConcreteAndroidDbHelper(c, db));
+            SqlStorage<ApplicationRecordV1> storage =
+                    CommCareApplication._().getGlobalStorage(ApplicationRecordV1.class);
             int count = 0;
             for (ApplicationRecordV1 r : storage) {
                 if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
