@@ -1103,10 +1103,15 @@ public class CommCareApplication extends Application {
         long lastSync = prefs.getLong("last-succesful-sync", 0);
 
         SqlStorage<FormRecord> formsStorage = this.getUserStorage(FormRecord.class);
+        String currentAppId = getCurrentApp().getAppRecord().getApplicationId();
 
         try {
-            int unsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
-            int incompleteForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE).size();
+            int unsentForms = formsStorage.getIDsForValues(
+                    new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                    new Object[]{FormRecord.STATUS_UNSENT, currentAppId}).size();
+            int incompleteForms = formsStorage.getIDsForValues(
+                    new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                    new Object[]{FormRecord.STATUS_INCOMPLETE, currentAppId}).size();
 
             return new Pair<>(lastSync, new int[]{unsentForms, incompleteForms});
         } catch (UserStorageClosedException e) {

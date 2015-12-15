@@ -126,7 +126,8 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
         Cursor c;
         try {
-            c = helper.getHandle().query(table, new String[]{DbUtil.DATA_COL}, whereClause.first, whereClause.second, null, null, null);
+            c = helper.getHandle().query(table, new String[]{DbUtil.DATA_COL}, whereClause.first,
+                    whereClause.second, null, null, null);
         } catch (SessionUnavailableException e) {
             throw new UserStorageClosedException(e.getMessage());
         }

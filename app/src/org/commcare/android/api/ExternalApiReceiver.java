@@ -130,10 +130,16 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 
     protected boolean checkAndStartUnsentTask(final Context context) {
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
 
-        //Get all forms which are either unsent or unprocessed
-        Vector<Integer> ids = storage.getIDsForValues(new String[]{FormRecord.META_STATUS}, new Object[]{FormRecord.STATUS_UNSENT});
-        ids.addAll(storage.getIDsForValues(new String[]{FormRecord.META_STATUS}, new Object[]{FormRecord.STATUS_COMPLETE}));
+        // Get all forms for this app that are either unsent or unprocessed
+        Vector<Integer> ids = storage.getIDsForValues(
+                new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[]{FormRecord.STATUS_UNSENT, currentAppId});
+        ids.addAll(storage.getIDsForValues(
+                new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[]{FormRecord.STATUS_COMPLETE, currentAppId}));
+
         if (ids.size() > 0) {
             FormRecord[] records = new FormRecord[ids.size()];
             for (int i = 0; i < ids.size(); ++i) {
