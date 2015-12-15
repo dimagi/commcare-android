@@ -121,6 +121,7 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
         }
     }
 
+    @Override
     public SQLiteDatabase getWritableDatabase(String key) {
         try {
             return super.getWritableDatabase(key);

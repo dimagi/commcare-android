@@ -26,6 +26,8 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.util.Vector;
+
 /**
  * @author ctsims
  */
@@ -216,41 +218,54 @@ class UserDatabaseUpgrader {
      * Adding an appId field to FormRecords
      */
     private boolean upgradeEightNine(SQLiteDatabase db) {
-        if (multipleInstalledAppRecords()) {
-            // Cannot migrate FormRecords once this device has already started installing multiple
-            // applications, because there is no way to know which of those apps the existing
-            // FormRecords belong to
-            throw new MigrationException(true);
+        db.beginTransaction();
+        try {
+            if (multipleInstalledAppRecords()) {
+                // Cannot migrate FormRecords once this device has already started installing multiple
+                // applications, because there is no way to know which of those apps the existing
+                // FormRecords belong to
+                throw new MigrationException(true);
+            }
+
+            SqlStorage<FormRecordV1> oldStorage = new SqlStorage<>(
+                    FormRecord.STORAGE_KEY,
+                    FormRecordV1.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            String appId = getInstalledAppRecord().getApplicationId();
+            Vector<FormRecord> upgradedRecords = new Vector<>();
+            // Create all of the updated records, based upon the existing ones
+            for (FormRecordV1 oldRecord : oldStorage) {
+                FormRecord newRecord = new FormRecord(
+                        oldRecord.getInstanceURIString(),
+                        oldRecord.getStatus(),
+                        oldRecord.getFormNamespace(),
+                        oldRecord.getAesKey(),
+                        oldRecord.getInstanceID(),
+                        oldRecord.lastModified(),
+                        appId);
+                newRecord.setID(oldRecord.getID());
+                upgradedRecords.add(newRecord);
+            }
+
+            // Alter the FormRecord table to include an app id column
+            db.execSQL("ALTER TABLE " + FormRecord.STORAGE_KEY +
+                    " ADD " + FormRecord.META_APP_ID + " TEXT");
+
+            // Write all of the new records to the updated table
+            SqlStorage<FormRecord> newStorage = new SqlStorage<>(
+                    FormRecord.STORAGE_KEY,
+                    FormRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+            for (FormRecord r : upgradedRecords) {
+                newStorage.write(r);
+            }
+
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
         }
-
-        SqlStorage<FormRecordV1> oldStorage = new SqlStorage<>(
-                FormRecord.STORAGE_KEY,
-                FormRecordV1.class,
-                new ConcreteAndroidDbHelper(c, db));
-
-        SqlStorage<FormRecord> newStorage = new SqlStorage<>(
-                FormRecord.STORAGE_KEY,
-                FormRecord.class,
-                new ConcreteAndroidDbHelper(c, db));
-
-        String appId = getInstalledAppRecord().getApplicationId();
-        for (FormRecordV1 oldRecord : oldStorage) {
-            FormRecord newRecord = new FormRecord(
-                    oldRecord.getInstanceURIString(),
-                    oldRecord.getStatus(),
-                    oldRecord.getFormNamespace(),
-                    oldRecord.getAesKey(),
-                    oldRecord.getInstanceID(),
-                    oldRecord.lastModified(),
-                    appId);
-            newRecord.setID(oldRecord.getID());
-            newStorage.write(newRecord);
-        }
-        
-        oldStorage.removeAll();
-        db.setTransactionSuccessful();
-        db.endTransaction();
-        return true;
     }
 
     private void updateIndexes(SQLiteDatabase db) {
