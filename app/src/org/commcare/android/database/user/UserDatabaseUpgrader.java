@@ -1,6 +1,7 @@
 package org.commcare.android.database.user;
 
 import android.content.Context;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -249,8 +250,10 @@ class UserDatabaseUpgrader {
             }
 
             // Alter the FormRecord table to include an app id column
-            db.execSQL("ALTER TABLE " + FormRecord.STORAGE_KEY +
-                    " ADD " + FormRecord.META_APP_ID + " TEXT");
+            db.execSQL(DatabaseAppOpenHelper.addColumnToTable(
+                    FormRecord.STORAGE_KEY,
+                    FormRecord.META_APP_ID,
+                    "TEXT"));
 
             // Write all of the new records to the updated table
             SqlStorage<FormRecord> newStorage = new SqlStorage<>(

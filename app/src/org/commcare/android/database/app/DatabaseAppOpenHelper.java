@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteOpenHelper;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;
@@ -105,6 +106,13 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     public static String indexOnTableWithPGUIDCommand(String indexName,
                                              String tableName) {
         return indexOnTableCommand(indexName, tableName, Resource.META_INDEX_PARENT_GUID);
+    }
+
+    /**
+     * Build and return SQL command to add a column to a table
+     */
+    public static String addColumnToTable(String tableName, String columnName, String dataType) {
+        return "ALTER TABLE " + tableName + " ADD " + columnName + " " + dataType;
     }
 
     public SQLiteDatabase getWritableDatabase(String key) {
