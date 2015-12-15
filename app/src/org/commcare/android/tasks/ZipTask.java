@@ -46,20 +46,6 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     Long[] results;
     File dumpFolder;
 
-    public static final long FULL_SUCCESS = 0;
-    public static final long PARTIAL_SUCCESS = 1;
-    public static final long FAILURE = 2;
-    public static final long TRANSPORT_FAILURE = 4;
-    public static final long PROGRESS_ALL_PROCESSED = 8;
-
-    public static final long SUBMISSION_BEGIN = 16;
-    public static final long SUBMISSION_START = 32;
-    public static final long SUBMISSION_NOTIFY = 64;
-    public static final long SUBMISSION_DONE = 128;
-
-    public static final long PROGRESS_LOGGED_OUT = 256;
-    public static final long PROGRESS_SDCARD_REMOVED = 512;
-
     public static final int ZIP_TASK_ID = 72135;
 
     DataSubmissionListener formSubmissionListener;
@@ -270,10 +256,15 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
         sourceDirectory.mkdirs();
 
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
 
-        //Get all forms which are either unsent or unprocessed
-        Vector<Integer> ids = storage.getIDsForValues(new String[]{FormRecord.META_STATUS}, new Object[]{FormRecord.STATUS_UNSENT});
-        ids.addAll(storage.getIDsForValues(new String[]{FormRecord.META_STATUS}, new Object[]{FormRecord.STATUS_COMPLETE}));
+        // Get all forms which are either unsent or unprocessed
+        Vector<Integer> ids = storage.getIDsForValues(
+                new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[]{FormRecord.STATUS_UNSENT, currentAppId});
+        ids.addAll(storage.getIDsForValues(
+                new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[]{FormRecord.STATUS_COMPLETE, currentAppId}));
 
         if (ids.size() > 0) {
             FormRecord[] records = new FormRecord[ids.size()];
