@@ -485,17 +485,20 @@ public class LegacyInstallUtils {
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| " + legacyCases.getNumRecords() + " old cases detected");
             
             Map m = SqlStorage.cleanCopy(legacyCases,
-                       new SqlStorage<ACase>(ACase.STORAGE_KEY, ACase.class, newAndroidDbHelper));
+                       new SqlStorage<>(ACase.STORAGE_KEY, ACase.class, newAndroidDbHelper));
             
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| " + m.size() + " cases copied. Copying Users");
             
             SqlStorage.cleanCopy(legacyUserStorage,
-                    new SqlStorage<User>("USER", User.class, newAndroidDbHelper));
+                    new SqlStorage<>("USER", User.class, newAndroidDbHelper));
             
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Users copied. Copying form records");
             
-            final Map<Integer, Integer> formRecordMapping = SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<FormRecord>("FORMRECORDS", FormRecord.class, ldbh),
-                new SqlStorage<FormRecord>("FORMRECORDS", FormRecord.class, newAndroidDbHelper), new CopyMapper<FormRecord>() {
+            final Map<Integer, Integer> formRecordMapping = SqlStorage.cleanCopy(
+                    new LegacySqlIndexedStorageUtility<>(
+                            FormRecord.STORAGE_KEY, FormRecord.class, ldbh),
+                new SqlStorage<>(FormRecord.STORAGE_KEY, FormRecord.class, newAndroidDbHelper),
+                    new CopyMapper<FormRecord>() {
 
                     @Override
                     public FormRecord transform(FormRecord t) {
@@ -566,7 +569,7 @@ public class LegacyInstallUtils {
             //Now, if we've copied everything over to this user with no problems, we want to actually go back and wipe out all of the
             //data that is linked to specific files, since individual users might delete them out of their sandboxes.
             new LegacySqlIndexedStorageUtility<DeviceReportRecord>("log_records", DeviceReportRecord.class, ldbh).removeAll();
-            new LegacySqlIndexedStorageUtility<FormRecord>("FORMRECORDS", FormRecord.class, ldbh).removeAll();
+            new LegacySqlIndexedStorageUtility<FormRecord>(FormRecord.STORAGE_KEY, FormRecord.class, ldbh).removeAll();
             new LegacySqlIndexedStorageUtility<SessionStateDescriptor>("android_cc_session", SessionStateDescriptor.class, ldbh).removeAll();
 
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| User transitioned! Closing db handles.");
