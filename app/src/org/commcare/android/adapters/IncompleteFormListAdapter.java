@@ -15,7 +15,6 @@ import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.view.IncompleteFormRecordView;
 import org.commcare.dalvik.activities.FormRecordListActivity.FormRecordFilter;
-import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Suite;

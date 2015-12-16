@@ -9,7 +9,6 @@ import net.sqlcipher.database.SQLiteOpenHelper;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;

@@ -8,12 +8,7 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteDatabaseHook;
 
-import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
-import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.database.global.models.ApplicationRecordV1;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.util.externalizable.AndroidPrototypeFactory;
-import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -165,7 +160,7 @@ public class DbUtil {
        String createStatement = "CREATE TABLE integers (i INTEGER);";
        db.execSQL(createStatement);
        
-       for (long i = 0; i < 10; ++i) {
+       for(long i =0 ; i < 10; ++i) {
            db.execSQL("INSERT INTO integers VALUES (" + i + ");");
        }
    }

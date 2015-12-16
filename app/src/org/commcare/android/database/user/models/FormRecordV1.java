@@ -9,7 +9,11 @@ import org.commcare.modern.models.MetaField;
 import java.util.Date;
 
 /**
- * Created by amstone326 on 12/14/15.
+ * The version of a FormRecord that exists in databases on any pre-2.26 version of CommCare. This
+ * class is used to read and make available a FormRecord that exists in such a database
+ * (for database upgrade purposes).
+ *
+ * @author amstone
  */
 @Table(FormRecord.STORAGE_KEY)
 public class FormRecordV1 extends Persisted implements EncryptedModel {

@@ -1,7 +1,6 @@
 package org.commcare.android.database.user;
 
 import android.content.Context;
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
