@@ -42,6 +42,7 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.tasks.ZipTask;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
@@ -322,7 +323,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         wifiFragment.setIsHost(true);
         wifiFragment.resetConnectionGroup();
 
-        Logger.log(TAG,"Device designated as receiver");
+        Logger.log(TAG, "Device designated as receiver");
         resetData();
         hostGroup();
 
@@ -623,7 +624,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
             @Override
             public void onFailure(int reason) {
-                Logger.log(TAG,"Connection to peer failed");
+                Logger.log(TAG, "Connection to peer failed");
                 Toast.makeText(CommCareWiFiDirectActivity.this, "Connect failed. Retry.",
                         Toast.LENGTH_SHORT).show();
             }
@@ -834,40 +835,30 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         Logger.log(TAG, "Error Sending Files");
     }
 
-    public void updateStatusText(){
-        SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-
-        // Get all forms which are either unsent or unprocessed
-        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
-        Vector<Integer> ids = storage.getIDsForValues(
-                new String[] {FormRecord.META_STATUS, FormRecord.META_APP_ID},
-                new Object[] {FormRecord.STATUS_UNSENT, currentAppId});
-        ids.addAll(storage.getIDsForValues(
-                new String[] {FormRecord.META_STATUS, FormRecord.META_APP_ID},
-                new Object[] {FormRecord.STATUS_COMPLETE, currentAppId}));
+    public void updateStatusText() {
+        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
 
         int numUnsyncedForms = ids.size();
-
-        int numUnsubmittedForms = 0;
+        int numUnsubmittedForms;
 
         File wDirectory = new File(writeDirectory);
 
-        if(!wDirectory.exists() || !wDirectory.isDirectory()){
+        if (!wDirectory.exists() || !wDirectory.isDirectory()) {
             numUnsubmittedForms = 0;
-        }
-        else{
+        } else {
             numUnsubmittedForms = wDirectory.listFiles().length;
         }
 
-        if(mState.equals(wdState.send)){
+        if (mState.equals(wdState.send)) {
             stateHeaderText.setText("You are in Transfer Form Mode");
             formCountText.setText("Phone has " + numUnsyncedForms + " unsent forms.");
             stateStatusText.setText("You are in Transfer Form mode. This will allow you to transfer forms from this device to another device via Wi-Fi Direct.");
-        } else if(mState.equals(wdState.receive)){
+        } else if (mState.equals(wdState.receive)) {
             stateHeaderText.setText("You are in Receive Form Mode");
             stateStatusText.setText("This will allow you to receive forms on this device from another device via Wi-Fi Direct");
             formCountText.setText("SD Card has " + numUnsubmittedForms + " collected forms.");
-        } else{
+        } else {
             stateHeaderText.setText("You are in Submit Form Mode");
             stateStatusText.setText("This mode will allow you to submit forms to the CommCare Server if you have an internet connection.");
             formCountText.setText("SD Card has " + numUnsubmittedForms + " unsubmitted forms.");

@@ -22,20 +22,29 @@ import java.util.Vector;
  */
 public class StorageUtils {
 
+    public static Vector<Integer> getUnsentOrUnprocessedFormsForCurrentApp(
+            SqlStorage<FormRecord> storage) {
+
+        String currentAppId =
+                CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
+
+        Vector<Integer> ids = storage.getIDsForValues(
+                new String[] {FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[] {FormRecord.STATUS_UNSENT, currentAppId});
+        ids.addAll(storage.getIDsForValues(
+                new String[] {FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[] {FormRecord.STATUS_COMPLETE, currentAppId}));
+
+        return ids;
+    }
+
     @SuppressWarnings("deprecation")
     public static FormRecord[] getUnsentRecords(SqlStorage<FormRecord> storage) {
         //TODO: This could all be one big sql query instead of doing it in code
 
-        // Get all forms which are either unsent or unprocessed
         Vector<Integer> ids;
-        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
         try {
-            ids = storage.getIDsForValues(
-                    new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
-                    new Object[]{FormRecord.STATUS_UNSENT, currentAppId});
-            ids.addAll(storage.getIDsForValues(
-                    new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
-                    new Object[]{FormRecord.STATUS_COMPLETE, currentAppId}));
+            ids = getUnsentOrUnprocessedFormsForCurrentApp(storage);
         } catch (UserStorageClosedException e) {
             // the db was closed down
             return new FormRecord[0];

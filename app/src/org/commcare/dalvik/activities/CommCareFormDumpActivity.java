@@ -22,6 +22,7 @@ import org.commcare.android.models.notifications.NotificationMessageFactory.Stoc
 import org.commcare.android.tasks.DumpTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
@@ -246,14 +247,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
     
     public Vector<Integer> getUnsyncedForms(){
         SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
-        // Get all forms which are either unsent or unprocessed
-        Vector<Integer> ids = storage.getIDsForValues(
-                new String[] {FormRecord.META_STATUS, FormRecord.META_APP_ID},
-                new Object[] {FormRecord.STATUS_UNSENT, currentAppId});
-        ids.addAll(storage.getIDsForValues(
-                new String[] {FormRecord.META_STATUS, FormRecord.META_APP_ID},
-                new Object[] {FormRecord.STATUS_COMPLETE, currentAppId}));
+        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
         Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Found " + ids.size() + " unsynced forms.");
         return ids;
     }
