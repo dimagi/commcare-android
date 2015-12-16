@@ -836,9 +836,15 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     public void updateStatusText(){
         SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-        //Get all forms which are either unsent or unprocessed
-        Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
-        ids.addAll(storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_COMPLETE}));
+
+        // Get all forms which are either unsent or unprocessed
+        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
+        Vector<Integer> ids = storage.getIDsForValues(
+                new String[] {FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[] {FormRecord.STATUS_UNSENT, currentAppId});
+        ids.addAll(storage.getIDsForValues(
+                new String[] {FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[] {FormRecord.STATUS_COMPLETE, currentAppId}));
 
         int numUnsyncedForms = ids.size();
 
