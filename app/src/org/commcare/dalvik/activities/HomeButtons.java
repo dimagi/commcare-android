@@ -54,14 +54,14 @@ public class HomeButtons {
                         R.drawable.home_incomplete,
                         R.color.solid_dark_orange,
                         getIncompleteButtonListener(activity),
-                        getIncompleteButtonNotificationText(activity)),
+                        getIncompleteButtonTextSetter(activity)),
                 HomeCardDisplayData.homeCardDataWithNotification(Localization.get(syncKey), R.color.white,
                         R.color.white,
                         R.drawable.home_sync,
                         R.color.cc_brand_color,
                         R.color.cc_brand_text,
                         getSyncButtonListener(activity),
-                        getSyncButtonNotificationText(activity)),
+                        getSyncButtonTextSetter(activity)),
                 HomeCardDisplayData.homeCardDataWithStaticText(Localization.get("home.report"), R.color.white,
                         R.drawable.home_report, R.color.cc_attention_negative_color,
                         getReportButtonListener(activity)),
@@ -69,7 +69,7 @@ public class HomeButtons {
                         R.color.white,
                         R.drawable.home_logout, R.color.cc_neutral_color, R.color.cc_neutral_text,
                         getLogoutButtonListener(activity),
-                        getLogoutButtonNotificationText(activity)),
+                        getLogoutButtonTextSetter(activity)),
         };
 
         return getVisibleButtons(allButtons, buttonsToHide);
@@ -105,7 +105,7 @@ public class HomeButtons {
         };
     }
 
-    private static TextSetter getSyncButtonNotificationText(final CommCareHomeActivity activity) {
+    private static TextSetter getSyncButtonTextSetter(final CommCareHomeActivity activity) {
         return new TextSetter() {
             @Override
             public void update(HomeCardDisplayData cardDisplayData,
@@ -141,7 +141,7 @@ public class HomeButtons {
         };
     }
 
-    private static TextSetter getIncompleteButtonNotificationText(final CommCareHomeActivity activity) {
+    private static TextSetter getIncompleteButtonTextSetter(final CommCareHomeActivity activity) {
         return new TextSetter() {
             @Override
             public void update(HomeCardDisplayData cardDisplayData,
@@ -172,7 +172,7 @@ public class HomeButtons {
         };
     }
 
-    private static TextSetter getLogoutButtonNotificationText(final CommCareHomeActivity activity) {
+    private static TextSetter getLogoutButtonTextSetter(final CommCareHomeActivity activity) {
         return new TextSetter() {
             @Override
             public void update(HomeCardDisplayData cardDisplayData,

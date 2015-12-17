@@ -39,18 +39,30 @@ public class HomeScreenAdapter
     private static final int TYPE_HEADER = 0;
     private static final int TYPE_BUTTON = 1;
     private final int screenHeight, screenWidth;
+    private final int syncButtonPosition;
 
     public HomeScreenAdapter(CommCareHomeActivity activity,
                              Vector<String> buttonsToHide,
                              boolean isDemoUser) {
         context = activity;
         buttonData = HomeButtons.buildButtonData(activity, buttonsToHide, isDemoUser);
+        syncButtonPosition = calcSyncButtonPos();
 
         // get screen dimensions for drawing custom header image
         DisplayMetrics displaymetrics = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
         screenHeight = displaymetrics.heightPixels;
         screenWidth = displaymetrics.widthPixels;
+    }
+
+    private int calcSyncButtonPos() {
+        for (int i = 0; i < buttonData.length; i++) {
+            if (buttonData[i].imageResource == R.drawable.home_sync) {
+                // pos in button array plus initial custom header
+                return i + 1;
+            }
+        }
+        return -1;
     }
 
     @Override
@@ -94,7 +106,7 @@ public class HomeScreenAdapter
         String notificationText = null;
 
         if (payload != null) {
-            notificationText = getLastPayloadString(payload);
+            notificationText = getFirstPayloadString(payload);
         }
 
         cardDisplayData.textSetter.update(cardDisplayData,
@@ -106,9 +118,13 @@ public class HomeScreenAdapter
         return buttonData[position - 1];
     }
 
-    private static String getLastPayloadString(List<Object> payload) {
+    /**
+     * Get 1st string in payload list, which is constructed from payloads
+     * provided on calls to notify item/data set changed.
+     */
+    private static String getFirstPayloadString(List<Object> payloadList) {
         String lastPayloadString = null;
-        for (Object entry : payload) {
+        for (Object entry : payloadList) {
             if (entry instanceof String) {
                 lastPayloadString = (String)entry;
             }
@@ -124,7 +140,7 @@ public class HomeScreenAdapter
         squareButtonViewHolder.imageView.setImageDrawable(buttonDrawable);
         squareButtonViewHolder.cardView.setOnClickListener(cardDisplayData.listener);
 
-        StateListDrawable bgDrawable = getSLD(context, cardDisplayData.bgColor);
+        StateListDrawable bgDrawable = bgDrawStates(context, cardDisplayData.bgColor);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             squareButtonViewHolder.cardView.setBackground(bgDrawable);
@@ -133,31 +149,32 @@ public class HomeScreenAdapter
         }
     }
 
-    private static StateListDrawable getSLD(Context context,
-                                            int backgroundColorRes) {
-        final int backgroundColor =
-                context.getResources().getColor(backgroundColorRes);
-        ColorDrawable colorDrawable = new ColorDrawable(backgroundColor);
+    /**
+     * Build drawable with default state being the provided color resource,
+     * pressed color state being that color with less saturation, and disabled
+     * state being gray.
+     */
+    private static StateListDrawable bgDrawStates(Context context,
+                                                  int bgColorResource) {
         ColorDrawable disabledColor =
                 new ColorDrawable(context.getResources().getColor(R.color.grey));
-
-        int color = ViewUtil.getColorDrawableColor(colorDrawable);
-
-        float[] hsvOutput = new float[3];
-        Color.colorToHSV(color, hsvOutput);
-
-        hsvOutput[2] = (float)(hsvOutput[2] / 1.5);
-
-        int selectedColor = Color.HSVToColor(hsvOutput);
-
-        ColorDrawable pressedBackground = new ColorDrawable(selectedColor);
+        ColorDrawable colorDrawable =
+                new ColorDrawable(context.getResources().getColor(bgColorResource));
+        ColorDrawable pressedBackground = desaturateColor(colorDrawable);
 
         StateListDrawable sld = new StateListDrawable();
-
         sld.addState(new int[]{-android.R.attr.state_enabled}, disabledColor);
         sld.addState(new int[]{android.R.attr.state_pressed}, pressedBackground);
         sld.addState(StateSet.WILD_CARD, colorDrawable);
         return sld;
+    }
+
+    private static ColorDrawable desaturateColor(ColorDrawable colorDrawable) {
+        float[] hsvOutput = new float[3];
+        int color = ViewUtil.getColorDrawableColor(colorDrawable);
+        Color.colorToHSV(color, hsvOutput);
+        hsvOutput[2] = (float)(hsvOutput[2] / 1.5);
+        return new ColorDrawable(Color.HSVToColor(hsvOutput));
     }
 
     private void bindHeader(HeaderViewHolder headerHolder) {
@@ -193,8 +210,7 @@ public class HomeScreenAdapter
     }
 
     public int getSyncButtonPosition() {
-        // NOTE PLM: assumes sync button is always the second to last button.
-        return getItemCount() - 2;
+        return syncButtonPosition;
     }
 
     private static class HeaderViewHolder extends RecyclerView.ViewHolder {
