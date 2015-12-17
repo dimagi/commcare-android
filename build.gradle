@@ -214,7 +214,7 @@ android {
         buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
 
         // set the app name
-        resValue "string", "application_name", "CommCare QA ${ccVersion}"
+        resValue "string", "application_name", " ${ccVersion} QA CommCare"
       }
 
       standalone {
