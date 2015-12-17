@@ -804,28 +804,15 @@ public class CommCareHomeActivity
         TreeReference contextRef = sessionNavigator.getCurrentAutoSelection();
         if (this.getString(R.string.panes).equals("two")
                 && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // Large tablet in landscape: send to entity select activity
+            // (awesome mode, with case pre-selected) instead of entity detail
             Intent i = getSelectIntent(session);
             String caseId = SessionDatum.getCaseIdFromReference(
                     contextRef, selectDatum, asw.getEvaluationContext());
             i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, caseId);
             startActivityForResult(i, GET_CASE);
         } else {
-            //jls
-        /*
-
-        detailIntent.putExtra(SessionFrame.STATE_DATUM_VAL, caseId);
-
-        // Include long datum info if present
-        if (selectDatum.getLongDetail() != null) {
-            detailIntent.putExtra(EntityDetailActivity.DETAIL_ID,
-                    selectDatum.getLongDetail());
-            detailIntent.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID,
-                    selectDatum.getPersistentDetail());
-        }
-
-        SerializationUtil.serializeToIntent(detailIntent,
-                EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
-         */
+            // Launch entity detail activity
             Intent detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
             EntitySelectActivity.populateDetailIntent(
                     detailIntent, contextRef, selectDatum, asw);

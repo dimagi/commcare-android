@@ -964,6 +964,7 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         adapter.registerDataSetObserver(this.mListStateObserver);
         containerFragment.setData(adapter);
 
+        // Pre-select entity if one was provided in original intent
         if (!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
             TreeReference entity =
                     selectDatum.getEntityFromID(asw.getEvaluationContext(),
