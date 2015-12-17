@@ -965,19 +965,15 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         containerFragment.setData(adapter);
 
         // Pre-select entity if one was provided in original intent
-        if (!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
+        if (!resuming && !mNoDetailMode && inAwesomeMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
             TreeReference entity =
                     selectDatum.getEntityFromID(asw.getEvaluationContext(),
                             this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
 
             if (entity != null) {
-                if (inAwesomeMode) {
-                    if (adapter != null) {
-                        displayReferenceAwesome(entity, adapter.getPosition(entity));
-                        adapter.setAwesomeMode(true);
-                        updateSelectedItem(entity, true);
-                    }
-                }
+                displayReferenceAwesome(entity, adapter.getPosition(entity));
+                adapter.setAwesomeMode(true);
+                updateSelectedItem(entity, true);
             }
         }
 
