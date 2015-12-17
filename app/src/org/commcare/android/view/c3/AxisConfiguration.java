@@ -27,10 +27,6 @@ public class AxisConfiguration extends Configuration {
             x.put("type", "timeseries");
         }
 
-        // Display secondary y axis, regardless of if it has data; this makes the
-        // whitespace around the graph look more reasonable. X and primary Y axis show by default.
-        y2.put("show", true);
-
         mConfiguration.put("x", x);
         mConfiguration.put("y", y);
         mConfiguration.put("y2", y2);
@@ -185,6 +181,11 @@ public class AxisConfiguration extends Configuration {
 
         JSONObject config = new JSONObject();
         boolean isX = prefix.equals("x");
+
+        // X and primary Y axis show by default, but not secondary y. Force them all to show.
+        // Display secondary y axis, regardless of if it has data; this makes the
+        // whitespace around the graph look more reasonable.
+        config.put("show", true);
 
         // Undo C3's automatic axis padding
         config.put("padding", new JSONObject("{top: 0, right: 0, bottom: 0, left: 0}"));
