@@ -70,7 +70,7 @@ public class HomeActivityUIController {
 
     private void setupUI() {
         setMainView();
-        adapter = new HomeScreenAdapter(activity);
+        adapter = new   HomeScreenAdapter(activity);
         mTopBanner = View.inflate(activity, R.layout.grid_header_top_banner, null);
         setupGridView();
     }
@@ -385,20 +385,7 @@ public class HomeActivityUIController {
     }
 
     private void setButtonVisibilities() {
-        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
-        if (p != null && p.isFeatureActive(Profile.FEATURE_REVIEW)) {
-            adapter.setButtonVisibility(R.layout.home_savedforms_button, false);
-        }
-
-        boolean showSavedForms = CommCarePreferences.isSavedFormsEnabled();
-        adapter.setButtonVisibility(R.layout.home_savedforms_button, !showSavedForms);
-
-        boolean showIncompleteForms = CommCarePreferences.isIncompleteFormsEnabled();
-        adapter.setButtonVisibility(R.layout.home_incompleteforms_button, !showIncompleteForms);
-
-
-        boolean showHomeReport = DeveloperPreferences.isHomeReportEnabled();
-        adapter.setButtonVisibility(R.layout.home_report_button, !showHomeReport);
+        adapter.setButtonVisibilities();
     }
 
 }
