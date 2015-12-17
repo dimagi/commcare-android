@@ -62,7 +62,9 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             if (e instanceof EncryptedModel) {
                 em = (EncryptedModel) e;
             }
-        } catch (IllegalAccessException | InstantiationException ie) {
+        } catch (IllegalAccessException ie) {
+            ie.printStackTrace();
+        } catch (InstantiationException ie) {
             ie.printStackTrace();
         }
     }
