@@ -11,7 +11,7 @@ import org.commcare.android.util.StringUtils;
  */
 public class Entity<T> {
 
-    protected T t;
+    protected final T t;
     Object[] data;
     String[] sortData;
     boolean[] relevancyData;

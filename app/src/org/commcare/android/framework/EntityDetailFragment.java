@@ -36,7 +36,7 @@ public class EntityDetailFragment extends Fragment {
 
     protected ListItemViewModifier modifier;
 
-    AndroidSessionWrapper asw;
+    final AndroidSessionWrapper asw;
     ModifiableEntityDetailAdapter adapter;
 
     public EntityDetailFragment() {

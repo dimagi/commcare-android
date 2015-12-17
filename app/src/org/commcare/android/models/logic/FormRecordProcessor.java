@@ -37,8 +37,8 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class FormRecordProcessor {
     
-    private Context c;
-    SqlStorage<FormRecord> storage;
+    private final Context c;
+    final SqlStorage<FormRecord> storage;
     
     public FormRecordProcessor(Context c) {
         this.c = c;
@@ -69,8 +69,7 @@ public class FormRecordProcessor {
         return updateRecordStatus(record, FormRecord.STATUS_UNSENT);
     }
     
-    public FormRecord updateRecordStatus(FormRecord record, String newStatus)
-            throws IOException {
+    public FormRecord updateRecordStatus(FormRecord record, String newStatus) {
         // update the records to show that the form has been processed and is
         // ready to be sent;
         record = record.updateInstanceAndStatus(record.getInstanceURI().toString(), newStatus);

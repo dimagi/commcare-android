@@ -51,8 +51,8 @@ public class CaseDataAPI {
      *
      */
     public static final class MetadataColumns implements BaseColumns {
-        public static String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.commcare.case";
-        public static String CONTENT_TYPE_ITEM = "vnd.android.cursor.item/vnd.commcare.case";
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.commcare.case";
+        public static final String CONTENT_TYPE_ITEM = "vnd.android.cursor.item/vnd.commcare.case";
         // This class cannot be instantiated
         private MetadataColumns() {}
         
@@ -83,7 +83,7 @@ public class CaseDataAPI {
      */
     public static final class DataColumns implements BaseColumns {
 
-        public static String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.commcare.case.data";
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.commcare.case.data";
         // This class cannot be instantiated
         private DataColumns() {}
         
@@ -109,7 +109,7 @@ public class CaseDataAPI {
      *
      */
     public static final class IndexColumns implements BaseColumns {
-        public static String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.commcare.case.index";
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.commcare.case.index";
         // This class cannot be instantiated
         private IndexColumns() {}
         
@@ -134,7 +134,7 @@ public class CaseDataAPI {
      */
 
     public static final class AttachmentColumns implements BaseColumns {
-        public static String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.commcare.case.attachment";
+        public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.commcare.case.attachment";
         // This class cannot be instantiated
         private AttachmentColumns() {}
         

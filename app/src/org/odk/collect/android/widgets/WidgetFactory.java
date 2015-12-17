@@ -35,8 +35,8 @@ import org.odk.collect.android.logic.PendingCalloutInterface;
  */
 public class WidgetFactory {
     
-    FormDef form;
-    PendingCalloutInterface pendingCalloutInterface;
+    final FormDef form;
+    final PendingCalloutInterface pendingCalloutInterface;
     
     public WidgetFactory(FormDef form, PendingCalloutInterface pendingCalloutInterface) {
         this.form = form;

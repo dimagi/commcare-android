@@ -13,14 +13,14 @@ import org.commcare.dalvik.R;
 
 public class GeoProgressDialog extends Dialog {
     
-    TextView mText;
-    ImageView mImage;
-    Button mAccept;
-    Button mCancel;
-    ProgressBar mProgress;
+    final TextView mText;
+    final ImageView mImage;
+    final Button mAccept;
+    final Button mCancel;
+    final ProgressBar mProgress;
     boolean locationFound;
-    String mFoundMessage;
-    String mSearchMessage;
+    final String mFoundMessage;
+    final String mSearchMessage;
 
     public GeoProgressDialog(Context context, String foundMessage, String searchMessage) {
         super(context);

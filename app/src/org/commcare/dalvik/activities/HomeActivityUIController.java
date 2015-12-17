@@ -53,7 +53,7 @@ public class HomeActivityUIController {
     private String lastMessageKey = "home.sync.message.last";
     private String homeMessageKey = "home.start";
     private String logoutMessageKey = "home.logout";
-    private String savedFormsKey = "home.forms.saved";
+    private final String savedFormsKey = "home.forms.saved";
 
     private long lastSyncTime;
     private int numUnsentForms;
