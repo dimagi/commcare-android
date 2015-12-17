@@ -28,14 +28,14 @@ public class DotsData {
         new int[] {0,1,2, 3}
     };
     
-    public static enum MedStatus {
+    public enum MedStatus {
         unchecked,
         full,
         empty,
         partial
     }
     
-    public static enum ReportType {
+    public enum ReportType {
         direct,
         pillbox,
         self
@@ -47,11 +47,7 @@ public class DotsData {
         String missedMeds;
         ReportType type;
         int doseLabel;
-        
-        public DotsBox(MedStatus status, ReportType type) {
-            this(status, type, null, -1);
-        }
-        
+
         public DotsBox(MedStatus status, ReportType type, String missedMeds, int doselabel) {
             this.status = status;
             this.missedMeds = missedMeds;

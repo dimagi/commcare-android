@@ -85,8 +85,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         Log.d(CommCareWiFiDirectActivity.TAG, "onListItemClick");
         WifiP2pDevice device = (WifiP2pDevice) getListAdapter().getItem(position);
         Log.d(CommCareWiFiDirectActivity.TAG, "device is: " + device.deviceAddress);
-        //((DeviceActionListener) getActivity()).showDetails(device);
-        
+
         WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = device.deviceAddress;
         config.wps.setup = WpsInfo.PBC;
@@ -194,14 +193,6 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      * events.
      */
     public interface DeviceActionListener {
-
-        void showDetails(WifiP2pDevice device);
-
-        void cancelDisconnect();
-
         void connect(WifiP2pConfig config);
-
-        void disconnect();
     }
-
 }

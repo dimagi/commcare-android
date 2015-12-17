@@ -458,14 +458,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     @SuppressWarnings("NewApi")
-    private CharSequence getSearchText() {
-        if (isUsingActionBar()) {
-            return searchView.getQuery();
-        }
-        return searchbox.getText();
-    }
-
-    @SuppressWarnings("NewApi")
     private void setSearchText(CharSequence text) {
         if (isUsingActionBar()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {

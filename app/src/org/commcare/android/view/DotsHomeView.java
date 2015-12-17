@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.view;
 
 import android.content.Context;
@@ -157,9 +154,5 @@ public class DotsHomeView extends RelativeLayout {
         });
 
         return dayView;
-    }
-
-    public View getDayView(int editing) {
-        return dayViews[editing];
     }
 }

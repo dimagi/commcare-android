@@ -456,17 +456,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         return PROGRESS_RECOVERY_FAIL_BAD;
     }
 
-    //Utility method for debugging of people need to dump the response b
-    private void dumpCache(BitCache cache) {
-        try{
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            AndroidStreamUtil.writeFromInputToOutput(cache.retrieveCache(), baos);
-            Log.d(TAG, new String(baos.toByteArray()));
-        } catch(IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void updateCurrentUser(String password) throws SessionUnavailableException {
         SqlStorage<User> storage = CommCareApplication._().getUserStorage("USER", User.class);
         User u = storage.getRecordForValue(User.META_USERNAME, username);

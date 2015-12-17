@@ -21,13 +21,10 @@ import java.io.InputStreamReader;
  * Runs various tasks that diagnose problems that a user may be facing in connecting to commcare services.
  * @author srengesh
  */
-
-//CommCareTask<A, B, C, R>
 public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, ConnectionDiagnosticTask.Test, R>
 {    
     Context c;
-    CommCarePlatform platform;
-    
+
     public static enum Test
     {
         isOnline,
@@ -68,9 +65,8 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
     private static final String logCCUnexpectedResultMessage = "CCHQ ping test: Unexpected HTML result";
     private static final String logCCSuccessMessage = "CCHQ ping test: Success.";
     
-    public ConnectionDiagnosticTask(Context c, CommCarePlatform platform) {
+    public ConnectionDiagnosticTask(Context c) {
         this.c = c;
-        this.platform = platform;
         this.taskId = CONNECTION_ID;
 
         TAG = ConnectionDiagnosticTask.class.getSimpleName();

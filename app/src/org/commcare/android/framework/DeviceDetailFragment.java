@@ -38,17 +38,9 @@ import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
  */
 @SuppressLint("NewApi")
 public class DeviceDetailFragment extends Fragment implements ConnectionInfoListener {
-
-    protected static final int CHOOSE_FILE_RESULT_CODE = 1;
     private View mContentView = null;
-    private WifiP2pDevice device;
-    private WifiP2pInfo info;
     ProgressDialog progressDialog = null;
     
-    final String baseDirectory = "wifidirect";
-    final String targetDirectory = baseDirectory + "/target";
-    final String zipDirectory = baseDirectory + "/zipfolder.zip";
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -66,7 +58,6 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
-        this.info = info;
         this.getView().setVisibility(View.VISIBLE);
     }
 
@@ -77,11 +68,9 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
      */
     public void showDetails(WifiP2pDevice device) {
         Log.d(CommCareWiFiDirectActivity.TAG, "showing details in ddfragment with device: " +device.deviceAddress );
-        this.device = device;
         this.getView().setVisibility(View.VISIBLE);
         TextView view = (TextView) mContentView.findViewById(R.id.device_address);
         view.setText(device.deviceAddress);
-
     }
 
     /**
@@ -99,5 +88,4 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         mContentView.findViewById(R.id.btn_start_client).setVisibility(View.GONE);
         this.getView().setVisibility(View.GONE);
     }
-
 }

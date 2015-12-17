@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2011 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.commcare.android.framework;
 
 import android.annotation.SuppressLint;
@@ -54,13 +38,11 @@ public class WiFiDirectManagementFragment extends Fragment
     private boolean isWifiP2pEnabled;
     private boolean isHost;
     private boolean isConnected;
-    int mStatus;
 
     WifiP2pInfo info;
 
     public WifiP2pManager mManager;
     public Channel mChannel;
-    WiFiDirectBroadcastReceiver mReceiver;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -82,8 +64,6 @@ public class WiFiDirectManagementFragment extends Fragment
         View mContentView = inflater.inflate(R.layout.wifi_manager, null);
 
         mStatusText = (TextView) mContentView.findViewById(R.id.wifi_manager_status_text);
-
-        View mView = (View) mContentView.findViewById(R.id.wifi_manager_view);
 
         return mContentView;
     }
@@ -130,10 +110,7 @@ public class WiFiDirectManagementFragment extends Fragment
             mManager.createGroup(mChannel, this);
         }
 
-        mStatus = status;
-
         mActivity.updateDeviceStatus(mDevice);
-
     }
 
     public String getHostAddress() {
@@ -145,11 +122,6 @@ public class WiFiDirectManagementFragment extends Fragment
         mManager.removeGroup(mChannel, this);
     }
 
-
-    public boolean isHost() {
-        return isHost;
-    }
-
     public void setIsHost(boolean isHost) {
         Logger.log(CommCareWiFiDirectActivity.TAG, "setting is host: " + isHost);
         this.isHost = isHost;
@@ -157,16 +129,15 @@ public class WiFiDirectManagementFragment extends Fragment
     }
 
     public interface WifiDirectManagerListener {
-        public void resetData();
+        void resetData();
 
-        public void updatePeers();
+        void updatePeers();
 
-        public void updateDeviceStatus(WifiP2pDevice mDevice);
+        void updateDeviceStatus(WifiP2pDevice mDevice);
     }
 
-    public void startReceiver(WifiP2pManager mManager, Channel mChannel, WiFiDirectBroadcastReceiver mReceiver) {
+    public void startReceiver(WifiP2pManager mManager, Channel mChannel) {
         Logger.log(CommCareWiFiDirectActivity.TAG, "Starting receiver");
-        this.mReceiver = mReceiver;
         this.mChannel = mChannel;
         this.mManager = mManager;
     }

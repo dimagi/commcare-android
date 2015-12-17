@@ -20,17 +20,13 @@ import javax.crypto.CipherInputStream;
  * @author ctsims
  */
 public class EncryptedFileBody extends AbstractContentBody {
-
-    Entity entity;
     File file;
     Cipher cipher;
-    String contentType;
 
     public EncryptedFileBody(File file, Cipher cipher, String contentType) {
         super(contentType);
         this.file = file;
         this.cipher = cipher;
-        this.contentType = contentType;
     }
 
     public String getFilename() {
