@@ -964,6 +964,22 @@ public class EntitySelectActivity extends SessionAwareCommCareActivity
         adapter.registerDataSetObserver(this.mListStateObserver);
         containerFragment.setData(adapter);
 
+        if (!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
+            TreeReference entity =
+                    selectDatum.getEntityFromID(asw.getEvaluationContext(),
+                            this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
+
+            if (entity != null) {
+                if (inAwesomeMode) {
+                    if (adapter != null) {
+                        displayReferenceAwesome(entity, adapter.getPosition(entity));
+                        adapter.setAwesomeMode(true);
+                        updateSelectedItem(entity, true);
+                    }
+                }
+            }
+        }
+
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
         if (adapter != null && filterString != null && !"".equals(filterString)) {
