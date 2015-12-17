@@ -347,6 +347,9 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         FormEntryActivity.mFormController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
 
         int event;
+        if (!fireTriggerables) {
+            Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Saving form without firing triggers.");
+        }
         while ((event =
             FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP)) != FormEntryController.EVENT_END_OF_FORM) {
             if (event == FormEntryController.EVENT_QUESTION) {
@@ -357,7 +360,6 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
                                     .answerQuestion(FormEntryActivity.mFormController.getQuestionPrompt()
                                             .getAnswerValue());
                 } else {
-                    Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Saving form without firing triggers.");
                     saveStatus =
                             FormEntryActivity.mFormController.checkCurrentQuestionConstraint();
                 }

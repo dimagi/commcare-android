@@ -2,13 +2,15 @@ package org.commcare.android.adapters;
 
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
-import org.commcare.android.view.GridMediaView;
+import org.commcare.dalvik.R;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.util.CommCarePlatform;
-import org.javarosa.core.services.locale.Localizer;
 
 /**
  * Overrides MenuAdapter to provide a different tile (MenuGridEntryView)
@@ -27,21 +29,24 @@ public class GridMenuAdapter extends MenuAdapter {
     @Override
     public View getView(int i, View v, ViewGroup vg) {
 
-        MenuDisplayable mDisplayable = displayableData[i];
+        // inflate view
+        View menuListItem = v;
 
-        GridMediaView emv = (GridMediaView) v;
-        String mQuestionText = textViewHelper(mDisplayable);
-        if (emv == null) {
-            emv = new GridMediaView(context);
+        if (menuListItem == null) {
+            // inflate it and do not attach to parent, or we will get the 'addView not supported' exception
+            menuListItem = LayoutInflater.from(context).inflate(R.layout.menu_grid_item, vg, false);
         }
 
-        //Final change, remove any numeric context requests. J2ME uses these to 
-        //help with numeric navigation.
-        if (mQuestionText != null) {
-            mQuestionText = Localizer.processArguments(mQuestionText, new String[]{""}).trim();
-        }
-        emv.setAVT(mQuestionText, mDisplayable.getImageURI());
-        return emv;
+        MenuDisplayable mObject = displayableData[i];
+
+        TextView rowText = (TextView) menuListItem.findViewById(R.id.row_txt);
+        setupTextView(rowText, mObject);
+
+        // set up the image, if available
+        ImageView mIconView = (ImageView) menuListItem.findViewById(R.id.row_img);
+        setupImageView(mIconView, mObject);
+
+        return menuListItem;
 
     }
 }
