@@ -971,7 +971,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
             if (entity != null) {
                 displayReferenceAwesome(entity, adapter.getPosition(entity));
-                adapter.setAwesomeMode(true);
                 updateSelectedItem(entity, true);
             }
         }
