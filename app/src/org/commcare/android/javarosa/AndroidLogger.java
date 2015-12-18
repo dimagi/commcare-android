@@ -5,7 +5,6 @@ import org.javarosa.core.api.ILogger;
 import org.javarosa.core.log.IFullLogSerializer;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.log.StreamLogSerializer;
-import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.StorageFullException;
 
 import java.io.IOException;
@@ -97,8 +96,6 @@ public class AndroidLogger implements ILogger {
 
     SqlStorage<AndroidLogEntry> storage;
 
-    private int lastEntry = -1;
-    private boolean serializing = false;
 
     public AndroidLogger(SqlStorage<AndroidLogEntry> storage) {
         this.storage = storage;
@@ -116,16 +113,7 @@ public class AndroidLogger implements ILogger {
 
     @Override
     public void clearLogs() {
-        if (serializing) {
-            storage.removeAll();
-        } else {
-            storage.removeAll(new EntityFilter<AndroidLogEntry>() {
-                @Override
-                public boolean matches(AndroidLogEntry e) {
-                    return (e.getID() <= lastEntry);
-                }
-            });
-        }
+        storage.removeAll();
     }
 
     @Override
@@ -133,7 +121,6 @@ public class AndroidLogger implements ILogger {
         ArrayList<LogEntry> logs = new ArrayList<>();
         for (AndroidLogEntry entry : storage) {
             logs.add(entry);
-            storeLastEntry(entry);
         }
         return serializer.serializeLogs(logs.toArray(new LogEntry[logs.size()]));
     }
@@ -142,7 +129,6 @@ public class AndroidLogger implements ILogger {
     public void serializeLogs(StreamLogSerializer serializer) throws IOException {
         for (AndroidLogEntry entry : storage) {
             serializer.serializeLog(entry.getID(), entry);
-            storeLastEntry(entry);
         }
     }
 
@@ -151,18 +137,9 @@ public class AndroidLogger implements ILogger {
         int count = 0;
         for (AndroidLogEntry entry : storage) {
             serializer.serializeLog(entry.getID(), entry);
-            storeLastEntry(entry);
             count++;
             if (count > limit) {
                 break;
-            }
-        }
-    }
-
-    private void storeLastEntry(AndroidLogEntry entry) {
-        if (serializing) {
-            if (entry.getID() > lastEntry) {
-                lastEntry = entry.getID();
             }
         }
     }
