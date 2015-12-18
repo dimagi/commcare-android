@@ -2,6 +2,9 @@ package org.commcare.android.crypt;
 
 import android.util.Log;
 
+import org.commcare.android.javarosa.AndroidLogger;
+import org.javarosa.core.services.Logger;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -40,12 +43,15 @@ public class EncryptionIO {
                 //write out data if the key isn't good, or the crypto isn't available)
             } catch (InvalidKeyException e) {
                 e.printStackTrace();
+                Logger.log(AndroidLogger.TYPE_ERROR_CRYPTO, "Invalid key: " + e.getMessage());
                 throw new RuntimeException(e.getMessage());
             } catch (NoSuchAlgorithmException e) {
                 e.printStackTrace();
+                Logger.log(AndroidLogger.TYPE_ERROR_CRYPTO, "Unavailable Crypto algorithm: " + e.getMessage());
                 throw new RuntimeException(e.getMessage());
             } catch (NoSuchPaddingException e) {
                 e.printStackTrace();
+                Logger.log(AndroidLogger.TYPE_ERROR_CRYPTO, "Bad Padding: " + e.getMessage());
                 throw new RuntimeException(e.getMessage());
             }
         }
