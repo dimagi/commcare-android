@@ -1,5 +1,6 @@
 package org.commcare.dalvik.activities;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -20,10 +21,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.etsy.android.grid.StaggeredGridView;
+
+import org.commcare.android.adapters.WifiDirectAdapter;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.framework.DeviceDetailFragment;
@@ -42,6 +46,7 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.tasks.ZipTask;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
+import org.commcare.android.view.SquareButtonWithNotification;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
@@ -55,6 +60,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Vector;
+
+import in.srain.cube.views.GridViewWithHeaderAndFooter;
 
 /**
  * An activity that uses WiFi Direct APIs to discover and connect with available
@@ -78,10 +85,12 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     public enum wdState{send,receive,submit}
 
-    Button discoverButton;
-    Button sendButton;
-    Button submitButton;
-    Button changeModeButton;
+    SquareButtonWithNotification discoverButton;
+    SquareButtonWithNotification sendButton;
+    SquareButtonWithNotification submitButton;
+    SquareButtonWithNotification changeModeButton;
+
+    private GridViewWithHeaderAndFooter gridView;
 
     public static String baseDirectory;
     public static String sourceDirectory;
@@ -101,11 +110,17 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     public FormRecord[] cachedRecords;
 
+    private WifiDirectAdapter adapter;
+
+    private View mTopBanner;
+
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.wifi_direct_main);
+        setContentView(R.layout.wifi_direct_main_v10);
+
+        adapter = new WifiDirectAdapter(this);
 
         myStatusText = (TextView)this.findViewById(R.id.my_status_text);
 
@@ -115,15 +130,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
         stateHeaderText = (TextView)this.findViewById(R.id.wifi_state_header);
         
-        String baseDir = FileUtil.getDumpDirectory(this);
-        
-        if(baseDir == null){
-            Toast.makeText(CommCareWiFiDirectActivity.this, "Wi-Fi Direct Requires an External SD Card",
-                    Toast.LENGTH_LONG).show();
-            this.setResult(RESULT_CANCELED);
-            finish();
-            
-        }
+        String baseDir = this.getFilesDir().getAbsolutePath();
         
         baseDirectory = baseDir + "/" + Localization.get("wifi.direct.base.folder");
         sourceDirectory = baseDirectory + "/source";
@@ -132,7 +139,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         receiveZipDirectory = receiveDirectory + "/zipDest";
         writeDirectory = baseDirectory + "/write";
         
-        discoverButton = (Button)this.findViewById(R.id.discover_button);
+        discoverButton = adapter.getButton(R.layout.wifi_direct_discover_button);
         discoverButton.setOnClickListener(new OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -140,8 +147,9 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
             }
 
         });
+        discoverButton.setText("Discover");
 
-        sendButton = (Button)this.findViewById(R.id.send_button);
+        sendButton = adapter.getButton(R.layout.wifi_direct_transfer_button);
         sendButton.setOnClickListener(new OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -149,8 +157,9 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
             }
 
         });
+        sendButton.setText("Transfer");
 
-        submitButton = (Button)this.findViewById(R.id.submit_button);
+        submitButton = adapter.getButton(R.layout.wifi_direct_submit_button);
         submitButton.setOnClickListener(new OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -158,9 +167,11 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
             }
 
         });
+        submitButton.setText("Submit");
 
-        changeModeButton = (Button)this.findViewById(R.id.reset_state_button);
-        changeModeButton.setOnClickListener(new OnClickListener(){
+        changeModeButton = adapter.getButton(R.layout.wifi_direct_change_button);
+        changeModeButton.setText("Change Mode");
+        changeModeButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 changeState();
@@ -177,8 +188,30 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 
         showDialog(this, "Transfer, Receive, Submit?", "Do you want to transfer, receive, or submit forms?");
+        mTopBanner = View.inflate(this, R.layout.grid_header_top_banner, null);
+        setupGridView();
     }
+    private void setupGridView() {
+        final View grid = this.findViewById(R.id.wifi_direct_gridview_buttons);
+        gridView = (GridViewWithHeaderAndFooter)grid;
+        gridView.setAdapter(adapter);
 
+        grid.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @SuppressLint("NewApi")
+            @Override
+            public void onGlobalLayout() {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                    grid.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                } else {
+                    grid.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+                grid.requestLayout();
+                adapter.notifyDataSetChanged(); // is going to populate the grid with buttons from the adapter (hardcoded there)
+                //configUI();
+            }
+        });
+        adapter.setButtonVisibilities();
+    }
     /**
      * register the broadcast receiver
      */

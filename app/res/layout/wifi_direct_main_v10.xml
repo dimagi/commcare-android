@@ -1,25 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools">
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:layout_width="fill_parent"
-                  android:layout_height="wrap_content"
-                  android:orientation="vertical" >
-
-        <ImageView
-            android:id="@+id/main_top_banner"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true"
-            android:paddingBottom="20px"
-            android:paddingTop="20px"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ccbanner_hms"
-            android:visibility="visible" />
-
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:orientation="vertical">
         <LinearLayout
             android:id="@+id/linearLayout1"
             android:layout_width="fill_parent"
@@ -103,21 +91,21 @@
             </TextView>
         </LinearLayout>
         <RelativeLayout
+            android:id="@+id/wifi_direct_gridview_relative"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true">
             <in.srain.cube.views.GridViewWithHeaderAndFooter
                 android:id="@+id/wifi_direct_gridview_buttons"
                 android:tag="old-gv-port"
-                android:numColumns="2"
+                android:numColumns="3"
                 android:layout_marginStart="@dimen/standard_spacer_half"
                 android:layout_marginEnd="@dimen/standard_spacer_half"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_alignParentBottom="true"
                 android:paddingBottom="@dimen/content_start"
                 android:scrollbars="none"
                 tools:listitem="@layout/square_button_notification" />
         </RelativeLayout>
-
     </LinearLayout>
-</ScrollView>
+</RelativeLayout>

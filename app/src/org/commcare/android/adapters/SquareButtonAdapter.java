@@ -145,7 +145,7 @@ public abstract class SquareButtonAdapter extends BaseAdapter {
 
     public void setButtonVisibilities(){
         for(SquareButtonObject obj: getButtonResources()){
-        setButtonVisibility(obj.getResource(), obj.isHidden());
+            setButtonVisibility(obj.getResource(), obj.isHidden());
         }
     }
 }

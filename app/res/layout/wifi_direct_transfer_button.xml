@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.commcare.android.view.SquareButtonWithNotification
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/wifi.direct.change.button"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    app:subtitle="Transfer"
+    app:backgroundColor="@color/cc_neutral_color"
+    app:textColor="@color/white"
+    app:img="@drawable/wifi_transfer">
+</org.commcare.android.view.SquareButtonWithNotification>
