@@ -20,8 +20,8 @@ import android.widget.Toast;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.fragments.ContainerFragment;
 import org.commcare.android.fragments.SetupEnterURLFragment;
-import org.commcare.android.fragments.SetupInstallFragment;
-import org.commcare.android.fragments.SetupKeepInstallFragment;
+import org.commcare.android.fragments.InstallAppSelectFragment;
+import org.commcare.android.fragments.InstallConfirmFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.logic.GlobalConstants;
@@ -62,7 +62,7 @@ import java.util.List;
 @ManagedUi(R.layout.first_start_screen_modern)
 public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivity>
         implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller,
-        SetupKeepInstallFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener {
+        InstallConfirmFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener {
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
 
     public static final String KEY_PROFILE_REF = "app_profile_ref";
@@ -122,8 +122,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private boolean offlineInstall;
 
     private final FragmentManager fm = getSupportFragmentManager();
-    private final SetupKeepInstallFragment startInstall = new SetupKeepInstallFragment();
-    private final SetupInstallFragment installFragment = new SetupInstallFragment();
+    private final InstallConfirmFragment startInstall = new InstallConfirmFragment();
+    private final InstallAppSelectFragment installFragment = new InstallAppSelectFragment();
     private ContainerFragment<CommCareApp> containerFragment;
 
     @Override
