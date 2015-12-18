@@ -8,14 +8,13 @@ install.problem.unexpected=Unexpected install error!
 install.keep.trying=Keep trying if connection is interrupted
 updates.found=Updates found! Downloading new resource ${0} done of ${1}
 updates.success=CommCare is up to date
-updates.check.begin=Checking for updates
+updates.check.begin=Checking for updates...
 updates.check.failed=Failed to download updates
-updates.check.start=Check
+updates.check.start=Recheck
 updates.check.cancel=Stop checking
 updates.check.install=Install
 updates.check.cancelling=Cancelling check for updates
 updates.install.finished=App update was successful
-updates.check.last=Last checked for updates: ${0}
 updates.check.network_unavailable=No network connectivity
 updates.staged.version=Update to version ${0}
 updates.error=Error encountered during update download
@@ -23,7 +22,7 @@ updates.error=Error encountered during update download
 updates.pinned.download=Downloading updates
 updates.pinned.progress=${0}/${1}
 
-install.current.version=Version currently installed: ${0}
+install.current.version=Current version: ${0}
 
 verify.retry=Retry
 verify.checking=Verifying media...

@@ -1,20 +1,15 @@
 package org.commcare.dalvik.activities;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.android.resource.ResourceInstallUtils;
-import org.commcare.android.view.CustomButtonWithText;
 import org.commcare.android.view.SquareButtonWithText;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.locale.Localization;
-
-import java.util.Date;
 
 /**
  * Handles upgrade activity UI.
@@ -25,7 +20,7 @@ class UpdateUIState {
     private static final String UPDATE_UI_STATE_KEY = "update_activity_ui_state";
     private SquareButtonWithText checkUpdateButton;
     private SquareButtonWithText stopUpdateButton;
-    private CustomButtonWithText installUpdateButton;
+    private SquareButtonWithText installUpdateButton;
     private ProgressBar progressBar;
     private TextView currentVersionText;
     private TextView progressText;
@@ -96,7 +91,7 @@ class UpdateUIState {
         stopUpdateButton.setText(stopCheckingText);
 
         installUpdateButton =
-                (CustomButtonWithText)activity.findViewById(R.id.install_update_button);
+                (SquareButtonWithText)activity.findViewById(R.id.install_update_button);
         installUpdateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -200,23 +195,10 @@ class UpdateUIState {
     public void refreshStatusText() {
         CommCareApplication app = CommCareApplication._();
 
-        SharedPreferences preferences =
-                app.getCurrentApp().getAppPreferences();
-
-        long lastUpdateCheck =
-                preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
-
         int version = app.getCommCarePlatform().getCurrentProfile().getVersion();
-        Date lastChecked = new Date(lastUpdateCheck);
 
-        String checkedMsg =
-                Localization.get("updates.check.last",
-                        new String[]{lastChecked.toString()});
-
-        String versionMsg =
-                Localization.get("install.current.version",
-                        new String[]{Integer.toString(version)});
-        currentVersionText.setText(versionMsg + "\n" + checkedMsg);
+        currentVersionText.setText(Localization.get("install.current.version",
+                new String[]{Integer.toString(version)}));
     }
 
     public void saveCurrentUIState(Bundle outState) {
