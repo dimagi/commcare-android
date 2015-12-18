@@ -116,9 +116,10 @@ class UpdateUIState {
 
     protected void idleUiState() {
         currentUIState = UIState.Idle;
+        checkUpdateButton.setVisibility(View.VISIBLE);
         checkUpdateButton.setEnabled(true);
-        stopUpdateButton.setEnabled(false);
-        installUpdateButton.setEnabled(false);
+        stopUpdateButton.setVisibility(View.GONE);
+        installUpdateButton.setVisibility(View.GONE);
 
         updateProgressText("");
         updateProgressBar(0, 100);
@@ -132,9 +133,10 @@ class UpdateUIState {
 
     protected void downloadingUiState() {
         currentUIState = UIState.Downloading;
-        checkUpdateButton.setEnabled(false);
+        checkUpdateButton.setVisibility(View.GONE);
+        stopUpdateButton.setVisibility(View.VISIBLE);
         stopUpdateButton.setEnabled(true);
-        installUpdateButton.setEnabled(false);
+        installUpdateButton.setVisibility(View.GONE);
 
         updateProgressBar(0, 100);
         updateProgressText(beginCheckingText);
@@ -142,9 +144,9 @@ class UpdateUIState {
 
     protected void unappliedUpdateAvailableUiState() {
         currentUIState = UIState.UnappliedUpdateAvailable;
-        checkUpdateButton.setEnabled(true);
-        stopUpdateButton.setEnabled(false);
-        installUpdateButton.setEnabled(true);
+        checkUpdateButton.setVisibility(View.GONE);
+        stopUpdateButton.setVisibility(View.GONE);
+        installUpdateButton.setVisibility(View.VISIBLE);
 
         updateProgressBar(100, 100);
 
@@ -158,27 +160,30 @@ class UpdateUIState {
 
     protected void cancellingUiState() {
         currentUIState = UIState.Cancelling;
-        checkUpdateButton.setEnabled(false);
+        checkUpdateButton.setVisibility(View.GONE);
         stopUpdateButton.setEnabled(false);
-        installUpdateButton.setEnabled(false);
+        stopUpdateButton.setVisibility(View.VISIBLE);
+        installUpdateButton.setVisibility(View.GONE);
 
         updateProgressText(cancellingMsg);
     }
 
     protected void errorUiState() {
         currentUIState = UIState.Error;
+        checkUpdateButton.setVisibility(View.VISIBLE);
         checkUpdateButton.setEnabled(false);
-        stopUpdateButton.setEnabled(false);
-        installUpdateButton.setEnabled(false);
+        stopUpdateButton.setVisibility(View.GONE);
+        installUpdateButton.setVisibility(View.GONE);
 
         updateProgressText(errorMsg);
     }
 
     protected void noConnectivityUiState() {
         currentUIState = UIState.NoConnectivity;
+        checkUpdateButton.setVisibility(View.VISIBLE);
         checkUpdateButton.setEnabled(false);
-        stopUpdateButton.setEnabled(false);
-        installUpdateButton.setEnabled(false);
+        stopUpdateButton.setVisibility(View.GONE);
+        installUpdateButton.setVisibility(View.GONE);
 
         updateProgressText(noConnectivityMsg);
     }

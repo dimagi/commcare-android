@@ -62,13 +62,6 @@
                     android:orientation="horizontal"
                     android:paddingBottom="@dimen/content_min_margin">
 
-                    <FrameLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/standard_spacer"
-                        android:layout_weight="1"
-                        android:background="@drawable/tile_drop_shadow_small_margins">
-
                         <org.commcare.android.view.SquareButtonWithText
                             android:id="@+id/check_for_update_button"
                             android:layout_width="wrap_content"
@@ -77,15 +70,6 @@
                             SquareButtonWithText:img="@drawable/update_download"
                             SquareButtonWithText:subtitle=""
                             SquareButtonWithText:textColor="@color/white"/>
-                    </FrameLayout>
-
-                    <FrameLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/standard_spacer"
-                        android:layout_weight="1"
-                        android:background="@drawable/tile_drop_shadow_small_margins">
-
                         <org.commcare.android.view.SquareButtonWithText
                             android:id="@+id/stop_update_download_button"
                             android:layout_width="wrap_content"
@@ -94,15 +78,6 @@
                             SquareButtonWithText:img="@drawable/install_stop"
                             SquareButtonWithText:subtitle=""
                             SquareButtonWithText:textColor="@color/white"/>
-                    </FrameLayout>
-
-                    <FrameLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="@dimen/standard_spacer"
-                        android:layout_weight="1"
-                        android:background="@drawable/tile_drop_shadow_small_margins"
-                        android:gravity="end">
 
                         <org.commcare.android.view.SquareButtonWithText
                             android:id="@+id/install_update_button"
@@ -112,7 +87,6 @@
                             SquareButtonWithText:img="@drawable/install_start"
                             SquareButtonWithText:subtitle=""
                             SquareButtonWithText:textColor="@color/white"/>
-                    </FrameLayout>
                 </LinearLayout>
             </LinearLayout>
         </RelativeLayout>
