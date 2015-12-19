@@ -10,7 +10,7 @@ import android.widget.ListAdapter;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.analytics.XPathErrorLogger;
+import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.android.models.AsyncNodeEntityFactory;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;

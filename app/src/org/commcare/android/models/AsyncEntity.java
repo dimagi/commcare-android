@@ -5,7 +5,7 @@ package org.commcare.android.models;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.analytics.XPathErrorLogger;
+import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;

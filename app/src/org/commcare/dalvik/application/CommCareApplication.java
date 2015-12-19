@@ -34,8 +34,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.acra.annotation.ReportsCrashes;
-import org.commcare.android.analytics.XPathErrorEntry;
-import org.commcare.android.analytics.XPathErrorLogger;
+import org.commcare.android.logging.XPathErrorEntry;
+import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.android.database.AndroidDbHelper;
 import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;

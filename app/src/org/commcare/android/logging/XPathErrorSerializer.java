@@ -1,4 +1,4 @@
-package org.commcare.android.analytics;
+package org.commcare.android.logging;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.javarosa.DeviceReportElement;

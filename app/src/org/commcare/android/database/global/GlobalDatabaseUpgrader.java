@@ -4,7 +4,7 @@ import android.content.Context;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.analytics.XPathErrorEntry;
+import org.commcare.android.logging.XPathErrorEntry;
 import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.DbUtil;

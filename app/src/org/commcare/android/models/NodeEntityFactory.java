@@ -1,6 +1,6 @@
 package org.commcare.android.models;
 
-import org.commcare.android.analytics.XPathErrorLogger;
+import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;

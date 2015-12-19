@@ -1,12 +1,7 @@
-package org.commcare.android.analytics;
+package org.commcare.android.logging;
 
 import org.commcare.android.database.SqlStorage;
-import org.commcare.dalvik.application.CommCareApp;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.xpath.XPathException;
-
-import java.io.Serializable;
-import java.util.ArrayList;
 
 /**
  * Log xpath errors such that they're associated w/ cc app versions

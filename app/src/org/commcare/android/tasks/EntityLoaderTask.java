@@ -2,7 +2,7 @@ package org.commcare.android.tasks;
 
 import android.util.Pair;
 
-import org.commcare.android.analytics.XPathErrorLogger;
+import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AsyncNodeEntityFactory;
 import org.commcare.android.models.Entity;

@@ -9,7 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
-import org.commcare.android.analytics.XPathErrorEntry;
+import org.commcare.android.logging.XPathErrorEntry;
 import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;

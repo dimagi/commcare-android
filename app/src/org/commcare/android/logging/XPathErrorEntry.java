@@ -1,4 +1,4 @@
-package org.commcare.android.analytics;
+package org.commcare.android.logging;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.SessionStateUninitException;
@@ -49,9 +49,7 @@ public class XPathErrorEntry extends LogEntry implements Persistable, IMetaData 
         CommCareSession currentSession;
         try {
             currentSession = CommCareApplication._().getCurrentSession();
-            // TODO PLM:
-            // return currentSession.getFrame().sessionPathString();
-            return "";
+            return currentSession.getFrame().toString();
         } catch (SessionStateUninitException e) {
             return "";
         }
