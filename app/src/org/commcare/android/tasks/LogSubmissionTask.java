@@ -6,6 +6,8 @@ import android.os.AsyncTask;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.mime.MultipartEntity;
+import org.commcare.android.analytics.XPathErrorEntry;
+import org.commcare.android.analytics.XPathErrorSerializer;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
 import org.javarosa.core.model.User;
@@ -153,8 +155,11 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             }
 
             //Add the logs as the primary payload
-            AndroidLogSerializer serializer = new AndroidLogSerializer(CommCareApplication._().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
-            reporter.addReportElement(serializer);
+            AndroidLogSerializer logSerializer = new AndroidLogSerializer(CommCareApplication._().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
+            reporter.addReportElement(logSerializer);
+
+            XPathErrorSerializer xpathErrorSerializer = new XPathErrorSerializer(CommCareApplication._().getGlobalStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
+            reporter.addReportElement(xpathErrorSerializer);
 
             //serialize logs
             reporter.write();
@@ -163,7 +168,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             storage.write(record);
 
             //The logs are saved and recorded, so we can feel safe clearing the logs we serialized.
-            serializer.purge();
+            logSerializer.purge();
+            xpathErrorSerializer.purge();
         } catch (Exception e) {
             //Bad times!
             e.printStackTrace();
@@ -236,15 +242,6 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         }
 
         int responseCode = response.getStatusLine().getStatusCode();
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-        try {
-            AndroidStreamUtil.writeFromInputToOutput(response.getEntity().getContent(), bos);
-        } catch (IOException | IllegalStateException e) {
-            e.printStackTrace();
-        }
-        //TODO: Anything with the response?
 
         return (responseCode >= 200 && responseCode < 300);
     }

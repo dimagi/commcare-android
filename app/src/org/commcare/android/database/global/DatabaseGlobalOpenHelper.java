@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
+import org.commcare.android.analytics.XPathErrorEntry;
 import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
@@ -26,8 +27,9 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
      * V.2 - all sqlstorage objects now need numbers tables
      * V.3 - ApplicationRecord has new fields to support multiple app seating, FormsProvider
      * and InstanceProvider use per-app databases
+     * V.4 - add table for storing xpath errors for specific cc app versions
      */
-    private static final int GLOBAL_DB_VERSION = 3;
+    private static final int GLOBAL_DB_VERSION = 4;
 
     private static final String GLOBAL_DB_LOCATOR = "database_global";
 
@@ -50,9 +52,15 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
             builder = new AndroidTableBuilder(AndroidSharedKeyRecord.class);
             database.execSQL(builder.getTableCreateString());
 
-            
+
             builder = new AndroidTableBuilder(AndroidLogEntry.STORAGE_KEY);
             builder.addData(new AndroidLogEntry());
+            database.execSQL(builder.getTableCreateString());
+
+            // add table for dedicated xpath error logging for reporting xpath
+            // errors on specific cc app builds.
+            builder = new AndroidTableBuilder(XPathErrorEntry.STORAGE_KEY);
+            builder.addData(new XPathErrorEntry());
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createNumbersTable(database);

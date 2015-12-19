@@ -34,6 +34,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.acra.annotation.ReportsCrashes;
+import org.commcare.android.analytics.XPathErrorEntry;
+import org.commcare.android.analytics.XPathErrorLogger;
 import org.commcare.android.database.AndroidDbHelper;
 import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
@@ -216,6 +218,7 @@ public class CommCareApplication extends Application {
             Logger.registerLogger(new AndroidLogger(this.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
             pil.dumpToNewLogger();
         }
+        XPathErrorLogger.registerStorage(getGlobalStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
 
         intializeDefaultLocalizerData();
 

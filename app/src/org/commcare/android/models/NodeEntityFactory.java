@@ -1,6 +1,6 @@
 package org.commcare.android.models;
 
-import org.commcare.android.analytics.XPathErrorStats;
+import org.commcare.android.analytics.XPathErrorLogger;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
@@ -60,7 +60,7 @@ public class NodeEntityFactory {
             } catch (XPathSyntaxException e) {
                 storeErrorDetails(e, count, details, relevancyDetails, backgroundDetails);
             } catch (XPathException xpe) {
-                XPathErrorStats.logErrorToCurrentApp(xpe);
+                XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
                 storeErrorDetails(xpe, count, details, relevancyDetails, backgroundDetails);
             }
             count++;

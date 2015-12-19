@@ -3,7 +3,7 @@ package org.commcare.android.framework;
 import android.app.Activity;
 import android.content.DialogInterface;
 
-import org.commcare.android.analytics.XPathErrorStats;
+import org.commcare.android.analytics.XPathErrorLogger;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.javarosa.xpath.XPathException;
@@ -16,7 +16,7 @@ public class UserfacingErrorHandling {
     public static void logErrorAndShowDialog(final CommCareActivity activity,
                                              XPathException exception,
                                              final boolean shouldExit) {
-        XPathErrorStats.logErrorToCurrentApp(exception);
+        XPathErrorLogger.INSTANCE.logErrorToCurrentApp(exception);
 
         final String errorMsg = exception.getMessage();
         createErrorDialog(activity, errorMsg, shouldExit);

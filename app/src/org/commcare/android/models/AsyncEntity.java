@@ -5,7 +5,7 @@ package org.commcare.android.models;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.analytics.XPathErrorStats;
+import org.commcare.android.analytics.XPathErrorLogger;
 import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
@@ -113,7 +113,7 @@ public class AsyncEntity extends Entity<TreeReference> {
                 try {
                     data[i] = fields[i].getTemplate().evaluate(context);
                 } catch (XPathException xpe) {
-                    XPathErrorStats.logErrorToCurrentApp(xpe);
+                    XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
                     xpe.printStackTrace();
                     data[i] = "<invalid xpath: " + xpe.getMessage() + ">";
                 }
@@ -177,7 +177,7 @@ public class AsyncEntity extends Entity<TreeReference> {
 
                         mEntityStorageCache.cache(mCacheIndex, cacheKey, sortData[i]);
                     } catch (XPathException xpe) {
-                        XPathErrorStats.logErrorToCurrentApp(xpe);
+                        XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
                         xpe.printStackTrace();
                         sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
                     }
@@ -212,7 +212,7 @@ public class AsyncEntity extends Entity<TreeReference> {
                 this.relevancyData[i] = this.fields[i].isRelevant(this.context);
             } catch (XPathSyntaxException e) {
                 final String msg = "Invalid relevant condition for field : " + fields[i].getHeader().toString();
-                XPathErrorStats.logErrorToCurrentApp("unknown", msg);
+                XPathErrorLogger.INSTANCE.logErrorToCurrentApp("unknown", msg);
                 throw new RuntimeException(msg);
             }
             return this.relevancyData[i];
@@ -241,7 +241,7 @@ public class AsyncEntity extends Entity<TreeReference> {
                         try {
                             backgroundData[i] = bg.evaluate(context);
                         } catch (XPathException xpe) {
-                            XPathErrorStats.logErrorToCurrentApp(xpe);
+                            XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
                             xpe.printStackTrace();
                             throw new RuntimeException("Invalid background output for field : " + fields[i].getHeader().toString());
                         }

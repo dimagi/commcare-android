@@ -1,12 +1,11 @@
-/**
- *
- */
 package org.commcare.android.database.global;
 
 import android.content.Context;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.analytics.XPathErrorEntry;
+import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.MigrationException;
@@ -38,6 +37,11 @@ class GlobalDatabaseUpgrader {
         if (oldVersion == 2) {
             if (upgradeTwoThree(db)) {
                 oldVersion = 3;
+            }
+        }
+        if (oldVersion == 3) {
+            if (upgradeThreeFour(db)) {
+                oldVersion = 4;
             }
         }
     }
@@ -93,6 +97,23 @@ class GlobalDatabaseUpgrader {
                 db.setTransactionSuccessful();
                 return true;
             }
+            return false;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean upgradeThreeFour(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            // add table for dedicated xpath error logging for reporting xpath
+            // errors on specific cc app builds.
+            AndroidTableBuilder builder = new AndroidTableBuilder(XPathErrorEntry.STORAGE_KEY);
+            builder.addData(new XPathErrorEntry());
+            db.execSQL(builder.getTableCreateString());
+            db.setTransactionSuccessful();
+            return true;
+        } catch (Exception e) {
             return false;
         } finally {
             db.endTransaction();
