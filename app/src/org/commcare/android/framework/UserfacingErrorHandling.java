@@ -9,6 +9,8 @@ import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.javarosa.xpath.XPathException;
 
 /**
+ * Dialog logic for showing errors to user.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class UserfacingErrorHandling {

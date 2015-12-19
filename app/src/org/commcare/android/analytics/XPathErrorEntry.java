@@ -2,12 +2,10 @@ package org.commcare.android.analytics;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.SessionStateUninitException;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.session.CommCareSession;
 import org.javarosa.core.log.LogEntry;
-import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
@@ -18,10 +16,11 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Date;
 
 /**
+ * Log entry for xpath errors, capturing the expression, session, and cc app version.
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class XPathErrorEntry extends LogEntry implements Persistable, IMetaData {
@@ -125,6 +124,7 @@ public class XPathErrorEntry extends LogEntry implements Persistable, IMetaData 
             return DateUtils.formatDate(getTime(), DateUtils.FORMAT_ISO8601);
         }
 
-        throw new IllegalArgumentException("No metadata field " + fieldName + " for " + TAG + " model");
+        throw new IllegalArgumentException("No metadata field " +
+                fieldName + " for " + TAG + " model");
     }
 }

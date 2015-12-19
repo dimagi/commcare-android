@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
+ * Log xpath errors such that they're associated w/ cc app versions
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public enum XPathErrorLogger {

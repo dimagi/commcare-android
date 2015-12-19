@@ -14,9 +14,13 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 /**
+ * Convert xpath error logs to xml
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class XPathErrorSerializer extends StreamLogSerializer implements DeviceReportElement {
+public class XPathErrorSerializer
+        extends StreamLogSerializer
+        implements DeviceReportElement {
     private final SqlStorage<XPathErrorEntry> errorLogStorage;
     private XmlSerializer serializer;
 
@@ -56,7 +60,8 @@ public class XPathErrorSerializer extends StreamLogSerializer implements DeviceR
     @Override
     protected void serializeLog(LogEntry entry) throws IOException {
         final XPathErrorEntry errorEntry = (XPathErrorEntry)entry;
-        String dateString = DateUtils.formatDateTime(errorEntry.getTime(), DateUtils.FORMAT_ISO8601);
+        String dateString =
+                DateUtils.formatDateTime(errorEntry.getTime(), DateUtils.FORMAT_ISO8601);
 
         serializer.startTag(DeviceReportWriter.XMLNS, "xpath_error");
         try {
@@ -72,7 +77,8 @@ public class XPathErrorSerializer extends StreamLogSerializer implements DeviceR
         }
     }
 
-    private void writeText(String element, String text) throws IllegalArgumentException, IllegalStateException, IOException {
+    private void writeText(String element, String text)
+            throws IllegalArgumentException, IllegalStateException, IOException {
         serializer.startTag(DeviceReportWriter.XMLNS, element);
         try {
             serializer.text(text);
