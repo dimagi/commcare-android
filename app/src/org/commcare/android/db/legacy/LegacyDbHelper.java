@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.db.legacy;
 
 import android.content.ContentValues;

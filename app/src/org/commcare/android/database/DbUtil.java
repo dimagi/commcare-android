@@ -27,7 +27,8 @@ public class DbUtil {
     
     public static final String ID_COL = "commcare_sql_id";
     public static final String DATA_COL = "commcare_sql_record";
-    
+    public static final String FILE_COL = "commcare_sql_file";
+
     private static PrototypeFactory factory;
 
     public static void setDBUtilsPrototypeFactory(PrototypeFactory factory) {
@@ -57,14 +58,10 @@ public class DbUtil {
         return factory;
         
     }
-    
-    /* Scans all classes accessible from the context class loader which belong to the given package and subpackages.
-    *
-    * @param packageName The base package
-    * @return The classes
-    * @throws ClassNotFoundException
-    * @throws IOException
-    */
+
+    /**
+     * Scans all classes accessible from the context class loader which belong to the given package and subpackages.
+     */
    @SuppressWarnings("unchecked")
     private static List<String> getClasses(String[] packageNames, Context c)
            throws IOException 
@@ -107,14 +104,8 @@ public class DbUtil {
                        classNames.add(cn);
                    }
                }
-           } catch(IllegalAccessError e) {
-               //nothing
-           } catch (SecurityException e) {
+           } catch (Error | Exception e) {
 
-           } catch(Exception e) {
-
-           } catch(Error e) {
-               
            }
        }
        

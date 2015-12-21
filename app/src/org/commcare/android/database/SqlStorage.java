@@ -45,27 +45,34 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     public static final boolean STORAGE_OUTPUT_DEBUG = false;
 
     String table;
-    private Class<? extends T> ctype;
-    private EncryptedModel em;
-
-    private AndroidDbHelper helper;
+    private final Class<? extends T> ctype;
+    protected final EncryptedModel em;
+    protected final AndroidDbHelper helper;
     
-    protected SqlStorage() {}
+    protected SqlStorage() {
+        em = null;
+        helper = null;
+        ctype = null;
+    }
     
     public SqlStorage(String table, Class<? extends T> ctype, AndroidDbHelper helper) {
         this.table = table;
         this.ctype = ctype;
         this.helper = helper;
 
+        T e = null;
         try {
-            T e = ctype.newInstance();
-            if (e instanceof EncryptedModel) {
-                em = (EncryptedModel) e;
-            }
+            e = ctype.newInstance();
         } catch (IllegalAccessException ie) {
             ie.printStackTrace();
         } catch (InstantiationException ie) {
             ie.printStackTrace();
+        }
+
+        if (e != null && e instanceof EncryptedModel) {
+            em = (EncryptedModel) e;
+        } else {
+            em = null;
         }
     }
 

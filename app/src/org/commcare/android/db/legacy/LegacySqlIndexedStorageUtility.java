@@ -47,10 +47,8 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
                 em = (EncryptedModel) e;
             }
         } catch (IllegalAccessException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (InstantiationException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
@@ -150,6 +148,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         return newObject(data);
     }
 
+    @Override
     public T newObject(byte[] data) {
         try {
             T e = (T) ctype.newInstance();

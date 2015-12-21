@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.database;
 
 import android.content.ContentValues;
