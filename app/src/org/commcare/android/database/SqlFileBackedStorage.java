@@ -12,6 +12,7 @@ import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
@@ -233,28 +234,13 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         Pair<String, byte[]> filenameAndKeyBytes = getEntryFilenameAndKey(id);
         String filename = filenameAndKeyBytes.first;
         byte[] aesKeyBlob = filenameAndKeyBytes.second;
-        File dataFile = new File(filename);
 
-        long fileLength = dataFile.length();
-        if (fileLength > Integer.MAX_VALUE) {
-            throw new RuntimeException("File too large to read into byte array");
-        }
-
-        byte[] objAsBytes = new byte[(int)fileLength];
         InputStream is = getFileInputStream(filename, aesKeyBlob);
-        ByteArrayInputStream b = new ByteArrayInputStream(is);
         if (is == null) {
             throw new RuntimeException("Unable to open and decrypt file: " + filename);
         }
 
-        DataInputStream dataIs = new DataInputStream(is);
-        try {
-            dataIs.readFully(objAsBytes);
-            dataIs.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
-        }
-        return objAsBytes;
+        return StreamsUtil.getStreamAsBytes(is);
     }
 
     private InputStream getFileInputStream(String filename, byte[] aesKeyBytes) {
