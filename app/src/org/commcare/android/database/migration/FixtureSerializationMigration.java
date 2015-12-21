@@ -7,6 +7,7 @@ import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.ConcreteAndroidDbHelper;
+import org.commcare.android.database.SqlFileBackedStorage;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -37,7 +38,7 @@ import java.util.Vector;
 public class FixtureSerializationMigration {
     private static final String TAG = FixtureSerializationMigration.class.getSimpleName();
 
-    public static boolean migrateFixtureDbBytes(SQLiteDatabase db, Context c) {
+    public static boolean migrateFixtureDbBytes(SQLiteDatabase db, Context c, String baseDir, boolean isEncrypted) {
         // Not sure how long this process should take, so tell the service to
         // wait longer to make sure this can finish.
         CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
@@ -47,17 +48,19 @@ public class FixtureSerializationMigration {
         Cursor cur = null;
         DataInputStream fixtureByteStream = null;
         try {
-            SqlStorage<Persistable> userFixtureStorage =
-                    new SqlStorage<Persistable>("fixture", FormInstance.class, helper);
-            cur = db.query("fixture", new String[]{DatabaseHelper.ID_COL}, null, null, null, null, null);
+            SqlFileBackedStorage<Persistable> userFixtureStorage =
+                    new SqlFileBackedStorage<Persistable>("fixture", FormInstance.class, helper, baseDir, isEncrypted);
+            SqlStorage<Persistable> oldUserFixtureStorage =
+                    new SqlStorage<Persistable>("old_fixture", FormInstance.class, helper);
+            cur = db.query("old_fixture", new String[]{DatabaseHelper.ID_COL}, null, null, null, null, null);
             Vector<Integer> ids = SqlStorage.fillIdWindow(cur, DatabaseHelper.ID_COL);
             for (Integer id : ids) {
                 FormInstance fixture = new FormInstance();
 
                 fixtureByteStream =
-                        new DataInputStream(new ByteArrayInputStream(userFixtureStorage.readBytes(id)));
+                        new DataInputStream(new ByteArrayInputStream(oldUserFixtureStorage.readBytes(id)));
                 fixture.migrateSerialization(fixtureByteStream, helper.getPrototypeFactory());
-                userFixtureStorage.update(id, fixture);
+                userFixtureStorage.write(fixture);
             }
             db.setTransactionSuccessful();
             return true;

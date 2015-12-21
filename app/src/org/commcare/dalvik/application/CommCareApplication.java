@@ -709,7 +709,7 @@ public class CommCareApplication extends Application {
         return new SqlFileBackedStorage<>(storage, c, buildUserDbHandle(), getUserDbDir(), true);
     }
 
-    private String getUserDbDir() {
+    public String getUserDbDir() {
         try {
             return currentApp.storageRoot() + currentApp + "/" + getSession().getLoggedInUser().getUniqueId() + "/";
         } catch (SessionUnavailableException e) {

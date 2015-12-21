@@ -53,7 +53,6 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         super(table, ctype, helper);
 
         this.areFilesEncrypted = areFilesEncrypted;
-        //aesKey = new SecretKeySpec(CryptUtil.generateSymetricKey(new byte[]{0}).getEncoded(), "AES");
         dbDir = new File(baseDir + GlobalConstants.FILE_CC_DB + table);
         setupDir();
     }

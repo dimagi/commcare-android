@@ -21,6 +21,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.User;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.Persistable;
 
 /**
@@ -214,7 +215,32 @@ class UserDatabaseUpgrader {
      * attributes.
      */
     private boolean upgradeEightNine(SQLiteDatabase db, int oldVersion, int newVersion) {
-        return FixtureSerializationMigration.migrateFixtureDbBytes(db, c);
+        db.beginTransaction();
+        try {
+            // rename old fixture db
+            db.execSQL("ALTER TABLE fixture RENAME TO old_fixture;");
+
+            // make new fixture db w/ filepath and encryption key columns
+            AndroidTableBuilder builder = new AndroidTableBuilder("fixture");
+            builder.addFileBackedData(new FormInstance());
+            db.execSQL(builder.getTableCreateString());
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+
+        boolean didFixturesMigrate =
+                FixtureSerializationMigration.migrateFixtureDbBytes(db, c,
+                        CommCareApplication._().getUserDbDir(), true);
+
+        db.beginTransaction();
+        try {
+            db.execSQL("DROP TABLE old_fixture;");
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+        return didFixturesMigrate;
     }
 
     private void updateIndexes(SQLiteDatabase db) {

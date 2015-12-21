@@ -8,7 +8,9 @@ import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.migration.FixtureSerializationMigration;
 import org.commcare.android.resource.AndroidResourceManager;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
+import org.javarosa.core.model.instance.FormInstance;
 
 /**
  * @author ctsims
@@ -138,6 +140,31 @@ public class AppDatabaseUpgrader {
      * attributes.
      */
     private boolean upgradeSixSeven(SQLiteDatabase db) {
-        return FixtureSerializationMigration.migrateFixtureDbBytes(db, context);
+        db.beginTransaction();
+        try {
+            // rename old fixture db
+            db.execSQL("ALTER TABLE fixture RENAME TO old_fixture;");
+
+            // make new fixture db w/ filepath and encryption key columns
+            AndroidTableBuilder builder = new AndroidTableBuilder("fixture");
+            builder.addFileBackedData(new FormInstance());
+            db.execSQL(builder.getTableCreateString());
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+
+        boolean didFixturesMigrate =
+                FixtureSerializationMigration.migrateFixtureDbBytes(db, context,
+                        CommCareApplication._().getCurrentApp().storageRoot(), false);
+
+        db.beginTransaction();
+        try {
+            db.execSQL("DROP TABLE old_fixture;");
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+        return didFixturesMigrate;
     }
 }
