@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteQuery;
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.DbUtil;
+import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
 
 import javax.crypto.Cipher;
@@ -124,10 +125,8 @@ public class DecryptingCursor extends SQLiteCursor {
         if (model.isEncrypted(column)) {
             return true;
         }
-        if (column.equals(DbUtil.DATA_COL)) {
-            return model.isBlobEncrypted();
-        }
-        return false;
+        return (column.equals(DatabaseHelper.DATA_COL) &&
+                model.isBlobEncrypted());
     }
 
     private byte[] decrypt(int columnIndex) {

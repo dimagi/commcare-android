@@ -7,10 +7,10 @@ import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.ConcreteAndroidDbHelper;
-import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.modern.database.DatabaseHelper;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
@@ -49,8 +49,8 @@ public class FixtureSerializationMigration {
         try {
             SqlStorage<Persistable> userFixtureStorage =
                     new SqlStorage<Persistable>("fixture", FormInstance.class, helper);
-            cur = db.query("fixture", new String[]{DbUtil.ID_COL}, null, null, null, null, null);
-            Vector<Integer> ids = SqlStorage.fillIdWindow(cur, DbUtil.ID_COL);
+            cur = db.query("fixture", new String[]{DatabaseHelper.ID_COL}, null, null, null, null, null);
+            Vector<Integer> ids = SqlStorage.fillIdWindow(cur, DatabaseHelper.ID_COL);
             for (Integer id : ids) {
                 FormInstance fixture = new FormInstance();
 

@@ -25,10 +25,6 @@ import dalvik.system.DexFile;
 public class DbUtil {
     private static final String TAG = DbUtil.class.getSimpleName();
     
-    public static final String ID_COL = "commcare_sql_id";
-    public static final String DATA_COL = "commcare_sql_record";
-    public static final String FILE_COL = "commcare_sql_file";
-
     private static PrototypeFactory factory;
 
     public static void setDBUtilsPrototypeFactory(PrototypeFactory factory) {

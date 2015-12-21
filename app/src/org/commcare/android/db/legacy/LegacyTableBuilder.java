@@ -1,11 +1,8 @@
-/**
- *
- */
 package org.commcare.android.db.legacy;
 
 import android.util.Pair;
 
-import org.commcare.android.database.DbUtil;
+import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
@@ -31,8 +28,8 @@ public class LegacyTableBuilder {
     }
 
     public void addData(Persistable p) {
-        cols.add(DbUtil.ID_COL + " INTEGER PRIMARY KEY");
-        rawCols.add(DbUtil.ID_COL);
+        cols.add(DatabaseHelper.ID_COL + " INTEGER PRIMARY KEY");
+        rawCols.add(DatabaseHelper.ID_COL);
 
         if (p instanceof IMetaData) {
             String[] keys = ((IMetaData) p).getMetaDataFields();
@@ -54,8 +51,8 @@ public class LegacyTableBuilder {
             }
         }
 
-        cols.add(DbUtil.DATA_COL + " BLOB");
-        rawCols.add(DbUtil.DATA_COL);
+        cols.add(DatabaseHelper.DATA_COL + " BLOB");
+        rawCols.add(DatabaseHelper.DATA_COL);
     }
 
     HashSet<String> unique = new HashSet<String>();

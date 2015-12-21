@@ -2,6 +2,7 @@ package org.commcare.android.database;
 
 import android.database.Cursor;
 
+import org.commcare.modern.database.DatabaseHelper;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageModifiedException;
@@ -69,7 +70,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
 
     @Override
     public int nextID() {
-        int id = c.getInt(c.getColumnIndexOrThrow(DbUtil.ID_COL));
+        int id = c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
         c.moveToNext();
         if (c.isAfterLast()) {
             c.close();
@@ -80,7 +81,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
 
     @Override
     public T nextRecord() {
-        byte[] data = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
+        byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
 
         //we don't really use this
         nextID();
@@ -105,7 +106,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
     }
 
     public int peekID() {
-        return c.getInt(c.getColumnIndexOrThrow(DbUtil.ID_COL));
+        return c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
     }
 
     public String getPrimaryId() {
