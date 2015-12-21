@@ -6,6 +6,7 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.AndroidDbHelper;
+import org.commcare.android.database.SqlFileBackedStorage;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -272,7 +273,15 @@ public class CommCareApp {
     }
 
     public <T extends Persistable> SqlStorage<T> getStorage(String name, Class<T> c) {
-        return new SqlStorage<>(name, c, new AndroidDbHelper(CommCareApplication._().getApplicationContext()) {
+        return new SqlStorage<>(name, c, buildAndroidDbHelper());
+    }
+
+    public <T extends Persistable> SqlFileBackedStorage<T> getFileBackedStorage(String name, Class<T> c) {
+        return new SqlFileBackedStorage<>(name, c, buildAndroidDbHelper());
+    }
+
+    private AndroidDbHelper buildAndroidDbHelper() {
+        return new AndroidDbHelper(CommCareApplication._().getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (appDbHandleLock) {
@@ -282,7 +291,7 @@ public class CommCareApp {
                     return appDatabase;
                 }
             }
-        });
+        };
     }
 
     /**

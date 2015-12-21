@@ -36,24 +36,37 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
     public abstract SQLiteDatabase getHandle() throws SessionUnavailableException;
 
     public ContentValues getContentValues(Externalizable e){
-        ContentValues ret = new ContentValues();
+        ContentValues contentValues = new ContentValues();
         HashMap<String, Object> metaFieldsAndValues = DatabaseHelper.getMetaFieldsAndValues(e);
 
+        copyMetadataIntoContentValues(metaFieldsAndValues, contentValues);
+
+        return contentValues;
+    }
+
+    public ContentValues getNonDataContentValues(Externalizable e){
+        ContentValues contentValues = new ContentValues();
+        HashMap<String, Object> metaFieldsAndValues = DatabaseHelper.getNonDatatMetaEntries(e);
+
+        copyMetadataIntoContentValues(metaFieldsAndValues, contentValues);
+
+        return contentValues;
+    }
+
+    private void copyMetadataIntoContentValues(HashMap<String, Object> metaFieldsAndValues, ContentValues contentValues) {
         for(Map.Entry<String, Object> entry:  metaFieldsAndValues.entrySet()){
             String key = entry.getKey();
             Object obj = entry.getValue();
             if(obj instanceof String){
-                ret.put(key,(String)obj);
+                contentValues.put(key,(String)obj);
             } else if(obj instanceof Integer){
-                ret.put(key, (Integer) obj);
+                contentValues.put(key, (Integer) obj);
             } else if(obj instanceof byte[]){
-                ret.put(key, (byte[]) obj);
+                contentValues.put(key, (byte[]) obj);
             } else{
                 System.out.println("Couldn't determine type of object: " + obj);
             }
         }
-
-        return ret;
     }
 
     public Pair<String, String[]> createWhereAndroid(String[] fieldNames, Object[] values, EncryptedModel em, Persistable p){

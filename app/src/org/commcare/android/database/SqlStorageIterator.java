@@ -14,18 +14,21 @@ import java.util.Iterator;
  */
 public class SqlStorageIterator<T extends Persistable> implements IStorageIterator, Iterator<T> {
 
-    Cursor c;
-    private SqlStorage<T> storage;
-    private boolean isClosedByProgress = false;
-    private int count;
-    private String primaryId;
+    final Cursor c;
+    protected final SqlStorage<T> storage;
+    protected boolean isClosedByProgress = false;
+    protected final int count;
+    protected final String primaryId;
 
     /**
      * only for use by subclasses which re-implement this behavior strategically (Note: Should be an interface pullout
      * not a subclass)
      */
-    SqlStorageIterator() {
-
+    SqlStorageIterator(Cursor cursor) {
+        this.c = cursor;
+        storage = null;
+        primaryId = null;
+        count = -1;
     }
 
     public SqlStorageIterator(Cursor c, SqlStorage<T> storage) {

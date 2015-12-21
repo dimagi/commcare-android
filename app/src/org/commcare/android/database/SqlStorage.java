@@ -25,6 +25,7 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -242,6 +243,22 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
 
+    public T newObject(InputStream objectInputStream) {
+        try {
+            T e = ctype.newInstance();
+            e.readExternal(new DataInputStream(objectInputStream), helper.getPrototypeFactory());
+
+            return e;
+        } catch (IllegalAccessException e) {
+            throw logAndWrap(e, "Illegal Access Exception");
+        } catch (InstantiationException e) {
+            throw logAndWrap(e, "Instantiation Exception");
+        } catch (IOException e) {
+            throw logAndWrap(e, "Totally non-sensical IO Exception");
+        } catch (DeserializationException e) {
+            throw logAndWrap(e, "CommCare ran into an issue deserializing data");
+        }
+    }
     public T newObject(byte[] data) {
         try {
             T e = ctype.newInstance();
@@ -391,8 +408,17 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             throw new UserStorageClosedException(e.getMessage());
         }
 
-        //If we're just iterating over ID's, we may want to use a different, much 
-        //faster method depending on our stats. This method retrieves the 
+        SqlStorageIterator<T> spanningIterator = getIndexSpanningIteratorOrNull(db, includeData);
+        if (spanningIterator != null) {
+            return spanningIterator;
+        } else {
+            return new SqlStorageIterator<>(getIterateCursor(db, includeData), this);
+        }
+    }
+
+    protected SqlStorageIterator<T> getIndexSpanningIteratorOrNull(SQLiteDatabase db, boolean includeData) {
+        //If we're just iterating over ID's, we may want to use a different, much
+        //faster method depending on our stats. This method retrieves the
         //index records that _don't_ exist so we can assume the spans that
         //do.
         if (!includeData && STORAGE_OPTIMIZATIONS_ACTIVE) {
@@ -403,9 +429,9 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
             SQLiteStatement count = db.compileStatement("SELECT COUNT(" + DatabaseHelper.ID_COL + ") from " + table);
 
-            int minValue = (int) min.simpleQueryForLong();
-            int maxValue = (int) max.simpleQueryForLong() + 1;
-            int countValue = (int) count.simpleQueryForLong();
+            int minValue = (int)min.simpleQueryForLong();
+            int maxValue = (int)max.simpleQueryForLong() + 1;
+            int countValue = (int)count.simpleQueryForLong();
 
             min.close();
             max.close();
@@ -423,11 +449,15 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                 return getCoveringIndexIterator(db, minValue, maxValue, countValue);
             }
         }
-
-        String[] projection = includeData ? new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL} : new String[]{DatabaseHelper.ID_COL};
-        Cursor c = db.query(table, projection, null, null, null, null, null);
-        return new SqlStorageIterator<>(c, this);
+        return null;
     }
+
+    protected Cursor getIterateCursor(SQLiteDatabase db, boolean includeData) {
+        String[] projection = includeData ? new String[]{DatabaseHelper.ID_COL, DatabaseHelper.FILE_COL} : new String[]{DatabaseHelper.ID_COL};
+        return db.query(table, projection, null, null, null, null, null);
+    }
+
+
 
 
     /**
@@ -455,6 +485,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return new SqlStorageIterator<>(c, this, AndroidTableBuilder.scrubName(primaryId));
     }
 
+    @Override
     public Iterator<T> iterator() {
         return iterate();
     }
@@ -634,7 +665,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                 throw new RuntimeException("Waaaaaaaaaay too many values");
             }
 
-            int id = (int) ret;
+            int id = (int)ret;
             //Now we need to put the id into the record
 
             p.setID(id);
@@ -687,9 +718,8 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /**
      * @return An iterator which can provide a list of all of the indices in this table.
      */
-    private SqlStorageIterator<T> getCoveringIndexIterator(SQLiteDatabase db, int minValue, int maxValue, int countValue) {
-
-        //So here's what we're doing: 
+    protected SqlStorageIterator<T> getCoveringIndexIterator(SQLiteDatabase db, int minValue, int maxValue, int countValue) {
+        //So here's what we're doing:
         //Build a select statement that has all of the numbers from 1 to 100k
         //Filter it to contain our real boundaries
         //Select all id's from our table's index

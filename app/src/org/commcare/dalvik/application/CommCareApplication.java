@@ -36,6 +36,7 @@ import net.sqlcipher.database.SQLiteException;
 import org.acra.annotation.ReportsCrashes;
 import org.commcare.android.database.AndroidDbHelper;
 import org.commcare.android.database.MigrationException;
+import org.commcare.android.database.SqlFileBackedStorage;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
@@ -692,12 +693,24 @@ public class CommCareApplication extends Application {
         return currentApp.getStorage(name, c);
     }
 
+    public <T extends Persistable> SqlFileBackedStorage<T> getFileBackedAppStorage(String name, Class<T> c) {
+        return currentApp.getFileBackedStorage(name, c);
+    }
+
     public <T extends Persistable> SqlStorage<T> getUserStorage(Class<T> c) {
         return getUserStorage(c.getAnnotation(Table.class).value(), c);
     }
 
     public <T extends Persistable> SqlStorage<T> getUserStorage(String storage, Class<T> c) {
-        return new SqlStorage<>(storage, c, new AndroidDbHelper(this.getApplicationContext()) {
+        return new SqlStorage<>(storage, c, buildUserDbHandle());
+    }
+
+    public <T extends Persistable> SqlFileBackedStorage<T> getFileBackedUserStorage(String storage, Class<T> c) {
+        return new SqlFileBackedStorage<>(storage, c, buildUserDbHandle());
+    }
+
+    private AndroidDbHelper buildUserDbHandle() {
+        return new AndroidDbHelper(this.getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() throws SessionUnavailableException {
                 SQLiteDatabase database = getUserDbHandle();
@@ -706,7 +719,7 @@ public class CommCareApplication extends Application {
                 }
                 return database;
             }
-        });
+        };
     }
 
     public <T extends Persistable> SqlStorage<T> getRawStorage(String storage, Class<T> c, final SQLiteDatabase handle) {
