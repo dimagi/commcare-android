@@ -87,7 +87,7 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
             
             builder = new AndroidTableBuilder("fixture");
-            builder.addData(new FormInstance());
+            builder.addFileBackedData(new FormInstance());
             database.execSQL(builder.getTableCreateString());
             
             builder = new AndroidTableBuilder(Ledger.STORAGE_KEY);

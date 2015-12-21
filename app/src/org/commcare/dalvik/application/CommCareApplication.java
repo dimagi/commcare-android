@@ -706,7 +706,15 @@ public class CommCareApplication extends Application {
     }
 
     public <T extends Persistable> SqlFileBackedStorage<T> getFileBackedUserStorage(String storage, Class<T> c) {
-        return new SqlFileBackedStorage<>(storage, c, buildUserDbHandle());
+        return new SqlFileBackedStorage<>(storage, c, buildUserDbHandle(), getUserDbDir(), true);
+    }
+
+    private String getUserDbDir() {
+        try {
+            return currentApp.storageRoot() + currentApp + "/" + getSession().getLoggedInUser().getUniqueId() + "/";
+        } catch (SessionUnavailableException e) {
+            return currentApp.storageRoot() + currentApp + "/";
+        }
     }
 
     private AndroidDbHelper buildUserDbHandle() {

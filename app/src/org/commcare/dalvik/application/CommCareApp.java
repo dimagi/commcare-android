@@ -81,9 +81,10 @@ public class CommCareApp {
 
     private void createPaths() {
         String[] paths = new String[]{"", GlobalConstants.FILE_CC_INSTALL,
-            GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE,
-            GlobalConstants.FILE_CC_FORMS, GlobalConstants.FILE_CC_MEDIA,
-            GlobalConstants.FILE_CC_LOGS, GlobalConstants.FILE_CC_ATTACHMENTS};
+                GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE,
+                GlobalConstants.FILE_CC_FORMS, GlobalConstants.FILE_CC_MEDIA,
+                GlobalConstants.FILE_CC_LOGS, GlobalConstants.FILE_CC_ATTACHMENTS,
+                GlobalConstants.FILE_CC_DB};
 
         for (String path : paths) {
             File f = new File(fsPath(path));
@@ -277,7 +278,7 @@ public class CommCareApp {
     }
 
     public <T extends Persistable> SqlFileBackedStorage<T> getFileBackedStorage(String name, Class<T> c) {
-        return new SqlFileBackedStorage<>(name, c, buildAndroidDbHelper());
+        return new SqlFileBackedStorage<>(name, c, buildAndroidDbHelper(), storageRoot(), false);
     }
 
     private AndroidDbHelper buildAndroidDbHelper() {

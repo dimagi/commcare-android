@@ -453,12 +453,9 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     protected Cursor getIterateCursor(SQLiteDatabase db, boolean includeData) {
-        String[] projection = includeData ? new String[]{DatabaseHelper.ID_COL, DatabaseHelper.FILE_COL} : new String[]{DatabaseHelper.ID_COL};
+        String[] projection = includeData ? new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL} : new String[]{DatabaseHelper.ID_COL};
         return db.query(table, projection, null, null, null, null, null);
     }
-
-
-
 
     /**
      * Creates a custom iterator for this storage which can either include or exclude the actual data, and

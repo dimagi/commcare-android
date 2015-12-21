@@ -68,7 +68,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
             
             builder = new AndroidTableBuilder("fixture");
-            builder.addData(new FormInstance());
+            builder.addFileBackedData(new FormInstance());
             database.execSQL(builder.getTableCreateString());
             
             builder = new AndroidTableBuilder(UserKeyRecord.class);
@@ -119,7 +119,6 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        new AppDatabaseUpgrader().upgrade(db, oldVersion, newVersion);
+        new AppDatabaseUpgrader(context).upgrade(db, oldVersion, newVersion);
     }
-
 }

@@ -1,5 +1,7 @@
 package org.commcare.android.database.app;
 
+import android.content.Context;
+
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.AndroidTableBuilder;
