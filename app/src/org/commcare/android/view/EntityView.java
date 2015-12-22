@@ -81,7 +81,7 @@ public class EntityView extends LinearLayout {
         for (int i = 0; i < views.length; ++i) {
             if (mHints[i] == null || !mHints[i].startsWith("0")) {
                 views[i] = initView(e.getField(i), forms[i], new ViewId(rowId, i, false), e.getSortField(i));
-                views[i].setId(i);
+                views[i].setId(AndroidUtil.generateViewId());
             }
         }
         refreshViewsForNewEntity(e, false, rowId);
@@ -116,7 +116,7 @@ public class EntityView extends LinearLayout {
                 LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
                 ViewId uniqueId = new ViewId(rowId, i, false);
                 views[i] = initView(headerText[i], headerForms[i], uniqueId, null);
-                views[i].setId(i);
+                views[i].setId(AndroidUtil.generateViewId());
                 if (colors[1] != -1) {
                     TextView tv = (TextView) views[i].findViewById(R.id.component_audio_text_txt);
                     if (tv != null) tv.setTextColor(colors[1]);

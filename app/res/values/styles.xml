@@ -40,6 +40,13 @@
         <item name="android:paddingBottom">@dimen/entity_padding</item>
         <item name="android:paddingRight">@dimen/entity_padding</item>
     </style>
+
+    <style name="EntityItemImageView">
+        <item name="android:paddingLeft">@dimen/entity_item_image_margins</item>
+        <item name="android:paddingTop">@dimen/entity_item_image_margins</item>
+        <item name="android:paddingBottom">@dimen/entity_item_image_margins</item>
+        <item name="android:paddingRight">@dimen/entity_item_image_margins</item>
+    </style>
     
     <style name="GridEntityItemTextView">
         <item name="android:paddingLeft">@dimen/grid_entity_padding</item>
