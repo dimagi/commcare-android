@@ -20,29 +20,34 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionNavigator;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.views.ODKView;
 import org.odk.collect.android.widgets.IntegerWidget;
+import org.odk.collect.android.widgets.StringWidget;
 import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowEnvironment;
 
+import java.util.Date;
+
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 
 /**
+ * Form Record processing / form save related tests
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
-public class FormRecordProcessing {
-    private static final String TAG = FormRecordProcessing.class.getSimpleName();
+public class FormRecordProcessingTest {
+    private static final String TAG = FormRecordProcessingTest.class.getSimpleName();
 
     @Before
     public void setup() {
@@ -59,8 +64,15 @@ public class FormRecordProcessing {
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
 
+    /**
+     * Regression test for 2.25.1 hotfix where the form record processor
+     * parser used during form save was using the wrong parser.
+     *
+     * Test steps through form and saves it, passing if upon returning to the
+     * home screen w/ the form sucessfully saved.
+     */
     @Test
-    public void testHiddenRepeatAtEndOfForm() {
+    public void testFormRecordProcessingDuringFormSave() {
         CommCareHomeActivity homeActivity = buildHomeActivityForFormEntryLaunch();
 
         ShadowActivity shadowActivity = Shadows.shadowOf(homeActivity);
@@ -105,16 +117,20 @@ public class FormRecordProcessing {
 
         // enter an answer for the question
         ODKView odkView = formEntryActivity.getODKView();
-        IntegerWidget favoriteNumber = (IntegerWidget)odkView.getWidgets().get(0);
-        favoriteNumber.setAnswer("2");
-        assertTrue(nextButton.getTag().equals(FormEntryActivity.NAV_STATE_NEXT));
-        // Finish off the form even by clicking next.
-        // The form progress meter thinks there is more to do, but that is a bug.
+        IntegerWidget cohort = (IntegerWidget)odkView.getWidgets().get(0);
+        cohort.setAnswer("2");
+
+        nextButton.performClick();
         nextButton.performClick();
 
         ShadowActivity shadowFormEntryActivity = Shadows.shadowOf(formEntryActivity);
+
+        long waitStartTime = new Date().getTime();
         while (!shadowFormEntryActivity.isFinishing()) {
             Log.d(TAG, "Waiting for the form to save and the form entry activity to finish");
+            if ((new Date().getTime()) - waitStartTime > 5000) {
+                Assert.fail("form entry activity took too long to finish");
+            }
         }
 
         return shadowFormEntryActivity;
