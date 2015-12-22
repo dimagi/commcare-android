@@ -38,7 +38,6 @@ import java.io.FileOutputStream;
  * Project.
  *
  * @author BehrAtherton@gmail.com
- *
  */
 public class DrawActivity extends Activity {
     private static final String t = "DrawActivity";
@@ -71,7 +70,7 @@ public class DrawActivity extends Activity {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
-        if ( savepointImage.exists() ) {
+        if (savepointImage.exists()) {
             outState.putString(SAVEPOINT_IMAGE, savepointImage.getAbsolutePath());
         }
     }
@@ -98,7 +97,7 @@ public class DrawActivity extends Activity {
                 loadOption = OPTION_DRAW;
             }
             // refImage can also be present if resuming a drawing
-            Uri uri = (Uri) extras.get(REF_IMAGE);
+            Uri uri = (Uri)extras.get(REF_IMAGE);
             if (uri != null) {
                 refImage = new File(uri.getPath());
             }
@@ -117,7 +116,7 @@ public class DrawActivity extends Activity {
                 }
             }
             //sets where the result will be saved to
-            uri = (Uri) extras.get(EXTRA_OUTPUT);
+            uri = (Uri)extras.get(EXTRA_OUTPUT);
             if (uri != null) {
                 output = new File(uri.getPath());
             } else {
@@ -149,10 +148,10 @@ public class DrawActivity extends Activity {
         setTitle(getString(R.string.application_name) + " > "
                 + getString(R.string.draw_image));
 
-        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        RelativeLayout v = (RelativeLayout) inflater.inflate(
+        LayoutInflater inflater = (LayoutInflater)getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        RelativeLayout v = (RelativeLayout)inflater.inflate(
                 R.layout.draw_layout, null);
-        LinearLayout ll = (LinearLayout) v.findViewById(R.id.drawViewLayout);
+        LinearLayout ll = (LinearLayout)v.findViewById(R.id.drawViewLayout);
 
         paint = new Paint();
         paint.setAntiAlias(true);
@@ -213,11 +212,11 @@ public class DrawActivity extends Activity {
     }
 
     private void saveFile(File f) throws FileNotFoundException {
-        if ( drawView.getWidth() == 0 || drawView.getHeight() == 0 ) {
+        if (drawView.getWidth() == 0 || drawView.getHeight() == 0) {
             // apparently on 4.x, the orientation change notification can occur
             // sometime before the view is rendered. In that case, the view
             // dimensions will not be known.
-            Log.e(t,"view has zero width or zero height");
+            Log.e(t, "view has zero width or zero height");
         } else {
             FileOutputStream fos;
             fos = new FileOutputStream(f);
@@ -229,7 +228,7 @@ public class DrawActivity extends Activity {
             try {
                 fos.flush();
                 fos.close();
-            } catch ( Exception e) {
+            } catch (Exception e) {
             }
         }
     }
@@ -252,24 +251,24 @@ public class DrawActivity extends Activity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
-        case KeyEvent.KEYCODE_BACK:
-
-            createQuitDrawDialog();
-            return true;
-        case KeyEvent.KEYCODE_DPAD_RIGHT:
-            if (event.isAltPressed()) {
+            case KeyEvent.KEYCODE_BACK:
 
                 createQuitDrawDialog();
                 return true;
-            }
-            break;
-        case KeyEvent.KEYCODE_DPAD_LEFT:
-            if (event.isAltPressed()) {
+            case KeyEvent.KEYCODE_DPAD_RIGHT:
+                if (event.isAltPressed()) {
 
-                createQuitDrawDialog();
-                return true;
-            }
-            break;
+                    createQuitDrawDialog();
+                    return true;
+                }
+                break;
+            case KeyEvent.KEYCODE_DPAD_LEFT:
+                if (event.isAltPressed()) {
+
+                    createQuitDrawDialog();
+                    return true;
+                }
+                break;
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -342,7 +341,7 @@ public class DrawActivity extends Activity {
         }
 
         public void reset() {
-            Display display = ((WindowManager) getContext().getSystemService(
+            Display display = ((WindowManager)getContext().getSystemService(
                     Context.WINDOW_SERVICE)).getDefaultDisplay();
             int screenWidth = display.getWidth();
             int screenHeight = display.getHeight();
@@ -389,8 +388,8 @@ public class DrawActivity extends Activity {
         }
 
         public void drawSignLine() {
-            mCanvas.drawLine(0, (int) (mCanvas.getHeight() * .7),
-                    mCanvas.getWidth(), (int) (mCanvas.getHeight() * .7), paint);
+            mCanvas.drawLine(0, (int)(mCanvas.getHeight() * .7),
+                    mCanvas.getWidth(), (int)(mCanvas.getHeight() * .7), paint);
         }
 
         private void touch_move(float x, float y) {
