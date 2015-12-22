@@ -1,17 +1,14 @@
 package org.commcare.dalvik.activities;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
@@ -43,10 +40,10 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidInstanceInitializer;
-import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.HorizontalMediaView;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
@@ -162,6 +159,7 @@ public class CommCareHomeActivity
 
     private HomeActivityUIController uiController;
     private SessionNavigator sessionNavigator;
+    private FormAndDataSyncer formAndDataSyncer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,6 +173,7 @@ public class CommCareHomeActivity
         ACRAUtil.registerAppData();
         uiController = new HomeActivityUIController(this);
         sessionNavigator = new SessionNavigator(this);
+        formAndDataSyncer = new FormAndDataSyncer(this);
     }
 
     /**
@@ -271,10 +270,6 @@ public class CommCareHomeActivity
         }
     }
 
-    /*
-    * (non-Javadoc)
-    * @see android.app.Activity#onActivityResult(int, int, android.content.Intent)
-    */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if(resultCode == RESULT_RESTART) {
@@ -945,97 +940,8 @@ public class CommCareHomeActivity
     private void sendFormsOrSync(boolean userTriggeredSync) {
         boolean formsSentToServer = checkAndStartUnsentFormsTask(true, userTriggeredSync);
         if(!formsSentToServer) {
-            syncData(false, userTriggeredSync);
+            formAndDataSyncer.syncData(false, userTriggeredSync);
         }
-    }
-
-    private void syncData(boolean formsToSend, boolean userTriggeredSync) {
-        User u;
-        try {
-            u = CommCareApplication._().getSession().getLoggedInUser();
-        } catch (SessionUnavailableException sue) {
-            // abort since it looks like the session expired
-            return;
-        }
-
-        if (User.TYPE_DEMO.equals(u.getUserType())) {
-            if (userTriggeredSync) {
-                // Remind the user that there's no syncing in demo mode.
-                if (formsToSend) {
-                    displayMessage(Localization.get("main.sync.demo.has.forms"), true, true);
-                } else {
-                    displayMessage(Localization.get("main.sync.demo.no.forms"), true, true);
-                }
-            }
-            return;
-        }
-
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        DataPullTask<CommCareHomeActivity> mDataPullTask = new DataPullTask<CommCareHomeActivity>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url", this.getString(R.string.ota_restore_url)), this) {
-
-            @Override
-            protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
-                receiver.getUiController().refreshView();
-
-                //TODO: SHARES _A LOT_ with login activity. Unify into service
-                switch (result) {
-                    case DataPullTask.AUTH_FAILED:
-                        receiver.displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
-                        break;
-                    case DataPullTask.BAD_DATA:
-                        receiver.displayMessage(Localization.get("sync.fail.bad.data"), true);
-                        break;
-                    case DataPullTask.DOWNLOAD_SUCCESS:
-                        receiver.displayMessage(Localization.get("sync.success.synced"));
-                        break;
-                    case DataPullTask.SERVER_ERROR:
-                        receiver.displayMessage(Localization.get("sync.fail.server.error"));
-                        break;
-                    case DataPullTask.UNREACHABLE_HOST:
-                        receiver.displayMessage(Localization.get("sync.fail.bad.network"), true);
-                        break;
-                    case DataPullTask.CONNECTION_TIMEOUT:
-                        receiver.displayMessage(Localization.get("sync.fail.timeout"), true);
-                        break;
-                    case DataPullTask.UNKNOWN_FAILURE:
-                        receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
-                        break;
-                }
-                //TODO: What if the user info was updated?
-
-            }
-
-            @Override
-            protected void deliverUpdate(CommCareHomeActivity receiver, Integer... update) {
-                if (update[0] == DataPullTask.PROGRESS_STARTED) {
-                    receiver.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
-                    receiver.updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_AUTHED) {
-                    receiver.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
-                    receiver.updateProgress(Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_PROCESSING) {
-                    receiver.updateProgress(Localization.get("sync.process.processing", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
-                    receiver.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
-                    receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
-                    receiver.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
-                }
-            }
-
-            @Override
-            protected void deliverError(CommCareHomeActivity receiver,
-                                        Exception e) {
-                receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
-            }
-
-        };
-
-        mDataPullTask.connect(this);
-
-        mDataPullTask.execute();
     }
 
     /**
@@ -1047,79 +953,11 @@ public class CommCareHomeActivity
         FormRecord[] records = StorageUtils.getUnsentRecords(storage);
 
         if(records.length > 0) {
-            processAndSend(records, syncAfterwards, userTriggered);
+            formAndDataSyncer.processAndSendForms(records, syncAfterwards, userTriggered);
             return true;
         } else {
             return false;
         }
-    }
-
-    @SuppressLint("NewApi")
-    private void processAndSend(FormRecord[] records, final boolean syncAfterwards,
-                                final boolean userTriggered) {
-
-        ProcessAndSendTask<CommCareHomeActivity> mProcess = new ProcessAndSendTask<CommCareHomeActivity>(this, getFormPostURL(),
-                syncAfterwards) {
-
-            @Override
-            protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
-                if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
-                    launchLogin();
-                    return;
-                }
-                uiController.refreshView();
-
-                int successfulSends = this.getSuccesfulSends();
-
-                if (result == FormUploadUtil.FULL_SUCCESS) {
-                    String label = Localization.get("sync.success.sent.singular", new String[]{String.valueOf(successfulSends)});
-                    if (successfulSends > 1) {
-                        label = Localization.get("sync.success.sent", new String[]{String.valueOf(successfulSends)});
-                    }
-                    receiver.displayMessage(label);
-
-                    if (syncAfterwards) {
-                        syncData(true, userTriggered);
-                    }
-                } else if (result != FormUploadUtil.FAILURE) {
-                    // Tasks with failure result codes will have already created a notification
-                    receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
-                }
-            }
-
-            @Override
-            protected void deliverUpdate(CommCareHomeActivity receiver, Long... update) {
-                //we don't need to deliver updates here, it happens on the notification bar
-            }
-
-            @Override
-            protected void deliverError(CommCareHomeActivity receiver, Exception e) {
-                //TODO: Display somewhere useful
-                receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
-            }
-
-        };
-
-        try {
-            mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
-        } catch (SessionUnavailableException sue) {
-            // abort since it looks like the session expired
-            return;
-        }
-        mProcess.connect(this);
-
-        //Execute on a true multithreaded chain. We should probably replace all of our calls with this
-        //but this is the big one for now.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mProcess.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, records);
-        } else {
-            mProcess.execute(records);
-        }
-    }
-
-    private String getFormPostURL() {
-        SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return settings.getString("PostURL", this.getString(R.string.PostURL));
     }
 
     @Override
@@ -1324,15 +1162,15 @@ public class CommCareHomeActivity
         showAlertDialog(factory);
     }
 
-    private void displayMessage(String message) {
+    protected void displayMessage(String message) {
         displayMessage(message, false);
     }
 
-    private void displayMessage(String message, boolean bad) {
+    protected void displayMessage(String message, boolean bad) {
         displayMessage(message, bad, false);
     }
 
-    private void displayMessage(String message, boolean bad, boolean suppressToast) {
+    protected void displayMessage(String message, boolean bad, boolean suppressToast) {
         uiController.displayMessage(message, bad, suppressToast);
     }
 
@@ -1562,4 +1400,25 @@ public class CommCareHomeActivity
         return false;
     }
 
+    /**
+     * For Testing purposes only
+     */
+    public SessionNavigator getSessionNavigator() {
+        if (BuildConfig.DEBUG) {
+            return sessionNavigator;
+        } else {
+            throw new RuntimeException("On principal of design, only meant for testing purposes");
+        }
+    }
+
+    /**
+     * For Testing purposes only
+     */
+    public void setFormAndDataSyncer(FormAndDataSyncer formAndDataSyncer) {
+        if (BuildConfig.DEBUG) {
+            this.formAndDataSyncer = formAndDataSyncer;
+        } else {
+            throw new RuntimeException("On principal of design, only meant for testing purposes");
+        }
+    }
 }
