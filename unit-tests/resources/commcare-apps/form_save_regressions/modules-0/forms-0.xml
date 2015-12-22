@@ -1,0 +1,337 @@
+<h:html xmlns="http://www.w3.org/2002/xforms" xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:jr="http://openrosa.org/javarosa" xmlns:orx="http://openrosa.org/jr/xforms"
+        xmlns:vellum="http://commcarehq.org/xforms/vellum" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <h:head>
+        <h:title>1. Registration</h:title>
+        <model>
+            <instance>
+                <data name="1. Registration"
+                      uiVersion="1"
+                      version="1" xmlns="http://openrosa.org/formdesigner/47B9C4D7-6034-4D0E-849B-9A727F9E58EA" xmlns:jrm="http://dev.commcarehq.org/jr/xforms">
+                    <question6/>
+                    <Registration>
+                        <cohort/>
+                        <id/>
+                        <name1/>
+                        <name2/>
+                        <head/>
+                        <hid1/>
+                        <address_census/>
+                        <hidline1/>
+                        <hsa/>
+                        <gvnumber/>
+                        <gv/>
+                        <vnumber/>
+                        <v/>
+                    </Registration>
+                    <ver>
+                        <id/>
+                        <hid1/>
+                        <hidline1/>
+                    </ver>
+                    <datetoday/>
+                    <now/>
+                    <reg_comp/>
+                    <case case_id="" date_modified=""
+                          user_id="" xmlns="http://commcarehq.org/case/transaction/v2">
+                        <create>
+                            <case_name/>
+                            <owner_id/>
+                            <case_type>followup</case_type>
+                        </create>
+                        <update>
+                            <hsa/>
+                            <id/>
+                            <now/>
+                        </update>
+                    </case>
+                    <orx:meta xmlns:cc="http://commcarehq.org/xforms">
+                        <orx:deviceID/>
+                        <orx:timeStart/>
+                        <orx:timeEnd/>
+                        <orx:username/>
+                        <orx:userID/>
+                        <orx:instanceID/>
+                        <cc:appVersion/>
+                    </orx:meta>
+                </data>
+            </instance>
+            <instance id="commcaresession" src="jr://instance/session"/>
+            <bind nodeset="/data/question6" required="true()" type="binary"/>
+            <bind nodeset="/data/Registration"/>
+            <bind constraint=". = 1 or . = 2" nodeset="/data/Registration/cohort" type="xsd:int"
+                  jr:constraintMsg="jr:itext('Registration/cohort-constraintMsg')"/>
+            <bind constraint="string-length(.) &lt; 9" nodeset="/data/Registration/id"
+                  type="xsd:string"/>
+            <bind nodeset="/data/Registration/name1" required="true()" type="xsd:string"/>
+            <bind nodeset="/data/Registration/name2" type="xsd:string"/>
+            <bind nodeset="/data/Registration/head" type="xsd:string"/>
+            <bind constraint="string-length(.) = 7 or string-length(.) = 6" nodeset="/data/Registration/hid1"
+                  type="xsd:string"
+                  jr:constraintMsg="jr:itext('Registration/hid1-constraintMsg')"/>
+            <bind nodeset="/data/Registration/address_census" type="xsd:string"/>
+            <bind nodeset="/data/Registration/hidline1" type="xsd:int"/>
+            <bind constraint=". &gt; 0 and . &lt;= 52" nodeset="/data/Registration/hsa"
+                  required="true()"
+                  type="xsd:int" jr:constraintMsg="jr:itext('Registration/hsa-constraintMsg')"/>
+            <bind nodeset="/data/Registration/gvnumber" type="xsd:string"/>
+            <bind nodeset="/data/Registration/gv" required="true()" type="xsd:string"/>
+            <bind nodeset="/data/Registration/vnumber" type="xsd:string"/>
+            <bind nodeset="/data/Registration/v" required="true()" type="xsd:string"/>
+            <bind nodeset="/data/ver"/>
+            <bind constraint=". = /data/Registration/id" nodeset="/data/ver/id" required="true()"
+                  type="xsd:string" jr:constraintMsg="jr:itext('id_ver-constraintMsg')"/>
+            <bind constraint=". = /data/Registration/hid1" nodeset="/data/ver/hid1"
+                  type="xsd:string"
+                  jr:constraintMsg="jr:itext('ver/hid1-constraintMsg')"/>
+            <bind constraint=". = /data/Registration/hidline1" nodeset="/data/ver/hidline1"
+                  type="xsd:int"
+                  jr:constraintMsg="jr:itext('ver/hidline1-constraintMsg')"/>
+            <bind constraint=". =today()" nodeset="/data/datetoday" type="xsd:date"
+                  jr:constraintMsg="jr:itext('datetoday-constraintMsg')"/>
+            <bind calculate="double(now())" nodeset="/data/now"/>
+            <bind nodeset="/data/reg_comp"/>
+            <itext>
+                <translation default="" lang="en">
+                    <text id="question6-label">
+                        <value>Consent form
+
+                            Invitation to Participate:
+                            You are being invited to participate in Africa Future Foundation&#8217;s
+                            Mother and Child Health Program. In this Program, you are asked to
+                            answer questions about you and your family including basic demographics,
+                            sexual behavior and health. You have the right to know that consent is
+                            purely voluntary, that your permission to participate in this Program
+                            may be withdrawn at any time, and that you may discontinue participation
+                            in all or part of the Program without affecting your present or future
+                            medical care. You may be asked to take a pregnancy test. The test
+                            attempts to determine whether a woman is really pregnant. Markers that
+                            indicate pregnancy are found in urine, so the test requires sampling of
+                            the substance. You are required to follow every instruction provided
+                            during the test by Africa Future Foundation MCH program staff.
+
+                            Why is This Program Being Done?
+                            The purpose of this Program is to provide appropriate treatment and
+                            nutritional support to pregnant women and to find better ways to improve
+                            mother and child&#8217;s health in Malawi as well as in African
+                            countries.
+
+                            Signature
+                            Your signature below indicates that you have been given the opportunity
+                            to read this consent form and to ask questions. Your questions have been
+                            answered to your satisfaction. You voluntarily agree to participate in
+                            this research study. Upon signing below, you will receive a copy of the
+                            consent form.
+                        </value>
+                    </text>
+                    <text id="Registration-label">
+                        <value>Registration</value>
+                    </text>
+                    <text id="Registration/cohort-label">
+                        <value>COHORT #</value>
+                    </text>
+                    <text id="Registration/cohort-hint">
+                        <value>Either Cohort 1 or Cohort 2</value>
+                    </text>
+                    <text id="Registration/cohort-constraintMsg">
+                        <value>Select 1 or 2</value>
+                    </text>
+                    <text id="Registration/id-label">
+                        <value>MCH Respondent ID Number</value>
+                    </text>
+                    <text id="Registration/id-hint">
+                        <value>MCH ID Code (7 digits)</value>
+                    </text>
+                    <text id="Registration/name1-label">
+                        <value>Respondent NAME 1 **</value>
+                    </text>
+                    <text id="Registration/name1-hint">
+                        <value>First &amp; Last name</value>
+                    </text>
+                    <text id="Registration/name2-label">
+                        <value>Respondent NAME 2</value>
+                    </text>
+                    <text id="Registration/head-label">
+                        <value>HOUSEHOLD HEAD NAME</value>
+                    </text>
+                    <text id="Registration/hid1-label">
+                        <value>Household Identification number</value>
+                    </text>
+                    <text id="Registration/hid1-hint">
+                        <value>Census Household ID code</value>
+                    </text>
+                    <text id="Registration/hid1-constraintMsg">
+                        <value>Must be 6-7 digits long!</value>
+                    </text>
+                    <text id="Registration/address_census-label">
+                        <value>Census Physical Address
+                            Format: x#-x#-###
+                        </value>
+                    </text>
+                    <text id="Registration/hidline1-label">
+                        <value>Respondent Line Number (from Household Roster)</value>
+                    </text>
+                    <text id="Registration/hsa-label">
+                        <value>HSA #</value>
+                    </text>
+                    <text id="Registration/hsa-constraintMsg">
+                        <value>HSA# must be 1-52</value>
+                    </text>
+                    <text id="Registration/gvnumber-label">
+                        <value>GROUP VILLAGE NUMBER</value>
+                    </text>
+                    <text id="Registration/gv-label">
+                        <value>GROUP VILLAGE NAME</value>
+                    </text>
+                    <text id="Registration/vnumber-label">
+                        <value>VILLAGE NUMBER</value>
+                    </text>
+                    <text id="Registration/v-label">
+                        <value>VILLAGE NAME</value>
+                    </text>
+                    <text id="ver-label">
+                        <value>Verification</value>
+                    </text>
+                    <text id="ver/id-label">
+                        <value>Respondent ID Number Verification</value>
+                    </text>
+                    <text id="ver/id-hint">
+                        <value>Respondent ID Number</value>
+                    </text>
+                    <text id="id_ver-constraintMsg">
+                        <value>1st Respondent ID and Verification must be the same!
+                            Double check both IDs
+                        </value>
+                    </text>
+                    <text id="ver/hid1-constraintMsg">
+                        <value>Household Identification Numbers should be the same. Please double
+                            check both!
+                        </value>
+                    </text>
+                    <text id="ver/hidline1-constraintMsg">
+                        <value>Double check both answers!</value>
+                    </text>
+                    <text id="datetoday-label">
+                        <value>Date today</value>
+                    </text>
+                    <text id="datetoday-help">
+                        <value>Leave as it is</value>
+                    </text>
+                    <text id="datetoday-constraintMsg">
+                        <value>Select today's date</value>
+                    </text>
+                    <text id="reg_comp-label">
+                        <value>Registration Complete?
+                            Check for the presence of others. Before continuing make every effort to
+                            ensure **privacy**.
+                        </value>
+                    </text>
+                </translation>
+            </itext>
+            <bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified"
+                  type="xsd:dateTime"/>
+            <bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/>
+            <setvalue event="xforms-ready" ref="/data/case/@case_id"
+                      value="instance('commcaresession')/session/data/case_id_new_followup_0"/>
+            <bind calculate="/data/Registration/name1" nodeset="/data/case/create/case_name"/>
+            <bind calculate="/data/meta/userID" nodeset="/data/case/create/owner_id"/>
+            <bind calculate="/data/Registration/hsa" nodeset="/data/case/update/hsa"
+                  relevant="count(/data/Registration/hsa) &gt; 0"/>
+            <bind calculate="/data/Registration/id" nodeset="/data/case/update/id"
+                  relevant="count(/data/Registration/id) &gt; 0"/>
+            <bind calculate="/data/now" nodeset="/data/case/update/now"
+                  relevant="count(/data/now) &gt; 0"/>
+            <setvalue event="xforms-ready" ref="/data/meta/deviceID"
+                      value="instance('commcaresession')/session/context/deviceid"/>
+            <setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/>
+            <bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/>
+            <setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/>
+            <bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/>
+            <setvalue event="xforms-ready" ref="/data/meta/username"
+                      value="instance('commcaresession')/session/context/username"/>
+            <setvalue event="xforms-ready" ref="/data/meta/userID"
+                      value="instance('commcaresession')/session/context/userid"/>
+            <setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/>
+            <setvalue event="xforms-ready" ref="/data/meta/appVersion"
+                      value="instance('commcaresession')/session/context/appversion"/>
+        </model>
+    </h:head>
+    <h:body>
+        <upload appearance="signature" mediatype="image/*" ref="/data/question6">
+            <label ref="jr:itext('question6-label')"/>
+        </upload>
+        <group appearance="field-list" ref="/data/Registration">
+            <label ref="jr:itext('Registration-label')"/>
+            <input ref="/data/Registration/cohort">
+                <label ref="jr:itext('Registration/cohort-label')"/>
+                <hint ref="jr:itext('Registration/cohort-hint')">Select 1 or 2</hint>
+                <alert ref="jr:itext('Registration/cohort-constraintMsg')"/>
+            </input>
+            <input appearance="numeric" ref="/data/Registration/id">
+                <label ref="jr:itext('Registration/id-label')"/>
+                <hint ref="jr:itext('Registration/id-hint')"/>
+            </input>
+            <input ref="/data/Registration/name1">
+                <label ref="jr:itext('Registration/name1-label')"/>
+                <hint ref="jr:itext('Registration/name1-hint')"/>
+            </input>
+            <input ref="/data/Registration/name2">
+                <label ref="jr:itext('Registration/name2-label')"/>
+            </input>
+            <input ref="/data/Registration/head">
+                <label ref="jr:itext('Registration/head-label')"/>
+            </input>
+            <input ref="/data/Registration/hid1">
+                <label ref="jr:itext('Registration/hid1-label')"/>
+                <hint ref="jr:itext('Registration/hid1-hint')"/>
+                <alert ref="jr:itext('Registration/hid1-constraintMsg')"/>
+            </input>
+            <input ref="/data/Registration/address_census">
+                <label ref="jr:itext('Registration/address_census-label')"/>
+            </input>
+            <input ref="/data/Registration/hidline1">
+                <label ref="jr:itext('Registration/hidline1-label')"/>
+            </input>
+            <input ref="/data/Registration/hsa">
+                <label ref="jr:itext('Registration/hsa-label')"/>
+                <alert ref="jr:itext('Registration/hsa-constraintMsg')"/>
+            </input>
+            <input ref="/data/Registration/gvnumber">
+                <label ref="jr:itext('Registration/gvnumber-label')"/>
+            </input>
+            <input ref="/data/Registration/gv">
+                <label ref="jr:itext('Registration/gv-label')"/>
+            </input>
+            <input ref="/data/Registration/vnumber">
+                <label ref="jr:itext('Registration/vnumber-label')"/>
+            </input>
+            <input ref="/data/Registration/v">
+                <label ref="jr:itext('Registration/v-label')"/>
+            </input>
+        </group>
+        <group appearance="field-list" ref="/data/ver">
+            <label ref="jr:itext('ver-label')"/>
+            <input appearance="numeric" ref="/data/ver/id">
+                <label ref="jr:itext('ver/id-label')"/>
+                <hint ref="jr:itext('ver/id-hint')"/>
+                <alert ref="jr:itext('id_ver-constraintMsg')"/>
+            </input>
+            <input ref="/data/ver/hid1">
+                <label ref="jr:itext('Registration/hid1-label')"/>
+                <alert ref="jr:itext('ver/hid1-constraintMsg')"/>
+            </input>
+            <input ref="/data/ver/hidline1">
+                <label ref="jr:itext('Registration/hidline1-label')"/>
+                <alert ref="jr:itext('ver/hidline1-constraintMsg')"/>
+            </input>
+        </group>
+        <input ref="/data/datetoday">
+            <label ref="jr:itext('datetoday-label')"/>
+            <help ref="jr:itext('datetoday-help')"/>
+            <alert ref="jr:itext('datetoday-constraintMsg')"/>
+        </input>
+        <trigger ref="/data/reg_comp">
+            <label ref="jr:itext('reg_comp-label')"/>
+        </trigger>
+    </h:body>
+</h:html>
