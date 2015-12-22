@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteQueryBuilder;
 
 import org.commcare.android.crypt.EncryptionIO;
 import org.commcare.android.logic.GlobalConstants;
+import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
@@ -291,6 +292,7 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         }
         db.beginTransaction();
         try {
+            // TODO PLM
             List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(ids);
             for (Pair<String, String[]> whereParams : whereParamList) {
                 int rowsRemoved = db.delete(table, DatabaseHelper.ID_COL + " IN " + whereParams.first, whereParams.second);
@@ -311,6 +313,7 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         }
         db.beginTransaction();
         try {
+            FileUtil.deleteFileOrDir(dbDir);
             db.delete(table, null, null);
             db.setTransactionSuccessful();
         } finally {
@@ -350,6 +353,7 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         }
         db.beginTransaction();
         try {
+            // TODO PLM
             for (Pair<String, String[]> whereParams : whereParamList) {
                 db.delete(table, DatabaseHelper.ID_COL + " IN " + whereParams.first, whereParams.second);
             }
@@ -541,5 +545,12 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
             newFile = getUniqueFilename();
         }
         return newFile;
+    }
+
+    /**
+     * For testing only
+     */
+    public File getDbDir() {
+        return dbDir;
     }
 }
