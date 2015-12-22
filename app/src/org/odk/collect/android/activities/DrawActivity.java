@@ -57,8 +57,6 @@ public class DrawActivity extends Activity {
     private File output = null;
     private File savepointImage = null;
 
-    private Paint paint;
-    private Paint pointPaint;
     private DrawView drawView;
     private String alertTitleString;
 
@@ -153,7 +151,7 @@ public class DrawActivity extends Activity {
                 R.layout.draw_layout, null);
         LinearLayout ll = (LinearLayout)v.findViewById(R.id.drawViewLayout);
 
-        paint = new Paint();
+        Paint paint = new Paint();
         paint.setAntiAlias(true);
         paint.setDither(true);
         paint.setStyle(Paint.Style.STROKE);
@@ -161,7 +159,7 @@ public class DrawActivity extends Activity {
         paint.setStrokeWidth(10);
         paint.setColor(Color.BLACK);
 
-        pointPaint = new Paint();
+        Paint pointPaint = new Paint();
         pointPaint.setAntiAlias(true);
         pointPaint.setDither(true);
         pointPaint.setStyle(Paint.Style.FILL_AND_STROKE);
