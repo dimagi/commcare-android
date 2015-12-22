@@ -3,7 +3,6 @@ package org.odk.collect.android.activities;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
-import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -37,9 +36,9 @@ import java.io.FileOutputStream;
 /**
  * Modified from the FingerPaint example found in The Android Open Source
  * Project.
- * 
+ *
  * @author BehrAtherton@gmail.com
- * 
+ *
  */
 public class DrawActivity extends Activity {
     private static final String t = "DrawActivity";
@@ -155,13 +154,6 @@ public class DrawActivity extends Activity {
                 R.layout.draw_layout, null);
         LinearLayout ll = (LinearLayout) v.findViewById(R.id.drawViewLayout);
 
-        drawView = new DrawView(this, OPTION_SIGNATURE.equals(loadOption),
-                savepointImage, paint, pointPaint);
-
-        ll.addView(drawView);
-
-        setContentView(v);
-
         paint = new Paint();
         paint.setAntiAlias(true);
         paint.setDither(true);
@@ -177,33 +169,39 @@ public class DrawActivity extends Activity {
         pointPaint.setStrokeWidth(10);
         pointPaint.setColor(Color.BLACK);
 
+        drawView = new DrawView(this, OPTION_SIGNATURE.equals(loadOption),
+                savepointImage, paint, pointPaint);
+
+        ll.addView(drawView);
+
+        setContentView(v);
+
         Button btnFinished = (Button)findViewById(R.id.btnFinishDraw);
         btnFinished.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                SaveAndClose();
+                saveAndClose();
             }
         });
         Button btnReset = (Button)findViewById(R.id.btnResetDraw);
         btnReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Reset();
+                reset();
             }
         });
         Button btnCancel = (Button)findViewById(R.id.btnCancelDraw);
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                CancelAndClose();
+                cancelAndClose();
             }
         });
 
     }
 
-    private void SaveAndClose() {
+    private void saveAndClose() {
         try {
             saveFile(output);
             setResult(Activity.RESULT_OK);
@@ -236,7 +234,7 @@ public class DrawActivity extends Activity {
         }
     }
 
-    private void Reset() {
+    private void reset() {
         savepointImage.delete();
         if (!OPTION_SIGNATURE.equals(loadOption) && refImage != null
                 && refImage.exists()) {
@@ -246,7 +244,7 @@ public class DrawActivity extends Activity {
         drawView.invalidate();
     }
 
-    private void CancelAndClose() {
+    private void cancelAndClose() {
         setResult(Activity.RESULT_CANCELED);
         this.finish();
     }
@@ -286,7 +284,7 @@ public class DrawActivity extends Activity {
         View.OnClickListener keepChangesListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SaveAndClose();
+                saveAndClose();
             }
         };
         DialogChoiceItem keepOption = new DialogChoiceItem(getString(R.string.keep_changes), -1,
@@ -295,7 +293,7 @@ public class DrawActivity extends Activity {
         View.OnClickListener discardChangesListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                CancelAndClose();
+                cancelAndClose();
             }
         };
         DialogChoiceItem discardOption = new DialogChoiceItem(getString(R.string.do_not_save), -1,
@@ -322,9 +320,11 @@ public class DrawActivity extends Activity {
         private File mBackgroundBitmapFile;
         private final Paint paint;
         private final Paint pointPaint;
+        private float mX, mY;
 
         public DrawView(final Context c, Paint paint, Paint pointPaint) {
             super(c);
+
             this.paint = paint;
             this.pointPaint = pointPaint;
             isSignature = false;
@@ -336,6 +336,7 @@ public class DrawActivity extends Activity {
 
         public DrawView(Context c, boolean isSignature, File f, Paint paint, Paint pointPaint) {
             this(c, paint, pointPaint);
+
             this.isSignature = isSignature;
             mBackgroundBitmapFile = f;
         }
@@ -361,8 +362,9 @@ public class DrawActivity extends Activity {
                 mBitmap = Bitmap.createBitmap(w, h, Bitmap.Config.ARGB_8888);
                 mCanvas = new Canvas(mBitmap);
                 mCanvas.drawColor(0xFFFFFFFF);
-                if (isSignature)
+                if (isSignature) {
                     drawSignLine();
+                }
             }
         }
 
@@ -374,12 +376,10 @@ public class DrawActivity extends Activity {
 
         @Override
         protected void onDraw(Canvas canvas) {
-            canvas.drawColor(R.color.grey);
+            canvas.drawColor(getResources().getColor(R.color.grey));
             canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
             canvas.drawPath(mCurrentPath, paint);
         }
-
-        private float mX, mY;
 
         private void touch_start(float x, float y) {
             mCurrentPath.reset();
@@ -432,6 +432,5 @@ public class DrawActivity extends Activity {
             }
             return true;
         }
-
     }
 }
