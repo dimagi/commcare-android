@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.SqlFileBackedStorage;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.SqlStorageUsingUnencryptedFile;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
@@ -62,7 +63,7 @@ public class FixtureSerializationMigration {
                         new SqlFileBackedStorageForMigration<Persistable>("fixture", FormInstance.class, helper, baseDir, fileMigrationKeySeed);
             } else {
                 fixtureStorage =
-                        new SqlFileBackedStorage<Persistable>("fixture", FormInstance.class, helper, baseDir);
+                        new SqlStorageUsingUnencryptedFile<Persistable>("fixture", FormInstance.class, helper, baseDir);
             }
             SqlStorage<Persistable> oldUserFixtureStorage =
                     new SqlStorage<Persistable>("oldfixture", FormInstance.class, helper);

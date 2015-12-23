@@ -104,7 +104,7 @@ public class SqlFileBackedStorageTests {
         File[] serializedFixtureFiles = dbDir.listFiles();
         Assert.assertTrue(serializedFixtureFiles.length > 0);
         try {
-            ((SqlFileBackedStorage<FormInstance>)appFixtureStorage).newObject(new FileInputStream(serializedFixtureFiles[0]));
+            ((SqlStorageUsingUnencryptedFile<FormInstance>)appFixtureStorage).newObject(new FileInputStream(serializedFixtureFiles[0]));
         } catch (Exception e) {
             Assert.fail("Should be able to deserialize an unencrypted object");
         }
@@ -223,7 +223,7 @@ public class SqlFileBackedStorageTests {
         Assert.assertEquals(newName, form.getName());
 
         // test unencrypted update
-        SqlFileBackedStorage<FormInstance> appFixtureStorage =
+        SqlStorageUsingUnencryptedFile<FormInstance> appFixtureStorage =
                 CommCareApplication._().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
         form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
 
@@ -250,7 +250,7 @@ public class SqlFileBackedStorageTests {
         Assert.assertEquals(forms.firstElement().getRoot(), form.getRoot());
 
         // Test unencrpyted record lookup
-        SqlFileBackedStorage<FormInstance> appFixtureStorage =
+        SqlStorageUsingUnencryptedFile<FormInstance> appFixtureStorage =
                 CommCareApplication._().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
 
         forms = appFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});

@@ -706,7 +706,7 @@ public class CommCareApplication extends Application {
     }
 
     public <T extends Persistable> SqlFileBackedStorage<T> getFileBackedUserStorage(String storage, Class<T> c) {
-        return new SqlFileBackedStorage<>(storage, c, buildUserDbHandle(), getUserDbDir(), true);
+        return new SqlFileBackedStorage<>(storage, c, buildUserDbHandle(), getUserDbDir());
     }
 
     public String getUserDbDir() {

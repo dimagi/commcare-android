@@ -39,13 +39,13 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Sql logic for storing persistable objects. Uses the filesystem to store
- * persitables; useful when objects are larger than the 1mb sql row limit.
+ * persitables in _encrypted_ manner; useful when objects are larger than the
+ * 1mb sql row limit.
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
     private final File dbDir;
-    private final boolean areFilesEncrypted;
 
     /**
      * column selection used for reading file data
@@ -56,30 +56,16 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
     /**
      * Sql object storage layer that stores serialized objects on the filesystem.
      *
-     * @param table             name of database table
-     * @param ctype             type of object being stored in this database
-     * @param baseDir           all files for entries will be placed within this dir
+     * @param table   name of database table
+     * @param ctype   type of object being stored in this database
+     * @param baseDir all files for entries will be placed within this dir
      */
     public SqlFileBackedStorage(String table,
                                 Class<? extends T> ctype,
                                 AndroidDbHelper helper,
-                                String baseDir,
-                                boolean areFilesEncrypted) {
-        super(table, ctype, helper);
-
-        this.areFilesEncrypted = areFilesEncrypted;
-        dbDir = new File(baseDir + GlobalConstants.FILE_CC_DB + table);
-        setupDir();
-    }
-
-    public SqlFileBackedStorage(String table,
-                                Class<? extends T> ctype,
-                                AndroidDbHelper helper,
                                 String baseDir) {
-
         super(table, ctype, helper);
 
-        this.areFilesEncrypted = false;
         dbDir = new File(baseDir + GlobalConstants.FILE_CC_DB + table);
         setupDir();
     }
@@ -135,18 +121,8 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
     }
 
     protected InputStream getInputStreamFromFile(String filename, byte[] aesKeyBytes) {
-        InputStream is;
-        if (areFilesEncrypted) {
-            SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
-            is = EncryptionIO.getFileInputStream(filename, aesKey);
-        } else {
-            try {
-                is = new FileInputStream(filename);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e.getMessage());
-            }
-        }
-        return is;
+        SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
+        return EncryptionIO.getFileInputStream(filename, aesKey);
     }
 
     @Override
@@ -244,11 +220,7 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
             File dataFile = newFileForEntry();
             ContentValues contentValues = helper.getNonDataContentValues(p);
             contentValues.put(DatabaseHelper.FILE_COL, dataFile.getAbsolutePath());
-            SecretKey key = null;
-            if (areFilesEncrypted) {
-                key = generateKey();
-                contentValues.put(DatabaseHelper.AES_COL, key.getEncoded());
-            }
+            byte[] key = generateKey(contentValues);
             long ret = db.insertOrThrow(table, DatabaseHelper.FILE_COL, contentValues);
 
             if (ret > Integer.MAX_VALUE) {
@@ -257,11 +229,7 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
 
             p.setID((int)ret);
 
-            if (areFilesEncrypted) {
-                writePersitableToEncryptedFile(p, dataFile.getAbsolutePath(), key.getEncoded());
-            } else {
-                writePersitableToFile(p, dataFile.getAbsolutePath());
-            }
+            writePersitableToEncryptedFile(p, dataFile.getAbsolutePath(), key);
 
             db.setTransactionSuccessful();
         } catch (IOException e) {
@@ -272,9 +240,11 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         }
     }
 
-    protected SecretKey generateKey() {
+    protected byte[] generateKey(ContentValues contentValues) {
         try {
-            return CommCareApplication._().createNewSymetricKey();
+            byte[] key = CommCareApplication._().createNewSymetricKey().getEncoded();
+            contentValues.put(DatabaseHelper.AES_COL, key);
+            return key;
         } catch (SessionUnavailableException e) {
             throw new RuntimeException("Session unavailable; can't generate encryption key.");
         }
@@ -323,11 +293,8 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
                     DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
 
             String filename = getEntryFilename(id);
-            if (areFilesEncrypted) {
-                writePersitableToEncryptedFile(extObj, filename, getEntryAESKey(id));
-            } else {
-                writePersitableToFile(extObj, filename);
-            }
+            writePersitableToEncryptedFile(extObj, filename, getEntryAESKey(id));
+
             db.setTransactionSuccessful();
         } catch (IOException e) {
             // Failed to update file
@@ -337,9 +304,9 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         }
     }
 
-    private void writePersitableToEncryptedFile(Externalizable externalizable,
-                                                String filename,
-                                                byte[] aesKeyBytes) throws IOException {
+    protected void writePersitableToEncryptedFile(Externalizable externalizable,
+                                                  String filename,
+                                                  byte[] aesKeyBytes) throws IOException {
         DataOutputStream objectOutStream = null;
         SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
         try {
@@ -353,21 +320,7 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         }
     }
 
-    private void writePersitableToFile(Externalizable externalizable,
-                                       String filename) throws IOException {
-        DataOutputStream objectOutStream = null;
-        try {
-            objectOutStream =
-                    new DataOutputStream(new FileOutputStream(filename));
-            externalizable.writeExternal(objectOutStream);
-        } finally {
-            if (objectOutStream != null) {
-                objectOutStream.close();
-            }
-        }
-    }
-
-    private byte[] getEntryAESKey(int id) {
+    protected byte[] getEntryAESKey(int id) {
         Cursor c;
         try {
             String[] columns = new String[]{DatabaseHelper.ID_COL, DatabaseHelper.AES_COL};
