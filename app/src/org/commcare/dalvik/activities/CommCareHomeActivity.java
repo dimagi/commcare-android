@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -67,6 +68,7 @@ import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathTypeMismatchException;
@@ -789,6 +791,10 @@ public class CommCareHomeActivity
     }
 
     private void launchEntitySelect(CommCareSession session) {
+        startActivityForResult(getSelectIntent(session), GET_CASE);
+    }
+
+    private Intent getSelectIntent(CommCareSession session) {
         Intent i = new Intent(getApplicationContext(), EntitySelectActivity.class);
         i.putExtra(SessionFrame.STATE_COMMAND_ID, session.getCommand());
         StackFrameStep lastPopped = session.getPoppedStep();
@@ -797,19 +803,32 @@ public class CommCareHomeActivity
         }
         addPendingDataExtra(i, session);
         addPendingDatumIdExtra(i, session);
-        startActivityForResult(i, GET_CASE);
+        return i;
     }
 
     // Launch an intent to load the confirmation screen for the current selection
     private void launchConfirmDetail(AndroidSessionWrapper asw) {
         CommCareSession session = asw.getSession();
         SessionDatum selectDatum = session.getNeededDatum();
-        Intent detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
-        EntitySelectActivity.populateDetailIntent(
-                detailIntent, sessionNavigator.getCurrentAutoSelection(), selectDatum, asw);
-        addPendingDataExtra(detailIntent, session);
-        addPendingDatumIdExtra(detailIntent, session);
-        startActivityForResult(detailIntent, GET_CASE);
+        TreeReference contextRef = sessionNavigator.getCurrentAutoSelection();
+        if (this.getString(R.string.panes).equals("two")
+                && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            // Large tablet in landscape: send to entity select activity
+            // (awesome mode, with case pre-selected) instead of entity detail
+            Intent i = getSelectIntent(session);
+            String caseId = SessionDatum.getCaseIdFromReference(
+                    contextRef, selectDatum, asw.getEvaluationContext());
+            i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, caseId);
+            startActivityForResult(i, GET_CASE);
+        } else {
+            // Launch entity detail activity
+            Intent detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
+            EntitySelectActivity.populateDetailIntent(
+                    detailIntent, contextRef, selectDatum, asw);
+            addPendingDataExtra(detailIntent, session);
+            addPendingDatumIdExtra(detailIntent, session);
+            startActivityForResult(detailIntent, GET_CASE);
+        }
     }
 
     private static void addPendingDataExtra(Intent i, CommCareSession session) {
