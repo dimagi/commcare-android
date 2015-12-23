@@ -5,7 +5,6 @@ import android.database.Cursor;
 import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
-import net.sqlcipher.database.SQLiteQueryBuilder;
 
 import org.commcare.android.crypt.EncryptionIO;
 import org.commcare.android.logic.GlobalConstants;
@@ -22,8 +21,6 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,8 +46,25 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
     private final File dbDir;
     private final boolean areFilesEncrypted;
 
-    public SqlFileBackedStorage(String table, Class<? extends T> ctype,
-                                AndroidDbHelper helper, String baseDir, boolean areFilesEncrypted) {
+    /**
+     * column selection used for reading file data
+     */
+    private final static String[] dataColumns =
+            {DatabaseHelper.ID_COL, DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL};
+
+    /**
+     * Sql object storage layer that stores serialized objects on the filesystem.
+     *
+     * @param table             name of database table
+     * @param ctype             type of object being stored in this database
+     * @param baseDir           all files for entries will be placed within this dir
+     * @param areFilesEncrypted should files be encrypted when stored on filesystem?
+     */
+    public SqlFileBackedStorage(String table,
+                                Class<? extends T> ctype,
+                                AndroidDbHelper helper,
+                                String baseDir,
+                                boolean areFilesEncrypted) {
         super(table, ctype, helper);
 
         this.areFilesEncrypted = areFilesEncrypted;
@@ -61,25 +75,28 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
     private void setupDir() {
         if (!dbDir.exists()) {
             if (!dbDir.mkdirs()) {
-                throw new RuntimeException("unable to create db storage directory: " + dbDir);
+                String errorMsg = "unable to create db storage directory: " + dbDir;
+                throw new RuntimeException(errorMsg);
             }
         }
     }
 
     @Override
-    public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
-        SQLiteDatabase appDb;
+    public Vector<T> getRecordsForValues(String[] fieldNames,
+                                         Object[] values) {
+        SQLiteDatabase db;
         try {
-            appDb = helper.getHandle();
+            db = helper.getHandle();
         } catch (SessionUnavailableException e) {
             throw new UserStorageClosedException(e.getMessage());
         }
 
-        Pair<String, String[]> whereArgsAndVals =
+        Pair<String, String[]> whereClauseAndArgs =
                 helper.createWhereAndroid(fieldNames, values, em, null);
 
         String[] columns = new String[]{DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL};
-        Cursor c = appDb.query(table, columns, whereArgsAndVals.first, whereArgsAndVals.second,
+        Cursor c = db.query(table, columns,
+                whereClauseAndArgs.first, whereClauseAndArgs.second,
                 null, null, null);
         try {
             if (c.getCount() == 0) {
@@ -92,7 +109,7 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
                 while (!c.isAfterLast()) {
                     String filename = c.getString(fileColIndex);
                     byte[] aesKeyBlob = c.getBlob(aesColIndex);
-                    InputStream inputStream = getFileInputStream(filename, aesKeyBlob);
+                    InputStream inputStream = getInputStreamFromFile(filename, aesKeyBlob);
                     recordObjects.add(newObject(inputStream));
                     c.moveToNext();
                 }
@@ -103,6 +120,21 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
                 c.close();
             }
         }
+    }
+
+    protected InputStream getInputStreamFromFile(String filename, byte[] aesKeyBytes) {
+        InputStream is;
+        if (areFilesEncrypted) {
+            SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
+            is = EncryptionIO.getFileInputStream(filename, aesKey);
+        } else {
+            try {
+                is = new FileInputStream(filename);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e.getMessage());
+            }
+        }
+        return is;
     }
 
     @Override
@@ -117,9 +149,8 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
 
         Pair<String, String[]> whereArgsAndVals =
                 helper.createWhereAndroid(rawFieldNames, values, em, null);
-        String[] columns =
-                new String[]{DatabaseHelper.ID_COL, DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL};
-        Cursor c = appDb.query(table, columns, whereArgsAndVals.first, whereArgsAndVals.second,
+        Cursor c = appDb.query(table, dataColumns,
+                whereArgsAndVals.first, whereArgsAndVals.second,
                 null, null, null);
         try {
             int queryCount = c.getCount();
@@ -136,7 +167,7 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
             c.moveToFirst();
             String filename = c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
             byte[] aesKeyBlob = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
-            return newObject(getFileInputStream(filename, aesKeyBlob));
+            return newObject(getInputStreamFromFile(filename, aesKeyBlob));
         } finally {
             if (c != null) {
                 c.close();
@@ -151,80 +182,12 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
     }
 
     @Override
-    public int add(Externalizable externalizable) {
-        SQLiteDatabase db;
-        try {
-            db = helper.getHandle();
-        } catch (SessionUnavailableException sue) {
-            throw new UserStorageClosedException(sue.getMessage());
-        }
-        int i = -1;
-        try {
-            db.beginTransaction();
-
-            File dataFile = newFileForEntry();
-            ContentValues contentValues = helper.getNonDataContentValues(externalizable);
-            contentValues.put(DatabaseHelper.FILE_COL, dataFile.getAbsolutePath());
-            long ret = db.insertOrThrow(table, DatabaseHelper.FILE_COL, contentValues);
-
-            if (ret > Integer.MAX_VALUE) {
-                throw new RuntimeException("Waaaaaaaaaay too many values");
-            }
-
-            i = (int)ret;
-
-            db.setTransactionSuccessful();
-        } catch (IOException e) {
-            // failed to create new file
-            // TODO PLM: what is the correct way to fail here?
-            e.printStackTrace();
-        } finally {
-            db.endTransaction();
-        }
-
-        return i;
-    }
-
-    @Override
-    public SqlStorageIterator<T> iterate(boolean includeData) {
-        SQLiteDatabase db;
-        try {
-            db = helper.getHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
-
-        SqlStorageIterator<T> spanningIterator = getIndexSpanningIteratorOrNull(db, includeData);
-        if (spanningIterator != null) {
-            return spanningIterator;
-        } else {
-            return new SqlFileBackedStorageIterator<>(getIterateCursor(db, includeData), this);
-        }
-    }
-
-    @Override
-    protected Cursor getIterateCursor(SQLiteDatabase db, boolean includeData) {
-        String[] projection;
-        if (includeData) {
-            projection = new String[]{DatabaseHelper.ID_COL, DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL};
-        } else {
-            projection = new String[]{DatabaseHelper.ID_COL};
-        }
-        return db.query(table, projection, null, null, null, null, null);
-    }
-
-    @Override
-    public SqlStorageIterator<T> iterate(boolean includeData, String primaryId) {
-        throw new UnsupportedOperationException("custom iterate method is unsupported by SqlFileBackedStorage objects");
-    }
-
-    @Override
     public byte[] readBytes(int id) {
         Pair<String, byte[]> filenameAndKeyBytes = getEntryFilenameAndKey(id);
         String filename = filenameAndKeyBytes.first;
         byte[] aesKeyBlob = filenameAndKeyBytes.second;
 
-        InputStream is = getFileInputStream(filename, aesKeyBlob);
+        InputStream is = getInputStreamFromFile(filename, aesKeyBlob);
         if (is == null) {
             throw new RuntimeException("Unable to open and decrypt file: " + filename);
         }
@@ -232,19 +195,181 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         return StreamsUtil.getStreamAsBytes(is);
     }
 
-    protected InputStream getFileInputStream(String filename, byte[] aesKeyBytes) {
-        InputStream is;
-        if (areFilesEncrypted) {
-            SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
-            is = EncryptionIO.getFileInputStream(filename, aesKey);
-        } else {
-            try {
-                is = new FileInputStream(filename);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e.getMessage());
+    private Pair<String, byte[]> getEntryFilenameAndKey(int id) {
+        Cursor c;
+        try {
+            c = helper.getHandle().query(table, dataColumns, DatabaseHelper.ID_COL + "=?",
+                    new String[]{String.valueOf(id)}, null, null, null);
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
+
+        try {
+            c.moveToFirst();
+            return new Pair<>(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL)),
+                    c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL)));
+        } finally {
+            if (c != null) {
+                c.close();
             }
         }
-        return is;
+    }
+
+    @Override
+    public void write(Persistable p) {
+        if (p.getID() != -1) {
+            update(p.getID(), p);
+            return;
+        }
+        SQLiteDatabase db;
+        try {
+            db = helper.getHandle();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
+        try {
+            db.beginTransaction();
+            File dataFile = newFileForEntry();
+            ContentValues contentValues = helper.getNonDataContentValues(p);
+            contentValues.put(DatabaseHelper.FILE_COL, dataFile.getAbsolutePath());
+            SecretKey key = null;
+            if (areFilesEncrypted) {
+                try {
+                    key = CommCareApplication._().createNewSymetricKey();
+                } catch (SessionUnavailableException e) {
+                    String msg = "Session unavailable: Unable to generate encryption key.";
+                    throw new RuntimeException(msg);
+                }
+                contentValues.put(DatabaseHelper.AES_COL, key.getEncoded());
+            }
+            long ret = db.insertOrThrow(table, DatabaseHelper.FILE_COL, contentValues);
+
+            if (ret > Integer.MAX_VALUE) {
+                throw new RuntimeException("Waaaaaaaaaay too many values");
+            }
+
+            p.setID((int)ret);
+
+            if (areFilesEncrypted) {
+                writePersitableToEncryptedFile(p, dataFile.getAbsolutePath(), key.getEncoded());
+            } else {
+                writePersitableToFile(p, dataFile.getAbsolutePath());
+            }
+
+            db.setTransactionSuccessful();
+        } catch (IOException e) {
+            // Failed to create new file
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private File newFileForEntry() throws IOException {
+        File newFile = getUniqueFilename();
+
+        if (!newFile.createNewFile()) {
+            throw new RuntimeException("Trying to create a new file using existing filename; " +
+                    "Shouldn't be possible since we already checked for uniqueness");
+        }
+
+        return newFile;
+    }
+
+    private File getUniqueFilename() {
+        String uniqueSuffix = "_" + (Math.random() * 5);
+        String timeAsString =
+                DateTime.now().toString(DateTimeFormat.forPattern("MM_dd_yyyy_HH_mm_ss"));
+        String filename = timeAsString + uniqueSuffix;
+        File newFile = new File(dbDir, filename);
+        // keep trying until we find a filename that doesn't already exist
+        while (newFile.exists()) {
+            newFile = getUniqueFilename();
+        }
+        return newFile;
+    }
+
+    @Override
+    public int add(Externalizable externalizable) {
+        throw new UnsupportedOperationException("Use 'SqlFileBackedStorage.write'");
+    }
+
+    @Override
+    public void update(int id, Externalizable extObj) {
+        SQLiteDatabase db;
+        try {
+            db = helper.getHandle();
+        } catch (SessionUnavailableException sue) {
+            throw new UserStorageClosedException(sue.getMessage());
+        }
+        db.beginTransaction();
+        try {
+            db.update(table, helper.getNonDataContentValues(extObj),
+                    DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
+
+            String filename = getEntryFilename(id);
+            if (areFilesEncrypted) {
+                writePersitableToEncryptedFile(extObj, filename, getEntryAESKey(id));
+            } else {
+                writePersitableToFile(extObj, filename);
+            }
+            db.setTransactionSuccessful();
+        } catch (IOException e) {
+            // Failed to update file
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private void writePersitableToEncryptedFile(Externalizable externalizable,
+                                                String filename,
+                                                byte[] aesKeyBytes) throws IOException {
+        DataOutputStream objectOutStream = null;
+        SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
+        try {
+            objectOutStream =
+                    new DataOutputStream(EncryptionIO.createFileOutputStream(filename, aesKey));
+            externalizable.writeExternal(objectOutStream);
+        } finally {
+            if (objectOutStream != null) {
+                objectOutStream.close();
+            }
+        }
+    }
+
+    private void writePersitableToFile(Externalizable externalizable,
+                                       String filename) throws IOException {
+        DataOutputStream objectOutStream = null;
+        try {
+            objectOutStream =
+                    new DataOutputStream(new FileOutputStream(filename));
+            externalizable.writeExternal(objectOutStream);
+        } finally {
+            if (objectOutStream != null) {
+                objectOutStream.close();
+            }
+        }
+    }
+
+    private byte[] getEntryAESKey(int id) {
+        Cursor c;
+        try {
+            String[] columns = new String[]{DatabaseHelper.ID_COL, DatabaseHelper.AES_COL};
+            c = helper.getHandle().query(table, columns, DatabaseHelper.ID_COL + "=?",
+                    new String[]{String.valueOf(id)}, null, null, null);
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
+
+        try {
+            c.moveToFirst();
+            return c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
     }
 
     @Override
@@ -268,6 +393,29 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         }
     }
 
+    private String getEntryFilename(int id) {
+        Cursor c;
+        SQLiteDatabase db;
+        try {
+            db = helper.getHandle();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
+        }
+
+        String[] columns = new String[]{DatabaseHelper.FILE_COL};
+        c = db.query(table, columns, DatabaseHelper.ID_COL + "=?",
+                new String[]{String.valueOf(id)}, null, null, null);
+
+        try {
+            c.moveToFirst();
+            return c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
+    }
+
     @Override
     public void remove(List<Integer> ids) {
         if (ids.size() == 0) {
@@ -284,11 +432,20 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
             removeFiles(ids);
             List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(ids);
             for (Pair<String, String[]> whereParams : whereParamList) {
-                db.delete(table, DatabaseHelper.ID_COL + " IN " + whereParams.first, whereParams.second);
+                String whereClause = DatabaseHelper.ID_COL + " IN " + whereParams.first;
+                db.delete(table, whereClause, whereParams.second);
             }
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
+        }
+    }
+
+    private void removeFiles(List<Integer> idsBeingRemoved) {
+        // delete files storing data for entries being removed
+        for (Integer id : idsBeingRemoved) {
+            File datafile = new File(getEntryFilename(id));
+            datafile.delete();
         }
     }
 
@@ -332,7 +489,8 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
             return removed;
         }
 
-        List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(removed);
+        List<Pair<String, String[]>> whereParamList =
+                AndroidTableBuilder.sqlList(removed);
 
         SQLiteDatabase db;
         try {
@@ -344,7 +502,8 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         try {
             removeFiles(removed);
             for (Pair<String, String[]> whereParams : whereParamList) {
-                db.delete(table, DatabaseHelper.ID_COL + " IN " + whereParams.first, whereParams.second);
+                String whereClause = DatabaseHelper.ID_COL + " IN " + whereParams.first;
+                db.delete(table, whereClause, whereParams.second);
             }
 
             db.setTransactionSuccessful();
@@ -355,194 +514,42 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         return removed;
     }
 
-    private void removeFiles(List<Integer> idsBeingRemoved) {
-        // delete files storing data for entries being removed
-        for (Integer id : idsBeingRemoved) {
-            File datafile = new File(getEntryFilename(id));
-            datafile.delete();
-        }
-    }
-
     @Override
-    public void update(int id, Externalizable extObj) {
-        SQLiteDatabase db;
-        try {
-            db = helper.getHandle();
-        } catch (SessionUnavailableException sue) {
-            throw new UserStorageClosedException(sue.getMessage());
-        }
-        db.beginTransaction();
-        try {
-            db.update(table, helper.getNonDataContentValues(extObj), DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
-
-            String filename = getEntryFilename(id);
-            if (areFilesEncrypted) {
-                writePersitableToEncryptedFile(extObj, filename, getEntryAESKey(id));
-            } else {
-                writePersitableToFile(extObj, filename);
-            }
-            db.setTransactionSuccessful();
-        } catch (IOException e) {
-            // failed to update file
-            // TODO PLM: what is the correct way to fail here?
-            e.printStackTrace();
-        } finally {
-            db.endTransaction();
-        }
-    }
-
-    private byte[] getEntryAESKey(int id) {
-        Cursor c;
-        try {
-            c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.AES_COL}, DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)}, null, null, null);
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
-
-        try {
-            c.moveToFirst();
-            return c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-    }
-
-    private Pair<String, byte[]> getEntryFilenameAndKey(int id) {
-        Cursor c;
-        try {
-            c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL}, DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)}, null, null, null);
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
-
-        try {
-            c.moveToFirst();
-            return new Pair<>(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL)),
-                    c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL)));
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-    }
-
-    private String getEntryFilename(int id) {
-        Cursor c;
-        try {
-            c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.FILE_COL}, DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)}, null, null, null);
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
-
-        try {
-            c.moveToFirst();
-            return c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-    }
-
-    @Override
-    public void write(Persistable p) {
-        if (p.getID() != -1) {
-            update(p.getID(), p);
-            return;
-        }
+    public SqlStorageIterator<T> iterate(boolean includeData) {
         SQLiteDatabase db;
         try {
             db = helper.getHandle();
         } catch (SessionUnavailableException e) {
             throw new UserStorageClosedException(e.getMessage());
         }
-        try {
-            db.beginTransaction();
-            File dataFile = newFileForEntry();
-            ContentValues contentValues = helper.getNonDataContentValues(p);
-            contentValues.put(DatabaseHelper.FILE_COL, dataFile.getAbsolutePath());
-            SecretKey key = null;
-            if (areFilesEncrypted) {
-                try {
-                    key = CommCareApplication._().createNewSymetricKey();
-                } catch (SessionUnavailableException e) {
-                    throw new RuntimeException("Session unavailable: Unable to generate encryption key.");
-                }
-                contentValues.put(DatabaseHelper.AES_COL, key.getEncoded());
-            }
-            long ret = db.insertOrThrow(table, DatabaseHelper.FILE_COL, contentValues);
 
-            if (ret > Integer.MAX_VALUE) {
-                throw new RuntimeException("Waaaaaaaaaay too many values");
-            }
-
-            p.setID((int)ret);
-
-            if (areFilesEncrypted) {
-                writePersitableToEncryptedFile(p, dataFile.getAbsolutePath(), key.getEncoded());
-            } else {
-                writePersitableToFile(p, dataFile.getAbsolutePath());
-            }
-
-            db.setTransactionSuccessful();
-        } catch (IOException e) {
-            // failed to create new file
-            // TODO PLM: what is the correct way to fail here?
-            e.printStackTrace();
-        } finally {
-            db.endTransaction();
+        SqlStorageIterator<T> spanningIterator =
+                getIndexSpanningIteratorOrNull(db, includeData);
+        if (spanningIterator != null) {
+            return spanningIterator;
+        } else {
+            return new SqlFileBackedStorageIterator<>(getIterateCursor(db, includeData), this);
         }
     }
 
-    private void writePersitableToEncryptedFile(Externalizable externalizable,
-                                                String filename,
-                                                byte[] aesKeyBytes) throws IOException {
-        DataOutputStream objectOutStream = null;
-        SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
-        try {
-            objectOutStream = new DataOutputStream(EncryptionIO.createFileOutputStream(filename, aesKey));
-            externalizable.writeExternal(objectOutStream);
-        } finally {
-            if (objectOutStream != null) {
-                objectOutStream.close();
-            }
+    @Override
+    protected Cursor getIterateCursor(SQLiteDatabase db, boolean includeData) {
+        String[] projection;
+        if (includeData) {
+            projection = new String[]{
+                    DatabaseHelper.ID_COL,
+                    DatabaseHelper.FILE_COL,
+                    DatabaseHelper.AES_COL};
+        } else {
+            projection = new String[]{DatabaseHelper.ID_COL};
         }
+        return db.query(table, projection, null, null, null, null, null);
     }
 
-    private void writePersitableToFile(Externalizable externalizable,
-                                       String filename) throws IOException {
-        DataOutputStream objectOutStream = null;
-        try {
-            objectOutStream =
-                    new DataOutputStream(new FileOutputStream(filename));
-            externalizable.writeExternal(objectOutStream);
-        } finally {
-            if (objectOutStream != null) {
-                objectOutStream.close();
-            }
-        }
-    }
-
-    private File newFileForEntry() throws IOException {
-        File newFile = getUniqueFilename();
-
-        if (!newFile.createNewFile()) {
-            throw new RuntimeException("Trying to create a new file using existing filename; " +
-                    "Shouldn't be possible since we already checked for uniqueness");
-        }
-
-        return newFile;
-    }
-
-    private File getUniqueFilename() {
-        String filename = DateTime.now().toString(DateTimeFormat.forPattern("MM_dd_yyyy_HH_mm_ss")) + "_" + (Math.random() * 5);
-        File newFile = new File(dbDir, filename);
-        while (newFile.exists()) {
-            newFile = getUniqueFilename();
-        }
-        return newFile;
+    @Override
+    public SqlStorageIterator<T> iterate(boolean includeData, String primaryId) {
+        final String msg = "Custom iterate method is unsupported by SqlFileBackedStorage";
+        throw new UnsupportedOperationException(msg);
     }
 
     /**

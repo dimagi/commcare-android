@@ -35,8 +35,8 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 /**
- * Test file-backed sql storage currently used to store fixtures, which can get large.
- * File-backed storage can store encrypted or unencrypted files.
+ * Test file-backed sql storage currently used to store fixtures, which can get
+ * large.  File-backed storage can store encrypted or unencrypted files.
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
@@ -69,8 +69,11 @@ public class SqlFileBackedStorageTests {
     }
 
     /**
-     * User level fixtures are encrypted. To do so, they are stored in encrypted files and the key is stored in the encrypted databse.
-     * This test ensures that the file is actually encrypted by trying to deserialize the contents of a fixture file w/o decrypting the file first.
+     * User level fixtures are encrypted. To do so, they are stored in
+     * encrypted files and the key is stored in the encrypted databse.  This
+     * test ensures that the file is actually encrypted by trying to
+     * deserialize the contents of a fixture file w/o decrypting the file
+     * first.
      */
     @Test
     public void testStoredEncrypted() {
@@ -90,8 +93,9 @@ public class SqlFileBackedStorageTests {
     }
 
     /**
-     * App level fixtures are stored un-encrypted. To do so, they are stored in plain-text files.
-     * This test ensures that by trying to deserialize the contents of one of those files.
+     * App level fixtures are stored un-encrypted. To do so, they are stored in
+     * plain-text files.  This test ensures that by trying to deserialize the
+     * contents of one of those files.
      */
     @Test
     public void testStoredUnencrypted() {
@@ -164,8 +168,9 @@ public class SqlFileBackedStorageTests {
             } else if (count == 2) {
                 removeTwoEntries(idOne, i.nextID(), userFixtureStorage);
             } else {
-                // seems to be required; otherwise iterator loops forever.
-                // not sure if it is a robolectric bug or a bug in our iterator that comes up when we iterate and delete at the same time
+                // seems to be required; otherwise iterator loops forever. Not
+                // sure if it is a robolectric bug or a bug in our iterator
+                // that comes up when we iterate and delete at the same time
                 break;
             }
 
@@ -204,35 +209,57 @@ public class SqlFileBackedStorageTests {
     }
 
     @Test
-    public void testAdd() {
-        IStorageUtilityIndexed<FormInstance> userFixtureStorage = sandbox.getUserFixtureStorage();
+    public void testUpdate() {
+        // test encrypted update
+        SqlFileBackedStorage<FormInstance> userFixtureStorage =
+                CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class);
+        FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"commtrack:programs"});
 
-        int entryCount = 0;
-        for (IStorageIterator i = userFixtureStorage.iterate(); i.hasMore(); ) {
-            int id = i.nextID();
-            FormInstance fixture = (FormInstance)i.nextRecord();
-            System.out.println(fixture.getName());
-            entryCount++;
-        }
-        System.out.println(entryCount + "");
+        String newName = "new_name";
+        form.setName(newName);
+        userFixtureStorage.update(form.getID(), form);
+
+        form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"commtrack:programs"});
+        Assert.assertEquals(newName, form.getName());
+
+        // test unencrypted update
+        SqlFileBackedStorage<FormInstance> appFixtureStorage =
+                CommCareApplication._().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
+        form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
+
+        form.setName(newName);
+        appFixtureStorage.update(form.getID(), form);
+
+        form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
+        Assert.assertEquals(newName, form.getName());
     }
 
     @Test
     public void testRecordLookup() {
+        // test encrypted record lookup
         SqlFileBackedStorage<FormInstance> userFixtureStorage =
-                CommCareApplication._().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
+                CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class);
 
-        // TODO PLM: this should return a result. I think the ':' isn't escaped properly in the query
-        Vector<FormInstance> shouldHaveFormResults = userFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID}, new String[]{"commtrack:programs"});
-        Assert.assertTrue(shouldHaveFormResults.size() == 0);
-
-        Vector<FormInstance> forms = userFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
+        Vector<FormInstance> forms = userFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID}, new String[]{"commtrack:programs"});
         Assert.assertTrue(forms.size() == 1);
 
-        FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
+        FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"commtrack:programs"});
         Assert.assertEquals(forms.firstElement().getRoot(), form.getRoot());
 
-        form = userFixtureStorage.getRecordForValue(FormInstance.META_ID, "user-groups");
+        form = userFixtureStorage.getRecordForValue(FormInstance.META_ID, "commtrack:programs");
+        Assert.assertEquals(forms.firstElement().getRoot(), form.getRoot());
+
+        // Test unencrpyted record lookup
+        SqlFileBackedStorage<FormInstance> appFixtureStorage =
+                CommCareApplication._().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
+
+        forms = appFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
+        Assert.assertTrue(forms.size() == 1);
+
+        form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
+        Assert.assertEquals(forms.firstElement().getRoot(), form.getRoot());
+
+        form = appFixtureStorage.getRecordForValue(FormInstance.META_ID, "user-groups");
         Assert.assertEquals(forms.firstElement().getRoot(), form.getRoot());
     }
 
