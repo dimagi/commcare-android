@@ -2,6 +2,7 @@ package org.commcare.android.database;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.util.Log;
 import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -23,11 +24,11 @@ import java.util.Map;
  *
  * @author ctsims
  * @author wspride
- *
  */
 public abstract class AndroidDbHelper extends DatabaseHelper {
+    private final static String TAG = AndroidDbHelper.class.getSimpleName();
     
-    final protected Context c;
+    protected final Context c;
     
     public AndroidDbHelper(Context c) {
         this.c = c;
@@ -53,7 +54,8 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
         return contentValues;
     }
 
-    private void copyMetadataIntoContentValues(HashMap<String, Object> metaFieldsAndValues, ContentValues contentValues) {
+    private void copyMetadataIntoContentValues(HashMap<String, Object> metaFieldsAndValues,
+                                               ContentValues contentValues) {
         for(Map.Entry<String, Object> entry:  metaFieldsAndValues.entrySet()){
             String key = entry.getKey();
             Object obj = entry.getValue();
@@ -64,15 +66,18 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
             } else if(obj instanceof byte[]){
                 contentValues.put(key, (byte[]) obj);
             } else{
-                System.out.println("Couldn't determine type of object: " + obj);
+                Log.w(TAG, "Couldn't determine type of object: " + obj);
             }
         }
     }
 
-    public Pair<String, String[]> createWhereAndroid(String[] fieldNames, Object[] values, EncryptedModel em, Persistable p){
-        org.commcare.modern.util.Pair<String, String[]> mPair = DatabaseHelper.createWhere(fieldNames, values, em, p);
+    public Pair<String, String[]> createWhereAndroid(String[] fieldNames,
+                                                     Object[] values,
+                                                     EncryptedModel em,
+                                                     Persistable p){
+        org.commcare.modern.util.Pair<String, String[]> mPair =
+                DatabaseHelper.createWhere(fieldNames, values, em, p);
         return new Pair<>(mPair.first, mPair.second);
-
     }
     
     public PrototypeFactory getPrototypeFactory() {

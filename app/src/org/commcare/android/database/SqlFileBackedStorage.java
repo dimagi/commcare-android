@@ -68,14 +68,19 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
 
     @Override
     public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
-        Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, null);
-
-        Cursor c;
+        SQLiteDatabase appDb;
         try {
-            c = helper.getHandle().query(table, new String[]{DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL}, whereClause.first, whereClause.second, null, null, null);
+            appDb = helper.getHandle();
         } catch (SessionUnavailableException e) {
             throw new UserStorageClosedException(e.getMessage());
         }
+
+        Pair<String, String[]> whereArgsAndVals =
+                helper.createWhereAndroid(fieldNames, values, em, null);
+
+        String[] columns = new String[]{DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL};
+        Cursor c = appDb.query(table, columns, whereArgsAndVals.first, whereArgsAndVals.second,
+                null, null, null);
         try {
             if (c.getCount() == 0) {
                 return new Vector<>();
@@ -101,7 +106,8 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
     }
 
     @Override
-    public T getRecordForValues(String[] rawFieldNames, Object[] values) throws NoSuchElementException, InvalidIndexException {
+    public T getRecordForValues(String[] rawFieldNames, Object[] values)
+            throws NoSuchElementException, InvalidIndexException {
         SQLiteDatabase appDb;
         try {
             appDb = helper.getHandle();
@@ -109,15 +115,23 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
             throw new UserStorageClosedException(e.getMessage());
         }
 
-        Cursor c;
-        Pair<String, String[]> whereClause = helper.createWhereAndroid(rawFieldNames, values, em, null);
-        c = appDb.query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL}, whereClause.first, whereClause.second, null, null, null);
+        Pair<String, String[]> whereArgsAndVals =
+                helper.createWhereAndroid(rawFieldNames, values, em, null);
+        String[] columns =
+                new String[]{DatabaseHelper.ID_COL, DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL};
+        Cursor c = appDb.query(table, columns, whereArgsAndVals.first, whereArgsAndVals.second,
+                null, null, null);
         try {
             int queryCount = c.getCount();
             if (queryCount == 0) {
-                throw new NoSuchElementException("No element in table " + table + " with names " + Arrays.toString(rawFieldNames) + " and values " + Arrays.toString(values));
+                throw new NoSuchElementException("No element in table " + table +
+                        " with names " + Arrays.toString(rawFieldNames) +
+                        " and values " + Arrays.toString(values));
             } else if (queryCount > 1) {
-                throw new InvalidIndexException("Invalid unique column set" + Arrays.toString(rawFieldNames) + ". Multiple records found with value " + Arrays.toString(values), Arrays.toString(rawFieldNames));
+                throw new InvalidIndexException("Invalid unique column set" +
+                        Arrays.toString(rawFieldNames) +
+                        ". Multiple records found with value " +
+                        Arrays.toString(values), Arrays.toString(rawFieldNames));
             }
             c.moveToFirst();
             String filename = c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
@@ -131,39 +145,9 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
     }
 
     @Override
-    public T getRecordForValue(String rawFieldName, Object value) throws NoSuchElementException, InvalidIndexException {
-        SQLiteDatabase db;
-        try {
-            db = helper.getHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
-
-        Pair<String, String[]> whereClause = helper.createWhereAndroid(new String[]{rawFieldName}, new Object[]{value}, em, null);
-
-        if (STORAGE_OUTPUT_DEBUG) {
-            String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[]{DatabaseHelper.ID_COL}, whereClause.first, null, null, null, null);
-            DbUtil.explainSql(db, sql, whereClause.second);
-        }
-
-        String scrubbedName = AndroidTableBuilder.scrubName(rawFieldName);
-        Cursor c = db.query(table, new String[]{DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL}, whereClause.first, whereClause.second, null, null, null);
-        try {
-            int queryCount = c.getCount();
-            if (queryCount == 0) {
-                throw new NoSuchElementException("No element in table " + table + " with name " + scrubbedName + " and value " + value.toString());
-            } else if (queryCount > 1) {
-                throw new InvalidIndexException("Invalid unique column " + scrubbedName + ". Multiple records found with value " + value.toString(), scrubbedName);
-            }
-            c.moveToFirst();
-            String filename = c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
-            byte[] aesKeyBlob = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
-            return newObject(getFileInputStream(filename, aesKeyBlob));
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
+    public T getRecordForValue(String rawFieldName, Object value)
+            throws NoSuchElementException, InvalidIndexException {
+        return getRecordForValues(new String[]{rawFieldName}, new Object[]{value});
     }
 
     @Override

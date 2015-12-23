@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.Normalizer;
 import java.util.ArrayList;
+import java.util.Vector;
 
 /**
  * Test file-backed sql storage currently used to store fixtures, which can get large.
@@ -98,15 +99,11 @@ public class SqlFileBackedStorageTests {
         File dbDir = ((SqlFileBackedStorage<FormInstance>)appFixtureStorage).getDbDir();
         File[] serializedFixtureFiles = dbDir.listFiles();
         Assert.assertTrue(serializedFixtureFiles.length > 0);
-        FormInstance test = null;
         try {
-            test = ((SqlFileBackedStorage<FormInstance>)appFixtureStorage).newObject(new FileInputStream(serializedFixtureFiles[0]));
+            ((SqlFileBackedStorage<FormInstance>)appFixtureStorage).newObject(new FileInputStream(serializedFixtureFiles[0]));
         } catch (Exception e) {
             Assert.fail("Should be able to deserialize an unencrypted object");
         }
-        String name = (test.getRoot().getChildAt(0).getName());
-        System.out.print(test.getRoot().getChildAt(0).getName());
-        System.out.print(name);
     }
 
     @Test
@@ -217,7 +214,26 @@ public class SqlFileBackedStorageTests {
             System.out.println(fixture.getName());
             entryCount++;
         }
-        System.out.println(entryCount+ "");
+        System.out.println(entryCount + "");
+    }
+
+    @Test
+    public void testRecordLookup() {
+        SqlFileBackedStorage<FormInstance> userFixtureStorage =
+                CommCareApplication._().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
+
+        // TODO PLM: this should return a result. I think the ':' isn't escaped properly in the query
+        Vector<FormInstance> shouldHaveFormResults = userFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID}, new String[]{"commtrack:programs"});
+        Assert.assertTrue(shouldHaveFormResults.size() == 0);
+
+        Vector<FormInstance> forms = userFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
+        Assert.assertTrue(forms.size() == 1);
+
+        FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
+        Assert.assertEquals(forms.firstElement().getRoot(), form.getRoot());
+
+        form = userFixtureStorage.getRecordForValue(FormInstance.META_ID, "user-groups");
+        Assert.assertEquals(forms.firstElement().getRoot(), form.getRoot());
     }
 
     private static void parseIntoSandbox(InputStream stream, boolean failfast)
