@@ -19,12 +19,12 @@ import java.io.InputStream;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class SqlStorageUsingUnencryptedFile<T extends Persistable>
-        extends SqlFileBackedStorage<T> {
-    public SqlStorageUsingUnencryptedFile(String table,
-                                          Class<? extends T> ctype,
-                                          AndroidDbHelper helper,
-                                          String baseDir) {
+public class UnencryptedFileBackedSqlStorage<T extends Persistable>
+        extends FileBackedSqlStorage<T> {
+    public UnencryptedFileBackedSqlStorage(String table,
+                                           Class<? extends T> ctype,
+                                           AndroidDbHelper helper,
+                                           String baseDir) {
         super(table, ctype, helper, baseDir);
     }
 
@@ -38,9 +38,9 @@ public class SqlStorageUsingUnencryptedFile<T extends Persistable>
     }
 
     @Override
-    protected void writePersitableToEncryptedFile(Externalizable externalizable,
-                                                  String filename,
-                                                  byte[] aesKeyBytes) throws IOException {
+    protected void writeExternalizableToFile(Externalizable externalizable,
+                                             String filename,
+                                             byte[] aesKeyBytes) throws IOException {
         DataOutputStream objectOutStream = null;
         try {
             objectOutStream =

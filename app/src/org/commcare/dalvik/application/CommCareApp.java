@@ -6,9 +6,8 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.AndroidDbHelper;
-import org.commcare.android.database.SqlFileBackedStorage;
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.SqlStorageUsingUnencryptedFile;
+import org.commcare.android.database.UnencryptedFileBackedSqlStorage;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -278,8 +277,8 @@ public class CommCareApp {
         return new SqlStorage<>(name, c, buildAndroidDbHelper());
     }
 
-    public <T extends Persistable> SqlStorageUsingUnencryptedFile<T> getFileBackedStorage(String name, Class<T> c) {
-        return new SqlStorageUsingUnencryptedFile<>(name, c, buildAndroidDbHelper(), storageRoot());
+    public <T extends Persistable> UnencryptedFileBackedSqlStorage<T> getFileBackedStorage(String name, Class<T> c) {
+        return new UnencryptedFileBackedSqlStorage<>(name, c, buildAndroidDbHelper(), storageRoot());
     }
 
     private AndroidDbHelper buildAndroidDbHelper() {

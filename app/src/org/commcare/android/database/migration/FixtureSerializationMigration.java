@@ -7,9 +7,9 @@ import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.ConcreteAndroidDbHelper;
-import org.commcare.android.database.SqlFileBackedStorage;
+import org.commcare.android.database.FileBackedSqlStorage;
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.SqlStorageUsingUnencryptedFile;
+import org.commcare.android.database.UnencryptedFileBackedSqlStorage;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
@@ -57,13 +57,13 @@ public class FixtureSerializationMigration {
         Cursor cur = null;
         DataInputStream fixtureByteStream = null;
         try {
-            SqlFileBackedStorage<Persistable> fixtureStorage;
+            FileBackedSqlStorage<Persistable> fixtureStorage;
             if (fileMigrationKeySeed != null) {
                 fixtureStorage =
-                        new SqlFileBackedStorageForMigration<Persistable>("fixture", FormInstance.class, helper, baseDir, fileMigrationKeySeed);
+                        new FileBackedSqlStorageForMigration<Persistable>("fixture", FormInstance.class, helper, baseDir, fileMigrationKeySeed);
             } else {
                 fixtureStorage =
-                        new SqlStorageUsingUnencryptedFile<Persistable>("fixture", FormInstance.class, helper, baseDir);
+                        new UnencryptedFileBackedSqlStorage<Persistable>("fixture", FormInstance.class, helper, baseDir);
             }
             SqlStorage<Persistable> oldUserFixtureStorage =
                     new SqlStorage<Persistable>("oldfixture", FormInstance.class, helper);

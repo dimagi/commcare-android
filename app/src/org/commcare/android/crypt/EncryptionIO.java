@@ -21,6 +21,8 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
+ * Methods for dealing with encrypted input/output.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class EncryptionIO {

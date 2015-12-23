@@ -36,7 +36,7 @@ import net.sqlcipher.database.SQLiteException;
 import org.acra.annotation.ReportsCrashes;
 import org.commcare.android.database.AndroidDbHelper;
 import org.commcare.android.database.MigrationException;
-import org.commcare.android.database.SqlFileBackedStorage;
+import org.commcare.android.database.FileBackedSqlStorage;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
@@ -693,7 +693,7 @@ public class CommCareApplication extends Application {
         return currentApp.getStorage(name, c);
     }
 
-    public <T extends Persistable> SqlFileBackedStorage<T> getFileBackedAppStorage(String name, Class<T> c) {
+    public <T extends Persistable> FileBackedSqlStorage<T> getFileBackedAppStorage(String name, Class<T> c) {
         return currentApp.getFileBackedStorage(name, c);
     }
 
@@ -705,8 +705,8 @@ public class CommCareApplication extends Application {
         return new SqlStorage<>(storage, c, buildUserDbHandle());
     }
 
-    public <T extends Persistable> SqlFileBackedStorage<T> getFileBackedUserStorage(String storage, Class<T> c) {
-        return new SqlFileBackedStorage<>(storage, c, buildUserDbHandle(), getUserDbDir());
+    public <T extends Persistable> FileBackedSqlStorage<T> getFileBackedUserStorage(String storage, Class<T> c) {
+        return new FileBackedSqlStorage<>(storage, c, buildUserDbHandle(), getUserDbDir());
     }
 
     public String getUserDbDir() {

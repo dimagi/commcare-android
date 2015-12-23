@@ -6,7 +6,6 @@ import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.crypt.EncryptionIO;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.util.FileUtil;
@@ -24,9 +23,6 @@ import org.joda.time.format.DateTimeFormat;
 
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -34,7 +30,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Vector;
 
-import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
@@ -44,13 +39,13 @@ import javax.crypto.spec.SecretKeySpec;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
+public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
     private final File dbDir;
 
     /**
      * column selection used for reading file data
      */
-    private final static String[] dataColumns =
+    protected final static String[] dataColumns =
             {DatabaseHelper.ID_COL, DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL};
 
     /**
@@ -60,7 +55,7 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
      * @param ctype   type of object being stored in this database
      * @param baseDir all files for entries will be placed within this dir
      */
-    public SqlFileBackedStorage(String table,
+    public FileBackedSqlStorage(String table,
                                 Class<? extends T> ctype,
                                 AndroidDbHelper helper,
                                 String baseDir) {
@@ -71,23 +66,15 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
     }
 
     private void setupDir() {
-        if (!dbDir.exists()) {
-            if (!dbDir.mkdirs()) {
-                String errorMsg = "unable to create db storage directory: " + dbDir;
-                throw new RuntimeException(errorMsg);
-            }
+        if (!dbDir.exists() && !dbDir.mkdirs()) {
+            throw new RuntimeException("Unable to create db storage directory: " + dbDir);
         }
     }
 
     @Override
     public Vector<T> getRecordsForValues(String[] fieldNames,
                                          Object[] values) {
-        SQLiteDatabase db;
-        try {
-            db = helper.getHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        SQLiteDatabase db = getDbOrThrow();
 
         Pair<String, String[]> whereClauseAndArgs =
                 helper.createWhereAndroid(fieldNames, values, em, null);
@@ -97,11 +84,9 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
                 whereClauseAndArgs.first, whereClauseAndArgs.second,
                 null, null, null);
         try {
-            if (c.getCount() == 0) {
-                return new Vector<>();
-            } else {
+            Vector<T> recordObjects = new Vector<>();
+            if (c.getCount() > 0) {
                 c.moveToFirst();
-                Vector<T> recordObjects = new Vector<>();
                 int fileColIndex = c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL);
                 int aesColIndex = c.getColumnIndexOrThrow(DatabaseHelper.AES_COL);
                 while (!c.isAfterLast()) {
@@ -111,12 +96,20 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
                     recordObjects.add(newObject(inputStream));
                     c.moveToNext();
                 }
-                return recordObjects;
             }
+            return recordObjects;
         } finally {
             if (c != null) {
                 c.close();
             }
+        }
+    }
+
+    private SQLiteDatabase getDbOrThrow() {
+        try {
+            return helper.getHandle();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
         }
     }
 
@@ -128,16 +121,11 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
     @Override
     public T getRecordForValues(String[] rawFieldNames, Object[] values)
             throws NoSuchElementException, InvalidIndexException {
-        SQLiteDatabase appDb;
-        try {
-            appDb = helper.getHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        SQLiteDatabase db = getDbOrThrow();
 
         Pair<String, String[]> whereArgsAndVals =
                 helper.createWhereAndroid(rawFieldNames, values, em, null);
-        Cursor c = appDb.query(table, dataColumns,
+        Cursor c = db.query(table, dataColumns,
                 whereArgsAndVals.first, whereArgsAndVals.second,
                 null, null, null);
         try {
@@ -171,7 +159,8 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
 
     @Override
     public byte[] readBytes(int id) {
-        Pair<String, byte[]> filenameAndKeyBytes = getEntryFilenameAndKey(id);
+        Pair<String, byte[]> filenameAndKeyBytes =
+                FileBackedSqlQueries.getEntryFilenameAndKey(helper, table, id);
         String filename = filenameAndKeyBytes.first;
         byte[] aesKeyBlob = filenameAndKeyBytes.second;
 
@@ -183,38 +172,14 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         return StreamsUtil.getStreamAsBytes(is);
     }
 
-    private Pair<String, byte[]> getEntryFilenameAndKey(int id) {
-        Cursor c;
-        try {
-            c = helper.getHandle().query(table, dataColumns, DatabaseHelper.ID_COL + "=?",
-                    new String[]{String.valueOf(id)}, null, null, null);
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
-
-        try {
-            c.moveToFirst();
-            return new Pair<>(c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL)),
-                    c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL)));
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-    }
-
     @Override
     public void write(Persistable p) {
         if (p.getID() != -1) {
             update(p.getID(), p);
             return;
         }
-        SQLiteDatabase db;
-        try {
-            db = helper.getHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        SQLiteDatabase db = getDbOrThrow();
+
         try {
             db.beginTransaction();
             File dataFile = newFileForEntry();
@@ -229,7 +194,7 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
 
             p.setID((int)ret);
 
-            writePersitableToEncryptedFile(p, dataFile.getAbsolutePath(), key);
+            writeExternalizableToFile(p, dataFile.getAbsolutePath(), key);
 
             db.setTransactionSuccessful();
         } catch (IOException e) {
@@ -281,19 +246,15 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
 
     @Override
     public void update(int id, Externalizable extObj) {
-        SQLiteDatabase db;
-        try {
-            db = helper.getHandle();
-        } catch (SessionUnavailableException sue) {
-            throw new UserStorageClosedException(sue.getMessage());
-        }
+        SQLiteDatabase db = getDbOrThrow();
+
         db.beginTransaction();
         try {
             db.update(table, helper.getNonDataContentValues(extObj),
                     DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
 
-            String filename = getEntryFilename(id);
-            writePersitableToEncryptedFile(extObj, filename, getEntryAESKey(id));
+            String filename = FileBackedSqlQueries.getEntryFilename(helper, table, id);
+            writeExternalizableToFile(extObj, filename, getEntryAESKey(id));
 
             db.setTransactionSuccessful();
         } catch (IOException e) {
@@ -304,9 +265,9 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         }
     }
 
-    protected void writePersitableToEncryptedFile(Externalizable externalizable,
-                                                  String filename,
-                                                  byte[] aesKeyBytes) throws IOException {
+    protected void writeExternalizableToFile(Externalizable externalizable,
+                                             String filename,
+                                             byte[] aesKeyBytes) throws IOException {
         DataOutputStream objectOutStream = null;
         SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
         try {
@@ -321,36 +282,16 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
     }
 
     protected byte[] getEntryAESKey(int id) {
-        Cursor c;
-        try {
-            String[] columns = new String[]{DatabaseHelper.ID_COL, DatabaseHelper.AES_COL};
-            c = helper.getHandle().query(table, columns, DatabaseHelper.ID_COL + "=?",
-                    new String[]{String.valueOf(id)}, null, null, null);
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
-
-        try {
-            c.moveToFirst();
-            return c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
+        return FileBackedSqlQueries.getEntryKey(helper, table, id);
     }
 
     @Override
     public void remove(int id) {
-        SQLiteDatabase db;
-        try {
-            db = helper.getHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        SQLiteDatabase db = getDbOrThrow();
+
         db.beginTransaction();
         try {
-            String filename = getEntryFilename(id);
+            String filename = FileBackedSqlQueries.getEntryFilename(helper, table, id);
             File dataFile = new File(filename);
             dataFile.delete();
 
@@ -361,70 +302,37 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         }
     }
 
-    private String getEntryFilename(int id) {
-        Cursor c;
-        SQLiteDatabase db;
-        try {
-            db = helper.getHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
-
-        String[] columns = new String[]{DatabaseHelper.FILE_COL};
-        c = db.query(table, columns, DatabaseHelper.ID_COL + "=?",
-                new String[]{String.valueOf(id)}, null, null, null);
-
-        try {
-            c.moveToFirst();
-            return c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-    }
-
     @Override
     public void remove(List<Integer> ids) {
-        if (ids.size() == 0) {
-            return;
-        }
-        SQLiteDatabase db;
-        try {
-            db = helper.getHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
-        db.beginTransaction();
-        try {
-            removeFiles(ids);
-            List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(ids);
-            for (Pair<String, String[]> whereParams : whereParamList) {
-                String whereClause = DatabaseHelper.ID_COL + " IN " + whereParams.first;
-                db.delete(table, whereClause, whereParams.second);
+        if (ids.size() > 0) {
+            SQLiteDatabase db = getDbOrThrow();
+            db.beginTransaction();
+            try {
+                removeFiles(ids);
+                List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(ids);
+                for (Pair<String, String[]> whereParams : whereParamList) {
+                    String whereClause = DatabaseHelper.ID_COL + " IN " + whereParams.first;
+                    db.delete(table, whereClause, whereParams.second);
+                }
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
             }
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
         }
     }
 
     private void removeFiles(List<Integer> idsBeingRemoved) {
         // delete files storing data for entries being removed
         for (Integer id : idsBeingRemoved) {
-            File datafile = new File(getEntryFilename(id));
+            File datafile = new File(FileBackedSqlQueries.getEntryFilename(helper, table, id));
             datafile.delete();
         }
     }
 
     @Override
     public void removeAll() {
-        SQLiteDatabase db;
-        try {
-            db = helper.getHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        SQLiteDatabase db = getDbOrThrow();
+
         db.beginTransaction();
         try {
             FileUtil.deleteFileOrDir(dbDir);
@@ -453,30 +361,24 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
             }
         }
 
-        if (removed.size() == 0) {
-            return removed;
-        }
+        if (removed.size() > 0) {
+            List<Pair<String, String[]>> whereParamList =
+                    AndroidTableBuilder.sqlList(removed);
 
-        List<Pair<String, String[]>> whereParamList =
-                AndroidTableBuilder.sqlList(removed);
+            SQLiteDatabase db = getDbOrThrow();
 
-        SQLiteDatabase db;
-        try {
-            db = helper.getHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
-        db.beginTransaction();
-        try {
-            removeFiles(removed);
-            for (Pair<String, String[]> whereParams : whereParamList) {
-                String whereClause = DatabaseHelper.ID_COL + " IN " + whereParams.first;
-                db.delete(table, whereClause, whereParams.second);
+            db.beginTransaction();
+            try {
+                removeFiles(removed);
+                for (Pair<String, String[]> whereParams : whereParamList) {
+                    String whereClause = DatabaseHelper.ID_COL + " IN " + whereParams.first;
+                    db.delete(table, whereClause, whereParams.second);
+                }
+
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
             }
-
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
         }
 
         return removed;
@@ -484,12 +386,7 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
 
     @Override
     public SqlStorageIterator<T> iterate(boolean includeData) {
-        SQLiteDatabase db;
-        try {
-            db = helper.getHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        SQLiteDatabase db = getDbOrThrow();
 
         SqlStorageIterator<T> spanningIterator =
                 getIndexSpanningIteratorOrNull(db, includeData);
@@ -502,28 +399,23 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
 
     @Override
     protected Cursor getIterateCursor(SQLiteDatabase db, boolean includeData) {
-        String[] projection;
         if (includeData) {
-            projection = new String[]{
-                    DatabaseHelper.ID_COL,
-                    DatabaseHelper.FILE_COL,
-                    DatabaseHelper.AES_COL};
+            return db.query(table, dataColumns, null, null, null, null, null);
         } else {
-            projection = new String[]{DatabaseHelper.ID_COL};
+            return db.query(table, new String[]{DatabaseHelper.ID_COL},
+                    null, null, null, null, null);
         }
-        return db.query(table, projection, null, null, null, null, null);
     }
 
     @Override
     public SqlStorageIterator<T> iterate(boolean includeData, String primaryId) {
-        final String msg = "Custom iterate method is unsupported by SqlFileBackedStorage";
-        throw new UnsupportedOperationException(msg);
+        throw new UnsupportedOperationException("iterate method unsupported");
     }
 
     /**
      * For testing only
      */
-    public File getDbDir() {
+    public File getDbDirForTesting() {
         return dbDir;
     }
 
@@ -531,6 +423,6 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
      * For testing only
      */
     public String getEntryFilenameForTesting(int id) {
-        return getEntryFilename(id);
+        return FileBackedSqlQueries.getEntryFilename(helper, table, id);
     }
 }

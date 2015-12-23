@@ -6,7 +6,6 @@ import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.DataModelPullParser;
-import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.xml.AndroidTransactionParserFactory;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
@@ -15,7 +14,6 @@ import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
-import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.junit.Assert;
@@ -30,7 +28,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Vector;
 
@@ -78,11 +75,11 @@ public class SqlFileBackedStorageTests {
     @Test
     public void testStoredEncrypted() {
         IStorageUtilityIndexed<FormInstance> userFixtureStorage = sandbox.getUserFixtureStorage();
-        File dbDir = ((SqlFileBackedStorage<FormInstance>)userFixtureStorage).getDbDir();
+        File dbDir = ((FileBackedSqlStorage<FormInstance>)userFixtureStorage).getDbDirForTesting();
         File[] serializedFixtureFiles = dbDir.listFiles();
         Assert.assertTrue(serializedFixtureFiles.length > 0);
         try {
-            ((SqlFileBackedStorage<FormInstance>)userFixtureStorage).newObject(new FileInputStream(serializedFixtureFiles[0]));
+            ((FileBackedSqlStorage<FormInstance>)userFixtureStorage).newObject(new FileInputStream(serializedFixtureFiles[0]));
         } catch (FileNotFoundException e) {
             Assert.fail("Unable to find db storage file that should exist");
         } catch (RuntimeException e) {
@@ -100,11 +97,11 @@ public class SqlFileBackedStorageTests {
     @Test
     public void testStoredUnencrypted() {
         IStorageUtilityIndexed<FormInstance> appFixtureStorage = sandbox.getAppFixtureStorage();
-        File dbDir = ((SqlFileBackedStorage<FormInstance>)appFixtureStorage).getDbDir();
+        File dbDir = ((FileBackedSqlStorage<FormInstance>)appFixtureStorage).getDbDirForTesting();
         File[] serializedFixtureFiles = dbDir.listFiles();
         Assert.assertTrue(serializedFixtureFiles.length > 0);
         try {
-            ((SqlStorageUsingUnencryptedFile<FormInstance>)appFixtureStorage).newObject(new FileInputStream(serializedFixtureFiles[0]));
+            ((UnencryptedFileBackedSqlStorage<FormInstance>)appFixtureStorage).newObject(new FileInputStream(serializedFixtureFiles[0]));
         } catch (Exception e) {
             Assert.fail("Should be able to deserialize an unencrypted object");
         }
@@ -113,12 +110,12 @@ public class SqlFileBackedStorageTests {
     @Test
     public void testRemoveAllDeletesFiles() {
         IStorageUtilityIndexed<FormInstance> userFixtureStorage = sandbox.getUserFixtureStorage();
-        File dbDir = ((SqlFileBackedStorage<FormInstance>)userFixtureStorage).getDbDir();
+        File dbDir = ((FileBackedSqlStorage<FormInstance>)userFixtureStorage).getDbDirForTesting();
 
         ArrayList<File> removedFiles = new ArrayList<>();
         for (IStorageIterator i = userFixtureStorage.iterate(); i.hasMore(); ) {
             File fixtureFile =
-                    new File(((SqlFileBackedStorage<FormInstance>)userFixtureStorage).getEntryFilenameForTesting(i.nextID()));
+                    new File(((FileBackedSqlStorage<FormInstance>)userFixtureStorage).getEntryFilenameForTesting(i.nextID()));
             removedFiles.add(fixtureFile);
         }
 
@@ -133,7 +130,7 @@ public class SqlFileBackedStorageTests {
     @Test
     public void testRemoveEntityFilterDeleteFiles() {
         IStorageUtilityIndexed<FormInstance> userFixtureStorage = sandbox.getUserFixtureStorage();
-        File dbDir = ((SqlFileBackedStorage<FormInstance>)userFixtureStorage).getDbDir();
+        File dbDir = ((FileBackedSqlStorage<FormInstance>)userFixtureStorage).getDbDirForTesting();
         int fileCountBefore = dbDir.listFiles().length;
 
         userFixtureStorage.removeAll(new EntityFilter<FormInstance>() {
@@ -155,7 +152,7 @@ public class SqlFileBackedStorageTests {
     @Test
     public void testRemoveDeletesFiles() {
         IStorageUtilityIndexed<FormInstance> userFixtureStorage = sandbox.getUserFixtureStorage();
-        File dbDir = ((SqlFileBackedStorage<FormInstance>)userFixtureStorage).getDbDir();
+        File dbDir = ((FileBackedSqlStorage<FormInstance>)userFixtureStorage).getDbDirForTesting();
         File[] serializedFixtureFiles = dbDir.listFiles();
         Assert.assertTrue(serializedFixtureFiles.length > 0);
         int count = 0;
@@ -180,7 +177,7 @@ public class SqlFileBackedStorageTests {
 
     private void removeOneEntry(int id, IStorageUtility<FormInstance> userFixtureStorage) {
         String fixtureFilename =
-                ((SqlFileBackedStorage<FormInstance>)userFixtureStorage).getEntryFilenameForTesting(id);
+                ((FileBackedSqlStorage<FormInstance>)userFixtureStorage).getEntryFilenameForTesting(id);
         File fixtureFile = new File(fixtureFilename);
         Assert.assertTrue(fixtureFile.exists());
         userFixtureStorage.remove(id);
@@ -193,16 +190,16 @@ public class SqlFileBackedStorageTests {
         toRemoveList.add(idTwo);
 
         String fixtureOneFilename =
-                ((SqlFileBackedStorage<FormInstance>)userFixtureStorage).getEntryFilenameForTesting(idOne);
+                ((FileBackedSqlStorage<FormInstance>)userFixtureStorage).getEntryFilenameForTesting(idOne);
         String fixtureTwoFilename =
-                ((SqlFileBackedStorage<FormInstance>)userFixtureStorage).getEntryFilenameForTesting(idTwo);
+                ((FileBackedSqlStorage<FormInstance>)userFixtureStorage).getEntryFilenameForTesting(idTwo);
         File fixtureFileOne = new File(fixtureOneFilename);
         File fixtureFileTwo = new File(fixtureTwoFilename);
 
         Assert.assertTrue(fixtureFileOne.exists());
         Assert.assertTrue(fixtureFileTwo.exists());
 
-        ((SqlFileBackedStorage<FormInstance>)userFixtureStorage).remove(toRemoveList);
+        ((FileBackedSqlStorage<FormInstance>)userFixtureStorage).remove(toRemoveList);
 
         Assert.assertTrue(!fixtureFileOne.exists());
         Assert.assertTrue(!fixtureFileTwo.exists());
@@ -211,7 +208,7 @@ public class SqlFileBackedStorageTests {
     @Test
     public void testUpdate() {
         // test encrypted update
-        SqlFileBackedStorage<FormInstance> userFixtureStorage =
+        FileBackedSqlStorage<FormInstance> userFixtureStorage =
                 CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class);
         FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"commtrack:programs"});
 
@@ -223,7 +220,7 @@ public class SqlFileBackedStorageTests {
         Assert.assertEquals(newName, form.getName());
 
         // test unencrypted update
-        SqlStorageUsingUnencryptedFile<FormInstance> appFixtureStorage =
+        UnencryptedFileBackedSqlStorage<FormInstance> appFixtureStorage =
                 CommCareApplication._().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
         form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
 
@@ -237,7 +234,7 @@ public class SqlFileBackedStorageTests {
     @Test
     public void testRecordLookup() {
         // test encrypted record lookup
-        SqlFileBackedStorage<FormInstance> userFixtureStorage =
+        FileBackedSqlStorage<FormInstance> userFixtureStorage =
                 CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class);
 
         Vector<FormInstance> forms = userFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID}, new String[]{"commtrack:programs"});
@@ -250,7 +247,7 @@ public class SqlFileBackedStorageTests {
         Assert.assertEquals(forms.firstElement().getRoot(), form.getRoot());
 
         // Test unencrpyted record lookup
-        SqlStorageUsingUnencryptedFile<FormInstance> appFixtureStorage =
+        UnencryptedFileBackedSqlStorage<FormInstance> appFixtureStorage =
                 CommCareApplication._().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
 
         forms = appFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
