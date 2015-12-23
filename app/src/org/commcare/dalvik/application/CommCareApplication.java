@@ -709,6 +709,10 @@ public class CommCareApplication extends Application {
         return new FileBackedSqlStorage<>(storage, c, buildUserDbHandle(), getUserDbDir());
     }
 
+    /**
+     * Get root directory for user-level file-backed sql storage layer
+     * (currently used for storing fixtures).
+     */
     public String getUserDbDir() {
         try {
             return currentApp.storageRoot() + currentApp + "/" + getSession().getLoggedInUser().getUniqueId() + "/";
