@@ -278,7 +278,7 @@ public class CommCareApp {
     }
 
     public <T extends Persistable> SqlFileBackedStorage<T> getFileBackedStorage(String name, Class<T> c) {
-        return new SqlFileBackedStorage<>(name, c, buildAndroidDbHelper(), storageRoot(), false);
+        return new SqlFileBackedStorage<>(name, c, buildAndroidDbHelper(), storageRoot());
     }
 
     private AndroidDbHelper buildAndroidDbHelper() {

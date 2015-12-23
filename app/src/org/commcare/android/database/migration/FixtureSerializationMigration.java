@@ -38,7 +38,15 @@ import java.util.Vector;
 public class FixtureSerializationMigration {
     private static final String TAG = FixtureSerializationMigration.class.getSimpleName();
 
-    public static boolean migrateFixtureDbBytes(SQLiteDatabase db, Context c, String baseDir, boolean isEncrypted) {
+    public static boolean migrateUnencryptedFixtureDbBytes(SQLiteDatabase db,
+                                                           Context c,
+                                                           String baseDir) {
+        return migrateFixtureDbBytes(db, c, baseDir, null);
+    }
+
+    public static boolean migrateFixtureDbBytes(SQLiteDatabase db, Context c,
+                                                String baseDir,
+                                                byte[] fileMigrationKeySeed) {
         // Not sure how long this process should take, so tell the service to
         // wait longer to make sure this can finish.
         CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
@@ -48,19 +56,28 @@ public class FixtureSerializationMigration {
         Cursor cur = null;
         DataInputStream fixtureByteStream = null;
         try {
-            SqlFileBackedStorage<Persistable> userFixtureStorage =
-                    new SqlFileBackedStorage<Persistable>("fixture", FormInstance.class, helper, baseDir, isEncrypted);
+            SqlFileBackedStorage<Persistable> fixtureStorage;
+            if (fileMigrationKeySeed != null) {
+                fixtureStorage =
+                        new SqlFileBackedStorageForMigration<Persistable>("fixture", FormInstance.class, helper, baseDir, fileMigrationKeySeed);
+            } else {
+                fixtureStorage =
+                        new SqlFileBackedStorage<Persistable>("fixture", FormInstance.class, helper, baseDir);
+            }
             SqlStorage<Persistable> oldUserFixtureStorage =
-                    new SqlStorage<Persistable>("old_fixture", FormInstance.class, helper);
-            cur = db.query("old_fixture", new String[]{DatabaseHelper.ID_COL}, null, null, null, null, null);
+                    new SqlStorage<Persistable>("oldfixture", FormInstance.class, helper);
+            cur = db.query("oldfixture", new String[]{DatabaseHelper.ID_COL}, null, null, null, null, null);
             Vector<Integer> ids = SqlStorage.fillIdWindow(cur, DatabaseHelper.ID_COL);
+            int count = 0;
             for (Integer id : ids) {
+                Log.d(TAG, "migrating fixture " + count++);
                 FormInstance fixture = new FormInstance();
 
                 fixtureByteStream =
                         new DataInputStream(new ByteArrayInputStream(oldUserFixtureStorage.readBytes(id)));
                 fixture.migrateSerialization(fixtureByteStream, helper.getPrototypeFactory());
-                userFixtureStorage.write(fixture);
+                fixture.setID(-1);
+                fixtureStorage.write(fixture);
             }
             db.setTransactionSuccessful();
             return true;

@@ -6,6 +6,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
+import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
@@ -48,6 +49,7 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
     private final Context context;
 
     private final String mUserId;
+    private byte[] fileMigrationKeySeed = null;
 
     public CommCareUserOpenHelper(Context context, String userId) {
         super(context, getDbName(userId), null, USER_DB_VERSION);
@@ -120,7 +122,10 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
         }
     }
 
+    @Override
     public SQLiteDatabase getWritableDatabase(String key) {
+        fileMigrationKeySeed = key.getBytes();
+
         try {
             return super.getWritableDatabase(key);
         } catch (SQLiteException sqle) {
@@ -131,7 +136,6 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
         boolean inSenseMode = false;
         //TODO: Not a great way to get the current app! Pass this in to the constructor.
         //I am preeeeeety sure that we can't get here without _having_ an app/platform, but not 100%
@@ -145,6 +149,6 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
         } catch (Exception e) {
 
         }
-        new UserDatabaseUpgrader(context, inSenseMode).upgrade(db, oldVersion, newVersion);
+        new UserDatabaseUpgrader(context, inSenseMode, fileMigrationKeySeed).upgrade(db, oldVersion, newVersion);
     }
 }

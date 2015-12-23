@@ -6,6 +6,7 @@ import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.crypt.EncryptionIO;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.util.FileUtil;
@@ -58,7 +59,6 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
      * @param table             name of database table
      * @param ctype             type of object being stored in this database
      * @param baseDir           all files for entries will be placed within this dir
-     * @param areFilesEncrypted should files be encrypted when stored on filesystem?
      */
     public SqlFileBackedStorage(String table,
                                 Class<? extends T> ctype,
@@ -68,6 +68,18 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         super(table, ctype, helper);
 
         this.areFilesEncrypted = areFilesEncrypted;
+        dbDir = new File(baseDir + GlobalConstants.FILE_CC_DB + table);
+        setupDir();
+    }
+
+    public SqlFileBackedStorage(String table,
+                                Class<? extends T> ctype,
+                                AndroidDbHelper helper,
+                                String baseDir) {
+
+        super(table, ctype, helper);
+
+        this.areFilesEncrypted = false;
         dbDir = new File(baseDir + GlobalConstants.FILE_CC_DB + table);
         setupDir();
     }
@@ -234,12 +246,7 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
             contentValues.put(DatabaseHelper.FILE_COL, dataFile.getAbsolutePath());
             SecretKey key = null;
             if (areFilesEncrypted) {
-                try {
-                    key = CommCareApplication._().createNewSymetricKey();
-                } catch (SessionUnavailableException e) {
-                    String msg = "Session unavailable: Unable to generate encryption key.";
-                    throw new RuntimeException(msg);
-                }
+                key = generateKey();
                 contentValues.put(DatabaseHelper.AES_COL, key.getEncoded());
             }
             long ret = db.insertOrThrow(table, DatabaseHelper.FILE_COL, contentValues);
@@ -262,6 +269,14 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
             e.printStackTrace();
         } finally {
             db.endTransaction();
+        }
+    }
+
+    protected SecretKey generateKey() {
+        try {
+            return CommCareApplication._().createNewSymetricKey();
+        } catch (SessionUnavailableException e) {
+            throw new RuntimeException("Session unavailable; can't generate encryption key.");
         }
     }
 

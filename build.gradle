@@ -96,7 +96,7 @@ def ccDomainSafe = ccDomain.replaceAll("-", "")
  * @return int If the param -PversionCode is present then return int value or 1
  */
 def getVersionCode = { ->
-    def code = project.hasProperty('versionCode') ? versionCode.toInteger() : 1
+    def code = project.hasProperty('versionCode') ? versionCode.toInteger() : 500000
     println "VersionCode is set to $code"
     return code
 }

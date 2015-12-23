@@ -32,10 +32,12 @@ class UserDatabaseUpgrader {
 
     private boolean inSenseMode = false;
     private final Context c;
+    private final byte[] fileMigrationKey;
 
-    public UserDatabaseUpgrader(Context c, boolean inSenseMode) {
+    public UserDatabaseUpgrader(Context c, boolean inSenseMode, byte[] fileMigrationKey) {
         this.inSenseMode = inSenseMode;
         this.c = c;
+        this.fileMigrationKey = fileMigrationKey;
     }
 
     public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -215,10 +217,11 @@ class UserDatabaseUpgrader {
      * attributes.
      */
     private boolean upgradeEightNine(SQLiteDatabase db, int oldVersion, int newVersion) {
+        Log.d(TAG, "starting user fixture migration");
         db.beginTransaction();
         try {
             // rename old fixture db
-            db.execSQL("ALTER TABLE fixture RENAME TO old_fixture;");
+            db.execSQL("ALTER TABLE fixture RENAME TO oldfixture;");
 
             // make new fixture db w/ filepath and encryption key columns
             AndroidTableBuilder builder = new AndroidTableBuilder("fixture");
@@ -231,11 +234,11 @@ class UserDatabaseUpgrader {
 
         boolean didFixturesMigrate =
                 FixtureSerializationMigration.migrateFixtureDbBytes(db, c,
-                        CommCareApplication._().getUserDbDir(), true);
+                        CommCareApplication._().getUserDbDir(), fileMigrationKey);
 
         db.beginTransaction();
         try {
-            db.execSQL("DROP TABLE old_fixture;");
+            db.execSQL("DROP TABLE oldfixture;");
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

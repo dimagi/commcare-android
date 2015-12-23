@@ -1,6 +1,7 @@
 package org.commcare.android.database.app;
 
 import android.content.Context;
+import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -140,10 +141,11 @@ public class AppDatabaseUpgrader {
      * attributes.
      */
     private boolean upgradeSixSeven(SQLiteDatabase db) {
+        Log.d("AppDatabaseUpgrader", "starting app fixture migration");
         db.beginTransaction();
         try {
             // rename old fixture db
-            db.execSQL("ALTER TABLE fixture RENAME TO old_fixture;");
+            db.execSQL("ALTER TABLE fixture RENAME TO oldfixture;");
 
             // make new fixture db w/ filepath and encryption key columns
             AndroidTableBuilder builder = new AndroidTableBuilder("fixture");
@@ -155,12 +157,13 @@ public class AppDatabaseUpgrader {
         }
 
         boolean didFixturesMigrate =
-                FixtureSerializationMigration.migrateFixtureDbBytes(db, context,
-                        CommCareApplication._().getCurrentApp().storageRoot(), false);
+                FixtureSerializationMigration.migrateUnencryptedFixtureDbBytes(db,
+                        context,
+                        CommCareApplication._().getCurrentApp().storageRoot());
 
         db.beginTransaction();
         try {
-            db.execSQL("DROP TABLE old_fixture;");
+            db.execSQL("DROP TABLE oldfixture;");
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
