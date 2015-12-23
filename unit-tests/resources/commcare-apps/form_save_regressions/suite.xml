@@ -115,12 +115,6 @@
                 <locale id="forms.m0f0"/>
             </text>
         </command>
-        <session>
-            <datum function="uuid()" id="case_id_new_followup_0"/>
-        </session>
-        <stack>
-            <create/>
-        </stack>
     </entry>
     <menu id="root">
         <text>

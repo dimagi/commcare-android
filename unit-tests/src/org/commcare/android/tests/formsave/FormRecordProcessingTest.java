@@ -10,6 +10,7 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.mocks.FormAndDataSyncerFake;
 import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.android.tests.queries.CaseDbQueryTest;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
@@ -18,6 +19,7 @@ import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionNavigator;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.junit.Assert;
@@ -27,7 +29,6 @@ import org.junit.runner.RunWith;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.views.ODKView;
 import org.odk.collect.android.widgets.IntegerWidget;
-import org.odk.collect.android.widgets.StringWidget;
 import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
@@ -64,6 +65,26 @@ public class FormRecordProcessingTest {
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
 
+    @Test
+    public void testCaseIndexUpdateDuringFormSave() {
+        TestUtils.processResourceTransactionIntoAppDb("/inputs/case_create_for_index_table_test.xml");
+
+        EvaluationContext ec = TestUtils.getEvaluationContextWithAndroidIIF();
+
+        CaseDbQueryTest.evaluate("instance('casedb')/casedb/case[@case_type = 'followup'][index/parent = 'worker_one']/@case_id",
+                "constant_id", ec);
+
+        fillOutFormWithCaseUpdate();
+
+        // TODO PLM: I would expect the following evaluation to not result in 'constant_id'
+        CaseDbQueryTest.evaluate("instance('casedb')/casedb/case[@case_type = 'followup'][index/parent = 'worker_one']/@case_id",
+                "constant_id", ec);
+
+        // check to see that the case index was actually updated
+        CaseDbQueryTest.evaluate("instance('casedb')/casedb/case[@case_type = 'followup'][index/parent = 'worker_two']/@case_id",
+                "constant_id", ec);
+    }
+
     /**
      * Regression test for 2.25.1 hotfix where the form record processor
      * parser used during form save was using the wrong parser.
@@ -73,6 +94,10 @@ public class FormRecordProcessingTest {
      */
     @Test
     public void testFormRecordProcessingDuringFormSave() {
+        fillOutFormWithCaseUpdate();
+    }
+
+    private void fillOutFormWithCaseUpdate() {
         CommCareHomeActivity homeActivity = buildHomeActivityForFormEntryLaunch();
 
         ShadowActivity shadowActivity = Shadows.shadowOf(homeActivity);

@@ -11,6 +11,7 @@
                     <Registration>
                         <cohort/>
                     </Registration>
+                    <name/>
                     <now/>
                     <reg_comp/>
                     <case case_id="" date_modified=""
@@ -21,10 +22,12 @@
                             <case_type>followup</case_type>
                         </create>
                         <update>
-                            <hsa/>
-                            <id/>
+                            <name/>
                             <now/>
                         </update>
+                        <index>
+                            <parent case_type="worker">worker_two</parent>
+                        </index>
                     </case>
                     <orx:meta xmlns:cc="http://commcarehq.org/xforms">
                         <orx:deviceID/>
@@ -42,6 +45,7 @@
             <bind constraint=". = 1 or . = 2" nodeset="/data/Registration/cohort" type="xsd:int"
                   jr:constraintMsg="jr:itext('Registration/cohort-constraintMsg')"/>
             <bind calculate="double(now())" nodeset="/data/now"/>
+            <bind calculate="'phillip'" nodeset="/data/name"/>
             <bind nodeset="/data/reg_comp"/>
             <itext>
                 <translation default="" lang="en">
@@ -69,10 +73,11 @@
                   type="xsd:dateTime"/>
             <bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/>
             <setvalue event="xforms-ready" ref="/data/case/@case_id"
-                      value="instance('commcaresession')/session/data/case_id_new_followup_0"/>
+                      value="'constant_id'"/>
             <bind calculate="/data/meta/userID" nodeset="/data/case/create/owner_id"/>
             <bind calculate="/data/now" nodeset="/data/case/update/now"
                   relevant="count(/data/now) &gt; 0"/>
+            <bind calculate="/data/name" nodeset="/data/case/update/name" />
             <setvalue event="xforms-ready" ref="/data/meta/deviceID"
                       value="instance('commcaresession')/session/context/deviceid"/>
             <setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/>
