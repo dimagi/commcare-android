@@ -105,6 +105,6 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
     }
 
     public IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
-        return app.getStorage("fixture", FormInstance.class);
+        return app.getFileBackedStorage("fixture", FormInstance.class);
     }
 }
