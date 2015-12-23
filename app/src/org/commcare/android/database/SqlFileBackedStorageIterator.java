@@ -10,7 +10,7 @@ import org.javarosa.core.services.storage.Persistable;
  */
 public class SqlFileBackedStorageIterator<T extends Persistable> extends SqlStorageIterator<T> {
 
-    public SqlFileBackedStorageIterator(Cursor c, SqlStorage<T> storage) {
+    public SqlFileBackedStorageIterator(Cursor c, SqlFileBackedStorage<T> storage) {
         this(c, storage, null);
     }
 
@@ -22,16 +22,18 @@ public class SqlFileBackedStorageIterator<T extends Persistable> extends SqlStor
      * @param primaryId An optional key index for a primary id that is part
      *                  of the returned iterator
      */
-    public SqlFileBackedStorageIterator(Cursor c, SqlStorage<T> storage, String primaryId) {
+    public SqlFileBackedStorageIterator(Cursor c, SqlFileBackedStorage<T> storage, String primaryId) {
         super(c, storage, primaryId);
     }
 
     @Override
     public T nextRecord() {
-        byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
+        String filename = c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
+        byte[] aesKeyBlob = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
 
         //we don't really use this
         nextID();
-        return storage.newObject(data);
+
+        return storage.newObject(((SqlFileBackedStorage<T>)storage).getFileInputStream(filename, aesKeyBlob));
     }
 }

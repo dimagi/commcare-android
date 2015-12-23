@@ -11,7 +11,9 @@ import org.commcare.xml.AndroidTransactionParserFactory;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
+import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
+import org.javarosa.core.services.storage.IStorageUtility;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -28,8 +30,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.Normalizer;
+import java.util.ArrayList;
 
 /**
+ * Test file-backed sql storage currently used to store fixtures, which can get large.
+ * File-backed storage can store encrypted or unencrypted files.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = org.commcare.dalvik.application.CommCareApplication.class,
@@ -91,15 +98,112 @@ public class SqlFileBackedStorageTests {
         File dbDir = ((SqlFileBackedStorage<FormInstance>)appFixtureStorage).getDbDir();
         File[] serializedFixtureFiles = dbDir.listFiles();
         Assert.assertTrue(serializedFixtureFiles.length > 0);
+        FormInstance test = null;
         try {
-            ((SqlFileBackedStorage<FormInstance>)appFixtureStorage).newObject(new FileInputStream(serializedFixtureFiles[0]));
+            test = ((SqlFileBackedStorage<FormInstance>)appFixtureStorage).newObject(new FileInputStream(serializedFixtureFiles[0]));
         } catch (Exception e) {
             Assert.fail("Should be able to deserialize an unencrypted object");
+        }
+        String name = (test.getRoot().getChildAt(0).getName());
+        System.out.print(test.getRoot().getChildAt(0).getName());
+        System.out.print(name);
+    }
+
+    @Test
+    public void testRemoveAllDeletesFiles() {
+        IStorageUtilityIndexed<FormInstance> userFixtureStorage = sandbox.getUserFixtureStorage();
+        File dbDir = ((SqlFileBackedStorage<FormInstance>)userFixtureStorage).getDbDir();
+
+        ArrayList<File> removedFiles = new ArrayList<>();
+        for (IStorageIterator i = userFixtureStorage.iterate(); i.hasMore(); ) {
+            File fixtureFile =
+                    new File(((SqlFileBackedStorage<FormInstance>)userFixtureStorage).getEntryFilenameForTesting(i.nextID()));
+            removedFiles.add(fixtureFile);
+        }
+
+        userFixtureStorage.removeAll();
+
+        for (File fixtureFile : removedFiles) {
+            Assert.assertTrue(!fixtureFile.exists());
+        }
+        Assert.assertTrue(!dbDir.exists());
+    }
+
+    @Test
+    public void testRemoveEntityFilterDeleteFiles() {
+        IStorageUtilityIndexed<FormInstance> userFixtureStorage = sandbox.getUserFixtureStorage();
+        File dbDir = ((SqlFileBackedStorage<FormInstance>)userFixtureStorage).getDbDir();
+        int fileCountBefore = dbDir.listFiles().length;
+
+        userFixtureStorage.removeAll(new EntityFilter<FormInstance>() {
+            @Override
+            public boolean matches(FormInstance fixture) {
+                return "commtrack:products".equals(fixture.getRoot().getInstanceName());
+            }
+        });
+
+        int fileCountAfter = dbDir.listFiles().length;
+        Assert.assertTrue(fileCountBefore - fileCountAfter == 1);
+
+        // make sure we can read all the existing records just fine
+        for (IStorageIterator i = userFixtureStorage.iterate(); i.hasMore(); ) {
+            i.nextRecord();
         }
     }
 
     @Test
     public void testRemoveDeletesFiles() {
+        IStorageUtilityIndexed<FormInstance> userFixtureStorage = sandbox.getUserFixtureStorage();
+        File dbDir = ((SqlFileBackedStorage<FormInstance>)userFixtureStorage).getDbDir();
+        File[] serializedFixtureFiles = dbDir.listFiles();
+        Assert.assertTrue(serializedFixtureFiles.length > 0);
+        int count = 0;
+        int idOne = -1;
+        for (IStorageIterator i = userFixtureStorage.iterate(); i.hasMore(); ) {
+            if (count == 0) {
+                removeOneEntry(i.nextID(), userFixtureStorage);
+            } else if (count == 1) {
+                idOne = i.nextID();
+            } else if (count == 2) {
+                removeTwoEntries(idOne, i.nextID(), userFixtureStorage);
+            } else {
+                // seems to be required; otherwise iterator loops forever.
+                // not sure if it is a robolectric bug or a bug in our iterator that comes up when we iterate and delete at the same time
+                break;
+            }
+
+            count++;
+        }
+    }
+
+    private void removeOneEntry(int id, IStorageUtility<FormInstance> userFixtureStorage) {
+        String fixtureFilename =
+                ((SqlFileBackedStorage<FormInstance>)userFixtureStorage).getEntryFilenameForTesting(id);
+        File fixtureFile = new File(fixtureFilename);
+        Assert.assertTrue(fixtureFile.exists());
+        userFixtureStorage.remove(id);
+        Assert.assertTrue(!fixtureFile.exists());
+    }
+
+    private void removeTwoEntries(int idOne, int idTwo, IStorageUtility<FormInstance> userFixtureStorage) {
+        ArrayList<Integer> toRemoveList = new ArrayList<>();
+        toRemoveList.add(idOne);
+        toRemoveList.add(idTwo);
+
+        String fixtureOneFilename =
+                ((SqlFileBackedStorage<FormInstance>)userFixtureStorage).getEntryFilenameForTesting(idOne);
+        String fixtureTwoFilename =
+                ((SqlFileBackedStorage<FormInstance>)userFixtureStorage).getEntryFilenameForTesting(idTwo);
+        File fixtureFileOne = new File(fixtureOneFilename);
+        File fixtureFileTwo = new File(fixtureTwoFilename);
+
+        Assert.assertTrue(fixtureFileOne.exists());
+        Assert.assertTrue(fixtureFileTwo.exists());
+
+        ((SqlFileBackedStorage<FormInstance>)userFixtureStorage).remove(toRemoveList);
+
+        Assert.assertTrue(!fixtureFileOne.exists());
+        Assert.assertTrue(!fixtureFileTwo.exists());
     }
 
     @Test

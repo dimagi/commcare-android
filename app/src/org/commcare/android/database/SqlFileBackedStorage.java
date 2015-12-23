@@ -220,7 +220,12 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
 
     @Override
     protected Cursor getIterateCursor(SQLiteDatabase db, boolean includeData) {
-        String[] projection = includeData ? new String[]{DatabaseHelper.ID_COL, DatabaseHelper.FILE_COL} : new String[]{DatabaseHelper.ID_COL};
+        String[] projection;
+        if (includeData) {
+            projection = new String[]{DatabaseHelper.ID_COL, DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL};
+        } else {
+            projection = new String[]{DatabaseHelper.ID_COL};
+        }
         return db.query(table, projection, null, null, null, null, null);
     }
 
@@ -243,7 +248,7 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         return StreamsUtil.getStreamAsBytes(is);
     }
 
-    private InputStream getFileInputStream(String filename, byte[] aesKeyBytes) {
+    protected InputStream getFileInputStream(String filename, byte[] aesKeyBytes) {
         InputStream is;
         if (areFilesEncrypted) {
             SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
@@ -292,10 +297,10 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         }
         db.beginTransaction();
         try {
-            // TODO PLM
+            removeFiles(ids);
             List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(ids);
             for (Pair<String, String[]> whereParams : whereParamList) {
-                int rowsRemoved = db.delete(table, DatabaseHelper.ID_COL + " IN " + whereParams.first, whereParams.second);
+                db.delete(table, DatabaseHelper.ID_COL + " IN " + whereParams.first, whereParams.second);
             }
             db.setTransactionSuccessful();
         } finally {
@@ -353,16 +358,25 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
         }
         db.beginTransaction();
         try {
-            // TODO PLM
+            removeFiles(removed);
             for (Pair<String, String[]> whereParams : whereParamList) {
                 db.delete(table, DatabaseHelper.ID_COL + " IN " + whereParams.first, whereParams.second);
             }
+
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }
 
         return removed;
+    }
+
+    private void removeFiles(List<Integer> idsBeingRemoved) {
+        // delete files storing data for entries being removed
+        for (Integer id : idsBeingRemoved) {
+            File datafile = new File(getEntryFilename(id));
+            datafile.delete();
+        }
     }
 
     @Override
@@ -552,5 +566,12 @@ public class SqlFileBackedStorage<T extends Persistable> extends SqlStorage<T> {
      */
     public File getDbDir() {
         return dbDir;
+    }
+
+    /**
+     * For testing only
+     */
+    public String getEntryFilenameForTesting(int id) {
+        return getEntryFilename(id);
     }
 }
