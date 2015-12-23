@@ -1,9 +1,15 @@
 # commcare-odk
 
+CommCare is an easily customizable, open source mobile platform that supports frontline workers in low-resource settings. By replacing paper-based forms, frontline workers can use CommCare to track and support their clients with registration forms, checklists, SMS reminders, and multimedia.
+
+This repository represents the Android version of CommCare. It depends on the [JavaRosa](https://github.com/dimagi/javarosa) and [CommCare](https://github.com/dimagi/commcare) repositories, which are the XForm engine and case/lookup table implementations used by both the Android and J2ME versions of CommCare.
+
+## Setup
+
 To set up an Android dev environmnet for commcare-odk, do the following:
 
 - Download [Android Studio](https://developer.android.com/sdk/index.html)
-- Make sure you have java installed
+- Make sure you have Java installed
 
 Go ahead and open Android Studio if this is your first time using it;
 it may take you through some sort of setup wizard, and it's nice to get that out of the way.
@@ -31,7 +37,7 @@ git submodule update --init
 - Click "Cancel" on the Import Gradle Project popup (also just declining something automatic that we don't want)
 - Wait while Android Studio spins its wheels
 
-## Running CommCare ODK
+## Running
 
 Now you're basically ready to go. To build CommCare ODK and get it running on your phone,
 plug in an android phone that
