@@ -9,9 +9,9 @@ import org.commcare.modern.models.MetaField;
 import java.util.Date;
 
 /**
- * The version of a FormRecord that exists in databases on any pre-2.26 version of CommCare. This
- * class is used to read and make available a FormRecord that exists in such a database
- * (for database upgrade purposes).
+ * This class represents the version of a FormRecord that exists on any devices running a pre-2.26
+ * version of CommCare, which was deprecated in user db version 9. This class is used to read a
+ * FormRecord that exists in such a database, in order to run a db upgrade.
  *
  * @author amstone
  */

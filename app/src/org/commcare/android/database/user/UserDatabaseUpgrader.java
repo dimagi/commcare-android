@@ -215,7 +215,7 @@ class UserDatabaseUpgrader {
     }
 
     /**
-     * Adding an appId field to FormRecords
+     * Adding an appId field to FormRecords, for compatibility with multiple apps functionality
      */
     private boolean upgradeEightNine(SQLiteDatabase db) {
         db.beginTransaction();
