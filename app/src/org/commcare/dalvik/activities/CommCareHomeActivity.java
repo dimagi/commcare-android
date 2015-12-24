@@ -1336,11 +1336,6 @@ public class CommCareHomeActivity
         uiController.displayMessage(message, bad, suppressToast);
     }
 
-    @Override
-    protected View getBannerHost() {
-        return uiController.getTopBanner();
-    }
-
     protected boolean isDemoUser() {
         try {
             User u = CommCareApplication._().getSession().getLoggedInUser();
