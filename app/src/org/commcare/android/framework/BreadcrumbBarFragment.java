@@ -179,7 +179,7 @@ public class BreadcrumbBarFragment extends Fragment {
         };
 
         // 1dp/ms
-        a.setDuration((int)(targetHeight / v.getContext().getResources().getDisplayMetrics().density) * 2);
+        a.setDuration((int) (targetHeight / v.getContext().getResources().getDisplayMetrics().density) * 2);
         v.startAnimation(a);
     }
 
@@ -349,14 +349,18 @@ public class BreadcrumbBarFragment extends Fragment {
         }
     }
 
-    public static String getBestSubHeaderTitle() {
-        return getBestTitleHelper();
-    }
-
     public static String getBestTitle(Activity activity) {
         String bestTitle = getBestTitleHelper();
         return defaultTitle(bestTitle, activity);
     }
+
+    /**
+     * Unlike the main header, subheaders should not fall back to a default header
+     */
+    public static String getBestSubHeaderTitle() {
+        return getBestTitleHelper();
+    }
+
 
     private static String getBestTitleHelper() {
         AndroidSessionWrapper asw;
