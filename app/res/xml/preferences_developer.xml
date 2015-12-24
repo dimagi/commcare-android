@@ -87,5 +87,6 @@
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-analytics-enabled"
+        android:defaultValue="yes"
         android:title="Analytics Enabled" />
 </PreferenceScreen>
