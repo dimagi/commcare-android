@@ -1128,28 +1128,6 @@ public class CommCareApplication extends MultiDexApplication {
         }
     }
 
-    /**
-     * @return A pair comprised of last sync time and an array with unsent and
-     * incomplete form counts. If the user storage isn't open, return 0 vals
-     * for unsent/incomplete forms.
-     */
-    public Pair<Long, int[]> getSyncDisplayParameters() {
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        long lastSync = prefs.getLong("last-succesful-sync", 0);
-
-        SqlStorage<FormRecord> formsStorage = this.getUserStorage(FormRecord.class);
-
-        try {
-            int unsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
-            int incompleteForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE).size();
-
-            return new Pair<>(lastSync, new int[]{unsentForms, incompleteForms});
-        } catch (UserStorageClosedException e) {
-            return new Pair<>(lastSync, new int[]{0, 0});
-        }
-    }
-
-
     // Start - Error message Hooks
 
     private final int MESSAGE_NOTIFICATION = org.commcare.dalvik.R.string.notification_message_title;

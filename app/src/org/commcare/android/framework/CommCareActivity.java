@@ -4,11 +4,9 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Bitmap;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.Spannable;
@@ -23,7 +21,6 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -34,16 +31,13 @@ import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.MarkupUtil;
-import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.StringUtils;
-import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.AlertDialogFragment;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
-import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.utils.ConnectivityStatus;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
@@ -53,7 +47,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.odk.collect.android.views.media.AudioController;
-
 
 /**
  * Base class for CommCareActivities to simplify
@@ -267,50 +260,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
 
         showPendingAlertDialog();
-    }
-
-    protected View getBannerHost() {
-        return this.findViewById(android.R.id.content);
-    }
-
-    public void updateCommCareBanner() {
-        View hostView = getBannerHost();
-        if (hostView == null) {
-            return;
-        }
-        ImageView topBannerImageView =
-                (ImageView)hostView.findViewById(org.commcare.dalvik.R.id.main_top_banner);
-        if (topBannerImageView == null) {
-            return;
-        }
-
-        if (!useCustomBanner(topBannerImageView)) {
-            topBannerImageView.setImageResource(org.commcare.dalvik.R.drawable.commcare_logo);
-        }
-    }
-
-    private boolean useCustomBanner(@NonNull ImageView topBannerImageView) {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
-        if (app == null) {
-            return false;
-        }
-
-        String customBannerURI = app.getAppPreferences().getString(CommCarePreferences.BRAND_BANNER_HOME, "");
-        if (!"".equals(customBannerURI)) {
-            DisplayMetrics displaymetrics = new DisplayMetrics();
-            getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
-            int screenHeight = displaymetrics.heightPixels;
-            int screenWidth = displaymetrics.widthPixels;
-            int maxBannerHeight = screenHeight / 4;
-
-            Bitmap bitmap = MediaUtil.inflateDisplayImage(this, customBannerURI, screenWidth, maxBannerHeight);
-            if (bitmap != null) {
-                topBannerImageView.setMaxHeight(maxBannerHeight);
-                topBannerImageView.setImageBitmap(bitmap);
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
@@ -849,5 +798,4 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected boolean isActivityPaused() {
         return activityPaused;
     }
-
 }
