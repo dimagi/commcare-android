@@ -248,12 +248,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onResume() {
         super.onResume();
 
-        activityPaused = false;
-
-        if (dialogId > -1) {
-            startBlockingForTask(dialogId);
-        }
-
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
             // In honeycomb and above the fragment takes care of this
             this.setTitle(getTitle(this, getActivityTitle()));
@@ -265,6 +259,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     protected void onResumeFragments() {
         super.onResumeFragments();
+
+        activityPaused = false;
+
+        if (dialogId > -1) {
+            startBlockingForTask(dialogId);
+        }
 
         showPendingAlertDialog();
     }
@@ -553,6 +553,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                             activity.setResult(RESULT_CANCELED);
                             activity.finish();
                         }
+                        dialog.dismiss();
                     }
                 };
         factory.setOnCancelListener(cancelListener);
@@ -567,6 +568,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                             activity.setResult(RESULT_CANCELED);
                             activity.finish();
                         }
+                        dialog.dismiss();
                     }
                 };
         factory.setPositiveButton(buttonDisplayText, buttonListener);

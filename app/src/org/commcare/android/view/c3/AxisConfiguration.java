@@ -27,15 +27,6 @@ public class AxisConfiguration extends Configuration {
             x.put("type", "timeseries");
         }
 
-        // Display secondary y axis only if it has at least one associated series
-        for (SeriesData s : mData.getSeries()) {
-            boolean hasSecondaryAxis = Boolean.valueOf(s.getConfiguration("secondary-y", "false"));
-            if (hasSecondaryAxis) {
-                y2.put("show", true);
-                break;
-            }
-        }
-
         mConfiguration.put("x", x);
         mConfiguration.put("y", y);
         mConfiguration.put("y2", y2);
@@ -133,11 +124,27 @@ public class AxisConfiguration extends Configuration {
             }
         }
 
-        if (!usingCustomText && mData.getType().equals(Graph.TYPE_TIME)) {
+        if (key.startsWith("x") && !usingCustomText && mData.getType().equals(Graph.TYPE_TIME)) {
             tick.put("format", mData.getConfiguration("x-labels-time-format", "%Y-%m-%d"));
         }
 
-        axis.put("tick", tick);
+        if (key.startsWith("secondary-y")) {
+            // If there aren't any series for the secondary y axis, don't label it
+            boolean hasSecondaryAxis = false;
+            for (SeriesData s : mData.getSeries()) {
+                hasSecondaryAxis = hasSecondaryAxis || Boolean.valueOf(s.getConfiguration("secondary-y", "false"));
+                if (hasSecondaryAxis) {
+                    break;
+                }
+            }
+            if (!hasSecondaryAxis) {
+                tick.put("values", new JSONArray());
+            }
+        }
+
+        if (tick.length() > 0) {
+            axis.put("tick", tick);
+        }
     }
 
     /**
@@ -154,12 +161,11 @@ public class AxisConfiguration extends Configuration {
         title = title.replaceAll("^\\s*", "");
         title = title.replaceAll("\\s*$", "");
 
-        if (!"".equals(title)) {
-            JSONObject label = new JSONObject();
-            label.put("text", title);
-            label.put("position", position);
-            axis.put("label", label);
-        }
+        // Show title regardless of whether or not it exists, to give all graphs consistent padding
+        JSONObject label = new JSONObject();
+        label.put("text", title);
+        label.put("position", position);
+        axis.put("label", label);
     }
 
     /**
@@ -175,6 +181,11 @@ public class AxisConfiguration extends Configuration {
 
         JSONObject config = new JSONObject();
         boolean isX = prefix.equals("x");
+        
+        // X and primary Y axis show by default, but not secondary y. Force them all to show.
+        // Display secondary y axis, regardless of if it has data; this makes the
+        // whitespace around the graph look more reasonable.
+        config.put("show", true);
 
         // Undo C3's automatic axis padding
         config.put("padding", new JSONObject("{top: 0, right: 0, bottom: 0, left: 0}"));

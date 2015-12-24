@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="wrap_content" >
 
     <include
         android:id="@+id/choice_dialog_title"
@@ -16,7 +16,6 @@
         android:layout_marginLeft="@dimen/standard_spacer_large"
         android:layout_marginRight="@dimen/standard_spacer_large"
         android:layout_marginBottom="@dimen/standard_spacer_large"
-        android:listSelector="@drawable/selector"
         android:divider="?android:attr/listDivider"
         android:showDividers="middle" >
     </ListView>
