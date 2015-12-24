@@ -28,15 +28,12 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      * present
      */
     public final static String ENABLE_AUTO_LOGIN = "cc-enable-auto-login";
-
     public final static String ENABLE_SAVE_SESSION = "cc-enable-session-saving";
-
     /**
      * Does the user want to download the latest app version deployed (built),
      * not just the latest app version released (starred)?
      */
     public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
-
     /**
      * The current default for constraint checking during form saving (as of
      * CommCare 2.24) is to re-answer all the questions, causing a lot of
@@ -45,8 +42,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      * triggers.
      */
     public final static String FIRE_TRIGGERS_ON_SAVE = "cc-fire-triggers-on-save";
-
     public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
+    public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -271,6 +268,11 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 
     public static boolean isHomeReportEnabled() {
         return doesPropertyMatch(HOME_REPORT_ENABLED, CommCarePreferences.NO,
+                CommCarePreferences.YES);
+    }
+
+    public static boolean areAnalyticsEnabled() {
+        return doesPropertyMatch(ANALYTICS_ENABLED, CommCarePreferences.YES,
                 CommCarePreferences.YES);
     }
 

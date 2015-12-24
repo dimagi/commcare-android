@@ -7,6 +7,7 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 
 /**
  * Created by amstone326 on 11/13/15.
@@ -14,6 +15,9 @@ import org.commcare.dalvik.application.CommCareApplication;
 public class GoogleAnalyticsUtils {
 
     public static void reportAction(String category, String action) {
+        if (analyticsDisabled()) {
+            return;
+        }
         getTracker().send(new HitBuilders.EventBuilder()
                 .setCategory(category)
                 .setAction(action)
@@ -21,6 +25,9 @@ public class GoogleAnalyticsUtils {
     }
 
     public static void reportAction(String category, String action, String label) {
+        if (analyticsDisabled()) {
+            return;
+        }
         getTracker().send(new HitBuilders.EventBuilder()
                 .setCategory(category)
                 .setAction(action)
@@ -29,6 +36,9 @@ public class GoogleAnalyticsUtils {
     }
 
     public static void reportAction(String category, String action, String label, int value) {
+        if (analyticsDisabled()) {
+            return;
+        }
         getTracker().send(new HitBuilders.EventBuilder()
                 .setCategory(category)
                 .setAction(action)
@@ -57,6 +67,9 @@ public class GoogleAnalyticsUtils {
     }
 
     public static void reportButtonClick(String screenName, String buttonLabel) {
+        if (analyticsDisabled()) {
+            return;
+        }
         getTracker(screenName).send(new HitBuilders.EventBuilder()
                 .setCategory(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN)
                 .setAction(GoogleAnalyticsFields.ACTION_BUTTON)
@@ -84,6 +97,9 @@ public class GoogleAnalyticsUtils {
 
     // Report actually changing the value of an item in a preferences menu
     public static void reportEditPref(String category, String label, int value) {
+        if (analyticsDisabled()) {
+            return;
+        }
         HitBuilders.EventBuilder builder = new HitBuilders.EventBuilder();
         builder.setCategory(category).
                 setAction(GoogleAnalyticsFields.ACTION_EDIT_PREF).
@@ -127,6 +143,9 @@ public class GoogleAnalyticsUtils {
     }
 
     public static void reportTimedEvent(String action, String label, int value) {
+        if (analyticsDisabled()) {
+            return;
+        }
         HitBuilders.EventBuilder builder = new HitBuilders.EventBuilder();
         builder.setCategory(GoogleAnalyticsFields.CATEGORY_TIMED_EVENTS).
                 setAction(action).
@@ -145,6 +164,10 @@ public class GoogleAnalyticsUtils {
 
     private static Tracker getTracker() {
         return CommCareApplication._().getDefaultTracker();
+    }
+
+    private static boolean analyticsDisabled() {
+        return !DeveloperPreferences.areAnalyticsEnabled();
     }
 
 }
