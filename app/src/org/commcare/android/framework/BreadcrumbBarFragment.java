@@ -179,7 +179,7 @@ public class BreadcrumbBarFragment extends Fragment {
         };
 
         // 1dp/ms
-        a.setDuration((int) (targetHeight / v.getContext().getResources().getDisplayMetrics().density) * 2);
+        a.setDuration((int)(targetHeight / v.getContext().getResources().getDisplayMetrics().density) * 2);
         v.startAnimation(a);
     }
 
