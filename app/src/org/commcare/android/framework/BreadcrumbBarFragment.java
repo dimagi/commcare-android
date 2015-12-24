@@ -349,14 +349,18 @@ public class BreadcrumbBarFragment extends Fragment {
         }
     }
 
-    public static String getBestSubHeaderTitle() {
-        return getBestTitleHelper();
-    }
-
     public static String getBestTitle(Activity activity) {
         String bestTitle = getBestTitleHelper();
         return defaultTitle(bestTitle, activity);
     }
+
+    /**
+     * Unlike the main header, subheaders should not fall back to a default title
+     */
+    public static String getBestSubHeaderTitle() {
+        return getBestTitleHelper();
+    }
+
 
     private static String getBestTitleHelper() {
         AndroidSessionWrapper asw;
