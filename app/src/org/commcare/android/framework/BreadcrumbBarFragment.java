@@ -355,7 +355,7 @@ public class BreadcrumbBarFragment extends Fragment {
     }
 
     /**
-     * Unlike the main header, subheaders should not fall back to a default header
+     * Unlike the main header, subheaders should not fall back to a default title
      */
     public static String getBestSubHeaderTitle() {
         return getBestTitleHelper();
