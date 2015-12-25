@@ -20,7 +20,7 @@ import android.widget.Toast;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.fragments.ContainerFragment;
 import org.commcare.android.fragments.SetupEnterURLFragment;
-import org.commcare.android.fragments.InstallAppSelectFragment;
+import org.commcare.android.fragments.SelectInstallModeFragment;
 import org.commcare.android.fragments.InstallConfirmFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
@@ -123,7 +123,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private final FragmentManager fm = getSupportFragmentManager();
     private final InstallConfirmFragment startInstall = new InstallConfirmFragment();
-    private final InstallAppSelectFragment installFragment = new InstallAppSelectFragment();
+    private final SelectInstallModeFragment installFragment = new SelectInstallModeFragment();
     private ContainerFragment<CommCareApp> containerFragment;
 
     @Override

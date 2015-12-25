@@ -23,10 +23,10 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Daniel Luna (dluna@dimagi.com)
  */
-public class InstallAppSelectFragment extends Fragment {
+public class SelectInstallModeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.install_app_select_fragment, container, false);
+        View view = inflater.inflate(R.layout.select_install_mode_fragment, container, false);
 
         TextView setupMsg = (TextView)view.findViewById(R.id.str_setup_message);
         setupMsg.setText(Localization.get("install.barcode.top"));
@@ -63,7 +63,7 @@ public class InstallAppSelectFragment extends Fragment {
                 // if we use getChildFragmentManager, we're going to have a crash
                 FragmentManager fm = getActivity().getSupportFragmentManager();
                 FragmentTransaction ft = fm.beginTransaction();
-                ft.replace(InstallAppSelectFragment.this.getId(), enterUrl);
+                ft.replace(SelectInstallModeFragment.this.getId(), enterUrl);
                 ft.addToBackStack(null);
                 ft.commit();
             }
