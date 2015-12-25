@@ -46,9 +46,12 @@ public class MenuList extends SaveSessionCommCareActivity implements OnItemClick
         if (header == null) {
             header = (TextView)getLayoutInflater().inflate(R.layout.menu_list_header, null);
         }
-        header.setText(BreadcrumbBarFragment.getBestTitle(this));
-        // header must not be clickable
-        list.addHeaderView(header, null, false);
+        String subHeaderTitle = BreadcrumbBarFragment.getBestSubHeaderTitle();
+        if (subHeaderTitle != null) {
+            header.setText(subHeaderTitle);
+            // header must not be clickable
+            list.addHeaderView(header, null, false);
+        }
 
         adapter = new MenuAdapter(this, platform, menuId);
         refreshView();

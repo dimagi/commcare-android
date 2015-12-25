@@ -59,6 +59,7 @@ import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
+import org.commcare.android.ui.CustomBanner;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -120,9 +121,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     
     @UiElement(R.id.screen_login_banner_pane)
     private View banner;
-    
-    @UiElement(R.id.str_version)
-    private TextView versionDisplay;
 
     @UiElement(value=R.id.login_button, locale="login.button")
     private Button loginButton;
@@ -230,7 +228,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         username.addTextChangedListener(textWatcher);
         password.addTextChangedListener(textWatcher);
 
-        versionDisplay.setText(CommCareApplication._().getCurrentVersionString());
         username.setHint(Localization.get("login.username"));
         password.setHint(Localization.get("login.password"));
 
@@ -244,7 +241,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 int height = activityRootView.getHeight();
 
                 if (height < hideAll) {
-                    versionDisplay.setVisibility(View.GONE);
                     banner.setVisibility(View.GONE);
                 } else if (height < hideBanner) {
                     banner.setVisibility(View.GONE);
@@ -750,7 +746,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         restoreEnteredTextFromRotation();
 
-        updateCommCareBanner();
+        updateBanner();
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getUsableAppRecords();
@@ -781,6 +777,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             int position = appIdDropdownList.indexOf(currAppId);
             spinner.setSelection(position);
             spinner.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void updateBanner() {
+        ImageView topBannerImageView =
+                (ImageView)banner.findViewById(org.commcare.dalvik.R.id.main_top_banner);
+        if (!CustomBanner.useCustomBannerFitToActivity(this, topBannerImageView)) {
+            topBannerImageView.setImageResource(R.drawable.commcare_logo);
         }
     }
 
