@@ -48,6 +48,7 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.HorizontalMediaView;
+import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
@@ -478,9 +479,25 @@ public class CommCareHomeActivity
                 }
                 break;
             }
-            sessionNavigator.startNextSessionStep();
+            startNextSessionStepSafe();
         }
         super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    private void startNextSessionStepSafe() {
+        try {
+            sessionNavigator.startNextSessionStep();
+        } catch (CommCareInstanceInitializer.FixtureInitializationException e) {
+            sessionNavigator.stepBack();
+            if (isDemoUser()) {
+                // most likely crashing due to data not being available in demo mode
+                CommCareActivity.createErrorDialog(this,
+                        Localization.get("demo.mode.feature.unavailable"),
+                        false);
+            } else {
+                CommCareActivity.createErrorDialog(this, e.getMessage(), false);
+            }
+        }
     }
 
     /**
@@ -1333,11 +1350,6 @@ public class CommCareHomeActivity
 
     private void displayMessage(String message, boolean bad, boolean suppressToast) {
         uiController.displayMessage(message, bad, suppressToast);
-    }
-
-    @Override
-    protected View getBannerHost() {
-        return uiController.getTopBanner();
     }
 
     protected boolean isDemoUser() {
