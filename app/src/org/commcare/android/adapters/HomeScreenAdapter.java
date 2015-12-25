@@ -1,150 +1,225 @@
 package org.commcare.android.adapters;
 
-
 import android.content.Context;
-import android.util.Log;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
+import android.os.Build;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.DisplayMetrics;
+import android.util.StateSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.ImageView;
 
-import org.commcare.android.view.SquareButtonWithNotification;
-import org.commcare.dalvik.BuildConfig;
+import org.commcare.android.ui.CustomBanner;
+import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.CommCareHomeActivity;
+import org.commcare.dalvik.activities.HomeButtons;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 /**
- * Sets up home screen buttons and gives accessors for setting their visibility and listeners
- * Created by dancluna on 3/19/15.
+ * Shows home screen buttons and header banner
+ *
+ * @author Phillip Mates (pmates@dimagi.com)
  */
-public class HomeScreenAdapter extends BaseAdapter {
-    private static final String TAG = HomeScreenAdapter.class.getSimpleName();
+public class HomeScreenAdapter
+        extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final int[] buttonsResources = new int[]{
-            R.layout.home_start_button,
-            R.layout.home_report_button,
-            R.layout.home_savedforms_button,
-            R.layout.home_incompleteforms_button,
-            R.layout.home_sync_button,
-            R.layout.home_logout_button,
-    };
+    private final Context context;
+    private final HomeCardDisplayData[] buttonData;
 
-    private final SquareButtonWithNotification[] buttons =
-            new SquareButtonWithNotification[buttonsResources.length];
+    private static final int TYPE_HEADER = 0;
+    private static final int TYPE_BUTTON = 1;
+    private final int screenHeight, screenWidth;
+    private final int syncButtonPosition;
 
-    private final boolean[] hiddenButtons = new boolean[buttonsResources.length];
+    public HomeScreenAdapter(CommCareHomeActivity activity,
+                             Vector<String> buttonsToHide,
+                             boolean isDemoUser) {
+        context = activity;
+        buttonData = HomeButtons.buildButtonData(activity, buttonsToHide, isDemoUser);
+        syncButtonPosition = calcSyncButtonPos();
 
-    private final ArrayList<SquareButtonWithNotification> visibleButtons;
+        // get screen dimensions for drawing custom header image
+        DisplayMetrics displaymetrics = new DisplayMetrics();
+        activity.getWindowManager().getDefaultDisplay().getMetrics(displaymetrics);
+        screenHeight = displaymetrics.heightPixels;
+        screenWidth = displaymetrics.widthPixels;
+    }
 
-    public HomeScreenAdapter(Context c) {
-        visibleButtons = new ArrayList<SquareButtonWithNotification>();
-        LayoutInflater inflater = LayoutInflater.from(c);
-        for (int i = 0; i < buttons.length; i++) {
-            if (buttons[i] == null) {
-                SquareButtonWithNotification button =
-                        (SquareButtonWithNotification) inflater.inflate(buttonsResources[i], null, false);
-                buttons[i] = button;
-                Log.i(TAG, "Added button " + button + "to position " + i);
-
-                if (!hiddenButtons[i]) {
-                    visibleButtons.add(button);
-                }
+    private int calcSyncButtonPos() {
+        for (int i = 0; i < buttonData.length; i++) {
+            if (buttonData[i].imageResource == R.drawable.home_sync) {
+                // pos in button array plus initial custom header
+                return i + 1;
             }
+        }
+        return -1;
+    }
+
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        final LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+
+        if (viewType == TYPE_BUTTON) {
+            View layoutView = inflater.inflate(R.layout.home_card, parent, false);
+            return new SquareButtonViewHolder(layoutView);
+        } else if (viewType == TYPE_HEADER) {
+            View header = inflater.inflate(R.layout.grid_header_top_banner, parent, false);
+            return new HeaderViewHolder(header);
+        }
+
+        throw new RuntimeException("no " + viewType +
+                " type exists, should be TYPE_BUTTON or TYPE_HEADER");
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int i) {
+        if (holder instanceof SquareButtonViewHolder) {
+            bindCard((SquareButtonViewHolder)holder, i, null);
+        } else if (holder instanceof HeaderViewHolder) {
+            bindHeader((HeaderViewHolder)holder);
         }
     }
 
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder,
+                                 int i, List<Object> payload) {
+        if (holder instanceof SquareButtonViewHolder) {
+            bindCard((SquareButtonViewHolder)holder, i, payload);
+        } else if (holder instanceof HeaderViewHolder) {
+            bindHeader((HeaderViewHolder)holder);
+        }
+    }
+
+    private void bindCard(SquareButtonViewHolder squareButtonViewHolder,
+                          int i, List<Object> payload) {
+        HomeCardDisplayData cardDisplayData = getItem(i);
+        String notificationText = null;
+
+        if (payload != null) {
+            notificationText = getFirstPayloadString(payload);
+        }
+
+        cardDisplayData.textSetter.update(cardDisplayData,
+                squareButtonViewHolder, context, notificationText);
+        setupViewHolder(context, cardDisplayData, squareButtonViewHolder);
+    }
+
+    private HomeCardDisplayData getItem(int position) {
+        return buttonData[position - 1];
+    }
+
     /**
-     * Sets the onClickListener for the given button
-     *
-     * @param resourceCode Android resource code (R.id.$button or R.layout.$button)
-     * @param listener     OnClickListener for the button
+     * Get 1st string in payload list, which is constructed from payloads
+     * provided on calls to notify item/data set changed.
      */
-    public void setOnClickListenerForButton(int resourceCode, View.OnClickListener listener) {
-        int buttonIndex = getButtonIndex(resourceCode);
-        SquareButtonWithNotification button = (SquareButtonWithNotification) getItem(buttonIndex);
-        if (button != null) {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "Preexisting button when calling setOnClickListenerForButton");
+    private static String getFirstPayloadString(List<Object> payloadList) {
+        String lastPayloadString = null;
+        for (Object entry : payloadList) {
+            if (entry instanceof String) {
+                lastPayloadString = (String)entry;
             }
-            button.setOnClickListener(listener);
+        }
+        return lastPayloadString;
+    }
+
+    private static void setupViewHolder(Context context,
+                                        HomeCardDisplayData cardDisplayData,
+                                        SquareButtonViewHolder squareButtonViewHolder) {
+        final Drawable buttonDrawable =
+                ContextCompat.getDrawable(context, cardDisplayData.imageResource);
+        squareButtonViewHolder.imageView.setImageDrawable(buttonDrawable);
+        squareButtonViewHolder.cardView.setOnClickListener(cardDisplayData.listener);
+
+        StateListDrawable bgDrawable = bgDrawStates(context, cardDisplayData.bgColor);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            squareButtonViewHolder.cardView.setBackground(bgDrawable);
         } else {
-            if (BuildConfig.DEBUG) {
-                Log.d(TAG, "Button did not exist when calling setOnClickListenerForButton!");
-            }
-        }
-    }
-
-    public SquareButtonWithNotification getButton(int resourceCode) {
-        return buttons[getButtonIndex(resourceCode)];
-    }
-
-    public void setNotificationTextForButton(int resourceCode, String notificationText) {
-        SquareButtonWithNotification button = getButton(resourceCode);
-        if (button != null) {
-            button.setNotificationText(notificationText);
-            notifyDataSetChanged();
-        }
-    }
-
-    @Override
-    public int getCount() {
-        return visibleButtons.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return buttons[position];
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return buttonsResources[position];
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        if (position < 0 || position >= getCount()) {
-            return null;
-        }
-        SquareButtonWithNotification btn = visibleButtons.get(position);
-
-        if (btn == null) {
-            Log.i(TAG, "Unexpected null button");
-        }
-        return btn;
-    }
-
-    /**
-     * Sets visibility for the button with the given resource code
-     *
-     * @param resourceCode   Android resource code (R.id.$button or R.layout.$button)
-     * @param isButtonHidden Button visibility state (true for hidden, false for visible)
-     */
-    public void setButtonVisibility(int resourceCode, boolean isButtonHidden) {
-        int index = getButtonIndex(resourceCode);
-        boolean hasVisibilityChanged = isButtonHidden ^ hiddenButtons[index];
-        hiddenButtons[index] = isButtonHidden;
-        if (hasVisibilityChanged) {
-            if (isButtonHidden) {
-                visibleButtons.remove(buttons[index]);
-            } else {
-                visibleButtons.add(index, buttons[index]);
-            }
+            squareButtonViewHolder.cardView.setBackgroundDrawable(bgDrawable);
         }
     }
 
     /**
-     * Returns the index of the button with the given resource code.
-     *
-     * @throws IllegalArgumentException If the given resourceCode is not found
+     * Build drawable with default state being the provided color resource,
+     * pressed color state being that color with less saturation, and disabled
+     * state being gray.
      */
-    private int getButtonIndex(int resourceCode) {
-        for (int i = 0; i < buttonsResources.length; i++) {
-            if (resourceCode == buttonsResources[i]) {
-                return i;
-            }
+    private static StateListDrawable bgDrawStates(Context context,
+                                                  int bgColorResource) {
+        ColorDrawable disabledColor =
+                new ColorDrawable(context.getResources().getColor(R.color.grey));
+        ColorDrawable colorDrawable =
+                new ColorDrawable(context.getResources().getColor(bgColorResource));
+        ColorDrawable pressedBackground = desaturateColor(colorDrawable);
+
+        StateListDrawable sld = new StateListDrawable();
+        sld.addState(new int[]{-android.R.attr.state_enabled}, disabledColor);
+        sld.addState(new int[]{android.R.attr.state_pressed}, pressedBackground);
+        sld.addState(StateSet.WILD_CARD, colorDrawable);
+        return sld;
+    }
+
+    private static ColorDrawable desaturateColor(ColorDrawable colorDrawable) {
+        float[] hsvOutput = new float[3];
+        int color = ViewUtil.getColorDrawableColor(colorDrawable);
+        Color.colorToHSV(color, hsvOutput);
+        hsvOutput[2] = (float)(hsvOutput[2] / 1.5);
+        return new ColorDrawable(Color.HSVToColor(hsvOutput));
+    }
+
+    private void bindHeader(HeaderViewHolder headerHolder) {
+        StaggeredGridLayoutManager.LayoutParams layoutParams =
+                (StaggeredGridLayoutManager.LayoutParams)headerHolder.itemView.getLayoutParams();
+        layoutParams.setFullSpan(true);
+
+        boolean noCustomBanner =
+                !CustomBanner.useCustomBanner(context, screenHeight,
+                        screenWidth, headerHolder.headerImage);
+        if (noCustomBanner) {
+            headerHolder.headerImage.setImageResource(R.drawable.commcare_logo);
         }
-        throw new IllegalArgumentException("Layout code not found: " + resourceCode);
+    }
+
+    @Override
+    public int getItemCount() {
+        // buttons and header
+        return buttonData.length + 1;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (isPositionHeader(position)) {
+            return TYPE_HEADER;
+        } else {
+            return TYPE_BUTTON;
+        }
+    }
+
+    private boolean isPositionHeader(int position) {
+        return position == 0;
+    }
+
+    public int getSyncButtonPosition() {
+        return syncButtonPosition;
+    }
+
+    private static class HeaderViewHolder extends RecyclerView.ViewHolder {
+        public final ImageView headerImage;
+
+        public HeaderViewHolder(View itemView) {
+            super(itemView);
+
+            headerImage = (ImageView)itemView.findViewById(R.id.main_top_banner);
+        }
     }
 }

@@ -30,17 +30,6 @@
         <attr name="text_size_small" format="reference|dimension"/>
     </declare-styleable>
 
-    <declare-styleable name="SquareButtonWithNotification">
-        <attr name="notificationBackgroundColor" format="reference|color" />
-        <attr name="notificationText" format="string" />
-        <attr name="notificationTextColor" format="reference|color" />
-
-        <attr name="backgroundColor"/>
-        <attr name="subtitle"/>
-        <attr name="img"/>
-        <attr name="textColor"/>
-    </declare-styleable>
-
     <attr name="filter_select_background_color" format="reference"/>
     <attr name="filter_select_text_color" format="reference"/>
 
