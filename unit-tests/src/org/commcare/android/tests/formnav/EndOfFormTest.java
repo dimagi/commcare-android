@@ -82,7 +82,7 @@ public class EndOfFormTest {
         shadowActivity.receiveResult(formEntryIntent,
                 shadowFormEntryActivity.getResultCode(),
                 shadowFormEntryActivity.getResultIntent());
-        assertStoredFroms();
+        assertStoredForms();
     }
 
     private CommCareHomeActivity buildHomeActivityForFormEntryLaunch() {
@@ -129,7 +129,7 @@ public class EndOfFormTest {
         return shadowFormEntryActivity;
     }
 
-    private void assertStoredFroms() {
+    private void assertStoredForms() {
         SqlStorage<FormRecord> formsStorage =
                 CommCareApplication._().getUserStorage(FormRecord.class);
 
