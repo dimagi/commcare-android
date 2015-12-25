@@ -106,41 +106,29 @@ public class BreadcrumbBarFragment extends Fragment {
     }
         
     private void configureSimpleNav(Activity activity, ActionBar actionBar) {
-        String title = null;
-        String local = null;
-        if(activity instanceof CommCareActivity) {
-            local = ((CommCareActivity)activity).getActivityTitle();
-        }
-
-        if(title == null) {
-            title = getBestTitle(activity);
-        }
-
         boolean showNav = true;
-        if(activity instanceof CommCareActivity) {
+        if (activity instanceof CommCareActivity) {
             showNav = ((CommCareActivity)activity).isBackEnabled();
         }
-        if(showNav) {
+
+        if (showNav) {
             actionBar.setDisplayShowHomeEnabled(true);
             actionBar.setDisplayHomeAsUpEnabled(true);
         }
+
         actionBar.setDisplayShowTitleEnabled(true);
-        
+        String title = getBestTitle(activity);
         actionBar.setTitle(title);
-                
   }
 
 
 
     private void attachBreadcrumbBar(Activity activity, ActionBar actionBar) {
-        String title = null;
-        
         //make sure we're in the right mode
         actionBar.setDisplayShowCustomEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
         
         if(activity instanceof CommCareActivity) {
-            title = ((CommCareActivity)activity).getActivityTitle();
             isTopNavEnabled = ((CommCareActivity)activity).isTopNavEnabled();
         }
         
@@ -360,14 +348,27 @@ public class BreadcrumbBarFragment extends Fragment {
             }
         }
     }
-    
+
     public static String getBestTitle(Activity activity) {
+        String bestTitle = getBestTitleHelper();
+        return defaultTitle(bestTitle, activity);
+    }
+
+    /**
+     * Unlike the main header, subheaders should not fall back to a default title
+     */
+    public static String getBestSubHeaderTitle() {
+        return getBestTitleHelper();
+    }
+
+
+    private static String getBestTitleHelper() {
         AndroidSessionWrapper asw;
 
         try {
             asw = CommCareApplication._().getCurrentSessionWrapper();
         } catch (SessionStateUninitException e) {
-            return defaultTitle(null, activity);
+            return null;
         }
 
         CommCareSession session = asw.getSession();
@@ -378,7 +379,7 @@ public class BreadcrumbBarFragment extends Fragment {
         } catch (NoLocalizedTextException e) {
             // localization resources may not be installed while in the middle
             // of an update, so default to a generic title
-            return defaultTitle(null, activity);
+            return null;
         }
 
         Vector<StackFrameStep> v = session.getFrame().getSteps();
@@ -396,8 +397,7 @@ public class BreadcrumbBarFragment extends Fragment {
                 bestTitle = stepTitles[i];
             }
         }
-
-        return defaultTitle(bestTitle, activity);
+        return bestTitle;
     }
 
     private static String defaultTitle(String currentTitle, Activity activity) {
