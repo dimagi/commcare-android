@@ -69,7 +69,7 @@ public abstract class CustomButtonWithText extends RelativeLayout {
 
     abstract int getLayoutResourceId();
 
-    protected void setUI(int backgroundColor, Drawable backgroundImg, String text, int colorButtonText) {
+    private void setUI(int backgroundColor, Drawable backgroundImg, String text, int colorButtonText) {
         setColor(backgroundColor);
         setImage(backgroundImg);
         setText(text);
