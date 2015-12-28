@@ -274,5 +274,4 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         Toast.makeText(this, upgradeFinishedText, Toast.LENGTH_LONG).show();
         this.finish();
     }
-
 }

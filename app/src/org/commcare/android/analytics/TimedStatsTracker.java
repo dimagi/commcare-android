@@ -12,7 +12,9 @@ import org.joda.time.DateTime;
 import java.util.Date;
 
 /**
- * Created by amstone326 on 12/3/15.
+ * Utils for keeping track of certain app events and then reporting them to google analytics
+ *
+ * @author amstone
  */
 public class TimedStatsTracker {
 
@@ -88,6 +90,10 @@ public class TimedStatsTracker {
         return (int) (endTime - startTime / 1000);
     }
 
+    private static long currentTime() {
+        return (new Date()).getTime();
+    }
+
     /**
      * Report the completion of a timed event and its length
      *
@@ -101,10 +107,6 @@ public class TimedStatsTracker {
 
     private static void reportTimedEvent(String timedEvent, int timeInSeconds) {
         reportTimedEvent(timedEvent, "", timeInSeconds);
-    }
-
-    private static long currentTime() {
-        return (new Date()).getTime();
     }
 
 }
