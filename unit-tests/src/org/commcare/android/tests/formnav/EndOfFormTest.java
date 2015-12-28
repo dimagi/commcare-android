@@ -82,7 +82,7 @@ public class EndOfFormTest {
         shadowActivity.receiveResult(formEntryIntent,
                 shadowFormEntryActivity.getResultCode(),
                 shadowFormEntryActivity.getResultIntent());
-        assertStoredFroms();
+        assertStoredForms();
     }
 
     private CommCareHomeActivity buildHomeActivityForFormEntryLaunch() {
@@ -107,10 +107,6 @@ public class EndOfFormTest {
                         .create().start().resume().get();
 
         ImageButton nextButton = (ImageButton)formEntryActivity.findViewById(R.id.nav_btn_next);
-        // demonstrate form progress bug where it thinks the form is done until
-        // you enter an answer for the question, which effects the hidden
-        // repeat coming up next
-        assertTrue(nextButton.getTag().equals(FormEntryActivity.NAV_STATE_DONE));
 
         // enter an answer for the question
         ODKView odkView = formEntryActivity.getODKView();
@@ -129,7 +125,7 @@ public class EndOfFormTest {
         return shadowFormEntryActivity;
     }
 
-    private void assertStoredFroms() {
+    private void assertStoredForms() {
         SqlStorage<FormRecord> formsStorage =
                 CommCareApplication._().getUserStorage(FormRecord.class);
 

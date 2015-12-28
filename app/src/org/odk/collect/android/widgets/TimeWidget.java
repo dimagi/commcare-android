@@ -22,7 +22,7 @@ import java.util.Date;
  */
 public class TimeWidget extends QuestionWidget implements OnTimeChangedListener {
 
-    private TimePicker mTimePicker;
+    private final TimePicker mTimePicker;
     private static final String TAG = TimeWidget.class.getSimpleName();
 
 

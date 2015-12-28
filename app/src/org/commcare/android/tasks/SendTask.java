@@ -27,9 +27,9 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
     
     DataSubmissionListener formSubmissionListener;
 
-    File dumpDirectory;
+    final File dumpDirectory;
     
-    public static String MALFORMED_FILE_CATEGORY = "malformed-file";
+    public static final String MALFORMED_FILE_CATEGORY = "malformed-file";
     
     public static final int BULK_SEND_ID = 12335645;
     

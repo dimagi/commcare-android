@@ -103,7 +103,7 @@ public class FileServerFragment extends Fragment {
      */
     public static class FileServerAsyncTask extends AsyncTask<Void, String, String> {
 
-        private FileServerFragment mListener;
+        private final FileServerFragment mListener;
         private boolean socketOccupied;
 
         public FileServerAsyncTask(FileServerFragment mListener) {

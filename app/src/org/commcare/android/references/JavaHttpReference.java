@@ -13,7 +13,7 @@ import java.net.URL;
  */
 public class JavaHttpReference implements Reference {
 
-    private String uri;
+    private final String uri;
     HttpRequestGenerator generator;
 
     public JavaHttpReference(String uri, HttpRequestGenerator generator) {

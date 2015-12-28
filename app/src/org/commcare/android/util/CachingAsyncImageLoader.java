@@ -19,9 +19,9 @@ import android.widget.ImageView;
  */
 @SuppressLint("NewApi")
 public class CachingAsyncImageLoader implements ComponentCallbacks2 {
-    private TCLruCache cache;
+    private final TCLruCache cache;
     private final int CACHE_DIVISOR =2;
-    private Context context;
+    private final Context context;
 
     public CachingAsyncImageLoader(Context context) {
         ActivityManager am = (ActivityManager) context.getSystemService(
@@ -60,10 +60,10 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
      *
      */
     private class SetImageTask extends AsyncTask<String, Void, Bitmap> {
-        private ImageView mImageView;
-        private Context mContext;
-        private int mBoundingWidth;
-        private int mBoundingHeight;
+        private final ImageView mImageView;
+        private final Context mContext;
+        private final int mBoundingWidth;
+        private final int mBoundingHeight;
 
         public SetImageTask(ImageView imageView, Context context, int maxWidth, int maxHeight) {
             mImageView = imageView;

@@ -31,7 +31,7 @@ public class LegacyCommCareOpenHelper extends SQLiteOpenHelper {
      */
 
     private static final int DATABASE_VERSION = 30;
-    private Context context;
+    private final Context context;
 
     public LegacyCommCareOpenHelper(Context context) {
         this(context, null);

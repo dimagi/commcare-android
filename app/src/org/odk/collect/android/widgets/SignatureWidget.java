@@ -60,7 +60,7 @@ public class SignatureWidget extends QuestionWidget {
     private String mBinaryName;
     private final String mInstanceFolder;
     private ImageView mImageView;
-    private PendingCalloutInterface pendingCalloutInterface;
+    private final PendingCalloutInterface pendingCalloutInterface;
 
     private final TextView mErrorTextView;
 

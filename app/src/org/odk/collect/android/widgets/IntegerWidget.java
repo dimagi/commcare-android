@@ -25,7 +25,7 @@ import org.odk.collect.android.utilities.IntegerSizeFilter;
 public class IntegerWidget extends StringWidget {
     
     //1 for int. 0 for long?
-    int number_type;
+    final int number_type;
 
     public IntegerWidget(Context context, FormEntryPrompt prompt, boolean secret, int num_type) {
         super(context, prompt, secret);

@@ -21,9 +21,9 @@ import java.util.Date;
 public class Configuration {
     private final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    protected GraphData mData;
-    protected JSONObject mConfiguration;
-    protected OrderedHashtable<String, String> mVariables;
+    protected final GraphData mData;
+    protected final JSONObject mConfiguration;
+    protected final OrderedHashtable<String, String> mVariables;
 
     public Configuration(GraphData data) {
         mData = data;
