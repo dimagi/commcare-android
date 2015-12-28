@@ -50,6 +50,7 @@ public final class GoogleAnalyticsFields {
     public static String LABEL_INCOMPLETE_FORMS_BUTTON = "Incomplete Forms Button";
     public static String LABEL_SYNC_BUTTON = "Sync Button";
     public static String LABEL_LOGOUT_BUTTON = "Logout Button";
+    public static String LABEL_REPORT_BUTTON = "Report An Issue Button";
 
     // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_CC_PREFS
     public static String LABEL_APP_SERVER = "CC Application Server";
@@ -79,7 +80,7 @@ public final class GoogleAnalyticsFields {
     public static String LABEL_MARKDOWN = "Markdown Enabled";
     public static String LABEL_IMAGE_ABOVE_TEXT = "Image Above Question Text Enabled";
     public static String LABEL_TRIGGERS_ON_SAVE = "Fire triggers on form save";
-    public static String LABEL_REPORT_BUTTON = "Home Report Button enabled";
+    public static String LABEL_REPORT_BUTTON_ENABLED = "Home Report Button enabled";
 
     // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_HOME_SCREEN
     public static String LABEL_SETTINGS = "Settings";

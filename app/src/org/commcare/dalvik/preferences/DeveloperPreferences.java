@@ -88,7 +88,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 GoogleAnalyticsFields.LABEL_MARKDOWN,
                 GoogleAnalyticsFields.LABEL_IMAGE_ABOVE_TEXT,
                 GoogleAnalyticsFields.LABEL_TRIGGERS_ON_SAVE,
-                GoogleAnalyticsFields.LABEL_REPORT_BUTTON};
+                GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED};
 
         for (int i = 0; i < prefKeys.length; i++) {
             GoogleAnalyticsUtils.createPreferenceOnClickListener(prefManager,
@@ -144,7 +144,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 editPrefLabel = GoogleAnalyticsFields.LABEL_TRIGGERS_ON_SAVE;
                 break;
             case HOME_REPORT_ENABLED:
-                editPrefLabel = GoogleAnalyticsFields.LABEL_REPORT_BUTTON;
+                editPrefLabel = GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED;
                 break;
         }
 

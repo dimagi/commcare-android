@@ -198,6 +198,7 @@ public class HomeButtons {
     private static View.OnClickListener getReportButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
             public void onClick(View v) {
+                reportButtonClick(GoogleAnalyticsFields.LABEL_REPORT_BUTTON);
                 Intent i = new Intent(activity, ReportProblemActivity.class);
                 activity.startActivityForResult(i, CommCareHomeActivity.REPORT_PROBLEM_ACTIVITY);
             }
