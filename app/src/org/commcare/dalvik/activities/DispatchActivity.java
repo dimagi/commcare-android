@@ -80,6 +80,8 @@ public class DispatchActivity extends FragmentActivity {
                 } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
                     // Path 1e: CommCare was launched from a shortcut
                     handleShortcutLaunch();
+                } else {
+                    launchHomeScreen();
                 }
             } catch (SessionUnavailableException sue) {
                 launchLogin();
@@ -153,6 +155,12 @@ public class DispatchActivity extends FragmentActivity {
         this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
     }
 
+    private void launchHomeScreen() {
+        Intent i = new Intent(this, CommCareHomeActivity.class);
+        i.putExtra(START_FROM_LOGIN, true);
+        startActivityForResult(i, HOME_SCREEN);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         // if handling new return code (want to return to home screen) but a return at the end of your statement
@@ -178,13 +186,11 @@ public class DispatchActivity extends FragmentActivity {
                 if (resultCode == RESULT_CANCELED) {
                     finish();
                     return;
-                } else if (resultCode == RESULT_OK) {
-                    Intent i = new Intent(this, CommCareHomeActivity.class);
-                    i.putExtra(START_FROM_LOGIN, true);
-                    startActivityForResult(i, HOME_SCREEN);
-                    return;
                 }
                 break;
+            case HOME_SCREEN:
+                finish();
+                return;
         }
         super.onActivityResult(requestCode, resultCode, intent);
     }
