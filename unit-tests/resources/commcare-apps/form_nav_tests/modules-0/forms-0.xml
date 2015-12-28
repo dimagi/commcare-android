@@ -1,0 +1,72 @@
+<h:html xmlns="http://www.w3.org/2002/xforms" xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:jr="http://openrosa.org/javarosa" xmlns:orx="http://openrosa.org/jr/xforms"
+        xmlns:vellum="http://commcarehq.org/xforms/vellum" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <h:head>
+        <h:title>Hidden Group</h:title>
+        <model>
+            <instance>
+                <data name="Hidden Group"
+                      uiVersion="1"
+                      version="95" xmlns="http://openrosa.org/formdesigner/616F4108-566E-4E32-85C5-6153E3351D46" xmlns:jrm="http://dev.commcarehq.org/jr/xforms">
+                    <fav_num/>
+                    <question1 jr:template="">
+                        <random_value/>
+                    </question1>
+                    <orx:meta xmlns:cc="http://commcarehq.org/xforms">
+                        <orx:deviceID/>
+                        <orx:timeStart/>
+                        <orx:timeEnd/>
+                        <orx:username/>
+                        <orx:userID/>
+                        <orx:instanceID/>
+                        <cc:appVersion/>
+                    </orx:meta>
+                </data>
+            </instance>
+            <instance id="commcaresession" src="jr://instance/session"/>
+            <bind nodeset="/data/fav_num" type="xsd:int"/>
+            <bind nodeset="/data/question1"/>
+            <bind calculate="random()*/data/fav_num" nodeset="/data/question1/random_value"/>
+            <itext>
+                <translation default="" lang="en">
+                    <text id="fav_num-label">
+                        <value>fav_num</value>
+                    </text>
+                    <text id="question1-label">
+                        <value>question1</value>
+                    </text>
+                </translation>
+                <translation lang="es">
+                    <text id="fav_num-label">
+                        <value>fav_num</value>
+                    </text>
+                    <text id="question1-label">
+                        <value>question1</value>
+                    </text>
+                </translation>
+            </itext>
+            <setvalue event="xforms-ready" ref="/data/meta/deviceID"
+                      value="instance('commcaresession')/session/context/deviceid"/>
+            <setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/>
+            <bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/>
+            <setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/>
+            <bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/>
+            <setvalue event="xforms-ready" ref="/data/meta/username"
+                      value="instance('commcaresession')/session/context/username"/>
+            <setvalue event="xforms-ready" ref="/data/meta/userID"
+                      value="instance('commcaresession')/session/context/userid"/>
+            <setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/>
+            <setvalue event="xforms-ready" ref="/data/meta/appVersion"
+                      value="instance('commcaresession')/session/context/appversion"/>
+        </model>
+    </h:head>
+    <h:body>
+        <input ref="/data/fav_num">
+            <label ref="jr:itext('fav_num-label')"/>
+        </input>
+        <group>
+            <label ref="jr:itext('question1-label')"/>
+            <repeat nodeset="/data/question1" jr:count="/data/fav_num" jr:noAddRemove="true()"/>
+        </group>
+    </h:body>
+</h:html>

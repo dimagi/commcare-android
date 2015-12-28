@@ -44,22 +44,22 @@ import java.util.NoSuchElementException;
  *
  */
 public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
-    String username; 
-    String password;
+    final String username;
+    final String password;
     
-    CommCareApp app;
+    final CommCareApp app;
     
     String keyServerUrl;
     
     ArrayList<UserKeyRecord> keyRecords;
     
-    ManageKeyRecordListener<R> listener;
+    final ManageKeyRecordListener<R> listener;
     
     boolean userRecordExists = false;
     
     boolean calloutNeeded = false;
     boolean calloutRequired = false;
-    boolean restoreSession;
+    final boolean restoreSession;
     
     User loggedIn = null;
     

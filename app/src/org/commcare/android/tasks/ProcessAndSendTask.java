@@ -38,7 +38,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     String url;
     Long[] results;
     
-    int sendTaskId;
+    final int sendTaskId;
 
     public static final int PROCESSING_PHASE_ID = 8;
     public static final int SEND_PHASE_ID = 9;
@@ -53,9 +53,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     public static final long PROGRESS_SDCARD_REMOVED = 512;
 
     DataSubmissionListener formSubmissionListener;
-    private FormRecordProcessor processor;
+    private final FormRecordProcessor processor;
     
-    private static int SUBMISSION_ATTEMPTS = 2;
+    private static final int SUBMISSION_ATTEMPTS = 2;
     
     private static final Queue<ProcessAndSendTask> processTasks = new LinkedList<>();
     

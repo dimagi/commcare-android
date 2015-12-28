@@ -23,8 +23,8 @@ import java.util.Vector;
 public class IntentExtensionParser implements IElementHandler {
 
     private static final String TAG = IntentExtensionParser.class.getSimpleName();
-    private static String RESPONSE = "response";
-    private static String EXTRA = "extra";
+    private static final String RESPONSE = "response";
+    private static final String EXTRA = "extra";
 
     @Override
     public void handle(XFormParser p, Element e, Object parent) {

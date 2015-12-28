@@ -18,9 +18,9 @@ import java.io.OutputStream;
  */
 public class ArchiveFileReference implements Reference {
 
-    String GUID;
-    String archiveURI;
-    String localroot;
+    final String GUID;
+    final String archiveURI;
+    final String localroot;
 
     public ArchiveFileReference(String localroot, String GUID, String archiveURI) {
         this.archiveURI = archiveURI;

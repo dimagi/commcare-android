@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/cc_core_bg"
+              android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:scrollbars="none">
+
+        <RelativeLayout
+            android:id="@+id/screen_first_start_main"
+            xmlns:SquareButtonWithText="http://schemas.android.com/apk/res-auto"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/screen_first_start_banner"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="@dimen/content_min_margin"
+                    android:layout_marginEnd="@dimen/content_start"
+                    android:layout_marginRight="@dimen/content_start"
+                    android:adjustViewBounds="true"
+                    android:paddingBottom="@dimen/content_start"
+                    android:paddingLeft="@dimen/content_start"
+                    android:paddingRight="@dimen/content_start"
+                    android:paddingTop="@dimen/content_start"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/commcare_logo"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/str_setup_message"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/content_min_margin"
+                        android:layout_marginRight="@dimen/content_min_margin"
+                        android:gravity="center"
+                        android:textSize="@dimen/text_small"/>
+
+                    <TextView
+                        android:id="@+id/str_setup_message_2"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/content_min_margin"
+                        android:layout_marginLeft="@dimen/content_min_margin"
+                        android:layout_marginRight="@dimen/content_min_margin"
+                        android:gravity="center"
+                        android:textSize="@dimen/text_small"/>
+
+                    <LinearLayout
+                        android:id="@+id/screen_first_start_bottom"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:paddingBottom="@dimen/content_min_margin">
+
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="@dimen/standard_spacer"
+                            android:layout_weight="1"
+                            android:background="@drawable/tile_drop_shadow_small_margins">
+
+                            <org.commcare.android.view.SquareButtonWithText
+                                android:id="@+id/btn_start_install"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
+                                SquareButtonWithText:img="@drawable/install_start"
+                                SquareButtonWithText:subtitle="Start install"
+                                SquareButtonWithText:textColor="@color/white"
+                                />
+                        </FrameLayout>
+
+                        <FrameLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginRight="@dimen/standard_spacer"
+                            android:layout_weight="1"
+                            android:background="@drawable/tile_drop_shadow_small_margins">
+
+                            <org.commcare.android.view.SquareButtonWithText
+                                android:id="@+id/btn_stop_install"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:gravity="end"
+
+                                SquareButtonWithText:backgroundColor="@color/cc_neutral_color"
+                                SquareButtonWithText:img="@drawable/install_stop"
+                                SquareButtonWithText:subtitle="Start over"
+                                SquareButtonWithText:textColor="@color/white"/>
+                        </FrameLayout>
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="start"
+                            android:layout_marginLeft="@dimen/content_start_quadruple"
+                            android:layout_marginRight="@dimen/content_start_quadruple"
+                            android:src="@drawable/icon_wifi_neutral"/>
+
+                        <TextView
+                            android:id="@+id/net_warn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="@dimen/content_min_margin"
+                            android:layout_marginRight="@dimen/content_min_margin"
+                            android:textSize="@dimen/text_small"/>
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+        </RelativeLayout>
+    </ScrollView>
+</LinearLayout>

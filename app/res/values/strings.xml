@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:cc="http://strings_namespace">
-
-    <string name="application_name">CommCare</string>
     <string name="title_bar_name">CommCare</string>
 
     <!-- string name="default_app_server">http://build.dimagi.com/commcare/pact/profile.xml</string -->

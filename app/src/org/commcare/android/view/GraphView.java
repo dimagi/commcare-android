@@ -42,7 +42,7 @@ public class GraphView {
         mIsFullScreen = isFullScreen;
     }
 
-    public Intent getIntent(String html) throws InvalidStateException {
+    public Intent getIntent(String html) {
         Intent intent = new Intent(mContext, GraphActivity.class);
         intent.putExtra(HTML, html);
         intent.putExtra(TITLE, mTitle);
@@ -54,7 +54,7 @@ public class GraphView {
      * any changes to graph's configuration, title, etc.
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public View getView(String html) throws InvalidStateException {
+    public View getView(String html) {
         if (BuildConfig.DEBUG) {
             WebView.setWebContentsDebuggingEnabled(true);
         }

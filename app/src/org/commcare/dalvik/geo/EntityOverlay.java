@@ -13,9 +13,9 @@ import org.javarosa.core.model.instance.TreeReference;
  *
  */
 public abstract class EntityOverlay extends BalloonItemizedOverlay {
-    private static int maxNum = 200;
-    private OverlayItem overlays[] = new OverlayItem[maxNum];
-    private TreeReference references[] = new TreeReference[maxNum];
+    private static final int maxNum = 200;
+    private final OverlayItem[] overlays = new OverlayItem[maxNum];
+    private final TreeReference[] references = new TreeReference[maxNum];
     private int index = 0;
     private boolean full = false;
 

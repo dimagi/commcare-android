@@ -17,7 +17,7 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Daniel Luna (dcluna@dimagi.com)
  */
-public class SetupKeepInstallFragment extends Fragment {
+public class InstallConfirmFragment extends Fragment {
     private StartStopInstallCommands buttonCommands;
 
     public interface StartStopInstallCommands {
@@ -38,7 +38,7 @@ public class SetupKeepInstallFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_setup_keepinstall, container, false);
+        View view = inflater.inflate(R.layout.install_confirm_fragment, container, false);
 
         SquareButtonWithText btnStartInstall = (SquareButtonWithText)view.findViewById(R.id.btn_start_install);
         btnStartInstall.setText(Localization.get("install.button.start"));
@@ -46,7 +46,7 @@ public class SetupKeepInstallFragment extends Fragment {
         btnStartInstall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (buttonCommands != null) buttonCommands.onStartInstallClicked();
+                buttonCommands.onStartInstallClicked();
             }
         });
 
@@ -56,7 +56,7 @@ public class SetupKeepInstallFragment extends Fragment {
         btnStopInstall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (buttonCommands != null) buttonCommands.onStopInstallClicked();
+                buttonCommands.onStopInstallClicked();
             }
         });
 
