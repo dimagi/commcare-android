@@ -26,8 +26,8 @@ import android.widget.Toast;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.fragments.ContainerFragment;
 import org.commcare.android.fragments.SetupEnterURLFragment;
-import org.commcare.android.fragments.SetupInstallFragment;
-import org.commcare.android.fragments.SetupKeepInstallFragment;
+import org.commcare.android.fragments.SelectInstallModeFragment;
+import org.commcare.android.fragments.InstallConfirmFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.RuntimePermissionRequester;
@@ -70,7 +70,7 @@ import java.util.List;
 @ManagedUi(R.layout.first_start_screen_modern)
 public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivity>
         implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller,
-        SetupKeepInstallFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener,
+        InstallConfirmFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener,
         RuntimePermissionRequester {
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
 
@@ -139,8 +139,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private boolean manualSMSInstall;
 
     private final FragmentManager fm = getSupportFragmentManager();
-    private final SetupKeepInstallFragment startInstall = new SetupKeepInstallFragment();
-    private final SetupInstallFragment installFragment = new SetupInstallFragment();
+    private final InstallConfirmFragment startInstall = new InstallConfirmFragment();
+    private final SelectInstallModeFragment installFragment = new SelectInstallModeFragment();
     private ContainerFragment<CommCareApp> containerFragment;
 
     @Override

@@ -387,8 +387,8 @@ public class LegacyInstallUtils {
 
         try {
             final CipherPool pool = new CipherPool() {
-                Object lock = new Object();
-                byte[] key = oldKey;
+                final Object lock = new Object();
+                final byte[] key = oldKey;
 
                 @Override
                 public Cipher generateNewCipher() {

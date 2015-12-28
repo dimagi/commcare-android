@@ -1,3 +1,4 @@
+import com.android.builder.core.DefaultManifestParser;
 ////////////
 // README //
 ////////////
@@ -83,23 +84,6 @@ def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : ""
 def ccDomain = project.hasProperty('cc_domain') ? cc_domain : ""
 def ccDomainSafe = ccDomain.replaceAll("-", "")
 
-/**
- * Get the version code from command line param
- * 
- * @return int If the param -PversionCode is present then return int value or 1
- */
-def getVersionCode = { ->
-    def code = project.hasProperty('versionCode') ? versionCode.toInteger() : 1
-    println "VersionCode is set to $code"
-    return code
-}
-
-def getDate() {
-    def date = new Date()
-    def formattedDate = date.format('yyyy-MM-dd')
-    return formattedDate
-}
-
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -128,6 +112,7 @@ android {
         minSdkVersion 8
         targetSdkVersion 23
         applicationId "org.commcare.dalvik"
+        resValue "string", "application_name", "CommCare"
         def odkProviderStr = "org.commcare.android.provider.odk"
         manifestPlaceholders = [ odkProvider:odkProviderStr]
 
@@ -204,12 +189,36 @@ android {
         // builds normal commcare
         // use the settings from defaultConfig
       }
+
+      qabeta {
+        // app w/ id tied to commcare version, so you can install standalone,
+        // next to play store version
+
+        // grab commcare version from manifest
+        def manifestParser = new DefaultManifestParser()
+        def ccVersion = manifestParser.getVersionName(android.sourceSets.main.manifest.srcFile)
+        // convert numbers to words to use in app id
+        def ccVersionSafe = numbersToLetters(ccVersion)
+
+        applicationId "org.commcare.${ccVersionSafe}"
+
+        // setup content provider strings correctly to not conflict with other apps
+        def odkProviderStr = "org.commcare.${ccVersionSafe}.provider.odk"
+        manifestPlaceholders = [ odkProvider:odkProviderStr]
+        buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
+        buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
+
+        // set the app name
+        resValue "string", "application_name", " ${ccVersion} QA CommCare"
+      }
+
       standalone {
         // Builds commcare w/ ccz app packaged in the apk.
         // Must be invoked from command-line w/ args pointing to app domain &
         // id
 
         applicationId "org.commcare.${ccDomainSafe}"
+          resValue "string", "application_name", ccDomainSafe
         def odkProviderStr = "org.commcare.${ccDomainSafe}.provider.odk"
         manifestPlaceholders = [ odkProvider:odkProviderStr]
 
@@ -280,4 +289,46 @@ tasks.whenTaskAdded { task ->
             task.name == 'processStandaloneReleaseResources') {
         task.dependsOn downloadCCApp
     }
+}
+
+/**
+ * convert version code to english words for use in application id.
+ * example: 2.26 -> twotwosix
+ */
+def numbersToLetters(String version) {
+    String[] chars = version.split('');
+    StringBuilder words = new StringBuilder();
+    for (String num : chars) {
+        switch (num) {
+            case "1": words.append("one"); break;
+            case "2": words.append("two"); break;
+            case "3": words.append("three"); break;
+            case "4": words.append("four"); break;
+            case "5": words.append("five"); break;
+            case "6": words.append("six"); break;
+            case "7": words.append("seven"); break;
+            case "8": words.append("eight"); break;
+            case "9": words.append("nine"); break;
+            case "0": words.append("zero"); break;
+            default: break; // skip non-numeric
+        }
+    }
+    return words.toString();
+}
+
+/**
+ * Get the version code from command line param
+ * 
+ * @return int If the param -PversionCode is present then return int value or 1
+ */
+def getVersionCode = { ->
+    def code = project.hasProperty('versionCode') ? versionCode.toInteger() : 1
+    println "VersionCode is set to $code"
+    return code
+}
+
+def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyy-MM-dd')
+    return formattedDate
 }

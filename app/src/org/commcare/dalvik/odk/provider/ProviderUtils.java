@@ -15,7 +15,7 @@ public class ProviderUtils {
     public enum ProviderType {
         FORMS("forms.db"), INSTANCES("instances.db");
 
-        private String oldDbName;
+        private final String oldDbName;
 
         ProviderType(String oldDbName) {
             this.oldDbName = oldDbName;

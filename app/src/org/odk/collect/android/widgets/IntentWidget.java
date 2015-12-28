@@ -46,11 +46,11 @@ public class IntentWidget extends QuestionWidget {
 
     protected Button launchIntentButton;
     protected TextView mStringAnswer;
-    private Intent intent;
-    protected IntentCallout ic;
+    private final Intent intent;
+    protected final IntentCallout ic;
     private int calloutId = FormEntryActivity.INTENT_CALLOUT;
-    protected FormEntryPrompt prompt;
-    protected PendingCalloutInterface pendingCalloutInterface;
+    protected final FormEntryPrompt prompt;
+    protected final PendingCalloutInterface pendingCalloutInterface;
 
     public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
                         PendingCalloutInterface pendingCalloutInterface, int calloutId) {
