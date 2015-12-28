@@ -58,6 +58,7 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -188,6 +189,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private static final int MENU_PREFERENCES = Menu.FIRST + 4;
 
     public static final String NAV_STATE_NEXT = "next";
+    public static final String NAV_STATE_DONE = "done";
+    public static final String NAV_STATE_QUIT = "quit";
+    public static final String NAV_STATE_BACK = "back";
 
     private String mFormPath;
     // Path to a particular form instance
@@ -362,7 +366,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         nextButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!"done".equals(v.getTag())) {
+                if (!NAV_STATE_DONE.equals(v.getTag())) {
                     GoogleAnalyticsUtils.reportFormNavForward(
                             GoogleAnalyticsFields.LABEL_ARROW,
                             GoogleAnalyticsFields.VALUE_NOT_ON_LAST_SCREEN);
@@ -379,7 +383,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         prevButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!"quit".equals(v.getTag())) {
+                if (!NAV_STATE_QUIT.equals(v.getTag())) {
                     GoogleAnalyticsUtils.reportFormNavBackward(GoogleAnalyticsFields.LABEL_ARROW);
                     FormEntryActivity.this.showPreviousView(true);
                 } else {
@@ -2599,5 +2603,16 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private String getCurrentFormTitle() {
         return mFormController.getFormTitle();
+    }
+
+    /**
+     * For Testing purposes only
+     */
+    public ODKView getODKView() {
+        if (BuildConfig.DEBUG) {
+            return mCurrentView;
+        } else {
+            throw new RuntimeException("On principal of design, only meant for testing purposes");
+        }
     }
 }

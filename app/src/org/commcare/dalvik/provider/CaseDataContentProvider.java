@@ -38,7 +38,7 @@ import java.util.Vector;
 public class CaseDataContentProvider extends ContentProvider {
     
     //Valid sql selectors
-    HashMap<String, String> caseMetaIndexTable = new HashMap<String, String>();
+    final HashMap<String, String> caseMetaIndexTable = new HashMap<String, String>();
     
     
     //TODO: Caching - Use a cache table here or use an LRU or other system provided cache?

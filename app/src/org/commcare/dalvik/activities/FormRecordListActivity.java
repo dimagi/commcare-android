@@ -432,8 +432,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                         adapter.notifyDataSetChanged();
                         return true;
                     } catch (StorageFullException e) {
-                    } catch (IOException e) {
-                        Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "error restoring quarantined record: " + e.getMessage());
                     }
                 case SCAN_RECORD:
                     FormRecord theRecord = (FormRecord)adapter.getItem(info.position);

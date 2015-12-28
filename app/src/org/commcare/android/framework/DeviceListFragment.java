@@ -105,7 +105,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      */
     private class WiFiPeerListAdapter extends ArrayAdapter<WifiP2pDevice> {
 
-        private List<WifiP2pDevice> items;
+        private final List<WifiP2pDevice> items;
 
         public WiFiPeerListAdapter(Context context, int textViewResourceId,
                 List<WifiP2pDevice> objects) {

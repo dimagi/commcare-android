@@ -55,7 +55,7 @@ public class SigningUtil {
     /**
      * Given a URL, return the text at that location as a String
      */
-    public static String convertUrlToPayload(String url) throws SignatureException, IOException {
+    public static String convertUrlToPayload(String url) throws IOException {
         String text = readURL(url);
         return text;
     }
@@ -109,9 +109,8 @@ public class SigningUtil {
      *
      * @param messageBytes
      * @return the binary representation of the signtature
-     * @throws Exception if any errors are encountered
      */
-    public static byte[] getSignatureBytes(byte[] messageBytes) throws Exception {
+    public static byte[] getSignatureBytes(byte[] messageBytes) {
         int lastSpaceIndex = getSignatureStartIndex(messageBytes);
         int signatureByteLength = messageBytes.length - lastSpaceIndex;
         byte[] signatureBytes = new byte[signatureByteLength];
@@ -176,7 +175,7 @@ public class SigningUtil {
         return kf.generatePublic(spec);
     }
 
-    private static boolean verifyMessageSignature(PublicKey publicKey, String messageString, byte[] signature) throws SignatureException, NoSuchAlgorithmException, Base64DecoderException, InvalidKeyException {
+    private static boolean verifyMessageSignature(PublicKey publicKey, String messageString, byte[] signature) throws SignatureException, NoSuchAlgorithmException, InvalidKeyException {
         Signature sign = Signature.getInstance("SHA256withRSA/PSS", new BouncyCastleProvider());
         byte[] message = messageString.getBytes();
         sign.initVerify(publicKey);

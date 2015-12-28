@@ -19,7 +19,7 @@ import java.util.Vector;
  */
 public class CalendaredDateFormatHandler implements IFunctionHandler {
     
-    private Context context;
+    private final Context context;
     
     public CalendaredDateFormatHandler(Context context) {
         this.context = context;

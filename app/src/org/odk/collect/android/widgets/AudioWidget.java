@@ -41,7 +41,7 @@ public class AudioWidget extends QuestionWidget {
     private final Button mCaptureButton;
     private final Button mPlayButton;
     private final Button mChooseButton;
-    private PendingCalloutInterface pendingCalloutInterface;
+    private final PendingCalloutInterface pendingCalloutInterface;
 
     private String mBinaryName;
     private final String mInstanceFolder;

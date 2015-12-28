@@ -45,8 +45,8 @@ import java.util.Date;
  */
 public class DateWidget extends QuestionWidget {
 
-    private DatePicker mDatePicker;
-    private DatePicker.OnDateChangedListener mDateListener;
+    private final DatePicker mDatePicker;
+    private final DatePicker.OnDateChangedListener mDateListener;
 
 
     @SuppressLint("NewApi")
