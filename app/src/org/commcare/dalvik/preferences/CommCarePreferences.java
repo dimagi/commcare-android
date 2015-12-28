@@ -158,8 +158,8 @@ public class CommCarePreferences
                 GoogleAnalyticsFields.LABEL_LOCALE };
 
         for (int i = 0; i < prefKeys.length; i++) {
-            GoogleAnalyticsUtils.createPreferenceOnClickListener(prefManager,
-                    GoogleAnalyticsFields.CATEGORY_CC_PREFS, prefKeys[i], analyticsLabels[i]);
+            GoogleAnalyticsUtils.createPreferenceOnClickListener(prefManager, prefKeys[i],
+                    GoogleAnalyticsFields.CATEGORY_CC_PREFS, analyticsLabels[i]);
         }
 
         // Create this listener on its own because it has an extra call in it
@@ -167,15 +167,11 @@ public class CommCarePreferences
         pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                switch(preference.getKey()) {
-                    case PREFS_PRINT_KEY:
-                        GoogleAnalyticsUtils.reportPrefItemClick(
-                                GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                                GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
-                        startFileBrowser();
-                        return true;
-                }
-                return false;
+                GoogleAnalyticsUtils.reportPrefItemClick(
+                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                        GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
+                startFileBrowser();
+                return true;
             }
         });
     }
@@ -231,40 +227,35 @@ public class CommCarePreferences
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case CLEAR_USER_DATA:
-                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                        GoogleAnalyticsFields.LABEL_CLEAR_USER_DATA);
+                reportOptionsMenuItemEntry(GoogleAnalyticsFields.LABEL_CLEAR_USER_DATA);
                 CommCareApplication._().clearUserData();
                 this.finish();
                 return true;
             case FORCE_LOG_SUBMIT:
-                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                        GoogleAnalyticsFields.LABEL_FORCE_LOG_SUBMISSION);
+                reportOptionsMenuItemEntry(GoogleAnalyticsFields.LABEL_FORCE_LOG_SUBMISSION);
                 CommCareUtil.triggerLogSubmission(this);
                 return true;
             case RECOVERY_MODE:
-                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                        GoogleAnalyticsFields.LABEL_RECOVERY_MODE);
+                reportOptionsMenuItemEntry(GoogleAnalyticsFields.LABEL_RECOVERY_MODE);
                 Intent i = new Intent(this, RecoveryActivity.class);
                 this.startActivity(i);
                 return true;
             case SUPERUSER_PREFS:
-                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                        GoogleAnalyticsFields.LABEL_DEVELOPER_OPTIONS);
+                reportOptionsMenuItemEntry(GoogleAnalyticsFields.LABEL_DEVELOPER_OPTIONS);
                 Intent intent = new Intent(this, DeveloperPreferences.class);
                 this.startActivity(intent);
                 return true;
             case MENU_CLEAR_SAVED_SESSION:
-                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                        GoogleAnalyticsFields.LABEL_CLEAR_SAVED_SESSION);
+                reportOptionsMenuItemEntry(GoogleAnalyticsFields.LABEL_CLEAR_SAVED_SESSION);
                 DevSessionRestorer.clearSession();
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private static void reportOptionsMenuItemEntry(String label) {
+        GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
+                GoogleAnalyticsFields.CATEGORY_CC_PREFS, label);
     }
 
     public static boolean isInSenseMode() {

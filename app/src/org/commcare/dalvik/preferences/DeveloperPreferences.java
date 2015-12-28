@@ -91,8 +91,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED};
 
         for (int i = 0; i < prefKeys.length; i++) {
-            GoogleAnalyticsUtils.createPreferenceOnClickListener(prefManager,
-                    GoogleAnalyticsFields.CATEGORY_DEV_PREFS, prefKeys[i], analyticsLabels[i]);
+            GoogleAnalyticsUtils.createPreferenceOnClickListener(prefManager, prefKeys[i],
+                    GoogleAnalyticsFields.CATEGORY_DEV_PREFS, analyticsLabels[i]);
         }
     }
 

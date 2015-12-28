@@ -10,7 +10,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 
 /**
- * All methods used for google analytics reporting
+ * All methods used to report events to google analytics, and all supporting utils
  *
  * @author amstone
  */
@@ -203,8 +203,8 @@ public class GoogleAnalyticsUtils {
     }
 
     public static void createPreferenceOnClickListener(PreferenceManager manager,
-                                                       final String category,
                                                        String prefKey,
+                                                       final String category,
                                                        final String analyticsLabel) {
         Preference pref = manager.findPreference(prefKey);
         pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
