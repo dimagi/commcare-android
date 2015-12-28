@@ -266,11 +266,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         org.javarosa.core.services.PropertyManager.setPropertyManager(new PropertyManager(
                 getApplicationContext()));
 
-        if (savedInstanceState == null) {
-            reportFormEntry();
-        } else {
-            loadStateFromBundle(savedInstanceState);
-        }
+        loadStateFromBundle(savedInstanceState);
 
         // Check to see if this is a screen flip or a new form load.
         Object data = this.getLastCustomNonConfigurationInstance();
@@ -1897,6 +1893,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 mFormLoaderTask.execute(formUri);
             }
             hasFormLoadBeenTriggered = true;
+            reportFormEntry();
         }
     }
 
