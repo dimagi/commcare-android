@@ -447,7 +447,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "IO Error while migrating database: " + ioe.getMessage());
             return false;
         } catch(Exception e) {
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ExceptionReportTask.getStackTrace(e));
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ExceptionReporting.getStackTrace(e));
             return false;
         }
     }

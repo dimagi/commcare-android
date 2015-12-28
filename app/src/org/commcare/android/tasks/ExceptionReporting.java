@@ -29,8 +29,8 @@ import java.util.Date;
  *
  * @author csims@dimagi.com
  **/
-public class ExceptionReportTask {
-    private static final String TAG = ExceptionReportTask.class.getSimpleName();
+public class ExceptionReporting {
+    private static final String TAG = ExceptionReporting.class.getSimpleName();
 
     public static void reportExceptionInBg(final Throwable exception) {
         new Thread(new Runnable() {
@@ -125,17 +125,18 @@ public class ExceptionReportTask {
     }
 
     public static String getStackTrace(Throwable e) {
-        return getStackTrace(e, false);
-    }
-
-    public static String getStackTrace(Throwable e, boolean fullContext) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         e.printStackTrace(new PrintStream(bos));
-        String retString = new String(bos.toByteArray());
-        if (fullContext && e.getCause() != null) {
-            //Because sometimes it doesn't print us enough context.
-            retString += "Sub Context: \n" + getStackTrace(e.getCause(), false);
+        return new String(bos.toByteArray());
+    }
+
+    public static String getStackTraceWithContext(Throwable e) {
+        String stackTrace = getStackTrace(e);
+
+        if (e.getCause() != null) {
+            stackTrace += "Sub Context: \n" + getStackTrace(e.getCause());
         }
-        return retString;
+
+        return stackTrace;
     }
 }

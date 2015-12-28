@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import org.commcare.android.models.AsyncEntity;
 import org.commcare.android.models.Entity;
-import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.MediaUtil;
@@ -419,7 +419,7 @@ public class EntityView extends LinearLayout {
             }
         } catch (Exception excp) {
             removeSpans(raw);
-            Logger.log("search-hl", excp.toString() + " " + ExceptionReportTask.getStackTrace(excp));
+            Logger.log("search-hl", excp.toString() + " " + ExceptionReporting.getStackTrace(excp));
         }
 
         return raw;
