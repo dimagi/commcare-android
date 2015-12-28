@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
@@ -218,7 +219,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         // mime post
         MultipartEntity entity = new DataSubmissionEntity(this, index);
 
-        EncryptedFileBody fb = new EncryptedFileBody(f, getDecryptCipher(new SecretKeySpec(slr.getKey(), "AES")), "text/xml");
+        EncryptedFileBody fb = new EncryptedFileBody(f, getDecryptCipher(new SecretKeySpec(slr.getKey(), "AES")), ContentType.TEXT_XML);
         entity.addPart("xml_submission_file", fb);
 
         HttpResponse response;
