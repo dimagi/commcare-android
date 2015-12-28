@@ -1893,7 +1893,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 mFormLoaderTask.execute(formUri);
             }
             hasFormLoadBeenTriggered = true;
-            reportFormEntry();
         }
     }
 
@@ -1940,6 +1939,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return; // so we don't show the intro screen before jumping to the hierarchy
         }
 
+        reportFormEntry();
         refreshCurrentView();
         FormNavigationUI.updateNavigationCues(this, mFormController, mCurrentView);
     }

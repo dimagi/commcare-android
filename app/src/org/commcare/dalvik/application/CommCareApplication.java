@@ -274,7 +274,6 @@ public class CommCareApplication extends MultiDexApplication {
                 releaseUserResourcesAndServices();
             }
             bindUserSessionService(symetricKey, record, restoreSession);
-            TimedStatsTracker.registerStartSession();
         }
     }
 
@@ -940,6 +939,8 @@ public class CommCareApplication extends MultiDexApplication {
                             PurgeStaleArchivedFormsTask.launchPurgeTask();
                         }
                     }
+
+                    TimedStatsTracker.registerStartSession();
                 }
             }
 
