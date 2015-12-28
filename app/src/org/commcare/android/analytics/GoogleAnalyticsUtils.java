@@ -166,6 +166,10 @@ public class GoogleAnalyticsUtils {
         return CommCareApplication._().getDefaultTracker();
     }
 
+    private static void dispatchQueuedEvents() {
+        CommCareApplication._().getAnalyticsInstance().dispatchLocalHits();
+    }
+
     private static boolean analyticsDisabled() {
         return !DeveloperPreferences.areAnalyticsEnabled();
     }

@@ -337,7 +337,7 @@ public class CommCareApplication extends MultiDexApplication {
     synchronized public Tracker getDefaultTracker() {
         if (mTracker == null) {
             // TODO: AMS - Will want to set this conditionally after test release
-            mTracker = GoogleAnalytics.getInstance(this).newTracker(DEV_TRACKING_ID);
+            mTracker = getAnalyticsInstance().newTracker(DEV_TRACKING_ID);
             mTracker.enableAutoActivityTracking(true);
         }
         String userId = getCurrentUserId();
@@ -347,6 +347,10 @@ public class CommCareApplication extends MultiDexApplication {
             mTracker.set("&uid", null);
         }
         return mTracker;
+    }
+
+    public GoogleAnalytics getAnalyticsInstance() {
+        return GoogleAnalytics.getInstance(this);
     }
 
     public int[] getCommCareVersion() {
