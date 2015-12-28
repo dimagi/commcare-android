@@ -30,8 +30,7 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
 
     @Override
     public void uncaughtException(Thread thread, Throwable ex) {
-        ExceptionReportTask task = new ExceptionReportTask();
-        task.execute(ex);
+        ExceptionReportTask.reportExceptionInBg(ex);
 
         if (warnUserAndExit(ex)) {
             // You must close the crashed thread in order to start a new activity.

@@ -463,8 +463,7 @@ public class CommCareApplication extends Application {
             Log.i("FAILURE", "Problem with loading");
             Log.i("FAILURE", "E: " + e.getMessage());
             e.printStackTrace();
-            ExceptionReportTask ert = new ExceptionReportTask();
-            ert.execute(e);
+            ExceptionReportTask.reportExceptionInBg(e);
             resourceState = STATE_CORRUPTED;
         }
         app.setAppResourceState(resourceState);

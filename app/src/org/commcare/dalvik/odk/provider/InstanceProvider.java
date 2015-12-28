@@ -495,8 +495,7 @@ public class InstanceProvider extends ContentProvider {
             FormRecordCleanupTask.wipeRecord(getContext(), currentState);
 
             // Notify the server of this problem (since we aren't going to crash)
-            ExceptionReportTask ert = new ExceptionReportTask();
-            ert.execute(e);
+            ExceptionReportTask.reportExceptionInBg(e);
 
             raiseFormEntryError("An error occurred: " + e.getMessage() +
                     " and your data could not be saved.", currentState);
