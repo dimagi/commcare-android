@@ -1,7 +1,7 @@
 package org.commcare.android.view.c3;
 
 import org.commcare.android.util.InvalidStateException;
-import org.commcare.suite.model.graph.GraphData;
+import org.commcare.graphing.GraphData;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.util.OrderedHashtable;
 import org.json.JSONObject;

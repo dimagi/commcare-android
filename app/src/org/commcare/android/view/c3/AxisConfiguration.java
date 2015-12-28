@@ -2,8 +2,8 @@ package org.commcare.android.view.c3;
 
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.suite.model.graph.Graph;
-import org.commcare.suite.model.graph.GraphData;
-import org.commcare.suite.model.graph.SeriesData;
+import org.commcare.graphing.GraphData;
+import org.commcare.graphing.SeriesData;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

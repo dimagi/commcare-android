@@ -25,7 +25,7 @@ import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.graph.GraphData;
+import org.commcare.graphing.GraphData;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.odk.collect.android.views.media.AudioButton;

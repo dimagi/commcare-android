@@ -3,23 +3,17 @@ package org.commcare.android.view.c3;
 import android.graphics.Color;
 
 import org.commcare.android.util.InvalidStateException;
-import org.commcare.suite.model.graph.AnnotationData;
-import org.commcare.suite.model.graph.BubblePointData;
+import org.commcare.graphing.AnnotationData;
+import org.commcare.graphing.BubblePointData;
+import org.commcare.graphing.XYPointData;
 import org.commcare.suite.model.graph.Graph;
-import org.commcare.suite.model.graph.GraphData;
-import org.commcare.suite.model.graph.SeriesData;
-import org.commcare.suite.model.graph.XYPointData;
+import org.commcare.graphing.GraphData;
+import org.commcare.graphing.SeriesData;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
 
 /**
  * Data-related configuration for C3. This configuration should be run before

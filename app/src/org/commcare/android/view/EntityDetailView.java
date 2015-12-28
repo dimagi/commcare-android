@@ -29,7 +29,7 @@ import org.commcare.dalvik.R;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.graph.GraphData;
+import org.commcare.graphing.GraphData;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;

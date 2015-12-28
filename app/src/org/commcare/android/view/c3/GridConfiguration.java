@@ -1,7 +1,6 @@
 package org.commcare.android.view.c3;
 
-import org.commcare.suite.model.graph.GraphData;
-import org.javarosa.core.util.OrderedHashtable;
+import org.commcare.graphing.GraphData;
 import org.json.JSONException;
 import org.json.JSONObject;
 
