@@ -48,6 +48,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.application.InitializationHelper;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogCreationHelpers;
@@ -103,11 +104,6 @@ public class CommCareHomeActivity
     public static final int UPGRADE_APP = 32;
     public static final int REPORT_PROBLEM_ACTIVITY = 64;
 
-    /**
-     * Request code for automatically validating media from home dispatch.
-     * Should signal a return from CommCareVerificationActivity.
-     */
-    public static final int MISSING_MEDIA_ACTIVITY=256;
     private static final int DUMP_FORMS_ACTIVITY=512;
     private static final int WIFI_DIRECT_ACTIVITY=1024;
     public static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
@@ -122,7 +118,7 @@ public class CommCareHomeActivity
     private static final int MEDIA_VALIDATOR_ACTIVITY=8192;
 
 
-    private static final int DIALOG_CORRUPTED = 1;
+    public static final int DIALOG_CORRUPTED = 1;
 
     private static final int MENU_PREFERENCES = Menu.FIRST;
     private static final int MENU_UPDATE = Menu.FIRST + 1;
@@ -140,8 +136,6 @@ public class CommCareHomeActivity
      * calling activity and that the current session should be resynced
      */
     public static final int RESULT_RESTART = 3;
-
-    private static final String SESSION_REQUEST = "ccodk_session_request";
 
     private static final String KEY_PENDING_SESSION_DATA = "pending-session-data-id";
     private static final String KEY_PENDING_SESSION_DATUM_ID = "pending-session-datum-id";
@@ -282,16 +276,6 @@ public class CommCareHomeActivity
                 if(resultCode == RESULT_CANCELED){
                     return;
                 } else if (resultCode == RESULT_OK){
-                    Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
-                    return;
-                }
-            case MISSING_MEDIA_ACTIVITY:
-                if(resultCode == RESULT_CANCELED){
-                    // exit the app if media wasn't validated on automatic
-                    // validation check.
-                    this.finish();
-                    return;
-                } else if(resultCode == RESULT_OK){
                     Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -976,147 +960,17 @@ public class CommCareHomeActivity
      * Decides if we should actually be on the home screen, or else should redirect elsewhere
      */
     private void attemptDispatchHomeScreen() {
-
         // Before anything else, see if we're in a failing db state
-        int dbState = CommCareApplication._().getDatabaseState();
-        if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
-            CommCareApplication._().triggerHandledAppExit(this,
-                    getString(R.string.migration_definite_failure),
-                    getString(R.string.migration_failure_title), false);
-            return;
-        } else if (dbState == CommCareApplication.STATE_MIGRATION_QUESTIONABLE) {
-            CommCareApplication._().triggerHandledAppExit(this,
-                        getString(R.string.migration_possible_failure),
-                        getString(R.string.migration_failure_title), false);
-            return;
-        } else if (dbState == CommCareApplication.STATE_CORRUPTED) {
-            handleDamagedApp();
-        }
+        InitializationHelper.checkDbState(this);
 
-        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
-
-        ApplicationRecord currentRecord = currentApp.getAppRecord();
-
-        // Note that the order in which these conditions are checked matters!!
-        try {
-            if (currentApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
-                // Path 1a: The seated app is damaged or corrupted
-                handleDamagedApp();
-            } else if (!currentRecord.isUsable()) {
-                // Path 1b: The seated app is unusable (means either it is archived or is
-                // missing its MM or both)
-                boolean unseated = handleUnusableApp(currentRecord);
-                if (unseated) {
-                    // Recurse in order to make the correct decision based on the new state
-                    attemptDispatchHomeScreen();
-                }
-            } else if (!CommCareApplication._().getSession().isActive()) {
-                // Path 1c: The user is not logged in
-                launchLogin();
-            } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
-                // Path 1d: CommCare was launched from an external app, with a session descriptor
-                handleExternalLaunch();
-            } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
-                // Path 1e: CommCare was launched from a shortcut
-                handleShortcutLaunch();
-            } else if (CommCareApplication._().isSyncPending(false)) {
-                // Path 1f: There is a sync pending
-                handlePendingSync();
-            } else {
-                // Path 1g: Display the normal home screen!
-                uiController.refreshView();
-            }
-        } catch (SessionUnavailableException sue) {
-            launchLogin();
-        }
-    }
-
-    // region: private helper methods used by dispatchHomeScreen(), to prevent it from being one
-    // extremely long method
-
-    private void handleDamagedApp() {
-        if (!CommCareApplication._().isStorageAvailable()) {
-            createNoStorageDialog();
+        if (CommCareApplication._().isSyncPending(false)) {
+            // Path 1f: There is a sync pending
+            handlePendingSync();
         } else {
-            // See if we're logged in. If so, prompt for recovery.
-            try {
-                CommCareApplication._().getSession();
-                showDialog(DIALOG_CORRUPTED);
-            } catch(SessionUnavailableException e) {
-                // Otherwise, log in first
-                launchLogin();
-            }
+            // Path 1g: Display the normal home screen!
+            uiController.refreshView();
         }
     }
-
-    /**
-     *
-     * @param record the ApplicationRecord corresponding to the seated, unusable app
-     * @return if the unusable app was unseated by this method
-     */
-    private boolean handleUnusableApp(ApplicationRecord record) {
-        if (record.isArchived()) {
-            // If the app is archived, unseat it and try to seat another one
-            CommCareApplication._().unseat(record);
-            CommCareApplication._().initFirstUsableAppRecord();
-            return true;
-        }
-        else {
-            // This app has unvalidated MM
-            if (CommCareApplication._().usableAppsPresent()) {
-                // If there are other usable apps, unseat it and seat another one
-                CommCareApplication._().unseat(record);
-                CommCareApplication._().initFirstUsableAppRecord();
-                return true;
-            } else {
-                handleUnvalidatedApp();
-                return false;
-            }
-        }
-    }
-
-    /**
-     * Handles the case where the seated app is unvalidated and there are no other usable apps
-     * to seat instead -- Either calls out to verification activity or quits out of the app
-     */
-    private void handleUnvalidatedApp() {
-        if (CommCareApplication._().shouldSeeMMVerification()) {
-            Intent i = new Intent(this, CommCareVerificationActivity.class);
-            this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
-        } else {
-            // Means that there are no usable apps, but there are multiple apps who all don't have
-            // MM verified -- show an error message and shut down
-            CommCareApplication._().triggerHandledAppExit(this,
-                    Localization.get("multiple.apps.unverified.message"),
-                    Localization.get("multiple.apps.unverified.title"));
-        }
-
-    }
-
-    private void handleExternalLaunch() {
-        wasExternal = true;
-        String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
-        SessionStateDescriptor ssd = new SessionStateDescriptor();
-        ssd.fromBundle(sessionRequest);
-        CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
-        sessionNavigator.startNextSessionStep();
-    }
-
-    private void handleShortcutLaunch() {
-        //We were launched in shortcut mode. Get the command and load us up.
-        CommCareApplication._().getCurrentSession().setCommand(
-                this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
-        sessionNavigator.startNextSessionStep();
-        //Only launch shortcuts once per intent
-        this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
-    }
-
-    private void createNoStorageDialog() {
-        CommCareApplication._().triggerHandledAppExit(this, Localization.get("app.storage.missing.message"), Localization.get("app.storage.missing.title"));
-    }
-
-    // endregion
-
 
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
         final AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
