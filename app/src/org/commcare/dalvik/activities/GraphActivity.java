@@ -32,12 +32,7 @@ public class GraphActivity extends CommCareActivity {
 
         String html = extras.getString(GraphView.HTML);
         GraphView graphView = new GraphView(this, title, true);
-        try {
-            WebView webView = (WebView) graphView.getView(html);
-            setContentView(webView);
-        } catch (InvalidStateException e) {
-            e.printStackTrace();
-            finish();
-        }
+        WebView webView = (WebView)graphView.getView(html);
+        setContentView(webView);
     }
 }
