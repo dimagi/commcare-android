@@ -51,11 +51,7 @@ public class ExceptionReporting {
             report = null;
         }
 
-        String fallbacktext = null;
         String exceptionText = getStackTrace(exception);
-        if (fallbacktext == null) {
-            fallbacktext = exceptionText;
-        }
         if (report != null) {
             report.addReportElement(new AndroidLogSerializer(new AndroidLogEntry("forceclose", exceptionText, new Date())));
         }
@@ -71,7 +67,7 @@ public class ExceptionReporting {
             //_weak_
             e.printStackTrace();
             String fsDate = new Date().toString();
-            data = ("<?xml version='1.0' ?><n0:device_report xmlns:n0=\"http://code.javarosa.org/devicereport\"><device_id>FAILSAFE</device_id><report_date>" + fsDate + "</report_date><log_subreport><log_entry date=\"" + fsDate + "\"><entry_type>forceclose</entry_type><entry_message>" + fallbacktext + "</entry_message></log_entry></log_subreport></device_report>").getBytes();
+            data = ("<?xml version='1.0' ?><n0:device_report xmlns:n0=\"http://code.javarosa.org/devicereport\"><device_id>FAILSAFE</device_id><report_date>" + fsDate + "</report_date><log_subreport><log_entry date=\"" + fsDate + "\"><entry_type>forceclose</entry_type><entry_message>" + exceptionText + "</entry_message></log_entry></log_subreport></device_report>").getBytes();
         }
 
         String URI = CommCareApplication._().getString(R.string.PostURL);
