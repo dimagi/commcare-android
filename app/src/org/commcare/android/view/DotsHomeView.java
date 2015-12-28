@@ -27,8 +27,8 @@ import java.util.Calendar;
  */
 public class DotsHomeView extends RelativeLayout {
 
-    DotsData data;
-    DotsEditListener listener;
+    final DotsData data;
+    final DotsEditListener listener;
     private static final String[] dayArray = new String[]{"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
     TableRow[] tRows;
     View[] dayViews;

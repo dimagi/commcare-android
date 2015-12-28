@@ -14,8 +14,8 @@ import java.io.OutputStream;
  */
 public class DataSubmissionEntity extends MultipartEntity {
 
-    private DataSubmissionListener listener;
-    private int submissionId;
+    private final DataSubmissionListener listener;
+    private final int submissionId;
     private int attempt = 1;
 
     public DataSubmissionEntity(DataSubmissionListener listener, int submissionId) {
@@ -42,7 +42,7 @@ public class DataSubmissionEntity extends MultipartEntity {
 
         private final DataSubmissionListener listener;
         private long transferred;
-        private int submissionId;
+        private final int submissionId;
 
         public CountingOutputStream(final OutputStream out, final DataSubmissionListener listener, int submissionId) {
             super(out);

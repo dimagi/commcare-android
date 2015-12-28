@@ -18,8 +18,8 @@ import java.io.OutputStream;
  */
 public class AssetFileReference implements Reference {
 
-    String assetURI;
-    Context c;
+    final String assetURI;
+    final Context c;
 
     public AssetFileReference(Context c, String assetURI) {
         this.c = c;

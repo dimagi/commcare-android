@@ -23,7 +23,7 @@ import org.javarosa.form.api.FormEntryPrompt;
  * @author wspride
  */
 public class TriggerWidget extends QuestionWidget {
-    private CheckBox mTriggerButton;
+    private final CheckBox mTriggerButton;
     /**
      * Stores the answer value of this question. Trigger elements shouldn't
      * have values, so this is contrary to the spec.
@@ -39,7 +39,7 @@ public class TriggerWidget extends QuestionWidget {
      * Value that this question is set to when in interactive mode and the
      * checkbox is clicked.
      */
-    private static String mOK = "OK";
+    private static final String mOK = "OK";
 
 
     /**
