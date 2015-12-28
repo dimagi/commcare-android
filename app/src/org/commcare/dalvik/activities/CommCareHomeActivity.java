@@ -162,8 +162,10 @@ public class CommCareHomeActivity
         if (savedInstanceState != null) {
             wasExternal = savedInstanceState.getBoolean("was_external");
         } else {
-            wasExternal = getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL);
-            sessionNavigator.startNextSessionStep();
+            if (getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
+                wasExternal = true;
+                sessionNavigator.startNextSessionStep();
+            }
         }
         if (getIntent().hasExtra(DispatchActivity.START_FROM_LOGIN)) {
             startFromLogin();
