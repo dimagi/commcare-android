@@ -50,7 +50,7 @@ public class MenuAdapter implements ListAdapter {
 
     private final AndroidSessionWrapper asw;
     final Context context;
-    final MenuDisplayable[] displayableData;
+    MenuDisplayable[] displayableData;
 
     public MenuAdapter(Context context, CommCarePlatform platform, String menuID) {
         this.context = context;
