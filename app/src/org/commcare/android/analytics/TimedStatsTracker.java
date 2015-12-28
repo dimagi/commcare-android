@@ -88,12 +88,19 @@ public class TimedStatsTracker {
         return (int) (endTime - startTime / 1000);
     }
 
-    private static void reportTimedEvent(String action, String label, int value) {
-        GoogleAnalyticsUtils.reportTimedEvent(action, label, value);
+    /**
+     * Report the completion of a timed event and its length
+     *
+     * @param eventSpecificLabel - some piece of information specific to the given timed event,
+     *                           possibly empty
+     */
+    private static void reportTimedEvent(String timedEvent, String eventSpecificLabel,
+                                         int timeInSeconds) {
+        GoogleAnalyticsUtils.reportTimedEvent(timedEvent, eventSpecificLabel, timeInSeconds);
     }
 
-    private static void reportTimedEvent(String action, int value) {
-        reportTimedEvent(action, "", value);
+    private static void reportTimedEvent(String timedEvent, int timeInSeconds) {
+        reportTimedEvent(timedEvent, "", timeInSeconds);
     }
 
     private static long currentTime() {

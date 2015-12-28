@@ -206,8 +206,7 @@ public class HomeButtons {
     }
 
     public static void reportButtonClick(String buttonLabel) {
-        GoogleAnalyticsUtils.reportButtonClick(GoogleAnalyticsFields.SCREEN_HOME,
-                buttonLabel);
+        GoogleAnalyticsUtils.reportHomeButtonClick(buttonLabel);
     }
 
     public interface TextSetter {

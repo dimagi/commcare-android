@@ -12,19 +12,20 @@ public final class GoogleAnalyticsFields {
     public static String CATEGORY_FORM_ENTRY = "Form Entry";
     public static String CATEGORY_CC_PREFS = "CommCare Preferences";
     public static String CATEGORY_FORM_PREFS = "Form Entry Preferences";
+    public static String CATEGORY_DEV_PREFS = "Developer Preferences";
     public static String CATEGORY_SERVER_COMMUNICATION = "Server Communication";
-    public static String CATEGORY_SAVED_FORMS = "Saved Forms";
-    public static String CATEGORY_DEV_OPTIONS = "Developer Options / Advanced Actions";
+    public static String CATEGORY_ARCHIVED_FORMS = "Archived Forms";
     public static String CATEGORY_TIMED_EVENTS = "Timed Events";
+
+    // Actions for CATEGORY_HOME_SCREEN only
+    public static String ACTION_BUTTON = "Button Press";
 
     // Actions for multiple categories
     public static String ACTION_OPTIONS_MENU = "Open Options Menu";
     public static String ACTION_OPTIONS_MENU_ITEM = "Enter an Options Menu Item";
-
     public static String ACTION_PREF_MENU = "Open Pref Menu";
     public static String ACTION_VIEW_PREF = "Click on a Pref Item";
     public static String ACTION_EDIT_PREF = "Edit a Preference";
-    public static String ACTION_BUTTON = "Button Press";
 
     // Actions for CATEGORY_FORM_ENTRY only
     public static String ACTION_FORWARD = "Navigate Forward";
@@ -36,11 +37,10 @@ public final class GoogleAnalyticsFields {
     public static String ACTION_AUTO_SYNC_ATTEMPT = "Auto Sync Attempt";
 
     // Actions for CATEGORY_SAVED_FORMS only
-    public static String ACTION_VIEW_SAVED_FORMS = "View Saved Forms List";
-    public static String ACTION_OPEN_SAVED_FORM = "Open a Saved Form";
+    public static String ACTION_VIEW_FORMS_LIST = "View Archived Forms List";
+    public static String ACTION_OPEN_ARCHIVED_FORM = "Open an Archived Form";
 
     // Actions for CATEGORY_TIMED_EVENTS only
-    public static String ACTION_TIME_BETWEEN_SYNCS = "Time Between Successful Syncs";
     public static String ACTION_TIME_IN_A_FORM = "Time Spent in A Form";
     public static String ACTION_SESSION_LENGTH = "Session Length";
 
@@ -67,7 +67,7 @@ public final class GoogleAnalyticsFields {
     public static String LABEL_FONT_SIZE = "Font Size";
     public static String LABEL_INLINE_HELP = "Rich Help Inline";
 
-    // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_DEV_OPTIONS
+    // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_DEV_PREFS
     public static String LABEL_DEV_MODE = "Developer Mode Enabled";
     public static String LABEL_ACTION_BAR = "Action Bar Enabled";
     public static String LABEL_GRID_MENUS = "Grid Menus Enabled";
@@ -123,7 +123,7 @@ public final class GoogleAnalyticsFields {
 
     // Labels for ACTION_VIEW_SAVED_FORMS and ACTION_OPEN_SAVED_FORM
     public static String LABEL_INCOMPLETE = "Incomplete";
-    public static String LABEL_COMPLETE = "Complete";
+    public static String LABEL_COMPLETE = "Complete (Saved)";
 
     // Values for LABEL_SYNC_SUCCESS
     public static int VALUE_JUST_PULL_DATA = 0;
@@ -143,16 +143,12 @@ public final class GoogleAnalyticsFields {
     public static int VALUE_DAILY = 1;
     public static int VALUE_WEEKLY = 2;
 
-    // Values for all labels under ACTION_EDIT_PREF in CATEGORY_DEV_OPTIONS,
-    // and for LABEL_FUZZY_SEARCH
+    // Values for all labels under ACTION_EDIT_PREF in CATEGORY_DEV_PREFS, and for LABEL_FUZZY_SEARCH
     public static int VALUE_DISABLED = 0;
     public static int VALUE_ENABLED = 1;
 
-    // Values for LABEL_ARROW and LABEL_SWIPE (in ACTION_FORWARD)
+    // Values for LABEL_ARROW and LABEL_SWIPE
     public static int VALUE_FORM_NOT_DONE = 0;
     public static int VALUE_FORM_DONE = 1;
-
-    // Screen Names
-    public static String SCREEN_HOME = "CommCareHomeActivity";
 
 }

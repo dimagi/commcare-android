@@ -49,7 +49,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_DEV_OPTIONS);
+        GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_DEV_PREFS);
 
         PreferenceManager prefMgr = getPreferenceManager();
         prefMgr.setSharedPreferencesName((CommCareApplication._().getCurrentApp().getPreferencesFilename()));
@@ -92,7 +92,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
         for (int i = 0; i < prefKeys.length; i++) {
             GoogleAnalyticsUtils.createPreferenceOnClickListener(prefManager,
-                    GoogleAnalyticsFields.CATEGORY_DEV_OPTIONS, prefKeys[i], analyticsLabels[i]);
+                    GoogleAnalyticsFields.CATEGORY_DEV_PREFS, prefKeys[i], analyticsLabels[i]);
         }
     }
 
@@ -149,7 +149,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         }
 
         if (!"".equals(editPrefLabel)) {
-            GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_DEV_OPTIONS,
+            GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_DEV_PREFS,
                     editPrefLabel, editPrefValue);
         }
     }

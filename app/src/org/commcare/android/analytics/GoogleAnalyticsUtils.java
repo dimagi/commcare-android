@@ -10,11 +10,16 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 
 /**
- * Created by amstone326 on 11/13/15.
+ * All methods used for google analytics reporting
+ *
+ * @author amstone
  */
 public class GoogleAnalyticsUtils {
 
-    public static void reportAction(String category, String action) {
+    /**
+     * Report a google analytics event that has only a category and an action
+     */
+    public static void reportEvent(String category, String action) {
         if (analyticsDisabled()) {
             return;
         }
@@ -24,7 +29,10 @@ public class GoogleAnalyticsUtils {
                 .build());
     }
 
-    public static void reportAction(String category, String action, String label) {
+    /**
+     * Report a google analytics event that has a category, action, and label
+     */
+    public static void reportEvent(String category, String action, String label) {
         if (analyticsDisabled()) {
             return;
         }
@@ -35,7 +43,10 @@ public class GoogleAnalyticsUtils {
                 .build());
     }
 
-    public static void reportAction(String category, String action, String label, int value) {
+    /**
+     * Report a google analytics event that has a category, action, label, and value
+     */
+    public static void reportEvent(String category, String action, String label, int value) {
         if (analyticsDisabled()) {
             return;
         }
@@ -47,55 +58,79 @@ public class GoogleAnalyticsUtils {
                 .build());
     }
 
+    /**
+     * Report a user event of navigating forward in form entry
+     *
+     * @param label - Communicates the user's method of navigation (swipe vs. arrow press)
+     * @param value - Communicates if form was in completed state when navigation occurred
+     */
     public static void reportFormNavForward(String label, int value) {
-        reportAction(
+        reportEvent(
                 GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
                 GoogleAnalyticsFields.ACTION_FORWARD,
                 label, value);
     }
 
+    /**
+     * Report a user event of navigating backward in form entry
+     *
+     * @param label - Communicates the user's method of navigation (swipe vs. arrow press)
+     */
     public static void reportFormNavBackward(String label) {
-        reportAction(
+        reportEvent(
                 GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
                 GoogleAnalyticsFields.ACTION_BACKWARD,
                 label);
     }
 
+    /**
+     * Report a user event of triggering a form quit
+     *
+     * @param label - Communicates which option the user selected on the exit form dialog, or none
+     *              if form exit occurred without showing the dialog at all
+     */
     public static void reportFormQuitAttempt(String label) {
-        reportAction(GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
+        reportEvent(GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
                 GoogleAnalyticsFields.ACTION_QUIT_ATTEMPT, label);
     }
 
-    public static void reportButtonClick(String screenName, String buttonLabel) {
-        if (analyticsDisabled()) {
-            return;
-        }
-        getTracker(screenName).send(new HitBuilders.EventBuilder()
-                .setCategory(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN)
-                .setAction(GoogleAnalyticsFields.ACTION_BUTTON)
-                .setLabel(buttonLabel)
-                .build());
+    public static void reportHomeButtonClick(String buttonLabel) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN,
+                GoogleAnalyticsFields.ACTION_BUTTON,
+                buttonLabel);
     }
 
+    /**
+     * Report a user event of opening an options menu
+     */
     public static void reportOptionsMenuEntry(String category) {
-        reportAction(category, GoogleAnalyticsFields.ACTION_OPTIONS_MENU);
+        reportEvent(category, GoogleAnalyticsFields.ACTION_OPTIONS_MENU);
     }
 
+    /**
+     * Report a user event of selecting an item within an options menu
+     */
     public static void reportOptionsMenuItemEntry(String category, String label) {
-        reportAction(category, GoogleAnalyticsFields.ACTION_OPTIONS_MENU_ITEM, label);
+        reportEvent(category, GoogleAnalyticsFields.ACTION_OPTIONS_MENU_ITEM, label);
     }
 
-    // Report someone just opening up a preferences menu
+    /**
+     * Report a user event of opening a preferences menu
+     */
     public static void reportPrefActivityEntry(String category) {
-        reportAction(category, GoogleAnalyticsFields.ACTION_PREF_MENU);
+        reportEvent(category, GoogleAnalyticsFields.ACTION_PREF_MENU);
     }
 
-    // Report viewing the value of an item in a preferences menu
+    /**
+     * Report a user event of opening the edit dialog for an item in a preferences menu
+     */
     public static void reportPrefItemClick(String category, String label) {
-        reportAction(category, GoogleAnalyticsFields.ACTION_VIEW_PREF, label);
+        reportEvent(category, GoogleAnalyticsFields.ACTION_VIEW_PREF, label);
     }
 
-    // Report actually changing the value of an item in a preferences menu
+    /**
+     * Report a user event of changing the value of an item in a preferences menu
+     */
     public static void reportEditPref(String category, String label, int value) {
         if (analyticsDisabled()) {
             return;
@@ -114,34 +149,45 @@ public class GoogleAnalyticsUtils {
         reportEditPref(category, label, -1);
     }
 
+    /**
+     * Report an event of an attempted sync
+     *
+     * @param action - Communicates whether the sync was user-triggered or auto-triggered
+     * @param label - Communicates if the sync was successful
+     * @param value - Communicates the nature of the sync if it was successful,
+     *              OR the reason for failure if the sync was unsuccessful
+     */
     public static void reportSyncAttempt(String action, String label, int value) {
-        reportAction(GoogleAnalyticsFields.CATEGORY_SERVER_COMMUNICATION, action, label, value);
+        reportEvent(GoogleAnalyticsFields.CATEGORY_SERVER_COMMUNICATION, action, label, value);
     }
 
-    public static void reportViewSavedForms(String label) {
-        reportAction(GoogleAnalyticsFields.CATEGORY_SAVED_FORMS,
-                GoogleAnalyticsFields.ACTION_VIEW_SAVED_FORMS, label);
+    /**
+     * Report a user event of viewing a list of archived forms
+     *
+     * @param label - Communicates whether the user is viewing incomplete forms or saved forms
+     */
+    public static void reportViewArchivedFormsList(String label) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_ARCHIVED_FORMS,
+                GoogleAnalyticsFields.ACTION_VIEW_FORMS_LIST, label);
     }
 
-    public static void reportOpenSavedForm(String label) {
-        reportAction(GoogleAnalyticsFields.CATEGORY_SAVED_FORMS,
-                GoogleAnalyticsFields.ACTION_OPEN_SAVED_FORM, label);
+    /**
+     * Report a user event of opening up a form from a list of archived forms
+     *
+     * @param label - Communicates whether the form was from the list of incomplete or saved forms
+     */
+    public static void reportOpenArchivedForm(String label) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_ARCHIVED_FORMS,
+                GoogleAnalyticsFields.ACTION_OPEN_ARCHIVED_FORM, label);
     }
 
-    public static void createPreferenceOnClickListener(PreferenceManager manager,
-                                                          final String category,
-                                                          String prefKey,
-                                                          final String analyticsLabel) {
-        Preference pref = manager.findPreference(prefKey);
-        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportPrefItemClick(category, analyticsLabel);
-                return true;
-            }
-        });
-    }
-
+    /**
+     * Report the length of a certain user event/action/concept
+     *
+     * @param action - Communicates the event/action/concept whose length is being measured
+     * @param label - Communicates the form id, IF the action is time in a form (empty otherwise)
+     * @param value - Communicates the duration, in seconds
+     */
     public static void reportTimedEvent(String action, String label, int value) {
         if (analyticsDisabled()) {
             return;
@@ -156,22 +202,31 @@ public class GoogleAnalyticsUtils {
         getTracker().send(builder.build());
     }
 
-    private static Tracker getTracker(String screenName) {
-        Tracker t = CommCareApplication._().getDefaultTracker();
-        t.setScreenName(screenName);
-        return t;
+    public static void createPreferenceOnClickListener(PreferenceManager manager,
+                                                       final String category,
+                                                       String prefKey,
+                                                       final String analyticsLabel) {
+        Preference pref = manager.findPreference(prefKey);
+        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                GoogleAnalyticsUtils.reportPrefItemClick(category, analyticsLabel);
+                return true;
+            }
+        });
     }
 
     private static Tracker getTracker() {
         return CommCareApplication._().getDefaultTracker();
     }
 
-    private static void dispatchQueuedEvents() {
-        CommCareApplication._().getAnalyticsInstance().dispatchLocalHits();
-    }
-
     private static boolean analyticsDisabled() {
         return !DeveloperPreferences.areAnalyticsEnabled();
+    }
+
+    // Currently unused, should remove later if it doesn't get used
+    private static void dispatchQueuedEvents() {
+        CommCareApplication._().getAnalyticsInstance().dispatchLocalHits();
     }
 
 }

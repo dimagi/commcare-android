@@ -366,9 +366,9 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if (incompleteMode) {
-            GoogleAnalyticsUtils.reportOpenSavedForm(GoogleAnalyticsFields.LABEL_INCOMPLETE);
+            GoogleAnalyticsUtils.reportOpenArchivedForm(GoogleAnalyticsFields.LABEL_INCOMPLETE);
         } else {
-            GoogleAnalyticsUtils.reportOpenSavedForm(GoogleAnalyticsFields.LABEL_COMPLETE);
+            GoogleAnalyticsUtils.reportOpenArchivedForm(GoogleAnalyticsFields.LABEL_COMPLETE);
         }
         returnItem(position);
     }

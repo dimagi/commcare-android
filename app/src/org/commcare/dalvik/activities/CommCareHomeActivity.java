@@ -206,9 +206,9 @@ public class CommCareHomeActivity
 
     private void goToFormArchive(boolean incomplete, FormRecord record) {
         if (incomplete) {
-            GoogleAnalyticsUtils.reportViewSavedForms(GoogleAnalyticsFields.LABEL_INCOMPLETE);
+            GoogleAnalyticsUtils.reportViewArchivedFormsList(GoogleAnalyticsFields.LABEL_INCOMPLETE);
         } else {
-            GoogleAnalyticsUtils.reportViewSavedForms(GoogleAnalyticsFields.LABEL_COMPLETE);
+            GoogleAnalyticsUtils.reportViewArchivedFormsList(GoogleAnalyticsFields.LABEL_COMPLETE);
         }
         Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
         if (incomplete) {
