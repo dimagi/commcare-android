@@ -71,10 +71,6 @@ public class FormEntryPreferences extends SessionAwarePreferenceActivity
         GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_FORM_PREFS, label);
     }
 
-    private static void reportPrefItemClick(String label) {
-        GoogleAnalyticsUtils.reportPrefItemClick(GoogleAnalyticsFields.CATEGORY_FORM_PREFS, label);
-    }
-
     private void updateFontSize() {
         ListPreference lp = (ListPreference)findPreference(KEY_FONT_SIZE);
         lp.setSummary(lp.getEntry());
