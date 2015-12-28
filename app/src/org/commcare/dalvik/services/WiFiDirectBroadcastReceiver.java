@@ -38,9 +38,9 @@ import org.javarosa.core.services.Logger;
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 
-    private WifiP2pManager manager;
+    private final WifiP2pManager manager;
     private Channel channel;
-    private WiFiDirectManagementFragment activity;
+    private final WiFiDirectManagementFragment activity;
 
     /**
      * @param manager WifiP2pManager system service

@@ -15,7 +15,7 @@ import org.javarosa.core.services.locale.Localization;
 import in.uncod.android.bypass.Bypass;
 
 public class MarkupUtil {
-    static HtmlSpanner htmlspanner = new HtmlSpanner();
+    static final HtmlSpanner htmlspanner = new HtmlSpanner();
 
     /*
      * Developer Preference helper classes

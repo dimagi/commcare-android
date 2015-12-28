@@ -20,7 +20,7 @@ import java.util.HashMap;
  */
 public class ArchiveFileRoot implements ReferenceFactory {
 
-    private HashMap<String, String> guidToFolderMap = new HashMap<String, String>();
+    private final HashMap<String, String> guidToFolderMap = new HashMap<String, String>();
 
     private final int guidLength = 10;
 

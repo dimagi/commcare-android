@@ -47,30 +47,30 @@ import java.util.Set;
  */
 public class EntityDetailView extends FrameLayout {
 
-    private TextView label;
-    private TextView data;
-    private TextView spacer;
-    private Button callout;
-    private View addressView;
-    private Button addressButton;
-    private TextView addressText;
-    private ImageView imageView;
-    private View calloutView;
-    private Button calloutButton;
-    private TextView calloutText;
-    private ImageButton calloutImageButton;
-    private AspectRatioLayout graphLayout;
-    private Hashtable<Integer, Hashtable<Integer, View>> graphViewsCache;    // index => { orientation => GraphView }
-    private Hashtable<Integer, Intent> graphIntentsCache;    // index => intent
-    private Set<Integer> graphsWithErrors;
-    private ImageButton videoButton;
-    private AudioButton audioButton;
-    private View valuePane;
+    private final TextView label;
+    private final TextView data;
+    private final TextView spacer;
+    private final Button callout;
+    private final View addressView;
+    private final Button addressButton;
+    private final TextView addressText;
+    private final ImageView imageView;
+    private final View calloutView;
+    private final Button calloutButton;
+    private final TextView calloutText;
+    private final ImageButton calloutImageButton;
+    private final AspectRatioLayout graphLayout;
+    private final Hashtable<Integer, Hashtable<Integer, View>> graphViewsCache;    // index => { orientation => GraphView }
+    private final Hashtable<Integer, Intent> graphIntentsCache;    // index => intent
+    private final Set<Integer> graphsWithErrors;
+    private final ImageButton videoButton;
+    private final AudioButton audioButton;
+    private final View valuePane;
     private View currentView;
-    private LinearLayout detailRow;
-    private LinearLayout.LayoutParams origValue;
-    private LinearLayout.LayoutParams origLabel;
-    private LinearLayout.LayoutParams fill;
+    private final LinearLayout detailRow;
+    private final LinearLayout.LayoutParams origValue;
+    private final LinearLayout.LayoutParams origLabel;
+    private final LinearLayout.LayoutParams fill;
 
     private static final String FORM_VIDEO = MediaUtil.FORM_VIDEO;
     private static final String FORM_AUDIO = MediaUtil.FORM_AUDIO;
