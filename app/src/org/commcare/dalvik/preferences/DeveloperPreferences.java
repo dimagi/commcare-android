@@ -98,7 +98,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        int editPrefValue = getEditPrefValue(key);
         String editPrefLabel = "";
         switch(key) {
             case SUPERUSER_ENABLED:
@@ -150,7 +149,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
         if (!"".equals(editPrefLabel)) {
             GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_DEV_PREFS,
-                    editPrefLabel, editPrefValue);
+                    editPrefLabel, getEditPrefValue(key));
         }
     }
 
