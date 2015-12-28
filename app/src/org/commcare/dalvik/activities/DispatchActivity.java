@@ -21,20 +21,26 @@ import org.javarosa.core.services.locale.Localization;
  */
 public class DispatchActivity extends FragmentActivity {
     private static final String SESSION_REQUEST = "ccodk_session_request";
-    public static final String WAS_EXTERNAL = "launch_from_external";
 
+    public static final String WAS_EXTERNAL = "launch_from_external";
+    public static final String START_FROM_LOGIN = "process_successful_login";
+
+    private static final int LOGIN_USER = 0;
+    private static final int HOME_SCREEN = 1;
     public static final int INIT_APP = 8;
     /**
      * Request code for automatically validating media from home dispatch.
      * Should signal a return from CommCareVerificationActivity.
      */
-    public static final int MISSING_MEDIA_ACTIVITY=256;
+    public static final int MISSING_MEDIA_ACTIVITY = 256;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         dispatch();
     }
+
     private void dispatch() {
         InitializationHelper.checkDbState(this);
 
@@ -67,8 +73,7 @@ public class DispatchActivity extends FragmentActivity {
                     }
                 } else if (!CommCareApplication._().getSession().isActive()) {
                     // Path 1c: The user is not logged in
-                    // TODO PLM
-                    // launchLogin();
+                    launchLogin();
                 } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
                     // Path 1d: CommCare was launched from an external app, with a session descriptor
                     handleExternalLaunch();
@@ -77,14 +82,17 @@ public class DispatchActivity extends FragmentActivity {
                     handleShortcutLaunch();
                 }
             } catch (SessionUnavailableException sue) {
-                // TODO PLM
-                //launchLogin();
+                launchLogin();
             }
         }
     }
 
+    private void launchLogin() {
+        Intent i = new Intent(this, LoginActivity.class);
+        startActivityForResult(i, LOGIN_USER);
+    }
+
     /**
-     *
      * @param record the ApplicationRecord corresponding to the seated, unusable app
      * @return if the unusable app was unseated by this method
      */
@@ -94,8 +102,7 @@ public class DispatchActivity extends FragmentActivity {
             CommCareApplication._().unseat(record);
             CommCareApplication._().initFirstUsableAppRecord();
             return true;
-        }
-        else {
+        } else {
             // This app has unvalidated MM
             if (CommCareApplication._().usableAppsPresent()) {
                 // If there are other usable apps, unseat it and seat another one
@@ -155,21 +162,29 @@ public class DispatchActivity extends FragmentActivity {
                     // User pressed back button from install screen, so take them out of CommCare
                     this.finish();
                     return;
-                } else if (resultCode == RESULT_OK) {
-                    // TODO PLM
-                    return;
                 }
                 break;
             case MISSING_MEDIA_ACTIVITY:
-                if(resultCode == RESULT_CANCELED){
+                if (resultCode == RESULT_CANCELED) {
                     // exit the app if media wasn't validated on automatic
                     // validation check.
                     this.finish();
                     return;
-                } else if(resultCode == RESULT_OK){
+                } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
                     return;
                 }
+            case LOGIN_USER:
+                if (resultCode == RESULT_CANCELED) {
+                    finish();
+                    return;
+                } else if (resultCode == RESULT_OK) {
+                    Intent i = new Intent(this, CommCareHomeActivity.class);
+                    i.putExtra(START_FROM_LOGIN, true);
+                    startActivityForResult(i, HOME_SCREEN);
+                    return;
+                }
+                break;
         }
         super.onActivityResult(requestCode, resultCode, intent);
     }

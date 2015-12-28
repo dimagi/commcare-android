@@ -79,8 +79,6 @@ public class CommCareHomeActivity
 
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
-    private static final int LOGIN_USER = 0;
-
     /**
      * Request code for launching a menu list or menu grid
      */
@@ -112,7 +110,6 @@ public class CommCareHomeActivity
      * CommCareVerificationActivity.
      */
     private static final int MEDIA_VALIDATOR_ACTIVITY=8192;
-
 
     public static final int DIALOG_CORRUPTED = 1;
 
@@ -167,6 +164,31 @@ public class CommCareHomeActivity
         } else {
             wasExternal = getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL);
             sessionNavigator.startNextSessionStep();
+        }
+        if (getIntent().hasExtra(DispatchActivity.START_FROM_LOGIN)) {
+            startFromLogin();
+        }
+    }
+
+    private void startFromLogin() {
+        CommCareSession session = CommCareApplication._().getCurrentSession();
+        if (session.getCommand() != null) {
+            // restore the session state if there is a command.
+            // For debugging and occurs when a serialized
+            // session is stored upon login
+            sessionNavigator.startNextSessionStep();
+            return;
+        }
+
+        //Unless we're about to sync (which will handle this
+        //in a blocking fashion), trigger off a regular unsent
+        //task processor
+        if (!CommCareApplication._().isSyncPending(false)) {
+            checkAndStartUnsentFormsTask(false, false);
+        }
+
+        if (CommCareHomeActivity.isDemoUser()) {
+            showDemoModeWarning();
         }
     }
 
@@ -229,20 +251,10 @@ public class CommCareHomeActivity
     }
 
     protected void userTriggeredLogout() {
-        returnToLogin(true);
-    }
-
-    protected void launchLogin() {
-        returnToLogin(false);
-    }
-
-    private void returnToLogin(boolean userTriggered) {
-        Intent i = new Intent(this.getApplicationContext(), LoginActivity.class);
-        if (userTriggered) {
-            i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true);
-        }
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        this.startActivityForResult(i, LOGIN_USER);
+        Intent i = new Intent();
+        i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true);
+        setResult(RESULT_OK, i);
+        finish();
     }
 
     public HomeActivityUIController getUiController() {
@@ -333,37 +345,6 @@ public class CommCareHomeActivity
                     uiController.refreshView();
                     return;    
                 }
-            case LOGIN_USER:
-                if(resultCode == RESULT_CANCELED) {
-                    this.finish();
-                    return;
-                } else if(resultCode == RESULT_OK) {
-                    if (!intent.getBooleanExtra(LoginActivity.ALREADY_LOGGED_IN, false)) {
-                        CommCareSession session = CommCareApplication._().getCurrentSession();
-                        if (session.getCommand() != null) {
-                            // restore the session state if there is a command.
-                            // For debugging and occurs when a serialized
-                            // session is stored upon login
-                            sessionNavigator.startNextSessionStep();
-                            return;
-                        }
-
-                        uiController.refreshView();
-                        
-                        //Unless we're about to sync (which will handle this
-                        //in a blocking fashion), trigger off a regular unsent
-                        //task processor
-                        if(!CommCareApplication._().isSyncPending(false)) {
-                            checkAndStartUnsentFormsTask(false, false);
-                        }
-                        
-                        if(isDemoUser()) {
-                            showDemoModeWarning();
-                        }
-                    }
-                    return;
-                }
-                break;
             case GET_INCOMPLETE_FORM:
                 //TODO: We might need to load this from serialized state?
                 if(resultCode == RESULT_CANCELED) {
@@ -1015,7 +996,7 @@ public class CommCareHomeActivity
         uiController.displayMessage(message, bad, suppressToast);
     }
 
-    protected boolean isDemoUser() {
+    public static boolean isDemoUser() {
         try {
             User u = CommCareApplication._().getSession().getLoggedInUser();
             return (User.TYPE_DEMO.equals(u.getUserType()));

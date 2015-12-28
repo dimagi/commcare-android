@@ -34,7 +34,7 @@ public class HomeActivityUIController {
 
     private void setupUI() {
         activity.setContentView(R.layout.home_screen);
-        adapter = new HomeScreenAdapter(activity, getHiddenButtons(), activity.isDemoUser());
+        adapter = new HomeScreenAdapter(activity, getHiddenButtons(), CommCareHomeActivity.isDemoUser());
         setupGridView();
     }
 

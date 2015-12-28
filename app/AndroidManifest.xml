@@ -73,7 +73,7 @@
         android:hardwareAccelerated="true"
         android:theme="@style/AppBaseTheme" >
         <activity
-            android:name=".activities.CommCareHomeActivity"
+            android:name=".activities.DispatchActivity"
             android:label="@string/application_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

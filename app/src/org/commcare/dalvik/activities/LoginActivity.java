@@ -77,7 +77,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     private static final int MENU_DEMO = Menu.FIRST;
     private static final int MENU_ABOUT = Menu.FIRST + 1;
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
-    public static final String ALREADY_LOGGED_IN = "la_loggedin";
     public final static String KEY_LAST_APP = "id_of_last_selected";
     public final static String KEY_ENTERED_USER = "entered-username";
     public final static String KEY_ENTERED_PW = "entered-password";
@@ -336,10 +335,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     protected void onResume() {
         super.onResume();
 
-        if (isAlreadyLoggedIn()) {
-            return;
-        }
-
         // It is possible that we left off at the LoginActivity last time we were on the main CC
         // screen, but have since done something in the app manager to either leave no seated app
         // at all, or to render the seated app unusable. Redirect to CCHomeActivity if we encounter
@@ -374,24 +369,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                 loginButtonPressed(true);
             }
         }
-    }
-
-    private boolean isAlreadyLoggedIn() {
-        try {
-            //TODO: there is a weird circumstance where we're logging in somewhere else and this gets locked.
-            if (CommCareApplication._().getSession().isActive() && CommCareApplication._().getSession().getLoggedInUser() != null) {
-                Intent i = new Intent();
-                i.putExtra(ALREADY_LOGGED_IN, true);
-                setResult(RESULT_OK, i);
-
-                CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
-                finish();
-                return true;
-            }
-        } catch (SessionUnavailableException sue) {
-            // Nothing, we're logging in here anyway
-        }
-        return false;
     }
 
     private String getUsername() {
