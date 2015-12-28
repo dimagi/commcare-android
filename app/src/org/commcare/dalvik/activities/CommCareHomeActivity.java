@@ -19,7 +19,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.framework.BreadcrumbBarFragment;
@@ -45,8 +44,6 @@ import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.AndroidShortcuts;
-import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.application.InitializationHelper;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
@@ -109,7 +106,6 @@ public class CommCareHomeActivity
     public static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
     private static final int PREFERENCES_ACTIVITY=4096;
 
-
     /**
      * Request code for launching media validator manually (Settings ->
      * Validate Media). Should signal a return from
@@ -156,16 +152,22 @@ public class CommCareHomeActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (finishIfNotRoot()) {
             return;
         }
-        if (savedInstanceState != null) {
-            wasExternal = savedInstanceState.getBoolean("was_external");
-        }
+
         ACRAUtil.registerAppData();
         uiController = new HomeActivityUIController(this);
         sessionNavigator = new SessionNavigator(this);
         formAndDataSyncer = new FormAndDataSyncer(this);
+
+        if (savedInstanceState != null) {
+            wasExternal = savedInstanceState.getBoolean("was_external");
+        } else {
+            wasExternal = getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL);
+            sessionNavigator.startNextSessionStep();
+        }
     }
 
     /**
@@ -174,7 +176,6 @@ public class CommCareHomeActivity
      * stack and prevents the app from launching a high affinity task.
      *
      * @return if finish() was called
-     *
      */
     private boolean finishIfNotRoot() {
         if (!isTaskRoot()) {
@@ -727,7 +728,6 @@ public class CommCareHomeActivity
 
     // endregion
 
-
     private void handleAssertionFailureFromSessionNav(final AndroidSessionWrapper asw) {
         EvaluationContext ec = asw.getEvaluationContext();
         Text text = asw.getSession().getCurrentEntry().getAssertions().getAssertionFailure(ec);
@@ -1074,7 +1074,6 @@ public class CommCareHomeActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-
         switch (item.getItemId()) {
             case MENU_PREFERENCES:
                 createPreferencesMenu(this);
@@ -1119,7 +1118,6 @@ public class CommCareHomeActivity
     private void createCallLogActivity() {
         Intent i = new Intent(this, PhoneLogActivity.class);
         startActivity(i);
-
     }
 
     private void startReportActivity() {

@@ -21,6 +21,7 @@ import org.javarosa.core.services.locale.Localization;
  */
 public class DispatchActivity extends FragmentActivity {
     private static final String SESSION_REQUEST = "ccodk_session_request";
+    public static final String WAS_EXTERNAL = "launch_from_external";
 
     public static final int INIT_APP = 8;
     /**
@@ -35,6 +36,8 @@ public class DispatchActivity extends FragmentActivity {
         dispatch();
     }
     private void dispatch() {
+        InitializationHelper.checkDbState(this);
+
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
 
         if (currentApp == null) {
@@ -121,18 +124,16 @@ public class DispatchActivity extends FragmentActivity {
                     Localization.get("multiple.apps.unverified.message"),
                     Localization.get("multiple.apps.unverified.title"));
         }
-
     }
 
     private void handleExternalLaunch() {
-        // TODO PLM
-        // wasExternal = true;
         String sessionRequest = this.getIntent().getStringExtra(SESSION_REQUEST);
         SessionStateDescriptor ssd = new SessionStateDescriptor();
         ssd.fromBundle(sessionRequest);
         CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
-        // TODO PLM
-        // sessionNavigator.startNextSessionStep();
+        Intent i = new Intent(this, CommCareHomeActivity.class);
+        i.putExtra(WAS_EXTERNAL, true);
+        startActivity(i);
     }
 
     private void handleShortcutLaunch() {
@@ -144,9 +145,6 @@ public class DispatchActivity extends FragmentActivity {
         //Only launch shortcuts once per intent
         this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
     }
-
-
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
