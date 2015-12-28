@@ -1,7 +1,5 @@
 package org.odk.collect.android.activities.components;
 
-import android.view.View;
-
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.form.api.FormEntryController;
@@ -21,9 +19,16 @@ public class FormNavigationController {
 
         public int relevantAfterCurrentScreen = 0;
         public FormIndex currentScreenExit = null;
+
+        public boolean isFormDone() {
+            return relevantAfterCurrentScreen == 0 &&
+                    (requiredOnScreen == answeredOnScreen ||
+                            requiredOnScreen < 1);
+        }
     }
 
-    public static NavigationDetails calculateNavigationStatus(FormController formEntryController, View view) {
+    public static NavigationDetails calculateNavigationStatus(FormController formEntryController,
+                                                              ODKView view) {
         NavigationDetails details = new NavigationDetails();
 
         FormIndex userFormIndex = formEntryController.getFormIndex();
@@ -81,10 +86,7 @@ public class FormNavigationController {
                 // Future questions are never complete.
                 if (onCurrentScreen) {
                     for (FormEntryPrompt prompt : prompts) {
-                        if (view instanceof ODKView) {
-                            ODKView odkv = (ODKView)view;
-                            prompt = odkv.getOnScreenPrompt(prompt);
-                        }
+                        prompt = view.getOnScreenPrompt(prompt);
                         boolean isAnswered = prompt.getAnswerValue() != null
                                 || prompt.getDataType() == Constants.DATATYPE_NULL;
 

@@ -21,7 +21,7 @@ import org.commcare.dalvik.R;
  */
 public class PaneledChoiceDialog {
 
-    protected View view;
+    protected final View view;
     protected final Context context;
     private final AlertDialog dialog;
 

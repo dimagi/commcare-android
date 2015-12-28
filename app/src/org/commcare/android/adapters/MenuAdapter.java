@@ -48,8 +48,8 @@ import java.util.Vector;
  */
 public class MenuAdapter implements ListAdapter {
 
-    private AndroidSessionWrapper asw;
-    Context context;
+    private final AndroidSessionWrapper asw;
+    final Context context;
     MenuDisplayable[] displayableData;
 
     public MenuAdapter(Context context, CommCarePlatform platform, String menuID) {

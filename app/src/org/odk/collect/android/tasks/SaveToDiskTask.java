@@ -44,21 +44,21 @@ import javax.crypto.spec.SecretKeySpec;
 public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Void, String, Integer, R> {
     // callback to run upon saving
     private FormSavedListener mSavedListener;
-    private Boolean mSave;
-    private Boolean mMarkCompleted;
+    private final Boolean mSave;
+    private final Boolean mMarkCompleted;
     // URI to the thing we are saving
     private Uri mUri;
     // The name of the form we are saving
-    private String mInstanceName;
-    private Context context;
+    private final String mInstanceName;
+    private final Context context;
     // URI to the table we are saving to
-    private Uri instanceContentUri;
+    private final Uri instanceContentUri;
 
     // Should this save task tell its save-complete callback to run without any
     // GUI calls?
-    private boolean headless;
+    private final boolean headless;
     
-    SecretKeySpec symetricKey;
+    final SecretKeySpec symetricKey;
 
     public static final int SAVED = 500;
     public static final int SAVE_ERROR = 501;

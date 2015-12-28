@@ -17,9 +17,9 @@ import javax.crypto.Cipher;
  * @author ctsims
  */
 public class DecryptingCursor extends SQLiteCursor {
-    Cipher cipher;
-    EncryptedModel model;
-    CipherPool pool;
+    final Cipher cipher;
+    final EncryptedModel model;
+    final CipherPool pool;
 
     public DecryptingCursor(SQLiteDatabase db, SQLiteCursorDriver driver, String editTable, SQLiteQuery query, EncryptedModel model, CipherPool pool) {
         super(db, driver, editTable, query);

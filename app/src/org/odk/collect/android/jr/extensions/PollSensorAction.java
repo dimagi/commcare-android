@@ -38,8 +38,8 @@ import java.util.TimerTask;
  * @author jschweers
  */
 public class PollSensorAction extends Action implements LocationListener {
-    private static String name = "pollsensor";
-    public static String KEY_UNRESOLVED_XPATH = "unresolved_xpath";
+    private static final String name = "pollsensor";
+    public static final String KEY_UNRESOLVED_XPATH = "unresolved_xpath";
     public static final String XPATH_ERROR_ACTION = "poll_sensor_xpath_error_action";
     private TreeReference target;
     

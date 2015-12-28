@@ -29,11 +29,11 @@ import java.util.Vector;
  */
 public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlStorage<T> {
 
-    String table;
-    Class<? extends T> ctype;
+    final String table;
+    final Class<? extends T> ctype;
     EncryptedModel em;
     T t;
-    LegacyDbHelper helper;
+    final LegacyDbHelper helper;
 
     public LegacySqlIndexedStorageUtility(String table, Class<? extends T> ctype, LegacyDbHelper helper) {
         this.table = table;

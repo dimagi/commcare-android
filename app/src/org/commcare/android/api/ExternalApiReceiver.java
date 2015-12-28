@@ -42,7 +42,7 @@ import java.util.Vector;
  */
 public class ExternalApiReceiver extends BroadcastReceiver {
 
-    CommCareTaskConnector dummyconnector = new CommCareTaskConnector() {
+    final CommCareTaskConnector dummyconnector = new CommCareTaskConnector() {
 
         @Override
         public void connectTask(CommCareTask task) {

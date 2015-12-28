@@ -34,8 +34,8 @@ public class HorizontalMediaView extends RelativeLayout {
     private TextView mTextView;
     private AudioButton mAudioButton;
     private ImageView mImageView;
-    private TextView mMissingImage;
-    private EvaluationContext ec;
+    private final TextView mMissingImage;
+    private final EvaluationContext ec;
     private final int iconDimension;
 
     public static final int NAVIGATION_NONE = 0;

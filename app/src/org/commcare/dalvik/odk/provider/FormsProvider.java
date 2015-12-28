@@ -32,7 +32,7 @@ public class FormsProvider extends ContentProvider {
     private static final int DATABASE_VERSION = 3;
     private static final String FORMS_TABLE_NAME = "forms";
 
-    private static HashMap<String, String> sFormsProjectionMap;
+    private static final HashMap<String, String> sFormsProjectionMap;
 
     private static final int FORMS = 1;
     private static final int FORM_ID = 2;
@@ -45,7 +45,7 @@ public class FormsProvider extends ContentProvider {
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
         // the application id of the CCApp for which this db is storing forms
-        private String appId;
+        private final String appId;
 
         public DatabaseHelper(Context c, String databaseName, String appId) {
             super(c, databaseName, null, DATABASE_VERSION);
