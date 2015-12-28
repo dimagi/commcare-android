@@ -369,12 +369,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 if (!NAV_STATE_DONE.equals(v.getTag())) {
                     GoogleAnalyticsUtils.reportFormNavForward(
                             GoogleAnalyticsFields.LABEL_ARROW,
-                            GoogleAnalyticsFields.VALUE_NOT_ON_LAST_SCREEN);
+                            GoogleAnalyticsFields.VALUE_FORM_NOT_DONE);
                     FormEntryActivity.this.showNextView();
                 } else {
                     GoogleAnalyticsUtils.reportFormNavForward(
                             GoogleAnalyticsFields.LABEL_ARROW,
-                            GoogleAnalyticsFields.VALUE_ON_LAST_SCREEN);
+                            GoogleAnalyticsFields.VALUE_FORM_DONE);
                     triggerUserFormComplete();
                 }
             }
@@ -2273,13 +2273,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if(nextButton.getTag().equals(NAV_STATE_NEXT)) {
             GoogleAnalyticsUtils.reportFormNavForward(
                     GoogleAnalyticsFields.LABEL_SWIPE,
-                    GoogleAnalyticsFields.VALUE_NOT_ON_LAST_SCREEN);
+                    GoogleAnalyticsFields.VALUE_FORM_NOT_DONE);
             next();
             return true;
         } else {
             GoogleAnalyticsUtils.reportFormNavForward(
                     GoogleAnalyticsFields.LABEL_SWIPE,
-                    GoogleAnalyticsFields.VALUE_ON_LAST_SCREEN);
+                    GoogleAnalyticsFields.VALUE_FORM_DONE);
             FormNavigationUI.animateFinishArrow(this);
             return true;
         }
