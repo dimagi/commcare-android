@@ -2341,44 +2341,46 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void loadStateFromBundle(Bundle savedInstanceState) {
-        if (savedInstanceState.containsKey(KEY_FORMPATH)) {
-            mFormPath = savedInstanceState.getString(KEY_FORMPATH);
-        }
-        if (savedInstanceState.containsKey(KEY_FORM_LOAD_HAS_TRIGGERED)) {
-            hasFormLoadBeenTriggered = savedInstanceState.getBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, false);
-        }
-        if (savedInstanceState.containsKey(KEY_FORM_LOAD_FAILED)) {
-            hasFormLoadFailed = savedInstanceState.getBoolean(KEY_FORM_LOAD_FAILED, false);
-        }
-        if (savedInstanceState.containsKey(KEY_FORM_CONTENT_URI)) {
-            formProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_FORM_CONTENT_URI));
-        }
-        if (savedInstanceState.containsKey(KEY_INSTANCE_CONTENT_URI)) {
-            instanceProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_INSTANCE_CONTENT_URI));
-        }
-        if (savedInstanceState.containsKey(KEY_INSTANCEDESTINATION)) {
-            mInstanceDestination = savedInstanceState.getString(KEY_INSTANCEDESTINATION);
-        }
-        if(savedInstanceState.containsKey(KEY_INCOMPLETE_ENABLED)) {
-            mIncompleteEnabled = savedInstanceState.getBoolean(KEY_INCOMPLETE_ENABLED);
-        }
-        if(savedInstanceState.containsKey(KEY_RESIZING_ENABLED)) {
-            ResizingImageView.resizeMethod = savedInstanceState.getString(KEY_RESIZING_ENABLED);
-        }
-        if (savedInstanceState.containsKey(KEY_AES_STORAGE_KEY)) {
-             String base64Key = savedInstanceState.getString(KEY_AES_STORAGE_KEY);
-             try {
-                byte[] storageKey = new Base64Wrapper().decode(base64Key);
-                symetricKey = new SecretKeySpec(storageKey, "AES");
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException("Base64 encoding not available on this platform");
+        if (savedInstanceState != null) {
+            if (savedInstanceState.containsKey(KEY_FORMPATH)) {
+                mFormPath = savedInstanceState.getString(KEY_FORMPATH);
             }
-        }
-        if(savedInstanceState.containsKey(KEY_HEADER_STRING)) {
-            mHeaderString = savedInstanceState.getString(KEY_HEADER_STRING);
-        }
-        if(savedInstanceState.containsKey(KEY_HAS_SAVED)) {
-            hasSaved = savedInstanceState.getBoolean(KEY_HAS_SAVED);
+            if (savedInstanceState.containsKey(KEY_FORM_LOAD_HAS_TRIGGERED)) {
+                hasFormLoadBeenTriggered = savedInstanceState.getBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, false);
+            }
+            if (savedInstanceState.containsKey(KEY_FORM_LOAD_FAILED)) {
+                hasFormLoadFailed = savedInstanceState.getBoolean(KEY_FORM_LOAD_FAILED, false);
+            }
+            if (savedInstanceState.containsKey(KEY_FORM_CONTENT_URI)) {
+                formProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_FORM_CONTENT_URI));
+            }
+            if (savedInstanceState.containsKey(KEY_INSTANCE_CONTENT_URI)) {
+                instanceProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_INSTANCE_CONTENT_URI));
+            }
+            if (savedInstanceState.containsKey(KEY_INSTANCEDESTINATION)) {
+                mInstanceDestination = savedInstanceState.getString(KEY_INSTANCEDESTINATION);
+            }
+            if(savedInstanceState.containsKey(KEY_INCOMPLETE_ENABLED)) {
+                mIncompleteEnabled = savedInstanceState.getBoolean(KEY_INCOMPLETE_ENABLED);
+            }
+            if(savedInstanceState.containsKey(KEY_RESIZING_ENABLED)) {
+                ResizingImageView.resizeMethod = savedInstanceState.getString(KEY_RESIZING_ENABLED);
+            }
+            if (savedInstanceState.containsKey(KEY_AES_STORAGE_KEY)) {
+                String base64Key = savedInstanceState.getString(KEY_AES_STORAGE_KEY);
+                try {
+                    byte[] storageKey = new Base64Wrapper().decode(base64Key);
+                    symetricKey = new SecretKeySpec(storageKey, "AES");
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException("Base64 encoding not available on this platform");
+                }
+            }
+            if(savedInstanceState.containsKey(KEY_HEADER_STRING)) {
+                mHeaderString = savedInstanceState.getString(KEY_HEADER_STRING);
+            }
+            if(savedInstanceState.containsKey(KEY_HAS_SAVED)) {
+                hasSaved = savedInstanceState.getBoolean(KEY_HAS_SAVED);
+            }
         }
     }
 
