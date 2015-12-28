@@ -23,8 +23,8 @@ import java.util.ArrayList;
  */
 public class EntitySubnodeDetailAdapter implements ListAdapter, ModifiableEntityDetailAdapter {
 
-    private Context context;
-    private Detail detail;
+    private final Context context;
+    private final Detail detail;
     private List<TreeReference> references;
     private List<Entity<TreeReference>> entities;
     private ListItemViewModifier modifier;

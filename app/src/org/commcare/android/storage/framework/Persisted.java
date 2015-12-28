@@ -24,7 +24,7 @@ import java.util.Hashtable;
  */
 public class Persisted implements Persistable, IMetaData {
 
-    private static Hashtable<Class, ArrayList<Field>> fieldOrderings = new Hashtable<Class, ArrayList<Field>>();
+    private static final Hashtable<Class, ArrayList<Field>> fieldOrderings = new Hashtable<Class, ArrayList<Field>>();
 
     protected int recordId = -1;
 

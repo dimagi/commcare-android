@@ -44,7 +44,7 @@ public class VideoWidget extends QuestionWidget {
     private String mBinaryName;
 
     private final String mInstanceFolder;
-    private PendingCalloutInterface pendingCalloutInterface;
+    private final PendingCalloutInterface pendingCalloutInterface;
 
     public VideoWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
         super(context, prompt);
