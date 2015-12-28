@@ -107,10 +107,6 @@ public class EndOfFormTest {
                         .create().start().resume().get();
 
         ImageButton nextButton = (ImageButton)formEntryActivity.findViewById(R.id.nav_btn_next);
-        // demonstrate form progress bug where it thinks the form is done until
-        // you enter an answer for the question, which effects the hidden
-        // repeat coming up next
-        assertTrue(nextButton.getTag().equals(FormEntryActivity.NAV_STATE_DONE));
 
         // enter an answer for the question
         ODKView odkView = formEntryActivity.getODKView();
