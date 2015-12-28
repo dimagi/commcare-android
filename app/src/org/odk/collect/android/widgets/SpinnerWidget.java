@@ -43,9 +43,9 @@ import java.util.Vector;
  * @author Jeff Beorse (jeff@beorse.net)
  */
 public class SpinnerWidget extends QuestionWidget {
-    Vector<SelectChoice> mItems;
-    Spinner spinner;
-    String[] choices;
+    final Vector<SelectChoice> mItems;
+    final Spinner spinner;
+    final String[] choices;
 
 
     public SpinnerWidget(Context context, FormEntryPrompt prompt) {
@@ -137,10 +137,10 @@ public class SpinnerWidget extends QuestionWidget {
 
     // Defines how to display the select answers
     private class SpinnerAdapter extends ArrayAdapter<String> {
-        Context context;
+        final Context context;
         String[] items = new String[] {};
-        int textUnit;
-        float textSize;
+        final int textUnit;
+        final float textSize;
 
 
         public SpinnerAdapter(final Context context, final int textViewResourceId,

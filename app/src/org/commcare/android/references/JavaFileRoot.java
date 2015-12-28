@@ -13,7 +13,7 @@ import org.javarosa.core.reference.ReferenceManager;
  * @author ctsims
  */
 public class JavaFileRoot implements ReferenceFactory {
-    private String localRoot;
+    private final String localRoot;
 
     public JavaFileRoot(String localRoot) {
         this.localRoot = localRoot;

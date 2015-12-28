@@ -8,8 +8,8 @@ import org.commcare.android.util.SigningUtil;
 public abstract class RetrieveParseVerifyMessageTask<R> extends CommCareTask<String, Void, String, R> {
 
     private Exception exception;
-    private RetrieveParseVerifyMessageListener listener;
-    private boolean installTriggeredManually;
+    private final RetrieveParseVerifyMessageListener listener;
+    private final boolean installTriggeredManually;
 
     public RetrieveParseVerifyMessageTask(RetrieveParseVerifyMessageListener listener,
                                           boolean installTriggeredManually){

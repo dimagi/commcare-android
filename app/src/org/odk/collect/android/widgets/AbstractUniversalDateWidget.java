@@ -37,25 +37,25 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     
     private long millisOfDayOffset;
 
-    private TextView txtMonth;
-    private TextView txtDay;
-    private TextView txtYear;
-    private TextView txtGregorian;
+    private final TextView txtMonth;
+    private final TextView txtDay;
+    private final TextView txtYear;
+    private final TextView txtGregorian;
 
-    private String[] monthsArray;
+    private final String[] monthsArray;
     private int monthArrayPointer;
     
-    private Button btnDayUp;
-    private Button btnMonthUp;
-    private Button btnYearUp;
-    private Button btnDayDown;
-    private Button btnMonthDown;
-    private Button btnYearDown;
+    private final Button btnDayUp;
+    private final Button btnMonthUp;
+    private final Button btnYearUp;
+    private final Button btnDayDown;
+    private final Button btnMonthDown;
+    private final Button btnYearDown;
     
     private ScheduledExecutorService mUpdater;
-    private Handler mDayHandler;
-    private Handler mMonthHandler;
-    private Handler mYearHandler;
+    private final Handler mDayHandler;
+    private final Handler mMonthHandler;
+    private final Handler mYearHandler;
     private static final int MSG_INC = 0;
     private static final int MSG_DEC = 1;
     
@@ -65,8 +65,8 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     private static final int PERIOD = 200;
     
     private class UpdateTask implements Runnable {
-        private boolean mInc;
-        private Handler mHandler;
+        private final boolean mInc;
+        private final Handler mHandler;
         
         public UpdateTask(boolean inc, Handler h) {
             mInc = inc;
@@ -459,8 +459,8 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      * @author alex
      */
     private class EDWTouchListener implements OnTouchListener{
-        private View mView;
-        private Handler mHandler;
+        private final View mView;
+        private final Handler mHandler;
         public EDWTouchListener(View mV, Handler mH){
             mView = mV;
             mHandler = mH;
@@ -484,8 +484,8 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      * @author alex
      */
     private class EDWKeyListener implements OnKeyListener{
-        private View mView;
-        private Handler mHandler;
+        private final View mView;
+        private final Handler mHandler;
         public EDWKeyListener(View mV, Handler mH){
             mView = mV;
             mHandler = mH;

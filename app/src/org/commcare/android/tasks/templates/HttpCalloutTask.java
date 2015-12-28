@@ -37,7 +37,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
         NetworkFailureBadPassword
     }
 
-    Context c;
+    final Context c;
 
     public HttpCalloutTask(Context c) {
         this.c = c;

@@ -30,15 +30,15 @@ import java.util.Queue;
 public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<FormRecord, ArrayList<String>>, Integer> {
 
     private Hashtable<String,String> descriptorCache;
-    private SqlStorage<SessionStateDescriptor> descriptorStorage;
-    private AndroidCommCarePlatform platform;
+    private final SqlStorage<SessionStateDescriptor> descriptorStorage;
+    private final AndroidCommCarePlatform platform;
     private Hashtable<Integer, String[]> searchCache;
-    private Context context;
+    private final Context context;
 
     // Functions to call when some or all of the data has been loaded.  Data
     // can be loaded normally, or be given precedence (priority), determining
     // which callback is dispatched to the listeners.
-    private ArrayList<FormRecordLoadListener> listeners = new ArrayList<FormRecordLoadListener>();
+    private final ArrayList<FormRecordLoadListener> listeners = new ArrayList<FormRecordLoadListener>();
 
     // These are all synchronized together
     private Queue<FormRecord> priorityQueue;

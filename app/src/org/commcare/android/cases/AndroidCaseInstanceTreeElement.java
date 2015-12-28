@@ -23,9 +23,9 @@ import java.util.Vector;
  */
 public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement implements CacheHost {
     private static final String TAG = AndroidCaseInstanceTreeElement.class.getSimpleName();
-    CaseIndexTable mCaseIndexTable;
+    final CaseIndexTable mCaseIndexTable;
 
-    protected Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<Integer, Integer>();
+    protected final Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<Integer, Integer>();
 
     public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage, boolean reportMode) {
         this(instanceRoot, storage, reportMode, new CaseIndexTable());
@@ -66,7 +66,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     //We're storing this here for now because this is a safe lifecycle object that must represent
     //a single snapshot of the case database, but it could be generalized later.
-    Hashtable<String, Vector<Integer>> mIndexCache = new Hashtable<String, Vector<Integer>>();
+    final Hashtable<String, Vector<Integer>> mIndexCache = new Hashtable<String, Vector<Integer>>();
 
     @Override
     protected Vector<Integer> getNextIndexMatch(Vector<String> keys, Vector<Object> values, IStorageUtilityIndexed<?> storage) {

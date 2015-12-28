@@ -291,12 +291,20 @@ public class EncryptionUtils {
             int idxModelVersion = formCursor.getColumnIndex(FormsProviderAPI.FormsColumns.MODEL_VERSION);
             int idxUiVersion = formCursor.getColumnIndex(FormsProviderAPI.FormsColumns.UI_VERSION);
             int idxBase64RsaPublicKey = formCursor.getColumnIndex(FormsProviderAPI.FormsColumns.BASE64_RSA_PUBLIC_KEY);
-            modelVersion = formCursor.isNull(idxModelVersion)
-                    ? null : formCursor.getInt(idxModelVersion);
-            uiVersion = formCursor.isNull(idxUiVersion) 
-                    ? null : formCursor.getInt(idxUiVersion);
-            String base64RsaPublicKey = formCursor.isNull(idxBase64RsaPublicKey) 
-                    ? null : formCursor.getString(idxBase64RsaPublicKey);
+            String base64RsaPublicKey;
+            try {
+                modelVersion = formCursor.isNull(idxModelVersion)
+                        ? null : formCursor.getInt(idxModelVersion);
+                uiVersion = formCursor.isNull(idxUiVersion)
+                        ? null : formCursor.getInt(idxUiVersion);
+                base64RsaPublicKey = formCursor.isNull(idxBase64RsaPublicKey)
+                        ? null : formCursor.getString(idxBase64RsaPublicKey);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                Log.w(t, "Had trouble looking up form encryption parameters;" +
+                        " should only happen in tests");
+                Log.e(t, e.getMessage());
+                return null;
+            }
 
             if (base64RsaPublicKey == null || base64RsaPublicKey.length() == 0) {
                 return null; // this is legitimately not an encrypted form
