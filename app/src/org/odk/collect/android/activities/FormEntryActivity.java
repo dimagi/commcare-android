@@ -2593,11 +2593,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void reportFormEntry() {
-        TimedStatsTracker.registerExitForm(getCurrentFormTitle());
+        TimedStatsTracker.registerEnterForm(getCurrentFormTitle());
     }
 
     private void reportFormExit() {
-        TimedStatsTracker.registerEnterForm(getCurrentFormTitle());
+        TimedStatsTracker.registerExitForm(getCurrentFormTitle());
     }
 
     private String getCurrentFormTitle() {
