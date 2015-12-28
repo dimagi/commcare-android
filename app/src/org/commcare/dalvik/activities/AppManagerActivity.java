@@ -100,14 +100,14 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
     private void installApp() {
         Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
         i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
-        this.startActivityForResult(i, CommCareHomeActivity.INIT_APP);
+        this.startActivityForResult(i, DispatchActivity.INIT_APP);
     }
 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
-            case CommCareHomeActivity.INIT_APP:
+            case DispatchActivity.INIT_APP:
                 boolean installFailed = intent != null && intent.getBooleanExtra(
                         CommCareSetupActivity.KEY_INSTALL_FAILED, false);
                 if (resultCode == RESULT_OK && !installFailed) {

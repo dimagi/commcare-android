@@ -16,7 +16,6 @@ import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
 import org.commcare.android.database.SqlStorage;
@@ -76,7 +75,6 @@ import org.odk.collect.android.tasks.FormLoaderTask;
 import java.text.SimpleDateFormat;
 import java.util.Vector;
 
-
 public class CommCareHomeActivity
         extends SessionAwareCommCareActivity<CommCareHomeActivity>
         implements SessionNavigationResponder {
@@ -101,7 +99,6 @@ public class CommCareHomeActivity
      */
     private static final int MODEL_RESULT = 4;
 
-    public static final int INIT_APP = 8;
     private static final int GET_INCOMPLETE_FORM = 16;
     public static final int UPGRADE_APP = 32;
     public static final int REPORT_PROBLEM_ACTIVITY = 64;
@@ -278,18 +275,6 @@ public class CommCareHomeActivity
         } else {
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
-            case INIT_APP:
-                if (resultCode == RESULT_CANCELED) {
-                    // User pressed back button from install screen, so take them out of CommCare
-                    this.finish();
-                    return;
-                } else if (resultCode == RESULT_OK) {
-                    //CTS - Removed a call to initializing resources here. The engine takes care of that.
-                    //We do, however, need to re-init this screen to include new translations
-                    uiController.configUI();
-                    return;
-                }
-                break;
             case PREFERENCES_ACTIVITY:
                 uiController.configUI();
                 return;
@@ -1010,54 +995,39 @@ public class CommCareHomeActivity
 
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
 
-        // Path 1: There is a seated app
-        if (currentApp != null) {
-            ApplicationRecord currentRecord = currentApp.getAppRecord();
+        ApplicationRecord currentRecord = currentApp.getAppRecord();
 
-            // Note that the order in which these conditions are checked matters!!
-            try {
-                if (currentApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
-                    // Path 1a: The seated app is damaged or corrupted
-                    handleDamagedApp();
-                } else if (!currentRecord.isUsable()) {
-                    // Path 1b: The seated app is unusable (means either it is archived or is
-                    // missing its MM or both)
-                    boolean unseated = handleUnusableApp(currentRecord);
-                    if (unseated) {
-                        // Recurse in order to make the correct decision based on the new state
-                        attemptDispatchHomeScreen();
-                    }
-                } else if (!CommCareApplication._().getSession().isActive()) {
-                    // Path 1c: The user is not logged in
-                    launchLogin();
-                } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
-                    // Path 1d: CommCare was launched from an external app, with a session descriptor
-                    handleExternalLaunch();
-                } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
-                    // Path 1e: CommCare was launched from a shortcut
-                    handleShortcutLaunch();
-                } else if (CommCareApplication._().isSyncPending(false)) {
-                    // Path 1f: There is a sync pending
-                    handlePendingSync();
-                } else {
-                    // Path 1g: Display the normal home screen!
-                    uiController.refreshView();
+        // Note that the order in which these conditions are checked matters!!
+        try {
+            if (currentApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
+                // Path 1a: The seated app is damaged or corrupted
+                handleDamagedApp();
+            } else if (!currentRecord.isUsable()) {
+                // Path 1b: The seated app is unusable (means either it is archived or is
+                // missing its MM or both)
+                boolean unseated = handleUnusableApp(currentRecord);
+                if (unseated) {
+                    // Recurse in order to make the correct decision based on the new state
+                    attemptDispatchHomeScreen();
                 }
-            } catch (SessionUnavailableException sue) {
+            } else if (!CommCareApplication._().getSession().isActive()) {
+                // Path 1c: The user is not logged in
                 launchLogin();
+            } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
+                // Path 1d: CommCare was launched from an external app, with a session descriptor
+                handleExternalLaunch();
+            } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
+                // Path 1e: CommCare was launched from a shortcut
+                handleShortcutLaunch();
+            } else if (CommCareApplication._().isSyncPending(false)) {
+                // Path 1f: There is a sync pending
+                handlePendingSync();
+            } else {
+                // Path 1g: Display the normal home screen!
+                uiController.refreshView();
             }
-        }
-
-        // Path 2: There is no seated app, so launch CommCareSetupActivity
-        else {
-            if (CommCareApplication._().usableAppsPresent()) {
-                // This is BAD -- means we ended up at home screen with no seated app, but there
-                // are other usable apps available. Should not be able to happen.
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "In CommCareHomeActivity with no" +
-                        "seated app, but there are other usable apps available on the device.");
-            }
-            Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-            this.startActivityForResult(i, INIT_APP);
+        } catch (SessionUnavailableException sue) {
+            launchLogin();
         }
     }
 
