@@ -1,5 +1,6 @@
 package org.odk.collect.android.activities.components;
 
+import android.content.Context;
 import android.graphics.Rect;
 import android.util.Log;
 import android.util.Pair;
@@ -30,10 +31,10 @@ public class FormNavigationUI {
     /**
      * Update progress bar's max and value, and the various buttons and navigation cues
      * associated with navigation
-     *
-     * @param view ODKView to update
      */
-    public static void updateNavigationCues(CommCareActivity activity, FormController formController, View view) {
+    public static void updateNavigationCues(CommCareActivity activity,
+                                            FormController formController,
+                                            ODKView view) {
         updateFloatingLabels(activity, view);
 
         FormNavigationController.NavigationDetails details;
@@ -51,10 +52,10 @@ public class FormNavigationUI {
 
         if (!details.relevantBeforeCurrentScreen) {
             prevButton.setImageResource(R.drawable.icon_close_darkwarm);
-            prevButton.setTag("quit");
+            prevButton.setTag(FormEntryActivity.NAV_STATE_QUIT);
         } else {
             prevButton.setImageResource(R.drawable.icon_chevron_left_brand);
-            prevButton.setTag("back");
+            prevButton.setTag(FormEntryActivity.NAV_STATE_BACK);
         }
 
         //Apparently in Android 2.3 setting the drawable resource for the progress bar
@@ -66,29 +67,37 @@ public class FormNavigationUI {
 
         progressBar.setMax(details.totalQuestions);
 
-        if (details.relevantAfterCurrentScreen == 0 && (details.requiredOnScreen == details.answeredOnScreen || details.requiredOnScreen < 1)) {
-            nextButton.setImageResource(R.drawable.icon_chevron_right_attnpos);
-
-            //TODO: _really_? This doesn't seem right
-            nextButton.setTag("done");
-
-            progressBar.setProgressDrawable(activity.getResources().getDrawable(R.drawable.progressbar_full));
-
-            Log.i("Questions", "Form complete");
-            // if we get here, it means we don't have any more relevant questions after this one, so we mark it as complete
-            progressBar.setProgress(details.totalQuestions); // completely fills the progressbar
+        if (details.isFormDone()) {
+            setDoneState(nextButton, activity, progressBar, details.totalQuestions);
         } else {
-            nextButton.setImageResource(R.drawable.icon_chevron_right_brand);
-
-            //TODO: _really_? This doesn't seem right
-            nextButton.setTag(FormEntryActivity.NAV_STATE_NEXT);
-
-            progressBar.setProgressDrawable(activity.getResources().getDrawable(R.drawable.progressbar_modern));
-
-            progressBar.setProgress(details.completedQuestions);
+            setMoreQuestionsState(nextButton, activity, progressBar, details.completedQuestions);
         }
 
         progressBar.getProgressDrawable().setBounds(bounds);  //Set the bounds to the saved value
+    }
+
+    private static void setDoneState(ImageButton nextButton,
+                                     Context context,
+                                     ProgressBar progressBar,
+                                     int totalQuestions) {
+        nextButton.setImageResource(R.drawable.icon_chevron_right_attnpos);
+        nextButton.setTag(FormEntryActivity.NAV_STATE_DONE);
+
+        progressBar.setProgressDrawable(context.getResources().getDrawable(R.drawable.progressbar_full));
+        progressBar.setProgress(totalQuestions);
+
+        Log.i("Questions", "Form complete");
+    }
+
+    private static void setMoreQuestionsState(ImageButton nextButton,
+                                              Context context,
+                                              ProgressBar progressBar,
+                                              int completedQuestiosn) {
+        nextButton.setImageResource(R.drawable.icon_chevron_right_brand);
+        nextButton.setTag(FormEntryActivity.NAV_STATE_NEXT);
+
+        progressBar.setProgressDrawable(context.getResources().getDrawable(R.drawable.progressbar_modern));
+        progressBar.setProgress(completedQuestiosn);
     }
 
     public static void animateFinishArrow(CommCareActivity activity) {
@@ -135,27 +144,26 @@ public class FormNavigationUI {
         }
     }
 
-    private static void updateFloatingLabels(CommCareActivity activity, View currentView) {
+    private static void updateFloatingLabels(CommCareActivity activity,
+                                             ODKView currentView) {
         //TODO: this should actually be set up to scale per screen size.
         ArrayList<Pair<String, FloatingLabel>> smallLabels = new ArrayList<>();
         ArrayList<Pair<String, FloatingLabel>> largeLabels = new ArrayList<>();
 
         FloatingLabel[] labelTypes = FloatingLabel.values();
 
-        if (currentView instanceof ODKView) {
-            for (QuestionWidget widget : ((ODKView)currentView).getWidgets()) {
-                String hint = widget.getPrompt().getAppearanceHint();
-                if (hint == null) {
-                    continue;
-                }
-                for (FloatingLabel type : labelTypes) {
-                    if (type.getAppearance().equals(hint)) {
-                        String widgetText = widget.getPrompt().getQuestionText();
-                        if (widgetText != null && widgetText.length() < 15) {
-                            smallLabels.add(new Pair<>(widgetText, type));
-                        } else {
-                            largeLabels.add(new Pair<>(widgetText, type));
-                        }
+        for (QuestionWidget widget : currentView.getWidgets()) {
+            String hint = widget.getPrompt().getAppearanceHint();
+            if (hint == null) {
+                continue;
+            }
+            for (FloatingLabel type : labelTypes) {
+                if (type.getAppearance().equals(hint)) {
+                    String widgetText = widget.getPrompt().getQuestionText();
+                    if (widgetText != null && widgetText.length() < 15) {
+                        smallLabels.add(new Pair<>(widgetText, type));
+                    } else {
+                        largeLabels.add(new Pair<>(widgetText, type));
                     }
                 }
             }

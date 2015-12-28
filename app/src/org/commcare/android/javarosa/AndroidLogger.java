@@ -94,7 +94,7 @@ public class AndroidLogger implements ILogger {
     //TODO: Currently assumes that it gets back iterated records in RecordID order.
     //when serializing a limited number of records then clearing
 
-    SqlStorage<AndroidLogEntry> storage;
+    final SqlStorage<AndroidLogEntry> storage;
 
 
     public AndroidLogger(SqlStorage<AndroidLogEntry> storage) {

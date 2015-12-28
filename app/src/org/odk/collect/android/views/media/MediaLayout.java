@@ -43,7 +43,7 @@ public class MediaLayout extends RelativeLayout {
     private TextView mView_Text;
     private AudioButton mAudioButton;
     private ImageButton mVideoButton;
-    private ResizingImageView mImageView;
+    private final ResizingImageView mImageView;
     private TextView mMissingImage;
 
     public MediaLayout(Context c) {
