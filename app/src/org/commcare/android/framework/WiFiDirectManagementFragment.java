@@ -39,13 +39,11 @@ public class WiFiDirectManagementFragment extends Fragment
     private boolean isWifiP2pEnabled;
     private boolean isHost;
     private boolean isConnected;
-    int mStatus;
 
     WifiP2pInfo info;
 
     public WifiP2pManager mManager;
     public Channel mChannel;
-    WiFiDirectBroadcastReceiver mReceiver;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -67,8 +65,6 @@ public class WiFiDirectManagementFragment extends Fragment
         View mContentView = inflater.inflate(R.layout.wifi_manager, null);
 
         mStatusText = (TextView) mContentView.findViewById(R.id.wifi_manager_status_text);
-
-        View mView = (View) mContentView.findViewById(R.id.wifi_manager_view);
 
         return mContentView;
     }
@@ -115,10 +111,7 @@ public class WiFiDirectManagementFragment extends Fragment
             mManager.createGroup(mChannel, this);
         }
 
-        mStatus = status;
-
         mActivity.updateDeviceStatus(mDevice);
-
     }
 
     public String getHostAddress() {
@@ -130,11 +123,6 @@ public class WiFiDirectManagementFragment extends Fragment
         mManager.removeGroup(mChannel, this);
     }
 
-
-    public boolean isHost() {
-        return isHost;
-    }
-
     public void setIsHost(boolean isHost) {
         Logger.log(TAG, "setting is host: " + isHost);
         this.isHost = isHost;
@@ -142,16 +130,15 @@ public class WiFiDirectManagementFragment extends Fragment
     }
 
     public interface WifiDirectManagerListener {
-        public void resetData();
+        void resetData();
 
-        public void updatePeers();
+        void updatePeers();
 
-        public void updateDeviceStatus(WifiP2pDevice mDevice);
+        void updateDeviceStatus(WifiP2pDevice mDevice);
     }
 
-    public void startReceiver(WifiP2pManager mManager, Channel mChannel, WiFiDirectBroadcastReceiver mReceiver) {
+    public void startReceiver(WifiP2pManager mManager, Channel mChannel) {
         Logger.log(TAG, "Starting receiver");
-        this.mReceiver = mReceiver;
         this.mChannel = mChannel;
         this.mManager = mManager;
     }
