@@ -53,7 +53,7 @@ dependencies {
         exclude module: 'httpclient'
     }
     compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
-    compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
+    compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.2'
 }
 
 project.ext {
