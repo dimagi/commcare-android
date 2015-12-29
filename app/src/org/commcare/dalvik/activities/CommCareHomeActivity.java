@@ -257,9 +257,7 @@ public class CommCareHomeActivity
     }
 
     protected void userTriggeredLogout() {
-        Intent i = new Intent();
-        i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, true);
-        setResult(RESULT_OK, i);
+        setResult(RESULT_OK);
         finish();
     }
 

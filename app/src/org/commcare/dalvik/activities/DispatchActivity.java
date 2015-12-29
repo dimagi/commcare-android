@@ -40,6 +40,7 @@ public class DispatchActivity extends FragmentActivity {
     public static final int MISSING_MEDIA_ACTIVITY = 256;
     private boolean startFromLogin;
     private boolean shouldFinish;
+    private boolean userTriggeredLogout;
 
     @Override
     protected void onResume() {
@@ -105,6 +106,7 @@ public class DispatchActivity extends FragmentActivity {
 
     public void launchLogin() {
         Intent i = new Intent(this, LoginActivity.class);
+        i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, userTriggeredLogout);
         startActivityForResult(i, LOGIN_USER);
     }
 
@@ -224,6 +226,8 @@ public class DispatchActivity extends FragmentActivity {
                 if (resultCode == RESULT_CANCELED) {
                     shouldFinish = true;
                     return;
+                } else {
+                    userTriggeredLogout = true;
                 }
                 break;
         }
