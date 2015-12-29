@@ -166,6 +166,10 @@ public class CommCareHomeActivity
             }
         }
 
+        if (getIntent().getBooleanExtra(DispatchActivity.WAS_SHORTCUT_LAUNCH, false)) {
+            sessionNavigator.startNextSessionStep();
+        }
+
         if (getIntent().getBooleanExtra(DispatchActivity.START_FROM_LOGIN, false)) {
             getIntent().removeExtra(DispatchActivity.START_FROM_LOGIN);
             startFromLogin();

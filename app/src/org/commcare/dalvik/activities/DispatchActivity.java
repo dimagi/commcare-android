@@ -25,6 +25,7 @@ public class DispatchActivity extends FragmentActivity {
     private static final String SESSION_REQUEST = "ccodk_session_request";
 
     public static final String WAS_EXTERNAL = "launch_from_external";
+    public static final String WAS_SHORTCUT_LAUNCH = "launch_from_shortcut";
     public static final String START_FROM_LOGIN = "process_successful_login";
 
     public static final int DIALOG_CORRUPTED = 1;
@@ -107,6 +108,13 @@ public class DispatchActivity extends FragmentActivity {
         startActivityForResult(i, LOGIN_USER);
     }
 
+    private void launchHomeScreen() {
+        Intent i = new Intent(this, CommCareHomeActivity.class);
+        i.putExtra(START_FROM_LOGIN, startFromLogin);
+        startFromLogin = false;
+        startActivityForResult(i, HOME_SCREEN);
+    }
+
     /**
      * @param record the ApplicationRecord corresponding to the seated, unusable app
      * @return if the unusable app was unseated by this method
@@ -159,20 +167,29 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void handleShortcutLaunch() {
-        //We were launched in shortcut mode. Get the command and load us up.
-        CommCareApplication._().getCurrentSession().setCommand(
-                this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
-        // TODO PLM
-        // sessionNavigator.startNextSessionStep();
-        //Only launch shortcuts once per intent
-        this.getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
+        if (!triggerLoginIfNeeded()) {
+            //We were launched in shortcut mode. Get the command and load us up.
+            CommCareApplication._().getCurrentSession().setCommand(
+                    this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
+
+            getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
+            Intent i = new Intent(this, CommCareHomeActivity.class);
+            i.putExtra(WAS_SHORTCUT_LAUNCH, true);
+            startActivityForResult(i, HOME_SCREEN);
+        }
     }
 
-    private void launchHomeScreen() {
-        Intent i = new Intent(this, CommCareHomeActivity.class);
-        i.putExtra(START_FROM_LOGIN, startFromLogin);
-        startFromLogin = false;
-        startActivityForResult(i, HOME_SCREEN);
+    private boolean triggerLoginIfNeeded() {
+        try {
+            if (!CommCareApplication._().getSession().isActive()) {
+                launchLogin();
+                return true;
+            }
+        } catch (SessionUnavailableException e) {
+            launchLogin();
+            return true;
+        }
+        return false;
     }
 
     @Override

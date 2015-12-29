@@ -38,7 +38,7 @@ public class InitializationHelper {
             try {
                 CommCareApplication._().getSession();
                 activity.showDialog(DispatchActivity.DIALOG_CORRUPTED);
-            } catch(SessionUnavailableException e) {
+            } catch (SessionUnavailableException e) {
                 // Otherwise, log in first
                 activity.launchLogin();
             }
