@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.resource.installers;
 
 import org.commcare.xml.CommCareElementParser;

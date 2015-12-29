@@ -227,7 +227,6 @@ public class EntityListAdapter implements ListAdapter {
                 return;
             }
             db.beginTransaction();
-            full:
             for (int index = 0; index < full.size(); ++index) {
                 //Every once and a while we should make sure we're not blocking anything with the database
                 if (index % 500 == 0) {

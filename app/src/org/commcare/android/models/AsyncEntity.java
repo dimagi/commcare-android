@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.models;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -22,7 +19,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-
 /**
  * An AsyncEntity is an entity reference which is capable of building its
  * values (evaluating all Text elements/background data elements) lazily
@@ -38,8 +34,6 @@ import java.util.Hashtable;
  * @author ctsims
  */
 public class AsyncEntity extends Entity<TreeReference> {
-
-    boolean caching = true;
 
     final DetailField[] fields;
     final Object[] data;
@@ -85,10 +79,6 @@ public class AsyncEntity extends Entity<TreeReference> {
         this.mCacheIndex = cacheIndex;
 
         this.mDetailId = detailId;
-    }
-
-    public String getEntityCacheIndex() {
-        return mCacheIndex;
     }
 
     private void loadVariableContext() {
