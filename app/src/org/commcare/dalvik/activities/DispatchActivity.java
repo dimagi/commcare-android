@@ -33,12 +33,18 @@ public class DispatchActivity extends FragmentActivity {
      * Should signal a return from CommCareVerificationActivity.
      */
     public static final int MISSING_MEDIA_ACTIVITY = 256;
+    private boolean startFromLogin;
+    private boolean shouldFinish;
 
     @Override
     protected void onResume() {
         super.onResume();
 
-        dispatch();
+        if (shouldFinish) {
+            finish();
+        } else {
+            dispatch();
+        }
     }
 
     private void dispatch() {
@@ -157,7 +163,8 @@ public class DispatchActivity extends FragmentActivity {
 
     private void launchHomeScreen() {
         Intent i = new Intent(this, CommCareHomeActivity.class);
-        i.putExtra(START_FROM_LOGIN, true);
+        i.putExtra(START_FROM_LOGIN, startFromLogin);
+        startFromLogin = false;
         startActivityForResult(i, HOME_SCREEN);
     }
 
@@ -168,7 +175,7 @@ public class DispatchActivity extends FragmentActivity {
             case INIT_APP:
                 if (resultCode == RESULT_CANCELED) {
                     // User pressed back button from install screen, so take them out of CommCare
-                    this.finish();
+                    shouldFinish = true;
                     return;
                 }
                 break;
@@ -176,7 +183,7 @@ public class DispatchActivity extends FragmentActivity {
                 if (resultCode == RESULT_CANCELED) {
                     // exit the app if media wasn't validated on automatic
                     // validation check.
-                    this.finish();
+                    shouldFinish = true;
                     return;
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
@@ -184,13 +191,14 @@ public class DispatchActivity extends FragmentActivity {
                 }
             case LOGIN_USER:
                 if (resultCode == RESULT_CANCELED) {
-                    finish();
+                    shouldFinish = true;
                     return;
                 }
+                startFromLogin = true;
                 break;
             case HOME_SCREEN:
                 if (resultCode == RESULT_CANCELED) {
-                    finish();
+                    shouldFinish = true;
                     return;
                 }
                 break;
