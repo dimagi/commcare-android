@@ -111,8 +111,6 @@ public class CommCareHomeActivity
      */
     private static final int MEDIA_VALIDATOR_ACTIVITY=8192;
 
-    public static final int DIALOG_CORRUPTED = 1;
-
     private static final int MENU_PREFERENCES = Menu.FIRST;
     private static final int MENU_UPDATE = Menu.FIRST + 1;
     private static final int MENU_CALL_LOG = Menu.FIRST + 2;
@@ -945,9 +943,6 @@ public class CommCareHomeActivity
      * Decides if we should actually be on the home screen, or else should redirect elsewhere
      */
     private void attemptDispatchHomeScreen() {
-        // Before anything else, see if we're in a failing db state
-        InitializationHelper.checkDbState(this);
-
         if (CommCareApplication._().isSyncPending(false)) {
             // Path 1f: There is a sync pending
             handlePendingSync();
@@ -1156,35 +1151,6 @@ public class CommCareHomeActivity
         return (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH && getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT));
     }
 
-    protected Dialog onCreateDialog(int id) {
-        if (id == DIALOG_CORRUPTED) {
-            return createAskFixDialog();
-        } else return null;
-    }
-
-    private Dialog createAskFixDialog() {
-        //TODO: Localize this in theory, but really shift it to the upgrade/management state
-        String title = "Storage is Corrupt :/";
-        String message = "Sorry, something really bad has happened, and the app can't start up. " +
-                "With your permission CommCare can try to repair itself if you have network access.";
-        AlertDialogFactory factory = new AlertDialogFactory(this, title, message);
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int i) {
-                switch (i) {
-                    case DialogInterface.BUTTON_POSITIVE: // attempt repair
-                        Intent intent = new Intent(CommCareHomeActivity.this, RecoveryActivity.class);
-                        startActivity(intent);
-                        break;
-                    case DialogInterface.BUTTON_NEGATIVE: // Shut down
-                        CommCareHomeActivity.this.finish();
-                        break;
-                }
-            }
-        };
-        factory.setPositiveButton("Enter Recovery Mode", listener);
-        factory.setNegativeButton("Shut Down", listener);
-        return factory.getDialog();
-    }
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {

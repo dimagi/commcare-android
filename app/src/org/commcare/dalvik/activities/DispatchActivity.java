@@ -1,7 +1,8 @@
 package org.commcare.dalvik.activities;
 
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
@@ -13,6 +14,7 @@ import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.application.InitializationHelper;
+import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -24,6 +26,8 @@ public class DispatchActivity extends FragmentActivity {
 
     public static final String WAS_EXTERNAL = "launch_from_external";
     public static final String START_FROM_LOGIN = "process_successful_login";
+
+    public static final int DIALOG_CORRUPTED = 1;
 
     private static final int LOGIN_USER = 0;
     private static final int HOME_SCREEN = 1;
@@ -48,7 +52,10 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void dispatch() {
-        InitializationHelper.checkDbState(this);
+        if (InitializationHelper.isDbInBadState(this)) {
+            // approrpiate error dialog has been triggered, don't continue w/ dispatch
+            return;
+        }
 
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
 
@@ -95,7 +102,7 @@ public class DispatchActivity extends FragmentActivity {
         }
     }
 
-    private void launchLogin() {
+    public void launchLogin() {
         Intent i = new Intent(this, LoginActivity.class);
         startActivityForResult(i, LOGIN_USER);
     }
@@ -205,4 +212,35 @@ public class DispatchActivity extends FragmentActivity {
         }
         super.onActivityResult(requestCode, resultCode, intent);
     }
+
+    private Dialog createAskFixDialog() {
+        //TODO: Localize this in theory, but really shift it to the upgrade/management state
+        String title = "Storage is Corrupt :/";
+        String message = "Sorry, something really bad has happened, and the app can't start up. " +
+                "With your permission CommCare can try to repair itself if you have network access.";
+        AlertDialogFactory factory = new AlertDialogFactory(this, title, message);
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int i) {
+                switch (i) {
+                    case DialogInterface.BUTTON_POSITIVE: // attempt repair
+                        Intent intent = new Intent(DispatchActivity.this, RecoveryActivity.class);
+                        startActivity(intent);
+                        break;
+                    case DialogInterface.BUTTON_NEGATIVE: // Shut down
+                        DispatchActivity.this.finish();
+                        break;
+                }
+            }
+        };
+        factory.setPositiveButton("Enter Recovery Mode", listener);
+        factory.setNegativeButton("Shut Down", listener);
+        return factory.getDialog();
+    }
+
+    protected Dialog onCreateDialog(int id) {
+        if (id == DIALOG_CORRUPTED) {
+            return createAskFixDialog();
+        } else return null;
+    }
+
 }
