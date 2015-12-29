@@ -30,6 +30,7 @@ import java.net.Socket;
  */
 @SuppressLint("NewApi")
 public class FileServerFragment extends Fragment {
+    private static final String TAG = FileServerFragment.class.getSimpleName();
     private View mContentView = null;
 
     private static CommCareWiFiDirectActivity mActivity;
@@ -74,7 +75,7 @@ public class FileServerFragment extends Fragment {
     }
 
     public void startServer(String mReceiveZipDirectory) {
-        Logger.log(CommCareWiFiDirectActivity.TAG, "File Server starting...");
+        Logger.log(TAG, "File Server starting...");
 
         mStatusText.setText("Starting server");
 
@@ -107,7 +108,7 @@ public class FileServerFragment extends Fragment {
         private boolean socketOccupied;
 
         public FileServerAsyncTask(FileServerFragment mListener) {
-            Log.d(CommCareWiFiDirectActivity.TAG, "new fileasync task");
+            Log.d(TAG, "new fileasync task");
             this.mListener = mListener;
 
         }
@@ -115,7 +116,7 @@ public class FileServerFragment extends Fragment {
         @Override
         protected String doInBackground(Void... params) {
 
-            Logger.log(CommCareWiFiDirectActivity.TAG, "doing in background");
+            Logger.log(TAG, "doing in background");
             socketOccupied = false;
 
             try {
@@ -128,9 +129,9 @@ public class FileServerFragment extends Fragment {
 
                     Socket client = serverSocket.accept();
 
-                    Logger.log(CommCareWiFiDirectActivity.TAG, "Ready in wi-fi direct file server receive loop");
+                    Logger.log(TAG, "Ready in wi-fi direct file server receive loop");
 
-                    Log.d(CommCareWiFiDirectActivity.TAG, "server: copying files " + finalFileName);
+                    Log.d(TAG, "server: copying files " + finalFileName);
 
                     final File f = new File(finalFileName);
 
@@ -140,7 +141,7 @@ public class FileServerFragment extends Fragment {
 
                     f.createNewFile();
 
-                    Log.d(CommCareWiFiDirectActivity.TAG, "server: copying files " + f.toString());
+                    Log.d(TAG, "server: copying files " + f.toString());
                     InputStream inputstream = client.getInputStream();
                     CommCareWiFiDirectActivity.copyFile(inputstream, new FileOutputStream(f));
                     serverSocket.close();
@@ -149,7 +150,7 @@ public class FileServerFragment extends Fragment {
                     return f.getAbsolutePath();
 
                 } catch (IOException e) {
-                    Log.e(CommCareWiFiDirectActivity.TAG, e.getMessage());
+                    Log.e(TAG, e.getMessage());
                     final File f = new File(finalFileName);
                     if (f.exists()) {
                         FileUtil.deleteFileOrDir(f);
@@ -161,7 +162,7 @@ public class FileServerFragment extends Fragment {
                 }
             } catch (IOException ioe) {
                 publishProgress("Ready to accept new file transfer.", null);
-                Logger.log(CommCareWiFiDirectActivity.TAG, "couldn't open socket!");
+                Logger.log(TAG, "couldn't open socket!");
                 socketOccupied = true;
                 return null;
             }
@@ -169,23 +170,23 @@ public class FileServerFragment extends Fragment {
 
         @Override
         protected void onPostExecute(String result) {
-            Log.e(CommCareWiFiDirectActivity.TAG, "file server task post execute");
+            Log.e(TAG, "file server task post execute");
 
             if (socketOccupied) {
-                Logger.log(CommCareWiFiDirectActivity.TAG, "socket busy, cancelling this thread cycle");
+                Logger.log(TAG, "socket busy, cancelling this thread cycle");
                 return;
             }
 
             if (result != null) {
                 mActivity.onFormsCopied(result);
             }
-            Logger.log(CommCareWiFiDirectActivity.TAG, "file server post-execute, relaunching server");
+            Logger.log(TAG, "file server post-execute, relaunching server");
             mListener.startServer(receiveZipDirectory);
         }
 
         @Override
         protected void onPreExecute() {
-            Logger.log(CommCareWiFiDirectActivity.TAG, "pre-execute of file server launch");
+            Logger.log(TAG, "pre-execute of file server launch");
             // statusText.setText("Opening a server socket");
         }
 
