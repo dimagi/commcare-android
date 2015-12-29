@@ -49,7 +49,7 @@ public class AndroidResourceManager extends ResourceManager {
 
         tempUpgradeTable =
                 ResourceTable.RetrieveTable(app.getStorage(TEMP_UPGRADE_TABLE_KEY, Resource.class),
-                        new AndroidResourceInstallerFactory(app));
+                        new AndroidResourceInstallerFactory());
 
         updateStats = UpdateStats.loadUpdateStats(app);
         upgradeTable.setInstallStatsLogger(updateStats);

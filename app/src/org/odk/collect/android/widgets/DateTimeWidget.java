@@ -104,11 +104,6 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
 
     }
     
-    public DateTimeWidget(Context context, FormEntryPrompt prompt, WidgetChangedListener wcl) {
-        super(context, prompt, wcl);
-    }
-
-
     public void setAnswer() {
 
         if (mPrompt.getAnswerValue() != null) {

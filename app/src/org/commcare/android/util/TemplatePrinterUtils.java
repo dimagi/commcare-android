@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.dalvik.R;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 
 import java.io.BufferedReader;
