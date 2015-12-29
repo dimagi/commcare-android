@@ -1,4 +1,4 @@
-package org.commcare.android.view;
+package org.commcare.graphing.views;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -12,7 +12,7 @@ import android.widget.LinearLayout;
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.graphing.configuration.AxisConfiguration;
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.activities.GraphActivity;
+import org.commcare.graphing.activities.GraphActivity;
 import org.commcare.graphing.GraphData;
 import org.commcare.graphing.configuration.DataConfiguration;
 import org.commcare.graphing.configuration.GridConfiguration;

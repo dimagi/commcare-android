@@ -24,6 +24,7 @@ import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
+import org.commcare.graphing.views.GraphView;
 import org.commcare.suite.model.Detail;
 import org.commcare.graphing.GraphData;
 import org.javarosa.core.services.Logger;

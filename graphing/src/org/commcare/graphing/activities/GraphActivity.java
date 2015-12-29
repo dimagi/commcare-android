@@ -1,4 +1,4 @@
-package org.commcare.dalvik.activities;
+package org.commcare.graphing.activities;
 
 import android.annotation.TargetApi;
 import android.os.Build;
@@ -7,8 +7,7 @@ import android.view.Window;
 import android.webkit.WebView;
 
 import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.util.InvalidStateException;
-import org.commcare.android.view.GraphView;
+import org.commcare.graphing.views.GraphView;
 
 /**
  * Full-screen view of a graph.
