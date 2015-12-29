@@ -23,19 +23,16 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 
     private static final String TAG = WiFiDirectBroadcastReceiver.class.getSimpleName();
     private final WifiP2pManager manager;
-    private Channel channel;
     private final WiFiDirectManagementFragment activity;
 
     /**
      * @param manager WifiP2pManager system service
-     * @param channel Wifi p2p channel
      * @param activity activity associated with the receiver
      */
-    public WiFiDirectBroadcastReceiver(WifiP2pManager manager, Channel channel,
+    public WiFiDirectBroadcastReceiver(WifiP2pManager manager,
             WiFiDirectManagementFragment activity) {
         super();
         this.manager = manager;
-        this.channel = channel;
         this.activity = activity;
     }
 

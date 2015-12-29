@@ -1,6 +1,5 @@
 package org.commcare.android.tasks;
 
-import android.content.Context;
 import android.util.Log;
 
 import org.commcare.android.tasks.templates.CommCareTask;
@@ -15,16 +14,10 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public abstract class FormTransferTask extends CommCareTask<String, String, Boolean, CommCareWiFiDirectActivity>{
-    
-    public Context c;
-
     private static final int SOCKET_TIMEOUT = 50000;
     
-    public static final int RESULT_SUCCESS = 0;
-
     public static final int BULK_TRANSFER_ID = 9575922;
-    
-    Long[] results;
+
     String host;
     String filepath;
     int port;
@@ -40,10 +33,9 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
     
     public InputStream getFormInputStream(String fPath) throws FileNotFoundException{
         Log.d(TAG, "Getting form input stream");
-        InputStream is = null;
-        String filepath = fPath;
-        Log.d(TAG, " fileinptutstream  with filepath: " + filepath);
-        is = new FileInputStream(filepath);
+        InputStream is;
+        Log.d(TAG, " fileinptutstream  with filepath: " + fPath);
+        is = new FileInputStream(fPath);
         return is;
         
     }

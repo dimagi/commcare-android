@@ -49,9 +49,7 @@ public class DotsDetailView {
     
     public final static String[] regimens = new String[] { "Non-ART", "ART"};  
     
-    //RadioGroup[] groups;
-    View[] groups; 
-    CheckBox[] selfReported;
+    View[] groups;
     EditText[] missedName;
     DotsDay day;
     int index;
@@ -74,7 +72,6 @@ public class DotsDetailView {
         
         //groups = new RadioGroup[day.boxes().length];
         groups = new View[day.boxes().length];
-        selfReported = new CheckBox[day.boxes().length];
         missedName = new EditText[day.boxes().length];
         
         int[] regimenIndices = day.getRegIndexes(dose);
@@ -108,8 +105,7 @@ public class DotsDetailView {
             missedName[i] = (EditText)details.findViewById(R.id.text_missed);
             
             //groups[i] = (RadioGroup)details.findViewById(R.id.dose_group);
-            //selfReported[i] = (CheckBox)details.findViewById(R.id.cbx_self_reported);
-            
+
             int type = R.id.tbt_pillbox; 
             
             switch(box.reportType()) {

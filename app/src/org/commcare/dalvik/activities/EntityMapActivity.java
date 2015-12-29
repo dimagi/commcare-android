@@ -120,7 +120,7 @@ public class EntityMapActivity extends MapActivity {
         }
 
         Drawable defaultMarker = this.getResources().getDrawable(R.drawable.marker);
-        mEntityOverlay = new EntityOverlay(this, defaultMarker, map) {
+        mEntityOverlay = new EntityOverlay(defaultMarker, map) {
 
             @Override
             protected void selected(TreeReference ref) {

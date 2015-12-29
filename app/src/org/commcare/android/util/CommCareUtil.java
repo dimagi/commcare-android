@@ -87,19 +87,6 @@ public class CommCareUtil {
         return preds;
     }
     
-    public static void printInstance(String instanceRef) {
-        try {
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            DataModelSerializer s = new DataModelSerializer(bos, new AndroidInstanceInitializer(null));
-            
-            s.serialize(new ExternalDataInstance(instanceRef,"instance"), null);
-            Log.d(TAG, new String(bos.toByteArray()));
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
     public static void triggerLogSubmission(Context c) {
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
         String url = settings.getString("PostURL", null);

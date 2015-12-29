@@ -18,7 +18,6 @@ import java.util.Vector;
  * @author ctsims
  */
 public class AndroidLedgerInstanceTreeElement extends LedgerInstanceTreeElement {
-    SqlStorageIterator<Ledger> iter;
 
     Hashtable<String, Integer> primaryIdMapping;
 
