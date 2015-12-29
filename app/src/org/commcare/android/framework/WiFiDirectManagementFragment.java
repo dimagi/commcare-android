@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2011 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.commcare.android.framework;
 
 import android.annotation.SuppressLint;
@@ -47,6 +31,7 @@ import org.javarosa.core.services.Logger;
 @SuppressLint("NewApi")
 public class WiFiDirectManagementFragment extends Fragment
         implements ConnectionInfoListener, ActionListener, ChannelListener {
+    private static final String TAG = WiFiDirectManagementFragment.class.getSimpleName();
     private static CommCareWiFiDirectActivity mActivity;
 
     private TextView mStatusText;
@@ -97,18 +82,18 @@ public class WiFiDirectManagementFragment extends Fragment
     }
 
     public void onPeersChanged() {
-        Logger.log(CommCareWiFiDirectActivity.TAG, "Wi-fi direct peers changed");
+        Logger.log(TAG, "Wi-fi direct peers changed");
         mActivity.updatePeers();
     }
 
     public void onP2PConnectionChanged(boolean isConnected) {
         if (isConnected) {
 
-            Logger.log(CommCareWiFiDirectActivity.TAG, "Wifi direct P2P connection changed");
+            Logger.log(TAG, "Wifi direct P2P connection changed");
 
             // we are connected with the other device, request connection
             // info to find group owner IP
-            Log.d(CommCareWiFiDirectActivity.TAG, "requesting connection info activity");
+            Log.d(TAG, "requesting connection info activity");
             mManager.requestConnectionInfo(mChannel, this);
         } else {
             setDeviceConnected(false);
@@ -125,7 +110,7 @@ public class WiFiDirectManagementFragment extends Fragment
         int status = mDevice.status;
 
         if (status == WifiP2pDevice.AVAILABLE && isHost) {
-            Logger.log(CommCareWiFiDirectActivity.TAG, "Relaunching Wi-fi direct group as host");
+            Logger.log(TAG, "Relaunching Wi-fi direct group as host");
             setStatusText("Host relaunching group...");
             mManager.createGroup(mChannel, this);
         }
@@ -141,7 +126,7 @@ public class WiFiDirectManagementFragment extends Fragment
     }
 
     public void resetConnectionGroup() {
-        Logger.log(CommCareWiFiDirectActivity.TAG, "restting connection group");
+        Logger.log(TAG, "restting connection group");
         mManager.removeGroup(mChannel, this);
     }
 
@@ -151,7 +136,7 @@ public class WiFiDirectManagementFragment extends Fragment
     }
 
     public void setIsHost(boolean isHost) {
-        Logger.log(CommCareWiFiDirectActivity.TAG, "setting is host: " + isHost);
+        Logger.log(TAG, "setting is host: " + isHost);
         this.isHost = isHost;
         refreshStatusText();
     }
@@ -165,7 +150,7 @@ public class WiFiDirectManagementFragment extends Fragment
     }
 
     public void startReceiver(WifiP2pManager mManager, Channel mChannel, WiFiDirectBroadcastReceiver mReceiver) {
-        Logger.log(CommCareWiFiDirectActivity.TAG, "Starting receiver");
+        Logger.log(TAG, "Starting receiver");
         this.mReceiver = mReceiver;
         this.mChannel = mChannel;
         this.mManager = mManager;
@@ -222,7 +207,7 @@ public class WiFiDirectManagementFragment extends Fragment
     }
 
     public void setStatusText(String text) {
-        Log.d(CommCareWiFiDirectActivity.TAG, text);
+        Log.d(TAG, text);
         mStatusText.setText(text);
     }
 
