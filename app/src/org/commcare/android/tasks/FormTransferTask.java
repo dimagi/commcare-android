@@ -32,9 +32,9 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
     }
     
     public InputStream getFormInputStream(String fPath) throws FileNotFoundException{
-        Log.d(CommCareWiFiDirectActivity.TAG, "Getting form input stream");
+        Log.d(TAG, "Getting form input stream");
         InputStream is;
-        Log.d(CommCareWiFiDirectActivity.TAG, " fileinptutstream  with filepath: " + fPath);
+        Log.d(TAG, " fileinptutstream  with filepath: " + fPath);
         is = new FileInputStream(fPath);
         return is;
         
@@ -43,17 +43,17 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
     @Override
     protected Boolean doTaskBackground(String... params) {
         
-        Log.d(CommCareWiFiDirectActivity.TAG, " in form transfer onHandle");
+        Log.d(TAG, " in form transfer onHandle");
         
         Socket socket = new Socket();
         InputStream is;
 
         try {
-            Log.d(CommCareWiFiDirectActivity.TAG, "Opening client socket with host: " + host +  " port, " + port);
+            Log.d(TAG, "Opening client socket with host: " + host +  " port, " + port);
             socket.bind(null);
             socket.connect((new InetSocketAddress(host, port)), SOCKET_TIMEOUT);
 
-            Log.d(CommCareWiFiDirectActivity.TAG, "Client socket - " + socket.isConnected());
+            Log.d(TAG, "Client socket - " + socket.isConnected());
             OutputStream stream = socket.getOutputStream();
 
             is = getFormInputStream(filepath);
@@ -62,7 +62,7 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
             return true;
         } catch (IOException ioe) {
             
-            Log.e(CommCareWiFiDirectActivity.TAG, ioe.getMessage());
+            Log.e(TAG, ioe.getMessage());
             publishProgress("Error opening input stream: " + ioe.getMessage());
             
             return false;

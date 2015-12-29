@@ -12,7 +12,6 @@ import android.os.Build;
 import android.util.Log;
 
 import org.commcare.android.framework.WiFiDirectManagementFragment;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -22,6 +21,7 @@ import org.javarosa.core.services.Logger;
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 
+    private static final String TAG = WiFiDirectBroadcastReceiver.class.getSimpleName();
     private final WifiP2pManager manager;
     private final WiFiDirectManagementFragment activity;
 
@@ -39,26 +39,26 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d(CommCareWiFiDirectActivity.TAG, "in on receive ");
+        Log.d(TAG, "in on receive ");
         String action = intent.getAction();
         
-        Logger.log(CommCareWiFiDirectActivity.TAG, "onReceive of BroadCastReceiver with action: " + action);
+        Logger.log(TAG, "onReceive of BroadCastReceiver with action: " + action);
         
         if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
 
             // UI update to indicate wifi p2p status.
             int state = intent.getIntExtra(WifiP2pManager.EXTRA_WIFI_STATE, -1);
             if (state == WifiP2pManager.WIFI_P2P_STATE_ENABLED) {
-                Log.d(CommCareWiFiDirectActivity.TAG, "BR enabled");
+                Log.d(TAG, "BR enabled");
                 // Wifi Direct mode is enabled
                 activity.setIsWifiP2pEnabled(true);
             } else {
-                Log.d(CommCareWiFiDirectActivity.TAG, "BR not enabled");
+                Log.d(TAG, "BR not enabled");
                 activity.setIsWifiP2pEnabled(false);
                 activity.resetData();
 
             }
-            Log.d(CommCareWiFiDirectActivity.TAG, "P2P state changed - " + state);
+            Log.d(TAG, "P2P state changed - " + state);
         } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
 
             // request available peers from the wifi p2p manager. This is an
@@ -69,7 +69,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                 activity.onPeersChanged();
                 
             }
-            Log.d(CommCareWiFiDirectActivity.TAG, "P2P peers changed2");
+            Log.d(TAG, "P2P peers changed2");
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
 
             if (manager == null) {
@@ -82,7 +82,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             activity.onP2PConnectionChanged(networkInfo.isConnected());
 
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
-            Log.d(CommCareWiFiDirectActivity.TAG, "in last else with device: " + intent.getParcelableExtra(
+            Log.d(TAG, "in last else with device: " + intent.getParcelableExtra(
                     WifiP2pManager.EXTRA_WIFI_P2P_DEVICE).toString());
             
             

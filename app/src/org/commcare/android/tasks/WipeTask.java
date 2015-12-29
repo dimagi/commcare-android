@@ -24,6 +24,7 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
         this.c = c;
         this.taskId = WIPE_TASK_ID;
         this.records = records;
+        TAG = WipeTask.class.getSimpleName();
     }
 
     @Override
@@ -41,7 +42,7 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
     @Override
     protected Boolean doTaskBackground(String... params) {
 
-        Log.d(CommCareWiFiDirectActivity.TAG, "doing wipe task in background");
+        Log.d(TAG, "doing wipe task in background");
         for (int i = 0; i < records.length; ++i) {
             FormRecord record = records[i];
             FormRecordCleanupTask.wipeRecord(c, record);
