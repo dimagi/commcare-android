@@ -8,7 +8,7 @@ import android.util.Log;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
@@ -142,7 +142,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             // The cache is a bonus, so if we can't write it, don't crash, but log 
             // it so we can clean up whatever is preventing the cached version from
             // working
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "XForm could not be serialized. Error trace:\n" + ExceptionReportTask.getStackTrace(e));
+            Logger.log(AndroidLogger.TYPE_RESOURCES, "XForm could not be serialized. Error trace:\n" + ExceptionReporting.getStackTrace(e));
         }
 
         fd.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler((Context)activity));
