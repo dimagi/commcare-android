@@ -56,7 +56,6 @@ import org.odk.collect.android.views.media.AudioController;
  */
 public abstract class CommCareActivity<R> extends FragmentActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener {
-    private static final String TAG = CommCareActivity.class.getSimpleName();
 
     private static final String KEY_PROGRESS_DIALOG_FRAG = "progress-dialog-fragment";
     private static final String KEY_ALERT_DIALOG_FRAG = "alert-dialog-fragment";

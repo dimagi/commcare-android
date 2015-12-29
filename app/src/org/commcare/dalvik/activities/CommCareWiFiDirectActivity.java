@@ -189,10 +189,10 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         final WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
 
-        mReceiver = new WiFiDirectBroadcastReceiver(mManager, mChannel, fragment);
+        mReceiver = new WiFiDirectBroadcastReceiver(mManager, fragment);
         registerReceiver(mReceiver, mIntentFilter);
 
-        fragment.startReceiver(mManager, mChannel, mReceiver);
+        fragment.startReceiver(mManager, mChannel);
 
         updateStatusText();
     }
@@ -447,7 +447,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         }
 
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(getApplicationContext(),
+        SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(
                 settings.getString("PostURL", url), receiveFolder){
 
             @Override
@@ -596,13 +596,6 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     }
 
     @Override
-    public void showDetails(WifiP2pDevice device) {
-        DeviceDetailFragment fragment = (DeviceDetailFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.frag_detail);
-        fragment.showDetails(device);
-    }
-
-    @Override
     public void connect(WifiP2pConfig config) {
         Logger.log(TAG, "connecting to wi-fi peer");
 
@@ -621,59 +614,6 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
                         Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    @Override
-    public void disconnect() {
-        Logger.log(TAG, "disconnecting from wi-fi direct group");
-        final DeviceDetailFragment fragment = (DeviceDetailFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.frag_detail);
-        fragment.resetViews();
-        mManager.removeGroup(mChannel, new ActionListener() {
-            @Override
-            public void onFailure(int reasonCode) {
-                Log.d(TAG, "Disconnect failed. Reason :" + reasonCode);
-            }
-            @Override
-            public void onSuccess() {
-                fragment.getView().setVisibility(View.GONE);
-            }
-
-        });
-    }
-
-    @Override
-    public void cancelDisconnect() {
-        //  A cancel abort request by user. Disconnect i.e. removeGroup if
-        //  already connected. Else, request WifiP2pManager to abort the
-        //  ongoing request
-        if (mManager != null) {
-            final DeviceListFragment fragment = (DeviceListFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.frag_list);
-            if (fragment.getDevice() == null
-                    || fragment.getDevice().status == WifiP2pDevice.CONNECTED) {
-                disconnect();
-            } else if (fragment.getDevice().status == WifiP2pDevice.AVAILABLE
-                    || fragment.getDevice().status == WifiP2pDevice.INVITED) {
-
-                mManager.cancelConnect(mChannel, new ActionListener() {
-
-                    @Override
-                    public void onSuccess() {
-                        Toast.makeText(CommCareWiFiDirectActivity.this,
-                                localize("wifi.direct.abort.connect"),
-                                Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onFailure(int reasonCode) {
-                        Toast.makeText(CommCareWiFiDirectActivity.this,
-                                "Connect abort request failed. Reason Code: " + reasonCode,
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        }
     }
 
     public static void deleteIfExists(String filePath){

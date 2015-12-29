@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.util;
 
 import android.graphics.Rect;
@@ -12,11 +9,11 @@ import org.commcare.android.util.DotsData.DotsDay;
  *
  */
 public interface DotsEditListener {
-    public void editDotsDay(int i, Rect datRect);
-    public void editDose(int dayIndex, int regimenIndex, DotsDay day, Rect hitRect);
-    public void doneWithDOTS();
-    public void cancelDayEdit(int day);
-    public void cancelDoseEdit();
-    public void dayEdited(int i, DotsDay day);
-    public void shiftDay(int delta);
+    void editDotsDay(int i, Rect datRect);
+    void editDose(int dayIndex, int regimenIndex, DotsDay day, Rect hitRect);
+    void doneWithDOTS();
+    void cancelDayEdit(int day);
+    void cancelDoseEdit();
+    void dayEdited(int i, DotsDay day);
+    void shiftDay(int delta);
 }

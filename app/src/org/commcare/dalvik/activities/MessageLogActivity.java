@@ -15,11 +15,7 @@ import org.commcare.dalvik.R;
  * @author ctsims
  */
 public class MessageLogActivity extends ListActivity {
-
-    LinearLayout header;
     MessageRecordAdapter messages;
-    
-    boolean isMessages = false;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {

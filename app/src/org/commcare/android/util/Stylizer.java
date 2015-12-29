@@ -47,10 +47,6 @@ public class Stylizer {
         }
     }
 
-    public String getStyle(String key) {
-        return globalStyleTable.get(key);
-    }
-
     public String getStyleString() {
         return globalStyleString;
     }

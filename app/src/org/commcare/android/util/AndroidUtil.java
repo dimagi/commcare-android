@@ -76,41 +76,6 @@ public class AndroidUtil {
         }
     }
 
-    public static void setClickListenersForEverything(Activity activity, ViewGroup v) {
-        if (BuildConfig.DEBUG) {
-            ViewGroup layout = v != null ? v : (ViewGroup) activity.findViewById(android.R.id.content);
-            LinkedList<View> views = new LinkedList<View>();
-            views.add(layout);
-            for (int i = 0; !views.isEmpty(); i++) {
-                View child = views.getFirst();
-                views.removeFirst();
-                Log.i("GetID", "Adding onClickListener to view " + child);
-                child.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String vid;
-                        try {
-                            vid = "View id is: " + v.getResources().getResourceName(v.getId()) + " ( " + v.getId() + " )";
-                        } catch (Resources.NotFoundException excp) {
-                            vid = "View id is: " + v.getId();
-                        }
-                        Log.i("CLK", vid);
-                    }
-                });
-                if (child instanceof ViewGroup) {
-                    ViewGroup vg = (ViewGroup) child;
-                    for (int j = 0; j < vg.getChildCount(); j++) {
-                        View gchild = vg.getChildAt(j);
-                        if (!views.contains(gchild)) views.add(gchild);
-                    }
-                }
-            }
-        }
-    }
-
-    public static void setClickListenersForEverything(Activity act) {
-        setClickListenersForEverything(act, (ViewGroup) act.findViewById(android.R.id.content));
-    }
 
     /**
      * Returns an int array with the color values for the given attributes (R.attr).
