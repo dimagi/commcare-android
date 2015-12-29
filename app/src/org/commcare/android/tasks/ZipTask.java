@@ -132,19 +132,19 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
             // This is not the ideal long term solution for determining whether we need decryption, but works
             if (f.getName().endsWith(".xml")) {
                 try {
-                    Log.d(CommCareWiFiDirectActivity.TAG, "trying zip copy2");
+                    Log.d(TAG, "trying zip copy2");
                     FileUtil.copyFile(f, new File(myDir, f.getName()), decrypter, null);
                 } catch (IOException ie) {
-                    Log.d(CommCareWiFiDirectActivity.TAG, "faield zip copywith2: " + f.getName());
+                    Log.d(TAG, "faield zip copywith2: " + f.getName());
                     publishProgress(("File writing failed: " + ie.getMessage()));
                     return FormUploadUtil.FAILURE;
                 }
             } else {
                 try {
-                    Log.d(CommCareWiFiDirectActivity.TAG, "trying zip copy2");
+                    Log.d(TAG, "trying zip copy2");
                     FileUtil.copyFile(f, new File(myDir, f.getName()));
                 } catch (IOException ie) {
-                    Log.d(CommCareWiFiDirectActivity.TAG, "faield zip copy2 " + f.getName() + "with messageL " + ie.getMessage());
+                    Log.d(TAG, "faield zip copy2 " + f.getName() + "with messageL " + ie.getMessage());
                     publishProgress(("File writing failed: " + ie.getMessage()));
                     return FormUploadUtil.FAILURE;
                 }
@@ -155,7 +155,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 
     private boolean zipTargetFolder(File targetFilePath, String zipFile) throws IOException {
 
-        Log.d(CommCareWiFiDirectActivity.TAG, "827 zipTarggetFolder with tfp: " + targetFilePath.toString() + ", zipFile: " + zipFile);
+        Log.d(TAG, "827 zipTarggetFolder with tfp: " + targetFilePath.toString() + ", zipFile: " + zipFile);
 
         ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFile)));
 
@@ -219,7 +219,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     @Override
     protected FormRecord[] doTaskBackground(String... params) {
 
-        Log.d(CommCareWiFiDirectActivity.TAG, "doing zip task in background");
+        Log.d(TAG, "doing zip task in background");
 
         // ensure that SD is available, writable, and not emulated
 
