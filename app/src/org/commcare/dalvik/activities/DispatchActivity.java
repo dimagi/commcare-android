@@ -35,8 +35,8 @@ public class DispatchActivity extends FragmentActivity {
     public static final int MISSING_MEDIA_ACTIVITY = 256;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onResume() {
+        super.onResume();
 
         dispatch();
     }
@@ -189,8 +189,11 @@ public class DispatchActivity extends FragmentActivity {
                 }
                 break;
             case HOME_SCREEN:
-                finish();
-                return;
+                if (resultCode == RESULT_CANCELED) {
+                    finish();
+                    return;
+                }
+                break;
         }
         super.onActivityResult(requestCode, resultCode, intent);
     }
