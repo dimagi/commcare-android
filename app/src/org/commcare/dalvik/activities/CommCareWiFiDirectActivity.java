@@ -114,16 +114,8 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         stateStatusText = (TextView)this.findViewById(R.id.wifi_state_status);
 
         stateHeaderText = (TextView)this.findViewById(R.id.wifi_state_header);
-        
-        String baseDir = FileUtil.getDumpDirectory(this);
-        
-        if(baseDir == null){
-            Toast.makeText(CommCareWiFiDirectActivity.this, "Wi-Fi Direct Requires an External SD Card",
-                    Toast.LENGTH_LONG).show();
-            this.setResult(RESULT_CANCELED);
-            finish();
-            
-        }
+
+        String baseDir = this.getFilesDir().getAbsolutePath();
         
         baseDirectory = baseDir + "/" + Localization.get("wifi.direct.base.folder");
         sourceDirectory = baseDirectory + "/source";
@@ -423,7 +415,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
         final String url = this.getString(R.string.PostURL);
 
-        File receiveFolder = new File (writeDirectory);
+        File receiveFolder = new File(writeDirectory);
 
         if(!receiveFolder.isDirectory() || !receiveFolder.exists()){
             myStatusText.setText(Localization.get("wifi.direct.submit.missing", new String[] {receiveFolder.getPath()}));
@@ -538,7 +530,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     /* if successful, broadcasts WIFI_P2P_Peers_CHANGED_ACTION intent with list of peers
      * received in WiFiDirectBroadcastReceiver class
      */
-    public void discoverPeers(){
+    public void discoverPeers() {
         Logger.log(TAG, "Discovering Wi-fi direct peers");
 
         WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
@@ -568,11 +560,11 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
                 Logger.log(TAG, "Discovery of Wi-fi peers failed");
 
-                if(reasonCode == 0 || reasonCode == 2){
+                if (reasonCode == 0 || reasonCode == 2) {
                     Toast.makeText(CommCareWiFiDirectActivity.this,
                             localize("wifi.direct.discovery.failed.generic"),
                             Toast.LENGTH_SHORT).show();
-                } else{
+                } else {
                     Toast.makeText(CommCareWiFiDirectActivity.this,
                             localize("wifi.direct.discovery.failed.specific", "" + reasonCode),
                             Toast.LENGTH_SHORT).show();
