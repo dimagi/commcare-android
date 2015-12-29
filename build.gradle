@@ -236,7 +236,7 @@ android {
     buildTypes {
       debug {
         debuggable true
-        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard_debug.cfg'
+        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
       }
 
       release {
