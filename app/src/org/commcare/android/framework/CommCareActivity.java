@@ -806,6 +806,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return MarkupUtil.localizeStyleSpannable(this, key);
     }
 
+    public Spannable localize(String key, String arg) {
+        return MarkupUtil.localizeStyleSpannable(this, key, arg);
+    }
+
+
     public Spannable localize(String key, String[] args) {
         return MarkupUtil.localizeStyleSpannable(this, key, args);
     }
