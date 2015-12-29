@@ -7,6 +7,7 @@ import android.webkit.MimeTypeMap;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
@@ -290,7 +291,7 @@ public class FormUploadUtil {
                         return false;
                     }
                     fb = new EncryptedFileBody(f, FormUploadUtil.getDecryptCipher(key),
-                            "text/xml");
+                            ContentType.TEXT_XML);
                 } else {
                     fb = new FileBody(f, "text/xml");
                 }
