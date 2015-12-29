@@ -1,4 +1,4 @@
-package org.commcare.android.view.c3;
+package org.commcare.graphing.configuration;
 
 import org.commcare.graphing.GraphData;
 import org.json.JSONException;

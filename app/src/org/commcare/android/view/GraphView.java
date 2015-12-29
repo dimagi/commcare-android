@@ -10,13 +10,13 @@ import android.webkit.WebView;
 import android.widget.LinearLayout;
 
 import org.commcare.android.util.InvalidStateException;
-import org.commcare.android.view.c3.AxisConfiguration;
-import org.commcare.android.view.c3.DataConfiguration;
-import org.commcare.android.view.c3.GridConfiguration;
-import org.commcare.android.view.c3.LegendConfiguration;
+import org.commcare.graphing.configuration.AxisConfiguration;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.activities.GraphActivity;
 import org.commcare.graphing.GraphData;
+import org.commcare.graphing.configuration.DataConfiguration;
+import org.commcare.graphing.configuration.GridConfiguration;
+import org.commcare.graphing.configuration.LegendConfiguration;
 import org.javarosa.core.util.OrderedHashtable;
 import org.json.JSONException;
 import org.json.JSONObject;

@@ -146,7 +146,7 @@ android {
        }
     }
 
-    def sourceLocations = ['app/src']
+    def sourceLocations = ['app/src', 'graphing/src']
 
     sourceSets {
       main {

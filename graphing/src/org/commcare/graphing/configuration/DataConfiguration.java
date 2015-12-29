@@ -1,4 +1,4 @@
-package org.commcare.android.view.c3;
+package org.commcare.graphing.configuration;
 
 import android.graphics.Color;
 
