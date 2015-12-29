@@ -82,21 +82,6 @@ public class LegacyTableBuilder {
         return input.replace("-", "_");
     }
 
-    public static Pair<String, String[]> sqlList(Collection<Integer> input) {
-        //I want list comprehensions so bad right now.
-        String ret = "(";
-        for (int i : input) {
-            ret += "?" + ",";
-        }
-
-        String[] array = new String[input.size()];
-        int count = 0;
-        for (Integer i : input) {
-            array[count++] = String.valueOf(i);
-        }
-        return new Pair<String, String[]>(ret.substring(0, ret.length() - 1) + ")", array);
-    }
-
     public String getColumns() {
         String columns = "";
         for (int i = 0; i < rawCols.size(); ++i) {

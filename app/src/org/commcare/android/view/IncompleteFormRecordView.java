@@ -32,8 +32,6 @@ public class IncompleteFormRecordView extends LinearLayout {
 
     Drawable rightHandSync;
 
-    boolean formExists = true;
-
     public IncompleteFormRecordView(Context context, Hashtable<String, Text> names) {
         super(context);
 
@@ -62,7 +60,6 @@ public class IncompleteFormRecordView extends LinearLayout {
             Text name = names.get(record.getFormNamespace());
             mPrimaryTextView.setText(MarkupUtil.styleSpannable(IncompleteFormRecordView.this.getContext(), name.evaluate()));
         } else {
-            formExists = false;
             mPrimaryTextView.setText(MarkupUtil.localizeStyleSpannable(IncompleteFormRecordView.this.getContext(), "form.record.gone"));
         }
 

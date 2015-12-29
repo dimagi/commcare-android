@@ -54,9 +54,7 @@ public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<C
             @Override
             public void onClick(View v) {
                 ConnectionDiagnosticTask<ConnectionDiagnosticActivity> mConnectionDiagnosticTask = 
-                new ConnectionDiagnosticTask<ConnectionDiagnosticActivity>(
-                        getApplicationContext(),
-                        CommCareApplication._().getCurrentApp().getCommCarePlatform()) {
+                new ConnectionDiagnosticTask<ConnectionDiagnosticActivity>(getApplicationContext()) {
                 @Override
                     //<R> receiver, <C> result. 
                     //<C> is the return from DoTaskBackground, of type ArrayList<Boolean>

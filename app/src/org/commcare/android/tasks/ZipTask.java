@@ -62,8 +62,6 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 
     public static final int ZIP_TASK_ID = 72135;
 
-    DataSubmissionListener formSubmissionListener;
-
     public ZipTask(Context c) {
         this.c = c;
         taskId = ZIP_TASK_ID;
@@ -72,10 +70,6 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     @Override
     protected void onProgressUpdate(String... values) {
         super.onProgressUpdate(values);
-    }
-
-    public void setListeners(DataSubmissionListener submissionListener) {
-        this.formSubmissionListener = submissionListener;
     }
 
     @Override
@@ -384,9 +378,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     @Override
     protected void onCancelled() {
         super.onCancelled();
-        if (this.formSubmissionListener != null) {
-            formSubmissionListener.endSubmissionProcess();
-        }
+
         CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
     }
 
