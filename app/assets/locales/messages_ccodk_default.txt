@@ -541,6 +541,52 @@ archive.install.button=Install App
 wifi.direct.transfer.forms=Transfer Forms
 wifi.direct.receive.forms=Receive Forms
 wifi.direct.submit.forms=Submit Forms
+wifi.direct.send.forms=Sending Forms
+wifi.direct.change.state.title=Send, Receive, Submit
+wifi.direct.change.state.text=Do you want to send, receive, or submit forms?
+wifi.direct.wifi.direct.off=WiFi Direct is Off - Please turn it on to use this feature
+wifi.direct.enter.send.mode=Entered Send Mode
+wifi.direct.enter.receive.mode=Entered Receive Mode
+wifi.direct.enter.submit.mode=Entered Submit Mode
+wifi.direct.zip.successful=Zip successful, attempting to send files...
+wifi.direct.zip.unsuccessful=Error zipping files: ${0}
+wifi.direct.zip.unzipping=Zip file exists, unzipping...
+wifi.direct.no.group=This device is not connected to any Wi-Fi Direct group.
+wifi.direct.receive.successful=Received ${0} files successfully!
+wifi.direct.send.successful=File Send Successful!
+wifi.direct.send.unsuccessful=Error sending files: ${0}
+wifi.direct.error.no.forms=Phone has received no forms via Wi-fi direct for Submitting; did you mean to Send forms?
+wifi.direct.discovery.start=Discovery Initiated
+wifi.direct.discovery.failed.generic=Discovery failed due to bad Wi-fi state; turn Wi-fi on and off, then retry
+wifi.direct.discovery.failed.specific=Discovery failed with reason code ${0}
+wifi.direct.connect.failed=Connecting failed, please retry
+wifi.direct.error.wiping.forms=Error wiping forms: ${0}
+
+wifi.direct.zip.task.title=Zipping Forms...
+wifi.direct.zip.task.message=CommCare is compressing your data for transfer
+wifi.direct.unzip.task.title=Unzipping Forms...
+wifi.direct.unzip.task.message=CommCare is decompressing your forms onto your SD card
+wifi.direct.submit.task.title=Submitting Forms...
+wifi.direct.submit.task.message=CommCare is submitting your forms to the server
+wifi.direct.transfer.task.title=Sending Forms...
+wifi.direct.transfer.task.message=CommCare is sending your forms to your peer
+wifi.direct.receive.task.title=Started Receiving Files
+wifi.direct.receive.task.message=CommCare is receiving files
+wifi.direct.wipe.task.title=Wiping Forms
+wifi.direct.wipe.task.message=Cleaning up after transfer
+
+wifi.direct.status.transfer.header=You are in Transfer Form Mode
+wifi.direct.status.transfer.count=Phone has ${0} unsent forms.
+wifi.direct.status.transfer.message=This will allow you to transfer forms from this device to another device via Wi-Fi Direct
+
+wifi.direct.status.receive.header=You are in Receive Form Mode
+wifi.direct.status.receive.count=SD Card has ${0} collected forms.
+wifi.direct.status.receive.message=This will allow you to receive forms on this device from another device via Wi-Fi Direct
+
+wifi.direct.status.submit.header=You are in Submit Form Mode
+wifi.direct.status.submit.count=SD Card has ${0} unsubmitted forms.
+wifi.direct.status.submit.message=This mode will allow you to submit forms to the CommCare Server if you have an internet connection.
+
 
 form.attachment.invalid=Invalid filetype choosen. Please select a valid multimedia file.
 

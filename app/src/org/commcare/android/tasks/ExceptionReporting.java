@@ -1,11 +1,9 @@
 package org.commcare.android.tasks;
 
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.util.Log;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
@@ -31,11 +29,18 @@ import java.util.Date;
  *
  * @author csims@dimagi.com
  **/
-public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
-    private static final String TAG = ExceptionReportTask.class.getSimpleName();
+public class ExceptionReporting {
+    private static final String TAG = ExceptionReporting.class.getSimpleName();
 
-    @Override
-    protected String doInBackground(Throwable... values) {
+    public static void reportExceptionInBg(final Throwable exception) {
+        new Thread(new Runnable() {
+            public void run() {
+                sendExceptionToServer(exception);
+            }
+        }).start();
+    }
+
+    private static void sendExceptionToServer(Throwable exception) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         //TODO: This is ridiculous. Just do the normal log submission process
@@ -46,15 +51,9 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
             report = null;
         }
 
-        String fallbacktext = null;
-        for (Throwable ex : values) {
-            String exceptionText = getStackTrace(ex);
-            if (fallbacktext == null) {
-                fallbacktext = exceptionText;
-            }
-            if (report != null) {
-                report.addReportElement(new AndroidLogSerializer(new AndroidLogEntry("forceclose", exceptionText, new Date())));
-            }
+        String exceptionText = getStackTrace(exception);
+        if (report != null) {
+            report.addReportElement(new AndroidLogSerializer(new AndroidLogEntry("forceclose", exceptionText, new Date())));
         }
 
         byte[] data;
@@ -68,7 +67,7 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
             //_weak_
             e.printStackTrace();
             String fsDate = new Date().toString();
-            data = ("<?xml version='1.0' ?><n0:device_report xmlns:n0=\"http://code.javarosa.org/devicereport\"><device_id>FAILSAFE</device_id><report_date>" + fsDate + "</report_date><log_subreport><log_entry date=\"" + fsDate + "\"><entry_type>forceclose</entry_type><entry_message>" + fallbacktext + "</entry_message></log_entry></log_subreport></device_report>").getBytes();
+            data = ("<?xml version='1.0' ?><n0:device_report xmlns:n0=\"http://code.javarosa.org/devicereport\"><device_id>FAILSAFE</device_id><report_date>" + fsDate + "</report_date><log_subreport><log_entry date=\"" + fsDate + "\"><entry_type>forceclose</entry_type><entry_message>" + exceptionText + "</entry_message></log_entry></log_subreport></device_report>").getBytes();
         }
 
         String URI = CommCareApplication._().getString(R.string.PostURL);
@@ -116,27 +115,24 @@ public class ExceptionReportTask extends AsyncTask<Throwable, String, String> {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             response.getEntity().writeTo(bos);
             Log.d(TAG, "Response: " + new String(bos.toByteArray()));
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //We seem to have to return something...
-        return null;
     }
 
     public static String getStackTrace(Throwable e) {
-        return getStackTrace(e, false);
-    }
-
-    public static String getStackTrace(Throwable e, boolean fullContext) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         e.printStackTrace(new PrintStream(bos));
-        String retString = new String(bos.toByteArray());
-        if (fullContext && e.getCause() != null) {
-            //Because sometimes it doesn't print us enough context.
-            retString += "Sub Context: \n" + getStackTrace(e.getCause(), false);
+        return new String(bos.toByteArray());
+    }
+
+    public static String getStackTraceWithContext(Throwable e) {
+        String stackTrace = getStackTrace(e);
+
+        if (e.getCause() != null) {
+            stackTrace += "Sub Context: \n" + getStackTrace(e.getCause());
         }
-        return retString;
+
+        return stackTrace;
     }
 }

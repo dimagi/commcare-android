@@ -48,6 +48,12 @@ dependencies {
     compile 'joda-time:joda-time:2.3'
     compile 'net.sf.kxml:kxml2:2.3.0'
     compile 'net.zetetic:android-database-sqlcipher:3.3.1-2@aar'
+    compile 'org.apache.james:apache-mime4j:0.7.2'
+    compile('org.apache.httpcomponents:httpmime:4.3.6') {
+        exclude module: 'httpclient'
+    }
+    compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
+    compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
 }
 
 project.ext {

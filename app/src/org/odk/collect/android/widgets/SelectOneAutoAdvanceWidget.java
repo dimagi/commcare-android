@@ -143,11 +143,6 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
         }
     }
     
-    public SelectOneAutoAdvanceWidget(Context context, FormEntryPrompt prompt, WidgetChangedListener wcl) {
-        super(context, prompt, wcl);
-    }
-
-
     @Override
     public void clearAnswer() {
         for (RadioButton button : this.buttons) {

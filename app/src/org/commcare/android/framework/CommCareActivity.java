@@ -56,7 +56,6 @@ import org.odk.collect.android.views.media.AudioController;
  */
 public abstract class CommCareActivity<R> extends FragmentActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener {
-    private static final String TAG = CommCareActivity.class.getSimpleName();
 
     private static final String KEY_PROGRESS_DIALOG_FRAG = "progress-dialog-fragment";
     private static final String KEY_ALERT_DIALOG_FRAG = "alert-dialog-fragment";
@@ -83,7 +82,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * Activity has been put in the background. Flag prevents dialogs
      * from being shown while activity isn't active.
      */
-    private boolean activityPaused;
+    private boolean areFragmentsPaused;
+
+    /**
+     * Mark when task tried to show progress dialog before fragments have resumed,
+     * so that the dialog can be shown when fragments have fully resumed.
+     */
+    private boolean triedBlockingWhilePaused;
 
     /**
      * Store the id of a task progress dialog so it can be disabled/enabled
@@ -253,11 +258,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onResumeFragments() {
         super.onResumeFragments();
 
-        activityPaused = false;
+        areFragmentsPaused = false;
 
-        if (dialogId > -1) {
-            startBlockingForTask(dialogId);
-        }
+        syncTaskBlockingWithDialogFragment();
 
         showPendingAlertDialog();
     }
@@ -270,7 +273,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             managedUiState.setData(ManagedUiFramework.saveUiStateToBundle(this));
         }
 
-        activityPaused = true;
+        areFragmentsPaused = true;
         AudioController.INSTANCE.systemInducedPause();
     }
 
@@ -294,7 +297,22 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected int getWakeLockLevel() {
         return CommCareTask.DONT_WAKELOCK;
     }
-    
+
+    /**
+     * Sync progress dialog fragment with any task state changes that may have
+     * occurred while the activity was paused.
+     */
+    private void syncTaskBlockingWithDialogFragment() {
+        if (dialogId < 0) {
+            // A task may have finished while paused so blindly try
+            // dismissing the progress dialog fragment.
+            dismissProgressDialog();
+        } else if (triedBlockingWhilePaused) {
+            triedBlockingWhilePaused = false;
+            showNewProgressDialog();
+        }
+    }
+
     /*
      * Override these to control the UI for your task
      */
@@ -303,25 +321,30 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public void startBlockingForTask(int id) {
         dialogId = id;
 
-        if (activityPaused) {
-            // don't show the dialog if the activity is in the background
-            return;
+        if (areFragmentsPaused) {
+            // post-pone dialog transactions until after fragments have fully resumed.
+            triedBlockingWhilePaused = true;
+        } else {
+            showNewProgressDialog();
         }
+    }
 
+    private void showNewProgressDialog() {
         // attempt to dismiss the dialog from the last task before showing this
         // one
         attemptDismissDialog();
 
         // ONLY if shouldDismissDialog = true, i.e. if we chose to dismiss the
         // last dialog during transition, show a new one
-        if (id >= 0 && shouldDismissDialog) {
-            this.showProgressDialog(id);
+        if (shouldDismissDialog) {
+            showProgressDialog(dialogId);
         }
     }
 
     @Override
     public void stopBlockingForTask(int id) {
         dialogId = -1;
+
         if (id >= 0) {
             if (inTaskTransition) {
                 shouldDismissDialog = true;
@@ -557,9 +580,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public void showProgressDialog(int taskId) {
-        CustomProgressDialog dialog = generateProgressDialog(taskId);
-        if (dialog != null) {
-            dialog.show(getSupportFragmentManager(), KEY_PROGRESS_DIALOG_FRAG);
+        if (taskId >= 0) {
+            CustomProgressDialog dialog = generateProgressDialog(taskId);
+            if (dialog != null) {
+                dialog.show(getSupportFragmentManager(), KEY_PROGRESS_DIALOG_FRAG);
+            }
         }
     }
 
@@ -572,8 +597,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public void dismissProgressDialog() {
         CustomProgressDialog progressDialog = getCurrentProgressDialog();
-        if (progressDialog != null && progressDialog.isAdded()) {
-            progressDialog.dismissAllowingStateLoss();
+        if (!areFragmentsPaused && progressDialog != null && progressDialog.isAdded()) {
+            progressDialog.dismiss();
         }
     }
 
@@ -604,7 +629,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             return;
         }
         AlertDialogFragment dialog = AlertDialogFragment.fromFactory(f);
-        if (activityPaused) {
+        if (areFragmentsPaused) {
             dialogToShowOnResume = dialog;
         } else {
             dialog.show(getSupportFragmentManager(), KEY_ALERT_DIALOG_FRAG);
@@ -780,6 +805,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return MarkupUtil.localizeStyleSpannable(this, key);
     }
 
+    public Spannable localize(String key, String arg) {
+        return MarkupUtil.localizeStyleSpannable(this, key, arg);
+    }
+
+
     public Spannable localize(String key, String[] args) {
         return MarkupUtil.localizeStyleSpannable(this, key, args);
     }
@@ -795,7 +825,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * Activity has been put in the background. Useful in knowing when to not
      * perform dialog or fragment transactions
      */
-    protected boolean isActivityPaused() {
-        return activityPaused;
+    protected boolean areFragmentsPaused() {
+        return areFragmentsPaused;
     }
 }

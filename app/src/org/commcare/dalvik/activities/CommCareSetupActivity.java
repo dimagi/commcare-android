@@ -268,7 +268,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void uiStateScreenTransition() {
-        if (isActivityPaused()) {
+        if (areFragmentsPaused()) {
             // Don't perform fragment transactions when the activity isn't visible
             return;
         }

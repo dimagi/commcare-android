@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.android.util;
 
 import org.commcare.android.logic.GlobalConstants;
@@ -15,14 +12,10 @@ import org.commcare.resources.model.ResourceInstaller;
 
 /**
  * @author ctsims
- *
  */
 public class AndroidResourceInstallerFactory extends InstallerFactory {
 
-    CommCareApp app;
-    
-    public AndroidResourceInstallerFactory(CommCareApp app ) {
-        this.app = app;
+    public AndroidResourceInstallerFactory() {
     }
     
     @Override

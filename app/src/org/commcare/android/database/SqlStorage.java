@@ -9,7 +9,7 @@ import net.sqlcipher.database.SQLiteStatement;
 
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.services.Logger;
@@ -252,7 +252,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     private RuntimeException logAndWrap(Exception e, String message) {
         RuntimeException re = new RuntimeException(message + " while inflating type " + ctype.getName());
         re.initCause(e);
-        Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, ExceptionReportTask.getStackTrace(re, true));
+        Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, ExceptionReporting.getStackTraceWithContext(re));
         return re;
     }
 

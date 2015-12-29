@@ -68,12 +68,13 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
     @Override
     protected void onPostExecute(C result) {
         super.onPostExecute(result);
+
         synchronized (connectorLock) {
             //TODO: extend blocking here?
             CommCareTaskConnector<R> connector = getConnector();
             if (connector != null) {
                 connector.startTaskTransition();
-                connector.stopBlockingForTask(getTaskId());
+                connector.stopBlockingForTask(taskId);
                 if (unknownError != null) {
                     deliverError(connector.getReceiver(), unknownError);
                     return;
