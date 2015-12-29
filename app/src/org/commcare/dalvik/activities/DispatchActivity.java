@@ -10,34 +10,37 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.application.InitializationHelper;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 /**
+ * Dispatches install, login, and home screen activities.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class DispatchActivity extends FragmentActivity {
     private static final String SESSION_REQUEST = "ccodk_session_request";
-
     public static final String WAS_EXTERNAL = "launch_from_external";
     public static final String WAS_SHORTCUT_LAUNCH = "launch_from_shortcut";
     public static final String START_FROM_LOGIN = "process_successful_login";
 
-    public static final int DIALOG_CORRUPTED = 1;
+    private static final int DIALOG_CORRUPTED = 1;
 
     private static final int LOGIN_USER = 0;
     private static final int HOME_SCREEN = 1;
-    public static final int INIT_APP = 8;
+    public static final int INIT_APP = 2;
+
     /**
-     * Request code for automatically validating media from home dispatch.
+     * Request code for automatically validating media.
      * Should signal a return from CommCareVerificationActivity.
      */
-    public static final int MISSING_MEDIA_ACTIVITY = 256;
+    public static final int MISSING_MEDIA_ACTIVITY = 4;
+
     private boolean startFromLogin;
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
@@ -54,7 +57,7 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void dispatch() {
-        if (InitializationHelper.isDbInBadState(this)) {
+        if (isDbInBadState()) {
             // approrpiate error dialog has been triggered, don't continue w/ dispatch
             return;
         }
@@ -76,10 +79,10 @@ public class DispatchActivity extends FragmentActivity {
             try {
                 ApplicationRecord currentRecord = currentApp.getAppRecord();
                 if (currentApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
-                    // Path 1a: The seated app is damaged or corrupted
-                    InitializationHelper.handleDamagedApp(this);
+                    // The seated app is damaged or corrupted
+                    handleDamagedApp();
                 } else if (!currentRecord.isUsable()) {
-                    // Path 1b: The seated app is unusable (means either it is archived or is
+                    // The seated app is unusable (means either it is archived or is
                     // missing its MM or both)
                     boolean unseated = handleUnusableApp(currentRecord);
                     if (unseated) {
@@ -87,24 +90,64 @@ public class DispatchActivity extends FragmentActivity {
                         dispatch();
                     }
                 } else if (!CommCareApplication._().getSession().isActive()) {
-                    // Path 1c: The user is not logged in
-                    launchLogin();
+                    // The user is not logged in
+                    launchLoginScreen();
                 } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
-                    // Path 1d: CommCare was launched from an external app, with a session descriptor
+                    // CommCare was launched from an external app, with a session descriptor
                     handleExternalLaunch();
                 } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
-                    // Path 1e: CommCare was launched from a shortcut
+                    // CommCare was launched from a shortcut
                     handleShortcutLaunch();
                 } else {
                     launchHomeScreen();
                 }
             } catch (SessionUnavailableException sue) {
-                launchLogin();
+                launchLoginScreen();
             }
         }
     }
 
-    public void launchLogin() {
+    public boolean isDbInBadState() {
+        int dbState = CommCareApplication._().getDatabaseState();
+        if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
+            CommCareApplication._().triggerHandledAppExit(this,
+                    getString(R.string.migration_definite_failure),
+                    getString(R.string.migration_failure_title), false);
+            return true;
+        } else if (dbState == CommCareApplication.STATE_MIGRATION_QUESTIONABLE) {
+            CommCareApplication._().triggerHandledAppExit(this,
+                    getString(R.string.migration_possible_failure),
+                    getString(R.string.migration_failure_title), false);
+            return true;
+        } else if (dbState == CommCareApplication.STATE_CORRUPTED) {
+            handleDamagedApp();
+            return true;
+        }
+        return false;
+    }
+
+    public void handleDamagedApp() {
+        if (!CommCareApplication._().isStorageAvailable()) {
+            createNoStorageDialog();
+        } else {
+            // See if we're logged in. If so, prompt for recovery.
+            try {
+                CommCareApplication._().getSession();
+                showDialog(DIALOG_CORRUPTED);
+            } catch (SessionUnavailableException e) {
+                // Otherwise, log in first
+                launchLoginScreen();
+            }
+        }
+    }
+
+    private void createNoStorageDialog() {
+        CommCareApplication._().triggerHandledAppExit(this,
+                Localization.get("app.storage.missing.message"),
+                Localization.get("app.storage.missing.title"));
+    }
+
+    private void launchLoginScreen() {
         Intent i = new Intent(this, LoginActivity.class);
         i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, userTriggeredLogout);
         startActivityForResult(i, LOGIN_USER);
@@ -184,11 +227,11 @@ public class DispatchActivity extends FragmentActivity {
     private boolean triggerLoginIfNeeded() {
         try {
             if (!CommCareApplication._().getSession().isActive()) {
-                launchLogin();
+                launchLoginScreen();
                 return true;
             }
         } catch (SessionUnavailableException e) {
-            launchLogin();
+            launchLoginScreen();
             return true;
         }
         return false;
@@ -234,6 +277,14 @@ public class DispatchActivity extends FragmentActivity {
         super.onActivityResult(requestCode, resultCode, intent);
     }
 
+    protected Dialog onCreateDialog(int id) {
+        if (id == DIALOG_CORRUPTED) {
+            return createAskFixDialog();
+        } else {
+            return null;
+        }
+    }
+
     private Dialog createAskFixDialog() {
         //TODO: Localize this in theory, but really shift it to the upgrade/management state
         String title = "Storage is Corrupt :/";
@@ -257,11 +308,4 @@ public class DispatchActivity extends FragmentActivity {
         factory.setNegativeButton("Shut Down", listener);
         return factory.getDialog();
     }
-
-    protected Dialog onCreateDialog(int id) {
-        if (id == DIALOG_CORRUPTED) {
-            return createAskFixDialog();
-        } else return null;
-    }
-
 }

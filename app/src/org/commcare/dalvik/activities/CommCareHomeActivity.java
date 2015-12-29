@@ -155,52 +155,9 @@ public class CommCareHomeActivity
         sessionNavigator = new SessionNavigator(this);
         formAndDataSyncer = new FormAndDataSyncer(this);
 
-        processExternalCall(savedInstanceState);
-
-        if (getIntent().getBooleanExtra(DispatchActivity.WAS_SHORTCUT_LAUNCH, false)) {
-            sessionNavigator.startNextSessionStep();
-        }
-
-        if (getIntent().getBooleanExtra(DispatchActivity.START_FROM_LOGIN, false)) {
-            getIntent().removeExtra(DispatchActivity.START_FROM_LOGIN);
-            startedFromLoginScreen();
-        }
-    }
-
-    /**
-     * Set state that signifies activity was launch from external app.
-     */
-    private void processExternalCall(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            wasExternal = savedInstanceState.getBoolean("was_external");
-        } else {
-            if (getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
-                wasExternal = true;
-                sessionNavigator.startNextSessionStep();
-            }
-        }
-    }
-
-    private void startedFromLoginScreen() {
-        CommCareSession session = CommCareApplication._().getCurrentSession();
-        if (session.getCommand() != null) {
-            // restore the session state if there is a command.
-            // For debugging and occurs when a serialized
-            // session is stored upon login
-            sessionNavigator.startNextSessionStep();
-            return;
-        }
-
-        //Unless we're about to sync (which will hanjdle this
-        //in a blocking fashion), trigger off a regular unsent
-        //task processor
-        if (!CommCareApplication._().isSyncPending(false)) {
-            checkAndStartUnsentFormsTask(false, false);
-        }
-
-        if (CommCareHomeActivity.isDemoUser()) {
-            showDemoModeWarning();
-        }
+        processFromExternalLaunch(savedInstanceState);
+        processFromShortcutLaunch();
+        processFromLoginLaunch();
     }
 
     /**
@@ -218,9 +175,54 @@ public class CommCareHomeActivity
                 finish();
                 return true;
             }
-            return false;
         }
         return false;
+    }
+
+    /**
+     * Set state that signifies activity was launch from external app.
+     */
+    private void processFromExternalLaunch(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            wasExternal = savedInstanceState.getBoolean("was_external");
+        } else {
+            if (getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
+                wasExternal = true;
+                sessionNavigator.startNextSessionStep();
+            }
+        }
+    }
+
+    private void processFromShortcutLaunch() {
+        if (getIntent().getBooleanExtra(DispatchActivity.WAS_SHORTCUT_LAUNCH, false)) {
+            sessionNavigator.startNextSessionStep();
+        }
+    }
+
+    private void processFromLoginLaunch() {
+        if (getIntent().getBooleanExtra(DispatchActivity.START_FROM_LOGIN, false)) {
+            getIntent().removeExtra(DispatchActivity.START_FROM_LOGIN);
+
+            CommCareSession session = CommCareApplication._().getCurrentSession();
+            if (session.getCommand() != null) {
+                // restore the session state if there is a command.
+                // For debugging and occurs when a serialized
+                // session is stored upon login
+                sessionNavigator.startNextSessionStep();
+                return;
+            }
+
+            //Unless we're about to sync (which will hanjdle this
+            //in a blocking fashion), trigger off a regular unsent
+            //task processor
+            if (!CommCareApplication._().isSyncPending(false)) {
+                checkAndStartUnsentFormsTask(false, false);
+            }
+
+            if (CommCareHomeActivity.isDemoUser()) {
+                showDemoModeWarning();
+            }
+        }
     }
 
     protected void goToFormArchive(boolean incomplete) {
