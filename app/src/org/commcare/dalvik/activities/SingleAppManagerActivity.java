@@ -250,7 +250,7 @@ public class SingleAppManagerActivity extends Activity {
      */
     private void rebootCommCare() {
         Context c = getApplicationContext();
-        Intent i = new Intent(c, CommCareHomeActivity.class);
+        Intent i = new Intent(c, DispatchActivity.class);
         int mPendingIntentId = 123456;
         PendingIntent mPendingIntent = PendingIntent.getActivity(c, mPendingIntentId, i,
                 PendingIntent.FLAG_CANCEL_CURRENT);

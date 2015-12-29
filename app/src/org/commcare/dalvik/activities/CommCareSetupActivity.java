@@ -219,7 +219,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         // 1 or more available apps, we want to redirect to CCHomeActivity
         if (!fromManager && !fromExternal &&
                 CommCareApplication._().usableAppsPresent()) {
-            Intent i = new Intent(this, CommCareHomeActivity.class);
+            Intent i = new Intent(this, DispatchActivity.class);
             startActivity(i);
         }
 
@@ -578,7 +578,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     /**
-     * Return to or launch home activity.
+     * Return to or launch dispatch activity.
      *
      * @param requireRefresh should the user be logged out upon returning to
      *                       home activity?
@@ -587,7 +587,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void done(boolean requireRefresh, boolean failed) {
         if (Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
-            Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
+            Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
             startActivity(i);
         } else {

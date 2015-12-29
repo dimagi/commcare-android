@@ -341,7 +341,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         // either case
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
         if (currentApp == null || !currentApp.getAppRecord().isUsable()) {
-            Intent i = new Intent(this, CommCareHomeActivity.class);
+            Intent i = new Intent(this, DispatchActivity.class);
             startActivity(i);
             return;
         }

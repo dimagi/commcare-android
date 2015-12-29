@@ -2,7 +2,6 @@ package org.commcare.dalvik.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -45,7 +44,6 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.application.InitializationHelper;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogCreationHelpers;
@@ -157,6 +155,22 @@ public class CommCareHomeActivity
         sessionNavigator = new SessionNavigator(this);
         formAndDataSyncer = new FormAndDataSyncer(this);
 
+        processExternalCall(savedInstanceState);
+
+        if (getIntent().getBooleanExtra(DispatchActivity.WAS_SHORTCUT_LAUNCH, false)) {
+            sessionNavigator.startNextSessionStep();
+        }
+
+        if (getIntent().getBooleanExtra(DispatchActivity.START_FROM_LOGIN, false)) {
+            getIntent().removeExtra(DispatchActivity.START_FROM_LOGIN);
+            startedFromLoginScreen();
+        }
+    }
+
+    /**
+     * Set state that signifies activity was launch from external app.
+     */
+    private void processExternalCall(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             wasExternal = savedInstanceState.getBoolean("was_external");
         } else {
@@ -165,18 +179,9 @@ public class CommCareHomeActivity
                 sessionNavigator.startNextSessionStep();
             }
         }
-
-        if (getIntent().getBooleanExtra(DispatchActivity.WAS_SHORTCUT_LAUNCH, false)) {
-            sessionNavigator.startNextSessionStep();
-        }
-
-        if (getIntent().getBooleanExtra(DispatchActivity.START_FROM_LOGIN, false)) {
-            getIntent().removeExtra(DispatchActivity.START_FROM_LOGIN);
-            startFromLogin();
-        }
     }
 
-    private void startFromLogin() {
+    private void startedFromLoginScreen() {
         CommCareSession session = CommCareApplication._().getCurrentSession();
         if (session.getCommand() != null) {
             // restore the session state if there is a command.
@@ -186,7 +191,7 @@ public class CommCareHomeActivity
             return;
         }
 
-        //Unless we're about to sync (which will handle this
+        //Unless we're about to sync (which will hanjdle this
         //in a blocking fashion), trigger off a regular unsent
         //task processor
         if (!CommCareApplication._().isSyncPending(false)) {
