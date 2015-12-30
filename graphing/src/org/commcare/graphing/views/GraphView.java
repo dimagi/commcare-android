@@ -108,11 +108,11 @@ public class GraphView {
             html.append(
                     "<html>" +
                             "<head>" +
-                            "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/c3.min.css'></link>" +
-                            "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.css'></link>" +
-                            "<script type='text/javascript' src='file:///android_asset/graphing/errors.js'></script>" +
-                            "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
-                            "<script type='text/javascript' src='file:///android_asset/graphing/c3.min.js' charset='utf-8'></script>" +
+                            "<link rel='stylesheet' type='text/css' href='file:///android_asset/c3.min.css'></link>" +
+                            "<link rel='stylesheet' type='text/css' href='file:///android_asset/graph.css'></link>" +
+                            "<script type='text/javascript' src='file:///android_asset/errors.js'></script>" +
+                            "<script type='text/javascript' src='file:///android_asset/d3.min.js'></script>" +
+                            "<script type='text/javascript' src='file:///android_asset/c3.min.js' charset='utf-8'></script>" +
                             "<script type='text/javascript'>try {\n");
 
             html.append(getVariablesHTML(variables, null));
@@ -126,7 +126,7 @@ public class GraphView {
             String chartHTML = "<div id='chart'></div>";
             html.append(
                     "\n} catch (e) { displayError(e); }</script>" +
-                            "<script type='text/javascript' src='file:///android_asset/graphing/graph.js'></script>" +
+                            "<script type='text/javascript' src='file:///android_asset/graph.js'></script>" +
                             "</head>" +
                             "<body>" + titleHTML + errorHTML + chartHTML + "</body>" +
                             "</html>");

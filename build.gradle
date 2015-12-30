@@ -157,7 +157,7 @@ android {
         aidl.srcDirs = ['app/src']
         renderscript.srcDirs = ['app/src']
         res.srcDirs = ['app/res']
-        assets.srcDirs = ['app/assets']
+        assets.srcDirs = ['app/assets', 'graphing/assets']
       }
 
       standalone {
