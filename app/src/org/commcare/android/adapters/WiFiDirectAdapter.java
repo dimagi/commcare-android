@@ -8,7 +8,6 @@ import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.util.DisplayMetrics;
 import android.util.StateSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,10 +18,6 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 
 import java.util.ArrayList;
-import java.util.Vector;
-
-import static org.commcare.dalvik.activities.CommCareWiFiDirectActivity.wdState.send;
-import static org.commcare.dalvik.activities.CommCareWiFiDirectActivity.wdState.submit;
 
 /**
  * Created by willpride on 12/29/15.
