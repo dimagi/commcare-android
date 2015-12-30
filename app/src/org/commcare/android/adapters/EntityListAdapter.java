@@ -249,7 +249,7 @@ public class EntityListAdapter implements ListAdapter {
                         String field = e.getNormalizedField(i);
                         if (!"".equals(field) && field.toLowerCase(currentLocale).contains(filter)) {
                             add = true;
-                            continue filter;
+                            break filter;
                         } else {
                             // We possibly now want to test for edit distance for
                             // fuzzy matching
@@ -259,14 +259,11 @@ public class EntityListAdapter implements ListAdapter {
                                     if (match.first) {
                                         add = true;
                                         score += match.second;
-                                        continue filter;
+                                        break filter;
                                     }
                                 }
                             }
                         }
-                    }
-                    if (!add) {
-                        break;
                     }
                 }
                 if (add) {
