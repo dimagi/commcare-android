@@ -148,7 +148,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         grid.setHasFixedSize(true);
 
         StaggeredGridLayoutManager gridView =
-                new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+                new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
         grid.setLayoutManager(gridView);
         grid.setItemAnimator(null);
         grid.setAdapter(adapter);
