@@ -5,6 +5,7 @@ import android.util.Log;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.javarosa.core.services.Logger;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -68,7 +69,7 @@ public class EncryptionIO {
             if (symetricKey != null) {
                 Cipher cipher = Cipher.getInstance("AES");
                 cipher.init(Cipher.DECRYPT_MODE, symetricKey);
-                is = new CipherInputStream(is, cipher);
+                is = new BufferedInputStream(new CipherInputStream(is, cipher));
             }
 
             //CTS - Removed a lot of weird checks  here. file size < max int? We're shoving this

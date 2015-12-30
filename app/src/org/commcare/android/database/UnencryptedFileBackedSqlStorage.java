@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 
+import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -31,7 +32,7 @@ public class UnencryptedFileBackedSqlStorage<T extends Persistable>
     @Override
     protected InputStream getInputStreamFromFile(String filename, byte[] aesKeyBytes) {
         try {
-            return new FileInputStream(filename);
+            return new BufferedInputStream(new FileInputStream(filename));
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e.getMessage());
         }
