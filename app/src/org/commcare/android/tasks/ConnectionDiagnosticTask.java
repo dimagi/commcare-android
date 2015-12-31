@@ -193,11 +193,10 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
                 try {
                     stream.close();
                 } catch (IOException e) {
-                    StringBuilder out = new StringBuilder(logCCIOErrorMessage);
-                    out.append(System.getProperty("line.separator"));
-                    out.append("Stack trace: ");
-                    out.append(ExceptionReporting.getStackTrace(e));
-                    Logger.log(CONNECTION_DIAGNOSTIC_REPORT, out.toString());
+                    String out = logCCIOErrorMessage + System.getProperty("line.separator") +
+                            "Stack trace: " +
+                            ExceptionReporting.getStackTrace(e);
+                    Logger.log(CONNECTION_DIAGNOSTIC_REPORT, out);
                     return false;
                 }
             }

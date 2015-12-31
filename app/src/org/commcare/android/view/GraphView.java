@@ -151,16 +151,16 @@ public class GraphView {
         StringBuilder html = new StringBuilder();
         Enumeration<String> e = variables.keys();
         if (namespace != null && !namespace.equals("")) {
-            html.append("var " + namespace + " = {};\n");
+            html.append("var ").append(namespace).append(" = {};\n");
         }
         while (e.hasMoreElements()) {
             String name = e.nextElement();
             if (namespace == null || namespace.equals("")) {
-                html.append("var " + name);
+                html.append("var ").append(name);
             } else {
-                html.append(namespace + "." + name);
+                html.append(namespace).append(".").append(name);
             }
-            html.append(" = " + variables.get(name) + ";\n");
+            html.append(" = ").append(variables.get(name)).append(";\n");
         }
         return html.toString();
     }

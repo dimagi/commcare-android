@@ -108,7 +108,7 @@ public class HttpRequestGenerator {
         //May need to manually process a valid redirect
         if (response.getStatusLine().getStatusCode() == 301) {
             String newGetUri = request.getURI().toString();
-            Log.d(LOG_COMMCARE_NETWORK, "Following valid redirect from " + uri.toString() + " to " + newGetUri);
+            Log.d(LOG_COMMCARE_NETWORK, "Following valid redirect from " + uri + " to " + newGetUri);
             request.abort();
 
             //Make a new response to the redirect
