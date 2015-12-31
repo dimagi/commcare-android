@@ -1,0 +1,109 @@
+<h:html xmlns="http://www.w3.org/2002/xforms" xmlns:h="http://www.w3.org/1999/xhtml"
+        xmlns:jr="http://openrosa.org/javarosa" xmlns:orx="http://openrosa.org/jr/xforms"
+        xmlns:vellum="http://commcarehq.org/xforms/vellum" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <h:head>
+        <h:title>1. Registration</h:title>
+        <model>
+            <instance>
+                <data name="1. Registration"
+                      uiVersion="1"
+                      version="1" xmlns="http://openrosa.org/formdesigner/47B9C4D7-6034-4D0E-849B-9A727F9E58EA" xmlns:jrm="http://dev.commcarehq.org/jr/xforms">
+                    <Registration>
+                        <cohort/>
+                    </Registration>
+                    <name/>
+                    <now/>
+                    <reg_comp/>
+                    <case case_id="" date_modified=""
+                          user_id="" xmlns="http://commcarehq.org/case/transaction/v2">
+                        <create>
+                            <case_name/>
+                            <owner_id/>
+                            <case_type>followup</case_type>
+                        </create>
+                        <update>
+                            <name/>
+                            <now/>
+                        </update>
+                        <index>
+                            <parent case_type="worker">worker_two</parent>
+                        </index>
+                    </case>
+                    <orx:meta xmlns:cc="http://commcarehq.org/xforms">
+                        <orx:deviceID/>
+                        <orx:timeStart/>
+                        <orx:timeEnd/>
+                        <orx:username/>
+                        <orx:userID/>
+                        <orx:instanceID/>
+                        <cc:appVersion/>
+                    </orx:meta>
+                </data>
+            </instance>
+            <instance id="commcaresession" src="jr://instance/session"/>
+            <bind nodeset="/data/Registration"/>
+            <bind constraint=". = 1 or . = 2" nodeset="/data/Registration/cohort" type="xsd:int"
+                  jr:constraintMsg="jr:itext('Registration/cohort-constraintMsg')"/>
+            <bind calculate="double(now())" nodeset="/data/now"/>
+            <bind calculate="'phillip'" nodeset="/data/name"/>
+            <bind nodeset="/data/reg_comp"/>
+            <itext>
+                <translation default="" lang="en">
+                    <text id="Registration-label">
+                        <value>Registration</value>
+                    </text>
+                    <text id="Registration/cohort-label">
+                        <value>COHORT #</value>
+                    </text>
+                    <text id="Registration/cohort-hint">
+                        <value>Either Cohort 1 or Cohort 2</value>
+                    </text>
+                    <text id="Registration/cohort-constraintMsg">
+                        <value>Select 1 or 2</value>
+                    </text>
+                    <text id="reg_comp-label">
+                        <value>Registration Complete?
+                            Check for the presence of others. Before continuing make every effort to
+                            ensure **privacy**.
+                        </value>
+                    </text>
+                </translation>
+            </itext>
+            <bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified"
+                  type="xsd:dateTime"/>
+            <bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/>
+            <setvalue event="xforms-ready" ref="/data/case/@case_id"
+                      value="'constant_id'"/>
+            <bind calculate="/data/meta/userID" nodeset="/data/case/create/owner_id"/>
+            <bind calculate="/data/now" nodeset="/data/case/update/now"
+                  relevant="count(/data/now) &gt; 0"/>
+            <bind calculate="/data/name" nodeset="/data/case/update/name" />
+            <setvalue event="xforms-ready" ref="/data/meta/deviceID"
+                      value="instance('commcaresession')/session/context/deviceid"/>
+            <setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/>
+            <bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/>
+            <setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/>
+            <bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/>
+            <setvalue event="xforms-ready" ref="/data/meta/username"
+                      value="instance('commcaresession')/session/context/username"/>
+            <setvalue event="xforms-ready" ref="/data/meta/userID"
+                      value="instance('commcaresession')/session/context/userid"/>
+            <setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/>
+            <setvalue event="xforms-ready" ref="/data/meta/appVersion"
+                      value="instance('commcaresession')/session/context/appversion"/>
+        </model>
+    </h:head>
+    <h:body>
+        <group appearance="field-list" ref="/data/Registration">
+            <label ref="jr:itext('Registration-label')"/>
+            <input ref="/data/Registration/cohort">
+                <label ref="jr:itext('Registration/cohort-label')"/>
+                <hint ref="jr:itext('Registration/cohort-hint')">Select 1 or 2</hint>
+                <alert ref="jr:itext('Registration/cohort-constraintMsg')"/>
+            </input>
+        </group>
+        <trigger ref="/data/reg_comp">
+            <label ref="jr:itext('reg_comp-label')"/>
+        </trigger>
+    </h:body>
+</h:html>
