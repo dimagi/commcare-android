@@ -114,12 +114,12 @@ public class EntityDetailView extends FrameLayout {
         callout = (Button)detailRow.findViewById(R.id.detail_value_phone);
         //TODO: Still useful?
         //callout.setInputType(InputType.TYPE_CLASS_PHONE);
-        addressView = (View)detailRow.findViewById(R.id.detail_address_view);
+        addressView = detailRow.findViewById(R.id.detail_address_view);
         addressText = (TextView)addressView.findViewById(R.id.detail_address_text);
         addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
         imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
         graphLayout = (AspectRatioLayout)detailRow.findViewById(R.id.graph);
-        calloutView = (View)detailRow.findViewById(R.id.callout_view);
+        calloutView = detailRow.findViewById(R.id.callout_view);
         calloutText = (TextView)detailRow.findViewById(R.id.callout_text);
         calloutButton = (Button)detailRow.findViewById(R.id.callout_button);
         calloutImageButton = (ImageButton)detailRow.findViewById(R.id.callout_image_button);

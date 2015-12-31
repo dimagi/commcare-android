@@ -42,7 +42,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         this.helper = helper;
 
         try {
-            T e = (T) ctype.newInstance();
+            T e = ctype.newInstance();
             if (e instanceof EncryptedModel) {
                 em = (EncryptedModel) e;
             }
@@ -152,7 +152,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     public T newObject(byte[] data) {
         try {
-            T e = (T) ctype.newInstance();
+            T e = ctype.newInstance();
             e.readExternal(new DataInputStream(new ByteArrayInputStream(data)), helper.getPrototypeFactory());
 
             return e;

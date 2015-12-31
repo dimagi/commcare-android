@@ -109,7 +109,7 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
 
             DateTime ldt =
                 new DateTime(
-                        ((Date) ((DateTimeData) getCurrentAnswer()).getValue()).getTime());
+                        ((Date) getCurrentAnswer().getValue()).getTime());
             mDatePicker.init(ldt.getYear(), ldt.getMonthOfYear() - 1, ldt.getDayOfMonth(),
                 mDateListener);
             

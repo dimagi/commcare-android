@@ -114,7 +114,7 @@ public class FixtureDataContentProvider extends ContentProvider {
 
                     DataModelSerializer s = new DataModelSerializer(bos, new AndroidInstanceInitializer(null));
 
-                    s.serialize((DataInstance)fi, fi.getRoot().getRef());
+                    s.serialize(fi, fi.getRoot().getRef());
 
                     String dump = new String(bos.toByteArray());
 

@@ -113,8 +113,8 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
             Overlay mGeoPointOverlay = new Marker(mGeoPoint);
             mMapView.getOverlays().add(mGeoPointOverlay);
 
-            ((Button) findViewById(R.id.accept_location)).setVisibility(View.GONE);
-            ((TextView) findViewById(R.id.location_status)).setVisibility(View.GONE);
+            findViewById(R.id.accept_location).setVisibility(View.GONE);
+            findViewById(R.id.location_status).setVisibility(View.GONE);
             Button mShowLocation = ((Button)findViewById(R.id.show_location));
             mShowLocation.setVisibility(View.VISIBLE);
             mShowLocation.setOnClickListener(new OnClickListener() {

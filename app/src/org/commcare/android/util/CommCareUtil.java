@@ -31,7 +31,7 @@ public class CommCareUtil {
         ///... Nooooot so clean.
         if(userFixtures.size() == 1) {
             //easy case, one fixture, use it
-            return (FormInstance)userFixtureStorage.read(userFixtures.elementAt(0));
+            return userFixtureStorage.read(userFixtures.elementAt(0));
             //TODO: Userid check anyway?
         } else if(userFixtures.size() > 1){
             //intersect userid and fixtureid set.
@@ -42,7 +42,7 @@ public class CommCareUtil {
             if(relevantUserFixtures.size() != 0) {
                 Integer userFixture = ArrayUtilities.intersectSingle(userFixtures, relevantUserFixtures);
                 if(userFixture != null) {
-                    return (FormInstance)userFixtureStorage.read(userFixture);
+                    return userFixtureStorage.read(userFixture);
                 }
             }
         }
@@ -51,12 +51,12 @@ public class CommCareUtil {
         Vector<Integer> appFixtures = appFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
         Integer globalFixture = ArrayUtilities.intersectSingle(appFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, ""), appFixtures);
         if(globalFixture != null) {
-            return (FormInstance)appFixtureStorage.read(globalFixture);
+            return appFixtureStorage.read(globalFixture);
         } else {
             //See if we have one manually placed in the suite
             Integer userFixture = ArrayUtilities.intersectSingle(appFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, userId), appFixtures);
             if(userFixture != null) {
-                return (FormInstance)appFixtureStorage.read(userFixture);
+                return appFixtureStorage.read(userFixture);
             }
             //Otherwise, nothing
             return null;

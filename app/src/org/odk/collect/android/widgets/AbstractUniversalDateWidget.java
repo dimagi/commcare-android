@@ -397,7 +397,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
 
         if (mPrompt.getAnswerValue() != null) {
             // setup date object
-            Date date = ((Date) ((DateData) mPrompt.getAnswerValue()).getValue());
+            Date date = (Date) mPrompt.getAnswerValue().getValue();
 
             // find out what the same instant is using the other chronology
             long millisFromJavaEpoch = date.getTime();
