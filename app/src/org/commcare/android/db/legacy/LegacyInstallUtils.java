@@ -573,8 +573,6 @@ public class LegacyInstallUtils {
 
             olddb.close();
             currentUserDatabase.close();
-        } finally {
-
         }
     }
 
