@@ -222,10 +222,8 @@ public class DotsData {
                     //actually pointing to something already 
                     if(defaultIndex == -1 || boxes[i][defaultIndex].doseLabel == -1) {
                         retVal[i] = defaultIndex;
-                        continue;
                     } else {
                         retVal[i] = -1;
-                        continue;
                     }
                 }
             }

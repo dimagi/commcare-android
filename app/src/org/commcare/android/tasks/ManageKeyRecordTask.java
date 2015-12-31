@@ -182,7 +182,6 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
         for(UserKeyRecord record : storage) {
             if(record.getType() == UserKeyRecord.TYPE_NORMAL) {
-                
                 if(record.getUsername().equals(username) && record.isCurrentlyValid() && record.isPasswordValid(password)) {
                     if(currentlyValid == null) {
                         currentlyValid = record;
@@ -190,8 +189,6 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User " + username + " has more than one currently valid key record!!");
                     }
                 }
-                
-                continue;
             } else if(record.getType() == UserKeyRecord.TYPE_NEW) {
                 //See if we have another sandbox with this ID that is fully initialized.
                 if(storage.getIDsForValues(new String[] {UserKeyRecord.META_SANDBOX_ID, UserKeyRecord.META_KEY_STATUS}, new Object[] {record.getUuid(), UserKeyRecord.TYPE_NORMAL}).size() > 0) {

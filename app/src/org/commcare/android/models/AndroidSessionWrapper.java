@@ -337,7 +337,6 @@ public class AndroidSessionWrapper {
 
                 //We don't really have a good thing to do with this yet. For now, just
                 //hope there's another easy path to this form
-                continue;
             }
         }
 
