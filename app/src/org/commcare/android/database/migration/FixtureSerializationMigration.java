@@ -9,10 +9,12 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.io.ByteArrayInputStream;
@@ -44,14 +46,12 @@ public class FixtureSerializationMigration {
         long start = System.currentTimeMillis();
         db.beginTransaction();
         ConcreteAndroidDbHelper helper = new ConcreteAndroidDbHelper(c, db);
-        Cursor cur = null;
         DataInputStream fixtureByteStream = null;
         try {
             SqlStorage<Persistable> userFixtureStorage =
                     new SqlStorage<Persistable>("fixture", FormInstance.class, helper);
-            cur = db.query("fixture", new String[]{DbUtil.ID_COL}, null, null, null, null, null);
-            Vector<Integer> ids = SqlStorage.fillIdWindow(cur, DbUtil.ID_COL);
-            for (Integer id : ids) {
+            for (SqlStorageIterator i = userFixtureStorage.iterate(false); i.hasMore(); ) {
+                int id = i.nextID();
                 FormInstance fixture = new FormInstance();
 
                 fixtureByteStream =
@@ -77,9 +77,6 @@ public class FixtureSerializationMigration {
                     fixtureByteStream.close();
                 } catch (Exception e) {
                 }
-            }
-            if (cur != null) {
-                cur.close();
             }
             db.endTransaction();
             long elapse = System.currentTimeMillis() - start;
