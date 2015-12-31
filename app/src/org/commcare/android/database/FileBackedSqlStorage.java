@@ -12,6 +12,7 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
+import org.commcare.modern.database.TableBuilder;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -46,7 +47,7 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
      * column selection used for reading file data
      */
     protected final static String[] dataColumns =
-            {DatabaseHelper.ID_COL, DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL};
+            {DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL, DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL};
 
     /**
      * Sql object storage layer that stores serialized objects on the filesystem.
@@ -79,7 +80,7 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
         Pair<String, String[]> whereClauseAndArgs =
                 helper.createWhereAndroid(fieldNames, values, em, null);
 
-        String[] columns = new String[]{DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL};
+        String[] columns = new String[]{DatabaseHelper.DATA_COL, DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL};
         Cursor c = db.query(table, columns,
                 whereClauseAndArgs.first, whereClauseAndArgs.second,
                 null, null, null);
@@ -87,13 +88,21 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
             Vector<T> recordObjects = new Vector<>();
             if (c.getCount() > 0) {
                 c.moveToFirst();
+                int dataColIndex = c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
                 int fileColIndex = c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL);
                 int aesColIndex = c.getColumnIndexOrThrow(DatabaseHelper.AES_COL);
                 while (!c.isAfterLast()) {
-                    String filename = c.getString(fileColIndex);
-                    byte[] aesKeyBlob = c.getBlob(aesColIndex);
-                    InputStream inputStream = getInputStreamFromFile(filename, aesKeyBlob);
-                    recordObjects.add(newObject(inputStream));
+                    byte[] data = c.getBlob(dataColIndex);
+                    if (data != null) {
+                        // serialized object was small enough to fit in db entry
+                        recordObjects.add(newObject(data));
+                    } else {
+                        // serialized object was stored in filesystem due to large size
+                        String filename = c.getString(fileColIndex);
+                        byte[] aesKeyBlob = c.getBlob(aesColIndex);
+                        InputStream inputStream = getInputStreamFromFile(filename, aesKeyBlob);
+                        recordObjects.add(newObject(inputStream));
+                    }
                     c.moveToNext();
                 }
             }
@@ -141,9 +150,14 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
                         Arrays.toString(values), Arrays.toString(rawFieldNames));
             }
             c.moveToFirst();
-            String filename = c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
-            byte[] aesKeyBlob = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
-            return newObject(getInputStreamFromFile(filename, aesKeyBlob));
+            byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
+            if (data != null) {
+                return newObject(data);
+            } else {
+                String filename = c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
+                byte[] aesKeyBlob = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
+                return newObject(getInputStreamFromFile(filename, aesKeyBlob));
+            }
         } finally {
             if (c != null) {
                 c.close();
@@ -159,17 +173,35 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
 
     @Override
     public byte[] readBytes(int id) {
-        Pair<String, byte[]> filenameAndKeyBytes =
-                FileBackedSqlQueries.getEntryFilenameAndKey(helper, table, id);
-        String filename = filenameAndKeyBytes.first;
-        byte[] aesKeyBlob = filenameAndKeyBytes.second;
-
-        InputStream is = getInputStreamFromFile(filename, aesKeyBlob);
-        if (is == null) {
-            throw new RuntimeException("Unable to open and decrypt file: " + filename);
+        Cursor c;
+        try {
+            c = helper.getHandle().query(table, FileBackedSqlStorage.dataColumns,
+                    DatabaseHelper.ID_COL + "=?",
+                    new String[]{String.valueOf(id)}, null, null, null);
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
         }
 
-        return StreamsUtil.getStreamAsBytes(is);
+        try {
+            c.moveToFirst();
+            byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
+            if (data != null) {
+                return data;
+            } else {
+                String filename = c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
+                byte[] aesKeyBlob = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
+                InputStream is = getInputStreamFromFile(filename, aesKeyBlob);
+                if (is == null) {
+                    throw new RuntimeException("Unable to open and decrypt file: " + filename);
+                }
+
+                return StreamsUtil.getStreamAsBytes(is);
+            }
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
     }
 
     @Override
@@ -182,19 +214,38 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
 
         try {
             db.beginTransaction();
-            File dataFile = newFileForEntry();
-            ContentValues contentValues = helper.getNonDataContentValues(p);
-            contentValues.put(DatabaseHelper.FILE_COL, dataFile.getAbsolutePath());
-            byte[] key = generateKey(contentValues);
-            long ret = db.insertOrThrow(table, DatabaseHelper.FILE_COL, contentValues);
 
-            if (ret > Integer.MAX_VALUE) {
-                throw new RuntimeException("Waaaaaaaaaay too many values");
+            byte[] blob = TableBuilder.toBlob(p);
+            long insertedId;
+            if (blobFitsInDb(blob)) {
+                // serialized object small enough to fit in db
+                ContentValues contentValues = helper.getNonDataContentValues(p);
+                contentValues.put(DatabaseHelper.DATA_COL, blob);
+                // TODO PLM will this fail because FILE_COL and AES_COL are null?
+                insertedId = db.insertOrThrow(table, DatabaseHelper.DATA_COL, contentValues);
+                p.setID((int)insertedId);
+                // update the id of the serialized object
+                db.update(table,
+                        helper.getContentValues(p),
+                        DatabaseHelper.ID_COL + "=?",
+                        new String[]{String.valueOf((int)insertedId)});
+            } else {
+                // store serialized object in file and file pointer in db
+                File dataFile = newFileForEntry();
+                ContentValues contentValues = helper.getNonDataContentValues(p);
+                contentValues.put(DatabaseHelper.FILE_COL, dataFile.getAbsolutePath());
+                byte[] key = generateKeyAndAdd(contentValues);
+                // TODO PLM will this fail because DATA_COL is null?
+                insertedId = db.insertOrThrow(table, DatabaseHelper.FILE_COL, contentValues);
+
+                p.setID((int)insertedId);
+
+                writeExternalizableToFile(p, dataFile.getAbsolutePath(), key);
             }
 
-            p.setID((int)ret);
-
-            writeExternalizableToFile(p, dataFile.getAbsolutePath(), key);
+            if (insertedId > Integer.MAX_VALUE) {
+                throw new RuntimeException("Waaaaaaaaaay too many values");
+            }
 
             db.setTransactionSuccessful();
         } catch (IOException e) {
@@ -205,7 +256,11 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
         }
     }
 
-    protected byte[] generateKey(ContentValues contentValues) {
+    protected boolean blobFitsInDb(byte[] blob) {
+        return blob.length < 1000000;
+    }
+
+    protected byte[] generateKeyAndAdd(ContentValues contentValues) {
         try {
             byte[] key = CommCareApplication._().createNewSymetricKey().getEncoded();
             contentValues.put(DatabaseHelper.AES_COL, key);
@@ -250,11 +305,52 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
 
         db.beginTransaction();
         try {
-            db.update(table, helper.getNonDataContentValues(extObj),
-                    DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
+            // how is store currently
+            Pair<String, byte[]> filenameAndKey = FileBackedSqlQueries.getEntryFilenameAndKey(helper, table, id);
+            String filename = filenameAndKey.first;
+            byte[] fileEncryptionKey = filenameAndKey.second;
 
-            String filename = FileBackedSqlQueries.getEntryFilename(helper, table, id);
-            writeExternalizableToFile(extObj, filename, getEntryAESKey(id));
+            boolean objectInDb = filename == null;
+
+            byte[] blob = TableBuilder.toBlob(extObj);
+            if (blobFitsInDb(blob)) {
+                ContentValues updatedContentValues;
+                if (objectInDb) {
+                    // was already stored in db, do normal update
+                    updatedContentValues = helper.getContentValuesWithCustomData(extObj, blob);
+                } else {
+                    // was stored in file: remove file and store in db
+                    updatedContentValues = helper.getContentValuesWithCustomData(extObj, blob);
+                    updatedContentValues.put(DatabaseHelper.FILE_COL, (String)null);
+                    updatedContentValues.put(DatabaseHelper.AES_COL, (byte[])null);
+
+                    File dataFile = new File(filename);
+                    dataFile.delete();
+                }
+                db.update(table, updatedContentValues,
+                        DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
+            } else {
+                ContentValues updatedContentValues;
+                if (objectInDb) {
+                    // was in db but is now to big, null db data entry and write to file
+                    updatedContentValues = helper.getContentValuesWithCustomData(extObj, null);
+                } else {
+                    // was stored in a file all along, update file
+                    updatedContentValues = helper.getNonDataContentValues(extObj);
+                }
+                db.update(table, updatedContentValues,
+                        DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
+
+                DataOutputStream fileOutputStream = null;
+                try {
+                    fileOutputStream = getOutputFileStream(filename, fileEncryptionKey);
+                    fileOutputStream.write(blob);
+                } catch (IOException e) {
+                    if (fileOutputStream != null) {
+                        fileOutputStream.close();
+                    }
+                }
+            }
 
             db.setTransactionSuccessful();
         } catch (IOException e) {
@@ -265,14 +361,12 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
         }
     }
 
-    protected void writeExternalizableToFile(Externalizable externalizable,
-                                             String filename,
-                                             byte[] aesKeyBytes) throws IOException {
+    private void writeExternalizableToFile(Externalizable externalizable,
+                                           String filename,
+                                           byte[] aesKeyBytes) throws IOException {
         DataOutputStream objectOutStream = null;
-        SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
         try {
-            objectOutStream =
-                    new DataOutputStream(EncryptionIO.createFileOutputStream(filename, aesKey));
+            objectOutStream = getOutputFileStream(filename, aesKeyBytes);
             externalizable.writeExternal(objectOutStream);
         } finally {
             if (objectOutStream != null) {
@@ -281,8 +375,10 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
         }
     }
 
-    protected byte[] getEntryAESKey(int id) {
-        return FileBackedSqlQueries.getEntryKey(helper, table, id);
+    protected DataOutputStream getOutputFileStream(String filename,
+                                                   byte[] aesKeyBytes) throws IOException {
+        SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
+        return new DataOutputStream(EncryptionIO.createFileOutputStream(filename, aesKey));
     }
 
     @Override
@@ -292,8 +388,10 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
         db.beginTransaction();
         try {
             String filename = FileBackedSqlQueries.getEntryFilename(helper, table, id);
-            File dataFile = new File(filename);
-            dataFile.delete();
+            if (filename != null) {
+                File dataFile = new File(filename);
+                dataFile.delete();
+            }
 
             db.delete(table, DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
             db.setTransactionSuccessful();
@@ -324,8 +422,11 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
     private void removeFiles(List<Integer> idsBeingRemoved) {
         // delete files storing data for entries being removed
         for (Integer id : idsBeingRemoved) {
-            File datafile = new File(FileBackedSqlQueries.getEntryFilename(helper, table, id));
-            datafile.delete();
+            String filename = FileBackedSqlQueries.getEntryFilename(helper, table, id);
+            if (filename != null) {
+                File datafile = new File(filename);
+                datafile.delete();
+            }
         }
     }
 

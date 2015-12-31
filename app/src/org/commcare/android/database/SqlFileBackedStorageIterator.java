@@ -28,16 +28,22 @@ public class SqlFileBackedStorageIterator<T extends Persistable>
 
     @Override
     public T nextRecord() {
-        String filename =
-                c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
-        byte[] aesKeyBlob =
-                c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
+        byte[] blob =
+                c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
+        if (blob != null) {
+            return storage.newObject(blob);
+        } else {
+            String filename =
+                    c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
+            byte[] aesKeyBlob =
+                    c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
 
-        //we don't really use this
-        nextID();
+            //we don't really use this
+            nextID();
 
-        InputStream fileInputStream =
-                ((FileBackedSqlStorage<T>)storage).getInputStreamFromFile(filename, aesKeyBlob);
-        return storage.newObject(fileInputStream);
+            InputStream fileInputStream =
+                    ((FileBackedSqlStorage<T>)storage).getInputStreamFromFile(filename, aesKeyBlob);
+            return storage.newObject(fileInputStream);
+        }
     }
 }

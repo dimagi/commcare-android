@@ -666,6 +666,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             //Now we need to put the id into the record
 
             p.setID(id);
+            // TODO PLM this reserializes without need
             db.update(table, helper.getContentValues(p), DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
 
             db.setTransactionSuccessful();

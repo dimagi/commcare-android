@@ -45,9 +45,19 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
         return contentValues;
     }
 
+    public ContentValues getContentValuesWithCustomData(Externalizable e, byte[] customData){
+        ContentValues contentValues = new ContentValues();
+        HashMap<String, Object> metaFieldsAndValues = DatabaseHelper.getNonDataMetaEntries(e);
+
+        copyMetadataIntoContentValues(metaFieldsAndValues, contentValues);
+        contentValues.put(DATA_COL, customData);
+
+        return contentValues;
+    }
+
     public ContentValues getNonDataContentValues(Externalizable e){
         ContentValues contentValues = new ContentValues();
-        HashMap<String, Object> metaFieldsAndValues = DatabaseHelper.getNonDatatMetaEntries(e);
+        HashMap<String, Object> metaFieldsAndValues = DatabaseHelper.getNonDataMetaEntries(e);
 
         copyMetadataIntoContentValues(metaFieldsAndValues, contentValues);
 

@@ -39,28 +39,12 @@ public class UnencryptedFileBackedSqlStorage<T extends Persistable>
     }
 
     @Override
-    protected void writeExternalizableToFile(Externalizable externalizable,
-                                             String filename,
-                                             byte[] aesKeyBytes) throws IOException {
-        DataOutputStream objectOutStream = null;
-        try {
-            objectOutStream =
-                    new DataOutputStream(new FileOutputStream(filename));
-            externalizable.writeExternal(objectOutStream);
-        } finally {
-            if (objectOutStream != null) {
-                objectOutStream.close();
-            }
-        }
-    }
-
-    @Override
-    protected byte[] generateKey(ContentValues contentValues) {
+    protected byte[] generateKeyAndAdd(ContentValues contentValues) {
         return null;
     }
 
     @Override
-    protected byte[] getEntryAESKey(int id) {
-        return null;
+    protected DataOutputStream getOutputFileStream(String filename, byte[] aesKeyBytes) throws IOException {
+        return new DataOutputStream(new FileOutputStream(filename));
     }
 }

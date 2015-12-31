@@ -28,7 +28,7 @@ public class FileBackedSqlStorageForMigration<T extends Persistable> extends Fil
     }
 
     @Override
-    protected byte[] generateKey(ContentValues contentValues) {
+    protected byte[] generateKeyAndAdd(ContentValues contentValues) {
         byte[] key = CryptUtil.generateSymetricKey(CryptUtil.uniqueSeedFromSecureStatic(fileKeySeed)).getEncoded();
         contentValues.put(DatabaseHelper.AES_COL, key);
         return key;

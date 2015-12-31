@@ -67,7 +67,7 @@ public class SqlFileBackedStorageTests {
 
     /**
      * User level fixtures are encrypted. To do so, they are stored in
-     * encrypted files and the key is stored in the encrypted databse.  This
+     * encrypted files and the key is stored in the encrypted databse. This
      * test ensures that the file is actually encrypted by trying to
      * deserialize the contents of a fixture file w/o decrypting the file
      * first.
