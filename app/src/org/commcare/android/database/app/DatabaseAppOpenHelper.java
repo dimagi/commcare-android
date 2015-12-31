@@ -119,7 +119,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        new AppDatabaseUpgrader().upgrade(db, oldVersion, newVersion);
+        new AppDatabaseUpgrader(context).upgrade(db, oldVersion, newVersion);
     }
 
 }
