@@ -42,11 +42,6 @@ public class FileServerFragment extends Fragment {
     private FileServerAsyncTask mFileServer;
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-    }
-
-    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try {

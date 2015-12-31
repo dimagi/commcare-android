@@ -20,14 +20,6 @@ import static junit.framework.Assert.assertEquals;
 @RunWith(CommCareTestRunner.class)
 public class IndexSpanningIteratorTest {
 
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    @After
-    public void tearDown() throws Exception {
-    }
-    
     private int[] i(int...inputs) {
         return inputs;
     }

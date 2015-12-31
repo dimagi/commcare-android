@@ -27,11 +27,6 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
     ProgressDialog progressDialog = null;
     
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mContentView = inflater.inflate(R.layout.device_detail, container);
         return mContentView;

@@ -46,11 +46,6 @@ public class WiFiDirectManagementFragment extends Fragment
     public Channel mChannel;
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-    }
-
-    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
