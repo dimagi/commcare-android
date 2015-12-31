@@ -70,7 +70,7 @@ public class FileServerFragment extends Fragment {
 
 
     public interface FileServerListener {
-        public void onFormsCopied(String result);
+        void onFormsCopied(String result);
     }
 
     public void startServer(String mReceiveZipDirectory) {

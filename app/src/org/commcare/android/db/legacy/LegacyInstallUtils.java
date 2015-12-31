@@ -604,7 +604,7 @@ public class LegacyInstallUtils {
     }
 
     public interface CopyMapper<T extends Persistable> {
-        public T transform(T t);
+        T transform(T t);
     }
 
     private static SecretKeySpec generateOldTestKey(Context c) {

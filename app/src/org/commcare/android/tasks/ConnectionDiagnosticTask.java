@@ -25,7 +25,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
 {    
     Context c;
 
-    public static enum Test
+    public enum Test
     {
         isOnline,
         googlePing,
