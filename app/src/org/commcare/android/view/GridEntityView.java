@@ -82,10 +82,6 @@ public class GridEntityView extends GridLayout {
     /**
      * Used to create a entity view tile outside of a managed context (like
      * for an individual entity out of a search context).
-     *
-     * @param context
-     * @param detail
-     * @param entity
      */
     public GridEntityView(Context context, Detail detail, Entity entity) {
         this(context, detail, entity, new String[0], new CachingAsyncImageLoader(context), false);
@@ -94,13 +90,6 @@ public class GridEntityView extends GridLayout {
     /**
      * Constructor for an entity tile in a managed context, like a list of entities being displayed
      * all at once for searching.
-     *
-     * @param context
-     * @param detail
-     * @param entity
-     * @param searchTerms
-     * @param mLoader
-     * @param fuzzySearchEnabled
      */
     public GridEntityView(Context context, Detail detail, Entity entity, String[] searchTerms, CachingAsyncImageLoader mLoader, boolean fuzzySearchEnabled) {
         super(context);
@@ -174,8 +163,6 @@ public class GridEntityView extends GridLayout {
      * to rows/columns that end up empty or near empty, so we solve this by adding spaces to every row and column.
      * We just add a space of width cellWidth and height 1 to every column of the first row, and likewise a sapce of height
      * cellHeight and width 1 to every row of the first column. These are then written on top of if need be.
-     *
-     * @param context
      */
     public void addBuffers(Context context) {
 
@@ -230,7 +217,6 @@ public class GridEntityView extends GridLayout {
     /**
      * Set all the views to be displayed in this pane
      *
-     * @param context
      * @param detail  - the Detail describing how to display each entry
      * @param entity  - the Entity describing the actual data of each entry
      */
@@ -316,16 +302,11 @@ public class GridEntityView extends GridLayout {
     /**
      * Get the correct View for this particular activity.
      *
-     * @param context
      * @param multimediaType either "image", "audio", or default text. Describes how this XPath result should be displayed.
      * @param horzAlign      How the text should be aligned horizontally - left, center, or right ONE OF horzAlign or vertAlign
      * @param vertAlign      How the text should be aligned vertically - top, center, or bottom ONE OF horzAlign or vertAlign
      * @param textsize       The font size, scaled for screen size. small, medium, large, xlarge accepted.
      * @param rowData        The actual data to display, either an XPath to media or a String to display.
-     * @param uniqueId
-     * @param cssid
-     * @param searchField
-     * @return
      */
     private View getView(Context context, String multimediaType, String horzAlign,
                          String vertAlign, String textsize, String rowData, ViewId uniqueId,

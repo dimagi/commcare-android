@@ -90,35 +90,6 @@ public class DecryptingCursor extends SQLiteCursor {
         }
     }
 
-    /**
-     * @Override public boolean isBlob(int columnIndex) {
-     * if(!isEncrypted(columnIndex)) {
-     * return super.isBlob(columnIndex);
-     * }
-     * }
-     * @Override public boolean isFloat(int columnIndex) {
-     * if(!isEncrypted(columnIndex)) {
-     * return super.isFloat(columnIndex);
-     * }
-     * <p/>
-     * }
-     * @Override public boolean isLong(int columnIndex) {
-     * if(!isEncrypted(columnIndex)) {
-     * return super.isLong(columnIndex);
-     * }
-     * }
-     * @Override public boolean isNull(int columnIndex) {
-     * if(!isEncrypted(columnIndex)) {
-     * return super.isNull(columnIndex);
-     * }
-     * }
-     * @Override public boolean isString(int columnIndex) {
-     * if(!isEncrypted(columnIndex)) {
-     * return super.isString(columnIndex);
-     * }
-     * }
-     */
-
     private boolean isEncrypted(int columnIndex) {
         String column = this.getColumnName(columnIndex);
         if (model.isEncrypted(column)) {

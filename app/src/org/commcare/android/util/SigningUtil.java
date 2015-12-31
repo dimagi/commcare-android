@@ -40,7 +40,6 @@ public class SigningUtil {
 
     /**
      * Given a trimmed byte[] payload, return the parsed out download link and signature
-     * @param payload
      * @return Pair of <Download Link, Signature>
      * @throws Exception Throw a generic exception if we fail during signature parse/verification
      */
@@ -107,7 +106,6 @@ public class SigningUtil {
      * directly because the conversion from Base64 can have a non-1:1 correspondence with the actual
      * bytes
      *
-     * @param messageBytes
      * @return the binary representation of the signtature
      */
     public static byte[] getSignatureBytes(byte[] messageBytes) {
