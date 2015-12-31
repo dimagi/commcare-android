@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
@@ -44,7 +45,7 @@ public class CaseDataContentProvider extends ContentProvider {
     //TODO: Caching - Use a cache table here or use an LRU or other system provided cache?
     
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         int match = CaseDataAPI.UriMatch(uri);
         
         switch(match) {
@@ -73,7 +74,7 @@ public class CaseDataContentProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
 
         //first, determine whether we're logged in and whether we have a valid data set to even be iterating over.
         try {
@@ -281,21 +282,21 @@ public class CaseDataContentProvider extends ContentProvider {
      * the read-only-ness. **/
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection,String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         // Case content provider is read only.
         //TODO: Throw an exception here? Read up on the spec 
         return 0;
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         // Case content provider is read only.
         return 0;
     }
     
 
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, ContentValues values) {
         // TODO Auto-generated method stub
         return null;
     }

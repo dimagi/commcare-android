@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
 import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -41,8 +42,8 @@ public class FixtureDataContentProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection,
-            String[] selectionArgs, String sortOrder) {
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection,
+                        String[] selectionArgs, String sortOrder) {
 
         //Standard dispatcher following Android best practices
         int match = FixtureDataAPI.UriMatch(uri);
@@ -57,7 +58,7 @@ public class FixtureDataContentProvider extends ContentProvider {
     }
 
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
 
         int match = FixtureDataAPI.UriMatch(uri);
 
@@ -134,21 +135,21 @@ public class FixtureDataContentProvider extends ContentProvider {
      * the read-only-ness. **/
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection,String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         // Case content provider is read only.
         //TODO: Throw an exception here? Read up on the spec 
         return 0;
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         // Case content provider is read only.
         return 0;
     }
 
 
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, ContentValues values) {
         // TODO Auto-generated method stub
         return null;
     }
