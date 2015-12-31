@@ -54,14 +54,13 @@ import java.util.Vector;
 
 /**
  * @author ctsims
- *
  */
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class BreadcrumbBarFragment extends Fragment {
-    
-    private boolean isTopNavEnabled = false;
-    private int localIdPart = -1;
-     
+
+    private TabbedDetailView mInternalDetailView = null;
+    private View tile;
+
     /**
      * This method will only be called once when the retained
      * Fragment is first created.
@@ -73,9 +72,7 @@ public class BreadcrumbBarFragment extends Fragment {
         // Retain this fragment across configuration changes.
         setRetainInstance(true);
       }
-     
-      
-    boolean breadCrumbsEnabled = true;
+
     /**
      * Hold a reference to the parent Activity so we can report the task's
      * current progress and results. The Android framework will pass us a
@@ -92,7 +89,7 @@ public class BreadcrumbBarFragment extends Fragment {
     }
 
     public void refresh(Activity activity) {
-        breadCrumbsEnabled = !DeveloperPreferences.isActionBarEnabled();
+        boolean breadCrumbsEnabled = !DeveloperPreferences.isActionBarEnabled();
 
         ActionBar actionBar = activity.getActionBar();
 
@@ -121,17 +118,11 @@ public class BreadcrumbBarFragment extends Fragment {
         actionBar.setTitle(title);
   }
 
-
-
     private void attachBreadcrumbBar(Activity activity, ActionBar actionBar) {
         //make sure we're in the right mode
         actionBar.setDisplayShowCustomEnabled(true);
         actionBar.setDisplayShowTitleEnabled(false);
-        
-        if(activity instanceof CommCareActivity) {
-            isTopNavEnabled = ((CommCareActivity)activity).isTopNavEnabled();
-        }
-        
+
         //We need to get the amount that each item should "bleed" over to the left, and move the whole widget that
         //many pixels. This replicates the "overlap" space that each piece of the bar has on the next piece for
         //the left-most element.
@@ -148,7 +139,6 @@ public class BreadcrumbBarFragment extends Fragment {
         
         int specHeight = MeasureSpec.makeMeasureSpec(display.getHeight(), MeasureSpec.AT_MOST);
 
-        
         v.measure(LayoutParams.MATCH_PARENT, specHeight);
         final int targetHeight = v.getMeasuredHeight();
 
@@ -156,8 +146,7 @@ public class BreadcrumbBarFragment extends Fragment {
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
         lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
         v.setVisibility(View.VISIBLE);
-        Animation a = new Animation()
-        {
+        Animation a = new Animation() {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
                 RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
@@ -190,8 +179,7 @@ public class BreadcrumbBarFragment extends Fragment {
         lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
         lp.height = initialHeight;
 
-        Animation a = new Animation()
-        {
+        Animation a = new Animation() {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
                 if(interpolatedTime == 1){
@@ -216,9 +204,7 @@ public class BreadcrumbBarFragment extends Fragment {
         a.setDuration((int)(initialHeight / v.getContext().getResources().getDisplayMetrics().density) * 2);
         v.startAnimation(a);
     }
-    
-    private TabbedDetailView mInternalDetailView = null;
-    
+
     private View findAndLoadCaseTile(final Activity activity) {
         final View holder = LayoutInflater.from(activity).inflate(R.layout.com_tile_holder, null);
         final Pair<View, TreeReference> tileData = this.loadTile(activity);
@@ -315,7 +301,6 @@ public class BreadcrumbBarFragment extends Fragment {
         return tile;
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
@@ -323,28 +308,12 @@ public class BreadcrumbBarFragment extends Fragment {
             ViewGroup vg = (ViewGroup)this.getActivity().findViewById(R.id.universal_frame_tile);
             //Check whether the view group is available. If so, this activity is a frame tile host 
             if(vg != null) {
-                if(((ViewGroup) tile.getParent()) != null) {
+                if(tile.getParent() != null) {
                     ((ViewGroup) tile.getParent()).removeView(tile);
                 }
                 vg.addView(tile, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
                 //this doesn't really make it over well
                 mInternalDetailView = null;
-            }
-        }
-        if(this.getActivity() instanceof CommCareActivity) {
-            String title = ((CommCareActivity)this.getActivity()).getActivityTitle();
-            
-            if(title != null) {
-            
-                if(breadCrumbsEnabled) {
-                    //This part can change more dynamically
-                    if(localIdPart != -1 ) {
-                        TextView text = (TextView)this.getActivity().getActionBar().getCustomView().findViewById(localIdPart);
-                        if(text != null) {
-                            text.setText(title);
-                        }
-                    }
-                }
             }
         }
     }
@@ -360,7 +329,6 @@ public class BreadcrumbBarFragment extends Fragment {
     public static String getBestSubHeaderTitle() {
         return getBestTitleHelper();
     }
-
 
     private static String getBestTitleHelper() {
         AndroidSessionWrapper asw;
@@ -416,10 +384,6 @@ public class BreadcrumbBarFragment extends Fragment {
         return currentTitle;
     }
 
-
-
-        View tile;
-        
         private Pair<View, TreeReference> buildContextTile(StackFrameStep stepToFrame, AndroidSessionWrapper asw) {
             if(stepToFrame == null) { return null; }
             
