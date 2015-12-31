@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.FileBackedSqlStorage;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.UnencryptedFileBackedSqlStorage;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -54,7 +55,6 @@ public class FixtureSerializationMigration {
         long start = System.currentTimeMillis();
         db.beginTransaction();
         ConcreteAndroidDbHelper helper = new ConcreteAndroidDbHelper(c, db);
-        Cursor cur = null;
         DataInputStream fixtureByteStream = null;
         try {
             FileBackedSqlStorage<Persistable> fixtureStorage;
@@ -67,10 +67,9 @@ public class FixtureSerializationMigration {
             }
             SqlStorage<Persistable> oldUserFixtureStorage =
                     new SqlStorage<Persistable>("oldfixture", FormInstance.class, helper);
-            cur = db.query("oldfixture", new String[]{DatabaseHelper.ID_COL}, null, null, null, null, null);
-            Vector<Integer> ids = SqlStorage.fillIdWindow(cur, DatabaseHelper.ID_COL);
             int count = 0;
-            for (Integer id : ids) {
+            for (SqlStorageIterator i = oldUserFixtureStorage.iterate(false); i.hasMore(); ) {
+                int id = i.nextID();
                 Log.d(TAG, "migrating fixture " + count++);
                 FormInstance fixture = new FormInstance();
 
@@ -98,9 +97,6 @@ public class FixtureSerializationMigration {
                     fixtureByteStream.close();
                 } catch (Exception e) {
                 }
-            }
-            if (cur != null) {
-                cur.close();
             }
             db.endTransaction();
             long elapse = System.currentTimeMillis() - start;
