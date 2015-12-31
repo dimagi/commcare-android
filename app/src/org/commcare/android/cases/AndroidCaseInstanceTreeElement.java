@@ -193,11 +193,8 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         if (!"case".equalsIgnoreCase(ref.getName(1))) {
             return false;
         }
-        if (ref.getMultiplicity(1) < 0) {
-            return false;
-        }
+        return ref.getMultiplicity(1) >= 0;
 
-        return true;
     }
 
     String[][] mMostRecentBatchFetch = null;

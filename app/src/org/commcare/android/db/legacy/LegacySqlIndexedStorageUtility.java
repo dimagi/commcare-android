@@ -248,10 +248,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     @Override
     public boolean isEmpty() {
-        if (getNumRecords() == 0) {
-            return true;
-        }
-        return false;
+        return getNumRecords() == 0;
     }
 
     @Override

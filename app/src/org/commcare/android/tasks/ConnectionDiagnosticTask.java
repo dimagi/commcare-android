@@ -101,12 +101,8 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
         //if user is not online, log not connected. if online, log success
         String logMessage = !notInAirplaneMode? logNotConnectedMessage : logConnectionSuccessMessage;
         Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logMessage);
-        
-        if(notInAirplaneMode)
-        {
-            return true;
-        }
-        return false;
+
+        return notInAirplaneMode;
     }
 
     //check if a ping to a specific ip address (used for google url) is successful.
@@ -143,11 +139,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
         //0 if success, 2 if fail
         String messageOut = pingReturn==0? logGoogleSuccessMessage : logGoogleUnexpectedResultMessage;
         Logger.log(CONNECTION_DIAGNOSTIC_REPORT, messageOut);
-        if(pingReturn != 0)
-        {
-            return false;
-        }
-        return true;
+        return pingReturn == 0;
     }
     
     private boolean pingCC(String url)

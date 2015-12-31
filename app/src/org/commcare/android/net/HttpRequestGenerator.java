@@ -259,14 +259,10 @@ public class HttpRequestGenerator {
             return true;
         }
 
-        //if it is, verify that we're on the same server.
-        if (url.getHost().equals(newUrl.getHost())) {
-            return true;
-        } else {
-            //otherwise we got redirected from a secure link to a different
-            //link, which isn't acceptable for now.
-            return false;
-        }
+        // If https, verify that we're on the same server.
+        // Not being so means we got redirected from a secure link to a
+        // different link, which isn't acceptable for now.
+        return url.getHost().equals(newUrl.getHost());
     }
 
     public InputStream simpleGet(URL url) throws IOException {
