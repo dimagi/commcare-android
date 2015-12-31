@@ -133,7 +133,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
         Cursor c;
         try {
-            c = helper.getHandle().query(table, new String[]{DatabaseHelper.DATA_COL}, whereClause.first, whereClause.second, null, null, null);
+            c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, whereClause.first, whereClause.second, null, null, null);
         } catch (SessionUnavailableException e) {
             throw new UserStorageClosedException(e.getMessage());
         }
@@ -146,7 +146,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                 int index = c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
                 while (!c.isAfterLast()) {
                     byte[] data = c.getBlob(index);
-                    indices.add(newObject(data));
+                    indices.add(newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL))));
                     c.moveToNext();
                 }
                 return indices;
@@ -200,7 +200,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             }
             c.moveToFirst();
             byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
-            return newObject(data);
+            return newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL)));
         } finally {
             if (c != null) {
                 c.close();
@@ -243,10 +243,11 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
     }
 
-    public T newObject(InputStream objectInputStream) {
+    public T newObject(InputStream objectInputStream, int dbId) {
         try {
             T e = ctype.newInstance();
             e.readExternal(new DataInputStream(objectInputStream), helper.getPrototypeFactory());
+            e.setID(dbId);
 
             return e;
         } catch (IllegalAccessException e) {
@@ -259,10 +260,11 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             throw logAndWrap(e, "CommCare ran into an issue deserializing data");
         }
     }
-    public T newObject(byte[] data) {
+    public T newObject(byte[] data, int dbId) {
         try {
             T e = ctype.newInstance();
             e.readExternal(new DataInputStream(new ByteArrayInputStream(data)), helper.getPrototypeFactory());
+            e.setID(dbId);
 
             return e;
         } catch (IllegalAccessException e) {
@@ -489,7 +491,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     @Override
     public T read(int id) {
-        return newObject(readBytes(id));
+        return newObject(readBytes(id), id);
     }
 
     @Override
@@ -661,14 +663,6 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             if (ret > Integer.MAX_VALUE) {
                 throw new RuntimeException("Waaaaaaaaaay too many values");
             }
-
-            int id = (int)ret;
-            //Now we need to put the id into the record
-
-            p.setID(id);
-            // TODO PLM this reserializes without need
-            db.update(table, helper.getContentValues(p), DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
-
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

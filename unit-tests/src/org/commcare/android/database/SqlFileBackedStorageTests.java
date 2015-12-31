@@ -82,7 +82,7 @@ public class SqlFileBackedStorageTests {
         File[] serializedFixtureFiles = dbDir.listFiles();
         Assert.assertTrue(serializedFixtureFiles.length > 0);
         try {
-            ((FileBackedSqlStorage<FormInstance>)userFixtureStorage).newObject(new FileInputStream(serializedFixtureFiles[0]));
+            ((FileBackedSqlStorage<FormInstance>)userFixtureStorage).newObject(new FileInputStream(serializedFixtureFiles[0]), -1);
         } catch (FileNotFoundException e) {
             Assert.fail("Unable to find db storage file that should exist");
         } catch (RuntimeException e) {
@@ -104,7 +104,7 @@ public class SqlFileBackedStorageTests {
         File[] serializedFixtureFiles = dbDir.listFiles();
         Assert.assertTrue(serializedFixtureFiles.length > 0);
         try {
-            ((UnencryptedFileBackedSqlStorage<FormInstance>)appFixtureStorage).newObject(new FileInputStream(serializedFixtureFiles[0]));
+            ((UnencryptedFileBackedSqlStorage<FormInstance>)appFixtureStorage).newObject(new FileInputStream(serializedFixtureFiles[0]), -1);
         } catch (Exception e) {
             Assert.fail("Should be able to deserialize an unencrypted object");
         }

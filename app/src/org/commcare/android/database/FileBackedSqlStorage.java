@@ -80,8 +80,7 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
         Pair<String, String[]> whereClauseAndArgs =
                 helper.createWhereAndroid(fieldNames, values, em, null);
 
-        String[] columns = new String[]{DatabaseHelper.DATA_COL, DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL};
-        Cursor c = db.query(table, columns,
+        Cursor c = db.query(table, dataColumns,
                 whereClauseAndArgs.first, whereClauseAndArgs.second,
                 null, null, null);
         try {
@@ -95,13 +94,13 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
                     byte[] data = c.getBlob(dataColIndex);
                     if (data != null) {
                         // serialized object was small enough to fit in db entry
-                        recordObjects.add(newObject(data));
+                        recordObjects.add(newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL))));
                     } else {
                         // serialized object was stored in filesystem due to large size
                         String filename = c.getString(fileColIndex);
                         byte[] aesKeyBlob = c.getBlob(aesColIndex);
                         InputStream inputStream = getInputStreamFromFile(filename, aesKeyBlob);
-                        recordObjects.add(newObject(inputStream));
+                        recordObjects.add(newObject(inputStream, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL))));
                     }
                     c.moveToNext();
                 }
@@ -152,11 +151,12 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
             c.moveToFirst();
             byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
             if (data != null) {
-                return newObject(data);
+                return newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL)));
             } else {
                 String filename = c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
                 byte[] aesKeyBlob = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
-                return newObject(getInputStreamFromFile(filename, aesKeyBlob));
+                return newObject(getInputStreamFromFile(filename, aesKeyBlob),
+                        c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL)));
             }
         } finally {
             if (c != null) {
@@ -230,12 +230,6 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
                 contentValues.put(DatabaseHelper.DATA_COL, bos.toByteArray());
                 // TODO PLM will this fail because FILE_COL and AES_COL are null?
                 insertedId = db.insertOrThrow(table, DatabaseHelper.DATA_COL, contentValues);
-                p.setID((int)insertedId);
-                // update the id of the serialized object
-                db.update(table,
-                        helper.getContentValues(p),
-                        DatabaseHelper.ID_COL + "=?",
-                        new String[]{String.valueOf((int)insertedId)});
             } else {
                 // store serialized object in file and file pointer in db
                 File dataFile = newFileForEntry();
@@ -244,8 +238,6 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
                 byte[] key = generateKeyAndAdd(contentValues);
                 // TODO PLM will this fail because DATA_COL is null?
                 insertedId = db.insertOrThrow(table, DatabaseHelper.FILE_COL, contentValues);
-
-                p.setID((int)insertedId);
 
                 DataOutputStream fileOutputStream = null;
                 try {

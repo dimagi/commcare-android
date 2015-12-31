@@ -86,9 +86,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
     public T nextRecord() {
         byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
 
-        //we don't really use this
-        nextID();
-        return storage.newObject(data);
+        return storage.newObject(data, nextID());
     }
 
     @Override

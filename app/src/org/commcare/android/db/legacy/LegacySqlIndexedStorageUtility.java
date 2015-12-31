@@ -89,7 +89,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
             int index = c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
             while (!c.isAfterLast()) {
                 byte[] data = c.getBlob(index);
-                indices.add(newObject(data));
+                indices.add(newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL))));
                 c.moveToNext();
             }
             c.close();
@@ -124,8 +124,9 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         }
         c.moveToFirst();
         byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
+        int dbId = c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
         c.close();
-        return newObject(data);
+        return newObject(data, dbId);
     }
 
     @Override
@@ -143,15 +144,17 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         }
         c.moveToFirst();
         byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
+        int dbId = c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
         c.close();
-        return newObject(data);
+        return newObject(data, dbId);
     }
 
     @Override
-    public T newObject(byte[] data) {
+    public T newObject(byte[] data, int dbId) {
         try {
             T e = ctype.newInstance();
             e.readExternal(new DataInputStream(new ByteArrayInputStream(data)), helper.getPrototypeFactory());
+            e.setID(dbId);
 
             return e;
         } catch (DeserializationException | IOException
@@ -251,7 +254,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     @Override
     public T read(int id) {
-        return newObject(readBytes(id));
+        return newObject(readBytes(id), id);
     }
 
     @Override
