@@ -7,14 +7,14 @@ import org.javarosa.core.services.Logger;
 /**
  * @author ctsims
  */
-public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C> {
+public abstract class CommCareTask<Params, Progress, Result, Receiver> extends ManagedAsyncTask<Params, Progress, Result> {
     protected static String TAG;
 
     public static final int GENERIC_TASK_ID = 32;
     public static final int DONT_WAKELOCK = -1;
 
     private final Object connectorLock = new Object();
-    private CommCareTaskConnector<R> connector;
+    private CommCareTaskConnector<Receiver> connector;
 
     private Exception unknownError;
 
@@ -28,7 +28,7 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
     }
 
     @Override
-    protected final C doInBackground(A... params) {
+    protected final Result doInBackground(Params... params) {
         //Never have to wrap the entirety of your task.
         try {
             return doTaskBackground(params);
@@ -47,14 +47,14 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
      * Catch-wrapped computation to be performed in background thread.
      * Dispatched by doInBackground
      */
-    protected abstract C doTaskBackground(A... params);
+    protected abstract Result doTaskBackground(Params... params);
 
     @Override
     protected void onCancelled() {
         super.onCancelled();
 
         synchronized (connectorLock) {
-            CommCareTaskConnector<R> connector = getConnector();
+            CommCareTaskConnector<Receiver> connector = getConnector();
 
             if (connector != null) {
                 connector.startTaskTransition();
@@ -66,12 +66,12 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
     }
 
     @Override
-    protected void onPostExecute(C result) {
+    protected void onPostExecute(Result result) {
         super.onPostExecute(result);
 
         synchronized (connectorLock) {
             //TODO: extend blocking here?
-            CommCareTaskConnector<R> connector = getConnector();
+            CommCareTaskConnector<Receiver> connector = getConnector();
             if (connector != null) {
                 connector.startTaskTransition();
                 connector.stopBlockingForTask(taskId);
@@ -85,17 +85,17 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
         }
     }
 
-    protected abstract void deliverResult(R receiver, C result);
+    protected abstract void deliverResult(Receiver receiver, Result result);
 
-    protected abstract void deliverUpdate(R receiver, B... update);
+    protected abstract void deliverUpdate(Receiver receiver, Progress... update);
 
-    protected abstract void deliverError(R receiver, Exception e);
+    protected abstract void deliverError(Receiver receiver, Exception e);
 
     @Override
     protected void onPreExecute() {
         super.onPreExecute();
         synchronized (connectorLock) {
-            CommCareTaskConnector<R> connector = getConnector();
+            CommCareTaskConnector<Receiver> connector = getConnector();
             if (connector != null) {
                 connector.startBlockingForTask(getTaskId());
             }
@@ -103,21 +103,21 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
     }
 
     @Override
-    protected void onProgressUpdate(B... values) {
+    protected void onProgressUpdate(Progress... values) {
         super.onProgressUpdate(values);
         synchronized (connectorLock) {
-            CommCareTaskConnector<R> connector = getConnector(false);
+            CommCareTaskConnector<Receiver> connector = getConnector(false);
             if (connector != null) {
                 this.deliverUpdate(connector.getReceiver(), values);
             }
         }
     }
 
-    private CommCareTaskConnector<R> getConnector() {
+    private CommCareTaskConnector<Receiver> getConnector() {
         return getConnector(true);
     }
 
-    private CommCareTaskConnector<R> getConnector(boolean required) {
+    private CommCareTaskConnector<Receiver> getConnector(boolean required) {
         //So there might have been some transfer of ownership happening.
         //We wanna hold off on anything that requires the connector
         //until there is one present, up until some specified limit
@@ -155,7 +155,7 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
         }
     }
 
-    public void connect(CommCareTaskConnector<R> connector) {
+    public void connect(CommCareTaskConnector<Receiver> connector) {
         synchronized (connectorLock) {
             //TODO: Maybe notify the old thing that we're disconnecting?
             this.connector = connector;
@@ -166,7 +166,7 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
     protected void transitionPhase(int newTaskId) {
         synchronized (connectorLock) {
             if (newTaskId != taskId) {
-                CommCareTaskConnector<R> connector = this.getConnector(true);
+                CommCareTaskConnector<Receiver> connector = this.getConnector(true);
                 if (connector != null) {
                     connector.stopBlockingForTask(taskId);
                     connector.startBlockingForTask(newTaskId);
