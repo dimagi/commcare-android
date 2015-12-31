@@ -198,9 +198,9 @@ public class GridEntityView extends GridLayout {
         GridCoordinate[] coordinates = detail.getGridCoordinates();
         int currentMaxHeight = 0;
 
-        for (int i = 0; i < coordinates.length; i++) {
-            int yCoordinate = coordinates[i].getY();
-            int height = coordinates[i].getHeight();
+        for (GridCoordinate coordinate : coordinates) {
+            int yCoordinate = coordinate.getY();
+            int height = coordinate.getHeight();
             int maxHeight = yCoordinate + height;
             if (maxHeight > currentMaxHeight) {
                 currentMaxHeight = maxHeight;
@@ -417,21 +417,19 @@ public class GridEntityView extends GridLayout {
     }
 
     public void setTextColor(int color) {
-        for (int i = 0; i < mRowViews.length; i++) {
-            View v = mRowViews[i];
-            if (v == null) continue;
-            if (v instanceof TextView) {
-                ((TextView) v).setTextColor(color);
+        for (View rowView : mRowViews) {
+            if (rowView == null) continue;
+            if (rowView instanceof TextView) {
+                ((TextView)rowView).setTextColor(color);
             }
         }
     }
 
     public void setTitleTextColor(int color) {
-        for (int i = 0; i < mRowViews.length; i++) {
-            View v = mRowViews[i];
-            if (v == null) continue;
-            if (v instanceof TextView) {
-                ((TextView) v).setTextColor(color);
+        for (View rowView : mRowViews) {
+            if (rowView == null) continue;
+            if (rowView instanceof TextView) {
+                ((TextView)rowView).setTextColor(color);
                 return;
             }
         }

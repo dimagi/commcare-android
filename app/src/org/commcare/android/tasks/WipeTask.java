@@ -41,8 +41,7 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
     protected Boolean doTaskBackground(String... params) {
 
         Log.d(TAG, "doing wipe task in background");
-        for (int i = 0; i < records.length; ++i) {
-            FormRecord record = records[i];
+        for (FormRecord record : records) {
             FormRecordCleanupTask.wipeRecord(c, record);
         }
         return true;

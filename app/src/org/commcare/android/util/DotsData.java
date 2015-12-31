@@ -134,9 +134,9 @@ public class DotsData {
          * false otherwise
          */
         public boolean isDefault() {
-            for(int i = 0; i < boxes.length ; ++i) {
-                for(int j = 0; j < boxes[i].length; ++j) {
-                    if(boxes[i][j].status != MedStatus.unchecked) {
+            for (DotsBox[] dotBoxes : boxes) {
+                for (int j = 0; j < dotBoxes.length; ++j) {
+                    if (dotBoxes[j].status != MedStatus.unchecked) {
                         return false;
                     }
                 }
@@ -146,10 +146,10 @@ public class DotsData {
         
         public JSONArray serialize() {
             JSONArray day = new JSONArray();
-            for(int i = 0; i < boxes.length ; ++i) {
+            for (DotsBox[] dotBoxes : boxes) {
                 JSONArray regimen = new JSONArray();
-                for(int j = 0; j < boxes[i].length ; ++j) {
-                    regimen.put(boxes[i][j].serialize());
+                for (int j = 0; j < dotBoxes.length; ++j) {
+                    regimen.put(dotBoxes[j].serialize());
                 }
                 day.put(regimen);
             }
@@ -244,23 +244,22 @@ public class DotsData {
 
         public MedStatus status() {
             MedStatus ret = null;
-            for(int i = 0 ; i < boxes.length; ++i) {
-                for(int j = 0 ; j < boxes[i].length; ++j) {
-                    DotsBox b = boxes[i][j];
-                    if(ret == null) {
-                        if(b.status != MedStatus.unchecked) {
+            for (DotsBox[] dotBoxes : boxes) {
+                for (int j = 0; j < dotBoxes.length; ++j) {
+                    DotsBox b = dotBoxes[j];
+                    if (ret == null) {
+                        if (b.status != MedStatus.unchecked) {
                             ret = MedStatus.empty;
                         } else {
                             ret = MedStatus.unchecked;
                         }
                     } else {
-                        if(ret == MedStatus.unchecked) {
-                            if(b.status != MedStatus.unchecked) {
+                        if (ret == MedStatus.unchecked) {
+                            if (b.status != MedStatus.unchecked) {
                                 return MedStatus.partial;
                             }
-                        }
-                        else if(ret == MedStatus.empty) {
-                            if(b.status == MedStatus.unchecked) {
+                        } else if (ret == MedStatus.empty) {
+                            if (b.status == MedStatus.unchecked) {
                                 return MedStatus.partial;
                             }
                         }
@@ -328,10 +327,10 @@ public class DotsData {
             }
             if(this.regLabels != null) {
                 JSONArray regLabelJson = new JSONArray();
-                for(int i = 0; i < regLabels.length ; ++i) {
+                for (int[] labels : regLabels) {
                     JSONArray regLabelSub = new JSONArray();
-                    for(int j = 0 ; j < regLabels[i].length; ++j) {
-                        regLabelSub.put(regLabels[i][j]);
+                    for (int j = 0; j < labels.length; ++j) {
+                        regLabelSub.put(labels[j]);
                     }
                     regLabelJson.put(regLabelSub);
                 }

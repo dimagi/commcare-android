@@ -85,10 +85,10 @@ public class EntityView extends LinearLayout {
             }
         }
         refreshViewsForNewEntity(e, false, rowId);
-        for (int i = 0; i < views.length; i++) {
-            LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-            if (views[i] != null) {
-                addView(views[i], l);
+        for (View view : views) {
+            if (view != null) {
+                LayoutParams l = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+                addView(view, l);
             }
         }
 
