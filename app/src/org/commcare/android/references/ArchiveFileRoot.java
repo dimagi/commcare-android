@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.references;
 
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -10,7 +7,6 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.util.HashMap;
-
 
 /**
  * @author wspride
@@ -22,7 +18,7 @@ public class ArchiveFileRoot implements ReferenceFactory {
 
     private final HashMap<String, String> guidToFolderMap = new HashMap<String, String>();
 
-    private final int guidLength = 10;
+    private static final int GUID_LENGTH = 10;
 
     public ArchiveFileRoot() {
     }
@@ -43,7 +39,7 @@ public class ArchiveFileRoot implements ReferenceFactory {
     }
 
     public String addArchiveFile(String filepath) {
-        String mGUID = PropertyUtils.genGUID(guidLength);
+        String mGUID = PropertyUtils.genGUID(GUID_LENGTH);
         guidToFolderMap.put(mGUID, filepath);
         return mGUID;
     }

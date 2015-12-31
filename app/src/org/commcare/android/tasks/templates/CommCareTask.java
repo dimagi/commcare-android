@@ -21,7 +21,7 @@ public abstract class CommCareTask<A, B, C, R> extends ManagedAsyncTask<A, B, C>
     protected int taskId = GENERIC_TASK_ID;
 
     //Wait for 2 seconds for something to reconnnect for now (very high)
-    private final int ALLOWABLE_CONNECTOR_ACQUISITION_DELAY = 2000;
+    private static final int ALLOWABLE_CONNECTOR_ACQUISITION_DELAY = 2000;
 
     public CommCareTask() {
         TAG = CommCareTask.class.getSimpleName();

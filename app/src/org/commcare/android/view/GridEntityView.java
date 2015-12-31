@@ -45,10 +45,7 @@ import java.util.Arrays;
  */
 public class GridEntityView extends GridLayout {
 
-    private String[] forms;
     private String[] searchTerms;
-    private GridCoordinate[] coords;
-    private GridStyle[] styles;
     Object[] mRowData;
     View[] mRowViews;
     boolean mFuzzySearchEnabled = false;
@@ -229,9 +226,9 @@ public class GridEntityView extends GridLayout {
         addBuffers(context);
 
         // extract UI information from detail and entity
-        forms = detail.getTemplateForms();
-        coords = detail.getGridCoordinates();
-        styles = detail.getGridStyles();
+        String[] forms = detail.getTemplateForms();
+        GridCoordinate[] coords = detail.getGridCoordinates();
+        GridStyle[] styles = detail.getGridStyles();
         mRowData = entity.getData();
         mRowViews = new View[mRowData.length];
 
