@@ -29,7 +29,7 @@ import java.util.List;
 public class CallRecordAdapter implements ListAdapter {
     Context context;
     Cursor cursor;
-    List<Integer> enabled = new ArrayList<Integer>();
+    List<Integer> enabled = new ArrayList<>();
 
     public CallRecordAdapter(Context context, Cursor c) {
         this.context = context;

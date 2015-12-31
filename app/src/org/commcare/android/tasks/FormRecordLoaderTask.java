@@ -38,7 +38,7 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
     // Functions to call when some or all of the data has been loaded.  Data
     // can be loaded normally, or be given precedence (priority), determining
     // which callback is dispatched to the listeners.
-    private final ArrayList<FormRecordLoadListener> listeners = new ArrayList<FormRecordLoadListener>();
+    private final ArrayList<FormRecordLoadListener> listeners = new ArrayList<>();
 
     // These are all synchronized together
     private Queue<FormRecord> priorityQueue;
@@ -147,7 +147,7 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
             }
             // Otherwise, let's try to load some text about this record: last
             // modified date, title of the record, and form name
-            ArrayList<String> recordTextDesc = new ArrayList<String>();
+            ArrayList<String> recordTextDesc = new ArrayList<>();
 
             // Get the date in a searchable format.
             recordTextDesc.add(android.text.format.DateUtils.formatDateTime(context, current.lastModified().getTime(), android.text.format.DateUtils.FORMAT_NO_MONTH_DAY | android.text.format.DateUtils.FORMAT_NO_YEAR).toLowerCase());
@@ -190,7 +190,7 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
 
             // Copy data into search task and notify anything waiting on this
             // record.
-            this.publishProgress(new Pair<FormRecord, ArrayList<String>>(current, recordTextDesc));
+            this.publishProgress(new Pair<>(current, recordTextDesc));
         }
         return 1;
     }

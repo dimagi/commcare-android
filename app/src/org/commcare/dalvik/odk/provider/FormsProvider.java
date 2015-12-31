@@ -426,7 +426,7 @@ public class FormsProvider extends ContentProvider {
         sUriMatcher.addURI(FormsProviderAPI.AUTHORITY, "forms", FORMS);
         sUriMatcher.addURI(FormsProviderAPI.AUTHORITY, "forms/#", FORM_ID);
 
-        sFormsProjectionMap = new HashMap<String, String>();
+        sFormsProjectionMap = new HashMap<>();
         sFormsProjectionMap.put(FormsColumns._ID, FormsColumns._ID);
         sFormsProjectionMap.put(FormsColumns.DISPLAY_NAME, FormsColumns.DISPLAY_NAME);
         sFormsProjectionMap.put(FormsColumns.DISPLAY_SUBTEXT, FormsColumns.DISPLAY_SUBTEXT);

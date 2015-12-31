@@ -47,7 +47,7 @@ public class SigningUtil {
         byte[] signatureBytes = getSignatureBytes(payload);
         byte[] messageBytes = getMessageBytes(payload);
         String downloadLink = getDownloadLink(messageBytes);
-        return new Pair<String, byte[]> (downloadLink, signatureBytes);
+        return new Pair<>(downloadLink, signatureBytes);
     }
 
 

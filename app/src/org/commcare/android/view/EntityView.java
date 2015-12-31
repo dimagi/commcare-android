@@ -72,7 +72,7 @@ public class EntityView extends LinearLayout {
         mIsAsynchronous = e instanceof AsyncEntity;
         this.searchTerms = searchTerms;
         this.tts = tts;
-        this.renderedGraphsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
+        this.renderedGraphsCache = new Hashtable<>();
         this.rowId = rowId;
         this.views = new View[e.getNumFields()];
         this.forms = d.getTemplateForms();
@@ -322,7 +322,7 @@ public class EntityView extends LinearLayout {
 
             removeSpans(raw);
 
-            Vector<int[]> matches = new Vector<int[]>();
+            Vector<int[]> matches = new Vector<>();
 
             //Highlight direct substring matches
             for (String searchText : searchTerms) {

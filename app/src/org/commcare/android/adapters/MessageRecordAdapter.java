@@ -32,8 +32,8 @@ import java.util.Set;
 public class MessageRecordAdapter implements ListAdapter {
     Context context;
     Cursor cursor;
-    List<Integer> enabled = new ArrayList<Integer>();
-    Set<Long> seen = new HashSet<Long>();
+    List<Integer> enabled = new ArrayList<>();
+    Set<Long> seen = new HashSet<>();
 
     public static final int MAX = 100;
 

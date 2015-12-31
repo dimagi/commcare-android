@@ -142,13 +142,13 @@ public class TestUtils {
      */
     public static SqlStorage<ACase> getCaseStorage(SQLiteDatabase db) {
 
-            return new SqlStorage<ACase>(ACase.STORAGE_KEY, ACase.class, new ConcreteAndroidDbHelper(RuntimeEnvironment.application, db) {
-            @Override
-            public PrototypeFactory getPrototypeFactory() {
-                return getStaticPrototypeFactory();
-            }
-               
-        });
+            return new SqlStorage<>(ACase.STORAGE_KEY, ACase.class, new ConcreteAndroidDbHelper(RuntimeEnvironment.application, db) {
+                @Override
+                public PrototypeFactory getPrototypeFactory() {
+                    return getStaticPrototypeFactory();
+                }
+
+            });
     }
     
     //TODO: Make this work natively with the CommCare Android IIF
@@ -172,7 +172,7 @@ public class TestUtils {
         ExternalDataInstance edi = new ExternalDataInstance("jr://instance/casedb", "casedb");
         DataInstance specializedDataInstance = edi.initialize(iif, "casedb");
         
-        Hashtable<String, DataInstance> formInstances = new Hashtable<String, DataInstance>();
+        Hashtable<String, DataInstance> formInstances = new Hashtable<>();
         formInstances.put("casedb", specializedDataInstance);
         
         TreeReference dummy = TreeReference.rootRef().extendRef("a", TreeReference.DEFAULT_MUTLIPLICITY);

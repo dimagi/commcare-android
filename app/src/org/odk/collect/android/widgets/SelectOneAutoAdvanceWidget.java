@@ -64,9 +64,9 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
         LayoutInflater inflater = LayoutInflater.from(getContext());
 
         mItems = prompt.getSelectChoices();
-        buttons = new Vector<RadioButton>();
-        mediaLayouts = new Vector<MediaLayout>();
-        parentLayout = new Vector<RelativeLayout>();
+        buttons = new Vector<>();
+        mediaLayouts = new Vector<>();
+        parentLayout = new Vector<>();
         listener = (AdvanceToNextListener) context;
 
         String s = null;

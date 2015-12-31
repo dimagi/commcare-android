@@ -38,7 +38,7 @@ import java.util.Vector;
 public class CaseDataContentProvider extends ContentProvider {
     
     //Valid sql selectors
-    final HashMap<String, String> caseMetaIndexTable = new HashMap<String, String>();
+    final HashMap<String, String> caseMetaIndexTable = new HashMap<>();
     
     
     //TODO: Caching - Use a cache table here or use an LRU or other system provided cache?
@@ -128,8 +128,8 @@ public class CaseDataContentProvider extends ContentProvider {
         
         //Allow for some selection processing, basically very simple AND filtering on indexes
         
-        Vector<String> keys = new Vector<String>();
-        Vector<String> values = new Vector<String>();
+        Vector<String> keys = new Vector<>();
+        Vector<String> values = new Vector<>();
 
         //If we don't have any selection args, skip all of this
         if(selection != null) {

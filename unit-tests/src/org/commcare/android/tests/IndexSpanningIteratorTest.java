@@ -66,7 +66,7 @@ public class IndexSpanningIteratorTest {
         ExtendedTestCursor c = new ExtendedTestCursor();
         c.setResults(master);
         
-        Vector<Integer> vals = new Vector<Integer>();
+        Vector<Integer> vals = new Vector<>();
         
         IndexSpanningIterator iterator = new IndexSpanningIterator(c, null, min, max, count);
         

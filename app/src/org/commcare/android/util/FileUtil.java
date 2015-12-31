@@ -262,7 +262,7 @@ public class FileUtil {
      */
 
     public static ArrayList<String> getExternalMounts() {
-        final ArrayList<String> out = new ArrayList<String>();
+        final ArrayList<String> out = new ArrayList<>();
         String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4).*rw.*";
         String s = "";
         try {

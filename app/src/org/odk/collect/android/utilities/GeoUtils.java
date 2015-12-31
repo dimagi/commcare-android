@@ -41,7 +41,7 @@ public class GeoUtils {
      * @return Set of String objects that may contain LocationManager.GPS_PROVDER and/or LocationManager.NETWORK_PROVIDER
      */
     public static Set<String> evaluateProviders(LocationManager manager) {
-        HashSet<String> set = new HashSet<String>();
+        HashSet<String> set = new HashSet<>();
         
         List<String> providers = manager.getProviders(true);
         for (String provider : providers) {

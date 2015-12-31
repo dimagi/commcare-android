@@ -57,10 +57,10 @@ public class AndroidUtil {
             //This is kind of (ok, so really) awkward looking, but we can't use sets in 
             //ccj2me (Thanks, Nokia!) also, there's no _collections_ interface in
             //j2me (thanks Sun!) so this is what we get.
-            HashSet<T> joined = new HashSet<T>(a);
+            HashSet<T> joined = new HashSet<>(a);
             joined.addAll(a);
 
-            HashSet<T> other = new HashSet<T>();
+            HashSet<T> other = new HashSet<>();
             other.addAll(b);
 
             joined.retainAll(other);

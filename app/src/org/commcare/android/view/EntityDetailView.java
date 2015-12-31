@@ -123,9 +123,9 @@ public class EntityDetailView extends FrameLayout {
         calloutText = (TextView)detailRow.findViewById(R.id.callout_text);
         calloutButton = (Button)detailRow.findViewById(R.id.callout_button);
         calloutImageButton = (ImageButton)detailRow.findViewById(R.id.callout_image_button);
-        graphViewsCache = new Hashtable<Integer, Hashtable<Integer, View>>();
-        graphsWithErrors = new HashSet<Integer>();
-        graphIntentsCache = new Hashtable<Integer, Intent>();
+        graphViewsCache = new Hashtable<>();
+        graphsWithErrors = new HashSet<>();
+        graphIntentsCache = new Hashtable<>();
         origLabel = (LinearLayout.LayoutParams)label.getLayoutParams();
         origValue = (LinearLayout.LayoutParams)valuePane.getLayoutParams();
 

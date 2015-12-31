@@ -110,14 +110,14 @@ public class FormRecordProcessor {
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 reporter.append("ERROR - No file path found for form record. ").append(e.getMessage()).append("\n");
-                return new Pair<Boolean, String>(false, reporter.toString());
+                return new Pair<>(false, reporter.toString());
             }
             
             //now, make sure there's a file there
             File recordFile = new File(formPath);
             if(!recordFile.exists()) {
                 reporter.append("ERROR - No form at file path provided\n");
-                return new Pair<Boolean, String>(false, reporter.toString());
+                return new Pair<>(false, reporter.toString());
             }
     
             //Give us the info about all of the files in this instance

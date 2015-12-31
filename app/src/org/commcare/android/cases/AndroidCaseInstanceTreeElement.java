@@ -25,7 +25,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     private static final String TAG = AndroidCaseInstanceTreeElement.class.getSimpleName();
     final CaseIndexTable mCaseIndexTable;
 
-    protected final Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<Integer, Integer>();
+    protected final Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<>();
 
     public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage, boolean reportMode) {
         this(instanceRoot, storage, reportMode, new CaseIndexTable());
@@ -41,8 +41,8 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
         if (cases != null) {
             return;
         }
-        objectIdMapping = new Hashtable<Integer, Integer>();
-        cases = new Vector<CaseChildElement>();
+        objectIdMapping = new Hashtable<>();
+        cases = new Vector<>();
         Log.d(TAG, "Getting Cases!");
         long timeInMillis = System.currentTimeMillis();
 
@@ -66,7 +66,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     //We're storing this here for now because this is a safe lifecycle object that must represent
     //a single snapshot of the case database, but it could be generalized later.
-    final Hashtable<String, Vector<Integer>> mIndexCache = new Hashtable<String, Vector<Integer>>();
+    final Hashtable<String, Vector<Integer>> mIndexCache = new Hashtable<>();
 
     @Override
     protected Vector<Integer> getNextIndexMatch(Vector<String> keys, Vector<Object> values, IStorageUtilityIndexed<?> storage) {

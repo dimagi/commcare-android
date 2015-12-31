@@ -53,7 +53,7 @@ public class CallInPhoneListener extends PhoneStateListener {
     public CallInPhoneListener(Context context, AndroidCommCarePlatform platform) {
         this.context = context;
         this.platform = platform;
-        cachedNumbers = new Hashtable<String, String[]>();
+        cachedNumbers = new Hashtable<>();
         toastTimer = new Timer("toastTimer");
     }
 
@@ -107,8 +107,8 @@ public class CallInPhoneListener extends PhoneStateListener {
             @Override
             protected Void doInBackground(Void... params) {
                     synchronized(cachedNumbers) {
-                        Hashtable<String,Pair<String, TreeReference>> detailSources = new Hashtable<String,Pair<String, TreeReference>>();
-                        Set<Detail> details = new HashSet<Detail>();
+                        Hashtable<String,Pair<String, TreeReference>> detailSources = new Hashtable<>();
+                        Set<Detail> details = new HashSet<>();
 
                         //To fan this out, we first need to find the appropriate long detail screens
                         //then determine what nodeset to use to iterate over it
@@ -168,7 +168,7 @@ public class CallInPhoneListener extends PhoneStateListener {
 
                                 Vector<TreeReference> references = ec.expandReference(nodesetSource);
 
-                                Set<Integer> phoneIds = new HashSet<Integer>();
+                                Set<Integer> phoneIds = new HashSet<>();
                                 String[] forms = d.getTemplateForms();
                                 for(int i = 0 ; i < forms.length ; ++i) {
                                     if("phone".equals(forms[i])) {

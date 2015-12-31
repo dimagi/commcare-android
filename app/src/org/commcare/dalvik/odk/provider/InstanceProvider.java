@@ -577,7 +577,7 @@ public class InstanceProvider extends ContentProvider {
         sUriMatcher.addURI(InstanceProviderAPI.AUTHORITY, "instances", INSTANCES);
         sUriMatcher.addURI(InstanceProviderAPI.AUTHORITY, "instances/#", INSTANCE_ID);
 
-        sInstancesProjectionMap = new HashMap<String, String>();
+        sInstancesProjectionMap = new HashMap<>();
         sInstancesProjectionMap.put(InstanceColumns._ID, InstanceColumns._ID);
         sInstancesProjectionMap.put(InstanceColumns.DISPLAY_NAME, InstanceColumns.DISPLAY_NAME);
         sInstancesProjectionMap.put(InstanceColumns.SUBMISSION_URI, InstanceColumns.SUBMISSION_URI);
