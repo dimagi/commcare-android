@@ -359,8 +359,7 @@ public class FileUtil {
             return null;
         }
 
-        String domainedFolder = sdRoot.getAbsolutePath() + "/Android/data/org.commcare.dalvik";
-        return domainedFolder;
+        return sdRoot.getAbsolutePath() + "/Android/data/org.commcare.dalvik";
     }
     /*
      * If we're on KitKat use the new OS path

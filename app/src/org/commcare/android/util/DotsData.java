@@ -397,9 +397,8 @@ public class DotsData {
         for(int j = 0 ; j <  days.length ; ++j ) {
             days[j] = new DotsDay(emptyBoxes(regType, null));
         }
-        
-        DotsData data = new DotsData(anchor, regType, days, null);
-        return data;
+
+        return new DotsData(anchor, regType, days, null);
     }
     
     public static DotsBox[][] emptyBoxes(int[] lengths, int[][] regLabels) {

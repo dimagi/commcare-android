@@ -232,7 +232,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 
     @Override
     protected TransactionParserFactory getTransactionParserFactory() {
-        TransactionParserFactory factory = new TransactionParserFactory() {
+        return new TransactionParserFactory() {
 
             @Override
             public TransactionParser getParser(KXmlParser parser) {
@@ -244,14 +244,13 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                         public void commit(ArrayList<UserKeyRecord> parsed) throws IOException {
                             ManageKeyRecordTask.this.keyRecords = parsed;
                         }
-                        
+
                     };
                 } else {
                     return null;
                 }
             }
         };
-        return factory;
     }
     
     @Override

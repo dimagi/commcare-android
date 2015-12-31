@@ -226,8 +226,7 @@ public class EntityDetailView extends FrameLayout {
                 updateCurrentView(ADDRESS, addressView);
             }
         } else if (FORM_IMAGE.equals(form)) {
-            String imageLocation = textField;
-            Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageLocation);
+            Bitmap b = MediaUtil.inflateDisplayImage(getContext(), textField);
 
             if (b == null) {
                 imageView.setImageDrawable(null);
@@ -331,10 +330,9 @@ public class EntityDetailView extends FrameLayout {
             audioButton.modifyButtonForNewView(uniqueId, textField, true);
             updateCurrentView(AUDIO, audioButton);
         } else if (FORM_VIDEO.equals(form)) { //TODO: Why is this given a special string?
-            String videoLocation = textField;
             String localLocation = null;
             try {
-                localLocation = ReferenceManager._().DeriveReference(videoLocation).getLocalURI();
+                localLocation = ReferenceManager._().DeriveReference(textField).getLocalURI();
                 if (localLocation.startsWith("/")) {
                     //TODO: This should likely actually be happening with the getLocalURI _anyway_.
                     localLocation = FileUtil.getGlobalStringUri(localLocation);
@@ -355,16 +353,15 @@ public class EntityDetailView extends FrameLayout {
 
             if (location == null) {
                 videoButton.setEnabled(false);
-                Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "No local video reference available for ref: " + videoLocation);
+                Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "No local video reference available for ref: " + textField);
             } else {
                 videoButton.setEnabled(true);
             }
 
             updateCurrentView(VIDEO, videoButton);
         } else {
-            String text = textField;
-            data.setText((text));
-            if (text != null && text.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff)) {
+            data.setText((textField));
+            if (textField != null && textField.length() > this.getContext().getResources().getInteger(R.integer.detail_size_cutoff)) {
                 veryLong = true;
             }
 

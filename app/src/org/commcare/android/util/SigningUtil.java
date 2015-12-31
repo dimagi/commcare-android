@@ -55,16 +55,13 @@ public class SigningUtil {
      * Given a URL, return the text at that location as a String
      */
     public static String convertUrlToPayload(String url) throws IOException {
-        String text = readURL(url);
-        return text;
+        return readURL(url);
     }
 
     // given the raw trimmed byte paylaod, return the message (everything before the signature)
     public static byte[] getMessageBytes(byte[] payload){
-        int lastSpaceIndex = getSignatureStartIndex(payload);
-        int messageLength = lastSpaceIndex;
-        byte[] messageBytes = new byte[messageLength];
-        for(int i = 0; i< messageLength; i++){
+        byte[] messageBytes = new byte[getSignatureStartIndex(payload)];
+        for(int i = 0; i< getSignatureStartIndex(payload); i++){
             messageBytes[i] = payload[i];
         }
         return messageBytes;
@@ -96,9 +93,8 @@ public class SigningUtil {
      */
     public static String getDownloadLink(byte[] messageBytes) throws Exception{
         String textMessage =  new String(messageBytes, "UTF-8");
-        String downloadLink  = textMessage.substring(textMessage.indexOf("ccapp: ") + "ccapp: ".length(),
+        return textMessage.substring(textMessage.indexOf("ccapp: ") + "ccapp: ".length(),
                 textMessage.indexOf("signature") - 1);
-        return downloadLink;
     }
 
     /**
@@ -149,9 +145,8 @@ public class SigningUtil {
 
     // given a text message, trim out the [commcare app - do not delete] and return
     public static String trimMessagePayload(String newMessage){
-        String parsed = newMessage.substring(newMessage.indexOf(GlobalConstants.SMS_INSTALL_KEY_STRING) +
+        return newMessage.substring(newMessage.indexOf(GlobalConstants.SMS_INSTALL_KEY_STRING) +
                 GlobalConstants.SMS_INSTALL_KEY_STRING.length() + 1);
-        return parsed;
     }
 
     /**

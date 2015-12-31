@@ -419,8 +419,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      * Get the current widget date in Gregorian chronology
      */
     private Date getDateAsGregorian(){
-        Date dtGregorian = new Date(getCurrentMillis());
-        return dtGregorian;
+        return new Date(getCurrentMillis());
     }
     
     /**

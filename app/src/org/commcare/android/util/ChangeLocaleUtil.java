@@ -34,14 +34,12 @@ public class ChangeLocaleUtil{
     public static String[] getLocaleCodes(){
         Localizer lizer = Localization.getGlobalLocalizerAdvanced();
         String[] rawLocales = lizer.getAvailableLocales();
-        String[] rawDefaultRemoved = removeDefault(rawLocales);
-        return rawDefaultRemoved;
+        return removeDefault(rawLocales);
     }
     
     public static String[] getLocaleNames(){
         String[] rawDefaultRemoved = getLocaleCodes();
-        String[] localeNames = translateLocales(rawDefaultRemoved);
-        return localeNames;
+        return translateLocales(rawDefaultRemoved);
     }
 
 }

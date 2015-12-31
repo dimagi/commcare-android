@@ -93,8 +93,7 @@ public class GridEntityView extends GridLayout {
         this.searchTerms = searchTerms;
         this.mIsAsynchronous = entity instanceof AsyncEntity;
 
-        int maximumRows = this.getMaxRows(detail);
-        this.NUMBER_ROWS_PER_GRID = maximumRows;
+        this.NUMBER_ROWS_PER_GRID = this.getMaxRows(detail);
 
         // Calibrate the # of grid views that appear on the screen, based on how many rows will
         // be in each grid

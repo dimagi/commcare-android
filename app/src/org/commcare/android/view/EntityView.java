@@ -133,8 +133,7 @@ public class EntityView extends LinearLayout {
     private View initView(Object data, String form, ViewId uniqueId, String sortField) {
         View retVal;
         if (FORM_IMAGE.equals(form)) {
-            ImageView iv = (ImageView) View.inflate(context, R.layout.entity_item_image, null);
-            retVal = iv;
+            retVal = (ImageView) View.inflate(context, R.layout.entity_item_image, null);
         } else if (FORM_AUDIO.equals(form)) {
             String text = (String) data;
             AudioButton b;
@@ -145,11 +144,9 @@ public class EntityView extends LinearLayout {
             }
             retVal = b;
         } else if (FORM_GRAPH.equals(form) && data instanceof GraphData) {
-            View layout = View.inflate(context, R.layout.entity_item_graph, null);
-            retVal = layout;
+            retVal = View.inflate(context, R.layout.entity_item_graph, null);
         } else if (FORM_CALLLOUT.equals(form)) {
-            View layout = View.inflate(context, R.layout.entity_item_graph, null);
-            retVal = layout;
+            retVal = View.inflate(context, R.layout.entity_item_graph, null);
         } else {
             View layout = View.inflate(context, R.layout.component_audio_text, null);
             setupTextAndTTSLayout(layout, (String) data, sortField);
@@ -239,8 +236,7 @@ public class EntityView extends LinearLayout {
 
             @Override
             public void onClick(View v) {
-                String textToRead = text;
-                tts.speak(textToRead, TextToSpeech.QUEUE_FLUSH, null);
+                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
             }
         });
         if (tts == null || text == null || text.equals("")) {

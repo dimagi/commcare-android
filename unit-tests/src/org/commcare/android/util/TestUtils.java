@@ -123,8 +123,7 @@ public class TestUtils {
      */
     public static SQLiteDatabase getTestDb() {
         CommCareUserOpenHelper helper = new CommCareUserOpenHelper(RuntimeEnvironment.application, "Test");
-        final SQLiteDatabase db = helper.getWritableDatabase("Test");
-        return db;
+        return helper.getWritableDatabase("Test");
     }
 
     public static PrototypeFactory getStaticPrototypeFactory(){
@@ -177,8 +176,7 @@ public class TestUtils {
         formInstances.put("casedb", specializedDataInstance);
         
         TreeReference dummy = TreeReference.rootRef().extendRef("a", TreeReference.DEFAULT_MUTLIPLICITY);
-        EvaluationContext ec = new EvaluationContext(new EvaluationContext(null), formInstances, dummy);
-        return ec;
+        return new EvaluationContext(new EvaluationContext(null), formInstances, dummy);
     }
 
 
