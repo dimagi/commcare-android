@@ -26,7 +26,6 @@ import org.javarosa.core.model.data.DateTimeData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
-import org.odk.collect.android.listeners.WidgetChangedListener;
 
 import java.util.Calendar;
 import java.util.Date;

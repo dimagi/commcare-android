@@ -1,21 +1,16 @@
 package org.commcare.android.util;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
 
-import org.commcare.dalvik.BuildConfig;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.DataUtil.UnionLambda;
 
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 

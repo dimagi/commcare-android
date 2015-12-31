@@ -7,8 +7,6 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 
-import java.io.File;
-
 /**
  * @author ctsims
  */

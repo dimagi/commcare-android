@@ -3,7 +3,6 @@ package org.commcare.android.tasks;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Environment;
-import android.widget.TextView;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;

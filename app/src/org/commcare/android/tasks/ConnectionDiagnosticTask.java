@@ -9,7 +9,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.Logger;
 
 import java.io.BufferedReader;
