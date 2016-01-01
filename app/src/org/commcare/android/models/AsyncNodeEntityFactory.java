@@ -148,8 +148,9 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
             String entityId = walker.getString(walker.getColumnIndex("entity_key"));
             String cacheId = walker.getString(walker.getColumnIndex("cache_key"));
             String val = walker.getString(walker.getColumnIndex("value"));
-            AsyncEntity entity = this.mEntitySet.get(entityId);
-            entity.setSortData(cacheId, val);
+            if (this.mEntitySet.containsKey(entityId)) {
+                this.mEntitySet.get(entityId).setSortData(cacheId, val);
+            }
         }
         walker.close();
 

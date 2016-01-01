@@ -11,7 +11,9 @@ import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.core.process.XmlFormRecordProcessor;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.AndroidTransactionParserFactory;
+import org.commcare.xml.LedgerXmlParsers;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
@@ -61,12 +63,20 @@ public class FormRecordProcessor {
             FormUploadUtil.getDecryptCipher((new SecretKeySpec(record.getAesKey(), "AES")));
         InputStream is = new CipherInputStream(new FileInputStream(f), decrypter);
 
-        AndroidTransactionParserFactory factory = new AndroidTransactionParserFactory(c, null);
+        AndroidTransactionParserFactory factory = new AndroidTransactionParserFactory(c, null) {
+            @Override
+            public TransactionParser getParser(KXmlParser parser) {
+                String namespace = parser.getNamespace();
+                String name = parser.getName();
+                if (LedgerXmlParsers.STOCK_XML_NAMESPACE.equals(namespace) || "case".equalsIgnoreCase(name)) {
+                    return super.getParser(parser);
+                } else {
+                    return null;
+                }
+            }
+        };
 
-        factory.initCaseParser();
-        factory.initStockParser();
-
-        XmlFormRecordProcessor.process(new AndroidSandbox(CommCareApplication._()), is, factory);
+        XmlFormRecordProcessor.process(null, is, factory);
 
         //Let anyone who is listening know!
         Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
