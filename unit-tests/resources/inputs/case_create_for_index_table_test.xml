@@ -1,0 +1,16 @@
+<OpenRosaResponse>
+    <case case_id="constant_id" date_modified="2015-02-18T21:06:25Z"
+          user_id="test" xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>followup</case_type>
+            <case_name>first</case_name>
+            <owner_id>test_case_id</owner_id>
+        </create>
+        <update>
+            <name>clayton</name>
+        </update>
+        <index>
+            <parent case_type="worker">worker_one</parent>
+        </index>
+    </case>
+</OpenRosaResponse>
