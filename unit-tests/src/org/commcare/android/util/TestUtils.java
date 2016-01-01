@@ -18,6 +18,7 @@ import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.util.externalizable.AndroidClassHasher;
 import org.commcare.xml.AndroidCaseXmlParser;
+import org.commcare.xml.AndroidTransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.FormInstanceXmlParser;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -91,19 +92,49 @@ public class TestUtils {
         };
         
     }
-    
+
     /**
-     * Process an input XML file for transactions and update the relevant databases. 
+     * Process an input XML file for transactions and update the relevant databases.
      */
     public static void processResourceTransaction(String resourcePath) {
         final SQLiteDatabase db = getTestDb();
 
         DataModelPullParser parser;
-        
+
+        try{
+            InputStream is = System.class.getResourceAsStream(resourcePath);
+
+            parser = new DataModelPullParser(is, getFactory(db), true, true);
+            parser.parse();
+            is.close();
+
+        } catch(IOException ioe) {
+            throw wrapError(ioe, "IO Error parsing transactions");
+        } catch (InvalidStructureException e) {
+            throw wrapError(e, "Bad Transaction");
+        } catch (XmlPullParserException e) {
+            throw wrapError(e, "Bad XML");
+        } catch (UnfullfilledRequirementsException e) {
+            throw wrapError(e, "Bad State");
+        }
+    }
+
+    public static void processResourceTransactionIntoAppDb(String resourcePath) {
+        DataModelPullParser parser;
+
+        AndroidTransactionParserFactory androidTransactionFactory =
+                new AndroidTransactionParserFactory(CommCareApplication._().getApplicationContext(), null);
+
+        if (CommCareApplication._().getCurrentApp() != null) {
+            Hashtable<String, String> formInstanceNamespaces =
+                    FormSaveUtil.getNamespaceToFilePathMap(CommCareApplication._());
+            androidTransactionFactory.initFormInstanceParser(formInstanceNamespaces);
+        }
+
         try{
             InputStream is = System.class.getResourceAsStream(resourcePath);
             
-            parser = new DataModelPullParser(is, getFactory(db), true, true);
+            parser = new DataModelPullParser(is, androidTransactionFactory, true, true);
             parser.parse();
             is.close();
         
@@ -176,6 +207,19 @@ public class TestUtils {
         Hashtable<String, DataInstance> formInstances = new Hashtable<String, DataInstance>();
         formInstances.put("casedb", specializedDataInstance);
         
+        TreeReference dummy = TreeReference.rootRef().extendRef("a", TreeReference.DEFAULT_MUTLIPLICITY);
+        EvaluationContext ec = new EvaluationContext(new EvaluationContext(null), formInstances, dummy);
+        return ec;
+    }
+
+    public static EvaluationContext getEvaluationContextWithAndroidIIF() {
+        AndroidInstanceInitializer iif = new AndroidInstanceInitializer(CommCareApplication._().getCurrentSession());
+        ExternalDataInstance edi = new ExternalDataInstance("jr://instance/casedb", "casedb");
+        DataInstance specializedDataInstance = edi.initialize(iif, "casedb");
+
+        Hashtable<String, DataInstance> formInstances = new Hashtable<String, DataInstance>();
+        formInstances.put("casedb", specializedDataInstance);
+
         TreeReference dummy = TreeReference.rootRef().extendRef("a", TreeReference.DEFAULT_MUTLIPLICITY);
         EvaluationContext ec = new EvaluationContext(new EvaluationContext(null), formInstances, dummy);
         return ec;
