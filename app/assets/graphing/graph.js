@@ -118,13 +118,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
             // Support point-style
             for (var yID in data.pointStyles) {
                 var symbol = data.pointStyles[yID];
-                if (type === "bar") {
-                    symbol = "none";
-                } else if (type=== "bubble") {
-                    symbol = "circle";
-                } else {
-                    applyPointShape(yID, symbol);
-                }
+                applyPointShape(yID, symbol);
                 applyLegendShape(yID, symbol);
             }
 
