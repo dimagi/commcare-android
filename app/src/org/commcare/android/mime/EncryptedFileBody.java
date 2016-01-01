@@ -20,7 +20,6 @@ import javax.crypto.CipherInputStream;
  * @author ctsims
  */
 public class EncryptedFileBody extends AbstractContentBody {
-
     File file;
     Cipher cipher;
 

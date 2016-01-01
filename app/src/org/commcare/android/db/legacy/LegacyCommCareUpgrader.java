@@ -96,26 +96,6 @@ public class LegacyCommCareUpgrader {
     }
 
     /**
-     * Due a to a bug in Android 2.2 that is present on ~all of our
-     * production phones, upgrading from database versions
-     * before v. TOBEDECIDED is going to toast all of the app data. As such
-     * we need to remove all of the relevant records to ensure that
-     * the app doesn't crash and burn.
-     */
-    public void upgradeBeforeTwentyFour(SQLiteDatabase database) {
-        //NOTE: We'll do this cleanly when appropriate, but for
-        //right now we're just going to live with the bug.
-
-        database.beginTransaction();
-
-        database.execSQL("delete from GLOBAL_RESOURCE_TABLE");
-        database.execSQL("delete from UPGRADE_RESOURCE_TABLE");
-        database.execSQL("delete from android_cc_session");
-        database.setTransactionSuccessful();
-        database.endTransaction();
-    }
-
-    /**
      * Previous FormRecord entries were lacking, we're going to
      * wipe them out.
      */

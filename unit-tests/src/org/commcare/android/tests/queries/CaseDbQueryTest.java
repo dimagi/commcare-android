@@ -65,7 +65,7 @@ public class CaseDbQueryTest {
                 "test_case_id_child_2", ec);
     }
 
-    private void evaluate(String xpath, String expectedValue, EvaluationContext ec) {
+    public static void evaluate(String xpath, String expectedValue, EvaluationContext ec) {
         XPathExpression expr;
         try {
             expr = XPathParseTool.parseXPath(xpath);

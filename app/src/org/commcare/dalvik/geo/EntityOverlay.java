@@ -1,6 +1,5 @@
 package org.commcare.dalvik.geo;
 
-import android.content.Context;
 import android.graphics.drawable.Drawable;
 
 import com.google.android.maps.MapView;
@@ -19,11 +18,9 @@ public abstract class EntityOverlay extends BalloonItemizedOverlay {
     private final TreeReference[] references = new TreeReference[maxNum];
     private int index = 0;
     private boolean full = false;
-    private Context context;
 
-    public EntityOverlay(Context context, Drawable defaultMarker, MapView view) {
+    public EntityOverlay(Drawable defaultMarker, MapView view) {
         super(boundCenterBottom(defaultMarker), view);
-        this.context = context;
     }
 
     @Override
