@@ -633,6 +633,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             if (ret > Integer.MAX_VALUE) {
                 throw new RuntimeException("Waaaaaaaaaay too many values");
             }
+            p.setID((int) ret);
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

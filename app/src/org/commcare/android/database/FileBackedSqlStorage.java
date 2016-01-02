@@ -249,6 +249,7 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
                     }
                 }
             }
+            p.setID((int)insertedId);
 
             if (insertedId > Integer.MAX_VALUE) {
                 throw new RuntimeException("Waaaaaaaaaay too many values");
@@ -386,20 +387,6 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
                 }
             }
             db.endTransaction();
-        }
-    }
-
-    private void writeExternalizableToFile(Externalizable externalizable,
-                                           String filename,
-                                           byte[] aesKeyBytes) throws IOException {
-        DataOutputStream objectOutStream = null;
-        try {
-            objectOutStream = getOutputFileStream(filename, aesKeyBytes);
-            externalizable.writeExternal(objectOutStream);
-        } finally {
-            if (objectOutStream != null) {
-                objectOutStream.close();
-            }
         }
     }
 
