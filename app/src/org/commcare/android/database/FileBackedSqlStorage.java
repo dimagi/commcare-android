@@ -12,7 +12,6 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
-import org.commcare.modern.database.TableBuilder;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
@@ -22,6 +21,7 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -212,15 +212,22 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
         }
         SQLiteDatabase db = getDbOrThrow();
 
+        ByteArrayOutputStream bos = null;
         try {
             db.beginTransaction();
 
-            byte[] blob = TableBuilder.toBlob(p);
             long insertedId;
-            if (blobFitsInDb(blob)) {
+            bos = new ByteArrayOutputStream();
+            try {
+                p.writeExternal(new DataOutputStream(bos));
+            } catch (IOException e1) {
+                e1.printStackTrace();
+                throw new RuntimeException("Failed to serialize externalizable");
+            }
+            if (blobFitsInDb(bos)) {
                 // serialized object small enough to fit in db
                 ContentValues contentValues = helper.getNonDataContentValues(p);
-                contentValues.put(DatabaseHelper.DATA_COL, blob);
+                contentValues.put(DatabaseHelper.DATA_COL, bos.toByteArray());
                 // TODO PLM will this fail because FILE_COL and AES_COL are null?
                 insertedId = db.insertOrThrow(table, DatabaseHelper.DATA_COL, contentValues);
                 p.setID((int)insertedId);
@@ -240,7 +247,15 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
 
                 p.setID((int)insertedId);
 
-                writeExternalizableToFile(p, dataFile.getAbsolutePath(), key);
+                DataOutputStream fileOutputStream = null;
+                try {
+                    fileOutputStream = getOutputFileStream(dataFile.getAbsolutePath(), key);
+                    bos.writeTo(fileOutputStream);
+                } finally {
+                    if (fileOutputStream != null) {
+                        fileOutputStream.close();
+                    }
+                }
             }
 
             if (insertedId > Integer.MAX_VALUE) {
@@ -252,12 +267,19 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
             // Failed to create new file
             e.printStackTrace();
         } finally {
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             db.endTransaction();
         }
     }
 
-    protected boolean blobFitsInDb(byte[] blob) {
-        return blob.length < 1000000;
+    protected boolean blobFitsInDb(ByteArrayOutputStream blobStream) {
+        return blobStream.size() < 1000000;
     }
 
     protected byte[] generateKeyAndAdd(ContentValues contentValues) {
@@ -304,6 +326,7 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
         SQLiteDatabase db = getDbOrThrow();
 
         db.beginTransaction();
+        ByteArrayOutputStream bos = null;
         try {
             // how is store currently
             Pair<String, byte[]> filenameAndKey = FileBackedSqlQueries.getEntryFilenameAndKey(helper, table, id);
@@ -312,15 +335,21 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
 
             boolean objectInDb = filename == null;
 
-            byte[] blob = TableBuilder.toBlob(extObj);
-            if (blobFitsInDb(blob)) {
+            bos = new ByteArrayOutputStream();
+            try {
+                extObj.writeExternal(new DataOutputStream(bos));
+            } catch (IOException e1) {
+                e1.printStackTrace();
+                throw new RuntimeException("Failed to serialize externalizable");
+            }
+            if (blobFitsInDb(bos)) {
                 ContentValues updatedContentValues;
                 if (objectInDb) {
                     // was already stored in db, do normal update
-                    updatedContentValues = helper.getContentValuesWithCustomData(extObj, blob);
+                    updatedContentValues = helper.getContentValuesWithCustomData(extObj, bos.toByteArray());
                 } else {
                     // was stored in file: remove file and store in db
-                    updatedContentValues = helper.getContentValuesWithCustomData(extObj, blob);
+                    updatedContentValues = helper.getContentValuesWithCustomData(extObj, bos.toByteArray());
                     updatedContentValues.put(DatabaseHelper.FILE_COL, (String)null);
                     updatedContentValues.put(DatabaseHelper.AES_COL, (byte[])null);
 
@@ -344,8 +373,8 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
                 DataOutputStream fileOutputStream = null;
                 try {
                     fileOutputStream = getOutputFileStream(filename, fileEncryptionKey);
-                    fileOutputStream.write(blob);
-                } catch (IOException e) {
+                    bos.writeTo(fileOutputStream);
+                } finally {
                     if (fileOutputStream != null) {
                         fileOutputStream.close();
                     }
@@ -357,6 +386,13 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
             // Failed to update file
             e.printStackTrace();
         } finally {
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             db.endTransaction();
         }
     }

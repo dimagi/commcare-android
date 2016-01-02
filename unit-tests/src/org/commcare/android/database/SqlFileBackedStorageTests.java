@@ -37,7 +37,7 @@ import java.util.Vector;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@Config(application = org.commcare.dalvik.application.CommCareApplication.class,
+@Config(application = org.commcare.dalvik.application.CommCareTestApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class SqlFileBackedStorageTests {
@@ -45,6 +45,9 @@ public class SqlFileBackedStorageTests {
 
     @Before
     public void setup() {
+        UnencryptedFileBackedSqlStorageMock.alwaysPutInFilesystem();
+        FileBackedSqlStorageMock.alwaysPutInFilesystem();
+
         // needed to resolve "jr://resource" type references
         ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
 

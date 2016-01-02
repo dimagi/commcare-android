@@ -6,7 +6,6 @@ import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Profile;
-import org.commcare.util.externalizable.AndroidClassHasher;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.junit.Assert;

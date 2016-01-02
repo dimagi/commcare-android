@@ -40,7 +40,7 @@ import java.io.File;
 public class CommCareApp {
     private ApplicationRecord record;
 
-    private JavaFileRoot fileRoot;
+    protected JavaFileRoot fileRoot;
     private final AndroidCommCarePlatform platform;
 
     private static final String TAG = CommCareApp.class.getSimpleName();
@@ -57,10 +57,9 @@ public class CommCareApp {
     private static Stylizer mStylizer;
 
     private int resourceState;
-    
+
     public CommCareApp(ApplicationRecord record) {
         this.record = record;
-
         // Now, we need to identify the state of the application resources
         int[] version = CommCareApplication._().getCommCareVersion();
 
@@ -281,7 +280,7 @@ public class CommCareApp {
         return new UnencryptedFileBackedSqlStorage<>(name, c, buildAndroidDbHelper(), storageRoot());
     }
 
-    private AndroidDbHelper buildAndroidDbHelper() {
+    protected AndroidDbHelper buildAndroidDbHelper() {
         return new AndroidDbHelper(CommCareApplication._().getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() {

@@ -47,19 +47,14 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 
     @Override
     public boolean initialize(final AndroidCommCarePlatform instance) throws ResourceInitializationException {
-
         try {
             if (localLocation == null) {
                 throw new ResourceInitializationException("The suite file's location is null!");
             }
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
-            SuiteParser parser = new SuiteParser(local.getStream(), instance.getGlobalResourceTable(), null) {
-                @Override
-                protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
-                    return instance.getFixtureStorage();
-                }
-            };
+            SuiteParser parser = new SuiteParser(local.getStream(),
+                    instance.getGlobalResourceTable(), null, instance.getFixtureStorage());
 
             Suite s = parser.parse();
 
@@ -81,12 +76,8 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
-            SuiteParser parser = new SuiteParser(local.getStream(), table, r.getRecordGuid()) {
-                @Override
-                protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
-                    return instance.getFixtureStorage();
-                }
-            };
+            SuiteParser parser = new SuiteParser(local.getStream(), table,
+                    r.getRecordGuid(), instance.getFixtureStorage());
 
             Suite s = parser.parse();
 
@@ -114,18 +105,11 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
-            Suite mSuite = (new SuiteParser(local.getStream(), new DummyResourceTable(), null) {
-                @Override
-                protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
-                    //shouldn't be necessary
-                    return null;
-                }
-
+            Suite mSuite = (new SuiteParser(local.getStream(), new DummyResourceTable(), null, null) {
                 @Override
                 protected boolean inValidationMode() {
                     return true;
                 }
-
             }).parse();
             Hashtable<String, Entry> mHashtable = mSuite.getEntries();
             for (Enumeration en = mHashtable.keys(); en.hasMoreElements(); ) {

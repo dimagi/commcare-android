@@ -717,7 +717,7 @@ public class CommCareApplication extends Application {
         }
     }
 
-    private AndroidDbHelper buildUserDbHandle() {
+    protected AndroidDbHelper buildUserDbHandle() {
         return new AndroidDbHelper(this.getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() throws SessionUnavailableException {
