@@ -210,37 +210,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     @Override
     public T getRecordForValue(String rawFieldName, Object value) throws NoSuchElementException, InvalidIndexException {
-        SQLiteDatabase db;
-        try {
-            db = helper.getHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
-
-        Pair<String, String[]> whereClause = helper.createWhereAndroid(new String[] {rawFieldName}, new Object[] {value}, em, null);
-        
-        if(STORAGE_OUTPUT_DEBUG) {
-            String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[] {DatabaseHelper.ID_COL} , whereClause.first,null, null, null,null);
-            DbUtil.explainSql(db, sql, whereClause.second);
-        }
-        
-        String scrubbedName = AndroidTableBuilder.scrubName(rawFieldName);
-        Cursor c = db.query(table, new String[] {DatabaseHelper.DATA_COL} ,whereClause.first, whereClause.second, null, null, null);
-        try {
-            int queryCount = c.getCount();
-            if (queryCount == 0) {
-                throw new NoSuchElementException("No element in table " + table + " with name " + scrubbedName + " and value " + value.toString());
-            } else if (queryCount > 1) {
-                throw new InvalidIndexException("Invalid unique column " + scrubbedName + ". Multiple records found with value " + value.toString(), scrubbedName);
-            }
-            c.moveToFirst();
-            byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
-            return newObject(data);
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
+        return getRecordForValues(new String[]{rawFieldName}, new Object[]{value});
     }
 
     public T newObject(InputStream objectInputStream, int dbId) {
