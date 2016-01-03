@@ -11,49 +11,12 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="vertical">
 
         <LinearLayout
-            android:id="@+id/update_check_cancel_buttons"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingBottom="@dimen/content_min_margin"
-            android:paddingLeft="@dimen/content_min_margin"
-            android:paddingRight="@dimen/content_min_margin"
-            android:paddingTop="@dimen/content_min_margin">
-
-            <org.commcare.android.view.SquareButtonWithText
-                android:id="@+id/check_for_update_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                SquareButtonWithText:backgroundColor="@color/cc_brand_color"
-                SquareButtonWithText:img="@drawable/update_download"
-                SquareButtonWithText:subtitle=""
-                SquareButtonWithText:textColor="@color/white"/>
-
-            <org.commcare.android.view.SquareButtonWithText
-                android:id="@+id/stop_update_download_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                SquareButtonWithText:backgroundColor="@color/cc_neutral_color"
-                SquareButtonWithText:img="@drawable/install_stop"
-                SquareButtonWithText:subtitle=""
-                SquareButtonWithText:textColor="@color/white"/>
-
-            <org.commcare.android.view.SquareButtonWithText
-                android:id="@+id/install_update_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
-                SquareButtonWithText:img="@drawable/install_start"
-                SquareButtonWithText:subtitle=""
-                SquareButtonWithText:textColor="@color/white"/>
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:gravity="center"
             android:orientation="vertical">
 
             <TextView
@@ -82,13 +45,69 @@
                 android:id="@+id/current_version_text"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/content_min_margin"
                 android:layout_marginLeft="@dimen/content_min_margin"
                 android:layout_marginRight="@dimen/content_min_margin"
-                android:layout_marginTop="@dimen/content_min_margin"
                 android:gravity="center"
                 android:textSize="@dimen/font_size_medium"/>
         </LinearLayout>
 
+        <LinearLayout
+            xmlns:SquareButtonWithText="http://schemas.android.com/apk/res-auto"
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
+            <LinearLayout
+                android:id="@+id/update_check_cancel_buttons"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:paddingBottom="@dimen/content_min_margin"
+                android:paddingLeft="@dimen/content_min_margin"
+                android:paddingRight="@dimen/content_min_margin"
+                android:paddingTop="@dimen/content_min_margin">
+
+                <org.commcare.android.view.SquareButtonWithText
+                    android:id="@+id/check_for_update_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    SquareButtonWithText:backgroundColor="@color/cc_brand_color"
+                    SquareButtonWithText:img="@drawable/update_download"
+                    SquareButtonWithText:subtitle=""
+                    SquareButtonWithText:textColor="@color/white"/>
+
+                <org.commcare.android.view.SquareButtonWithText
+                    android:id="@+id/stop_update_download_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    SquareButtonWithText:backgroundColor="@color/cc_neutral_color"
+                    SquareButtonWithText:img="@drawable/install_stop"
+                    SquareButtonWithText:subtitle=""
+                    SquareButtonWithText:textColor="@color/white"/>
+
+                <org.commcare.android.view.SquareButtonWithText
+                    android:id="@+id/install_update_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
+                    SquareButtonWithText:img="@drawable/install_start"
+                    SquareButtonWithText:subtitle=""
+                    SquareButtonWithText:textColor="@color/white"/>
+            </LinearLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

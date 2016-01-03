@@ -35,6 +35,17 @@
             android:gravity="center"
             android:progressDrawable="@drawable/progressbar_modern"/>
 
+        <TextView
+            android:id="@+id/current_version_text"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/content_min_margin"
+            android:layout_marginLeft="@dimen/content_min_margin"
+            android:layout_marginRight="@dimen/content_min_margin"
+            android:layout_marginTop="@dimen/content_min_margin"
+            android:gravity="center"
+            android:textSize="@dimen/font_size_medium"/>
+
         <LinearLayout
             android:id="@+id/update_check_cancel_buttons"
             android:layout_width="match_parent"
@@ -72,16 +83,5 @@
                 SquareButtonWithText:subtitle=""
                 SquareButtonWithText:textColor="@color/white"/>
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/current_version_text"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="@dimen/content_min_margin"
-            android:layout_marginLeft="@dimen/content_min_margin"
-            android:layout_marginRight="@dimen/content_min_margin"
-            android:layout_marginTop="@dimen/content_min_margin"
-            android:gravity="center"
-            android:textSize="@dimen/font_size_medium"/>
     </LinearLayout>
 </ScrollView>
