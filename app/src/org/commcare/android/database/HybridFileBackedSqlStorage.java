@@ -40,7 +40,7 @@ import javax.crypto.spec.SecretKeySpec;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
+public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
     private final File dbDir;
 
     /**
@@ -56,10 +56,10 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
      * @param ctype   type of object being stored in this database
      * @param baseDir all files for entries will be placed within this dir
      */
-    public FileBackedSqlStorage(String table,
-                                Class<? extends T> ctype,
-                                AndroidDbHelper helper,
-                                String baseDir) {
+    public HybridFileBackedSqlStorage(String table,
+                                      Class<? extends T> ctype,
+                                      AndroidDbHelper helper,
+                                      String baseDir) {
         super(table, ctype, helper);
 
         dbDir = new File(baseDir + GlobalConstants.FILE_CC_DB + table);
@@ -175,7 +175,7 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
     public byte[] readBytes(int id) {
         Cursor c;
         try {
-            c = helper.getHandle().query(table, FileBackedSqlStorage.dataColumns,
+            c = helper.getHandle().query(table, HybridFileBackedSqlStorage.dataColumns,
                     DatabaseHelper.ID_COL + "=?",
                     new String[]{String.valueOf(id)}, null, null, null);
         } catch (SessionUnavailableException e) {
@@ -356,6 +356,9 @@ public class FileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
                 if (objectInDb) {
                     // was in db but is now to big, null db data entry and write to file
                     updatedContentValues = helper.getContentValuesWithCustomData(extObj, null);
+                    filename = newFileForEntry().getAbsolutePath();
+                    updatedContentValues.put(DatabaseHelper.FILE_COL, filename);
+                    fileEncryptionKey = generateKeyAndAdd(updatedContentValues);
                 } else {
                     // was stored in a file all along, update file
                     updatedContentValues = helper.getNonDataContentValues(extObj);

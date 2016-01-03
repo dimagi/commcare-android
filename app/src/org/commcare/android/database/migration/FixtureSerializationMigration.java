@@ -3,24 +3,21 @@ package org.commcare.android.database.migration;
 import android.content.Context;
 import android.util.Log;
 
-import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.ConcreteAndroidDbHelper;
-import org.commcare.android.database.FileBackedSqlStorage;
+import org.commcare.android.database.HybridFileBackedSqlStorage;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
-import org.commcare.android.database.UnencryptedFileBackedSqlStorage;
+import org.commcare.android.database.UnencryptedHybridFileBackedSqlStorage;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.modern.database.DatabaseHelper;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
-import java.util.Vector;
 
 /**
  * Deserialize all fixtures in a db using old form instance serialization
@@ -57,13 +54,13 @@ public class FixtureSerializationMigration {
         ConcreteAndroidDbHelper helper = new ConcreteAndroidDbHelper(c, db);
         DataInputStream fixtureByteStream = null;
         try {
-            FileBackedSqlStorage<Persistable> fixtureStorage;
+            HybridFileBackedSqlStorage<Persistable> fixtureStorage;
             if (fileMigrationKeySeed != null) {
                 fixtureStorage =
-                        new FileBackedSqlStorageForMigration<Persistable>("fixture", FormInstance.class, helper, baseDir, fileMigrationKeySeed);
+                        new HybridFileBackedSqlStorageForMigration<Persistable>("fixture", FormInstance.class, helper, baseDir, fileMigrationKeySeed);
             } else {
                 fixtureStorage =
-                        new UnencryptedFileBackedSqlStorage<Persistable>("fixture", FormInstance.class, helper, baseDir);
+                        new UnencryptedHybridFileBackedSqlStorage<Persistable>("fixture", FormInstance.class, helper, baseDir);
             }
             SqlStorage<Persistable> oldUserFixtureStorage =
                     new SqlStorage<Persistable>("oldfixture", FormInstance.class, helper);

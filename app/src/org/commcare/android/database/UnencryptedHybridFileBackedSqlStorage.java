@@ -3,7 +3,6 @@ package org.commcare.android.database;
 import android.content.ContentValues;
 
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.util.externalizable.Externalizable;
 
 import java.io.BufferedInputStream;
 import java.io.DataOutputStream;
@@ -20,12 +19,12 @@ import java.io.InputStream;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class UnencryptedFileBackedSqlStorage<T extends Persistable>
-        extends FileBackedSqlStorage<T> {
-    public UnencryptedFileBackedSqlStorage(String table,
-                                           Class<? extends T> ctype,
-                                           AndroidDbHelper helper,
-                                           String baseDir) {
+public class UnencryptedHybridFileBackedSqlStorage<T extends Persistable>
+        extends HybridFileBackedSqlStorage<T> {
+    public UnencryptedHybridFileBackedSqlStorage(String table,
+                                                 Class<? extends T> ctype,
+                                                 AndroidDbHelper helper,
+                                                 String baseDir) {
         super(table, ctype, helper, baseDir);
     }
 

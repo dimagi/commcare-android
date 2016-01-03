@@ -1,7 +1,7 @@
 package org.commcare.dalvik.application;
 
-import org.commcare.android.database.UnencryptedFileBackedSqlStorage;
-import org.commcare.android.database.UnencryptedFileBackedSqlStorageMock;
+import org.commcare.android.database.UnencryptedHybridFileBackedSqlStorage;
+import org.commcare.android.database.UnencryptedHybridFileBackedSqlStorageMock;
 import org.javarosa.core.services.storage.Persistable;
 
 /**
@@ -18,7 +18,7 @@ public class CommCareTestApp extends CommCareApp {
     }
 
     @Override
-    public <T extends Persistable> UnencryptedFileBackedSqlStorage<T> getFileBackedStorage(String name, Class<T> c) {
-        return new UnencryptedFileBackedSqlStorageMock<>(name, c, app.buildAndroidDbHelper(), storageRoot());
+    public <T extends Persistable> UnencryptedHybridFileBackedSqlStorage<T> getFileBackedStorage(String name, Class<T> c) {
+        return new UnencryptedHybridFileBackedSqlStorageMock<>(name, c, app.buildAndroidDbHelper(), storageRoot());
     }
 }

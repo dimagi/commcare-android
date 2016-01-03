@@ -4,7 +4,7 @@ import android.content.ContentValues;
 
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.AndroidDbHelper;
-import org.commcare.android.database.FileBackedSqlStorage;
+import org.commcare.android.database.HybridFileBackedSqlStorage;
 import org.commcare.modern.database.DatabaseHelper;
 import org.javarosa.core.services.storage.Persistable;
 
@@ -14,14 +14,14 @@ import org.javarosa.core.services.storage.Persistable;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class FileBackedSqlStorageForMigration<T extends Persistable> extends FileBackedSqlStorage<T> {
+public class HybridFileBackedSqlStorageForMigration<T extends Persistable> extends HybridFileBackedSqlStorage<T> {
     private final byte[] fileKeySeed;
 
-    public FileBackedSqlStorageForMigration(String table,
-                                            Class<? extends T> ctype,
-                                            AndroidDbHelper helper,
-                                            String baseDir,
-                                            byte[] fileKeySeed) {
+    public HybridFileBackedSqlStorageForMigration(String table,
+                                                  Class<? extends T> ctype,
+                                                  AndroidDbHelper helper,
+                                                  String baseDir,
+                                                  byte[] fileKeySeed) {
         super(table, ctype, helper, baseDir);
 
         this.fileKeySeed = fileKeySeed;

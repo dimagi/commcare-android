@@ -22,7 +22,7 @@ public class SqlFileBackedStorageIterator<T extends Persistable>
      * @param storage The storage being queried
      */
     public SqlFileBackedStorageIterator(Cursor c,
-                                        FileBackedSqlStorage<T> storage) {
+                                        HybridFileBackedSqlStorage<T> storage) {
         super(c, storage, null);
     }
 
@@ -39,7 +39,7 @@ public class SqlFileBackedStorageIterator<T extends Persistable>
                     c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
 
             InputStream fileInputStream =
-                    ((FileBackedSqlStorage<T>)storage).getInputStreamFromFile(filename, aesKeyBlob);
+                    ((HybridFileBackedSqlStorage<T>)storage).getInputStreamFromFile(filename, aesKeyBlob);
             return storage.newObject(fileInputStream, nextID());
         }
     }

@@ -21,7 +21,7 @@ public class FileBackedSqlQueries {
                                                                  int id) {
         Cursor c;
         try {
-            c = helper.getHandle().query(table, FileBackedSqlStorage.dataColumns,
+            c = helper.getHandle().query(table, HybridFileBackedSqlStorage.dataColumns,
                     DatabaseHelper.ID_COL + "=?",
                     new String[]{String.valueOf(id)}, null, null, null);
         } catch (SessionUnavailableException e) {
