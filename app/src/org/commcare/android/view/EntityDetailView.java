@@ -386,7 +386,7 @@ public class EntityDetailView extends FrameLayout {
         }
     }
 
-    /*
+    /**
      * Appropriately set current & currentView.
      */
     private void updateCurrentView(int newCurrent, View newView) {
@@ -405,7 +405,7 @@ public class EntityDetailView extends FrameLayout {
         }
     }
 
-    /*
+    /**
      * Get current device screen width
      */
     private int getScreenWidth() {

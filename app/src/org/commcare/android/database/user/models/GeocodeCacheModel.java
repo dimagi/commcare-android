@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.database.user.models;
 
 import com.google.android.maps.GeoPoint;
@@ -32,7 +29,6 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
     private static final String META_HIT_TRUE = "t";
     private static final String META_HIT_FALSE = "f";
 
-
     private int recordId = -1;
     private int lat = -1;
     private int lon = -1;
@@ -41,7 +37,7 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
     private boolean hit;
 
     public GeocodeCacheModel() {
-
+        // for externalization
     }
 
     public GeocodeCacheModel(String location, int lat, int lon) {
@@ -56,7 +52,7 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
         this.lastQueried = queried;
     }
 
-    public static GeocodeCacheModel NoHitRecord(String val) {
+    public static GeocodeCacheModel noHitRecord(String val) {
         GeocodeCacheModel model = new GeocodeCacheModel();
         model.location = val;
         model.hit = false;
@@ -64,15 +60,17 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
         return model;
     }
 
-
+    @Override
     public boolean isEncrypted(String data) {
         return !(data.equals(META_LAST_QUERY) || data.equals(META_HIT));
     }
 
+    @Override
     public boolean isBlobEncrypted() {
         return true;
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         lastQueried = ExtUtil.readDate(in);
         hit = ExtUtil.readBool(in);
@@ -83,6 +81,7 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
         }
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeDate(out, lastQueried);
         ExtUtil.writeBool(out, hit);
@@ -97,18 +96,22 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
         return new GeoPoint(lat, lon);
     }
 
+    @Override
     public void setID(int ID) {
         recordId = ID;
     }
 
+    @Override
     public int getID() {
         return recordId;
     }
 
+    @Override
     public String[] getMetaDataFields() {
         return new String[]{META_LAST_QUERY, META_LOCATION, META_HIT};
     }
 
+    @Override
     public Object getMetaData(String fieldName) {
         if (META_LAST_QUERY.equals(fieldName)) {
             return DateUtils.formatDate(lastQueried, DateUtils.FORMAT_ISO8601);
@@ -130,5 +133,4 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
     public boolean dataExists() {
         return hit;
     }
-
 }

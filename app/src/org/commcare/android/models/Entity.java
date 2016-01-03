@@ -1,10 +1,6 @@
-/**
- *
- */
 package org.commcare.android.models;
 
 import org.commcare.android.util.StringUtils;
-
 
 /**
  * @author ctsims
@@ -33,7 +29,7 @@ public class Entity<T> {
         return data[i];
     }
 
-    /*
+    /**
      * Same as getField, but guaranteed to return a string.
      * If field is not already a string, will return blank string.
      */
