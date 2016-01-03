@@ -23,6 +23,7 @@ class UpdateUIState {
     private SquareButtonWithText installUpdateButton;
     private ProgressBar progressBar;
     private TextView currentVersionText;
+    private TextView pendingUpdateText;
     private TextView progressText;
 
     private final UpdateActivity activity;
@@ -41,6 +42,8 @@ class UpdateUIState {
             Localization.get("updates.check.network_unavailable");
     private final String checkFailedMessage =
             Localization.get("updates.check.failed");
+    private final String upToDateAppliedOnLoginText =
+            Localization.get("updates.applied.on.login");
     private final String errorMsg = Localization.get("updates.error");
     private final String upToDateText = Localization.get("updates.success");
 
@@ -64,6 +67,9 @@ class UpdateUIState {
         progressText = (TextView)activity.findViewById(R.id.update_progress_text);
         currentVersionText =
                 (TextView)activity.findViewById(R.id.current_version_text);
+        pendingUpdateText =
+                (TextView)activity.findViewById(R.id.pending_update_text);
+        pendingUpdateText.setText(upToDateAppliedOnLoginText);
 
         setupButtonListeners();
         idleUiState();
@@ -115,6 +121,7 @@ class UpdateUIState {
         checkUpdateButton.setEnabled(true);
         stopUpdateButton.setVisibility(View.GONE);
         installUpdateButton.setVisibility(View.GONE);
+        pendingUpdateText.setVisibility(View.GONE);
 
         updateProgressText("");
         updateProgressBar(0, 100);
@@ -143,6 +150,7 @@ class UpdateUIState {
         stopUpdateButton.setVisibility(View.GONE);
         installUpdateButton.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.GONE);
+        pendingUpdateText.setVisibility(View.VISIBLE);
 
         updateProgressBar(100, 100);
 
@@ -170,6 +178,7 @@ class UpdateUIState {
         checkUpdateButton.setEnabled(false);
         stopUpdateButton.setVisibility(View.GONE);
         installUpdateButton.setVisibility(View.GONE);
+        pendingUpdateText.setVisibility(View.GONE);
 
         updateProgressText(errorMsg);
     }
@@ -180,6 +189,7 @@ class UpdateUIState {
         checkUpdateButton.setEnabled(false);
         stopUpdateButton.setVisibility(View.GONE);
         installUpdateButton.setVisibility(View.GONE);
+        pendingUpdateText.setVisibility(View.GONE);
 
         updateProgressText(noConnectivityMsg);
     }

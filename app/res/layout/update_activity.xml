@@ -83,5 +83,14 @@
                 SquareButtonWithText:subtitle=""
                 SquareButtonWithText:textColor="@color/white"/>
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/pending_update_text"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/content_min_margin"
+            android:layout_marginRight="@dimen/content_min_margin"
+            android:gravity="center"
+            android:textSize="@dimen/font_size_medium"/>
     </LinearLayout>
 </ScrollView>
