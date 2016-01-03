@@ -142,6 +142,7 @@ class UpdateUIState {
         checkUpdateButton.setVisibility(View.GONE);
         stopUpdateButton.setVisibility(View.GONE);
         installUpdateButton.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.GONE);
 
         updateProgressBar(100, 100);
 
