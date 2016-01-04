@@ -372,7 +372,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         DataPullTask<LoginActivity> dataPuller = 
             new DataPullTask<LoginActivity>(getUsername(), password.getText().toString(),
-                 prefs.getString("ota-restore-url", LoginActivity.this.getString(R.string.ota_restore_url)),
+                 prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY,
+                         LoginActivity.this.getString(R.string.ota_restore_url)),
                  LoginActivity.this) {
                     @Override
                     protected void deliverResult( LoginActivity receiver, Integer result) {

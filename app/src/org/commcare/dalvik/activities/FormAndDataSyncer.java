@@ -15,6 +15,7 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
 
@@ -96,7 +97,8 @@ public class FormAndDataSyncer {
 
     private static String getFormPostURL(final Context context) {
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return settings.getString("PostURL", context.getString(R.string.PostURL));
+        return settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
+                context.getString(R.string.PostURL));
     }
 
     public void syncData(final boolean formsToSend, final boolean userTriggeredSync) {
@@ -122,8 +124,10 @@ public class FormAndDataSyncer {
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         DataPullTask<CommCareHomeActivity> mDataPullTask = new DataPullTask<CommCareHomeActivity>(
-                u.getUsername(), u.getCachedPwd(),
-                prefs.getString("ota-restore-url", activity.getString(R.string.ota_restore_url)),
+                u.getUsername(),
+                u.getCachedPwd(),
+                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY,
+                        activity.getString(R.string.ota_restore_url)),
                 activity) {
 
             @Override

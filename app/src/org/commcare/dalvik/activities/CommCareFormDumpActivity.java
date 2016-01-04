@@ -75,13 +75,13 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
         updateCounters();
 
         btnSubmitForms.setOnClickListener(new OnClickListener() {
-            public void onClick(View v){
+            public void onClick(View v) {
 
                 formsOnSD = getDumpFiles().length;
                 Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Send task found " + formsOnSD + " forms on the SD card.");
 
                 //if there're no forms to dump, just return
-                if(formsOnSD == 0){
+                if (formsOnSD == 0) {
                     txtInteractiveMessages.setText(localize("bulk.form.no.unsynced.submit"));
                     transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     return;
@@ -89,10 +89,11 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
 
                 SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
                 SendTask<CommCareFormDumpActivity> mSendTask = new SendTask<CommCareFormDumpActivity>(
-                        settings.getString("PostURL", url), getFolderPath()){
+                        settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, url),
+                        getFolderPath()) {
                     @Override
-                    protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
-                        if(result == Boolean.TRUE){
+                    protected void deliverResult(CommCareFormDumpActivity receiver, Boolean result) {
+                        if (result == Boolean.TRUE) {
                             CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
                             Intent i = new Intent(getIntent());
                             i.putExtra(KEY_NUMBER_DUMPED, formsOnSD);
@@ -112,11 +113,11 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                         receiver.updateProgress(update[0], BULK_SEND_ID);
                         receiver.txtInteractiveMessages.setText(update[0]);
                     }
-                    
+
                     @Override
                     protected void deliverError(CommCareFormDumpActivity receiver, Exception e) {
                         Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Send failed with exception: " + e.getMessage());
-                        receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[] {e.getMessage()}));
+                        receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[]{e.getMessage()}));
                         receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
                 };
@@ -128,16 +129,16 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
         btnDumpForms.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                
-                if(formsOnPhone == 0){
+
+                if (formsOnPhone == 0) {
                     txtInteractiveMessages.setText(Localization.get("bulk.form.no.unsynced.dump"));
                     transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     return;
                 }
-                DumpTask mDumpTask = new DumpTask(getApplicationContext()){
+                DumpTask mDumpTask = new DumpTask(getApplicationContext()) {
                     @Override
-                    protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
-                        if(result == Boolean.TRUE){
+                    protected void deliverResult(CommCareFormDumpActivity receiver, Boolean result) {
+                        if (result == Boolean.TRUE) {
                             Intent i = new Intent(getIntent());
                             i.putExtra(KEY_NUMBER_DUMPED, formsOnPhone);
                             receiver.setResult(BULK_DUMP_ID, i);
@@ -158,7 +159,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                     @Override
                     protected void deliverError(CommCareFormDumpActivity receiver, Exception e) {
                         Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Dump failed with exception: " + e.getMessage());
-                        receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[] {e.getMessage()}));
+                        receiver.txtInteractiveMessages.setText(Localization.get("bulk.form.error", new String[]{e.getMessage()}));
                         receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
                 };

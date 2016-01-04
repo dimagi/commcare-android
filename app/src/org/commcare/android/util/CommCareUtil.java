@@ -8,6 +8,7 @@ import android.widget.Toast;
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
@@ -89,7 +90,7 @@ public class CommCareUtil {
     
     public static void triggerLogSubmission(Context c) {
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        String url = settings.getString("PostURL", null);
+        String url = settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, null);
         
         if(url == null) {
             //This is mostly for dev purposes

@@ -24,6 +24,7 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
 
@@ -140,7 +141,10 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 records[i] = storage.read(ids.elementAt(i).intValue());
             }
             SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-            ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(context, settings.getString("PostURL", context.getString(R.string.PostURL))) {
+            ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(
+                    context,
+                    settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
+                            context.getString(R.string.PostURL))) {
                 @Override
                 protected void deliverResult(Object receiver, Integer result) {
                     if (result == FormUploadUtil.FULL_SUCCESS) {
@@ -183,7 +187,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         }
     }
 
-    private void syncData(final Context c) {
+    private void syncData(final Context context) {
         User u;
         try {
             u = CommCareApplication._().getSession().getLoggedInUser();
@@ -194,14 +198,19 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
-        DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url", c.getString(R.string.ota_restore_url)), c) {
+        DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(
+                u.getUsername(),
+                u.getCachedPwd(),
+                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY,
+                        context.getString(R.string.ota_restore_url)),
+                context) {
 
             @Override
             protected void deliverResult(Object receiver, Integer result) {
                 if (result != DataPullTask.DOWNLOAD_SUCCESS) {
-                    Toast.makeText(c, "CommCare couldn't sync. Please try to sync from CommCare directly for more information", Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, "CommCare couldn't sync. Please try to sync from CommCare directly for more information", Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(c, "CommCare synced!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, "CommCare synced!", Toast.LENGTH_LONG).show();
                 }
             }
 
