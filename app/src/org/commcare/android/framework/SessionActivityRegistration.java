@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 
-import org.commcare.dalvik.activities.CommCareHomeActivity;
+import org.commcare.dalvik.activities.DispatchActivity;
 
 /**
  * Manage redirection to login screen when session expiration occurs.
@@ -31,7 +31,7 @@ public class SessionActivityRegistration {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     unredirectedSessionExpiration = false;
-                    letHomeScreenRedirectToLogin(context);
+                    redirectToLogin(context);
                 }
             };
 
@@ -46,7 +46,7 @@ public class SessionActivityRegistration {
         synchronized (registrationLock) {
             if (unredirectedSessionExpiration) {
                 unredirectedSessionExpiration = false;
-                letHomeScreenRedirectToLogin(activity);
+                redirectToLogin(activity);
             }
         }
     }
@@ -75,13 +75,13 @@ public class SessionActivityRegistration {
     }
 
     /**
-     * Launch the CommCareHomeActivity, but clear the activity backstack down
+     * Launch the DispatchActivity, clearing the activity backstack down
      * to its first occurrence, which should be at the very bottom of the
-     * stack.  The backstack clearing is necessary for exiting out of the app
+     * stack. The backstack clearing is necessary for exiting out of the app
      * if the login activity is cancelled
      */
-    private static void letHomeScreenRedirectToLogin(Context context) {
-        Intent i = new Intent(context.getApplicationContext(), CommCareHomeActivity.class);
+    private static void redirectToLogin(Context context) {
+        Intent i = new Intent(context.getApplicationContext(), DispatchActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         context.startActivity(i);
     }

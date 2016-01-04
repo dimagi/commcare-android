@@ -85,7 +85,6 @@ public final class GoogleAnalyticsFields {
     // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_HOME_SCREEN
     public static String LABEL_SETTINGS = "Settings";
     public static String LABEL_UPDATE_CC = "Update CommCare";
-    public static String LABEL_CALL_LOG = "Call Log";
     public static String LABEL_REPORT_PROBLEM = "Report Problem";
     public static String LABEL_VALIDATE_MM = "Validate Media";
     public static String LABEL_MANAGE_SD = "Manage SD";

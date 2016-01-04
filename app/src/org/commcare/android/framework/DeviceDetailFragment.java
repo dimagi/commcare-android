@@ -1,19 +1,3 @@
-/*
- * Copyright (C) 2011 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.commcare.android.framework;
 
 import android.annotation.SuppressLint;
@@ -38,17 +22,10 @@ import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
  */
 @SuppressLint("NewApi")
 public class DeviceDetailFragment extends Fragment implements ConnectionInfoListener {
-
-    protected static final int CHOOSE_FILE_RESULT_CODE = 1;
+    private static final String TAG = DeviceDetailFragment.class.getSimpleName();
     private View mContentView = null;
-    private WifiP2pDevice device;
-    private WifiP2pInfo info;
     ProgressDialog progressDialog = null;
     
-    final String baseDirectory = "wifidirect";
-    final String targetDirectory = baseDirectory + "/target";
-    final String zipDirectory = baseDirectory + "/zipfolder.zip";
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -62,11 +39,10 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 
     @Override
     public void onConnectionInfoAvailable(final WifiP2pInfo info) {
-        Log.d(CommCareWiFiDirectActivity.TAG, "onConnectionInfoAvailable");
+        Log.d(TAG, "onConnectionInfoAvailable");
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
-        this.info = info;
         this.getView().setVisibility(View.VISIBLE);
     }
 
@@ -76,19 +52,17 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
      * @param device the device to be displayed 
      */
     public void showDetails(WifiP2pDevice device) {
-        Log.d(CommCareWiFiDirectActivity.TAG, "showing details in ddfragment with device: " +device.deviceAddress );
-        this.device = device;
+        Log.d(TAG, "showing details in ddfragment with device: " +device.deviceAddress );
         this.getView().setVisibility(View.VISIBLE);
         TextView view = (TextView) mContentView.findViewById(R.id.device_address);
         view.setText(device.deviceAddress);
-
     }
 
     /**
      * Clears the UI fields after a disconnect or direct mode disable operation.
      */
     public void resetViews() {
-        Log.d(CommCareWiFiDirectActivity.TAG, "resetting views");
+        Log.d(TAG, "resetting views");
         mContentView.findViewById(R.id.btn_connect).setVisibility(View.VISIBLE);
         TextView view = (TextView) mContentView.findViewById(R.id.device_address);
         view.setText("");
@@ -99,5 +73,4 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
         mContentView.findViewById(R.id.btn_start_client).setVisibility(View.GONE);
         this.getView().setVisibility(View.GONE);
     }
-
 }

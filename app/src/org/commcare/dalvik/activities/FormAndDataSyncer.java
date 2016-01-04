@@ -41,7 +41,7 @@ public class FormAndDataSyncer {
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
                 if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
-                    receiver.launchLogin();
+                    receiver.finish();
                     return;
                 }
                 activity.getUiController().refreshView();

@@ -13,13 +13,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
 
 /**
  * Data-related configuration for C3. This configuration should be run before
@@ -425,7 +419,7 @@ public class DataConfiguration extends Configuration {
      */
     private void setPointStyle(String yID, SeriesData s) throws JSONException {
         String symbol;
-        if (mData.getType().equals(Graph.TYPE_BAR) || mData.getType().equals(Graph.TYPE_BUBBLE)) {
+        if (mData.getType().equals(Graph.TYPE_BAR)) {
             // point-style doesn't apply to bar charts
             symbol = "none";
         } else if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
