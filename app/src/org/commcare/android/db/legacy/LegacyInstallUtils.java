@@ -616,7 +616,7 @@ public class LegacyInstallUtils {
         return null;
     }
 
-    public static String getPhoneIdOld(Context c) {
+    private static String getPhoneIdOld(Context c) {
         TelephonyManager manager = (TelephonyManager) c.getSystemService(Context.TELEPHONY_SERVICE);
         String imei = manager.getDeviceId();
         if (imei == null) {

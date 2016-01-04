@@ -18,8 +18,8 @@ import java.util.Set;
 
 /**
  * Static functions for dealing with GPS data, specifically Location and LocationManager objects.
- * @author jschweers
  *
+ * @author jschweers
  */
 public class GeoUtils {
     public static final double GOOD_ACCURACY = 5;             // Good enough accuracy to stop pinging the GPS altogether
