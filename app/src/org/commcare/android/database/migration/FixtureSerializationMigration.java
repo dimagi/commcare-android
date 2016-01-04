@@ -14,6 +14,7 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.io.ByteArrayInputStream;
@@ -87,7 +88,9 @@ public class FixtureSerializationMigration {
             db.setTransactionSuccessful();
             Logger.log(AndroidLogger.SOFT_ASSERT, "fixture serialization db migration failed");
             Logger.exception(e);
-            return false;
+            // allow subsequent migrations to be processed. Will potentially
+            // lead to failure if those migrations make use of fixtures.
+            return true;
         } finally {
             if (fixtureByteStream != null) {
                 try {
