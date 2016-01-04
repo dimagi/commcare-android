@@ -53,11 +53,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
 
         String mCacheIndex = null;
         if (mTemplateIsCachable == null) {
-            if (mCacheHost == null) {
-                mTemplateIsCachable = false;
-            } else {
-                mTemplateIsCachable = mCacheHost.isReferencePatternCachable(data);
-            }
+            mTemplateIsCachable = mCacheHost != null && mCacheHost.isReferencePatternCachable(data);
         }
         if (mTemplateIsCachable) {
             if (mCacheHost == null) {
@@ -183,11 +179,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     @Override
     public boolean isEntitySetReadyInternal() {
         synchronized (mAsyncLock) {
-            if (mAsyncPrimingThread == null) {
-                return true;
-            } else {
-                return !mAsyncPrimingThread.isAlive();
-            }
+            return mAsyncPrimingThread == null || !mAsyncPrimingThread.isAlive();
         }
     }
 }

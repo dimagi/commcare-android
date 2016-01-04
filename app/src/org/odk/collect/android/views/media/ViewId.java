@@ -59,8 +59,6 @@ public class ViewId {
             return false;
         if (isDetail != other.isDetail)
             return false;
-        if (rowId != other.rowId)
-            return false;
-        return true;
+        return rowId == other.rowId;
     }
 }

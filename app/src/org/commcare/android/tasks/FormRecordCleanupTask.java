@@ -164,7 +164,6 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      *                  that reference a case.
      * @param oldRecord Reparse this record and return an updated copy of it
      * @param storage   User storage where updated FormRecord is written
-     * @return The reparsed form record and the associated case id, if present
      * @throws IOException                       Problem opening the saved form
      *                                           attached to the record.
      * @throws InvalidStructureException         Occurs during reparsing of the

@@ -14,6 +14,7 @@ import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.global.models.ApplicationRecordV1;
+import org.commcare.android.database.migration.FixtureSerializationMigration;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.ACasePreV6Model;
 import org.commcare.android.database.user.models.AUser;
@@ -88,6 +89,12 @@ class UserDatabaseUpgrader {
         if (oldVersion == 8) {
             if (upgradeEightNine(db)) {
                 oldVersion = 9;
+            }
+        }
+
+        if (oldVersion == 9) {
+            if (upgradeNineTen(db)) {
+                oldVersion = 10;
             }
         }
     }
@@ -214,10 +221,19 @@ class UserDatabaseUpgrader {
         }
     }
 
+    /*
+     * Deserialize user fixtures in db using old form instance serialization
+     * scheme, and re-serialize them using the new scheme that preserves
+     * attributes.
+     */
+    private boolean upgradeEightNine(SQLiteDatabase db) {
+        return FixtureSerializationMigration.migrateFixtureDbBytes(db, c);
+    }
+
     /**
      * Adding an appId field to FormRecords, for compatibility with multiple apps functionality
      */
-    private boolean upgradeEightNine(SQLiteDatabase db) {
+    private boolean upgradeNineTen(SQLiteDatabase db) {
         db.beginTransaction();
         try {
             if (multipleInstalledAppRecords()) {

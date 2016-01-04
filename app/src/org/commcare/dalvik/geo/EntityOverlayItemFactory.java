@@ -53,8 +53,8 @@ public class EntityOverlayItemFactory {
             }
         }
         
-        drawables = new HashMap<String, Drawable>();
-        missingImages = new HashSet<String>();
+        drawables = new HashMap<>();
+        missingImages = new HashSet<>();
         this.defDrawable = defDrawable;
     }
     

@@ -125,7 +125,7 @@ public class AudioWidget extends QuestionWidget {
                 File f = new File(mInstanceFolder + mBinaryName);
                 i.setDataAndType(Uri.fromFile(f), "audio/*");
                 try {
-                    ((Activity)getContext()).startActivity(i);
+                    getContext().startActivity(i);
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             StringUtils.getStringSpannableRobust(getContext(),

@@ -11,6 +11,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -112,8 +113,8 @@ public class InstanceProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
-            String sortOrder) {
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs,
+                        String sortOrder) {
         init();
         SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
         qb.setTables(INSTANCES_TABLE_NAME);
@@ -142,7 +143,7 @@ public class InstanceProvider extends ContentProvider {
     }
 
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         switch (sUriMatcher.match(uri)) {
             case INSTANCES:
                 return InstanceColumns.CONTENT_TYPE;
@@ -163,7 +164,7 @@ public class InstanceProvider extends ContentProvider {
      * @see android.content.ContentProvider#insert(android.net.Uri, android.content.ContentValues)
      */
     @Override
-    public Uri insert(Uri uri, ContentValues initialValues) {
+    public Uri insert(@NonNull Uri uri, ContentValues initialValues) {
         // Validate the requested uri
         if (sUriMatcher.match(uri) != INSTANCES) {
             throw new IllegalArgumentException("Unknown URI " + uri);
@@ -287,7 +288,7 @@ public class InstanceProvider extends ContentProvider {
      * files:  form.xml, [formmd5].formdef, formname-media {directory}
      */
     @Override
-    public int delete(Uri uri, String where, String[] whereArgs) {
+    public int delete(@NonNull Uri uri, String where, String[] whereArgs) {
         init();
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int count;
@@ -353,7 +354,7 @@ public class InstanceProvider extends ContentProvider {
      * @see android.content.ContentProvider#update(android.net.Uri, android.content.ContentValues, java.lang.String, java.lang.String[])
      */
     @Override
-    public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String where, String[] whereArgs) {
         int count;
 
         init();
@@ -577,7 +578,7 @@ public class InstanceProvider extends ContentProvider {
         sUriMatcher.addURI(InstanceProviderAPI.AUTHORITY, "instances", INSTANCES);
         sUriMatcher.addURI(InstanceProviderAPI.AUTHORITY, "instances/#", INSTANCE_ID);
 
-        sInstancesProjectionMap = new HashMap<String, String>();
+        sInstancesProjectionMap = new HashMap<>();
         sInstancesProjectionMap.put(InstanceColumns._ID, InstanceColumns._ID);
         sInstancesProjectionMap.put(InstanceColumns.DISPLAY_NAME, InstanceColumns.DISPLAY_NAME);
         sInstancesProjectionMap.put(InstanceColumns.SUBMISSION_URI, InstanceColumns.SUBMISSION_URI);

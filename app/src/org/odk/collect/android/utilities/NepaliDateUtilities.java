@@ -13,7 +13,7 @@ import static org.odk.collect.android.utilities.UniversalDate.MILLIS_IN_DAY;
  */
 public class NepaliDateUtilities {
     
-    private static final SparseArray<int[]> NEPALI_YEAR_MONTHS = new SparseArray<int[]>();
+    private static final SparseArray<int[]> NEPALI_YEAR_MONTHS = new SparseArray<>();
     
     private static final int MIN_YEAR = 1970;
     
