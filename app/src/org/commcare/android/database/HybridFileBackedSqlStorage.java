@@ -18,8 +18,6 @@ import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.InvalidIndexException;
 import org.javarosa.core.util.externalizable.Externalizable;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -42,6 +40,7 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorage<T> {
     private final File dbDir;
+    private final static int ONE_MB_DB_SIZE_LIMIT = 1000000;
 
     /**
      * column selection used for reading file data
@@ -110,13 +109,6 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                 c.close();
             }
         }
-    }
-
-    private T readObjectFromFile(Cursor c) {
-        return readObjectFromFile(c,
-                c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL),
-                c.getColumnIndexOrThrow(DatabaseHelper.AES_COL),
-                c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL)));
     }
 
     private T readObjectFromFile(Cursor c, int dbEntryId) {
@@ -204,7 +196,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     public byte[] readBytes(int id) {
         Cursor c;
         try {
-            c = helper.getHandle().query(table, HybridFileBackedSqlStorage.dataColumns,
+            c = helper.getHandle().query(table, dataColumns,
                     DatabaseHelper.ID_COL + "=?",
                     new String[]{String.valueOf(id)}, null, null, null);
         } catch (SessionUnavailableException e) {
@@ -249,43 +241,32 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         }
         SQLiteDatabase db = getDbOrThrow();
 
-        ByteArrayOutputStream bos = null;
         try {
             db.beginTransaction();
 
             long insertedId;
-            bos = new ByteArrayOutputStream();
+            ByteArrayOutputStream bos = writeExternalizableToStream(p);
             try {
-                p.writeExternal(new DataOutputStream(bos));
-            } catch (IOException e1) {
-                e1.printStackTrace();
-                throw new RuntimeException("Failed to serialize externalizable");
-            }
-            if (blobFitsInDb(bos)) {
-                // serialized object small enough to fit in db
-                ContentValues contentValues = helper.getNonDataContentValues(p);
-                contentValues.put(DatabaseHelper.DATA_COL, bos.toByteArray());
-                // TODO PLM will this fail because FILE_COL and AES_COL are null?
-                insertedId = db.insertOrThrow(table, DatabaseHelper.DATA_COL, contentValues);
-            } else {
-                // store serialized object in file and file pointer in db
-                File dataFile = newFileForEntry();
-                ContentValues contentValues = helper.getNonDataContentValues(p);
-                contentValues.put(DatabaseHelper.FILE_COL, dataFile.getAbsolutePath());
-                byte[] key = generateKeyAndAdd(contentValues);
-                // TODO PLM will this fail because DATA_COL is null?
-                insertedId = db.insertOrThrow(table, DatabaseHelper.FILE_COL, contentValues);
+                if (blobFitsInDb(bos)) {
+                    // serialized object small enough to fit in db
+                    ContentValues contentValues = helper.getNonDataContentValues(p);
+                    contentValues.put(DatabaseHelper.DATA_COL, bos.toByteArray());
+                    insertedId = db.insertOrThrow(table, DatabaseHelper.DATA_COL, contentValues);
+                } else {
+                    // store serialized object in file and file pointer in db
+                    File dataFile = HybridFileBackedSqlHelpers.newFileForEntry(dbDir);
+                    ContentValues contentValues = helper.getNonDataContentValues(p);
+                    contentValues.put(DatabaseHelper.FILE_COL, dataFile.getAbsolutePath());
+                    byte[] key = generateKeyAndAdd(contentValues);
+                    insertedId = db.insertOrThrow(table, DatabaseHelper.FILE_COL, contentValues);
 
-                DataOutputStream fileOutputStream = null;
-                try {
-                    fileOutputStream = getOutputFileStream(dataFile.getAbsolutePath(), key);
-                    bos.writeTo(fileOutputStream);
-                } finally {
-                    if (fileOutputStream != null) {
-                        fileOutputStream.close();
-                    }
+                    writeStreamToFile(bos, dataFile.getAbsolutePath(), key);
                 }
+            } finally {
+                bos.close();
             }
+            // won't effect already stored obj id, which is set when reading out of db.
+            // rather, needed in case persistable object is used after being written to storage.
             p.setID((int)insertedId);
 
             if (insertedId > Integer.MAX_VALUE) {
@@ -294,22 +275,25 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
             db.setTransactionSuccessful();
         } catch (IOException e) {
-            // Failed to create new file
             e.printStackTrace();
         } finally {
-            if (bos != null) {
-                try {
-                    bos.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
             db.endTransaction();
         }
     }
 
+    private ByteArrayOutputStream writeExternalizableToStream(Externalizable extObj) {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            extObj.writeExternal(new DataOutputStream(bos));
+        } catch (IOException e1) {
+            e1.printStackTrace();
+            throw new RuntimeException("Failed to serialize externalizable");
+        }
+        return bos;
+    }
+
     protected boolean blobFitsInDb(ByteArrayOutputStream blobStream) {
-        return blobStream.size() < 1000000;
+        return blobStream.size() < ONE_MB_DB_SIZE_LIMIT;
     }
 
     protected byte[] generateKeyAndAdd(ContentValues contentValues) {
@@ -322,28 +306,23 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         }
     }
 
-    private File newFileForEntry() throws IOException {
-        File newFile = getUniqueFilename();
-
-        if (!newFile.createNewFile()) {
-            throw new RuntimeException("Trying to create a new file using existing filename; " +
-                    "Shouldn't be possible since we already checked for uniqueness");
+    private void writeStreamToFile(ByteArrayOutputStream bos, String filename,
+                                   byte[] key) throws IOException {
+        DataOutputStream fileOutputStream = null;
+        try {
+            fileOutputStream = getOutputFileStream(filename, key);
+            bos.writeTo(fileOutputStream);
+        } finally {
+            if (fileOutputStream != null) {
+                fileOutputStream.close();
+            }
         }
-
-        return newFile;
     }
 
-    private File getUniqueFilename() {
-        String uniqueSuffix = "_" + (Math.random() * 5);
-        String timeAsString =
-                DateTime.now().toString(DateTimeFormat.forPattern("MM_dd_yyyy_HH_mm_ss"));
-        String filename = timeAsString + uniqueSuffix;
-        File newFile = new File(dbDir, filename);
-        // keep trying until we find a filename that doesn't already exist
-        while (newFile.exists()) {
-            newFile = getUniqueFilename();
-        }
-        return newFile;
+    protected DataOutputStream getOutputFileStream(String filename,
+                                                   byte[] aesKeyBytes) throws IOException {
+        SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
+        return new DataOutputStream(EncryptionIO.createFileOutputStream(filename, aesKey));
     }
 
     @Override
@@ -358,60 +337,18 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         db.beginTransaction();
         ByteArrayOutputStream bos = null;
         try {
-            // how is store currently
-            Pair<String, byte[]> filenameAndKey = FileBackedSqlQueries.getEntryFilenameAndKey(helper, table, id);
+            Pair<String, byte[]> filenameAndKey =
+                    HybridFileBackedSqlHelpers.getEntryFilenameAndKey(helper, table, id);
             String filename = filenameAndKey.first;
             byte[] fileEncryptionKey = filenameAndKey.second;
-
             boolean objectInDb = filename == null;
 
-            bos = new ByteArrayOutputStream();
-            try {
-                extObj.writeExternal(new DataOutputStream(bos));
-            } catch (IOException e1) {
-                e1.printStackTrace();
-                throw new RuntimeException("Failed to serialize externalizable");
-            }
+            bos = writeExternalizableToStream(extObj);
             if (blobFitsInDb(bos)) {
-                ContentValues updatedContentValues;
-                if (objectInDb) {
-                    // was already stored in db, do normal update
-                    updatedContentValues = helper.getContentValuesWithCustomData(extObj, bos.toByteArray());
-                } else {
-                    // was stored in file: remove file and store in db
-                    updatedContentValues = helper.getContentValuesWithCustomData(extObj, bos.toByteArray());
-                    updatedContentValues.put(DatabaseHelper.FILE_COL, (String)null);
-                    updatedContentValues.put(DatabaseHelper.AES_COL, (byte[])null);
-
-                    File dataFile = new File(filename);
-                    dataFile.delete();
-                }
-                db.update(table, updatedContentValues,
-                        DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
+                updateEntryToStoreInDb(extObj, objectInDb, filename, bos, db, id);
             } else {
-                ContentValues updatedContentValues;
-                if (objectInDb) {
-                    // was in db but is now to big, null db data entry and write to file
-                    updatedContentValues = helper.getContentValuesWithCustomData(extObj, null);
-                    filename = newFileForEntry().getAbsolutePath();
-                    updatedContentValues.put(DatabaseHelper.FILE_COL, filename);
-                    fileEncryptionKey = generateKeyAndAdd(updatedContentValues);
-                } else {
-                    // was stored in a file all along, update file
-                    updatedContentValues = helper.getNonDataContentValues(extObj);
-                }
-                db.update(table, updatedContentValues,
-                        DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
-
-                DataOutputStream fileOutputStream = null;
-                try {
-                    fileOutputStream = getOutputFileStream(filename, fileEncryptionKey);
-                    bos.writeTo(fileOutputStream);
-                } finally {
-                    if (fileOutputStream != null) {
-                        fileOutputStream.close();
-                    }
-                }
+                updateEntryToStoreInFs(extObj, objectInDb, filename,
+                        fileEncryptionKey, bos, db, id);
             }
 
             db.setTransactionSuccessful();
@@ -430,10 +367,46 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         }
     }
 
-    protected DataOutputStream getOutputFileStream(String filename,
-                                                   byte[] aesKeyBytes) throws IOException {
-        SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
-        return new DataOutputStream(EncryptionIO.createFileOutputStream(filename, aesKey));
+    private void updateEntryToStoreInDb(Externalizable extObj, boolean objectInDb,
+                                        String filename, ByteArrayOutputStream bos,
+                                        SQLiteDatabase db, int id) {
+        ContentValues updatedContentValues;
+        if (objectInDb) {
+            // was already stored in db, do normal update
+            updatedContentValues = helper.getContentValuesWithCustomData(extObj, bos.toByteArray());
+        } else {
+            // was stored in file: remove file and store in db
+            updatedContentValues = helper.getContentValuesWithCustomData(extObj, bos.toByteArray());
+            updatedContentValues.put(DatabaseHelper.FILE_COL, (String)null);
+            updatedContentValues.put(DatabaseHelper.AES_COL, (byte[])null);
+
+            File dataFile = new File(filename);
+            dataFile.delete();
+        }
+        db.update(table, updatedContentValues,
+                DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
+    }
+
+    private void updateEntryToStoreInFs(Externalizable extObj, boolean objectInDb,
+                                        String filename, byte[] fileEncryptionKey,
+                                        ByteArrayOutputStream bos,
+                                        SQLiteDatabase db,
+                                        int id) throws IOException {
+        ContentValues updatedContentValues;
+        if (objectInDb) {
+            // was in db but is now to big, null db data entry and write to file
+            updatedContentValues = helper.getContentValuesWithCustomData(extObj, null);
+            filename = HybridFileBackedSqlHelpers.newFileForEntry(dbDir).getAbsolutePath();
+            updatedContentValues.put(DatabaseHelper.FILE_COL, filename);
+            fileEncryptionKey = generateKeyAndAdd(updatedContentValues);
+        } else {
+            // was stored in a file all along, update file
+            updatedContentValues = helper.getNonDataContentValues(extObj);
+        }
+        db.update(table, updatedContentValues,
+                DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
+
+        writeStreamToFile(bos, filename, fileEncryptionKey);
     }
 
     @Override
@@ -442,7 +415,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
         db.beginTransaction();
         try {
-            String filename = FileBackedSqlQueries.getEntryFilename(helper, table, id);
+            String filename = HybridFileBackedSqlHelpers.getEntryFilename(helper, table, id);
             if (filename != null) {
                 File dataFile = new File(filename);
                 dataFile.delete();
@@ -461,7 +434,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             SQLiteDatabase db = getDbOrThrow();
             db.beginTransaction();
             try {
-                removeFiles(ids);
+                HybridFileBackedSqlHelpers.removeFiles(ids, helper, table);
                 List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(ids);
                 for (Pair<String, String[]> whereParams : whereParamList) {
                     String whereClause = DatabaseHelper.ID_COL + " IN " + whereParams.first;
@@ -470,17 +443,6 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                 db.setTransactionSuccessful();
             } finally {
                 db.endTransaction();
-            }
-        }
-    }
-
-    private void removeFiles(List<Integer> idsBeingRemoved) {
-        // delete files storing data for entries being removed
-        for (Integer id : idsBeingRemoved) {
-            String filename = FileBackedSqlQueries.getEntryFilename(helper, table, id);
-            if (filename != null) {
-                File datafile = new File(filename);
-                datafile.delete();
             }
         }
     }
@@ -525,7 +487,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
             db.beginTransaction();
             try {
-                removeFiles(removed);
+                HybridFileBackedSqlHelpers.removeFiles(removed, helper, table);
                 for (Pair<String, String[]> whereParams : whereParamList) {
                     String whereClause = DatabaseHelper.ID_COL + " IN " + whereParams.first;
                     db.delete(table, whereClause, whereParams.second);
@@ -579,6 +541,6 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
      * For testing only
      */
     public String getEntryFilenameForTesting(int id) {
-        return FileBackedSqlQueries.getEntryFilename(helper, table, id);
+        return HybridFileBackedSqlHelpers.getEntryFilename(helper, table, id);
     }
 }
