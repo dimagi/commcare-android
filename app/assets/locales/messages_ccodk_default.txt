@@ -85,7 +85,6 @@ home.sync.message.last.never=never
 
 home.menu.settings=Settings
 home.menu.update=Update App
-home.menu.call.log=Call Log
 home.menu.validate=Validate Media
 home.menu.change.locale=Change Language
 home.menu.formdump=Manage SD
@@ -269,6 +268,7 @@ bulk.form.dump.success=${1} forms dumped successfully
 mult.install.error=Unexpected Error installing the multimedia! Please try again. Error Text: ${0}  
 
 login.menu.demo=Enter as Demo User
+login.menu.permission=Acquire Required Permissions
 main.sync.demo=You cannot sync data down from the server when logged in in demo mode
 
 main.sync.demo.has.forms=Your forms have been submitted to the server; however, you cannot retrieve forms from the server in Demo mode.
@@ -598,3 +598,13 @@ image.selection.not.saved=The image you have chosen was not able to be saved pro
 
 odk_perfect_match_color=\#87D13E
 odk_fuzzy_match_color=\#FFE88F
+
+permission.all.title=CommCare Permissions
+permission.all.message=CommCare needs permissions to read/write forms to memory, call/message from the case list, and provide location data during form entry.
+permission.all.denial.message=CommCare doesn't have the necessary permissions. Please enable via 'Settings -> Apps'
+permission.case.callout.title=Permissions for calling & messaging
+permission.case.callout.message=CommCare needs call & messaging permissions to enable communication with cases.
+permission.sms.install.title=Permission for obtaining SMS app code
+permission.sms.install.message=CommCare would like to scan your recent messages for an app install code.
+permission.form.gps.title=Permission to capture location during form entry
+permission.form.gps.message=CommCare would like to capture your location and provide it to forms you complete.
