@@ -15,7 +15,7 @@ import org.javarosa.core.reference.ReferenceManager;
  * @author ctsims
  */
 public class AssetFileRoot implements ReferenceFactory {
-    private Context context;
+    private final Context context;
 
     public AssetFileRoot(Context context) {
         this.context = context;

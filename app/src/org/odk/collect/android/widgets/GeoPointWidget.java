@@ -53,7 +53,7 @@ public class GeoPointWidget extends QuestionWidget {
     private boolean mUseMaps;
     public static final String LOCATION = "gp";
 
-    private PendingCalloutInterface pendingCalloutInterface;
+    private final PendingCalloutInterface pendingCalloutInterface;
 
     public GeoPointWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
         super(context, prompt);

@@ -21,7 +21,7 @@ import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.logic.FormRecordProcessor;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
-import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.SessionUnavailableException;
@@ -60,7 +60,7 @@ public class InstanceProvider extends ContentProvider {
     private static class DatabaseHelper extends SQLiteOpenHelper {
 
         // the application id of the CCApp for which this db is storing instances
-        private String appId;
+        private final String appId;
 
         public DatabaseHelper(Context c, String databaseName, String appId) {
             super(c, databaseName, null, DATABASE_VERSION);
@@ -495,8 +495,7 @@ public class InstanceProvider extends ContentProvider {
             FormRecordCleanupTask.wipeRecord(getContext(), currentState);
 
             // Notify the server of this problem (since we aren't going to crash)
-            ExceptionReportTask ert = new ExceptionReportTask();
-            ert.execute(e);
+            ExceptionReporting.reportExceptionInBg(e);
 
             raiseFormEntryError("An error occurred: " + e.getMessage() +
                     " and your data could not be saved.", currentState);

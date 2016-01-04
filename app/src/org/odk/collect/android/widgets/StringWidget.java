@@ -33,9 +33,9 @@ import org.javarosa.form.api.FormEntryPrompt;
 public class StringWidget extends QuestionWidget implements OnClickListener, TextWatcher {
 
     boolean mReadOnly = false;
-    protected EditText mAnswer;
+    protected final EditText mAnswer;
     protected boolean secret = false;
-    
+
     public StringWidget(Context context, FormEntryPrompt prompt, boolean secret) {
         super(context, prompt);
         mAnswer = (EditText) LayoutInflater.from(getContext()).inflate(R.layout.edit_text_question_widget, this, false);
@@ -221,5 +221,12 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     
     public void setLastQuestion(boolean isLast){
            // nothing changes for Strings
+    }
+
+    /**
+     * For testing purposes
+     */
+    public void setAnswer(String answer) {
+        mAnswer.setText(answer);
     }
 }

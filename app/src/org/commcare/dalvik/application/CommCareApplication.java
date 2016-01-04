@@ -1,5 +1,6 @@
 package org.commcare.dalvik.application;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.Notification;
@@ -23,11 +24,11 @@ import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
-import android.telephony.PhoneStateListener;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
-import android.util.Pair;
 import android.widget.Toast;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -37,13 +38,11 @@ import org.acra.annotation.ReportsCrashes;
 import org.commcare.android.database.AndroidDbHelper;
 import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.javarosa.AndroidLogEntry;
@@ -60,7 +59,7 @@ import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.tasks.DataSubmissionListener;
-import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.android.tasks.UpdateTask;
@@ -68,7 +67,6 @@ import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidUtil;
-import org.commcare.android.util.CallInPhoneListener;
 import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.ODKPropertyManager;
@@ -162,8 +160,6 @@ public class CommCareApplication extends Application {
 
     private int mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
 
-    private CallInPhoneListener listener = null;
-
     /**
      * Handler to receive notifications and show them the user using toast.
      */
@@ -172,6 +168,7 @@ public class CommCareApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
         //Sets the static strategy for the deserializtion code to be
         //based on an optimized md5 hasher. Major speed improvements.
         AndroidClassHasher.registerAndroidClassHashStrategy();
@@ -301,19 +298,6 @@ public class CommCareApplication extends Application {
         return getSession().createNewSymetricKey();
     }
 
-    private void attachCallListener() {
-        TelephonyManager tManager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
-
-        listener = new CallInPhoneListener(this, this.getCommCarePlatform());
-        listener.startCache();
-
-        tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
-    }
-
-    public CallInPhoneListener getCallListener() {
-        return listener;
-    }
-
     public int[] getCommCareVersion() {
         return this.getResources().getIntArray(R.array.commcare_version);
     }
@@ -356,6 +340,10 @@ public class CommCareApplication extends Application {
     }
 
     public String getPhoneId() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
+            return "000000000000000";
+        }
+
         TelephonyManager manager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
         String imei = manager.getDeviceId();
         if (imei == null) {
@@ -463,8 +451,7 @@ public class CommCareApplication extends Application {
             Log.i("FAILURE", "Problem with loading");
             Log.i("FAILURE", "E: " + e.getMessage());
             e.printStackTrace();
-            ExceptionReportTask ert = new ExceptionReportTask();
-            ert.execute(e);
+            ExceptionReporting.reportExceptionInBg(e);
             resourceState = STATE_CORRUPTED;
         }
         app.setAppResourceState(resourceState);
@@ -873,7 +860,6 @@ public class CommCareApplication extends Application {
 
                     if (user != null) {
                         mBoundService.startSession(user);
-                        attachCallListener();
                         if (restoreSession) {
                             CommCareApplication.this.sessionWrapper = DevSessionRestorer.restoreSessionFromPrefs(getCommCarePlatform());
                         } else {
@@ -1086,28 +1072,6 @@ public class CommCareApplication extends Application {
         }
     }
 
-    /**
-     * @return A pair comprised of last sync time and an array with unsent and
-     * incomplete form counts. If the user storage isn't open, return 0 vals
-     * for unsent/incomplete forms.
-     */
-    public Pair<Long, int[]> getSyncDisplayParameters() {
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        long lastSync = prefs.getLong("last-succesful-sync", 0);
-
-        SqlStorage<FormRecord> formsStorage = this.getUserStorage(FormRecord.class);
-
-        try {
-            int unsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
-            int incompleteForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE).size();
-
-            return new Pair<>(lastSync, new int[]{unsentForms, incompleteForms});
-        } catch (UserStorageClosedException e) {
-            return new Pair<>(lastSync, new int[]{0, 0});
-        }
-    }
-
-
     // Start - Error message Hooks
 
     private final int MESSAGE_NOTIFICATION = org.commcare.dalvik.R.string.notification_message_title;
@@ -1160,11 +1124,17 @@ public class CommCareApplication extends Application {
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
 
             String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[]{String.valueOf(pendingMessages.size() - 1)}) : "";
-
-            // Set the info for the views that show in the notification panel.
-            messageNotification.setLatestEventInfo(this, title, Localization.get("notifications.prompt.details", new String[]{additional}), contentIntent);
-
-            messageNotification.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(this, NotificationClearReceiver.class), 0);
+            
+            messageNotification = new NotificationCompat.Builder(this)
+                    .setContentTitle(title)
+                    .setContentText(Localization.get("notifications.prompt.details", new String[]{additional}))
+                    .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
+                    .setNumber(pendingMessages.size())
+                    .setContentIntent(contentIntent)
+                    .setDeleteIntent(PendingIntent.getBroadcast(this, 0, new Intent(this, NotificationClearReceiver.class), 0))
+                    .setOngoing(true)
+                    .setWhen(System.currentTimeMillis())
+                    .build();
 
             //Send the notification.
             mNM.notify(MESSAGE_NOTIFICATION, messageNotification);

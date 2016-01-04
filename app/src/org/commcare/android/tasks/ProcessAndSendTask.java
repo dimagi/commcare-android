@@ -8,12 +8,10 @@ import org.commcare.android.models.notifications.ProcessIssues;
 import org.javarosa.core.model.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.logic.FormRecordProcessor;
-import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Profile;
 import org.javarosa.core.services.Logger;
@@ -40,7 +38,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     String url;
     Long[] results;
     
-    int sendTaskId;
+    final int sendTaskId;
 
     public static final int PROCESSING_PHASE_ID = 8;
     public static final int SEND_PHASE_ID = 9;
@@ -55,9 +53,9 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     public static final long PROGRESS_SDCARD_REMOVED = 512;
 
     DataSubmissionListener formSubmissionListener;
-    private FormRecordProcessor processor;
+    private final FormRecordProcessor processor;
     
-    private static int SUBMISSION_ATTEMPTS = 2;
+    private static final int SUBMISSION_ATTEMPTS = 2;
     
     private static final Queue<ProcessAndSendTask> processTasks = new LinkedList<>();
     

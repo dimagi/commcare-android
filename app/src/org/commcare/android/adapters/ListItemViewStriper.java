@@ -8,8 +8,8 @@ import android.view.View;
  * Created by jschweers on 9/2/2015.
  */
 public class ListItemViewStriper implements ListItemViewModifier, Parcelable {
-    private int mOddColor;
-    private int mEvenColor;
+    private final int mOddColor;
+    private final int mEvenColor;
 
     public ListItemViewStriper(int oddColor, int evenColor) {
         super();

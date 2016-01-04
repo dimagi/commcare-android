@@ -11,13 +11,11 @@ import android.widget.LinearLayout;
 
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.view.c3.AxisConfiguration;
-import org.commcare.android.view.c3.Configuration;
 import org.commcare.android.view.c3.DataConfiguration;
 import org.commcare.android.view.c3.GridConfiguration;
 import org.commcare.android.view.c3.LegendConfiguration;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.activities.GraphActivity;
-import org.commcare.suite.model.graph.Graph;
 import org.commcare.suite.model.graph.GraphData;
 import org.javarosa.core.util.OrderedHashtable;
 import org.json.JSONException;
@@ -44,7 +42,7 @@ public class GraphView {
         mIsFullScreen = isFullScreen;
     }
 
-    public Intent getIntent(String html) throws InvalidStateException {
+    public Intent getIntent(String html) {
         Intent intent = new Intent(mContext, GraphActivity.class);
         intent.putExtra(HTML, html);
         intent.putExtra(TITLE, mTitle);
@@ -56,7 +54,7 @@ public class GraphView {
      * any changes to graph's configuration, title, etc.
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public View getView(String html) throws InvalidStateException {
+    public View getView(String html) {
         if (BuildConfig.DEBUG) {
             WebView.setWebContentsDebuggingEnabled(true);
         }

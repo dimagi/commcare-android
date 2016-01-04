@@ -31,8 +31,9 @@ import java.util.List;
  */
 @SuppressLint("NewApi")
 public class DeviceListFragment extends ListFragment implements PeerListListener {
+    private static final String TAG = DeviceListFragment.class.getSimpleName();
 
-    private List<WifiP2pDevice> peers = new ArrayList<WifiP2pDevice>();
+    private List<WifiP2pDevice> peers = new ArrayList<>();
     ProgressDialog progressDialog = null;
     View mContentView = null;
     private WifiP2pDevice device;
@@ -46,7 +47,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d(CommCareWiFiDirectActivity.TAG, "onCreateView DeviceListFragment");
+        Log.d(TAG, "onCreateView DeviceListFragment");
         mContentView = inflater.inflate(R.layout.device_list, container);
         return mContentView;
     }
@@ -59,7 +60,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
     }
 
     public static String getDeviceStatus(int deviceStatus) {
-        Log.d(CommCareWiFiDirectActivity.TAG, "Peer status :" + deviceStatus);
+        Log.d(TAG, "Peer status :" + deviceStatus);
         switch (deviceStatus) {
             case WifiP2pDevice.AVAILABLE:
                 return "Available";
@@ -82,11 +83,9 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      */
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        Log.d(CommCareWiFiDirectActivity.TAG, "onListItemClick");
+        Log.d(TAG, "onListItemClick");
         WifiP2pDevice device = (WifiP2pDevice) getListAdapter().getItem(position);
-        Log.d(CommCareWiFiDirectActivity.TAG, "device is: " + device.deviceAddress);
-        //((DeviceActionListener) getActivity()).showDetails(device);
-        
+        Log.d(TAG, "device is: " + device.deviceAddress);
         WifiP2pConfig config = new WifiP2pConfig();
         config.deviceAddress = device.deviceAddress;
         config.wps.setup = WpsInfo.PBC;
@@ -105,7 +104,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      */
     private class WiFiPeerListAdapter extends ArrayAdapter<WifiP2pDevice> {
 
-        private List<WifiP2pDevice> items;
+        private final List<WifiP2pDevice> items;
 
         public WiFiPeerListAdapter(Context context, int textViewResourceId,
                 List<WifiP2pDevice> objects) {
@@ -145,7 +144,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      * @param device WifiP2pDevice object
      */
     public void updateThisDevice(WifiP2pDevice device) {
-         Log.d(CommCareWiFiDirectActivity.TAG, "updating my device: " + device.deviceName + " with status: " + device.status);
+         Log.d(TAG, "updating my device: " + device.deviceName + " with status: " + device.status);
         this.device = device;
         TextView view = (TextView) mContentView.findViewById(R.id.my_name);
         view.setText(device.deviceName);
@@ -155,7 +154,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
 
     @Override
     public void onPeersAvailable(WifiP2pDeviceList peerList) {
-        Log.d(CommCareWiFiDirectActivity.TAG, "onPeersAvailable");
+        Log.d(TAG, "onPeersAvailable");
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
@@ -163,7 +162,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         peers.addAll(peerList.getDeviceList());
         ((WiFiPeerListAdapter) getListAdapter()).notifyDataSetChanged();
         if (peers.size() == 0) {
-            Log.d(CommCareWiFiDirectActivity.TAG, "No devices found");
+            Log.d(TAG, "No devices found");
             return;
         }
 
@@ -175,7 +174,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
     }
 
     public void onInitiateDiscovery() {
-        Log.d(CommCareWiFiDirectActivity.TAG, "onInitiateDiscovery");
+        Log.d(TAG, "onInitiateDiscovery");
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
@@ -194,14 +193,6 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      * events.
      */
     public interface DeviceActionListener {
-
-        void showDetails(WifiP2pDevice device);
-
-        void cancelDisconnect();
-
         void connect(WifiP2pConfig config);
-
-        void disconnect();
     }
-
 }
