@@ -28,20 +28,6 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <!-- for call log -->
-    <uses-permission android:name="android.permission.READ_CALL_LOG" />
-    <uses-permission android:name="android.permission.RECEIVE_SMS" />
-
-    <!-- Start COllect Permissions -->
-
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.GET_ACCOUNTS" />
-    <uses-permission
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="android.permission.USE_CREDENTIALS" />
-
-    <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
@@ -73,7 +59,7 @@
         android:hardwareAccelerated="true"
         android:theme="@style/AppBaseTheme" >
         <activity
-            android:name=".activities.CommCareHomeActivity"
+            android:name=".activities.DispatchActivity"
             android:label="@string/application_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -107,6 +93,7 @@
             android:label="CommCare Forced Closure" >
         </activity>
 
+        <activity android:name=".activities.CommCareHomeActivity" />
         <activity android:name=".activities.MenuList" />
         <activity android:name=".activities.MenuGrid" />
 
@@ -280,18 +267,6 @@
             android:enabled="true" >
         </service>
 
-        <activity
-            android:name=".activities.CallLogActivity"
-            android:windowSoftInputMode="adjustResize" >
-        </activity>
-        <activity
-            android:name=".activities.MessageLogActivity"
-            android:windowSoftInputMode="adjustResize" >
-        </activity>
-        <activity
-            android:name=".activities.PhoneLogActivity"
-            android:windowSoftInputMode="adjustResize" >
-        </activity>
         <activity
             android:name="org.odk.collect.android.activities.FormEntryActivity"
             android:launchMode="singleTop"

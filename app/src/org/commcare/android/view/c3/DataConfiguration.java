@@ -266,7 +266,7 @@ public class DataConfiguration extends Configuration {
             // Force all labels to show; C3 will hide some labels if it thinks there are too many.
             JSONObject xLabels = new JSONObject();
             for (int i = 0; i < mBarLabels.length(); i++) {
-                xLabels.put(String.valueOf(i), (String) mBarLabels.get(i));
+                xLabels.put(String.valueOf(i), mBarLabels.get(i));
             }
             mData.setConfiguration("x-labels", xLabels.toString());
         }
@@ -419,7 +419,7 @@ public class DataConfiguration extends Configuration {
      */
     private void setPointStyle(String yID, SeriesData s) throws JSONException {
         String symbol;
-        if (mData.getType().equals(Graph.TYPE_BAR) || mData.getType().equals(Graph.TYPE_BUBBLE)) {
+        if (mData.getType().equals(Graph.TYPE_BAR)) {
             // point-style doesn't apply to bar charts
             symbol = "none";
         } else if (mData.getType().equals(Graph.TYPE_BUBBLE)) {

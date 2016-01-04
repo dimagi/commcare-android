@@ -89,11 +89,11 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 
         //If we're listening, figure out how much (roughly) we have to send
         long bytes = 0;
-        for (int j = 0; j < files.length; j++) {
+        for (File file : files) {
             //Make sure we'll be sending it
             boolean supported = false;
             for (String ext : SUPPORTED_FILE_EXTS) {
-                if (files[j].getName().endsWith(ext)) {
+                if (file.getName().endsWith(ext)) {
                     supported = true;
                     break;
                 }
@@ -102,29 +102,28 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                 continue;
             }
 
-            bytes += files[j].length();
+            bytes += file.length();
         }
 
         final Cipher decrypter = FormUploadUtil.getDecryptCipher(key);
 
-        for (int j = 0; j < files.length; j++) {
-            File f = files[j];
+        for (File file : files) {
             // This is not the ideal long term solution for determining whether we need decryption, but works
-            if (f.getName().endsWith(".xml")) {
+            if (file.getName().endsWith(".xml")) {
                 try {
                     Log.d(TAG, "trying zip copy2");
-                    FileUtil.copyFile(f, new File(myDir, f.getName()), decrypter, null);
+                    FileUtil.copyFile(file, new File(myDir, file.getName()), decrypter, null);
                 } catch (IOException ie) {
-                    Log.d(TAG, "faield zip copywith2: " + f.getName());
+                    Log.d(TAG, "faield zip copywith2: " + file.getName());
                     publishProgress(("File writing failed: " + ie.getMessage()));
                     return FormUploadUtil.FAILURE;
                 }
             } else {
                 try {
                     Log.d(TAG, "trying zip copy2");
-                    FileUtil.copyFile(f, new File(myDir, f.getName()));
+                    FileUtil.copyFile(file, new File(myDir, file.getName()));
                 } catch (IOException ie) {
-                    Log.d(TAG, "faield zip copy2 " + f.getName() + "with messageL " + ie.getMessage());
+                    Log.d(TAG, "faield zip copy2 " + file.getName() + "with messageL " + ie.getMessage());
                     publishProgress(("File writing failed: " + ie.getMessage()));
                     return FormUploadUtil.FAILURE;
                 }
@@ -146,8 +145,8 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 
             File[] fileArray = targetFilePath.listFiles();
 
-            for (int i = 0; i < fileArray.length; i++) {
-                File[] subFileArray = fileArray[i].listFiles();
+            for (File file : fileArray) {
+                File[] subFileArray = file.listFiles();
                 zipFolder(subFileArray, zipFile, out);
             }
 
@@ -164,12 +163,12 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 
         byte data[] = new byte[BUFFER_SIZE];
 
-        for (int i = 0; i < files.length; i++) {
-            FileInputStream fi = new FileInputStream(files[i]);
+        for (File file : files) {
+            FileInputStream fi = new FileInputStream(file);
             origin = new BufferedInputStream(fi, BUFFER_SIZE);
             try {
 
-                String tempPath = files[i].getPath();
+                String tempPath = file.getPath();
 
                 Log.d(TAG, "827 zipping folder with path: " + tempPath);
 

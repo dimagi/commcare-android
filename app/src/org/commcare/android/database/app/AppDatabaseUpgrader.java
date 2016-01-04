@@ -1,18 +1,24 @@
 package org.commcare.android.database.app;
 
+import android.content.Context;
+
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
+import org.commcare.android.database.migration.FixtureSerializationMigration;
 import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.resources.model.Resource;
 
 /**
  * @author ctsims
  */
-class AppDatabaseUpgrader {
+public class AppDatabaseUpgrader {
 
-    public AppDatabaseUpgrader() {
+    private final Context context;
+
+    public AppDatabaseUpgrader(Context context) {
+        this.context = context;
     }
 
     public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -44,6 +50,11 @@ class AppDatabaseUpgrader {
             }
         }
 
+        if (oldVersion == 6) {
+            if (upgradeSixSeven(db)) {
+                oldVersion = 7;
+            }
+        }
         //NOTE: If metadata changes are made to the Resource model, they need to be
         //managed by changing the TwoThree updater to maintain that metadata.
     }
@@ -119,5 +130,14 @@ class AppDatabaseUpgrader {
         } finally {
             db.endTransaction();
         }
+    }
+
+    /**
+     * Deserialize app fixtures in db using old form instance serialization
+     * scheme, and re-serialize them using the new scheme that preserves
+     * attributes.
+     */
+    private boolean upgradeSixSeven(SQLiteDatabase db) {
+        return FixtureSerializationMigration.migrateFixtureDbBytes(db, context);
     }
 }

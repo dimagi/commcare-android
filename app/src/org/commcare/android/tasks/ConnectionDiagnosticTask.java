@@ -9,7 +9,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.services.Logger;
 
 import java.io.BufferedReader;
@@ -25,7 +24,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
 {    
     Context c;
 
-    public static enum Test
+    public enum Test
     {
         isOnline,
         googlePing,
@@ -101,12 +100,8 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
         //if user is not online, log not connected. if online, log success
         String logMessage = !notInAirplaneMode? logNotConnectedMessage : logConnectionSuccessMessage;
         Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logMessage);
-        
-        if(notInAirplaneMode)
-        {
-            return true;
-        }
-        return false;
+
+        return notInAirplaneMode;
     }
 
     //check if a ping to a specific ip address (used for google url) is successful.
@@ -143,11 +138,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
         //0 if success, 2 if fail
         String messageOut = pingReturn==0? logGoogleSuccessMessage : logGoogleUnexpectedResultMessage;
         Logger.log(CONNECTION_DIAGNOSTIC_REPORT, messageOut);
-        if(pingReturn != 0)
-        {
-            return false;
-        }
-        return true;
+        return pingReturn == 0;
     }
     
     private boolean pingCC(String url)
@@ -202,11 +193,10 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
                 try {
                     stream.close();
                 } catch (IOException e) {
-                    StringBuilder out = new StringBuilder(logCCIOErrorMessage);
-                    out.append(System.getProperty("line.separator"));
-                    out.append("Stack trace: ");
-                    out.append(ExceptionReporting.getStackTrace(e));
-                    Logger.log(CONNECTION_DIAGNOSTIC_REPORT, out.toString());
+                    String out = logCCIOErrorMessage + System.getProperty("line.separator") +
+                            "Stack trace: " +
+                            ExceptionReporting.getStackTrace(e);
+                    Logger.log(CONNECTION_DIAGNOSTIC_REPORT, out);
                     return false;
                 }
             }

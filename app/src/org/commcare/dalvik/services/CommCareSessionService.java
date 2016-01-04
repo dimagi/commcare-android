@@ -26,6 +26,7 @@ import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
+import org.commcare.dalvik.activities.DispatchActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.model.User;
@@ -179,7 +180,7 @@ public class CommCareSessionService extends Service {
      */
     private void showLoggedInNotification(User user) {
         //We always want this click to simply bring the live stack back to the top
-        Intent callable = new Intent(this, CommCareHomeActivity.class);
+        Intent callable = new Intent(this, DispatchActivity.class);
         callable.setAction("android.intent.action.MAIN");
         callable.addCategory("android.intent.category.LAUNCHER");
 
@@ -218,7 +219,7 @@ public class CommCareSessionService extends Service {
     private void showLoggedOutNotification() {
         this.stopForeground(true);
 
-        Intent i = new Intent(this, CommCareHomeActivity.class);
+        Intent i = new Intent(this, DispatchActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -462,12 +463,8 @@ public class CommCareSessionService extends Service {
 
                 String text = getSubmissionText(1, totalItems);
 
-                // Set the icon, scrolling text and timestamp
-                submissionNotification = new Notification(org.commcare.dalvik.R.drawable.notification, getTickerText(totalItems), System.currentTimeMillis());
-                submissionNotification.flags |= (Notification.FLAG_NO_CLEAR | Notification.FLAG_ONGOING_EVENT);
-
                 //We always want this click to simply bring the live stack back to the top
-                Intent callable = new Intent(CommCareSessionService.this, CommCareHomeActivity.class);
+                Intent callable = new Intent(CommCareSessionService.this, DispatchActivity.class);
                 callable.setAction("android.intent.action.MAIN");
                 callable.addCategory("android.intent.category.LAUNCHER");
 
@@ -481,11 +478,16 @@ public class CommCareSessionService extends Service {
                 contentView.setTextViewText(R.id.progressText, text);
                 contentView.setTextViewText(R.id.submissionDetails, "0b transmitted");
 
-
-                // Set the info for the views that show in the notification panel.
-                submissionNotification.setLatestEventInfo(CommCareSessionService.this, getString(notificationId), text, contentIntent);
-
-                submissionNotification.contentView = contentView;
+                submissionNotification = new NotificationCompat.Builder(CommCareSessionService.this)
+                        .setContentTitle(getString(notificationId))
+                        .setContentText(text)
+                        .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
+                        .setContentIntent(contentIntent)
+                        .setContent(contentView)
+                        .setOngoing(true)
+                        .setWhen(System.currentTimeMillis())
+                        .setTicker(getTickerText(totalItems))
+                        .build();
 
                 if (user != null) {
                     //Send the notification.

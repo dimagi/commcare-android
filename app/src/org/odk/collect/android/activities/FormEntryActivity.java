@@ -511,7 +511,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         // get gp of chosen file
         Uri selectedImage = intent.getData();
-        File originalImage = new File(FileUtils.getPath(this, selectedImage));
+        String imagePath = FileUtils.getPath(this, selectedImage);
+
+        if (imagePath == null) {
+            showCustomToast(Localization.get("invalid.image.selection"), Toast.LENGTH_LONG);
+            return;
+        }
+
+        File originalImage = new File(imagePath);
 
         if (originalImage.exists()) {
             try {

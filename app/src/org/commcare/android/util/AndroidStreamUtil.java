@@ -51,6 +51,6 @@ public class AndroidStreamUtil {
     }
     
     public interface StreamReadObserver {
-        public void notifyCurrentCount(long bytesRead);
+        void notifyCurrentCount(long bytesRead);
     }
 }

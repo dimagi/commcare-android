@@ -18,8 +18,8 @@ import java.util.Set;
 
 /**
  * Static functions for dealing with GPS data, specifically Location and LocationManager objects.
- * @author jschweers
  *
+ * @author jschweers
  */
 public class GeoUtils {
     public static final double GOOD_ACCURACY = 5;             // Good enough accuracy to stop pinging the GPS altogether
@@ -41,7 +41,7 @@ public class GeoUtils {
      * @return Set of String objects that may contain LocationManager.GPS_PROVDER and/or LocationManager.NETWORK_PROVIDER
      */
     public static Set<String> evaluateProviders(LocationManager manager) {
-        HashSet<String> set = new HashSet<String>();
+        HashSet<String> set = new HashSet<>();
         
         List<String> providers = manager.getProviders(true);
         for (String provider : providers) {

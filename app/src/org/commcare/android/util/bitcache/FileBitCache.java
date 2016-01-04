@@ -57,9 +57,8 @@ public class FileBitCache implements BitCache {
             //stream file 
             FileOutputStream fos = new FileOutputStream(temp);
             CipherOutputStream cos = new CipherOutputStream(fos, encrypter);
-            BufferedOutputStream bos = new BufferedOutputStream(cos, 1024);
 
-            return bos;
+            return new BufferedOutputStream(cos, 1024);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -82,8 +81,7 @@ public class FileBitCache implements BitCache {
             //process
             FileInputStream fis = new FileInputStream(temp);
             BufferedInputStream bis = new BufferedInputStream(fis, 4096);
-            CipherInputStream cis = new CipherInputStream(bis, decrypter);
-            return cis;
+            return new CipherInputStream(bis, decrypter);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
             throw new RuntimeException(e);

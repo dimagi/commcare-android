@@ -53,7 +53,7 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
         int padding = (int)Math.floor(context.getResources().getDimension(R.dimen.select_padding));
        
         mItems = prompt.getSelectChoices();
-        buttons = new Vector<RadioButton>();
+        buttons = new Vector<>();
 
         String s = null;
         if (prompt.getAnswerValue() != null) {

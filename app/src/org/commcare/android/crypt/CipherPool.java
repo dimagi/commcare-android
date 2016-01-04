@@ -15,8 +15,8 @@ public abstract class CipherPool {
 
     private static final int GROWTH_FACTOR = 5;
 
-    final HashSet<Cipher> issued = new HashSet<Cipher>();
-    final Stack<Cipher> free = new Stack<Cipher>();
+    final HashSet<Cipher> issued = new HashSet<>();
+    final Stack<Cipher> free = new Stack<>();
 
     //TODO: Pass in factory and finalize all API's rather than
     //leaving the class to be anonymous?

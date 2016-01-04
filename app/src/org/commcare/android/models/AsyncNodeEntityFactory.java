@@ -53,11 +53,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
 
         String mCacheIndex = null;
         if (mTemplateIsCachable == null) {
-            if (mCacheHost == null) {
-                mTemplateIsCachable = false;
-            } else {
-                mTemplateIsCachable = mCacheHost.isReferencePatternCachable(data);
-            }
+            mTemplateIsCachable = mCacheHost != null && mCacheHost.isReferencePatternCachable(data);
         }
         if (mTemplateIsCachable) {
             if (mCacheHost == null) {
@@ -152,8 +148,9 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
             String entityId = walker.getString(walker.getColumnIndex("entity_key"));
             String cacheId = walker.getString(walker.getColumnIndex("cache_key"));
             String val = walker.getString(walker.getColumnIndex("value"));
-            AsyncEntity entity = this.mEntitySet.get(entityId);
-            entity.setSortData(cacheId, val);
+            if (this.mEntitySet.containsKey(entityId)) {
+                this.mEntitySet.get(entityId).setSortData(cacheId, val);
+            }
         }
         walker.close();
 
@@ -182,11 +179,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     @Override
     public boolean isEntitySetReadyInternal() {
         synchronized (mAsyncLock) {
-            if (mAsyncPrimingThread == null) {
-                return true;
-            } else {
-                return !mAsyncPrimingThread.isAlive();
-            }
+            return mAsyncPrimingThread == null || !mAsyncPrimingThread.isAlive();
         }
     }
 }
