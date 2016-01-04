@@ -136,9 +136,9 @@ public class GoogleAnalyticsUtils {
             return;
         }
         HitBuilders.EventBuilder builder = new HitBuilders.EventBuilder();
-        builder.setCategory(category).
-                setAction(GoogleAnalyticsFields.ACTION_EDIT_PREF).
-                setLabel(label);
+        builder.setCategory(category)
+                .setAction(GoogleAnalyticsFields.ACTION_EDIT_PREF)
+                .setLabel(label);
         if (value != -1) {
             builder.setValue(value);
         }
@@ -193,9 +193,9 @@ public class GoogleAnalyticsUtils {
             return;
         }
         HitBuilders.EventBuilder builder = new HitBuilders.EventBuilder();
-        builder.setCategory(GoogleAnalyticsFields.CATEGORY_TIMED_EVENTS).
-                setAction(action).
-                setValue(value);
+        builder.setCategory(GoogleAnalyticsFields.CATEGORY_TIMED_EVENTS)
+                .setAction(action)
+                .setValue(value);
         if (!"".equals(label)) {
             builder.setLabel(label);
         }

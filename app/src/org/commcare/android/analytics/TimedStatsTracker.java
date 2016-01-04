@@ -3,16 +3,13 @@ package org.commcare.android.analytics;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.services.Logger;
-import org.joda.time.DateTime;
 
 import java.util.Date;
 
 /**
- * Utils for keeping track of certain app events and then reporting them to google analytics
+ * Utils for keeping track of the length of some app events, and then reporting them to Google
+ * analytics
  *
  * @author amstone
  */
@@ -28,9 +25,9 @@ public class TimedStatsTracker {
     public static void registerEnterForm(String formTitle) {
         SharedPreferences.Editor editor =
                 CommCareApplication._().getCurrentApp().getAppPreferences().edit();
-        editor.putString(KEY_LAST_FORM_NAME, formTitle).
-                putLong(KEY_LAST_FORM_START_TIME, currentTime());
-        editor.commit();
+        editor.putString(KEY_LAST_FORM_NAME, formTitle)
+                .putLong(KEY_LAST_FORM_START_TIME, currentTime())
+                .commit();
     }
 
     public static void registerExitForm(String formTitle) {
@@ -57,8 +54,8 @@ public class TimedStatsTracker {
         String currentUserId = CommCareApplication._().getCurrentUserId();
         if (!"".equals(currentUserId)) {
             editor.putLong(KEY_LAST_SESSION_START_TIME, currentTime())
-                    .putString(KEY_LAST_LOGGED_IN_USER, currentUserId);
-            editor.commit();
+                    .putString(KEY_LAST_LOGGED_IN_USER, currentUserId)
+                    .commit();
         } else {
             Log.i(TAG, "Attempting to report starting a session with no logged in user available");
         }
@@ -87,7 +84,7 @@ public class TimedStatsTracker {
     }
 
     private static int computeElapsedTimeInSeconds(long startTime, long endTime) {
-        return (int) (endTime - startTime / 1000);
+        return (int)((endTime - startTime) / 1000);
     }
 
     private static long currentTime() {
