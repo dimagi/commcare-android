@@ -1,5 +1,6 @@
 package org.commcare.android.io;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.apache.http.entity.mime.MultipartEntity;
@@ -52,7 +53,7 @@ public class DataSubmissionEntity extends MultipartEntity {
         }
 
 
-        public void write(byte[] b, int off, int len) throws IOException {
+        public void write(@NonNull byte[] b, int off, int len) throws IOException {
             out.write(b, off, len);
             this.transferred += len;
             if (listener != null) {

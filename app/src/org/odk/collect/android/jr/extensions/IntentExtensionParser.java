@@ -45,7 +45,7 @@ public class IntentExtensionParser implements IElementHandler {
         
         String label = e.getAttributeValue(null, "button-label");
 
-        Hashtable<String, XPathExpression> extras = new Hashtable<String, XPathExpression>();
+        Hashtable<String, XPathExpression> extras = new Hashtable<>();
         Hashtable<String, Vector<TreeReference>> response = new Hashtable<>();
 
         for(int i = 0; i < e.getChildCount(); ++i) {

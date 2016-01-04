@@ -32,8 +32,7 @@ public class FixtureDataAPI {
     public static int UriMatch(Uri uri) {
         return sURIMatcher.match(uri);
     }
-    
-    
+
     /**
      * MetaData table for cases. Includes basic details like case type, ID, and name.
      * 
@@ -56,6 +55,5 @@ public class FixtureDataAPI {
         
         public static final String FIXTURE_ID = "instance_id";
         public static final String USER_ID = "user_id";
-        
     }
 }

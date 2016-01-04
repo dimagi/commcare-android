@@ -414,7 +414,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
             });
         }
         
-        View next = (View)dayView.findViewById(R.id.btn_doses_next);
+        View next = dayView.findViewById(R.id.btn_doses_next);
         if(curday == dotsData.days().length - 1) {
             next.setVisibility(View.INVISIBLE);
         } else{
@@ -426,7 +426,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
                 
             });
         }
-        View prev = (View)dayView.findViewById(R.id.btn_doses_prev);
+        View prev = dayView.findViewById(R.id.btn_doses_prev);
         if(curday == 0) {
             prev.setVisibility(View.INVISIBLE);
         } else{

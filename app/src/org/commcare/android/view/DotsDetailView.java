@@ -8,7 +8,6 @@ import android.content.res.Configuration;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -191,7 +190,7 @@ public class DotsDetailView {
                 LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,LinearLayout.LayoutParams.FILL_PARENT);
                 params.leftMargin = 10;
                 params.rightMargin = 10;
-                params.weight = (float)(1f / day.boxes().length);
+                params.weight = 1f / day.boxes().length;
                 container.addView(details, params);
                 container.setOrientation(LinearLayout.HORIZONTAL);
             } else {

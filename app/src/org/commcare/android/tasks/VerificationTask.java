@@ -30,7 +30,7 @@ public abstract class VerificationTask<Reciever>
             // This is replicated in the application in a few places.
             ResourceTable global = platform.getGlobalResourceTable();
             SizeBoundUniqueVector<MissingMediaException> problems =
-                    new SizeBoundUniqueVector<MissingMediaException>(10);
+                    new SizeBoundUniqueVector<>(10);
             global.setStateListener(this);
             global.verifyInstallation(problems);
             if (problems.size() > 0) {

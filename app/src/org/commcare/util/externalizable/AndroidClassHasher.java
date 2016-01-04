@@ -13,14 +13,13 @@ public class AndroidClassHasher extends Hasher {
 
     private static final int CLASS_HASH_SIZE = 4;
 
-    MessageDigest mMessageDigester;
+    private final MessageDigest mMessageDigester;
     
     public AndroidClassHasher() {
         try {
             mMessageDigester = java.security.MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
     
@@ -36,11 +35,8 @@ public class AndroidClassHasher extends Hasher {
         return ret;
     }
 
-
     @Override
     public int getHashSize(){
         return CLASS_HASH_SIZE;
     }
-
-
 }

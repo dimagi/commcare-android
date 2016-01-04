@@ -40,7 +40,7 @@ public class StorageUtils {
 
         //We need to give these ids a valid order so the server can process them correctly.
         //NOTE: This is slower than it need be. We could batch query this with SQL.
-        final Hashtable<Integer, Long> idToDateIndex = new Hashtable<Integer, Long>();
+        final Hashtable<Integer, Long> idToDateIndex = new Hashtable<>();
 
 
         for (int id : ids) {
