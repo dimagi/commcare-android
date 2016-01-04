@@ -397,7 +397,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
 
         if (mPrompt.getAnswerValue() != null) {
             // setup date object
-            Date date = ((Date) ((DateData) mPrompt.getAnswerValue()).getValue());
+            Date date = (Date) mPrompt.getAnswerValue().getValue();
 
             // find out what the same instant is using the other chronology
             long millisFromJavaEpoch = date.getTime();
@@ -419,8 +419,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      * Get the current widget date in Gregorian chronology
      */
     private Date getDateAsGregorian(){
-        Date dtGregorian = new Date(getCurrentMillis());
-        return dtGregorian;
+        return new Date(getCurrentMillis());
     }
     
     /**

@@ -169,7 +169,7 @@ public class AUser implements Persistable, IMetaData
     }
 
     public String getProperty(String key) {
-        return (String) this.properties.get(key);
+        return this.properties.get(key);
     }
 
     public Hashtable getMetaData() {

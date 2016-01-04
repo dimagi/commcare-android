@@ -26,7 +26,6 @@ import org.javarosa.core.model.data.DateTimeData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
-import org.odk.collect.android.listeners.WidgetChangedListener;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -110,7 +109,7 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
 
             DateTime ldt =
                 new DateTime(
-                        ((Date) ((DateTimeData) getCurrentAnswer()).getValue()).getTime());
+                        ((Date) getCurrentAnswer().getValue()).getTime());
             mDatePicker.init(ldt.getYear(), ldt.getMonthOfYear() - 1, ldt.getDayOfMonth(),
                 mDateListener);
             

@@ -83,7 +83,7 @@ public final class ViewUtil {
     public static void setClickListenersForEverything(Activity act) {
         if (BuildConfig.DEBUG) {
             final ViewGroup layout = (ViewGroup) act.findViewById(android.R.id.content);
-            final LinkedList<View> views = new LinkedList<View>();
+            final LinkedList<View> views = new LinkedList<>();
             views.add(layout);
             for (int i = 0; !views.isEmpty(); i++) {
                 final View child = views.getFirst();

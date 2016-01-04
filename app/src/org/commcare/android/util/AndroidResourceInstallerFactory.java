@@ -6,7 +6,6 @@ import org.commcare.android.resource.installers.MediaFileAndroidInstaller;
 import org.commcare.android.resource.installers.ProfileAndroidInstaller;
 import org.commcare.android.resource.installers.SuiteAndroidInstaller;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
-import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.resources.model.InstallerFactory;
 import org.commcare.resources.model.ResourceInstaller;
 

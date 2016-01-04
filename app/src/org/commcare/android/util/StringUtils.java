@@ -35,7 +35,7 @@ public class StringUtils {
     @SuppressLint("NewApi")
     public synchronized static String normalize(String input) {
         if (normalizationCache == null) {
-            normalizationCache = new LruCache<String, String>(cacheSize);
+            normalizationCache = new LruCache<>(cacheSize);
 
             diacritics = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
         }

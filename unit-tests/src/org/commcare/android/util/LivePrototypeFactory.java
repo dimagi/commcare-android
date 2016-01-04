@@ -21,7 +21,7 @@ import java.util.Hashtable;
  * @author ctsims
  */
 public class LivePrototypeFactory extends PrototypeFactory {
-    private final Hashtable<String, Class> factoryTable = new Hashtable<String, Class>();
+    private final Hashtable<String, Class> factoryTable = new Hashtable<>();
     private final LiveHasher mLiveHasher;
 
     public LivePrototypeFactory() {

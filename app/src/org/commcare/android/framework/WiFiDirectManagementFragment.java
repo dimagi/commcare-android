@@ -21,7 +21,6 @@ import android.widget.Toast;
 
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
-import org.commcare.dalvik.services.WiFiDirectBroadcastReceiver;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -44,11 +43,6 @@ public class WiFiDirectManagementFragment extends Fragment
 
     public WifiP2pManager mManager;
     public Channel mChannel;
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-    }
 
     @Override
     public void onAttach(Context context) {
