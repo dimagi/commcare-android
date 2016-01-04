@@ -237,9 +237,9 @@ class UserDatabaseUpgrader {
         db.beginTransaction();
         try {
             if (multipleInstalledAppRecords()) {
-                // Cannot migrate FormRecords once this device has already started installing multiple
-                // applications, because there is no way to know which of those apps the existing
-                // FormRecords belong to
+                // Cannot migrate FormRecords once this device has already started installing
+                // multiple applications, because there is no way to know which of those apps the
+                // existing FormRecords belong to
                 throw new MigrationException(true);
             }
 
@@ -328,32 +328,15 @@ class UserDatabaseUpgrader {
     }
 
     private static boolean multipleInstalledAppRecords() {
-        int globalDbVersionNumber = CommCareApplication._().getGlobalDbVersion();
-        if (globalDbVersionNumber >= 3) {
-            // If the 1st multiple apps migration has already occurred, then app records will be
-            // stored in the db as an ApplicationRecord
-            SqlStorage<ApplicationRecord> storage =
-                    CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
-            int count = 0;
-            for (ApplicationRecord r : storage) {
-                if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
-                    count++;
-                }
+        SqlStorage<ApplicationRecord> storage =
+                CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
+        int count = 0;
+        for (ApplicationRecord r : storage) {
+            if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
+                count++;
             }
-            return (count > 1);
-        } else {
-            // If the 1st multiple apps migration has NOT already occurred, then app records will
-            // be stored in the db as an ApplicationRecordV1
-            SqlStorage<ApplicationRecordV1> storage =
-                    CommCareApplication._().getGlobalStorage(ApplicationRecordV1.class);
-            int count = 0;
-            for (ApplicationRecordV1 r : storage) {
-                if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
-                    count++;
-                }
-            }
-            return (count > 1);
         }
+        return (count > 1);
     }
 
     public static ApplicationRecord getInstalledAppRecord() {

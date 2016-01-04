@@ -139,7 +139,6 @@ public class CommCareApplication extends Application {
 
     private final Object globalDbHandleLock = new Object();
     private SQLiteDatabase globalDatabase;
-    private int globalDbVersion;
 
     private ArchiveFileRoot mArchiveFileRoot;
 
@@ -634,14 +633,12 @@ public class CommCareApplication extends Application {
 
     private int initGlobalDb() {
         SQLiteDatabase database;
-        globalDbVersion = -1;
         try {
             database = new DatabaseGlobalOpenHelper(this).getWritableDatabase("null");
-            globalDbVersion = database.getVersion();
             database.close();
             return STATE_READY;
         } catch (SQLiteException e) {
-            // Only thrown if DB isn't there
+            //Only thrown if DB isn't there
             return STATE_UNINSTALLED;
         } catch (MigrationException e) {
             if (e.isDefiniteFailure()) {
@@ -650,10 +647,6 @@ public class CommCareApplication extends Application {
                 return STATE_MIGRATION_QUESTIONABLE;
             }
         }
-    }
-
-    public int getGlobalDbVersion() {
-        return this.globalDbVersion;
     }
 
     public SQLiteDatabase getUserDbHandle() throws SessionUnavailableException {
