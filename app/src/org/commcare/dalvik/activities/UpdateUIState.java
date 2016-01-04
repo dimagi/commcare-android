@@ -1,20 +1,15 @@
 package org.commcare.dalvik.activities;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.android.resource.ResourceInstallUtils;
-import org.commcare.android.view.CustomButtonWithText;
 import org.commcare.android.view.SquareButtonWithText;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.locale.Localization;
-
-import java.util.Date;
 
 /**
  * Handles upgrade activity UI.
@@ -25,9 +20,10 @@ class UpdateUIState {
     private static final String UPDATE_UI_STATE_KEY = "update_activity_ui_state";
     private SquareButtonWithText checkUpdateButton;
     private SquareButtonWithText stopUpdateButton;
-    private CustomButtonWithText installUpdateButton;
+    private SquareButtonWithText installUpdateButton;
     private ProgressBar progressBar;
     private TextView currentVersionText;
+    private TextView pendingUpdateText;
     private TextView progressText;
 
     private final UpdateActivity activity;
@@ -46,6 +42,8 @@ class UpdateUIState {
             Localization.get("updates.check.network_unavailable");
     private final String checkFailedMessage =
             Localization.get("updates.check.failed");
+    private final String upToDateAppliedOnLoginText =
+            Localization.get("updates.applied.on.login");
     private final String errorMsg = Localization.get("updates.error");
     private final String upToDateText = Localization.get("updates.success");
 
@@ -69,6 +67,9 @@ class UpdateUIState {
         progressText = (TextView)activity.findViewById(R.id.update_progress_text);
         currentVersionText =
                 (TextView)activity.findViewById(R.id.current_version_text);
+        pendingUpdateText =
+                (TextView)activity.findViewById(R.id.pending_update_text);
+        pendingUpdateText.setText(upToDateAppliedOnLoginText);
 
         setupButtonListeners();
         idleUiState();
@@ -96,7 +97,7 @@ class UpdateUIState {
         stopUpdateButton.setText(stopCheckingText);
 
         installUpdateButton =
-                (CustomButtonWithText)activity.findViewById(R.id.install_update_button);
+                (SquareButtonWithText)activity.findViewById(R.id.install_update_button);
         installUpdateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -116,9 +117,11 @@ class UpdateUIState {
 
     protected void idleUiState() {
         currentUIState = UIState.Idle;
+        checkUpdateButton.setVisibility(View.VISIBLE);
         checkUpdateButton.setEnabled(true);
-        stopUpdateButton.setEnabled(false);
-        installUpdateButton.setEnabled(false);
+        stopUpdateButton.setVisibility(View.GONE);
+        installUpdateButton.setVisibility(View.GONE);
+        pendingUpdateText.setVisibility(View.GONE);
 
         updateProgressText("");
         updateProgressBar(0, 100);
@@ -132,9 +135,10 @@ class UpdateUIState {
 
     protected void downloadingUiState() {
         currentUIState = UIState.Downloading;
-        checkUpdateButton.setEnabled(false);
+        checkUpdateButton.setVisibility(View.GONE);
+        stopUpdateButton.setVisibility(View.VISIBLE);
         stopUpdateButton.setEnabled(true);
-        installUpdateButton.setEnabled(false);
+        installUpdateButton.setVisibility(View.GONE);
 
         updateProgressBar(0, 100);
         updateProgressText(beginCheckingText);
@@ -142,9 +146,11 @@ class UpdateUIState {
 
     protected void unappliedUpdateAvailableUiState() {
         currentUIState = UIState.UnappliedUpdateAvailable;
-        checkUpdateButton.setEnabled(true);
-        stopUpdateButton.setEnabled(false);
-        installUpdateButton.setEnabled(true);
+        checkUpdateButton.setVisibility(View.GONE);
+        stopUpdateButton.setVisibility(View.GONE);
+        installUpdateButton.setVisibility(View.VISIBLE);
+        progressBar.setVisibility(View.GONE);
+        pendingUpdateText.setVisibility(View.VISIBLE);
 
         updateProgressBar(100, 100);
 
@@ -158,27 +164,32 @@ class UpdateUIState {
 
     protected void cancellingUiState() {
         currentUIState = UIState.Cancelling;
-        checkUpdateButton.setEnabled(false);
+        checkUpdateButton.setVisibility(View.GONE);
         stopUpdateButton.setEnabled(false);
-        installUpdateButton.setEnabled(false);
+        stopUpdateButton.setVisibility(View.VISIBLE);
+        installUpdateButton.setVisibility(View.GONE);
 
         updateProgressText(cancellingMsg);
     }
 
     protected void errorUiState() {
         currentUIState = UIState.Error;
+        checkUpdateButton.setVisibility(View.VISIBLE);
         checkUpdateButton.setEnabled(false);
-        stopUpdateButton.setEnabled(false);
-        installUpdateButton.setEnabled(false);
+        stopUpdateButton.setVisibility(View.GONE);
+        installUpdateButton.setVisibility(View.GONE);
+        pendingUpdateText.setVisibility(View.GONE);
 
         updateProgressText(errorMsg);
     }
 
     protected void noConnectivityUiState() {
         currentUIState = UIState.NoConnectivity;
+        checkUpdateButton.setVisibility(View.VISIBLE);
         checkUpdateButton.setEnabled(false);
-        stopUpdateButton.setEnabled(false);
-        installUpdateButton.setEnabled(false);
+        stopUpdateButton.setVisibility(View.GONE);
+        installUpdateButton.setVisibility(View.GONE);
+        pendingUpdateText.setVisibility(View.GONE);
 
         updateProgressText(noConnectivityMsg);
     }
@@ -195,23 +206,10 @@ class UpdateUIState {
     public void refreshStatusText() {
         CommCareApplication app = CommCareApplication._();
 
-        SharedPreferences preferences =
-                app.getCurrentApp().getAppPreferences();
-
-        long lastUpdateCheck =
-                preferences.getLong(CommCarePreferences.LAST_UPDATE_ATTEMPT, 0);
-
         int version = app.getCommCarePlatform().getCurrentProfile().getVersion();
-        Date lastChecked = new Date(lastUpdateCheck);
 
-        String checkedMsg =
-                Localization.get("updates.check.last",
-                        new String[]{lastChecked.toString()});
-
-        String versionMsg =
-                Localization.get("install.current.version",
-                        new String[]{Integer.toString(version)});
-        currentVersionText.setText(versionMsg + "\n" + checkedMsg);
+        currentVersionText.setText(Localization.get("install.current.version",
+                new String[]{Integer.toString(version)}));
     }
 
     public void saveCurrentUIState(Bundle outState) {

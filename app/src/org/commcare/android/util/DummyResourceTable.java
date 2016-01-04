@@ -158,7 +158,7 @@ public class DummyResourceTable extends ResourceTable {
 
     @Override
     public Vector<Resource> getResourcesForParent(String parent) {
-        return new Vector<Resource>();
+        return new Vector<>();
     }
 
     @Override

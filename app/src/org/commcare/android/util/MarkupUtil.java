@@ -65,19 +65,16 @@ public class MarkupUtil {
      */
 
     public static CharSequence localizeGenerateMarkdown(Context c, String localizationKey){
-        CharSequence mSequence = generateMarkdown(c, Localization.get(localizationKey));
-        return mSequence;
+        return generateMarkdown(c, Localization.get(localizationKey));
     }
 
     public static CharSequence localizeGenerateMarkdown(Context c, String localizationKey, String[] localizationArgs){
-        CharSequence mSequence = generateMarkdown(c, Localization.get(localizationKey, localizationArgs));
-        return mSequence;
+        return generateMarkdown(c, Localization.get(localizationKey, localizationArgs));
     }
 
     public static CharSequence generateMarkdown(Context c, String message){
         Bypass bypass = new Bypass(c);
-        CharSequence mSequence = trimTrailingWhitespace(bypass.markdownToSpannable(convertCharacterEncodings(message)));
-        return mSequence;
+        return trimTrailingWhitespace(bypass.markdownToSpannable(convertCharacterEncodings(message)));
     }
     
     /** Trims trailing whitespace. Removes any of these characters:
@@ -141,8 +138,7 @@ public class MarkupUtil {
         if(!DeveloperPreferences.isCssEnabled()){
             return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(message));
         }
-        Spannable text = htmlspanner.fromHtml(message);
-        return text;
+        return htmlspanner.fromHtml(message);
     }
 
     public static Spannable getCustomSpannable(String style, String message){
@@ -150,8 +146,7 @@ public class MarkupUtil {
             return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(message));
         }
         String mStyles = "<style> " + style + " </style>";
-        Spannable text = htmlspanner.fromHtml(mStyles + message);
-        return text;
+        return htmlspanner.fromHtml(mStyles + message);
     }
 
 

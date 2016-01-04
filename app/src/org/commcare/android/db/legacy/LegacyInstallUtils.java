@@ -192,14 +192,14 @@ public class LegacyInstallUtils {
         SqlStorage.cleanCopy(legacyResources, newInstallTable);
 
         //Fixtures
-        LegacySqlIndexedStorageUtility<FormInstance> legacyFixtures = new LegacySqlIndexedStorageUtility<FormInstance>("fixture", FormInstance.class, ldbh);
+        LegacySqlIndexedStorageUtility<FormInstance> legacyFixtures = new LegacySqlIndexedStorageUtility<>("fixture", FormInstance.class, ldbh);
         SqlStorage<FormInstance> newFixtures = app.getStorage("fixture", FormInstance.class);
         SqlStorage.cleanCopy(legacyFixtures, newFixtures);
 
         //Logs
 
         //There's a twist, here. We only wanna copy over logs once to get a nice clear time-based record ordering.
-        LegacySqlIndexedStorageUtility<AndroidLogEntry> legacyLogs = new LegacySqlIndexedStorageUtility<AndroidLogEntry>(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class, ldbh);
+        LegacySqlIndexedStorageUtility<AndroidLogEntry> legacyLogs = new LegacySqlIndexedStorageUtility<>(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class, ldbh);
 
         if (legacyLogs.isEmpty()) {
             //old logs are empty, no need to wipe new storage 
@@ -233,7 +233,7 @@ public class LegacyInstallUtils {
 
         //We also need to tell the XForm Provider that any/all of its forms have been moved
 
-        ArrayList<Pair<Uri, String>> toReplace = new ArrayList<Pair<Uri, String>>();
+        ArrayList<Pair<Uri, String>> toReplace = new ArrayList<>();
         Cursor ef = null;
         try {
             ef = c.getContentResolver().query(FormsProviderAPI.FormsColumns.CONTENT_URI, new String[]{FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns._ID}, null, null, null);
@@ -243,7 +243,7 @@ public class LegacyInstallUtils {
                     String newFilePath = replaceOldRoot(filePath, getOldFileSystemRoot(), newRoot);
                     if (!newFilePath.equals(filePath)) {
                         Uri uri = ContentUris.withAppendedId(FormsProviderAPI.FormsColumns.CONTENT_URI, ef.getLong(ef.getColumnIndex(FormsProviderAPI.FormsColumns._ID)));
-                        toReplace.add(new Pair<Uri, String>(uri, newFilePath));
+                        toReplace.add(new Pair<>(uri, newFilePath));
                     }
                 }
             }
@@ -292,9 +292,9 @@ public class LegacyInstallUtils {
         //when the user logs in again
 
         //Get legacy user storage
-        LegacySqlIndexedStorageUtility<User> legacyUsers = new LegacySqlIndexedStorageUtility<User>("USER", User.class, ldbh);
+        LegacySqlIndexedStorageUtility<User> legacyUsers = new LegacySqlIndexedStorageUtility<>("USER", User.class, ldbh);
 
-        ArrayList<User> oldUsers = new ArrayList<User>();
+        ArrayList<User> oldUsers = new ArrayList<>();
         //So the old user storage wasn't encrypted since it had no actual prod data in it
         for (User u : legacyUsers) {
             oldUsers.add(u);
@@ -385,197 +385,193 @@ public class LegacyInstallUtils {
     public static void transitionLegacyUserStorage(final Context c, CommCareApp app, final byte[] oldKey, UserKeyRecord ukr) {
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Beginning transition attempt for " + ukr.getUsername());
 
+        final CipherPool pool = new CipherPool() {
+            final Object lock = new Object();
+            final byte[] key = oldKey;
+
+            @Override
+            public Cipher generateNewCipher() {
+                synchronized (lock) {
+                    try {
+                        synchronized (key) {
+                            SecretKeySpec spec = new SecretKeySpec(key, "AES");
+                            Cipher decrypter = Cipher.getInstance("AES");
+                            decrypter.init(Cipher.DECRYPT_MODE, spec);
+
+                            return decrypter;
+                        }
+                    } catch (InvalidKeyException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (NoSuchAlgorithmException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (NoSuchPaddingException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+                return null;
+            }
+
+        };
+
+
+        //get the legacy storage
+        final android.database.sqlite.SQLiteDatabase olddb = new LegacyCommCareOpenHelper(c, new LegacyCommCareDBCursorFactory(getLegacyEncryptedModels()) {
+            protected CipherPool getCipherPool() {
+                return pool;
+            }
+        }).getReadableDatabase();
+
+        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Legacy DB Opened");
+
+        LegacyDbHelper ldbh = new LegacyDbHelper(c, pool.borrow()) {
+            @Override
+            public android.database.sqlite.SQLiteDatabase getHandle() {
+                return olddb;
+            }
+        };
+
+        final String newFileSystemRoot = app.fsPath("commcare/");
+        final String oldRoot = getOldFileSystemRoot();
+
+        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Testing keys by attempting to open storage");
+
+        //TODO: This doesn't work.
+        LegacySqlIndexedStorageUtility<User> legacyUserStorage = new LegacySqlIndexedStorageUtility<>("User", User.class, ldbh);
         try {
-            final CipherPool pool = new CipherPool() {
-                final Object lock = new Object();
-                final byte[] key = oldKey;
+            //Test to see if the old db worked
+            for (User u : legacyUserStorage) {
 
-                @Override
-                public Cipher generateNewCipher() {
-                    synchronized (lock) {
-                        try {
-                            synchronized (key) {
-                                SecretKeySpec spec = new SecretKeySpec(key, "AES");
-                                Cipher decrypter = Cipher.getInstance("AES");
-                                decrypter.init(Cipher.DECRYPT_MODE, spec);
-
-                                return decrypter;
-                            }
-                        } catch (InvalidKeyException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (NoSuchAlgorithmException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        } catch (NoSuchPaddingException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                    }
-                    return null;
-                }
-
-            };
-
-
-            //get the legacy storage
-            final android.database.sqlite.SQLiteDatabase olddb = new LegacyCommCareOpenHelper(c, new LegacyCommCareDBCursorFactory(getLegacyEncryptedModels()) {
-                protected CipherPool getCipherPool() {
-                    return pool;
-                }
-            }).getReadableDatabase();
-
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Legacy DB Opened");
-
-            LegacyDbHelper ldbh = new LegacyDbHelper(c, pool.borrow()) {
-                @Override
-                public android.database.sqlite.SQLiteDatabase getHandle() {
-                    return olddb;
-                }
-            };
-
-            final String newFileSystemRoot = app.fsPath("commcare/");
-            final String oldRoot = getOldFileSystemRoot();
-
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Testing keys by attempting to open storage");
-
-            //TODO: This doesn't work. 
-            LegacySqlIndexedStorageUtility<User> legacyUserStorage = new LegacySqlIndexedStorageUtility<User>("User", User.class, ldbh);
-            try {
-                //Test to see if the old db worked
-                for (User u : legacyUserStorage) {
-
-                }
-            } catch (RuntimeException e) {
-                e.printStackTrace();
-                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Exception " + e.getMessage() + " when testing storage. Keys are probably no good");
-                //This almost certainly means that we don't have the right key;
-                return;
             }
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Exception " + e.getMessage() + " when testing storage. Keys are probably no good");
+            //This almost certainly means that we don't have the right key;
+            return;
+        }
 
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Old keys look good! Creating new DB");
+        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Old keys look good! Creating new DB");
 
-            SQLiteDatabase ourDb;
-            //If we were able to iterate over the users, the key was fine, so let's use it to open our db
-            try {
-                ourDb = new CommCareUserOpenHelper(CommCareApplication._(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
-            } catch (SQLiteException sle) {
-                //Our database got corrupted. Fortunately this represents a new record, so we can't actually need it.
-                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Attempted migrated database got corrupted. Deleting it and starting over");
-                c.getDatabasePath(CommCareUserOpenHelper.getDbName(ukr.getUuid())).delete();
-                ourDb = new CommCareUserOpenHelper(CommCareApplication._(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
+        SQLiteDatabase ourDb;
+        //If we were able to iterate over the users, the key was fine, so let's use it to open our db
+        try {
+            ourDb = new CommCareUserOpenHelper(CommCareApplication._(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
+        } catch (SQLiteException sle) {
+            //Our database got corrupted. Fortunately this represents a new record, so we can't actually need it.
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Attempted migrated database got corrupted. Deleting it and starting over");
+            c.getDatabasePath(CommCareUserOpenHelper.getDbName(ukr.getUuid())).delete();
+            ourDb = new CommCareUserOpenHelper(CommCareApplication._(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
+        }
+
+        final SQLiteDatabase currentUserDatabase = ourDb;
+
+        AndroidDbHelper newAndroidDbHelper = new AndroidDbHelper(c) {
+            @Override
+            public SQLiteDatabase getHandle() {
+                return currentUserDatabase;
             }
+        };
 
-            final SQLiteDatabase currentUserDatabase = ourDb;
-            
-            AndroidDbHelper newAndroidDbHelper = new AndroidDbHelper(c) {
-                @Override
-                public SQLiteDatabase getHandle() {
-                    return currentUserDatabase;
-                }
-            };
-
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| All set to get going. Beginning storage copy");
+        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| All set to get going. Beginning storage copy");
 
 
-            try {
+        try {
             //So we need to copy over a bunch of storage and also make some incidental changes along the way.
-            
-            LegacySqlIndexedStorageUtility<ACase> legacyCases = new LegacySqlIndexedStorageUtility<ACase>(ACase.STORAGE_KEY, ACase.class, ldbh);
+
+            LegacySqlIndexedStorageUtility<ACase> legacyCases = new LegacySqlIndexedStorageUtility<>(ACase.STORAGE_KEY, ACase.class, ldbh);
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| " + legacyCases.getNumRecords() + " old cases detected");
-            
+
             Map m = SqlStorage.cleanCopy(legacyCases,
-                       new SqlStorage<ACase>(ACase.STORAGE_KEY, ACase.class, newAndroidDbHelper));
-            
+                    new SqlStorage<>(ACase.STORAGE_KEY, ACase.class, newAndroidDbHelper));
+
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| " + m.size() + " cases copied. Copying Users");
-            
+
             SqlStorage.cleanCopy(legacyUserStorage,
-                    new SqlStorage<User>("USER", User.class, newAndroidDbHelper));
-            
+                    new SqlStorage<>("USER", User.class, newAndroidDbHelper));
+
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Users copied. Copying form records");
-            
-            final Map<Integer, Integer> formRecordMapping = SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<FormRecord>("FORMRECORDS", FormRecord.class, ldbh),
-                new SqlStorage<FormRecord>("FORMRECORDS", FormRecord.class, newAndroidDbHelper), new CopyMapper<FormRecord>() {
 
-                    @Override
-                    public FormRecord transform(FormRecord t) {
-                        String formRecordPath;
-                        try {
-                            formRecordPath = t.getPath(c);
-                            String newPath = replaceOldRoot(formRecordPath, oldRoot, newFileSystemRoot);
-                            if (newPath != formRecordPath) {
-                                ContentValues cv = new ContentValues();
-                                cv.put(InstanceColumns.INSTANCE_FILE_PATH, newPath);
-                                c.getContentResolver().update(t.getInstanceURI(), cv, null, null);
+            final Map<Integer, Integer> formRecordMapping = SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<>("FORMRECORDS", FormRecord.class, ldbh),
+                    new SqlStorage<>("FORMRECORDS", FormRecord.class, newAndroidDbHelper), new CopyMapper<FormRecord>() {
+
+                        @Override
+                        public FormRecord transform(FormRecord t) {
+                            String formRecordPath;
+                            try {
+                                formRecordPath = t.getPath(c);
+                                String newPath = replaceOldRoot(formRecordPath, oldRoot, newFileSystemRoot);
+                                if (newPath != formRecordPath) {
+                                    ContentValues cv = new ContentValues();
+                                    cv.put(InstanceColumns.INSTANCE_FILE_PATH, newPath);
+                                    c.getContentResolver().update(t.getInstanceURI(), cv, null, null);
+                                }
+                                return t;
+                            } catch (FileNotFoundException e) {
+                                //This means the form record doesn't
+                                //actually have a URI at all, so we
+                                //can skip this.
+                                return t;
                             }
-                            return t;
-                        } catch (FileNotFoundException e) {
-                            //This means the form record doesn't
-                            //actually have a URI at all, so we
-                            //can skip this.
-                            return t;
                         }
-                    }
 
-            });
-            
+                    });
+
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Form records copied. Copying sessions.");
-            
-            SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<SessionStateDescriptor>("android_cc_session", SessionStateDescriptor.class, ldbh),
-                    new SqlStorage<SessionStateDescriptor>("android_cc_session", SessionStateDescriptor.class, newAndroidDbHelper), new CopyMapper<SessionStateDescriptor>() {
-    
+
+            SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<>("android_cc_session", SessionStateDescriptor.class, ldbh),
+                    new SqlStorage<>("android_cc_session", SessionStateDescriptor.class, newAndroidDbHelper), new CopyMapper<SessionStateDescriptor>() {
+
                         @Override
                         public SessionStateDescriptor transform(SessionStateDescriptor t) {
                             return t.reMapFormRecordId(formRecordMapping.get(t.getFormRecordId()));
                         }
-                
-            });
+
+                    });
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Sessions copied. Copying geocaches.");
-            
-            SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<GeocodeCacheModel>(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class, ldbh),
-                    new SqlStorage<GeocodeCacheModel>(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class, newAndroidDbHelper));
+
+            SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<>(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class, ldbh),
+                    new SqlStorage<>(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class, newAndroidDbHelper));
 
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| geocaches copied. Copying serialized log submissions.");
 
-            SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<DeviceReportRecord>("log_records", DeviceReportRecord.class, ldbh),
-                        new SqlStorage<DeviceReportRecord>("log_records", DeviceReportRecord.class, newAndroidDbHelper), new CopyMapper<DeviceReportRecord>() {
+            SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<>("log_records", DeviceReportRecord.class, ldbh),
+                    new SqlStorage<>("log_records", DeviceReportRecord.class, newAndroidDbHelper), new CopyMapper<DeviceReportRecord>() {
                         @Override
                         public DeviceReportRecord transform(DeviceReportRecord t) {
                             return new DeviceReportRecord(replaceOldRoot(t.getFilePath(), oldRoot, newFileSystemRoot), t.getKey());
                         }
 
-            });
-            
+                    });
+
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| serialized log submissions copied. Copying fixtures");
-            
-            SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<FormInstance>("fixture", FormInstance.class, ldbh),
-                    new SqlStorage<FormInstance>("fixture", FormInstance.class, newAndroidDbHelper));
-            
-            } catch(SessionUnavailableException sfe) {
-                throw new RuntimeException(sfe);
-            }
 
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Whew, storage copied! Updating key record");
+            SqlStorage.cleanCopy(new LegacySqlIndexedStorageUtility<>("fixture", FormInstance.class, ldbh),
+                    new SqlStorage<>("fixture", FormInstance.class, newAndroidDbHelper));
 
-            //Now we can update this key record to confirm that it is fully installed
-            ukr.setType(UserKeyRecord.TYPE_NORMAL);
-            app.getStorage(UserKeyRecord.class).write(ukr);
-
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Eliminating shared data from old install, since new users can't access it");
-
-            //Now, if we've copied everything over to this user with no problems, we want to actually go back and wipe out all of the
-            //data that is linked to specific files, since individual users might delete them out of their sandboxes.
-            new LegacySqlIndexedStorageUtility<DeviceReportRecord>("log_records", DeviceReportRecord.class, ldbh).removeAll();
-            new LegacySqlIndexedStorageUtility<FormRecord>("FORMRECORDS", FormRecord.class, ldbh).removeAll();
-            new LegacySqlIndexedStorageUtility<SessionStateDescriptor>("android_cc_session", SessionStateDescriptor.class, ldbh).removeAll();
-
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| User transitioned! Closing db handles.");
-
-            olddb.close();
-            currentUserDatabase.close();
-        } finally {
-
+        } catch (SessionUnavailableException sfe) {
+            throw new RuntimeException(sfe);
         }
+
+        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Whew, storage copied! Updating key record");
+
+        //Now we can update this key record to confirm that it is fully installed
+        ukr.setType(UserKeyRecord.TYPE_NORMAL);
+        app.getStorage(UserKeyRecord.class).write(ukr);
+
+        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| Eliminating shared data from old install, since new users can't access it");
+
+        //Now, if we've copied everything over to this user with no problems, we want to actually go back and wipe out all of the
+        //data that is linked to specific files, since individual users might delete them out of their sandboxes.
+        new LegacySqlIndexedStorageUtility<>("log_records", DeviceReportRecord.class, ldbh).removeAll();
+        new LegacySqlIndexedStorageUtility<>("FORMRECORDS", FormRecord.class, ldbh).removeAll();
+        new LegacySqlIndexedStorageUtility<>("android_cc_session", SessionStateDescriptor.class, ldbh).removeAll();
+
+        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| User transitioned! Closing db handles.");
+
+        olddb.close();
+        currentUserDatabase.close();
     }
 
     protected static String replaceOldRoot(String filePath, String oldRoot, String newFileSystemRoot) {
@@ -595,7 +591,7 @@ public class LegacyInstallUtils {
     }
 
     private static Hashtable<String, EncryptedModel> getLegacyEncryptedModels() {
-        Hashtable<String, EncryptedModel> models = new Hashtable<String, EncryptedModel>();
+        Hashtable<String, EncryptedModel> models = new Hashtable<>();
         models.put(ACase.STORAGE_KEY, new ACase());
         models.put("FORMRECORDS", new FormRecord());
         models.put(GeocodeCacheModel.STORAGE_KEY, new GeocodeCacheModel());

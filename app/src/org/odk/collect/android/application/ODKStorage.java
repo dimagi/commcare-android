@@ -40,9 +40,7 @@ public class ODKStorage {
             File dir = new File(dirName);
             if (!dir.exists()) {
                 if (!dir.mkdirs()) {
-                    RuntimeException e =
-                            new RuntimeException("CC reports :: Cannot create directory: " + dirName);
-                    throw e;
+                    throw new RuntimeException("CC reports :: Cannot create directory: " + dirName);
                 }
             } else {
                 if (!dir.isDirectory()) {

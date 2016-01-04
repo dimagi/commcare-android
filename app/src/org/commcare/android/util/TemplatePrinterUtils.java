@@ -167,7 +167,7 @@ public abstract class TemplatePrinterUtils {
                 Bundle responses = new Bundle();
                 responses.putString("print_initiated", "" + printInitiated);
                 intent.putExtra("odk_intent_bundle", responses);
-                activity.setResult(activity.RESULT_OK, intent);
+                activity.setResult(Activity.RESULT_OK, intent);
                 activity.finish();
             }
         }).showDialog();

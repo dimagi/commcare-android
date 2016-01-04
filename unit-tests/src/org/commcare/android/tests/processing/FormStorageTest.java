@@ -1,7 +1,6 @@
 package org.commcare.android.tests.processing;
 
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.database.DbUtil;
 import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.javarosa.core.model.FormDef;
@@ -11,8 +10,6 @@ import org.javarosa.xform.util.XFormUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
-import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
 import java.io.IOException;

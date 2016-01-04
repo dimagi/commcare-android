@@ -103,8 +103,7 @@ public class CryptUtil {
     public static byte[] wrapKey(byte[] secretKey, String password) {
         try {
             //SecretKeySpec spec = (SecretKeySpec)SecretKeyFactory.getInstance("AES").getKeySpec(key, javax.crypto.spec.SecretKeySpec.class);
-            byte[] encrypted = encrypt(secretKey, encodingCipher(password));
-            return encrypted;
+            return encrypt(secretKey, encodingCipher(password));
         } catch (InvalidKeySpecException e) {
             throw new RuntimeException(e);
         } catch (NoSuchAlgorithmException e) {
@@ -119,8 +118,7 @@ public class CryptUtil {
     public static byte[] unWrapKey(byte[] wrapped, String password) {
         try {
             Cipher cipher = decodingCipher(password);
-            byte[] encoded = decrypt(wrapped, cipher);
-            return encoded;
+            return decrypt(wrapped, cipher);
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         } catch (InvalidKeySpecException e) {

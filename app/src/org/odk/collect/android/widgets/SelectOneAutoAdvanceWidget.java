@@ -34,7 +34,6 @@ import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.listeners.AdvanceToNextListener;
-import org.odk.collect.android.listeners.WidgetChangedListener;
 import org.odk.collect.android.views.media.MediaLayout;
 
 import java.util.Vector;
@@ -65,9 +64,9 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
         LayoutInflater inflater = LayoutInflater.from(getContext());
 
         mItems = prompt.getSelectChoices();
-        buttons = new Vector<RadioButton>();
-        mediaLayouts = new Vector<MediaLayout>();
-        parentLayout = new Vector<RelativeLayout>();
+        buttons = new Vector<>();
+        mediaLayouts = new Vector<>();
+        parentLayout = new Vector<>();
         listener = (AdvanceToNextListener) context;
 
         String s = null;

@@ -262,7 +262,7 @@ public class FileUtil {
      */
 
     public static ArrayList<String> getExternalMounts() {
-        final ArrayList<String> out = new ArrayList<String>();
+        final ArrayList<String> out = new ArrayList<>();
         String reg = "(?i).*vold.*(vfat|ntfs|exfat|fat32|ext3|ext4).*rw.*";
         String s = "";
         try {
@@ -359,8 +359,7 @@ public class FileUtil {
             return null;
         }
 
-        String domainedFolder = sdRoot.getAbsolutePath() + "/Android/data/org.commcare.dalvik";
-        return domainedFolder;
+        return sdRoot.getAbsolutePath() + "/Android/data/org.commcare.dalvik";
     }
     /*
      * If we're on KitKat use the new OS path
