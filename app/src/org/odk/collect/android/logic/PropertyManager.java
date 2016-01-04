@@ -1,7 +1,10 @@
 package org.odk.collect.android.logic;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.provider.Settings;
+import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -18,8 +21,7 @@ import java.util.Vector;
  */
 
 public class PropertyManager implements IPropertyManager {
-
-    private static final String t = "PropertyManager";
+    private final static String TAG = PropertyManager.class.getSimpleName();
 
     private final HashMap<String, String> mProperties;
 
@@ -28,17 +30,17 @@ public class PropertyManager implements IPropertyManager {
     private final static String SIM_SERIAL_PROPERTY = "simserial";
     private final static String PHONE_NUMBER_PROPERTY = "phonenumber";
 
-
-    public String getName() {
-        return "Property Manager";
-    }
-
-
     public PropertyManager(Context context) {
-        Log.i(t, "calling constructor");
+        Log.i(TAG, "calling constructor");
 
         mProperties = new HashMap<>();
-        TelephonyManager mTelephonyManager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
+
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
+            mProperties.put(DEVICE_ID_PROPERTY, "000000000000000");
+            return;
+        }
+
+        TelephonyManager mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
 
         String deviceId = mTelephonyManager.getDeviceId();
         if (deviceId != null && (deviceId.contains("*") || deviceId.contains("000000000000000"))) {
@@ -65,7 +67,6 @@ public class PropertyManager implements IPropertyManager {
     @Override
     public void setProperty(String propertyName, String propertyValue) {
     }
-
 
     @Override
     public void setProperty(String propertyName, @SuppressWarnings("rawtypes") Vector propertyValue) {
