@@ -1,10 +1,14 @@
 package org.commcare.android.tasks;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.FileUtil;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -39,6 +43,11 @@ public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer,
         int count = 0;
         ZipFile zipfile;
         //From stackexchange
+
+        if (ContextCompat.checkSelfPermission(CommCareApplication._().getApplicationContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(CommCareApplication._().getApplicationContext(), Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            Log.w(TAG, "don't have perms");
+        }
         try {
             zipfile = new ZipFile(archive);
         } catch (IOException ioe) {
