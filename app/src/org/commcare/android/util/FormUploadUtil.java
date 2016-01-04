@@ -7,6 +7,7 @@ import android.webkit.MimeTypeMap;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
@@ -54,7 +55,7 @@ public class FormUploadUtil {
      */
     public static final long RECORD_FAILURE = 8;
 
-    private static long MAX_BYTES = (5 * 1048576) - 1024;
+    private static final long MAX_BYTES = (5 * 1048576) - 1024;
     private static final String[] SUPPORTED_FILE_EXTS =
             {".xml", ".jpg", "jpeg", ".3gpp", ".3gp", ".3ga", ".3g2", ".mp3",
                     ".wav", ".amr", ".mp4", ".3gp2", ".mpg4", ".mpeg4",
@@ -290,7 +291,7 @@ public class FormUploadUtil {
                         return false;
                     }
                     fb = new EncryptedFileBody(f, FormUploadUtil.getDecryptCipher(key),
-                            "text/xml");
+                            ContentType.TEXT_XML);
                 } else {
                     fb = new FileBody(f, "text/xml");
                 }

@@ -25,6 +25,7 @@ import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 
 import java.util.Calendar;
@@ -44,8 +45,8 @@ import java.util.Date;
  */
 public class DateWidget extends QuestionWidget {
 
-    private DatePicker mDatePicker;
-    private DatePicker.OnDateChangedListener mDateListener;
+    private final DatePicker mDatePicker;
+    private final DatePicker.OnDateChangedListener mDateListener;
 
 
     @SuppressLint("NewApi")
@@ -100,10 +101,25 @@ public class DateWidget extends QuestionWidget {
 
     private void setAnswer() {
         if (getCurrentAnswer() != null) {
-            DateTime ldt =
+
+            //The incoming date is in Java Format, parsed from an ISO-8601 date.
+            DateTime isoAnchoredDate =
                 new DateTime(((Date) ((DateData) getCurrentAnswer()).getValue()).getTime());
-            mDatePicker.init(ldt.getYear(), ldt.getMonthOfYear() - 1, ldt.getDayOfMonth(),
-                mDateListener);
+
+
+            //The java date we loaded doesn't know how to communicate its timezone offsets to
+            //Joda if the offset for the datetime represented differs from what it is currently.
+            //This is the case, for instance, in historical dates where timezones offsets were
+            //different. This method identifies what offset the Java date actually was using.
+            DateTimeZone correctedAbsoluteOffset =
+                    DateTimeZone.forOffsetMillis(-isoAnchoredDate.toDate().getTimezoneOffset() * 60 * 1000);
+
+            //Then manually loads it back into a Joda datetime for manipulation
+            DateTime adjustedDate = isoAnchoredDate.toDateTime(correctedAbsoluteOffset);
+
+
+            mDatePicker.init(adjustedDate.getYear(), adjustedDate.getMonthOfYear() - 1, adjustedDate.getDayOfMonth(),
+                    mDateListener);
         } else {
             // create date widget with current time as of right now
             clearAnswer();

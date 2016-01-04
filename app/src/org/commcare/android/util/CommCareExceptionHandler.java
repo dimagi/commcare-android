@@ -3,7 +3,7 @@ package org.commcare.android.util;
 import android.content.Context;
 import android.content.Intent;
 
-import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.dalvik.activities.CrashWarningActivity;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -30,8 +30,7 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
 
     @Override
     public void uncaughtException(Thread thread, Throwable ex) {
-        ExceptionReportTask task = new ExceptionReportTask();
-        task.execute(ex);
+        ExceptionReporting.reportExceptionInBg(ex);
 
         if (warnUserAndExit(ex)) {
             // You must close the crashed thread in order to start a new activity.

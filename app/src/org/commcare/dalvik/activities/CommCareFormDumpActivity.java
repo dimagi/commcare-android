@@ -89,7 +89,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                 }
 
                 SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-                SendTask<CommCareFormDumpActivity> mSendTask = new SendTask<CommCareFormDumpActivity>(getApplicationContext(),
+                SendTask<CommCareFormDumpActivity> mSendTask = new SendTask<CommCareFormDumpActivity>(
                         settings.getString("PostURL", url), getFolderPath()){
                     @Override
                     protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
@@ -135,7 +135,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                     transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     return;
                 }
-                DumpTask mDumpTask = new DumpTask(getApplicationContext(), txtInteractiveMessages){
+                DumpTask mDumpTask = new DumpTask(getApplicationContext()){
                     @Override
                     protected void deliverResult( CommCareFormDumpActivity receiver, Boolean result) {
                         if(result == Boolean.TRUE){

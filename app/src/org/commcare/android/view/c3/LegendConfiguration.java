@@ -1,7 +1,6 @@
 package org.commcare.android.view.c3;
 
 import org.commcare.suite.model.graph.GraphData;
-import org.json.JSONArray;
 import org.json.JSONException;
 
 /**

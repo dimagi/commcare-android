@@ -48,8 +48,8 @@ import java.util.Vector;
  */
 public class MenuAdapter implements ListAdapter {
 
-    private AndroidSessionWrapper asw;
-    Context context;
+    private final AndroidSessionWrapper asw;
+    final Context context;
     MenuDisplayable[] displayableData;
 
     public MenuAdapter(Context context, CommCarePlatform platform, String menuID) {
@@ -192,7 +192,7 @@ public class MenuAdapter implements ListAdapter {
 
     @Override
     public View getView(int i, View v, ViewGroup vg) {
-        MenuDisplayable mObject = displayableData[i];
+        MenuDisplayable menuDisplayable = displayableData[i];
 
         // inflate view
         View menuListItem = v;
@@ -202,34 +202,20 @@ public class MenuAdapter implements ListAdapter {
             menuListItem = LayoutInflater.from(context).inflate(R.layout.menu_list_item_modern, vg, false);
         }
 
-        // set up text
-        String mQuestionText = textViewHelper(mObject);
-
-        //Final change, remove any numeric context requests. J2ME uses these to
-        //help with numeric navigation.
-        if (mQuestionText != null) {
-            mQuestionText = Localizer.processArguments(mQuestionText, new String[]{""}).trim();
-        }
-
         TextView rowText = (TextView) menuListItem.findViewById(R.id.row_txt);
-        rowText.setText(mQuestionText);
+        setupTextView(rowText, menuDisplayable);
 
-        setupAudioButton(menuListItem, mObject);
+        AudioButton mAudioButton = (AudioButton) menuListItem.findViewById(R.id.row_soundicon);
+        setupAudioButton(mAudioButton, menuDisplayable);
 
-        ImageView mIconView = setupIcon(menuListItem, mObject);
-
-        String imageURI = mObject.getImageURI();
-
-        Bitmap image = MediaUtil.inflateDisplayImage(context, imageURI);
-        if (image != null && mIconView != null) {
-            mIconView.setImageBitmap(image);
-            mIconView.setAdjustViewBounds(true);
-        }
-
+        // set up the image, if available
+        ImageView mIconView = (ImageView) menuListItem.findViewById(R.id.row_img);
+        setupImageView(mIconView, menuDisplayable);
         return menuListItem;
     }
 
-    private void setupAudioButton(View menuListItem, MenuDisplayable menuDisplayable) {
+    public void setupAudioButton(AudioButton mAudioButton, MenuDisplayable menuDisplayable){
+
         // set up audio
         final String audioURI = menuDisplayable.getAudioURI();
         String audioFilename = "";
@@ -243,9 +229,7 @@ public class MenuAdapter implements ListAdapter {
         }
 
         File audioFile = new File(audioFilename);
-
         // First set up the audio button
-        AudioButton mAudioButton = (AudioButton) menuListItem.findViewById(R.id.row_soundicon);
         if (!"".equals(audioFilename) && audioFile.exists()) {
             // Set not focusable so that list onclick will work
             mAudioButton.setFocusable(false);
@@ -260,10 +244,19 @@ public class MenuAdapter implements ListAdapter {
         }
     }
 
-    private ImageView setupIcon(View menuListItem, MenuDisplayable menuDisplayable) {
-        // set up the image, if available
-        ImageView mIconView = (ImageView) menuListItem.findViewById(R.id.row_img);
+    public void setupTextView(TextView textView, MenuDisplayable menuDisplayable){
+        // set up text
+        String mQuestionText = textViewHelper(menuDisplayable);
 
+        //Final change, remove any numeric context requests. J2ME uses these to
+        //help with numeric navigation.
+        if (mQuestionText != null) {
+            mQuestionText = Localizer.processArguments(mQuestionText, new String[]{""}).trim();
+        }
+        textView.setText(mQuestionText);
+    }
+
+    public void setupImageView(ImageView mIconView, MenuDisplayable menuDisplayable){
         NavIconState iconChoice = NavIconState.NEXT;
 
         //figure out some icons
@@ -290,7 +283,12 @@ public class MenuAdapter implements ListAdapter {
                     break;
             }
         }
-        return mIconView;
+        String imageURI = menuDisplayable.getImageURI();
+        Bitmap image = MediaUtil.inflateDisplayImage(context, imageURI);
+        if (image != null && mIconView != null) {
+            mIconView.setImageBitmap(image);
+            mIconView.setAdjustViewBounds(true);
+        }
     }
 
     /*

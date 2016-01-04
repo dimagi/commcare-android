@@ -100,11 +100,6 @@ public class CryptUtil {
 //        return bos.toByteArray();
     }
 
-
-    public static byte[] wrapKey(SecretKey key, String password) {
-        return wrapKey(key.getEncoded(), password);
-    }
-
     public static byte[] wrapKey(byte[] secretKey, String password) {
         try {
             //SecretKeySpec spec = (SecretKeySpec)SecretKeyFactory.getInstance("AES").getKeySpec(key, javax.crypto.spec.SecretKeySpec.class);

@@ -61,6 +61,10 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
 
     @Override
     public String getDeviceId() {
-        return CommCareApplication._().getPhoneId();
+        String phoneId = CommCareApplication._().getPhoneId();
+        if (phoneId == null) {
+            return super.getDeviceId();
+        }
+        return phoneId;
     }
 }

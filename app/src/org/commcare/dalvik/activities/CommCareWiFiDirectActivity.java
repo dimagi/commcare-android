@@ -67,7 +67,7 @@ import java.util.Vector;
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<CommCareWiFiDirectActivity> implements DeviceActionListener, FileServerListener, WifiDirectManagerListener {
 
-    public static final String TAG = CommCareWiFiDirectActivity.class.getSimpleName();
+    private static final String TAG = CommCareWiFiDirectActivity.class.getSimpleName();
 
     public static final String KEY_NUMBER_DUMPED ="wd_num_dumped";
 
@@ -176,8 +176,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
-
-        showDialog(this, "Transfer, Receive, Submit?", "Do you want to transfer, receive, or submit forms?");
+        changeState();
     }
 
     /**
@@ -191,10 +190,10 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         final WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
 
-        mReceiver = new WiFiDirectBroadcastReceiver(mManager, mChannel, fragment);
+        mReceiver = new WiFiDirectBroadcastReceiver(mManager, fragment);
         registerReceiver(mReceiver, mIntentFilter);
 
-        fragment.startReceiver(mManager, mChannel, mReceiver);
+        fragment.startReceiver(mManager, mChannel);
 
         updateStatusText();
     }
@@ -221,7 +220,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
         if(!fragment.isWifiP2pEnabled()){
             Logger.log(TAG, "returning because Wi-fi direct is not available");
-            Toast.makeText(CommCareWiFiDirectActivity.this, "WiFi Direct is Off - Turn it on, and press the \"Host\" button",
+            Toast.makeText(CommCareWiFiDirectActivity.this, localize("wifi.direct.wifi.direct.off"),
                     Toast.LENGTH_SHORT).show();
             return;
         }
@@ -230,7 +229,8 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     }
 
     public void changeState(){
-        showDialog(this, "Send, Receive, Submit?", "Do you want to send, receive, or submit forms?");
+        showDialog(this, localize("wifi.direct.change.state.title").toString(),
+                localize("wifi.direct.change.state.text").toString());
     }
 
     public void showDialog(Activity activity, String title, String message) {
@@ -260,7 +260,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     public void beSender(){
 
-        myStatusText.setText("Entered Send Mode");
+        myStatusText.setText(localize("wifi.direct.enter.send.mode"));
 
         WiFiDirectManagementFragment wifiFragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
@@ -298,7 +298,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     public void beReceiver(){
 
         Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Became receiver");
-        myStatusText.setText("Entered Receive Mode");
+        myStatusText.setText(localize("wifi.direct.enter.receive.mode"));
 
         WiFiDirectManagementFragment wifiFragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
@@ -339,7 +339,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
         Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Became submitter");
         unzipFilesHelper();
-        myStatusText.setText("Entered Submit Mode");
+        myStatusText.setText(localize("wifi.direct.enter.submit.mode"));
 
         WiFiDirectManagementFragment wifiFragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
@@ -394,7 +394,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
             @Override
             protected void deliverError(CommCareWiFiDirectActivity receiver, Exception e) {
-                receiver.myStatusText.setText("Error wiping forms: " + e.getMessage());
+                receiver.myStatusText.setText(localize("wifi.direct.error.wiping.forms", e.getMessage()));
                 receiver.transplantStyle(myStatusText, R.layout.template_text_notification_problem);
             }
         };
@@ -433,7 +433,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         File[] files = receiveFolder.listFiles();
 
         if (files == null){
-            myStatusText.setText("Phone has received no forms via Wi-fi direct for Submitting; did you mean to Send forms?");
+            myStatusText.setText(localize("wifi.direct.error.no.forms"));
             transplantStyle(myStatusText, R.layout.template_text_notification_problem);
             return;
         }
@@ -448,7 +448,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         }
 
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(getApplicationContext(),
+        SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(
                 settings.getString("PostURL", url), receiveFolder){
 
             @Override
@@ -493,7 +493,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
             return false;
         }
 
-        myStatusText.setText("Zip file exists, unzipping...");
+        myStatusText.setText(localize("wifi.direct.zip.unzipping"));
 
         for (File zipDirContent : zipDirContents) {
             unzipFiles(zipDirContent.getAbsolutePath());
@@ -503,10 +503,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     }
 
     public void unzipFiles(String fn){
-
         Logger.log(TAG, "Unzipping files in Wi-fi direct");
-        Log.d(TAG, "creating unzip task");
-
         UnzipTask<CommCareWiFiDirectActivity> mUnzipTask = new UnzipTask<CommCareWiFiDirectActivity>() {
             @Override
             protected void deliverResult( CommCareWiFiDirectActivity receiver, Integer result) {
@@ -535,7 +532,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         };
 
         mUnzipTask.connect(CommCareWiFiDirectActivity.this);
-        Log.d(TAG, "executing task with: " + fn + " , " + writeDirectory);
+        Logger.log(TAG, "executing task with: " + fn + " , " + writeDirectory);
         mUnzipTask.execute(fn, writeDirectory);
     }
 
@@ -544,13 +541,12 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
      */
     public void discoverPeers(){
         Logger.log(TAG, "Discovering Wi-fi direct peers");
-        Log.d(TAG, "discoverPeers");
 
         WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
 
         if(!fragment.isWifiP2pEnabled()){
-            Toast.makeText(CommCareWiFiDirectActivity.this, "WiFi Direct is Off",
+            Toast.makeText(CommCareWiFiDirectActivity.this, localize("wifi.direct.wifi.direct.off"),
                     Toast.LENGTH_SHORT).show();
             return;
         }
@@ -563,7 +559,8 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
             @Override
             public void onSuccess() {
-                Toast.makeText(CommCareWiFiDirectActivity.this, "Discovery Initiated",
+                Toast.makeText(CommCareWiFiDirectActivity.this,
+                        localize("wifi.direct.discovery.start"),
                         Toast.LENGTH_SHORT).show();
             }
 
@@ -572,14 +569,13 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
                 Logger.log(TAG, "Discovery of Wi-fi peers failed");
 
-                if(reasonCode == 0){
-                    Toast.makeText(CommCareWiFiDirectActivity.this, "Discovery Failed likely due to bad Wi-fi; please retry",
-                            Toast.LENGTH_SHORT).show();
-                } else if(reasonCode == 2){
-                    Toast.makeText(CommCareWiFiDirectActivity.this, "Discovery failed due to bad Wi-fi state; turn Wi-fi on and off, then retry",
+                if(reasonCode == 0 || reasonCode == 2){
+                    Toast.makeText(CommCareWiFiDirectActivity.this,
+                            localize("wifi.direct.discovery.failed.generic"),
                             Toast.LENGTH_SHORT).show();
                 } else{
-                    Toast.makeText(CommCareWiFiDirectActivity.this, "Discovery failed with reason code: " + reasonCode,
+                    Toast.makeText(CommCareWiFiDirectActivity.this,
+                            localize("wifi.direct.discovery.failed.specific", "" + reasonCode),
                             Toast.LENGTH_SHORT).show();
                 }
 
@@ -601,19 +597,8 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     }
 
     @Override
-    public void showDetails(WifiP2pDevice device) {
-        Log.d(TAG, "showDetails");
-
-        DeviceDetailFragment fragment = (DeviceDetailFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.frag_detail);
-        fragment.showDetails(device);
-    }
-
-    @Override
     public void connect(WifiP2pConfig config) {
-        Logger.log(TAG,"connecting to wi-fi peer");
-
-        Log.d(TAG, "connect in activity");
+        Logger.log(TAG, "connecting to wi-fi peer");
 
         mManager.connect(mChannel, config, new ActionListener() {
 
@@ -624,66 +609,12 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
             @Override
             public void onFailure(int reason) {
-                Logger.log(TAG, "Connection to peer failed");
-                Toast.makeText(CommCareWiFiDirectActivity.this, "Connect failed. Retry.",
+                Logger.log(TAG,"Connection to peer failed");
+                Toast.makeText(CommCareWiFiDirectActivity.this,
+                        localize("wifi.direct.connect.failed"),
                         Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    @Override
-    public void disconnect() {
-        Logger.log(TAG, "disconnecting from wi-fi direct group");
-        final DeviceDetailFragment fragment = (DeviceDetailFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.frag_detail);
-        fragment.resetViews();
-        mManager.removeGroup(mChannel, new ActionListener() {
-
-            @Override
-            public void onFailure(int reasonCode) {
-                Log.d(TAG, "Disconnect failed. Reason :" + reasonCode);
-
-            }
-
-            @Override
-            public void onSuccess() {
-                fragment.getView().setVisibility(View.GONE);
-            }
-
-        });
-    }
-
-    @Override
-    public void cancelDisconnect() {
-        //  A cancel abort request by user. Disconnect i.e. removeGroup if
-        //  already connected. Else, request WifiP2pManager to abort the
-        //  ongoing request
-        if (mManager != null) {
-            final DeviceListFragment fragment = (DeviceListFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.frag_list);
-            if (fragment.getDevice() == null
-                    || fragment.getDevice().status == WifiP2pDevice.CONNECTED) {
-                disconnect();
-            } else if (fragment.getDevice().status == WifiP2pDevice.AVAILABLE
-                    || fragment.getDevice().status == WifiP2pDevice.INVITED) {
-
-                mManager.cancelConnect(mChannel, new ActionListener() {
-
-                    @Override
-                    public void onSuccess() {
-                        Toast.makeText(CommCareWiFiDirectActivity.this, "Aborting connection",
-                                Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onFailure(int reasonCode) {
-                        Toast.makeText(CommCareWiFiDirectActivity.this,
-                                "Connect abort request failed. Reason Code: " + reasonCode,
-                                Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        }
     }
 
     public static void deleteIfExists(String filePath){
@@ -702,8 +633,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
                 .findFragmentById(R.id.wifi_manager_fragment);
 
         if(!fragment.getDeviceConnected()){
-            Logger.log(TAG, "Device not connected to Wi-Fi Direct group");
-            myStatusText.setText("This devices is not connected to any Wi-Fi Direct group.");
+            myStatusText.setText(localize("wifi.direct.no.group"));
             return;
         }
 
@@ -711,9 +641,8 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     }
 
     public void onZipSuccesful(FormRecord[] records){
-        Logger.log(TAG, "successfully zipped files of size: " + records.length);
-        Log.d(CommCareWiFiDirectActivity.TAG, "Zip successful, attempting to send");
-        myStatusText.setText("Zip successful, attempting to send files...");
+        Logger.log(TAG, "Successfully zipped files of size: " + records.length);
+        myStatusText.setText(localize("wifi.direct.zip.successful"));
         this.cachedRecords = records;
         updateStatusText();
         sendFiles();
@@ -721,25 +650,15 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     public void onZipError(){
         FileUtil.deleteFileOrDir(new File(sourceDirectory));
-
-        Logger.log(TAG, "Error zipping files");
-
         Log.d(CommCareWiFiDirectActivity.TAG, "Zip unsuccesful");
-
     }
 
     public void onUnzipSuccessful(Integer result){
         Logger.log(TAG, "Successfully unzipped " + result.toString() +  " files.");
-
-        Toast.makeText(CommCareWiFiDirectActivity.this, "Received " + result.toString() + " Files Successfully!",
-                Toast.LENGTH_SHORT).show();
-
-        myStatusText.setText("Receive Successful!");
-
+        myStatusText.setText(localize("wifi.direct.receive.success", result.toString()));
         if(!FileUtil.deleteFileOrDir(new File(receiveDirectory))){
             Log.d(TAG, "source zip not succesfully deleted");
         }
-
         updateStatusText();
     }
 
@@ -754,7 +673,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
             @Override
             protected void deliverError(CommCareWiFiDirectActivity receiver, Exception e) {
-                receiver.myStatusText.setText("Error zipping files");
+                receiver.myStatusText.setText(localize("wifi.direct.zip.unsuccessful", e.getMessage()));
                 receiver.transplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
             }
 
@@ -775,7 +694,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     public void sendFiles(){
         Logger.log(TAG, "Sending Files via Wi-fi Direct");
         TextView statusText = myStatusText;
-        statusText.setText("Sending files..." );
+        statusText.setText(localize("wifi.direct.send.forms"));
         Log.d(CommCareWiFiDirectActivity.TAG, "Starting form transfer task" );
 
         final WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
@@ -806,7 +725,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
             @Override
             protected void deliverError(CommCareWiFiDirectActivity receiver,
                     Exception e) {
-                receiver.myStatusText.setText("Error sending files with exception: " + e.getMessage());
+                receiver.myStatusText.setText(localize("wifi.direct.send.unsuccessful"));
                 receiver.transplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
 
             }
@@ -820,14 +739,12 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     }
 
     public void onSendSuccessful(){
-
         Logger.log(TAG, "File Send Successful");
-
-        Toast.makeText(CommCareWiFiDirectActivity.this, "File Send Successful!",
+        Toast.makeText(CommCareWiFiDirectActivity.this, localize("wifi.direct.send.successful"),
                 Toast.LENGTH_SHORT).show();
 
         updateStatusText();
-        myStatusText.setText("Forms Tranferred Successfully!");
+        myStatusText.setText(localize("wifi.direct.send.successful"));
         this.cleanPostSend();
     }
 
@@ -850,18 +767,18 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
             numUnsubmittedForms = wDirectory.listFiles().length;
         }
 
-        if (mState.equals(wdState.send)) {
-            stateHeaderText.setText("You are in Transfer Form Mode");
-            formCountText.setText("Phone has " + numUnsyncedForms + " unsent forms.");
-            stateStatusText.setText("You are in Transfer Form mode. This will allow you to transfer forms from this device to another device via Wi-Fi Direct.");
-        } else if (mState.equals(wdState.receive)) {
-            stateHeaderText.setText("You are in Receive Form Mode");
-            stateStatusText.setText("This will allow you to receive forms on this device from another device via Wi-Fi Direct");
-            formCountText.setText("SD Card has " + numUnsubmittedForms + " collected forms.");
-        } else {
-            stateHeaderText.setText("You are in Submit Form Mode");
-            stateStatusText.setText("This mode will allow you to submit forms to the CommCare Server if you have an internet connection.");
-            formCountText.setText("SD Card has " + numUnsubmittedForms + " unsubmitted forms.");
+        if(mState.equals(wdState.send)){
+            stateHeaderText.setText(localize("wifi.direct.status.transfer.header"));
+            formCountText.setText(localize("wifi.direct.status.transfer.count", ""+numUnsyncedForms));
+            stateStatusText.setText(localize("wifi.direct.status.transfer.message"));
+        } else if(mState.equals(wdState.receive)){
+            stateHeaderText.setText(localize("wifi.direct.status.receive.header"));
+            formCountText.setText(localize("wifi.direct.status.receive.count", ""+numUnsubmittedForms));
+            stateStatusText.setText(localize("wifi.direct.status.receive.message"));
+        } else{
+            stateHeaderText.setText(localize("wifi.direct.status.submit.header"));
+            formCountText.setText(localize("wifi.direct.status.submit.count", ""+numUnsubmittedForms));
+            stateStatusText.setText(localize("wifi.direct.status.submit.message"));
         }
     }
 
@@ -877,7 +794,6 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
             while ((len = inputStream.read(buf)) != -1) {
                 Log.d(CommCareWiFiDirectActivity.TAG, "Copying file : " + new String(buf));
                 out.write(buf, 0, len);
-
             }
             out.close();
             inputStream.close();
@@ -924,28 +840,28 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         String title, message;
         switch (taskId) {
         case ZipTask.ZIP_TASK_ID:
-            title = "Zipping Forms...";
-            message ="CommCare is compressing your data for transfer";
+            title = localize("wifi.direct.zip.task.title").toString();
+            message = localize("wifi.direct.zip.task.message").toString();
             break;
         case UnzipTask.UNZIP_TASK_ID:
-            title = "Unzipping forms";
-            message = "CommCare is decompressing your forms onto your SD card";
+            title = localize("wifi.direct.unzip.task.title").toString();
+            message = localize("wifi.direct.unzip.task.message").toString();
             break;
         case SendTask.BULK_SEND_ID:
-            title = "Submitting Forms";
-            message = "CommCare is submitting your forms to the server";
+            title = localize("wifi.direct.submit.task.title").toString();
+            message = localize("wifi.direct.submit.task.message").toString();
             break;
         case FormTransferTask.BULK_TRANSFER_ID:
-            title = "Sending Forms";
-            message = "CommCare is sending your forms to your peer";
+            title = localize("wifi.direct.transfer.task.title").toString();
+            message = localize("wifi.direct.transfer.task.message").toString();
             break;
         case FILE_SERVER_TASK_ID:
-            title = "Starting Receiving Files";
-            message = "CommCare is receiving files";
+            title = localize("wifi.direct.receive.task.title").toString();
+            message = localize("wifi.direct.receive.task.message").toString();
             break;
         case WipeTask.WIPE_TASK_ID:
-            title = "Wiping forms";
-            message = "Cleaning up after transfer";
+            title = localize("wifi.direct.wipe.task.title").toString();
+            message = localize("wifi.direct.wipe.task.message").toString();
             break;
         default:
             Log.w(TAG, "taskId passed to generateProgressDialog does not match "

@@ -136,7 +136,7 @@ public class SingleAppManagerActivity extends Activity {
                     return;
                 }
                 break;
-            case CommCareHomeActivity.MISSING_MEDIA_ACTIVITY:
+            case DispatchActivity.MISSING_MEDIA_ACTIVITY:
                 refresh();
                 if (resultCode == RESULT_CANCELED) {
                     String title = getString(R.string.media_not_verified);
@@ -215,7 +215,7 @@ public class SingleAppManagerActivity extends Activity {
         CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
         Intent i = new Intent(this, CommCareVerificationActivity.class);
         i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
-        this.startActivityForResult(i, CommCareHomeActivity.MISSING_MEDIA_ACTIVITY);
+        this.startActivityForResult(i, DispatchActivity.MISSING_MEDIA_ACTIVITY);
     }
 
     /**
@@ -250,7 +250,7 @@ public class SingleAppManagerActivity extends Activity {
      */
     private void rebootCommCare() {
         Context c = getApplicationContext();
-        Intent i = new Intent(c, CommCareHomeActivity.class);
+        Intent i = new Intent(c, DispatchActivity.class);
         int mPendingIntentId = 123456;
         PendingIntent mPendingIntent = PendingIntent.getActivity(c, mPendingIntentId, i,
                 PendingIntent.FLAG_CANCEL_CURRENT);

@@ -18,7 +18,7 @@ import android.widget.TextView;
 
 import org.commcare.android.models.AsyncEntity;
 import org.commcare.android.models.Entity;
-import org.commcare.android.tasks.ExceptionReportTask;
+import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.MediaUtil;
@@ -40,12 +40,12 @@ import java.util.Vector;
  */
 public class EntityView extends LinearLayout {
 
-    private View[] views;
+    private final View[] views;
     private String[] forms;
     private TextToSpeech tts;
     private String[] searchTerms;
-    private String[] mHints;
-    private Context context;
+    private final String[] mHints;
+    private final Context context;
     private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
     private long rowId;
     public static final String FORM_AUDIO = "audio";
@@ -56,7 +56,7 @@ public class EntityView extends LinearLayout {
     // Flag indicating if onMeasure has already been called for the first time on this view
     private boolean onMeasureCalled = false;
     // Maintains a queue of image layouts that need to be re-drawn once onMeasure has been called
-    private HashMap<View, String> imageViewsToRedraw = new HashMap<>();
+    private final HashMap<View, String> imageViewsToRedraw = new HashMap<>();
 
     private boolean mFuzzySearchEnabled = true;
     private boolean mIsAsynchronous = false;
@@ -197,7 +197,7 @@ public class EntityView extends LinearLayout {
                     renderedGraphsCache.get(i).put(orientation, rendered);
                 }
                 ((LinearLayout) view).removeAllViews();
-                ((LinearLayout) view).addView(rendered, g.getLayoutParams());
+                ((LinearLayout) view).addView(rendered, GraphView.getLayoutParams());
                 view.setVisibility(VISIBLE);
             } else {
                 //text to speech
@@ -419,7 +419,7 @@ public class EntityView extends LinearLayout {
             }
         } catch (Exception excp) {
             removeSpans(raw);
-            Logger.log("search-hl", excp.toString() + " " + ExceptionReportTask.getStackTrace(excp));
+            Logger.log("search-hl", excp.toString() + " " + ExceptionReporting.getStackTrace(excp));
         }
 
         return raw;

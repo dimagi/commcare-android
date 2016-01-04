@@ -71,13 +71,13 @@ public class GridEntityView extends GridLayout {
     public final double LANDSCAPE_TO_PORTRAIT_RATIO = .75;
     public final int NUMBER_COLUMNS_PER_GRID = 12;
 
-    public int NUMBER_ROWS_PER_GRID;
+    public final int NUMBER_ROWS_PER_GRID;
 
-    public double cellWidth;
-    public double cellHeight;
+    public final double cellWidth;
+    public final double cellHeight;
 
     // image loader used for all asynchronous imageView loading
-    private CachingAsyncImageLoader mImageLoader;
+    private final CachingAsyncImageLoader mImageLoader;
 
     /**
      * Used to create a entity view tile outside of a managed context (like

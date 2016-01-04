@@ -31,10 +31,10 @@ public class EntityOverlayItemFactory {
     int bigTextIndex = -1;
     int smallTextIndex = -1;
     
-    private Map<String, Drawable> drawables;
-    private HashSet<String> missingImages;
+    private final Map<String, Drawable> drawables;
+    private final HashSet<String> missingImages;
     
-    private Drawable defDrawable; 
+    private final Drawable defDrawable;
     
     public EntityOverlayItemFactory(Detail shortDetail, Drawable defDrawable) {
         DetailField[] fields = shortDetail.getFields();

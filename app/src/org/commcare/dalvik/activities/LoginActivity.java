@@ -1,16 +1,26 @@
 package org.commcare.dalvik.activities;
 
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.util.Pair;
+import android.util.StateSet;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -33,6 +43,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.DemoUserBuilder;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.RuntimePermissionRequester;
 import org.commcare.android.framework.ManagedUiFramework;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -48,6 +59,7 @@ import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
+import org.commcare.android.ui.CustomBanner;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -69,14 +81,25 @@ import java.util.ArrayList;
  * @author ctsims
  */
 @ManagedUi(R.layout.screen_login)
-public class LoginActivity extends CommCareActivity<LoginActivity> implements OnItemSelectedListener {
+public class LoginActivity extends CommCareActivity<LoginActivity>
+        implements OnItemSelectedListener, RuntimePermissionRequester {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
-    
+
+    private final static String[] appPermissions =
+            new String[]{Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.CALL_PHONE,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                    // leaving out READ_SMS, which is only needed for sms installs
+            };
+
     private static final int MENU_DEMO = Menu.FIRST;
     private static final int MENU_ABOUT = Menu.FIRST + 1;
+    private static final int MENU_PERMISSIONS = Menu.FIRST + 2;
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
-    public static final String ALREADY_LOGGED_IN = "la_loggedin";
     public final static String KEY_LAST_APP = "id_of_last_selected";
     public final static String KEY_ENTERED_USER = "entered-username";
     public final static String KEY_ENTERED_PW = "entered-password";
@@ -84,8 +107,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     private static final int SEAT_APP_ACTIVITY = 0;
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
     public final static String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
+    private final static int ALL_PERMISSIONS_REQUEST = 1;
 
-    @UiElement(value=R.id.screen_login_bad_password, locale="login.bad.password")
+    @UiElement(value=R.id.screen_login_bad_password)
     private TextView errorBox;
     
     @UiElement(value=R.id.edit_username, locale="login.username")
@@ -96,9 +120,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     
     @UiElement(R.id.screen_login_banner_pane)
     private View banner;
-    
-    @UiElement(R.id.str_version)
-    private TextView versionDisplay;
 
     @UiElement(value=R.id.login_button, locale="login.button")
     private Button loginButton;
@@ -141,9 +162,29 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         setLoginBoxesColorNormal();
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50), null, null, null);
         password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);
-        loginButton.setBackgroundColor(getResources().getColor(R.color.cc_brand_color));
+        setupLoginButton();
+        if (loginButton.isEnabled()) {
+            // don't hide error box when showing permission error
+            errorBox.setVisibility(View.GONE);
+        }
+    }
+
+    private void setupLoginButton() {
+        ColorDrawable colorDrawable = new ColorDrawable(getResources().getColor(R.color.cc_brand_color));
+        ColorDrawable disabledColor = new ColorDrawable(getResources().getColor(R.color.grey));
+
+        StateListDrawable sld = new StateListDrawable();
+
+        sld.addState(new int[]{-android.R.attr.state_enabled}, disabledColor);
+        sld.addState(StateSet.WILD_CARD, colorDrawable);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            loginButton.setBackground(sld);
+        } else {
+            loginButton.setBackgroundDrawable(sld);
+        }
+
         loginButton.setTextColor(getResources().getColor(R.color.cc_neutral_bg));
-        errorBox.setVisibility(View.GONE);
     }
 
     @Override
@@ -186,7 +227,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         username.addTextChangedListener(textWatcher);
         password.addTextChangedListener(textWatcher);
 
-        versionDisplay.setText(CommCareApplication._().getCurrentVersionString());
         username.setHint(Localization.get("login.username"));
         password.setHint(Localization.get("login.password"));
 
@@ -200,7 +240,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                 int height = activityRootView.getHeight();
 
                 if (height < hideAll) {
-                    versionDisplay.setVisibility(View.GONE);
                     banner.setVisibility(View.GONE);
                 } else if (height < hideBanner) {
                     banner.setVisibility(View.GONE);
@@ -218,6 +257,73 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                 }
             }
         });
+
+        acquireAllAppPerms();
+    }
+
+    private void acquireAllAppPerms() {
+        if (missingAppPermission()) {
+            if (shouldShowPermissionRationale()) {
+                AlertDialog dialog =
+                        DialogCreationHelpers.buildPermissionRequestDialog(this, this,
+                                Localization.get("permission.all.title"),
+                                Localization.get("permission.all.message"));
+                dialog.show();
+            } else {
+                requestNeededPermissions();
+            }
+        }
+    }
+
+    private boolean missingAppPermission() {
+        for (String perm : appPermissions) {
+            if (ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_DENIED) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean shouldShowPermissionRationale() {
+        for (String perm : appPermissions) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, perm)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.M)
+    public void requestNeededPermissions() {
+        ActivityCompat.requestPermissions(this, appPermissions,
+                ALL_PERMISSIONS_REQUEST);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        String[] requiredPerms =
+                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE};
+
+        if (requestCode == ALL_PERMISSIONS_REQUEST) {
+            for (int i = 0; i < permissions.length; i++) {
+                for (String requiredPerm : requiredPerms) {
+                    if (requiredPerm.equals(permissions[i]) &&
+                            grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                        loginButton.setEnabled(false);
+                        errorBox.setVisibility(View.VISIBLE);
+                        errorBox.setText(Localization.get("permission.all.denial.message"));
+                        return;
+                    }
+                }
+            }
+        }
+        loginButton.setEnabled(true);
+        errorBox.setVisibility(View.GONE);
+        errorBox.setText("");
     }
 
     private boolean isRestoreSessionChecked() {
@@ -340,17 +446,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
     protected void onResume() {
         super.onResume();
 
-        if (isAlreadyLoggedIn()) {
-            return;
-        }
-
         // It is possible that we left off at the LoginActivity last time we were on the main CC
         // screen, but have since done something in the app manager to either leave no seated app
         // at all, or to render the seated app unusable. Redirect to CCHomeActivity if we encounter
         // either case
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
         if (currentApp == null || !currentApp.getAppRecord().isUsable()) {
-            Intent i = new Intent(this, CommCareHomeActivity.class);
+            Intent i = new Intent(this, DispatchActivity.class);
             startActivity(i);
             return;
         }
@@ -378,24 +480,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
                 loginButtonPressed(true);
             }
         }
-    }
-
-    private boolean isAlreadyLoggedIn() {
-        try {
-            //TODO: there is a weird circumstance where we're logging in somewhere else and this gets locked.
-            if (CommCareApplication._().getSession().isActive() && CommCareApplication._().getSession().getLoggedInUser() != null) {
-                Intent i = new Intent();
-                i.putExtra(ALREADY_LOGGED_IN, true);
-                setResult(RESULT_OK, i);
-
-                CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
-                finish();
-                return true;
-            }
-        } catch (SessionUnavailableException sue) {
-            // Nothing, we're logging in here anyway
-        }
-        return false;
     }
 
     private String getUsername() {
@@ -536,6 +620,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_DEMO, 0, Localization.get("login.menu.demo")).setIcon(android.R.drawable.ic_menu_preferences);
         menu.add(0, MENU_ABOUT, 1, Localization.get("home.menu.about")).setIcon(android.R.drawable.ic_menu_help);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            menu.add(0, MENU_PERMISSIONS, 1, Localization.get("login.menu.permission")).setIcon(android.R.drawable.ic_menu_manage);
+        }
+
         return true;
     }
 
@@ -549,6 +637,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             return true;
         case MENU_ABOUT:
             DialogCreationHelpers.buildAboutCommCareDialog(this).show();
+            return true;
+        case MENU_PERMISSIONS:
+            acquireAllAppPerms();
             return true;
         default:
             return otherResult;
@@ -632,7 +723,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
         restoreEnteredTextFromRotation();
 
-        updateCommCareBanner();
+        updateBanner();
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
         ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getUsableAppRecords();
@@ -663,6 +754,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
             int position = appIdDropdownList.indexOf(currAppId);
             spinner.setSelection(position);
             spinner.setVisibility(View.VISIBLE);
+        }
+    }
+
+    private void updateBanner() {
+        ImageView topBannerImageView =
+                (ImageView)banner.findViewById(org.commcare.dalvik.R.id.main_top_banner);
+        if (!CustomBanner.useCustomBannerFitToActivity(this, topBannerImageView)) {
+            topBannerImageView.setImageResource(R.drawable.commcare_logo);
         }
     }
 

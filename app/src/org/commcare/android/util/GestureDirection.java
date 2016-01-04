@@ -50,17 +50,6 @@ public class GestureDirection {
         mEndY = y;
     }
 
-
-    public float getStartX() {
-        return mStartX;
-    }
-
-
-    public float getStartY() {
-        return mStartY;
-    }
-
-
     public UserGesture getDirection() {
         float dx = mEndX - mStartX;
         float dy = mEndY - mStartY;

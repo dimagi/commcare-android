@@ -21,13 +21,10 @@ import java.io.InputStreamReader;
  * Runs various tasks that diagnose problems that a user may be facing in connecting to commcare services.
  * @author srengesh
  */
-
-//CommCareTask<A, B, C, R>
 public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, ConnectionDiagnosticTask.Test, R>
 {    
     Context c;
-    CommCarePlatform platform;
-    
+
     public static enum Test
     {
         isOnline,
@@ -68,9 +65,8 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
     private static final String logCCUnexpectedResultMessage = "CCHQ ping test: Unexpected HTML result";
     private static final String logCCSuccessMessage = "CCHQ ping test: Success.";
     
-    public ConnectionDiagnosticTask(Context c, CommCarePlatform platform) {
+    public ConnectionDiagnosticTask(Context c) {
         this.c = c;
-        this.platform = platform;
         this.taskId = CONNECTION_ID;
 
         TAG = ConnectionDiagnosticTask.class.getSimpleName();
@@ -131,7 +127,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
         } 
         catch (IOException e) 
         {
-            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logGoogleIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReportTask.getStackTrace(e));
+            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logGoogleIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReporting.getStackTrace(e));
             return false;
         }
         int pingReturn = Integer.MAX_VALUE;
@@ -141,7 +137,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
         } 
         catch (InterruptedException e) 
         {
-            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logGoogleInterruptedMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReportTask.getStackTrace(e));
+            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logGoogleInterruptedMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReporting.getStackTrace(e));
             return false;
         } 
         //0 if success, 2 if fail
@@ -172,15 +168,15 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
             htmlLine = buffer.readLine();
         } catch (IllegalStateException e) {
             //if a stream to this web address has already been invoked on the same thread
-            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIllegalStateMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReportTask.getStackTrace(e));
+            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIllegalStateMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReporting.getStackTrace(e));
             return false;
         } catch (ClientProtocolException e) {
             //general HTTP Exception
-            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCNetworkFailureMessge + System.getProperty("line.separator") + "Stack trace: " + ExceptionReportTask.getStackTrace(e));
+            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCNetworkFailureMessge + System.getProperty("line.separator") + "Stack trace: " + ExceptionReporting.getStackTrace(e));
             return false;
         } catch (IOException e) {
             //error on client side
-            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReportTask.getStackTrace(e));
+            Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReporting.getStackTrace(e));
             return false;
         } finally {
             if(buffer != null)
@@ -188,7 +184,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
                 try {
                     buffer.close();
                 } catch (IOException e) {
-                    Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReportTask.getStackTrace(e));
+                    Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReporting.getStackTrace(e));
                     return false;
                 }
             }
@@ -197,7 +193,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
                 try {
                     reader.close();
                 } catch (IOException e) {
-                    Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReportTask.getStackTrace(e));
+                    Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReporting.getStackTrace(e));
                     return false;
                 }
             }
@@ -209,7 +205,7 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
                     StringBuilder out = new StringBuilder(logCCIOErrorMessage);
                     out.append(System.getProperty("line.separator"));
                     out.append("Stack trace: ");
-                    out.append(ExceptionReportTask.getStackTrace(e));
+                    out.append(ExceptionReporting.getStackTrace(e));
                     Logger.log(CONNECTION_DIAGNOSTIC_REPORT, out.toString());
                     return false;
                 }

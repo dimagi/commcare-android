@@ -199,38 +199,6 @@ public class AndroidSessionWrapper {
         return sessionStateRecordId;
     }
 
-    public String getHeaderTitle(Context context, AndroidCommCarePlatform platform) {
-        String descriptor = context.getString(R.string.application_name);
-        Hashtable<String, String> menus = new Hashtable<String, String>();
-
-        for (Suite s : platform.getInstalledSuites()) {
-            for (Menu m : s.getMenus()) {
-                menus.put(m.getId(), m.getName().evaluate());
-            }
-        }
-
-        Hashtable<String, Entry> entries = platform.getMenuMap();
-        for (StackFrameStep step : session.getFrame().getSteps()) {
-            String val = null;
-            if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
-                //Menu or form. 
-                if (menus.containsKey(step.getId())) {
-                    val = menus.get(step.getId());
-                } else if (entries.containsKey(step.getId())) {
-                    val = entries.get(step.getId()).getText().evaluate();
-                }
-            } else if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) ||
-                    SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType())) {
-                //nothing much to be done here...
-            }
-            if (val != null) {
-                descriptor += " > " + val;
-            }
-        }
-
-        return descriptor.trim();
-    }
-
     public String getTitle() {
         //TODO: Most of this mimicks what we need to do in entrydetail activity, remove it from there
         //and generalize the walking

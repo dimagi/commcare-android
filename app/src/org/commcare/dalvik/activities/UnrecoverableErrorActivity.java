@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.dalvik.activities;
 
 import android.app.Activity;
@@ -14,7 +11,6 @@ import org.javarosa.core.services.locale.Localization;
 
 /**
  * @author ctsims
- *
  */
 public class UnrecoverableErrorActivity extends Activity {
     
@@ -43,7 +39,7 @@ public class UnrecoverableErrorActivity extends Activity {
         AlertDialogFactory factory = new AlertDialogFactory(this, title, message);
         DialogInterface.OnClickListener buttonListener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
-               Intent intent = new Intent(UnrecoverableErrorActivity.this, CommCareHomeActivity.class);
+               Intent intent = new Intent(UnrecoverableErrorActivity.this, DispatchActivity.class);
 
                 //Make sure that the new stack starts with a home activity, and clear everything between.
                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET |

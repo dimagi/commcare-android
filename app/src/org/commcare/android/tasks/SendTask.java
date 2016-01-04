@@ -1,6 +1,5 @@
 package org.commcare.android.tasks;
 
-import android.content.Context;
 import android.util.Log;
 
 import org.commcare.android.models.notifications.ProcessIssues;
@@ -21,22 +20,18 @@ import java.io.FileNotFoundException;
  * @author ctsims
  */
 public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>{
-    Context c;
     String url;
     Long[] results;
     
-    DataSubmissionListener formSubmissionListener;
-
-    File dumpDirectory;
+    final File dumpDirectory;
     
-    public static String MALFORMED_FILE_CATEGORY = "malformed-file";
+    public static final String MALFORMED_FILE_CATEGORY = "malformed-file";
     
     public static final int BULK_SEND_ID = 12335645;
     
      // 5MB less 1KB overhead
     
-    public SendTask(Context c, String url, File dumpDirectory) {
-        this.c = c;
+    public SendTask(String url, File dumpDirectory) {
         this.url = url;
         this.taskId = SendTask.BULK_SEND_ID;
         this.dumpDirectory = dumpDirectory;
@@ -47,16 +42,10 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
         super.onProgressUpdate(values);
     }
     
-    
-    public void setListeners(DataSubmissionListener submissionListener) {
-        this.formSubmissionListener = submissionListener;
-    }
-
     @Override
     protected void onPostExecute(Boolean result) {
         super.onPostExecute(result);
         //These will never get Zero'd otherwise
-        c = null;
         url = null;
         results = null;
     }
@@ -64,9 +53,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
     @Override
     protected void onCancelled() {
         super.onCancelled();
-        if(this.formSubmissionListener != null) {
-            formSubmissionListener.endSubmissionProcess();
-        }
+
         CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
     }
 

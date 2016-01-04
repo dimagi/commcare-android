@@ -100,14 +100,14 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
     private void installApp() {
         Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
         i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
-        this.startActivityForResult(i, CommCareHomeActivity.INIT_APP);
+        this.startActivityForResult(i, DispatchActivity.INIT_APP);
     }
 
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
-            case CommCareHomeActivity.INIT_APP:
+            case DispatchActivity.INIT_APP:
                 boolean installFailed = intent != null && intent.getBooleanExtra(
                         CommCareSetupActivity.KEY_INSTALL_FAILED, false);
                 if (resultCode == RESULT_OK && !installFailed) {
@@ -116,14 +116,14 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                     if (!CommCareApplication._().getCurrentApp().areMMResourcesValidated()) {
                         Intent i = new Intent(this, CommCareVerificationActivity.class);
                         i.putExtra(KEY_LAUNCH_FROM_MANAGER, true);
-                        this.startActivityForResult(i, CommCareHomeActivity.MISSING_MEDIA_ACTIVITY);
+                        this.startActivityForResult(i, DispatchActivity.MISSING_MEDIA_ACTIVITY);
                     }
                 } else {
                         Toast.makeText(this, R.string.no_installation,
                                 Toast.LENGTH_LONG).show();
                 }
                 break;
-            case CommCareHomeActivity.MISSING_MEDIA_ACTIVITY:
+            case DispatchActivity.MISSING_MEDIA_ACTIVITY:
                 if (resultCode == RESULT_CANCELED) {
                     String title = getString(R.string.media_not_verified);
                     String msg  = getString(R.string.skipped_verification_warning);

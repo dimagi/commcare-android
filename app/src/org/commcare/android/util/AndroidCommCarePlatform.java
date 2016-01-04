@@ -56,21 +56,21 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 
     public ResourceTable getGlobalResourceTable() {
         if (global == null) {
-            global = ResourceTable.RetrieveTable(app.getStorage("GLOBAL_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory(app));
+            global = ResourceTable.RetrieveTable(app.getStorage("GLOBAL_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
         }
         return global;
     }
 
     public ResourceTable getUpgradeResourceTable() {
         if (upgrade == null) {
-            upgrade = ResourceTable.RetrieveTable(app.getStorage("UPGRADE_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory(app));
+            upgrade = ResourceTable.RetrieveTable(app.getStorage("UPGRADE_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
         }
         return upgrade;
     }
 
     public ResourceTable getRecoveryTable() {
         if (recovery == null) {
-            recovery = ResourceTable.RetrieveTable(app.getStorage("RECOVERY_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory(app));
+            recovery = ResourceTable.RetrieveTable(app.getStorage("RECOVERY_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
         }
         return recovery;
     }

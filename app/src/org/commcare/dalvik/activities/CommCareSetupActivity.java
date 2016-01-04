@@ -1,17 +1,23 @@
 package org.commcare.dalvik.activities;
 
+import android.Manifest;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,10 +26,11 @@ import android.widget.Toast;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.fragments.ContainerFragment;
 import org.commcare.android.fragments.SetupEnterURLFragment;
-import org.commcare.android.fragments.SetupInstallFragment;
-import org.commcare.android.fragments.SetupKeepInstallFragment;
+import org.commcare.android.fragments.SelectInstallModeFragment;
+import org.commcare.android.fragments.InstallConfirmFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.RuntimePermissionRequester;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
@@ -38,6 +45,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.dialogs.DialogCreationHelpers;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -62,7 +70,8 @@ import java.util.List;
 @ManagedUi(R.layout.first_start_screen_modern)
 public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivity>
         implements ResourceEngineListener, SetupEnterURLFragment.URLInstaller,
-        SetupKeepInstallFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener {
+        InstallConfirmFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener,
+        RuntimePermissionRequester {
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
 
     public static final String KEY_PROFILE_REF = "app_profile_ref";
@@ -70,6 +79,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final String KEY_OFFLINE =  "offline_install";
     private static final String KEY_FROM_EXTERNAL = "from_external";
     private static final String KEY_FROM_MANAGER = "from_manager";
+    private static final String KEY_MANUAL_SMS_INSTALL = "sms-install-triggered-manually";
+
+    private static final int SMS_PERMISSIONS_REQUEST = 1;
 
     /**
      * Should the user be logged out when this activity is done?
@@ -121,9 +133,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      */
     private boolean offlineInstall;
 
+    /**
+     * Remember how the sms install was triggered in case orientation changes while asking for permissions
+     */
+    private boolean manualSMSInstall;
+
     private final FragmentManager fm = getSupportFragmentManager();
-    private final SetupKeepInstallFragment startInstall = new SetupKeepInstallFragment();
-    private final SetupInstallFragment installFragment = new SetupInstallFragment();
+    private final InstallConfirmFragment startInstall = new InstallConfirmFragment();
+    private final SelectInstallModeFragment installFragment = new SelectInstallModeFragment();
     private ContainerFragment<CommCareApp> containerFragment;
 
     @Override
@@ -160,17 +177,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
             }
         } else {
-            String uiStateEncoded = savedInstanceState.getString(KEY_UI_STATE);
-            this.uiState = uiStateEncoded == null ? UiState.CHOOSE_INSTALL_ENTRY_METHOD : UiState.valueOf(UiState.class, uiStateEncoded);
-            Log.v("UiState", "uiStateEncoded is: " + uiStateEncoded +
-                    ", so my uiState is: " + uiState);
-            incomingRef = savedInstanceState.getString("profileref");
-            fromExternal = savedInstanceState.getBoolean(KEY_FROM_EXTERNAL);
-            fromManager = savedInstanceState.getBoolean(KEY_FROM_MANAGER);
-            offlineInstall = savedInstanceState.getBoolean(KEY_OFFLINE);
-            // Uggggh, this might not be 100% legit depending on timing, what
-            // if we've already reconnected and shut down the dialog?
-            startAllowed = savedInstanceState.getBoolean("startAllowed");
+            loadStateFromInstance(savedInstanceState);
         }
 
         persistCommCareAppState();
@@ -182,6 +189,21 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         );
 
         performSMSInstall(false);
+    }
+
+    private void loadStateFromInstance(Bundle savedInstanceState) {
+        String uiStateEncoded = savedInstanceState.getString(KEY_UI_STATE);
+        this.uiState = uiStateEncoded == null ? UiState.CHOOSE_INSTALL_ENTRY_METHOD : UiState.valueOf(UiState.class, uiStateEncoded);
+        Log.v("UiState", "uiStateEncoded is: " + uiStateEncoded +
+                ", so my uiState is: " + uiState);
+        incomingRef = savedInstanceState.getString("profileref");
+        fromExternal = savedInstanceState.getBoolean(KEY_FROM_EXTERNAL);
+        fromManager = savedInstanceState.getBoolean(KEY_FROM_MANAGER);
+        manualSMSInstall = savedInstanceState.getBoolean(KEY_MANUAL_SMS_INSTALL);
+        offlineInstall = savedInstanceState.getBoolean(KEY_OFFLINE);
+        // Uggggh, this might not be 100% legit depending on timing, what
+        // if we've already reconnected and shut down the dialog?
+        startAllowed = savedInstanceState.getBoolean("startAllowed");
     }
 
     private void persistCommCareAppState() {
@@ -219,7 +241,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         // 1 or more available apps, we want to redirect to CCHomeActivity
         if (!fromManager && !fromExternal &&
                 CommCareApplication._().usableAppsPresent()) {
-            Intent i = new Intent(this, CommCareHomeActivity.class);
+            Intent i = new Intent(this, DispatchActivity.class);
             startActivity(i);
         }
 
@@ -246,7 +268,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void uiStateScreenTransition() {
-        if (isActivityPaused()) {
+        if (areFragmentsPaused()) {
             // Don't perform fragment transactions when the activity isn't visible
             return;
         }
@@ -315,6 +337,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putBoolean(KEY_OFFLINE, offlineInstall);
         outState.putBoolean(KEY_FROM_EXTERNAL, fromExternal);
         outState.putBoolean(KEY_FROM_MANAGER, fromManager);
+        outState.putBoolean(KEY_MANUAL_SMS_INSTALL, manualSMSInstall);
         Log.v("UiState", "Saving instance state: " + outState);
     }
 
@@ -467,11 +490,37 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     /**
      * Scan SMS messages for texts with profile references.
+     *
      * @param installTriggeredManually if scan was triggered manually, then
      *                                 install automatically if reference is found
      */
     private void performSMSInstall(boolean installTriggeredManually){
-        this.scanSMSLinks(installTriggeredManually);
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            manualSMSInstall = installTriggeredManually;
+
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.READ_SMS)) {
+                AlertDialog dialog =
+                        DialogCreationHelpers.buildPermissionRequestDialog(this, this,
+                                Localization.get("permission.sms.install.title"),
+                                Localization.get("permission.sms.install.message"));
+                dialog.show();
+            } else {
+                requestNeededPermissions();
+            }
+        } else {
+            scanSMSLinks(installTriggeredManually);
+        }
+    }
+
+    @Override
+    public void requestNeededPermissions() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.READ_SMS},
+                SMS_PERMISSIONS_REQUEST);
     }
 
     /**
@@ -578,7 +627,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     /**
-     * Return to or launch home activity.
+     * Return to or launch dispatch activity.
      *
      * @param requireRefresh should the user be logged out upon returning to
      *                       home activity?
@@ -587,7 +636,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void done(boolean requireRefresh, boolean failed) {
         if (Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
-            Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
+            Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
             i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
             startActivity(i);
         } else {
@@ -752,5 +801,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      */
     private boolean isSingleAppBuild() {
         return BuildConfig.IS_SINGLE_APP_BUILD;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == SMS_PERMISSIONS_REQUEST) {
+            for (int i = 0; i < permissions.length; i++) {
+                if (Manifest.permission.READ_SMS.equals(permissions[i]) &&
+                        grantResults[i] == PackageManager.PERMISSION_GRANTED) {
+                    scanSMSLinks(manualSMSInstall);
+                }
+            }
+        }
     }
 }

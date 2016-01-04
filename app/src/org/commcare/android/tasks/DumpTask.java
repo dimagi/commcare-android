@@ -52,15 +52,10 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
     
     public static final int BULK_DUMP_ID = 23456;
     
-    DataSubmissionListener formSubmissionListener;
-
-    TextView outputTextView;
-    
     private static long MAX_BYTES = (5 * 1048576)-1024; // 5MB less 1KB overhead
     
-    public DumpTask(Context c, TextView outputTextView) {
+    public DumpTask(Context c) {
         this.c = c;
-        this.outputTextView = outputTextView;
         taskId = DumpTask.BULK_DUMP_ID;
     }
     
@@ -69,10 +64,6 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
         super.onProgressUpdate(values);
     }
     
-    public void setListeners(DataSubmissionListener submissionListener) {
-        this.formSubmissionListener = submissionListener;
-    }
-
     @Override
     protected void onPostExecute(Boolean result) {
         super.onPostExecute(result);
@@ -305,9 +296,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
     @Override
     protected void onCancelled() {
         super.onCancelled();
-        if(this.formSubmissionListener != null) {
-            formSubmissionListener.endSubmissionProcess();
-        }
+
         CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.LoggedOut));
     }
 

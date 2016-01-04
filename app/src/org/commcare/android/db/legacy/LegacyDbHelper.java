@@ -33,7 +33,7 @@ import javax.crypto.CipherOutputStream;
  */
 public abstract class LegacyDbHelper {
 
-    protected Context c;
+    protected final Context c;
     private Cipher encrypter;
     //private Hashtable<String, EncryptedModel> encryptedModels;
 

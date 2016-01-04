@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.models;
 
 import net.sqlcipher.database.SQLiteDatabase;
@@ -21,7 +18,6 @@ import org.javarosa.xpath.parser.XPathSyntaxException;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
-
 /**
  * An AsyncEntity is an entity reference which is capable of building its
  * values (evaluating all Text elements/background data elements) lazily
@@ -38,21 +34,19 @@ import java.util.Hashtable;
  */
 public class AsyncEntity extends Entity<TreeReference> {
 
-    boolean caching = true;
-
-    DetailField[] fields;
-    Object[] data;
-    private String[] sortData;
-    private boolean[] relevancyData;
-    private String[] backgroundData;
-    private String[][] sortDataPieces;
-    EvaluationContext context;
-    Hashtable<String, XPathExpression> mVariableDeclarations;
+    final DetailField[] fields;
+    final Object[] data;
+    private final String[] sortData;
+    private final boolean[] relevancyData;
+    private final String[] backgroundData;
+    private final String[][] sortDataPieces;
+    final EvaluationContext context;
+    final Hashtable<String, XPathExpression> mVariableDeclarations;
     boolean mVariableContextLoaded = false;
-    String mCacheIndex;
-    String mDetailId;
+    final String mCacheIndex;
+    final String mDetailId;
 
-    private EntityStorageCache mEntityStorageCache;
+    private final EntityStorageCache mEntityStorageCache;
 
     /*
      * the Object's lock. NOTE: _DO NOT LOCK ANY CODE WHICH READS/WRITES THE CACHE
@@ -65,7 +59,7 @@ public class AsyncEntity extends Entity<TreeReference> {
      * Basically you should never be calling mEntityStorageCache from inside of
      * a lock that 
      */
-    private Object mAsyncLock = new Object();
+    private final Object mAsyncLock = new Object();
 
     public AsyncEntity(DetailField[] fields, EvaluationContext ec, TreeReference t, Hashtable<String, XPathExpression> variables, EntityStorageCache cache, String cacheIndex, String detailId) {
         super(t);
@@ -84,10 +78,6 @@ public class AsyncEntity extends Entity<TreeReference> {
         this.mCacheIndex = cacheIndex;
 
         this.mDetailId = detailId;
-    }
-
-    public String getEntityCacheIndex() {
-        return mCacheIndex;
     }
 
     private void loadVariableContext() {
