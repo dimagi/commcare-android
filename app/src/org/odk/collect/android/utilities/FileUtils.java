@@ -30,7 +30,7 @@ import java.security.NoSuchAlgorithmException;
  * @author Carl Hartung (carlhartung@gmail.com)
  */
 public class FileUtils {
-    private final static String t = "FileUtils";
+    private final static String TAG = FileUtils.class.getSimpleName();
 
     //highest allowable file size without warning
     private static final int WARNING_SIZE = 3000;
@@ -56,7 +56,7 @@ public class FileUtils {
             long lLength = file.length();
 
             if (lLength > Integer.MAX_VALUE) {
-                Log.e(t, "File " + file.getName() + "is too large");
+                Log.e(TAG, "File " + file.getName() + "is too large");
                 return null;
             }
 
@@ -96,7 +96,6 @@ public class FileUtils {
             Log.e("Problem reading file", e.getMessage());
             return null;
         }
-
     }
 
     public static String getExtension(String filePath) {
@@ -122,7 +121,7 @@ public class FileUtils {
         ImageType type = ImageType.fromExtension(extension);
         if (type == null) {
             // The selected image is not of a type that can be decoded to or from a bitmap
-            Log.i(t, "Could not scale image " + originalImage.getAbsolutePath() + " due to incompatible extension");
+            Log.i(TAG, "Could not scale image " + originalImage.getAbsolutePath() + " due to incompatible extension");
             return false;
         }
 
@@ -208,14 +207,14 @@ public class FileUtils {
                 src.close();
                 dst.close();
             } catch (FileNotFoundException e) {
-                Log.e(t, "FileNotFoundExeception while copying audio");
+                Log.e(TAG, "FileNotFoundExeception while copying audio");
                 e.printStackTrace();
             } catch (IOException e) {
-                Log.e(t, "IOExeception while copying audio");
+                Log.e(TAG, "IOExeception while copying audio");
                 e.printStackTrace();
             }
         } else {
-            Log.e(t, "Source file does not exist: " + sourceFile.getAbsolutePath());
+            Log.e(TAG, "Source file does not exist: " + sourceFile.getAbsolutePath());
         }
 
     }
@@ -234,7 +233,6 @@ public class FileUtils {
      */
     @SuppressLint("NewApi")
     public static String getPath(final Context context, final Uri uri) {
-
         final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
 
         // DocumentProvider
@@ -332,7 +330,6 @@ public class FileUtils {
         }
         return null;
     }
-
 
     /**
      * @param uri The Uri to check.
