@@ -20,7 +20,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 
 import java.util.ArrayList;
 import java.util.List;

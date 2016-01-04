@@ -24,7 +24,7 @@ import java.util.Hashtable;
  */
 public class Persisted implements Persistable, IMetaData {
 
-    private static final Hashtable<Class, ArrayList<Field>> fieldOrderings = new Hashtable<Class, ArrayList<Field>>();
+    private static final Hashtable<Class, ArrayList<Field>> fieldOrderings = new Hashtable<>();
 
     protected int recordId = -1;
 
@@ -47,7 +47,7 @@ public class Persisted implements Persistable, IMetaData {
         synchronized (fieldOrderings) {
             orderings = fieldOrderings.get(this.getClass());
             if (orderings == null) {
-                orderings = new ArrayList<Field>();
+                orderings = new ArrayList<>();
                 fieldOrderings.put(this.getClass(), orderings);
             }
         }
@@ -167,7 +167,7 @@ public class Persisted implements Persistable, IMetaData {
 
     @Override
     public String[] getMetaDataFields() {
-        ArrayList<String> fields = new ArrayList<String>();
+        ArrayList<String> fields = new ArrayList<>();
 
         for (Field f : this.getClass().getDeclaredFields()) {
             try {

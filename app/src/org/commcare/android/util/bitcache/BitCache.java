@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.util.bitcache;
 
 import java.io.IOException;
@@ -11,11 +8,11 @@ import java.io.OutputStream;
  * @author ctsims
  */
 public interface BitCache {
-    public void initializeCache() throws IOException;
+    void initializeCache() throws IOException;
 
-    public OutputStream getCacheStream() throws IOException;
+    OutputStream getCacheStream() throws IOException;
 
-    public InputStream retrieveCache() throws IOException;
+    InputStream retrieveCache() throws IOException;
 
-    public void release();
+    void release();
 }

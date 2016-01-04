@@ -1,13 +1,10 @@
 package org.commcare.android.db.legacy;
 
-import android.util.Pair;
-
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Vector;
 
@@ -23,8 +20,8 @@ public class LegacyTableBuilder {
 
     public LegacyTableBuilder(String name) {
         this.name = name;
-        cols = new Vector<String>();
-        rawCols = new Vector<String>();
+        cols = new Vector<>();
+        rawCols = new Vector<>();
     }
 
     public void addData(Persistable p) {
@@ -55,7 +52,7 @@ public class LegacyTableBuilder {
         rawCols.add(DatabaseHelper.DATA_COL);
     }
 
-    HashSet<String> unique = new HashSet<String>();
+    HashSet<String> unique = new HashSet<>();
 
     public void setUnique(String columnName) {
         unique.add(scrubName(columnName));

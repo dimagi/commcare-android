@@ -20,14 +20,6 @@ import static junit.framework.Assert.assertEquals;
 @RunWith(CommCareTestRunner.class)
 public class IndexSpanningIteratorTest {
 
-    @Before
-    public void setUp() throws Exception {
-    }
-
-    @After
-    public void tearDown() throws Exception {
-    }
-    
     private int[] i(int...inputs) {
         return inputs;
     }
@@ -74,7 +66,7 @@ public class IndexSpanningIteratorTest {
         ExtendedTestCursor c = new ExtendedTestCursor();
         c.setResults(master);
         
-        Vector<Integer> vals = new Vector<Integer>();
+        Vector<Integer> vals = new Vector<>();
         
         IndexSpanningIterator iterator = new IndexSpanningIterator(c, null, min, max, count);
         

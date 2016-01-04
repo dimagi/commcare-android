@@ -41,7 +41,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         this.helper = helper;
 
         try {
-            T e = (T) ctype.newInstance();
+            T e = ctype.newInstance();
             if (e instanceof EncryptedModel) {
                 em = (EncryptedModel) e;
             }
@@ -62,7 +62,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL}, whereClause.first, whereClause.second, null, null, null);
         if (c.getCount() == 0) {
             c.close();
-            return new Vector<Integer>();
+            return new Vector<>();
         } else {
             c.moveToFirst();
             Vector<Integer> indices = new Vector<Integer>();
@@ -82,7 +82,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.DATA_COL}, whereClause.first, whereClause.second, null, null, null);
         if (c.getCount() == 0) {
             c.close();
-            return new Vector<T>();
+            return new Vector<>();
         } else {
             c.moveToFirst();
             Vector<T> indices = new Vector<T>();
@@ -239,13 +239,13 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     @Override
     public boolean isEmpty() {
-        return (getNumRecords() == 0);
+        return getNumRecords() == 0;
     }
 
     @Override
     public SqlStorageIterator<T> iterate() {
         Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, null, null, null, null, DatabaseHelper.ID_COL);
-        return new SqlStorageIterator<T>(c, this);
+        return new SqlStorageIterator<>(c, this);
     }
 
     public Iterator<T> iterator() {
@@ -316,7 +316,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     @Override
     public Vector<Integer> removeAll(EntityFilter ef) {
-        Vector<Integer> removed = new Vector<Integer>();
+        Vector<Integer> removed = new Vector<>();
         for (IStorageIterator iterator = this.iterate(); iterator.hasMore(); ) {
             int id = iterator.nextID();
             switch (ef.preFilter(id, null)) {

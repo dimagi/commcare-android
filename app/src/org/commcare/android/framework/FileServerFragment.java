@@ -31,7 +31,6 @@ import java.net.Socket;
 @SuppressLint("NewApi")
 public class FileServerFragment extends Fragment {
     private static final String TAG = FileServerFragment.class.getSimpleName();
-    private View mContentView = null;
 
     private static CommCareWiFiDirectActivity mActivity;
 
@@ -41,11 +40,6 @@ public class FileServerFragment extends Fragment {
     public static String receiveZipDirectory;
 
     private FileServerAsyncTask mFileServer;
-
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-    }
 
     @Override
     public void onAttach(Context context) {
@@ -59,19 +53,19 @@ public class FileServerFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        View contentView;
+        contentView = inflater.inflate(R.layout.file_server, null);
 
-        mContentView = inflater.inflate(R.layout.file_server, null);
+        mStatusText = (TextView) contentView.findViewById(R.id.file_server_status_text);
 
-        mStatusText = (TextView) mContentView.findViewById(R.id.file_server_status_text);
+        mView = contentView.findViewById(R.id.file_server_view);
 
-        mView = (View) mContentView.findViewById(R.id.file_server_view);
-
-        return mContentView;
+        return contentView;
     }
 
 
     public interface FileServerListener {
-        public void onFormsCopied(String result);
+        void onFormsCopied(String result);
     }
 
     public void startServer(String mReceiveZipDirectory) {

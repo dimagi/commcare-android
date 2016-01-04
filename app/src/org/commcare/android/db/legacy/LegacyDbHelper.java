@@ -52,7 +52,7 @@ public abstract class LegacyDbHelper {
         if (p instanceof IMetaData) {
             IMetaData m = (IMetaData) p;
             String[] thefields = m.getMetaDataFields();
-            fields = new HashSet<String>();
+            fields = new HashSet<>();
             for (String s : thefields) {
                 fields.add(LegacyTableBuilder.scrubName(s));
             }
@@ -61,7 +61,7 @@ public abstract class LegacyDbHelper {
         if (em instanceof IMetaData) {
             IMetaData m = (IMetaData) em;
             String[] thefields = m.getMetaDataFields();
-            fields = new HashSet<String>();
+            fields = new HashSet<>();
             for (String s : thefields) {
                 fields.add(LegacyTableBuilder.scrubName(s));
             }
@@ -88,7 +88,7 @@ public abstract class LegacyDbHelper {
                 ret += " AND ";
             }
         }
-        return new Pair<String, String[]>(ret, arguments);
+        return new Pair<>(ret, arguments);
     }
 
     private String encrypt(String string) {

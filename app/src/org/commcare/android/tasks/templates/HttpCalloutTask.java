@@ -142,8 +142,6 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_USER, "Missing requirements when fetching auth keys: " + e.getMessage());
             return HttpCalloutOutcomes.BadResponse;
-        } finally {
-
         }
     }
 
