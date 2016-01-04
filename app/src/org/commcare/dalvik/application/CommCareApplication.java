@@ -175,6 +175,7 @@ public class CommCareApplication extends Application {
     private final PopupHandler toaster = new PopupHandler(this);
 
     private Tracker mTracker;
+    private String currentUserId;
 
     @Override
     public void onCreate() {
@@ -802,10 +803,21 @@ public class CommCareApplication extends Application {
     }
 
     public String getCurrentUserId() {
+        if (currentUserId != null) {
+            return currentUserId;
+        }
         try {
-            return this.getSession().getLoggedInUser().getUniqueId();
+            currentUserId = this.getSession().getLoggedInUser().getUniqueId();
+            return currentUserId;
         } catch (SessionUnavailableException e) {
             return "";
+        }
+    }
+
+    private void cacheUserId() {
+        try {
+            currentUserId = this.getSession().getLoggedInUser().getUniqueId();
+        } catch (SessionUnavailableException e) {
         }
     }
 
@@ -919,6 +931,7 @@ public class CommCareApplication extends Application {
                         }
                     }
 
+                    cacheUserId();
                     TimedStatsTracker.registerStartSession();
                 }
             }

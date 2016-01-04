@@ -19,7 +19,7 @@ public class GoogleAnalyticsUtils {
     /**
      * Report a google analytics event that has only a category and an action
      */
-    public static void reportEvent(String category, String action) {
+    private static void reportEvent(String category, String action) {
         if (analyticsDisabled()) {
             return;
         }
@@ -32,7 +32,7 @@ public class GoogleAnalyticsUtils {
     /**
      * Report a google analytics event that has a category, action, and label
      */
-    public static void reportEvent(String category, String action, String label) {
+    private static void reportEvent(String category, String action, String label) {
         if (analyticsDisabled()) {
             return;
         }
@@ -46,7 +46,7 @@ public class GoogleAnalyticsUtils {
     /**
      * Report a google analytics event that has a category, action, label, and value
      */
-    public static void reportEvent(String category, String action, String label, int value) {
+    private static void reportEvent(String category, String action, String label, int value) {
         if (analyticsDisabled()) {
             return;
         }
