@@ -150,11 +150,11 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
     }
 
     @Override
-    public T newObject(byte[] data, int dbId) {
+    public T newObject(byte[] serializedObjectAsBytes, int dbEntryId) {
         try {
             T e = ctype.newInstance();
-            e.readExternal(new DataInputStream(new ByteArrayInputStream(data)), helper.getPrototypeFactory());
-            e.setID(dbId);
+            e.readExternal(new DataInputStream(new ByteArrayInputStream(serializedObjectAsBytes)), helper.getPrototypeFactory());
+            e.setID(dbEntryId);
 
             return e;
         } catch (DeserializationException | IOException

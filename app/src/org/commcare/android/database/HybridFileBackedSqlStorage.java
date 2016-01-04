@@ -47,7 +47,8 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
      * column selection used for reading file data
      */
     protected final static String[] dataColumns =
-            {DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL, DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL};
+            {DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL,
+                    DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL};
 
     /**
      * Sql object storage layer that stores serialized objects on the filesystem.
@@ -92,15 +93,13 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                 int aesColIndex = c.getColumnIndexOrThrow(DatabaseHelper.AES_COL);
                 while (!c.isAfterLast()) {
                     byte[] data = c.getBlob(dataColIndex);
+                    int dbEntryId = c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
                     if (data != null) {
                         // serialized object was small enough to fit in db entry
-                        recordObjects.add(newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL))));
+                        recordObjects.add(newObject(data, dbEntryId));
                     } else {
                         // serialized object was stored in filesystem due to large size
-                        String filename = c.getString(fileColIndex);
-                        byte[] aesKeyBlob = c.getBlob(aesColIndex);
-                        InputStream inputStream = getInputStreamFromFile(filename, aesKeyBlob);
-                        recordObjects.add(newObject(inputStream, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL))));
+                        recordObjects.add(readObjectFromFile(c, fileColIndex, aesColIndex, dbEntryId));
                     }
                     c.moveToNext();
                 }
@@ -109,6 +108,38 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         } finally {
             if (c != null) {
                 c.close();
+            }
+        }
+    }
+
+    private T readObjectFromFile(Cursor c) {
+        return readObjectFromFile(c,
+                c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL),
+                c.getColumnIndexOrThrow(DatabaseHelper.AES_COL),
+                c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL)));
+    }
+
+    private T readObjectFromFile(Cursor c, int dbEntryId) {
+        return readObjectFromFile(c,
+                c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL),
+                c.getColumnIndexOrThrow(DatabaseHelper.AES_COL),
+                dbEntryId);
+    }
+
+    private T readObjectFromFile(Cursor c, int fileColIndex, int aesColIndex, int dbEntryId) {
+        String filename = c.getString(fileColIndex);
+        byte[] aesKeyBlob = c.getBlob(aesColIndex);
+        InputStream inputStream = null;
+        try {
+            inputStream = getInputStreamFromFile(filename, aesKeyBlob);
+            return newObject(inputStream, dbEntryId);
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -150,13 +181,11 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             }
             c.moveToFirst();
             byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
+            int dbEntryId = c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
             if (data != null) {
-                return newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL)));
+                return newObject(data, dbEntryId);
             } else {
-                String filename = c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
-                byte[] aesKeyBlob = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
-                return newObject(getInputStreamFromFile(filename, aesKeyBlob),
-                        c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL)));
+                return readObjectFromFile(c, dbEntryId);
             }
         } finally {
             if (c != null) {
@@ -182,6 +211,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             throw new UserStorageClosedException(e.getMessage());
         }
 
+        InputStream is = null;
         try {
             c.moveToFirst();
             byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
@@ -190,7 +220,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             } else {
                 String filename = c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
                 byte[] aesKeyBlob = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
-                InputStream is = getInputStreamFromFile(filename, aesKeyBlob);
+                is = getInputStreamFromFile(filename, aesKeyBlob);
                 if (is == null) {
                     throw new RuntimeException("Unable to open and decrypt file: " + filename);
                 }
@@ -198,6 +228,13 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                 return StreamsUtil.getStreamAsBytes(is);
             }
         } finally {
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             if (c != null) {
                 c.close();
             }

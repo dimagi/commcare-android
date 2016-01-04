@@ -213,11 +213,16 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return getRecordForValues(new String[]{rawFieldName}, new Object[]{value});
     }
 
-    public T newObject(InputStream objectInputStream, int dbId) {
+    /**
+     * @param dbEntryId Set the deserialized persistable's id to the database entry id.
+     *                  Doing so now is more effecient then during writes
+     */
+    public T newObject(InputStream serializedObjectInputStream, int dbEntryId) {
         try {
             T e = ctype.newInstance();
-            e.readExternal(new DataInputStream(objectInputStream), helper.getPrototypeFactory());
-            e.setID(dbId);
+            e.readExternal(new DataInputStream(serializedObjectInputStream),
+                    helper.getPrototypeFactory());
+            e.setID(dbEntryId);
 
             return e;
         } catch (IllegalAccessException e) {
@@ -230,22 +235,13 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             throw logAndWrap(e, "CommCare ran into an issue deserializing data");
         }
     }
-    public T newObject(byte[] data, int dbId) {
-        try {
-            T e = ctype.newInstance();
-            e.readExternal(new DataInputStream(new ByteArrayInputStream(data)), helper.getPrototypeFactory());
-            e.setID(dbId);
 
-            return e;
-        } catch (IllegalAccessException e) {
-            throw logAndWrap(e, "Illegal Access Exception");
-        } catch (InstantiationException e) {
-            throw logAndWrap(e, "Instantiation Exception");
-        } catch (IOException e) {
-            throw logAndWrap(e, "Totally non-sensical IO Exception");
-        } catch (DeserializationException e) {
-            throw logAndWrap(e, "CommCare ran into an issue deserializing data");
-        }
+    /**
+     * @param dbEntryId Set the deserialized persistable's id to the database entry id.
+     *                  Doing so now is more effecient then during writes
+     */
+    public T newObject(byte[] serializedObjectAsBytes, int dbEntryId) {
+        return newObject(new ByteArrayInputStream(serializedObjectAsBytes), dbEntryId);
     }
 
     private RuntimeException logAndWrap(Exception e, String message) {
