@@ -7,23 +7,23 @@ option.cancel=CANCEL
 install.problem.unexpected=Unexpected install error!
 install.keep.trying=Keep trying if connection is interrupted
 updates.found=Updates found! Downloading new resource ${0} done of ${1}
-updates.success=CommCare is up to date
-updates.check.begin=Checking for updates
+updates.success=App is up to date
+updates.check.begin=Checking for updates...
 updates.check.failed=Failed to download updates
-updates.check.start=Check
+updates.check.start=Recheck
 updates.check.cancel=Stop checking
 updates.check.install=Install
 updates.check.cancelling=Cancelling check for updates
 updates.install.finished=App update was successful
-updates.check.last=Last checked for updates: ${0}
 updates.check.network_unavailable=No network connectivity
 updates.staged.version=Update to version ${0}
 updates.error=Error encountered during update download
+updates.applied.on.login=(downloaded update will automatically be applied on next login.)
 
 updates.pinned.download=Downloading updates
 updates.pinned.progress=${0}/${1}
 
-install.current.version=Version currently installed: ${0}
+install.current.version=Current version: ${0}
 
 verify.retry=Retry
 verify.checking=Verifying media...
@@ -84,7 +84,7 @@ home.sync.message.last=You last synced with the server: ${0}
 home.sync.message.last.never=never
 
 home.menu.settings=Settings
-home.menu.update=Update CommCare
+home.menu.update=Update App
 home.menu.validate=Validate Media
 home.menu.change.locale=Change Language
 home.menu.formdump=Manage SD
@@ -443,11 +443,11 @@ notification.install.duplicate.title=This app is already installed
 notification.install.duplicate.detail=The app you are trying to install already exists on this device.
 notification.install.duplicate.action=Navigate to the drop-down menu on your log-in screen and look for the app you are attempting to install. If you still can't find the app you're looking for, contact your supervisor.
 
-notification.install.uptodate.title=CommCare is Up to Date
-notification.install.uptodate.detail=A newer version of CommCare is not available
+notification.install.uptodate.title=The App is Up to Date
+notification.install.uptodate.detail=A newer version of the app is not available
 
-notification.install.updatestaged.title=CommCare update ready to install
-notification.install.updatestaged.detail=A newer version of CommCare is ready to install on next login
+notification.install.updatestaged.title=App update ready to install
+notification.install.updatestaged.detail=A newer version of the app is ready to install on next login
 notification.install.no.connection.title=No internet connection
 notification.install.no.connection.detail=Install failed because your device is not connected to Wi-Fi currently
 notification.install.duplicate.action=Go to your device settings to check the current status of your Wi-Fi connection. If a connection is unavailable at this time, you may try offline install.

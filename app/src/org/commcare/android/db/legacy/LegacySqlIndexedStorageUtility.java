@@ -42,7 +42,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         this.helper = helper;
 
         try {
-            T e = (T) ctype.newInstance();
+            T e = ctype.newInstance();
             if (e instanceof EncryptedModel) {
                 em = (EncryptedModel) e;
             }
@@ -65,10 +65,10 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         Cursor c = helper.getHandle().query(table, new String[]{DbUtil.ID_COL}, whereClause.first, whereClause.second, null, null, null);
         if (c.getCount() == 0) {
             c.close();
-            return new Vector<Integer>();
+            return new Vector<>();
         } else {
             c.moveToFirst();
-            Vector<Integer> indices = new Vector<Integer>();
+            Vector<Integer> indices = new Vector<>();
             int index = c.getColumnIndexOrThrow(DbUtil.ID_COL);
             while (!c.isAfterLast()) {
                 int id = c.getInt(index);
@@ -85,10 +85,10 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         Cursor c = helper.getHandle().query(table, new String[]{DbUtil.DATA_COL}, whereClause.first, whereClause.second, null, null, null);
         if (c.getCount() == 0) {
             c.close();
-            return new Vector<T>();
+            return new Vector<>();
         } else {
             c.moveToFirst();
-            Vector<T> indices = new Vector<T>();
+            Vector<T> indices = new Vector<>();
             int index = c.getColumnIndexOrThrow(DbUtil.DATA_COL);
             while (!c.isAfterLast()) {
                 byte[] data = c.getBlob(index);
@@ -152,7 +152,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     public T newObject(byte[] data) {
         try {
-            T e = (T) ctype.newInstance();
+            T e = ctype.newInstance();
             e.readExternal(new DataInputStream(new ByteArrayInputStream(data)), helper.getPrototypeFactory());
 
             return e;
@@ -248,16 +248,13 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     @Override
     public boolean isEmpty() {
-        if (getNumRecords() == 0) {
-            return true;
-        }
-        return false;
+        return getNumRecords() == 0;
     }
 
     @Override
     public SqlStorageIterator<T> iterate() {
         Cursor c = helper.getHandle().query(table, new String[]{DbUtil.ID_COL, DbUtil.DATA_COL}, null, null, null, null, DbUtil.ID_COL);
-        return new SqlStorageIterator<T>(c, this);
+        return new SqlStorageIterator<>(c, this);
     }
 
     public Iterator<T> iterator() {
@@ -328,7 +325,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     @Override
     public Vector<Integer> removeAll(EntityFilter ef) {
-        Vector<Integer> removed = new Vector<Integer>();
+        Vector<Integer> removed = new Vector<>();
         for (IStorageIterator iterator = this.iterate(); iterator.hasMore(); ) {
             int id = iterator.nextID();
             switch (ef.preFilter(id, null)) {

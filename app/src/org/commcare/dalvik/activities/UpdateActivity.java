@@ -43,7 +43,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         loadSaveInstanceState(savedInstanceState);
 
-        setupUpdateTask();
+        boolean isRotation = savedInstanceState != null;
+        setupUpdateTask(isRotation);
     }
 
     private void loadSaveInstanceState(Bundle savedInstanceState) {
@@ -54,17 +55,19 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         }
     }
 
-    private void setupUpdateTask() {
+    private void setupUpdateTask(boolean isRotation) {
         updateTask = UpdateTask.getRunningInstance();
 
-        try {
-            if (updateTask != null) {
+        if (updateTask != null) {
+            try {
                 updateTask.registerTaskListener(this);
+            } catch (TaskListenerRegistrationException e) {
+                Log.e(TAG, "Attempting to register a TaskListener to an already " +
+                        "registered task.");
+                uiState.errorUiState();
             }
-        } catch (TaskListenerRegistrationException e) {
-            Log.e(TAG, "Attempting to register a TaskListener to an already " +
-                    "registered task.");
-            uiState.errorUiState();
+        } else if (!isRotation && !taskIsCancelling) {
+            startUpdateCheck();
         }
     }
 
@@ -200,7 +203,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     private void connectToRunningTask() {
-        setupUpdateTask();
+        setupUpdateTask(false);
 
         setUiFromTask();
     }
@@ -273,5 +276,10 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 Localization.get("updates.install.finished");
         Toast.makeText(this, upgradeFinishedText, Toast.LENGTH_LONG).show();
         this.finish();
+    }
+
+    @Override
+    public String getActivityTitle() {
+        return "Update" + super.getActivityTitle();
     }
 }

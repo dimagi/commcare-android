@@ -15,6 +15,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -143,6 +144,7 @@ public class CustomProgressDialog extends DialogFragment {
 
 
     /* Creates the dialog that will reside within the fragment */
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         restoreFields(savedInstanceState);

@@ -38,9 +38,10 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
      * V.7 - Case index models now maintain relationship types. Migration object
      * used to update DB
      * V.8 - Merge commcare-odk and commcare User, make AUser legacy type.
+     * V.9 - Update serialized fixtures in db to use new schema
      */
 
-    private static final int USER_DB_VERSION = 8;
+    private static final int USER_DB_VERSION = 9;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 
@@ -60,7 +61,6 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase database) {
-
         try {
             database.beginTransaction();
             

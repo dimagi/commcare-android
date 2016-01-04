@@ -9,9 +9,8 @@ public class ChangeLocaleUtil{
     public static String[] removeDefault(String[] raw){
         String[] output = new String[raw.length -1];
         int index = 0;
-        for(int i=0; i<raw.length; i++){
-            String rawInput = raw[i];
-            if(!rawInput.equals("default")){
+        for (String rawInput : raw) {
+            if (!rawInput.equals("default")) {
                 output[index] = rawInput;
                 index++;
             }
@@ -34,14 +33,12 @@ public class ChangeLocaleUtil{
     public static String[] getLocaleCodes(){
         Localizer lizer = Localization.getGlobalLocalizerAdvanced();
         String[] rawLocales = lizer.getAvailableLocales();
-        String[] rawDefaultRemoved = removeDefault(rawLocales);
-        return rawDefaultRemoved;
+        return removeDefault(rawLocales);
     }
     
     public static String[] getLocaleNames(){
         String[] rawDefaultRemoved = getLocaleCodes();
-        String[] localeNames = translateLocales(rawDefaultRemoved);
-        return localeNames;
+        return translateLocales(rawDefaultRemoved);
     }
 
 }
