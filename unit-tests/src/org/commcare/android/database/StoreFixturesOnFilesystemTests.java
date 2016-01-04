@@ -75,8 +75,10 @@ public class StoreFixturesOnFilesystemTests {
     }
 
     public static void parseIntoSandbox(InputStream stream, boolean failfast)
-            throws InvalidStructureException, IOException, UnfullfilledRequirementsException, XmlPullParserException {
-        AndroidTransactionParserFactory factory = new AndroidTransactionParserFactory(CommCareApplication._().getApplicationContext(), null);
+            throws InvalidStructureException, IOException,
+            UnfullfilledRequirementsException, XmlPullParserException {
+        AndroidTransactionParserFactory factory =
+                new AndroidTransactionParserFactory(CommCareApplication._().getApplicationContext(), null);
         DataModelPullParser parser = new DataModelPullParser(stream, factory, failfast, true);
         parser.parse();
     }
@@ -95,7 +97,8 @@ public class StoreFixturesOnFilesystemTests {
         File[] serializedFixtureFiles = dbDir.listFiles();
         Assert.assertTrue(serializedFixtureFiles.length > 0);
         try {
-            ((HybridFileBackedSqlStorage<FormInstance>)userFixtureStorage).newObject(new FileInputStream(serializedFixtureFiles[0]), -1);
+            ((HybridFileBackedSqlStorage<FormInstance>)userFixtureStorage)
+                    .newObject(new FileInputStream(serializedFixtureFiles[0]), -1);
         } catch (FileNotFoundException e) {
             Assert.fail("Unable to find db storage file that should exist");
         } catch (RuntimeException e) {
@@ -117,7 +120,8 @@ public class StoreFixturesOnFilesystemTests {
         File[] serializedFixtureFiles = dbDir.listFiles();
         Assert.assertTrue(serializedFixtureFiles.length > 0);
         try {
-            ((UnencryptedHybridFileBackedSqlStorage<FormInstance>)appFixtureStorage).newObject(new FileInputStream(serializedFixtureFiles[0]), -1);
+            ((UnencryptedHybridFileBackedSqlStorage<FormInstance>)appFixtureStorage)
+                    .newObject(new FileInputStream(serializedFixtureFiles[0]), -1);
         } catch (Exception e) {
             Assert.fail("Should be able to deserialize an unencrypted object");
         }
@@ -131,7 +135,8 @@ public class StoreFixturesOnFilesystemTests {
         ArrayList<File> removedFiles = new ArrayList<>();
         for (IStorageIterator i = userFixtureStorage.iterate(); i.hasMore(); ) {
             File fixtureFile =
-                    new File(((HybridFileBackedSqlStorage<FormInstance>)userFixtureStorage).getEntryFilenameForTesting(i.nextID()));
+                    new File(((HybridFileBackedSqlStorage<FormInstance>)userFixtureStorage)
+                            .getEntryFilenameForTesting(i.nextID()));
             removedFiles.add(fixtureFile);
         }
 
@@ -226,24 +231,29 @@ public class StoreFixturesOnFilesystemTests {
         // test encrypted update
         HybridFileBackedSqlStorage<FormInstance> userFixtureStorage =
                 CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class);
-        FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"commtrack:programs"});
+        FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                new String[]{"commtrack:programs"});
 
         String newName = "new_name";
         form.setName(newName);
         userFixtureStorage.update(form.getID(), form);
 
-        form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"commtrack:programs"});
+        form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                new String[]{"commtrack:programs"});
         Assert.assertEquals(newName, form.getName());
 
         // test unencrypted update
         UnencryptedHybridFileBackedSqlStorage<FormInstance> appFixtureStorage =
-                CommCareApplication._().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
-        form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
+                CommCareApplication._().getCurrentApp().getFileBackedStorage("fixture",
+                        FormInstance.class);
+        form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                new String[]{"user-groups"});
 
         form.setName(newName);
         appFixtureStorage.update(form.getID(), form);
 
-        form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
+        form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                new String[]{"user-groups"});
         Assert.assertEquals(newName, form.getName());
     }
 
@@ -253,10 +263,12 @@ public class StoreFixturesOnFilesystemTests {
         HybridFileBackedSqlStorage<FormInstance> userFixtureStorage =
                 CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class);
 
-        Vector<FormInstance> forms = userFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID}, new String[]{"commtrack:programs"});
+        Vector<FormInstance> forms = userFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID},
+                new String[]{"commtrack:programs"});
         Assert.assertTrue(forms.size() == 1);
 
-        FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"commtrack:programs"});
+        FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                new String[]{"commtrack:programs"});
         Assert.assertEquals(forms.firstElement().getRoot(), form.getRoot());
 
         form = userFixtureStorage.getRecordForValue(FormInstance.META_ID, "commtrack:programs");
@@ -266,10 +278,12 @@ public class StoreFixturesOnFilesystemTests {
         UnencryptedHybridFileBackedSqlStorage<FormInstance> appFixtureStorage =
                 CommCareApplication._().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
 
-        forms = appFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
+        forms = appFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID},
+                new String[]{"user-groups"});
         Assert.assertTrue(forms.size() == 1);
 
-        form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
+        form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                new String[]{"user-groups"});
         Assert.assertEquals(forms.firstElement().getRoot(), form.getRoot());
 
         form = appFixtureStorage.getRecordForValue(FormInstance.META_ID, "user-groups");

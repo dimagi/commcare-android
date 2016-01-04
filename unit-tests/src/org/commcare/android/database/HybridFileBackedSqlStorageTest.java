@@ -17,20 +17,22 @@ import org.robolectric.annotation.Config;
 import java.io.File;
 
 /**
+ * Test hybrid storage update logic that moves object from db to fs, or vice-versa,
+ * based on object update size
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = org.commcare.dalvik.application.CommCareTestApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class HybridFileBackedSqlStorageTest {
-    private AndroidSandbox sandbox;
 
     @Before
     public void setup() {
         UnencryptedHybridFileBackedSqlStorageMock.alwaysPutInFilesystem();
         HybridFileBackedSqlStorageMock.alwaysPutInFilesystem();
 
-        sandbox = StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass());
+        StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass());
     }
 
     @Test
@@ -39,7 +41,8 @@ public class HybridFileBackedSqlStorageTest {
 
         HybridFileBackedSqlStorage<FormInstance> userFixtureStorage =
                 CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class);
-        FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"commtrack:programs"});
+        FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                new String[]{"commtrack:programs"});
 
         File dbDir = userFixtureStorage.getDbDirForTesting();
         int fileCountBefore = dbDir.listFiles().length;
@@ -50,18 +53,18 @@ public class HybridFileBackedSqlStorageTest {
         userFixtureStorage.update(form.getID(), form);
 
         // ensure the data can still be read
-        form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"commtrack:programs"});
+        form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                new String[]{"commtrack:programs"});
         Assert.assertEquals(newName, form.getName());
 
         // quick test coverage for reading multiple records that have serialized objects stored in db
-        FormInstance form2 = userFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID}, new String[]{"commtrack:programs"}).firstElement();
+        FormInstance form2 = userFixtureStorage.getRecordsForValues(new String[]{FormInstance.META_ID},
+                new String[]{"commtrack:programs"}).firstElement();
         Assert.assertEquals(form2.getName(), form.getName());
 
         // ensure the old file was removed
         int fileCountAfter = dbDir.listFiles().length;
         Assert.assertTrue(fileCountBefore - fileCountAfter == 1);
-
-        // check data column empty
 
         // move fixture back into filesystem
         HybridFileBackedSqlStorageMock.alwaysPutInFilesystem();
@@ -70,7 +73,8 @@ public class HybridFileBackedSqlStorageTest {
         userFixtureStorage.update(form.getID(), form);
 
         // ensure the data can still be read
-        form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"commtrack:programs"});
+        form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                new String[]{"commtrack:programs"});
         Assert.assertEquals(newName, form.getName());
 
         fileCountAfter = dbDir.listFiles().length;
@@ -87,7 +91,8 @@ public class HybridFileBackedSqlStorageTest {
 
         UnencryptedHybridFileBackedSqlStorage<FormInstance> appFixtureStorage =
                 CommCareApplication._().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
-        FormInstance form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
+        FormInstance form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                new String[]{"user-groups"});
 
         File dbDir = appFixtureStorage.getDbDirForTesting();
         int fileCountBefore = dbDir.listFiles().length;
@@ -98,14 +103,13 @@ public class HybridFileBackedSqlStorageTest {
         appFixtureStorage.update(form.getID(), form);
 
         // ensure the data can still be read
-        form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
+        form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                new String[]{"user-groups"});
         Assert.assertEquals(newName, form.getName());
 
         // ensure the old file was removed
         int fileCountAfter = dbDir.listFiles().length;
         Assert.assertTrue(fileCountBefore - fileCountAfter == 1);
-
-        // check data column empty
 
         // move fixture back into filesystem
         UnencryptedHybridFileBackedSqlStorageMock.alwaysPutInFilesystem();
@@ -114,7 +118,8 @@ public class HybridFileBackedSqlStorageTest {
         appFixtureStorage.update(form.getID(), form);
 
         // ensure the data can still be read
-        form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
+        form = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                new String[]{"user-groups"});
         Assert.assertEquals(newName, form.getName());
 
         fileCountAfter = dbDir.listFiles().length;
@@ -133,7 +138,9 @@ public class HybridFileBackedSqlStorageTest {
         // unencrypted write / update test
         UnencryptedHybridFileBackedSqlStorage<FormInstance> appFixtureStorage =
                 CommCareApplication._().getCurrentApp().getFileBackedStorage("fixture", FormInstance.class);
-        FormInstance appLevelFixture = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"user-groups"});
+        FormInstance appLevelFixture =
+                appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                        new String[]{"user-groups"});
 
         // test write
         appLevelFixture.setID(-1);
@@ -149,13 +156,16 @@ public class HybridFileBackedSqlStorageTest {
         appFixtureStorage.update(appLevelFixture.getID(), appLevelFixture);
 
         // ensure the data can still be read
-        appLevelFixture = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"new-user-groups"});
+        appLevelFixture = appFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                new String[]{"new-user-groups"});
         Assert.assertEquals(newName, appLevelFixture.getName());
 
         // encrypted write / update test
         HybridFileBackedSqlStorage<FormInstance> userFixtureStorage =
                 CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class);
-        FormInstance userLevelFixture = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"commtrack:programs"});
+        FormInstance userLevelFixture =
+                userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                        new String[]{"commtrack:programs"});
 
         // test write
         userLevelFixture.setID(-1);
@@ -170,7 +180,9 @@ public class HybridFileBackedSqlStorageTest {
         userFixtureStorage.update(userLevelFixture.getID(), userLevelFixture);
 
         // ensure the data can still be read
-        userLevelFixture = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID}, new String[]{"new-commtrack"});
+        userLevelFixture =
+                userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                        new String[]{"new-commtrack"});
         Assert.assertEquals(newName, userLevelFixture.getName());
     }
 }

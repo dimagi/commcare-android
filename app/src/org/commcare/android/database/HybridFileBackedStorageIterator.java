@@ -12,7 +12,7 @@ import java.io.InputStream;
  *
  * @author Phillip Mates (pmates@gmail.com)
  */
-public class SqlFileBackedStorageIterator<T extends Persistable>
+public class HybridFileBackedStorageIterator<T extends Persistable>
         extends SqlStorageIterator<T> {
 
     /**
@@ -21,8 +21,8 @@ public class SqlFileBackedStorageIterator<T extends Persistable>
      * @param c       The uninitialized cursor for a query.
      * @param storage The storage being queried
      */
-    public SqlFileBackedStorageIterator(Cursor c,
-                                        HybridFileBackedSqlStorage<T> storage) {
+    public HybridFileBackedStorageIterator(Cursor c,
+                                           HybridFileBackedSqlStorage<T> storage) {
         super(c, storage, null);
     }
 

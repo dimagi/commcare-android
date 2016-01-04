@@ -629,7 +629,10 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             if (ret > Integer.MAX_VALUE) {
                 throw new RuntimeException("Waaaaaaaaaay too many values");
             }
+            // won't effect already stored obj id, which is set when reading out of db.
+            // rather, needed in case persistable object is used after being written to storage.
             p.setID((int) ret);
+
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();

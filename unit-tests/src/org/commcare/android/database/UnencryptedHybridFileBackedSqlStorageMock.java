@@ -5,6 +5,8 @@ import org.javarosa.core.services.storage.Persistable;
 import java.io.ByteArrayOutputStream;
 
 /**
+ * Allows toggling how serialized objects are stored (database vs filesystem)
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class UnencryptedHybridFileBackedSqlStorageMock<T extends Persistable>

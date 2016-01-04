@@ -43,26 +43,32 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     private final static int ONE_MB_DB_SIZE_LIMIT = 1000000;
 
     /**
-     * column selection used for reading file data
+     * Column selection used for reading file data:
+     * - Id column needed to correctly set the id of objects read from db, which isn't set at write time for efficiency.
+     * - Data column holds serialized objects under 1mb
+     * - File column points to file holding serialized object over 1mb
+     * - Aes column holds encryption key for objects saved to filesystem
+     *
+     * Constraint: we never expect both data and file/aes columns to contain data at the same time
      */
-    protected final static String[] dataColumns =
+    private final static String[] dataColumns =
             {DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL,
                     DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL};
 
     /**
      * Sql object storage layer that stores serialized objects on the filesystem.
      *
-     * @param table   name of database table
-     * @param ctype   type of object being stored in this database
+     * @param tableName   name of database table
+     * @param classType   type of object being stored in this database
      * @param baseDir all files for entries will be placed within this dir
      */
-    public HybridFileBackedSqlStorage(String table,
-                                      Class<? extends T> ctype,
-                                      AndroidDbHelper helper,
+    public HybridFileBackedSqlStorage(String tableName,
+                                      Class<? extends T> classType,
+                                      AndroidDbHelper dbHelper,
                                       String baseDir) {
-        super(table, ctype, helper);
+        super(tableName, classType, dbHelper);
 
-        dbDir = new File(baseDir + GlobalConstants.FILE_CC_DB + table);
+        dbDir = new File(baseDir + GlobalConstants.FILE_CC_DB + tableName);
         setupDir();
     }
 
@@ -80,47 +86,48 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         Pair<String, String[]> whereClauseAndArgs =
                 helper.createWhereAndroid(fieldNames, values, em, null);
 
-        Cursor c = db.query(table, dataColumns,
+        Cursor cur = db.query(table, dataColumns,
                 whereClauseAndArgs.first, whereClauseAndArgs.second,
                 null, null, null);
         try {
             Vector<T> recordObjects = new Vector<>();
-            if (c.getCount() > 0) {
-                c.moveToFirst();
-                int dataColIndex = c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
-                int fileColIndex = c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL);
-                int aesColIndex = c.getColumnIndexOrThrow(DatabaseHelper.AES_COL);
-                while (!c.isAfterLast()) {
-                    byte[] data = c.getBlob(dataColIndex);
-                    int dbEntryId = c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
-                    if (data != null) {
+            if (cur.getCount() > 0) {
+                cur.moveToFirst();
+                int dataColIndex = cur.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
+                int fileColIndex = cur.getColumnIndexOrThrow(DatabaseHelper.FILE_COL);
+                int aesColIndex = cur.getColumnIndexOrThrow(DatabaseHelper.AES_COL);
+                while (!cur.isAfterLast()) {
+                    byte[] serializedObj = cur.getBlob(dataColIndex);
+                    int dbEntryId = cur.getInt(cur.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
+                    if (serializedObj != null) {
                         // serialized object was small enough to fit in db entry
-                        recordObjects.add(newObject(data, dbEntryId));
+                        recordObjects.add(newObject(serializedObj, dbEntryId));
                     } else {
                         // serialized object was stored in filesystem due to large size
-                        recordObjects.add(readObjectFromFile(c, fileColIndex, aesColIndex, dbEntryId));
+                        recordObjects.add(readObjectFromFile(cur, fileColIndex, aesColIndex, dbEntryId));
                     }
-                    c.moveToNext();
+                    cur.moveToNext();
                 }
             }
             return recordObjects;
         } finally {
-            if (c != null) {
-                c.close();
+            if (cur != null) {
+                cur.close();
             }
         }
     }
 
-    private T readObjectFromFile(Cursor c, int dbEntryId) {
-        return readObjectFromFile(c,
-                c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL),
-                c.getColumnIndexOrThrow(DatabaseHelper.AES_COL),
+    private T readObjectFromFile(Cursor cursor, int dbEntryId) {
+        return readObjectFromFile(cursor,
+                cursor.getColumnIndexOrThrow(DatabaseHelper.FILE_COL),
+                cursor.getColumnIndexOrThrow(DatabaseHelper.AES_COL),
                 dbEntryId);
     }
 
-    private T readObjectFromFile(Cursor c, int fileColIndex, int aesColIndex, int dbEntryId) {
-        String filename = c.getString(fileColIndex);
-        byte[] aesKeyBlob = c.getBlob(aesColIndex);
+    private T readObjectFromFile(Cursor cursor, int fileColIndex,
+                                 int aesColIndex, int dbEntryId) {
+        String filename = cursor.getString(fileColIndex);
+        byte[] aesKeyBlob = cursor.getBlob(aesColIndex);
         InputStream inputStream = null;
         try {
             inputStream = getInputStreamFromFile(filename, aesKeyBlob);
@@ -156,11 +163,11 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
         Pair<String, String[]> whereArgsAndVals =
                 helper.createWhereAndroid(rawFieldNames, values, em, null);
-        Cursor c = db.query(table, dataColumns,
+        Cursor cur = db.query(table, dataColumns,
                 whereArgsAndVals.first, whereArgsAndVals.second,
                 null, null, null);
         try {
-            int queryCount = c.getCount();
+            int queryCount = cur.getCount();
             if (queryCount == 0) {
                 throw new NoSuchElementException("No element in table " + table +
                         " with names " + Arrays.toString(rawFieldNames) +
@@ -171,17 +178,17 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                         ". Multiple records found with value " +
                         Arrays.toString(values), Arrays.toString(rawFieldNames));
             }
-            c.moveToFirst();
-            byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
-            int dbEntryId = c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
-            if (data != null) {
-                return newObject(data, dbEntryId);
+            cur.moveToFirst();
+            byte[] serializedObj = cur.getBlob(cur.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
+            int dbEntryId = cur.getInt(cur.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
+            if (serializedObj != null) {
+                return newObject(serializedObj, dbEntryId);
             } else {
-                return readObjectFromFile(c, dbEntryId);
+                return readObjectFromFile(cur, dbEntryId);
             }
         } finally {
-            if (c != null) {
-                c.close();
+            if (cur != null) {
+                cur.close();
             }
         }
     }
@@ -194,24 +201,19 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
     @Override
     public byte[] readBytes(int id) {
-        Cursor c;
-        try {
-            c = helper.getHandle().query(table, dataColumns,
-                    DatabaseHelper.ID_COL + "=?",
-                    new String[]{String.valueOf(id)}, null, null, null);
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        Cursor cur = getDbOrThrow().query(table, dataColumns,
+                DatabaseHelper.ID_COL + "=?",
+                new String[]{String.valueOf(id)}, null, null, null);
 
         InputStream is = null;
         try {
-            c.moveToFirst();
-            byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
-            if (data != null) {
-                return data;
+            cur.moveToFirst();
+            byte[] serializedObj = cur.getBlob(cur.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
+            if (serializedObj != null) {
+                return serializedObj;
             } else {
-                String filename = c.getString(c.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
-                byte[] aesKeyBlob = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
+                String filename = cur.getString(cur.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
+                byte[] aesKeyBlob = cur.getBlob(cur.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
                 is = getInputStreamFromFile(filename, aesKeyBlob);
                 if (is == null) {
                     throw new RuntimeException("Unable to open and decrypt file: " + filename);
@@ -227,16 +229,16 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                     e.printStackTrace();
                 }
             }
-            if (c != null) {
-                c.close();
+            if (cur != null) {
+                cur.close();
             }
         }
     }
 
     @Override
-    public void write(Persistable p) {
-        if (p.getID() != -1) {
-            update(p.getID(), p);
+    public void write(Persistable persistable) {
+        if (persistable.getID() != -1) {
+            update(persistable.getID(), persistable);
             return;
         }
         SQLiteDatabase db = getDbOrThrow();
@@ -245,17 +247,17 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             db.beginTransaction();
 
             long insertedId;
-            ByteArrayOutputStream bos = writeExternalizableToStream(p);
+            ByteArrayOutputStream bos = writeExternalizableToStream(persistable);
             try {
                 if (blobFitsInDb(bos)) {
                     // serialized object small enough to fit in db
-                    ContentValues contentValues = helper.getNonDataContentValues(p);
+                    ContentValues contentValues = helper.getNonDataContentValues(persistable);
                     contentValues.put(DatabaseHelper.DATA_COL, bos.toByteArray());
                     insertedId = db.insertOrThrow(table, DatabaseHelper.DATA_COL, contentValues);
                 } else {
                     // store serialized object in file and file pointer in db
                     File dataFile = HybridFileBackedSqlHelpers.newFileForEntry(dbDir);
-                    ContentValues contentValues = helper.getNonDataContentValues(p);
+                    ContentValues contentValues = helper.getNonDataContentValues(persistable);
                     contentValues.put(DatabaseHelper.FILE_COL, dataFile.getAbsolutePath());
                     byte[] key = generateKeyAndAdd(contentValues);
                     insertedId = db.insertOrThrow(table, DatabaseHelper.FILE_COL, contentValues);
@@ -267,7 +269,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             }
             // won't effect already stored obj id, which is set when reading out of db.
             // rather, needed in case persistable object is used after being written to storage.
-            p.setID((int)insertedId);
+            persistable.setID((int)insertedId);
 
             if (insertedId > Integer.MAX_VALUE) {
                 throw new RuntimeException("Waaaaaaaaaay too many values");
@@ -341,7 +343,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                     HybridFileBackedSqlHelpers.getEntryFilenameAndKey(helper, table, id);
             String filename = filenameAndKey.first;
             byte[] fileEncryptionKey = filenameAndKey.second;
-            boolean objectInDb = filename == null;
+            boolean objectInDb = (filename == null);
 
             bos = writeExternalizableToStream(extObj);
             if (blobFitsInDb(bos)) {
@@ -353,7 +355,6 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
             db.setTransactionSuccessful();
         } catch (IOException e) {
-            // Failed to update file
             e.printStackTrace();
         } finally {
             if (bos != null) {
@@ -370,13 +371,10 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     private void updateEntryToStoreInDb(Externalizable extObj, boolean objectInDb,
                                         String filename, ByteArrayOutputStream bos,
                                         SQLiteDatabase db, int id) {
-        ContentValues updatedContentValues;
-        if (objectInDb) {
-            // was already stored in db, do normal update
-            updatedContentValues = helper.getContentValuesWithCustomData(extObj, bos.toByteArray());
-        } else {
+        ContentValues updatedContentValues =
+                helper.getContentValuesWithCustomData(extObj, bos.toByteArray());
+        if (!objectInDb) {
             // was stored in file: remove file and store in db
-            updatedContentValues = helper.getContentValuesWithCustomData(extObj, bos.toByteArray());
             updatedContentValues.put(DatabaseHelper.FILE_COL, (String)null);
             updatedContentValues.put(DatabaseHelper.AES_COL, (byte[])null);
 
@@ -511,7 +509,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         if (spanningIterator != null) {
             return spanningIterator;
         } else {
-            return new SqlFileBackedStorageIterator<>(getIterateCursor(db, includeData), this);
+            return new HybridFileBackedStorageIterator<>(getIterateCursor(db, includeData), this);
         }
     }
 
