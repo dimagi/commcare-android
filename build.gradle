@@ -27,8 +27,8 @@ repositories {
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile "org.robolectric:robolectric:3.0"
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.robolectric:robolectric:3.0'
     testCompile project(path: ':javarosa', configuration: 'testsAsJar')
     // release build type expects javarosa and commcare jars to be in app/libs
     debugCompile project(':javarosa')
@@ -57,7 +57,7 @@ dependencies {
 }
 
 project.ext {
-    compileSdkVersion = "Google Inc.:Google APIs:22"
+    compileSdkVersion = "Google Inc.:Google APIs:23"
     buildToolsVersion = "23.0.2"
 }
 
@@ -94,6 +94,8 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
 
+    useLibrary 'org.apache.http.legacy'
+
     lintOptions {
       abortOnError false
     }
@@ -114,7 +116,7 @@ android {
 
     defaultConfig {
         minSdkVersion 8
-        targetSdkVersion 22
+        targetSdkVersion 23
         applicationId "org.commcare.dalvik"
         resValue "string", "application_name", "CommCare"
         def odkProviderStr = "org.commcare.android.provider.odk"
