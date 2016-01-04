@@ -9,7 +9,7 @@ import android.os.Parcelable;
 import android.view.View;
 
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareHomeActivity;
+import org.commcare.dalvik.activities.DispatchActivity;
 import org.commcare.dalvik.dialogs.DialogChoiceItem;
 import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.commcare.suite.model.Suite;
@@ -18,7 +18,6 @@ import java.util.ArrayList;
 
 /**
  * @author ctsims
- *
  */
 public class AndroidShortcuts extends Activity {
 
@@ -87,7 +86,7 @@ public class AndroidShortcuts extends Activity {
     
     private void returnShortcut(String name, String command) {
         Intent shortcutIntent = new Intent(Intent.ACTION_MAIN);
-        shortcutIntent.setClassName(this, CommCareHomeActivity.class.getName());
+        shortcutIntent.setClassName(this, DispatchActivity.class.getName());
         shortcutIntent.putExtra(EXTRA_KEY_SHORTCUT, command);
         
         //Home here makes the intent new every time you call it

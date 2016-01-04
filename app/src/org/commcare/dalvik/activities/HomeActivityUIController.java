@@ -34,19 +34,13 @@ public class HomeActivityUIController {
 
     private void setupUI() {
         activity.setContentView(R.layout.home_screen);
-        adapter = new HomeScreenAdapter(activity, getHiddenButtons(), activity.isDemoUser());
+        adapter = new HomeScreenAdapter(activity, getHiddenButtons(), CommCareHomeActivity.isDemoUser());
         setupGridView();
     }
 
     private static Vector<String> getHiddenButtons() {
         CommCareApp ccApp = CommCareApplication._().getCurrentApp();
         Vector<String> hiddenButtons = new Vector<>();
-        if (ccApp == null) {
-            // TODO PLM: Needed since we sometimes try to show buttons before
-            // actually entering the home screen. We should eventually fix this.
-            hiddenButtons.addAll(Arrays.asList(HomeButtons.buttonNames));
-            return hiddenButtons;
-        }
 
         Profile p = ccApp.getCommCarePlatform().getCurrentProfile();
         if ((p != null && !p.isFeatureActive(Profile.FEATURE_REVIEW)) || !CommCarePreferences.isSavedFormsEnabled()) {
