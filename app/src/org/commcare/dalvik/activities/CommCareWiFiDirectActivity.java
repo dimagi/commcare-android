@@ -141,6 +141,14 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
         setupGridView();
         changeState();
+        if(savedInstanceState == null){
+            showChangeStateDialog();
+        }
+    }
+
+    public void showChangeStateDialog(){
+        showDialog(this, localize("wifi.direct.change.state.title").toString(),
+                localize("wifi.direct.change.state.text").toString());
     }
 
     private void setupGridView() {
@@ -225,8 +233,6 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     }
 
     public void changeState(){
-        showDialog(this, localize("wifi.direct.change.state.title").toString(),
-                localize("wifi.direct.change.state.text").toString());
         adapter.notifyDataSetChanged();
     }
 
@@ -643,7 +649,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     public void onUnzipSuccessful(Integer result){
         Logger.log(TAG, "Successfully unzipped " + result.toString() +  " files.");
-        myStatusText.setText(localize("wifi.direct.receive.success", result.toString()));
+        myStatusText.setText(localize("wifi.direct.receive.successful", result.toString()));
         if(!FileUtil.deleteFileOrDir(new File(receiveDirectory))){
             Log.d(TAG, "source zip not succesfully deleted");
         }

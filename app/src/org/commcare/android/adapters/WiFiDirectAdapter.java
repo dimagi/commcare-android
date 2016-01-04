@@ -123,7 +123,7 @@ public class WiFiDirectAdapter extends RecyclerView.Adapter<RecyclerView.ViewHol
     private static View.OnClickListener getChangeModeButtonListener(final CommCareWiFiDirectActivity activity) {
         return new View.OnClickListener() {
             public void onClick(View v) {
-                activity.changeState();
+                activity.showChangeStateDialog();
             }
         };
     }

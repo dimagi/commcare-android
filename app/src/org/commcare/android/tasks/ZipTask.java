@@ -46,20 +46,6 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     Long[] results;
     File dumpFolder;
 
-    public static final long FULL_SUCCESS = 0;
-    public static final long PARTIAL_SUCCESS = 1;
-    public static final long FAILURE = 2;
-    public static final long TRANSPORT_FAILURE = 4;
-    public static final long PROGRESS_ALL_PROCESSED = 8;
-
-    public static final long SUBMISSION_BEGIN = 16;
-    public static final long SUBMISSION_START = 32;
-    public static final long SUBMISSION_NOTIFY = 64;
-    public static final long SUBMISSION_DONE = 128;
-
-    public static final long PROGRESS_LOGGED_OUT = 256;
-    public static final long PROGRESS_SDCARD_REMOVED = 512;
-
     public static final int ZIP_TASK_ID = 72135;
 
     public ZipTask(Context c) {
@@ -214,43 +200,6 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     protected FormRecord[] doTaskBackground(String... params) {
 
         Log.d(TAG, "doing zip task in background");
-
-        // ensure that SD is available, writable, and not emulated
-
-        boolean mExternalStorageAvailable = false;
-        boolean mExternalStorageWriteable = false;
-
-        boolean mExternalStorageEmulated = ReflectionUtil.mIsExternalStorageEmulatedHelper();
-
-        String state = Environment.getExternalStorageState();
-
-        ArrayList<String> externalMounts = FileUtil.getExternalMounts();
-
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            // We can read and write the media
-            mExternalStorageAvailable = mExternalStorageWriteable = true;
-        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            // We can only read the media
-            mExternalStorageAvailable = true;
-            mExternalStorageWriteable = false;
-        } else {
-            // Something else is wrong. It may be one of many other states, but all we need
-            //  to know is we can neither read nor write
-            mExternalStorageAvailable = mExternalStorageWriteable = false;
-        }
-
-        if (!mExternalStorageAvailable) {
-            publishProgress(Localization.get("bulk.form.sd.unavailable"));
-            return null;
-        }
-        if (!mExternalStorageWriteable) {
-            publishProgress(Localization.get("bulk.form.sd.unwritable"));
-            return null;
-        }
-        if (mExternalStorageEmulated && externalMounts.size() == 0) {
-            publishProgress(Localization.get("bulk.form.sd.emulated"));
-            return null;
-        }
 
         File baseDirectory = new File(CommCareWiFiDirectActivity.baseDirectory);
         File sourceDirectory = new File(CommCareWiFiDirectActivity.sourceDirectory);
