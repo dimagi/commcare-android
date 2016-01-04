@@ -1,5 +1,6 @@
 package org.commcare.dalvik.application;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.app.Notification;
@@ -23,7 +24,8 @@ import android.os.IBinder;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
-import android.telephony.PhoneStateListener;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -67,7 +69,6 @@ import org.commcare.android.tasks.templates.ManagedAsyncTask;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidUtil;
-import org.commcare.android.util.CallInPhoneListener;
 import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.ODKPropertyManager;
@@ -161,8 +162,6 @@ public class CommCareApplication extends Application {
 
     private int mCurrentServiceBindTimeout = MAX_BIND_TIMEOUT;
 
-    private CallInPhoneListener listener = null;
-
     /**
      * Handler to receive notifications and show them the user using toast.
      */
@@ -171,6 +170,7 @@ public class CommCareApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
         //Sets the static strategy for the deserializtion code to be
         //based on an optimized md5 hasher. Major speed improvements.
         AndroidClassHasher.registerAndroidClassHashStrategy();
@@ -301,19 +301,6 @@ public class CommCareApplication extends Application {
         return getSession().createNewSymetricKey();
     }
 
-    private void attachCallListener() {
-        TelephonyManager tManager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
-
-        listener = new CallInPhoneListener(this, this.getCommCarePlatform());
-        listener.startCache();
-
-        tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
-    }
-
-    public CallInPhoneListener getCallListener() {
-        return listener;
-    }
-
     public int[] getCommCareVersion() {
         return this.getResources().getIntArray(R.array.commcare_version);
     }
@@ -356,6 +343,10 @@ public class CommCareApplication extends Application {
     }
 
     public String getPhoneId() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
+            return "000000000000000";
+        }
+
         TelephonyManager manager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
         String imei = manager.getDeviceId();
         if (imei == null) {
@@ -872,7 +863,6 @@ public class CommCareApplication extends Application {
 
                     if (user != null) {
                         mBoundService.startSession(user);
-                        attachCallListener();
                         if (restoreSession) {
                             CommCareApplication.this.sessionWrapper = DevSessionRestorer.restoreSessionFromPrefs(getCommCarePlatform());
                         } else {
@@ -1137,11 +1127,17 @@ public class CommCareApplication extends Application {
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, i, 0);
 
             String additional = pendingMessages.size() > 1 ? Localization.get("notifications.prompt.more", new String[]{String.valueOf(pendingMessages.size() - 1)}) : "";
-
-            // Set the info for the views that show in the notification panel.
-            messageNotification.setLatestEventInfo(this, title, Localization.get("notifications.prompt.details", new String[]{additional}), contentIntent);
-
-            messageNotification.deleteIntent = PendingIntent.getBroadcast(this, 0, new Intent(this, NotificationClearReceiver.class), 0);
+            
+            messageNotification = new NotificationCompat.Builder(this)
+                    .setContentTitle(title)
+                    .setContentText(Localization.get("notifications.prompt.details", new String[]{additional}))
+                    .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
+                    .setNumber(pendingMessages.size())
+                    .setContentIntent(contentIntent)
+                    .setDeleteIntent(PendingIntent.getBroadcast(this, 0, new Intent(this, NotificationClearReceiver.class), 0))
+                    .setOngoing(true)
+                    .setWhen(System.currentTimeMillis())
+                    .build();
 
             //Send the notification.
             mNM.notify(MESSAGE_NOTIFICATION, messageNotification);
