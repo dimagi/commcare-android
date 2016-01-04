@@ -418,7 +418,6 @@ public class GridEntityView extends GridLayout {
 
     public void setTextColor(int color) {
         for (View rowView : mRowViews) {
-            if (rowView == null) continue;
             if (rowView instanceof TextView) {
                 ((TextView)rowView).setTextColor(color);
             }
@@ -427,7 +426,6 @@ public class GridEntityView extends GridLayout {
 
     public void setTitleTextColor(int color) {
         for (View rowView : mRowViews) {
-            if (rowView == null) continue;
             if (rowView instanceof TextView) {
                 ((TextView)rowView).setTextColor(color);
                 return;
