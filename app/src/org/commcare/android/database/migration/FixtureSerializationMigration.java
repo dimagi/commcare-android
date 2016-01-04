@@ -70,7 +70,9 @@ public class FixtureSerializationMigration {
             db.setTransactionSuccessful();
             Logger.log(AndroidLogger.SOFT_ASSERT, "fixture serialization db migration failed");
             Logger.exception(e);
-            return false;
+            // allow subsequent migrations to be processed. Will potentially
+            // lead to failure if those migrations make use of fixtures.
+            return true;
         } finally {
             if (fixtureByteStream != null) {
                 try {
