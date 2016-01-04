@@ -120,7 +120,7 @@ public class CommCareApplication extends Application {
 
     private static final int STATE_UNINSTALLED = 0;
     public static final int STATE_UPGRADE = 1;
-    private static final int STATE_READY = 2;
+    public static final int STATE_READY = 2;
     public static final int STATE_CORRUPTED = 4;
     public static final int STATE_DELETE_REQUESTED = 8;
     public static final int STATE_MIGRATION_FAILED = 16;
@@ -128,7 +128,8 @@ public class CommCareApplication extends Application {
 
     private static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
 
-    private int dbState;
+    private int globalDbState;
+    private int userDbState;
 
     private static CommCareApplication app;
 
@@ -196,7 +197,7 @@ public class CommCareApplication extends Application {
         prepareTemporaryStorage();
 
         //Init global storage (Just application records, logs, etc)
-        dbState = initGlobalDb();
+        globalDbState = initGlobalDb();
 
         //This is where we go through and check for updates between major transitions.
         //Soon we should start doing this differently, and actually go to an activity
@@ -216,7 +217,7 @@ public class CommCareApplication extends Application {
 
         intializeDefaultLocalizerData();
 
-        if (dbState != STATE_MIGRATION_FAILED && dbState != STATE_MIGRATION_QUESTIONABLE) {
+        if (globalDbState != STATE_MIGRATION_FAILED && globalDbState != STATE_MIGRATION_QUESTIONABLE) {
             initializeAnAppOnStartup();
         }
 
@@ -329,12 +330,16 @@ public class CommCareApplication extends Application {
         return sessionWrapper;
     }
 
-    public int getDatabaseState() {
-        return dbState;
+    public int getGlobalDatabaseState() {
+        return globalDbState;
+    }
+
+    public int getUserDatabaseState() {
+        return userDbState;
     }
 
     public void initializeGlobalResources(CommCareApp app) {
-        if (dbState != STATE_UNINSTALLED) {
+        if (globalDbState != STATE_UNINSTALLED) {
             initializeAppResources(app);
         }
     }
@@ -838,9 +843,9 @@ public class CommCareApplication extends Application {
 
                     mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
 
-                    //Don't let anyone touch this until it's logged in
+                    // Don't let anyone touch this until it's logged in
                     // Open user database
-                    mBoundService.prepareStorage(key, record);
+                    userDbState = mBoundService.prepareStorage(key, record);
 
                     if (record != null) {
                         //Ok, so we have a login that was successful, but do we have a user model in the DB?

@@ -16,6 +16,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.crypt.CryptUtil;
+import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.UserSandboxUtils;
@@ -245,14 +246,24 @@ public class CommCareSessionService extends Service {
     /**
      * (Re-)open user database
      */
-    public void prepareStorage(byte[] symetricKey, UserKeyRecord record) {
+    public int prepareStorage(byte[] symetricKey, UserKeyRecord record) {
         synchronized (lock) {
             this.key = symetricKey;
             pool.init();
             if (userDatabase != null && userDatabase.isOpen()) {
                 userDatabase.close();
             }
-            userDatabase = new CommCareUserOpenHelper(CommCareApplication._(), record.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
+            try {
+                userDatabase = new CommCareUserOpenHelper(CommCareApplication._(),
+                        record.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
+                return CommCareApplication.STATE_READY;
+            } catch (MigrationException e) {
+                if (e.isDefiniteFailure()) {
+                    return CommCareApplication.STATE_MIGRATION_FAILED;
+                } else {
+                    return CommCareApplication.STATE_MIGRATION_QUESTIONABLE;
+                }
+            }
         }
     }
 
