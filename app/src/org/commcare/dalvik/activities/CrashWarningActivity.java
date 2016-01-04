@@ -67,7 +67,7 @@ public class CrashWarningActivity extends Activity {
     }
 
     private void restartCommCare() {
-        Intent intent = new Intent(CrashWarningActivity.this, CommCareHomeActivity.class);
+        Intent intent = new Intent(CrashWarningActivity.this, DispatchActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
                 Intent.FLAG_ACTIVITY_SINGLE_TOP |
                 Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
