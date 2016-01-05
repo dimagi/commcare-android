@@ -53,6 +53,7 @@ public class DialogCreationHelpers {
      */
     public static AlertDialog buildPermissionRequestDialog(Activity activity,
                                                            final RuntimePermissionRequester permRequester,
+                                                           final int requestCode,
                                                            String title,
                                                            String body) {
         LayoutInflater li = LayoutInflater.from(activity);
@@ -67,7 +68,7 @@ public class DialogCreationHelpers {
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                permRequester.requestNeededPermissions();
+                permRequester.requestNeededPermissions(requestCode);
                 dialog.dismiss();
             }
         });
