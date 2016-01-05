@@ -41,7 +41,8 @@ public class UnrecoverableErrorActivity extends Activity {
             public void onClick(DialogInterface dialog, int i) {
                Intent intent = new Intent(UnrecoverableErrorActivity.this, DispatchActivity.class);
 
-                //Make sure that the new stack starts with a home activity, and clear everything between.
+                // Make sure that the new stack starts with a home activity, and clear everything
+                // between.
                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET |
                        Intent.FLAG_ACTIVITY_CLEAR_TOP |
                        Intent.FLAG_ACTIVITY_SINGLE_TOP |

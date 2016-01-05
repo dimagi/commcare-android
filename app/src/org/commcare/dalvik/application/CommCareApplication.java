@@ -240,7 +240,8 @@ public class CommCareApplication extends Application {
 
         // start a new stack and forget where we were (so we don't restart the
         // app from there)
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                Intent.FLAG_ACTIVITY_NEW_TASK);
 
         c.startActivity(i);
     }
@@ -838,9 +839,21 @@ public class CommCareApplication extends Application {
 
                     mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
 
-                    //Don't let anyone touch this until it's logged in
+                    // Don't let anyone touch this until it's logged in
                     // Open user database
-                    mBoundService.prepareStorage(key, record);
+                    try {
+                        mBoundService.prepareStorage(key, record);
+                    } catch (MigrationException e) {
+                        if (e.isDefiniteFailure()) {
+                            CommCareApplication._().triggerHandledAppExit(CommCareApplication.this,
+                                    getString(R.string.migration_definite_failure),
+                                    getString(R.string.migration_failure_title), false);
+                        } else {
+                            CommCareApplication._().triggerHandledAppExit(CommCareApplication.this,
+                                    getString(R.string.migration_possible_failure),
+                                    getString(R.string.migration_failure_title), false);
+                        }
+                    }
 
                     if (record != null) {
                         //Ok, so we have a login that was successful, but do we have a user model in the DB?
