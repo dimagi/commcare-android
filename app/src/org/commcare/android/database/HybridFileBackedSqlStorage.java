@@ -51,16 +51,16 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
      *
      * Constraint: we never expect both data and file/aes columns to contain data at the same time
      */
-    private final static String[] dataColumns =
+    protected final static String[] dataColumns =
             {DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL,
                     DatabaseHelper.FILE_COL, DatabaseHelper.AES_COL};
 
     /**
      * Sql object storage layer that stores serialized objects on the filesystem.
      *
-     * @param tableName   name of database table
-     * @param classType   type of object being stored in this database
-     * @param baseDir all files for entries will be placed within this dir
+     * @param tableName name of database table
+     * @param classType type of object being stored in this database
+     * @param baseDir   all files for entries will be placed within this dir
      */
     public HybridFileBackedSqlStorage(String tableName,
                                       Class<? extends T> classType,
