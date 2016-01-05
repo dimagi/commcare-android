@@ -16,7 +16,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.CommCareUserOpenHelper;
 import org.commcare.android.database.user.UserSandboxUtils;

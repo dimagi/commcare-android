@@ -853,6 +853,7 @@ public class CommCareApplication extends Application {
                                     getString(R.string.migration_possible_failure),
                                     getString(R.string.migration_failure_title), false);
                         }
+                        return;
                     }
 
                     if (record != null) {
