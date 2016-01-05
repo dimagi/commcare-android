@@ -52,6 +52,9 @@ public abstract class ResourceEngineTask<R>
     protected String vRequired;
     protected boolean majorIsProblem;
 
+    private final Object statusLock = new Object();
+    private boolean statusCheckRunning = false;
+
     public ResourceEngineTask(CommCareApp app, int taskId, boolean shouldSleep) {
         this.app = app;
         this.taskId = taskId;
@@ -119,34 +122,57 @@ public abstract class ResourceEngineTask<R>
     }
 
     @Override
-    public void resourceStateUpdated(ResourceTable table) {
-        // if last time isn't set or is less than our spacing count, do not
-        // perform status update
-        if (System.currentTimeMillis() - lastTime < ResourceEngineTask.STATUS_UPDATE_WAIT_TIME) {
-            return;
-        }
-
-        Vector<Resource> resources =
-                ResourceManager.getResourceListFromProfile(table);
-
-        int score = 0;
-        for (Resource r : resources) {
-            switch (r.getStatus()) {
-                case Resource.RESOURCE_STATUS_UPGRADE:
-                    // If we spot an upgrade after we've started the upgrade process,
-                    // something now needs to be updated
-                    if (phase == PHASE_CHECKING) {
-                        this.phase = PHASE_DOWNLOAD;
-                    }
-                    score += 1;
-                    break;
-                case Resource.RESOURCE_STATUS_INSTALLED:
-                    score += 1;
-                    break;
+    public void resourceStateUpdated(final ResourceTable table) {
+        synchronized (statusLock) {
+            // if last time isn't set or is less than our spacing count, do not
+            // perform status update. Also if we are already running one, just skip this.
+            if (statusCheckRunning || System.currentTimeMillis() - lastTime < ResourceEngineTask.STATUS_UPDATE_WAIT_TIME) {
+                return;
             }
+
+            //Otherwise fire off a new check
+
+            Runnable statusUpdateCheck = new Runnable() {
+                @Override
+                public void run() {
+                    Vector<Resource> resources =
+                            ResourceManager.getResourceListFromProfile(table);
+
+                    int score = 0;
+                    boolean forceClosed = false;
+                    for (Resource r : resources) {
+                        forceClosed = ResourceEngineTask.this.getStatus() == Status.FINISHED ||
+                                ResourceEngineTask.this.isCancelled();
+                        if(forceClosed) {
+                            break;
+                        }
+                        switch (r.getStatus()) {
+                            case Resource.RESOURCE_STATUS_UPGRADE:
+                                // If we spot an upgrade after we've started the upgrade process,
+                                // something now needs to be updated
+                                if (phase == PHASE_CHECKING) {
+                                    ResourceEngineTask.this.phase = PHASE_DOWNLOAD;
+                                }
+                                score += 1;
+                                break;
+                            case Resource.RESOURCE_STATUS_INSTALLED:
+                                score += 1;
+                                break;
+                        }
+                    }
+                    if(!forceClosed) {
+                        incrementProgress(score, resources.size());
+                    }
+                    synchronized (statusLock) {
+                        lastTime = System.currentTimeMillis();
+                        statusCheckRunning = false;
+                    }
+                }
+            };
+            statusCheckRunning = true;
+            Thread t = new Thread(statusUpdateCheck);
+            t.start();
         }
-        lastTime = System.currentTimeMillis();
-        incrementProgress(score, resources.size());
     }
 
     @Override
