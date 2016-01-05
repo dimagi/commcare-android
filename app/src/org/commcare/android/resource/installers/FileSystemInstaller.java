@@ -4,9 +4,7 @@ import android.util.Pair;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.FileUtil;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
@@ -23,15 +21,12 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.odk.collect.android.utilities.FileUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Vector;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -71,32 +66,25 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
-            OutputStream os;
             Reference localReference;
 
             //Moved this up before the local stuff, in case the local reference fails, we don't want to start dealing with it
-            InputStream input;
-            try {
-                input = ref.getStream();
-            } catch (FileNotFoundException e) {
+            File inputFile = new File(ref.getLocalURI());
+            if (!inputFile.exists()) {
                 //This simply means that the reference wasn't actually valid like it thought it was (sometimes you can't tell until you try)
                 //so let it keep iterating through options.
                 return false;
             }
 
-            File tempFile;
-
-            //Stream to location
             try {
                 Pair<String, String> fileDetails = getResourceName(r, location);
-                //Final destination
                 localReference = getEmptyLocalReference((upgrade ? upgradeDestination : localDestination), fileDetails.first, fileDetails.second);
 
-                //Create a temporary place to store these bits
-                tempFile = new File(CommCareApplication._().getTempFilePath());
+                File destination = new File(localReference.getLocalURI());
 
-                //Make sure the stream is valid
-                os = new FileOutputStream(tempFile);
+                //Make sure there's a seat for the new file
+                FileUtil.ensureFilePathExists(destination);
+                FileUtils.copyFile(inputFile, destination);
 
                 //Get the actual local file we'll be putting the data into
                 localLocation = localReference.getURI();
@@ -104,21 +92,6 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
                 throw new LocalStorageUnavailableException("Couldn't create reference to declared location " + localLocation + " for file system installation", localLocation);
             } catch (IOException ioe) {
                 throw new LocalStorageUnavailableException("Couldn't write to local reference " + localLocation + " for file system installation", localLocation);
-            }
-
-            //Write the full file to the temporary location
-            AndroidStreamUtil.writeFromInputToOutput(input, os);
-
-            //Get a cannonical path
-            String localUri = localReference.getLocalURI();
-            File destination = new File(localUri);
-
-            //Make sure there's a seat for the new file
-            FileUtil.ensureFilePathExists(destination);
-
-            //File written, it must be valid now, so move it into our intended location
-            if (!tempFile.renameTo(destination)) {
-                throw new LocalStorageUnavailableException("Couldn't write to local reference " + localLocation + " to location " + localUri + " for file system installation", localLocation);
             }
 
             //TODO: Sketch - if this fails, we'll still have the file at that location.
