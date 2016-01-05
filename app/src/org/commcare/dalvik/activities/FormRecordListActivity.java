@@ -59,8 +59,6 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.odk.collect.android.logic.ArchivedFormRemoteRestore;
 
-import java.io.IOException;
-
 
 public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity>
         implements TextWatcher, FormRecordLoadListener, OnItemClickListener, TaskListener<Void, Void> {

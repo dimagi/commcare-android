@@ -7,7 +7,6 @@ import android.view.Window;
 import android.webkit.WebView;
 
 import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.view.GraphView;
 
 /**

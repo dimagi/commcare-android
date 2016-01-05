@@ -83,8 +83,8 @@ public class DotsHomeView extends RelativeLayout {
             c.add(Calendar.DATE, 1);
         }
 
-        for (int i = 0; i < tRows.length; ++i) {
-            table.addView(tRows[i]);
+        for (TableRow row : tRows) {
+            table.addView(row);
         }
 
         Button done = new Button(this.getContext());

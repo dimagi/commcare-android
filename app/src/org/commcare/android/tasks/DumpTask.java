@@ -3,7 +3,6 @@ package org.commcare.android.tasks;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Environment;
-import android.widget.TextView;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
@@ -92,42 +91,39 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 
         //If we're listening, figure out how much (roughly) we have to send
         long bytes = 0;
-        for (int j = 0; j < files.length; j++) {
+        for (File file : files) {
             //Make sure we'll be sending it
             boolean supported = false;
-            for(String ext : SUPPORTED_FILE_EXTS) {
-                if(files[j].getName().endsWith(ext)) {
+            for (String ext : SUPPORTED_FILE_EXTS) {
+                if (file.getName().endsWith(ext)) {
                     supported = true;
                     break;
                 }
             }
-            if(!supported) { continue;}
-            
-            bytes += files[j].length();
+            if (!supported) {
+                continue;
+            }
+
+            bytes += file.length();
         }
         
         //this.startSubmission(submissionNumber, bytes);
         
         final Cipher decrypter = FormUploadUtil.getDecryptCipher(key);
-        
-        for(int j=0;j<files.length;j++){
-            
-            File f = files[j];
+
+        for (File file : files) {
             // This is not the ideal long term solution for determining whether we need decryption, but works
-            if (f.getName().endsWith(".xml")) {
-                try{
-                    FileUtil.copyFile(f, new File(myDir, f.getName()), decrypter, null);
-                }
-                catch(IOException ie){
+            if (file.getName().endsWith(".xml")) {
+                try {
+                    FileUtil.copyFile(file, new File(myDir, file.getName()), decrypter, null);
+                } catch (IOException ie) {
                     publishProgress(("File writing failed: " + ie.getMessage()));
                     return FormUploadUtil.FAILURE;
                 }
-            }
-            else{
-                try{
-                    FileUtil.copyFile(f, new File(myDir, f.getName()));
-                }
-                catch(IOException ie){
+            } else {
+                try {
+                    FileUtil.copyFile(file, new File(myDir, file.getName()));
+                } catch (IOException ie) {
                     publishProgress(("File writing failed: " + ie.getMessage()));
                     return FormUploadUtil.FAILURE;
                 }

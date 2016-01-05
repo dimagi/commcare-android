@@ -45,10 +45,7 @@ import java.util.Arrays;
  */
 public class GridEntityView extends GridLayout {
 
-    private String[] forms;
     private String[] searchTerms;
-    private GridCoordinate[] coords;
-    private GridStyle[] styles;
     Object[] mRowData;
     View[] mRowViews;
     boolean mFuzzySearchEnabled = false;
@@ -82,10 +79,6 @@ public class GridEntityView extends GridLayout {
     /**
      * Used to create a entity view tile outside of a managed context (like
      * for an individual entity out of a search context).
-     *
-     * @param context
-     * @param detail
-     * @param entity
      */
     public GridEntityView(Context context, Detail detail, Entity entity) {
         this(context, detail, entity, new String[0], new CachingAsyncImageLoader(context), false);
@@ -94,21 +87,13 @@ public class GridEntityView extends GridLayout {
     /**
      * Constructor for an entity tile in a managed context, like a list of entities being displayed
      * all at once for searching.
-     *
-     * @param context
-     * @param detail
-     * @param entity
-     * @param searchTerms
-     * @param mLoader
-     * @param fuzzySearchEnabled
      */
     public GridEntityView(Context context, Detail detail, Entity entity, String[] searchTerms, CachingAsyncImageLoader mLoader, boolean fuzzySearchEnabled) {
         super(context);
         this.searchTerms = searchTerms;
         this.mIsAsynchronous = entity instanceof AsyncEntity;
 
-        int maximumRows = this.getMaxRows(detail);
-        this.NUMBER_ROWS_PER_GRID = maximumRows;
+        this.NUMBER_ROWS_PER_GRID = this.getMaxRows(detail);
 
         // Calibrate the # of grid views that appear on the screen, based on how many rows will
         // be in each grid
@@ -174,8 +159,6 @@ public class GridEntityView extends GridLayout {
      * to rows/columns that end up empty or near empty, so we solve this by adding spaces to every row and column.
      * We just add a space of width cellWidth and height 1 to every column of the first row, and likewise a sapce of height
      * cellHeight and width 1 to every row of the first column. These are then written on top of if need be.
-     *
-     * @param context
      */
     public void addBuffers(Context context) {
 
@@ -215,9 +198,9 @@ public class GridEntityView extends GridLayout {
         GridCoordinate[] coordinates = detail.getGridCoordinates();
         int currentMaxHeight = 0;
 
-        for (int i = 0; i < coordinates.length; i++) {
-            int yCoordinate = coordinates[i].getY();
-            int height = coordinates[i].getHeight();
+        for (GridCoordinate coordinate : coordinates) {
+            int yCoordinate = coordinate.getY();
+            int height = coordinate.getHeight();
             int maxHeight = yCoordinate + height;
             if (maxHeight > currentMaxHeight) {
                 currentMaxHeight = maxHeight;
@@ -230,7 +213,6 @@ public class GridEntityView extends GridLayout {
     /**
      * Set all the views to be displayed in this pane
      *
-     * @param context
      * @param detail  - the Detail describing how to display each entry
      * @param entity  - the Entity describing the actual data of each entry
      */
@@ -243,9 +225,9 @@ public class GridEntityView extends GridLayout {
         addBuffers(context);
 
         // extract UI information from detail and entity
-        forms = detail.getTemplateForms();
-        coords = detail.getGridCoordinates();
-        styles = detail.getGridStyles();
+        String[] forms = detail.getTemplateForms();
+        GridCoordinate[] coords = detail.getGridCoordinates();
+        GridStyle[] styles = detail.getGridStyles();
         mRowData = entity.getData();
         mRowViews = new View[mRowData.length];
 
@@ -316,16 +298,11 @@ public class GridEntityView extends GridLayout {
     /**
      * Get the correct View for this particular activity.
      *
-     * @param context
      * @param multimediaType either "image", "audio", or default text. Describes how this XPath result should be displayed.
      * @param horzAlign      How the text should be aligned horizontally - left, center, or right ONE OF horzAlign or vertAlign
      * @param vertAlign      How the text should be aligned vertically - top, center, or bottom ONE OF horzAlign or vertAlign
      * @param textsize       The font size, scaled for screen size. small, medium, large, xlarge accepted.
      * @param rowData        The actual data to display, either an XPath to media or a String to display.
-     * @param uniqueId
-     * @param cssid
-     * @param searchField
-     * @return
      */
     private View getView(Context context, String multimediaType, String horzAlign,
                          String vertAlign, String textsize, String rowData, ViewId uniqueId,
@@ -440,21 +417,17 @@ public class GridEntityView extends GridLayout {
     }
 
     public void setTextColor(int color) {
-        for (int i = 0; i < mRowViews.length; i++) {
-            View v = mRowViews[i];
-            if (v == null) continue;
-            if (v instanceof TextView) {
-                ((TextView) v).setTextColor(color);
+        for (View rowView : mRowViews) {
+            if (rowView instanceof TextView) {
+                ((TextView)rowView).setTextColor(color);
             }
         }
     }
 
     public void setTitleTextColor(int color) {
-        for (int i = 0; i < mRowViews.length; i++) {
-            View v = mRowViews[i];
-            if (v == null) continue;
-            if (v instanceof TextView) {
-                ((TextView) v).setTextColor(color);
+        for (View rowView : mRowViews) {
+            if (rowView instanceof TextView) {
+                ((TextView)rowView).setTextColor(color);
                 return;
             }
         }

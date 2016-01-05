@@ -25,7 +25,7 @@ public class AndroidPrototypeFactory extends PrototypeFactory {
     @Override
     protected void lazyInit() {
         initialized = false;
-        prototypes = new Hashtable<Integer, Class>();
+        prototypes = new Hashtable<>();
         super.lazyInit();
     }
 
