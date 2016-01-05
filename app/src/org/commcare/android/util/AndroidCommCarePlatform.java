@@ -32,8 +32,8 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 
     public AndroidCommCarePlatform(int majorVersion, int minorVersion, CommCareApp app) {
         super(majorVersion, minorVersion);
-        xmlnstable = new Hashtable<String, String>();
-        installedSuites = new Vector<Suite>();
+        xmlnstable = new Hashtable<>();
+        installedSuites = new Vector<>();
         this.app = app;
     }
 

@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
 import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -31,7 +32,6 @@ import java.io.IOException;
  * No write access is currently supported.
  * 
  * @author wspride
- *
  */
 public class FixtureDataContentProvider extends ContentProvider {
 
@@ -41,24 +41,23 @@ public class FixtureDataContentProvider extends ContentProvider {
     }
 
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection,
-            String[] selectionArgs, String sortOrder) {
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection,
+                        String[] selectionArgs, String sortOrder) {
 
         //Standard dispatcher following Android best practices
         int match = FixtureDataAPI.UriMatch(uri);
 
-        switch(match) {
-        case FixtureDataAPI.MetadataColumns.LIST_INSTANCE_ID:
-            return getFixtureNames();
-        case FixtureDataAPI.MetadataColumns.MATCH_INSTANCE_ID:
-            return getFixtureForId(uri.getLastPathSegment());
+        switch (match) {
+            case FixtureDataAPI.MetadataColumns.LIST_INSTANCE_ID:
+                return getFixtureNames();
+            case FixtureDataAPI.MetadataColumns.MATCH_INSTANCE_ID:
+                return getFixtureForId(uri.getLastPathSegment());
         }
         throw new IllegalArgumentException("URI: " + uri.toString() +" is not a valid content path for CommCare Case Data");
     }
 
     @Override
-    public String getType(Uri uri) {
-
+    public String getType(@NonNull Uri uri) {
         int match = FixtureDataAPI.UriMatch(uri);
 
         switch(match) {
@@ -71,12 +70,10 @@ public class FixtureDataContentProvider extends ContentProvider {
         return null;
     }
     
-    /*
+    /**
      * Return a cursor over the list of all fixture IDs and names
      */
-
-    public Cursor getFixtureNames(){
-
+    private Cursor getFixtureNames() {
         MatrixCursor retCursor = new MatrixCursor(new String[] {FixtureDataAPI.MetadataColumns._ID, FixtureDataAPI.MetadataColumns.FIXTURE_ID});
 
         IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication._().getUserStorage("fixture", FormInstance.class);
@@ -88,15 +85,12 @@ public class FixtureDataContentProvider extends ContentProvider {
         }
 
         return retCursor;
-
     }
     
-    /*
+    /**
      * Return a cursor to the fixture associated with this id
      */
-    
-    public Cursor getFixtureForId(String instanceId){
-
+    private Cursor getFixtureForId(String instanceId){
         MatrixCursor retCursor = new MatrixCursor(new String[] {FixtureDataAPI.MetadataColumns._ID, FixtureDataAPI.MetadataColumns.FIXTURE_ID, "content"});
 
         IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication._().getUserStorage("fixture", FormInstance.class);
@@ -113,7 +107,7 @@ public class FixtureDataContentProvider extends ContentProvider {
 
                     DataModelSerializer s = new DataModelSerializer(bos, new AndroidInstanceInitializer(null));
 
-                    s.serialize((DataInstance)fi, fi.getRoot().getRef());
+                    s.serialize(fi, fi.getRoot().getRef());
 
                     String dump = new String(bos.toByteArray());
 
@@ -123,32 +117,32 @@ public class FixtureDataContentProvider extends ContentProvider {
             catch(IOException e){
                 e.printStackTrace();
             }
-
         }
 
         return retCursor;
-
     }
 
-    /** All of the below are invalid due to the read-only nature of the content provider. It's not 100% clear from spec how to express
-     * the read-only-ness. **/
+    /**
+     * All of the below are invalid due to the read-only nature of the content provider. It's not 100% clear from spec how to express
+     * the read-only-ness.
+     **/
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection,String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         // Case content provider is read only.
         //TODO: Throw an exception here? Read up on the spec 
         return 0;
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         // Case content provider is read only.
         return 0;
     }
 
 
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
+    public Uri insert(@NonNull Uri uri, ContentValues values) {
         // TODO Auto-generated method stub
         return null;
     }

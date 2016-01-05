@@ -9,8 +9,6 @@ import org.commcare.modern.models.EncryptedModel;
  * representation across versions.
  * 
  * @author Clayton Sims
- * @date Mar 19, 2009 
- *
  */
 public class ACase extends Case implements EncryptedModel {
     public static final String STORAGE_KEY = "AndroidCase";

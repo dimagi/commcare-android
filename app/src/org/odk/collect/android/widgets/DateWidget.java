@@ -104,7 +104,7 @@ public class DateWidget extends QuestionWidget {
 
             //The incoming date is in Java Format, parsed from an ISO-8601 date.
             DateTime isoAnchoredDate =
-                new DateTime(((Date) ((DateData) getCurrentAnswer()).getValue()).getTime());
+                new DateTime(((Date) getCurrentAnswer().getValue()).getTime());
 
 
             //The java date we loaded doesn't know how to communicate its timezone offsets to
