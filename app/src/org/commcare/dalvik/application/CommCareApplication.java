@@ -933,7 +933,7 @@ public class CommCareApplication extends Application {
                         }
                     }
 
-                    cacheUserId();
+                    refreshUserIdCache();
                     TimedStatsTracker.registerStartSession();
                 }
             }
