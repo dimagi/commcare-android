@@ -13,11 +13,12 @@ import java.util.ArrayList;
 public class WiFiDirectAdapter extends SquareButtonAdapter {
 
     private final CommCareWiFiDirectActivity wiFiDirectActivity;
+    private HomeCardDisplayData[] buttons;
 
     public WiFiDirectAdapter(CommCareWiFiDirectActivity activity) {
         super(activity);
-
         this.wiFiDirectActivity = activity;
+        buttons = new HomeCardDisplayData[0];
     }
 
     private static View.OnClickListener getSendButtonListener(final CommCareWiFiDirectActivity activity) {
@@ -52,14 +53,8 @@ public class WiFiDirectAdapter extends SquareButtonAdapter {
         };
     }
 
-    @Override
-    protected HomeCardDisplayData getItem(int position) {
-        return getButtonDisplayData().get(position);
-    }
-
-    private ArrayList<HomeCardDisplayData> getButtonDisplayData() {
+    public void updateDisplayData(){
         ArrayList<HomeCardDisplayData> buttonData = new ArrayList<HomeCardDisplayData>();
-
         HomeCardDisplayData sendButton = HomeCardDisplayData.homeCardDataWithStaticText("Send",
                 R.color.white,
                 R.drawable.wifi_direct_transfer,
@@ -92,8 +87,16 @@ public class WiFiDirectAdapter extends SquareButtonAdapter {
                 buttonData.add(submitButton);
                 break;
         }
+        buttons = new HomeCardDisplayData[buttonData.size()];
+        for(int i = 0; i< buttonData.size(); i++) {
+            buttons[i] = buttonData.get(i);
+        }
 
-        return buttonData;
+    }
+
+    @Override
+    protected HomeCardDisplayData getItem(int position) {
+        return buttons[position];
     }
 
     @Override
@@ -103,7 +106,10 @@ public class WiFiDirectAdapter extends SquareButtonAdapter {
                 return 3;
             case submit:
                 return 2;
+            case receive:
+                return 1;
         }
-        return 1;
+        //state not yet chosen
+        return 0;
     }
 }

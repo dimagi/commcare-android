@@ -233,6 +233,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     }
 
     public void changeState(){
+        adapter.updateDisplayData();
         adapter.notifyDataSetChanged();
     }
 
