@@ -174,7 +174,8 @@ public class CommCareApplication extends Application {
      */
     private final PopupHandler toaster = new PopupHandler(this);
 
-    private Tracker mTracker;
+    private GoogleAnalytics analyticsInstance;
+    private Tracker analyticsTracker;
     private String currentUserId;
 
     @Override
@@ -233,6 +234,7 @@ public class CommCareApplication extends Application {
         }
 
         ACRAUtil.initACRA(this);
+        analyticsInstance = GoogleAnalytics.getInstance(this);
     }
 
     public void triggerHandledAppExit(Context c, String message) {
@@ -312,22 +314,22 @@ public class CommCareApplication extends Application {
     }
 
     synchronized public Tracker getDefaultTracker() {
-        if (mTracker == null) {
+        if (analyticsTracker == null) {
             // TODO: AMS - Will want to set this conditionally after test release
-            mTracker = getAnalyticsInstance().newTracker(DEV_TRACKING_ID);
-            mTracker.enableAutoActivityTracking(true);
+            analyticsTracker = analyticsInstance.newTracker(DEV_TRACKING_ID);
+            analyticsTracker.enableAutoActivityTracking(true);
         }
         String userId = getCurrentUserId();
         if (!"".equals(userId)) {
-            mTracker.set("&uid", userId);
+            analyticsTracker.set("&uid", userId);
         } else {
-            mTracker.set("&uid", null);
+            analyticsTracker.set("&uid", null);
         }
-        return mTracker;
+        return analyticsTracker;
     }
 
     public GoogleAnalytics getAnalyticsInstance() {
-        return GoogleAnalytics.getInstance(this);
+        return analyticsInstance;
     }
 
     public int[] getCommCareVersion() {
