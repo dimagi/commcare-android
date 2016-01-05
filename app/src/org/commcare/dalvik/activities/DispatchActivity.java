@@ -57,8 +57,8 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void dispatch() {
-        if (dbInBadState(CommCareApplication._().getGlobalDatabaseState())) {
-            // appropriate error dialog has been triggered, don't continue w/ dispatch
+        if (isDbInBadState()) {
+            // approrpiate error dialog has been triggered, don't continue w/ dispatch
             return;
         }
 
@@ -92,20 +92,14 @@ public class DispatchActivity extends FragmentActivity {
                 } else if (!CommCareApplication._().getSession().isActive()) {
                     // The user is not logged in
                     launchLoginScreen();
+                } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
+                    // CommCare was launched from an external app, with a session descriptor
+                    handleExternalLaunch();
+                } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
+                    // CommCare was launched from a shortcut
+                    handleShortcutLaunch();
                 } else {
-                    if (dbInBadState(CommCareApplication._().getUserDatabaseState())) {
-                        // appropriate error dialog has been triggered, don't continue w/ dispatch
-                        return;
-                    }
-                    if (this.getIntent().hasExtra(SESSION_REQUEST)) {
-                        // CommCare was launched from an external app, with a session descriptor
-                        handleExternalLaunch();
-                    } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
-                        // CommCare was launched from a shortcut
-                        handleShortcutLaunch();
-                    } else {
-                        launchHomeScreen();
-                    }
+                    launchHomeScreen();
                 }
             } catch (SessionUnavailableException sue) {
                 launchLoginScreen();
@@ -113,18 +107,19 @@ public class DispatchActivity extends FragmentActivity {
         }
     }
 
-    public boolean dbInBadState(int currentDbState) {
-        if (currentDbState == CommCareApplication.STATE_MIGRATION_FAILED) {
+    public boolean isDbInBadState() {
+        int dbState = CommCareApplication._().getDatabaseState();
+        if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
             CommCareApplication._().triggerHandledAppExit(this,
                     getString(R.string.migration_definite_failure),
                     getString(R.string.migration_failure_title), false);
             return true;
-        } else if (currentDbState == CommCareApplication.STATE_MIGRATION_QUESTIONABLE) {
+        } else if (dbState == CommCareApplication.STATE_MIGRATION_QUESTIONABLE) {
             CommCareApplication._().triggerHandledAppExit(this,
                     getString(R.string.migration_possible_failure),
                     getString(R.string.migration_failure_title), false);
             return true;
-        } else if (currentDbState == CommCareApplication.STATE_CORRUPTED) {
+        } else if (dbState == CommCareApplication.STATE_CORRUPTED) {
             handleDamagedApp();
             return true;
         }
