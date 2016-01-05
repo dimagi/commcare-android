@@ -25,9 +25,9 @@ import android.widget.Toast;
 
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.fragments.ContainerFragment;
-import org.commcare.android.fragments.InstallConfirmFragment;
-import org.commcare.android.fragments.SelectInstallModeFragment;
 import org.commcare.android.fragments.SetupEnterURLFragment;
+import org.commcare.android.fragments.SelectInstallModeFragment;
+import org.commcare.android.fragments.InstallConfirmFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.RuntimePermissionRequester;
@@ -73,11 +73,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         InstallConfirmFragment.StartStopInstallCommands, RetrieveParseVerifyMessageListener,
         RuntimePermissionRequester {
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
-
-    private static final String[] installPermissions =
-            new String[]{Manifest.permission.READ_SMS,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE};
 
     public static final String KEY_PROFILE_REF = "app_profile_ref";
     private static final String KEY_UI_STATE = "current_install_ui_state";
@@ -194,7 +189,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         );
 
         performSMSInstall(false);
-        acquireAllAppPerms();
     }
 
     private void loadStateFromInstance(Bundle savedInstanceState) {
@@ -525,40 +519,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public void requestNeededPermissions() {
         ActivityCompat.requestPermissions(this,
-                installPermissions,
+                new String[]{Manifest.permission.READ_SMS},
                 SMS_PERMISSIONS_REQUEST);
-    }
-
-    private void acquireAllAppPerms() {
-        if (missingAppPermission()) {
-            if (shouldShowPermissionRationale()) {
-                AlertDialog dialog =
-                        DialogCreationHelpers.buildPermissionRequestDialog(this, this,
-                                Localization.get("permission.all.title"),
-                                Localization.get("permission.all.message"));
-                dialog.show();
-            } else {
-                requestNeededPermissions();
-            }
-        }
-    }
-
-    private boolean missingAppPermission() {
-        for (String perm : installPermissions) {
-            if (ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_DENIED) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean shouldShowPermissionRationale() {
-        for (String perm : installPermissions) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, perm)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
