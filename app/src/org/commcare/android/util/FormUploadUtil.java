@@ -23,7 +23,6 @@ import org.javarosa.core.services.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -147,25 +146,6 @@ public class FormUploadUtil {
         if (files.length == 0) {
             Log.e(TAG, "no files to upload");
             listener.cancel(true);
-        }
-
-        FileInputStream fileInputStream;
-
-        for(File f: files) {
-            byte[] bFile = new byte[(int) f.length()];
-
-            try {
-                //convert file into array of bytes
-                fileInputStream = new FileInputStream(f);
-                fileInputStream.read(bFile);
-                fileInputStream.close();
-
-                for (int i = 0; i < bFile.length; i++) {
-                    System.out.print((char) bFile[i]);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
 
         // mime post
