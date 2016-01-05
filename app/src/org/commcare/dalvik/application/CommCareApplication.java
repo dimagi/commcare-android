@@ -816,7 +816,7 @@ public class CommCareApplication extends Application {
         }
     }
 
-    private void cacheUserId() {
+    private void refreshUserIdCache() {
         try {
             currentUserId = this.getSession().getLoggedInUser().getUniqueId();
         } catch (SessionUnavailableException e) {
