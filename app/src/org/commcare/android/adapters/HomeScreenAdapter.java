@@ -22,8 +22,8 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.activities.HomeButtons;
 
-import java.util.List;
-import java.util.Vector;
+        import java.util.List;
+        import java.util.Vector;
 
 /**
  * Shows home screen buttons and header banner
