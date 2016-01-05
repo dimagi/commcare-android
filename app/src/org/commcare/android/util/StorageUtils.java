@@ -38,6 +38,17 @@ public class StorageUtils {
         return ids;
     }
 
+    public static int getNumIncompleteForms() {
+        SqlStorage<FormRecord> formsStorage =
+                CommCareApplication._().getUserStorage(FormRecord.class);
+        String currentAppId =
+                CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
+
+        return formsStorage.getIDsForValues(
+                new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new String[]{FormRecord.STATUS_INCOMPLETE, currentAppId}).size();
+    }
+
     @SuppressWarnings("deprecation")
     public static FormRecord[] getUnsentRecords(SqlStorage<FormRecord> storage) {
         //TODO: This could all be one big sql query instead of doing it in code
