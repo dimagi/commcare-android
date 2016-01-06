@@ -3,6 +3,7 @@ package org.commcare.dalvik.activities;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
@@ -44,6 +45,17 @@ public class DispatchActivity extends FragmentActivity {
     private boolean startFromLogin;
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
+    private boolean shortcutExtraWasConsumed;
+
+    private static final String EXTRA_CONSUMED_KEY = "shortcut_extra_was_consumed";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            shortcutExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
+        }
+    }
 
     @Override
     protected void onResume() {
@@ -54,6 +66,12 @@ public class DispatchActivity extends FragmentActivity {
         } else {
             dispatch();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(EXTRA_CONSUMED_KEY, shortcutExtraWasConsumed);
     }
 
     private void dispatch() {
@@ -95,7 +113,8 @@ public class DispatchActivity extends FragmentActivity {
                 } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
                     // CommCare was launched from an external app, with a session descriptor
                     handleExternalLaunch();
-                } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
+                } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT) &&
+                        !shortcutExtraWasConsumed) {
                     // CommCare was launched from a shortcut
                     handleShortcutLaunch();
                 } else {
@@ -218,6 +237,7 @@ public class DispatchActivity extends FragmentActivity {
                     this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
 
             getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
+            shortcutExtraWasConsumed = true;
             Intent i = new Intent(this, CommCareHomeActivity.class);
             i.putExtra(WAS_SHORTCUT_LAUNCH, true);
             startActivityForResult(i, HOME_SCREEN);
