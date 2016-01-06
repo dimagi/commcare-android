@@ -40,8 +40,8 @@ import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.HorizontalMediaView;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.core.process.CommCareInstanceInitializer;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
@@ -153,10 +153,6 @@ public class CommCareHomeActivity
             loginExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
         }
 
-        if (finishIfNotRoot()) {
-            return;
-        }
-
         ACRAUtil.registerAppData();
         uiController = new HomeActivityUIController(this);
         sessionNavigator = new SessionNavigator(this);
@@ -165,25 +161,6 @@ public class CommCareHomeActivity
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();
         processFromLoginLaunch();
-    }
-
-    /**
-     * A workaround required by Android Bug #2373 -- An app launched from the Google Play store
-     * has different intent flags than one launched from the App launcher, which ruins the back
-     * stack and prevents the app from launching a high affinity task.
-     *
-     * @return if finish() was called
-     */
-    private boolean finishIfNotRoot() {
-        if (!isTaskRoot()) {
-            Intent intent = getIntent();
-            String action = intent.getAction();
-            if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && action != null && action.equals(Intent.ACTION_MAIN)) {
-                finish();
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
