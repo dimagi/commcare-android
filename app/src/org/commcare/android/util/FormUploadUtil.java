@@ -293,7 +293,7 @@ public class FormUploadUtil {
                     fb = new EncryptedFileBody(f, FormUploadUtil.getDecryptCipher(key),
                             ContentType.TEXT_XML);
                 } else {
-                    fb = new FileBody(f, "text/xml");
+                    fb = new FileBody(f, ContentType.TEXT_XML, f.getName());
                 }
                 entity.addPart("xml_submission_file", fb);
             } else if (f.getName().endsWith(".jpg")) {
