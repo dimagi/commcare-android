@@ -6,6 +6,9 @@ package org.commcare.android.framework;
 public interface RuntimePermissionRequester {
     /**
      * Asks user for specific permissions needed to proceed
+     *
+     * @param requestCode Request permission using this code, allowing for
+     *                    callback distinguishing
      */
-    void requestNeededPermissions();
+    void requestNeededPermissions(int requestCode);
 }

@@ -134,6 +134,7 @@ public class CommCareHomeActivity
     // The API allows for external calls. When this occurs, redispatch to their
     // activity instead of commcare.
     private boolean wasExternal = false;
+    private static final String WAS_EXTERNAL_KEY = "was_external";
 
     private int mDeveloperModeClicks = 0;
 
@@ -141,9 +142,16 @@ public class CommCareHomeActivity
     private SessionNavigator sessionNavigator;
     private FormAndDataSyncer formAndDataSyncer;
 
+    private boolean loginExtraWasConsumed;
+    private static final String EXTRA_CONSUMED_KEY = "login_extra_was_consumed";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            loginExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
+        }
 
         if (finishIfNotRoot()) {
             return;
@@ -183,7 +191,7 @@ public class CommCareHomeActivity
      */
     private void processFromExternalLaunch(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
-            wasExternal = savedInstanceState.getBoolean("was_external");
+            wasExternal = savedInstanceState.getBoolean(WAS_EXTERNAL_KEY);
         } else {
             if (getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
                 wasExternal = true;
@@ -199,8 +207,10 @@ public class CommCareHomeActivity
     }
 
     private void processFromLoginLaunch() {
-        if (getIntent().getBooleanExtra(DispatchActivity.START_FROM_LOGIN, false)) {
+        if (getIntent().getBooleanExtra(DispatchActivity.START_FROM_LOGIN, false) &&
+                !loginExtraWasConsumed) {
             getIntent().removeExtra(DispatchActivity.START_FROM_LOGIN);
+            loginExtraWasConsumed = true;
 
             CommCareSession session = CommCareApplication._().getCurrentSession();
             if (session.getCommand() != null) {
@@ -274,15 +284,8 @@ public class CommCareHomeActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean("was_external", wasExternal);
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle inState) {
-        super.onRestoreInstanceState(inState);
-        if (inState.containsKey("was_external")) {
-            wasExternal = inState.getBoolean("was_external");
-        }
+        outState.putBoolean(WAS_EXTERNAL_KEY, wasExternal);
+        outState.putBoolean(EXTRA_CONSUMED_KEY, loginExtraWasConsumed);
     }
 
     @Override
@@ -951,15 +954,25 @@ public class CommCareHomeActivity
      * Decides if we should actually be on the home screen, or else should redirect elsewhere
      */
     private void attemptDispatchHomeScreen() {
-        if (CommCareApplication._().isSyncPending(false)) {
-            // Path 1f: There is a sync pending
-            handlePendingSync();
-        } else {
-            // Path 1g: Display the normal home screen!
-            uiController.refreshView();
+        try {
+            if (CommCareApplication._().isSyncPending(false)) {
+                // There is a sync pending
+                handlePendingSync();
+            } else if (!CommCareApplication._().getSession().isActive()) {
+                // User was logged out somehow, so we want to return to dispatch activity
+                setResult(RESULT_OK);
+                this.finish();
+            } else {
+                // Display the normal home screen!
+                uiController.refreshView();
+            }
+        } catch (SessionUnavailableException e) {
+            // User was logged out somehow, so we want to return to dispatch activity
+            setResult(RESULT_OK);
+            this.finish();
         }
     }
-
+    
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
         final AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         String title = Localization.get("app.workflow.incomplete.continue.title");
