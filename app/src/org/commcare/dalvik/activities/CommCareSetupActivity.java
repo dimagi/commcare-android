@@ -75,7 +75,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         RuntimePermissionRequester {
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
 
-    public static final String KEY_PROFILE_REF = "app_profile_ref";
     private static final String KEY_UI_STATE = "current_install_ui_state";
     private static final String KEY_OFFLINE =  "offline_install";
     private static final String KEY_FROM_EXTERNAL = "from_external";
@@ -174,8 +173,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     this.uiState = UiState.READY_TO_INSTALL;
                     //Now just start up normally.
                 }
-            } else {
-                incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
             }
         } else {
             loadStateFromInstance(savedInstanceState);
@@ -282,9 +279,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         switch (uiState) {
             case READY_TO_INSTALL:
                 if (incomingRef == null || incomingRef.length() == 0) {
-                    Log.e(TAG, "During install: IncomingRef is empty!");
-                    Toast.makeText(getApplicationContext(), "Invalid URL: '" +
-                            incomingRef + "'", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "During install: incomingRef is empty!");
+                    Toast.makeText(getApplicationContext(), "Empty URL provided",
+                            Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -364,7 +361,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 }
                 break;
         }
-        if (result == null) return;
+        if (result == null) {
+            return;
+        }
         incomingRef = result;
         this.uiState = UiState.READY_TO_INSTALL;
 
@@ -382,10 +381,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
 
         uiStateScreenTransition();
-    }
-
-    private String getRef() {
-        return incomingRef;
     }
 
     private CommCareApp getCommCareApp() {
@@ -470,7 +465,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     };
 
             task.connect(this);
-            task.execute(getRef());
+            task.execute(incomingRef);
         } else {
             Log.i(TAG, "During install: blocked a resource install press since a task was already running");
         }
