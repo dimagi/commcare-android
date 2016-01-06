@@ -41,8 +41,8 @@ import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.android.view.HorizontalMediaView;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.core.process.CommCareInstanceInitializer;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
@@ -450,11 +450,11 @@ public class CommCareHomeActivity
             sessionNavigator.stepBack();
             if (isDemoUser()) {
                 // most likely crashing due to data not being available in demo mode
-                CommCareActivity.createErrorDialog(this,
+                UserfacingErrorHandling.createErrorDialog(this,
                         Localization.get("demo.mode.feature.unavailable"),
                         false);
             } else {
-                CommCareActivity.createErrorDialog(this, e.getMessage(), false);
+                UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), false);
             }
         }
     }
