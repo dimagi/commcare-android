@@ -139,11 +139,12 @@ public class CallOutActivity extends Activity
             if (shouldShowPhonePermissionRationale()) {
                 AlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(this, this,
+                                CALL_OR_SMS_PERMISSION_REQUEST,
                                 Localization.get("permission.case.callout.title"),
                                 Localization.get("permission.case.callout.message"));
                 dialog.show();
             } else {
-                requestNeededPermissions();
+                requestNeededPermissions(CALL_OR_SMS_PERMISSION_REQUEST);
             }
         } else {
             dispatchAction();
@@ -169,10 +170,10 @@ public class CallOutActivity extends Activity
     }
 
     @Override
-    public void requestNeededPermissions() {
+    public void requestNeededPermissions(int requestCode) {
         ActivityCompat.requestPermissions(this,
                 new String[]{getPermissionForAction()},
-                CALL_OR_SMS_PERMISSION_REQUEST);
+                requestCode);
     }
 
     @Override

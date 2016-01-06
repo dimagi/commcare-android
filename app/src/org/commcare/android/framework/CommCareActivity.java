@@ -61,16 +61,16 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     TaskConnectorFragment<R> stateHolder;
 
-    //fields for implementing task transitions for CommCareTaskConnector
+    // Fields for implementing task transitions for CommCareTaskConnector
     private boolean inTaskTransition;
 
     /**
      * Used to indicate that the (progress) dialog associated with a task
      * should be dismissed because the task has completed or been canceled.
      */
-    private boolean shouldDismissDialog = true;
+    private boolean dismissLastDialogAfterTransition = true;
 
-    protected AlertDialogFragment dialogToShowOnResume;
+    protected AlertDialogFragment alertDialogToShowOnResume;
 
     private GestureDetector mGestureDetector;
 
@@ -88,6 +88,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * so that the dialog can be shown when fragments have fully resumed.
      */
     private boolean triedBlockingWhilePaused;
+    private boolean triedDismissingWhilePaused;
 
     /**
      * Store the id of a task progress dialog so it can be disabled/enabled
@@ -280,11 +281,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public <A, B, C> void connectTask(CommCareTask<A, B, C, R> task) {
         stateHolder.connectTask(task, this);
 
-        //If we've left an old dialog showing during the task transition and it was from the same task
-        //as the one that is starting, don't dismiss it
+        // If we've left an old dialog showing during the task transition and it was from the same
+        // task as the one that is starting, we want to just leave it up for the next task too
         CustomProgressDialog currDialog = getCurrentProgressDialog();
         if (currDialog != null && currDialog.getTaskId() == task.getTaskId()) {
-            shouldDismissDialog = false;
+            dismissLastDialogAfterTransition = false;
         }
     }
 
@@ -302,9 +303,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * occurred while the activity was paused.
      */
     private void syncTaskBlockingWithDialogFragment() {
-        if (dialogId < 0) {
-            // A task may have finished while paused so blindly try
-            // dismissing the progress dialog fragment.
+        if (triedDismissingWhilePaused) {
+            triedDismissingWhilePaused = false;
             dismissProgressDialog();
         } else if (triedBlockingWhilePaused) {
             triedBlockingWhilePaused = false;
@@ -328,14 +328,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    private void showNewProgressDialog() {
-        // attempt to dismiss the dialog from the last task before showing this
-        // one
-        attemptDismissDialog();
 
-        // ONLY if shouldDismissDialog = true, i.e. if we chose to dismiss the
-        // last dialog during transition, show a new one
-        if (shouldDismissDialog) {
+
+    private void showNewProgressDialog() {
+        // Only show a new dialog if we chose to dismiss the old one; If
+        // dismissLastDialogAfterTransition is false, that means we left the last dialog up and do
+        // not need to create a new one
+        if (dismissLastDialogAfterTransition) {
+            dismissProgressDialog();
             showProgressDialog(dialogId);
         }
     }
@@ -346,7 +346,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
         if (id >= 0) {
             if (inTaskTransition) {
-                shouldDismissDialog = true;
+                dismissLastDialogAfterTransition = true;
+            } else if (areFragmentsPaused) {
+                triedDismissingWhilePaused = true;
             } else {
                 dismissProgressDialog();
             }
@@ -368,18 +370,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public void stopTaskTransition() {
         inTaskTransition = false;
-        attemptDismissDialog();
-        // Re-set shouldDismissDialog to true after this transition cycle is over
-        shouldDismissDialog = true;
-    }
-
-    /**
-     * If shouldDismiss flag has not been set to false in the course of a task transition, then
-     * dismiss the dialog
-     */
-    void attemptDismissDialog() {
-        if (shouldDismissDialog) {
+        if (dismissLastDialogAfterTransition) {
             dismissProgressDialog();
+            // Re-set shouldDismissDialog to true after this transition cycle is over
+            dismissLastDialogAfterTransition = true;
         }
     }
 
@@ -567,9 +561,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public void showPendingAlertDialog() {
-        if (dialogToShowOnResume != null && getCurrentAlertDialog() == null) {
-            dialogToShowOnResume.show(getSupportFragmentManager(), KEY_ALERT_DIALOG_FRAG);
-            dialogToShowOnResume = null;
+        if (alertDialogToShowOnResume != null && getCurrentAlertDialog() == null) {
+            alertDialogToShowOnResume.show(getSupportFragmentManager(), KEY_ALERT_DIALOG_FRAG);
+            alertDialogToShowOnResume = null;
         }
     }
 
@@ -581,7 +575,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
         AlertDialogFragment dialog = AlertDialogFragment.fromFactory(f);
         if (areFragmentsPaused) {
-            dialogToShowOnResume = dialog;
+            alertDialogToShowOnResume = dialog;
         } else {
             dialog.show(getSupportFragmentManager(), KEY_ALERT_DIALOG_FRAG);
         }

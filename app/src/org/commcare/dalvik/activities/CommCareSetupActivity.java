@@ -25,11 +25,12 @@ import android.widget.Toast;
 
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.fragments.ContainerFragment;
-import org.commcare.android.fragments.SetupEnterURLFragment;
-import org.commcare.android.fragments.SelectInstallModeFragment;
 import org.commcare.android.fragments.InstallConfirmFragment;
+import org.commcare.android.fragments.SelectInstallModeFragment;
+import org.commcare.android.fragments.SetupEnterURLFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.Permissions;
 import org.commcare.android.framework.RuntimePermissionRequester;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.notifications.NotificationMessage;
@@ -81,7 +82,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final String KEY_FROM_MANAGER = "from_manager";
     private static final String KEY_MANUAL_SMS_INSTALL = "sms-install-triggered-manually";
 
-    private static final int SMS_PERMISSIONS_REQUEST = 1;
+    private static final int SMS_PERMISSIONS_REQUEST = 2;
 
     /**
      * Should the user be logged out when this activity is done?
@@ -187,6 +188,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         "incomingRef is: " + incomingRef + " " +
                         "startAllowed is: " + startAllowed + " "
         );
+
+        Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
 
         performSMSInstall(false);
     }
@@ -505,11 +508,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     Manifest.permission.READ_SMS)) {
                 AlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(this, this,
+                                SMS_PERMISSIONS_REQUEST,
                                 Localization.get("permission.sms.install.title"),
                                 Localization.get("permission.sms.install.message"));
                 dialog.show();
             } else {
-                requestNeededPermissions();
+                requestNeededPermissions(SMS_PERMISSIONS_REQUEST);
             }
         } else {
             scanSMSLinks(installTriggeredManually);
@@ -517,10 +521,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    public void requestNeededPermissions() {
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.READ_SMS},
-                SMS_PERMISSIONS_REQUEST);
+    public void requestNeededPermissions(int requestCode) {
+        if (requestCode == SMS_PERMISSIONS_REQUEST) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_SMS},
+                    requestCode);
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    Permissions.getAppPermissions(),
+                    requestCode);
+        }
     }
 
     /**
@@ -814,6 +824,26 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     scanSMSLinks(manualSMSInstall);
                 }
             }
+        } else if (requestCode == Permissions.ALL_PERMISSIONS_REQUEST) {
+            String[] requiredPerms = Permissions.getRequiredPerms();
+
+            for (int i = 0; i < permissions.length; i++) {
+                for (String requiredPerm : requiredPerms) {
+                    if (requiredPerm.equals(permissions[i]) &&
+                            grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                        showMissingPermissionState();
+                        return;
+                    }
+                }
+            }
         }
+    }
+
+    private void showMissingPermissionState() {
+        // TODO PLM: instead of popping up the same message we should disable
+        // install buttons and show a message and button to re-request the
+        // permissions.
+        Permissions.acquireAllAppPermissions(this, this,
+                Permissions.ALL_PERMISSIONS_REQUEST);
     }
 }
