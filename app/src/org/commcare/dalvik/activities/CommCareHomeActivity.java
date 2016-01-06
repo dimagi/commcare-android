@@ -951,15 +951,25 @@ public class CommCareHomeActivity
      * Decides if we should actually be on the home screen, or else should redirect elsewhere
      */
     private void attemptDispatchHomeScreen() {
-        if (CommCareApplication._().isSyncPending(false)) {
-            // Path 1f: There is a sync pending
-            handlePendingSync();
-        } else {
-            // Path 1g: Display the normal home screen!
-            uiController.refreshView();
+        try {
+            if (CommCareApplication._().isSyncPending(false)) {
+                // There is a sync pending
+                handlePendingSync();
+            } else if (!CommCareApplication._().getSession().isActive()) {
+                // User was logged out somehow, so we want to return to dispatch activity
+                setResult(RESULT_OK);
+                this.finish();
+            } else {
+                // Display the normal home screen!
+                uiController.refreshView();
+            }
+        } catch (SessionUnavailableException e) {
+            // User was logged out somehow, so we want to return to dispatch activity
+            setResult(RESULT_OK);
+            this.finish();
         }
     }
-
+    
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
         final AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         String title = Localization.get("app.workflow.incomplete.continue.title");
