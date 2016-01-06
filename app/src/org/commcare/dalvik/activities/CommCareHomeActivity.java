@@ -150,7 +150,6 @@ public class CommCareHomeActivity
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null) {
-            wasExternal = savedInstanceState.getBoolean(WAS_EXTERNAL_KEY);
             loginExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
         }
 
