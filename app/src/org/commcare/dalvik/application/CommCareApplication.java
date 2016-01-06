@@ -771,7 +771,7 @@ public class CommCareApplication extends Application {
         CommCareApplication._().closeUserSession();
     }
 
-    private void prepareTemporaryStorage() {
+    public void prepareTemporaryStorage() {
         String tempRoot = this.getAndroidFsTemp();
         FileUtil.deleteFileOrDir(tempRoot);
         boolean success = FileUtil.createFolder(tempRoot);

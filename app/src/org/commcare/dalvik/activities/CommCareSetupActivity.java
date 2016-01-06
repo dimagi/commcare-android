@@ -825,6 +825,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     }
                 }
             }
+            // external storage perms were enabled, so setup temp storage,
+            // which fails in application setup without external storage perms.
+            CommCareApplication._().prepareTemporaryStorage();
         }
     }
 
