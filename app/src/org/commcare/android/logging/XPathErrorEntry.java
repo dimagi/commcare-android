@@ -40,9 +40,13 @@ public class XPathErrorEntry extends LogEntry implements Persistable, IMetaData 
     protected XPathErrorEntry(String expression, String errorMessage) {
         super(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, errorMessage, new Date());
 
-        this.expression = expression;
+        if (expression == null) {
+            this.expression = "";
+        } else {
+            this.expression = expression;
+        }
         this.sessionFramePath = getCurrentSession();
-        this.appVersion = getAppVersion();
+        this.appVersion = lookupCurrentAppVersion();
     }
 
     private static String getCurrentSession() {
@@ -55,7 +59,7 @@ public class XPathErrorEntry extends LogEntry implements Persistable, IMetaData 
         }
     }
 
-    private int getAppVersion() {
+    private int lookupCurrentAppVersion() {
         CommCareApp app = CommCareApplication._().getCurrentApp();
 
         if (app != null) {
@@ -71,6 +75,10 @@ public class XPathErrorEntry extends LogEntry implements Persistable, IMetaData 
 
     public String getSessionPath() {
         return sessionFramePath;
+    }
+
+    public int getAppVersion() {
+        return appVersion;
     }
 
     @Override
