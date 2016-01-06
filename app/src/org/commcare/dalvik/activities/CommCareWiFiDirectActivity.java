@@ -21,17 +21,9 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import org.commcare.android.adapters.HomeScreenAdapter;
-import org.commcare.android.adapters.SquareButtonViewHolder;
 import org.commcare.android.adapters.WiFiDirectAdapter;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
@@ -51,7 +43,6 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.tasks.ZipTask;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
-import org.commcare.android.view.SquareButtonWithText;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
@@ -173,15 +164,9 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
                 grid.requestLayout();
                 adapter.notifyDataSetChanged();
-                configUI();
             }
         });
     }
-
-    private void configUI() {
-
-    }
-
 
     /**
      * register the broadcast receiver
