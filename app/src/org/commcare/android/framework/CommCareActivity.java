@@ -89,6 +89,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * so that the dialog can be shown when fragments have fully resumed.
      */
     private boolean triedBlockingWhilePaused;
+    private boolean triedDismissingWhilePaused;
 
     /**
      * Store the id of a task progress dialog so it can be disabled/enabled
@@ -303,9 +304,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * occurred while the activity was paused.
      */
     private void syncTaskBlockingWithDialogFragment() {
-        if (dialogId < 0) {
-            // A task may have finished while paused so blindly try
-            // dismissing the progress dialog fragment.
+        if (triedDismissingWhilePaused) {
+            triedDismissingWhilePaused = false;
             dismissProgressDialog();
         } else if (triedBlockingWhilePaused) {
             triedBlockingWhilePaused = false;
@@ -348,6 +348,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         if (id >= 0) {
             if (inTaskTransition) {
                 shouldDismissDialog = true;
+            } else if (areFragmentsPaused) {
+                triedDismissingWhilePaused = true;
             } else {
                 dismissProgressDialog();
             }
