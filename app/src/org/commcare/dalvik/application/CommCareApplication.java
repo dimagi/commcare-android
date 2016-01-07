@@ -2,6 +2,7 @@ package org.commcare.dalvik.application;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -74,6 +75,7 @@ import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.DispatchActivity;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.activities.MessageActivity;
 import org.commcare.dalvik.activities.UnrecoverableErrorActivity;
@@ -238,11 +240,31 @@ public class CommCareApplication extends Application {
         i.putExtra(UnrecoverableErrorActivity.EXTRA_ERROR_MESSAGE, message);
         i.putExtra(UnrecoverableErrorActivity.EXTRA_USE_MESSAGE, useExtraMessage);
 
-        // start a new stack and forget where we were (so we don't restart the
-        // app from there)
+        // start a new stack and forget where we were (so we don't restart the app from there)
         i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         c.startActivity(i);
+    }
+
+    public static void restartCommCare(Activity activity) {
+        Intent intent = new Intent(activity, DispatchActivity.class);
+
+        // Make sure that the new stack starts with a dispatch activity, and clear everything
+        // between.
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                Intent.FLAG_ACTIVITY_SINGLE_TOP |
+                Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
+        } else {
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
+        }
+
+        activity.moveTaskToBack(true);
+        activity.startActivity(intent);
+        activity.finish();
+
+        System.exit(0);
     }
 
     public void startUserSession(byte[] symetricKey, UserKeyRecord record, boolean restoreSession) {
