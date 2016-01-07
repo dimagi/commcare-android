@@ -3,7 +3,6 @@ package org.commcare.dalvik.activities;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 
 import org.commcare.dalvik.application.CommCareApplication;
@@ -40,7 +39,7 @@ public class UnrecoverableErrorActivity extends Activity {
         AlertDialogFactory factory = new AlertDialogFactory(this, title, message);
         DialogInterface.OnClickListener buttonListener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
-               CommCareApplication._().rebootCommCare(UnrecoverableErrorActivity.this);
+               CommCareApplication._().restartCommCare(UnrecoverableErrorActivity.this);
             }
         };
         factory.setPositiveButton(Localization.get("app.storage.missing.button"), buttonListener);

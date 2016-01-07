@@ -2,7 +2,6 @@ package org.commcare.dalvik.activities;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,6 +11,7 @@ import android.widget.TextView;
 
 import org.commcare.android.util.CommCareExceptionHandler;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -54,7 +54,7 @@ public class CrashWarningActivity extends Activity {
         closeButton.setText(Localization.get("crash.warning.button"));
         closeButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                restartCommCare();
+                CommCareApplication._().restartCommCare(CrashWarningActivity.this);
             }
         });
 
@@ -64,20 +64,6 @@ public class CrashWarningActivity extends Activity {
                 toggleErrorMessageVisibility();
             }
         });
-    }
-
-    private void restartCommCare() {
-        Intent intent = new Intent(CrashWarningActivity.this, DispatchActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                Intent.FLAG_ACTIVITY_SINGLE_TOP |
-                Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-        } else {
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
-        }
-        CrashWarningActivity.this.startActivity(intent);
-        CrashWarningActivity.this.finish();
     }
 
     private void setupText() {

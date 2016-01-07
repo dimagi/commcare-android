@@ -1,10 +1,7 @@
 package org.commcare.dalvik.activities;
 
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.AlertDialog;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -154,8 +151,7 @@ public class SingleAppManagerActivity extends Activity {
     private void uninstall() {
         CommCareApplication._().expireUserSession();
         CommCareApplication._().uninstall(appRecord);
-        CommCareApplication._().rebootCommCare(SingleAppManagerActivity.this);
-        //rebootCommCare();
+        CommCareApplication._().restartCommCare(SingleAppManagerActivity.this);
     }
 
     /**
@@ -244,32 +240,6 @@ public class SingleAppManagerActivity extends Activity {
         CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
         Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
         startActivityForResult(i, CommCareHomeActivity.UPGRADE_APP);
-    }
-
-    /**
-     * Relaunches CommCare after an app has been uninstalled
-     */
-    private void rebootCommCare() {
-        Intent intent = new Intent(SingleAppManagerActivity.this, DispatchActivity.class);
-
-        //Make sure that the new stack starts with a dispatch activity, and clear everything
-        // between.
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET |
-                Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                Intent.FLAG_ACTIVITY_SINGLE_TOP |
-                Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        SingleAppManagerActivity.this.startActivity(intent);
-
-        System.runFinalizersOnExit(true);
-        System.exit(0);
-        /*Context c = getApplicationContext();
-        Intent i = new Intent(c, DispatchActivity.class);
-        int mPendingIntentId = 123456;
-        PendingIntent mPendingIntent = PendingIntent.getActivity(c, mPendingIntentId, i,
-                PendingIntent.FLAG_CANCEL_CURRENT);
-        AlarmManager mgr = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
-        mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
-        System.exit(0);*/
     }
 
     /**
