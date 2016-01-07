@@ -404,8 +404,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         // either case
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
         if (currentApp == null || !currentApp.getAppRecord().isUsable()) {
-            Intent i = new Intent(this, DispatchActivity.class);
-            startActivity(i);
+            // send back to dispatch activity
+            setResult(RESULT_OK);
+            this.finish();
             return;
         }
 

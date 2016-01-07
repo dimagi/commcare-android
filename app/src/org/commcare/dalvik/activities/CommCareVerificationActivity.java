@@ -125,8 +125,10 @@ public class CommCareVerificationActivity
         // the manager, or if the state of installed apps calls for it
         boolean shouldBeHere = fromManager || fromSettings || CommCareApplication._().shouldSeeMMVerification();
         if (!shouldBeHere) {
-            Intent i = new Intent(this, DispatchActivity.class);
-            startActivity(i);
+            // send back to dispatch activity
+            setResult(RESULT_OK);
+            this.finish();
+            return;
         }
     }
 
