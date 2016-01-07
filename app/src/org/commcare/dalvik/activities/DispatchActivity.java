@@ -83,15 +83,14 @@ public class DispatchActivity extends FragmentActivity {
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
 
         if (currentApp == null) {
-            // no app present, launch setup activity
             if (CommCareApplication._().usableAppsPresent()) {
-                // This is BAD -- means we ended up at home screen with no seated app, but there
-                // are other usable apps available. Should not be able to happen.
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "In CommCareHomeActivity with no" +
-                        "seated app, but there are other usable apps available on the device.");
+                CommCareApplication._().initFirstUsableAppRecord();
+                // Recurse in order to make the correct decision based on the new state
+                dispatch();
+            } else {
+                Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+                this.startActivityForResult(i, INIT_APP);
             }
-            Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-            this.startActivityForResult(i, INIT_APP);
         } else {
             // Note that the order in which these conditions are checked matters!!
             try {
