@@ -1110,7 +1110,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
             factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new AndroidInstanceInitializer(session)));
             Detail detail = factory.getDetail();
-            detailView.setDetail(detail);
+            detailView.showMenu();
 
             if (detail.isCompound()) {
                 // border around right panel doesn't look right when there are tabs
