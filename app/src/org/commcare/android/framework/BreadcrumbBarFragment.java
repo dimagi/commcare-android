@@ -231,11 +231,10 @@ public class BreadcrumbBarFragment extends Fragment {
                         AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
                         CommCareSession session = asw.getSession();
 
-                        NodeEntityFactory factory = new NodeEntityFactory(session.getDetail(inlineDetail), session.getEvaluationContext(new AndroidInstanceInitializer(session)));
-                        Detail detail = factory.getDetail();
+                        Detail detail = session.getDetail(inlineDetail);
                         mInternalDetailView.setDetail(detail);
 
-                        mInternalDetailView.refresh(factory.getDetail(), tileData.second,0);
+                        mInternalDetailView.refresh(detail, tileData.second,0);
                     }
                     infoButton.setImageResource(R.drawable.icon_info_fill_brandbg);
                     expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));

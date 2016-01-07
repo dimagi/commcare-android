@@ -181,14 +181,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         selectDatum = session.getNeededDatum();
-
         shortSelect = session.getDetail(selectDatum.getShortDetail());
-
         mNoDetailMode = selectDatum.getLongDetail() == null;
 
         if (this.getString(R.string.panes).equals("two") && !mNoDetailMode) {
             //See if we're on a big 'ol screen.
-
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 //If we're in landscape mode, we can display this with the awesome UI.
 
