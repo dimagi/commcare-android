@@ -154,7 +154,8 @@ public class SingleAppManagerActivity extends Activity {
     private void uninstall() {
         CommCareApplication._().expireUserSession();
         CommCareApplication._().uninstall(appRecord);
-        rebootCommCare();
+        CommCareApplication._().rebootCommCare(SingleAppManagerActivity.this);
+        //rebootCommCare();
     }
 
     /**
@@ -249,14 +250,26 @@ public class SingleAppManagerActivity extends Activity {
      * Relaunches CommCare after an app has been uninstalled
      */
     private void rebootCommCare() {
-        Context c = getApplicationContext();
+        Intent intent = new Intent(SingleAppManagerActivity.this, DispatchActivity.class);
+
+        //Make sure that the new stack starts with a dispatch activity, and clear everything
+        // between.
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET |
+                Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                Intent.FLAG_ACTIVITY_SINGLE_TOP |
+                Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        SingleAppManagerActivity.this.startActivity(intent);
+
+        System.runFinalizersOnExit(true);
+        System.exit(0);
+        /*Context c = getApplicationContext();
         Intent i = new Intent(c, DispatchActivity.class);
         int mPendingIntentId = 123456;
         PendingIntent mPendingIntent = PendingIntent.getActivity(c, mPendingIntentId, i,
                 PendingIntent.FLAG_CANCEL_CURRENT);
         AlarmManager mgr = (AlarmManager) c.getSystemService(Context.ALARM_SERVICE);
         mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 100, mPendingIntent);
-        System.exit(0);
+        System.exit(0);*/
     }
 
     /**
