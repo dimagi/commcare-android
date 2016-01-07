@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.view;
 
 import android.content.Context;
@@ -93,8 +90,8 @@ public class EntityDetailView extends FrameLayout {
 
     DetailCalloutListener listener;
 
-    public EntityDetailView(Context context, CommCareSession session, Detail d,
-                            Entity e, int index, int detailNumber) {
+    public EntityDetailView(Context context, Detail d, Entity e,
+                            int index, int detailNumber) {
         super(context);
 
         detailRow = (LinearLayout)View.inflate(context, R.layout.component_entity_detail_item, null);
@@ -112,8 +109,6 @@ public class EntityDetailView extends FrameLayout {
         audioButton.setVisibility(View.GONE);
 
         callout = (Button)detailRow.findViewById(R.id.detail_value_phone);
-        //TODO: Still useful?
-        //callout.setInputType(InputType.TYPE_CLASS_PHONE);
         addressView = detailRow.findViewById(R.id.detail_address_view);
         addressText = (TextView)addressView.findViewById(R.id.detail_address_text);
         addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
@@ -131,14 +126,14 @@ public class EntityDetailView extends FrameLayout {
 
         fill = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         this.addView(detailRow, FrameLayout.LayoutParams.FILL_PARENT, FrameLayout.LayoutParams.WRAP_CONTENT);
-        setParams(session, d, e, index, detailNumber);
+        setParams(d, e, index, detailNumber);
     }
 
     public void setCallListener(final DetailCalloutListener listener) {
         this.listener = listener;
     }
 
-    public void setParams(CommCareSession session, Detail d, Entity e, int index, int detailNumber) {
+    public void setParams(Detail d, Entity e, int index, int detailNumber) {
         String labelText = d.getFields()[index].getHeader().evaluate();
         label.setText(labelText);
         spacer.setText(labelText);
@@ -159,7 +154,6 @@ public class EntityDetailView extends FrameLayout {
                 updateCurrentView(PHONE, callout);
             }
         } else if (FORM_CALLOUT.equals(form) && (field instanceof CalloutData)) {
-
             final CalloutData callout = (CalloutData)field;
 
             String imagePath = callout.getImage();
@@ -383,9 +377,6 @@ public class EntityDetailView extends FrameLayout {
         }
     }
 
-    /*
-     * Appropriately set current & currentView.
-     */
     private void updateCurrentView(int newCurrent, View newView) {
         if (newCurrent != current) {
             currentView.setVisibility(View.GONE);
@@ -402,12 +393,8 @@ public class EntityDetailView extends FrameLayout {
         }
     }
 
-    /*
-     * Get current device screen width
-     */
     private int getScreenWidth() {
         Display display = ((WindowManager)this.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         return display.getWidth();
     }
-
 }
