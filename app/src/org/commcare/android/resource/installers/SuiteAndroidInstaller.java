@@ -55,6 +55,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 
             SuiteParser parser = new SuiteParser(local.getStream(),
                     instance.getGlobalResourceTable(), null, instance.getFixtureStorage());
+            parser.setSkipResources(true);
 
             Suite s = parser.parse();
 
