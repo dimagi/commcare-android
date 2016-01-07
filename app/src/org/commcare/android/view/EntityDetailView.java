@@ -23,7 +23,6 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
-import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.graph.GraphData;

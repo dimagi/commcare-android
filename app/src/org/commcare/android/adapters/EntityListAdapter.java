@@ -40,12 +40,12 @@ import java.util.List;
 import java.util.Locale;
 
 /**
+ * This adapter class handles displaying the cases for a CommCareODK user.
+ * Depending on the <grid> block of the Detail this adapter is constructed with, cases might be
+ * displayed as normal EntityViews or as AdvancedEntityViews
+ *
  * @author ctsims
  * @author wspride
- *         <p/>
- *         This adapter class handles displaying the cases for a CommCareODK user.
- *         Depending on the <grid> block of the Detail this adapter is constructed with, cases might be
- *         displayed as normal EntityViews or as AdvancedEntityViews
  */
 public class EntityListAdapter implements ListAdapter {
 
@@ -276,12 +276,10 @@ public class EntityListAdapter implements ListAdapter {
             }
             if (mAsyncMode) {
                 Collections.sort(matchScores, new Comparator<Pair<Integer, Integer>>() {
-
                     @Override
                     public int compare(Pair<Integer, Integer> lhs, Pair<Integer, Integer> rhs) {
                         return lhs.second - rhs.second;
                     }
-
                 });
             }
 
@@ -319,7 +317,6 @@ public class EntityListAdapter implements ListAdapter {
     }
 
     private void sort(int[] fields, boolean reverse) {
-
         this.reverseSort = reverse;
 
         hasWarned = false;
@@ -328,7 +325,7 @@ public class EntityListAdapter implements ListAdapter {
 
         java.util.Collections.sort(full, new Comparator<Entity<TreeReference>>() {
 
-
+            @Override
             public int compare(Entity<TreeReference> object1, Entity<TreeReference> object2) {
                 for (int aCurrentSort : currentSort) {
                     boolean reverseLocal = (detail.getFields()[aCurrentSort].getSortDirection() == DetailField.DIRECTION_DESCENDING) ^ reverseSort;
@@ -417,9 +414,7 @@ public class EntityListAdapter implements ListAdapter {
                     //So right now this will fail 100% silently, which is bad.
                     return null;
                 }
-
             }
-
         });
     }
 
@@ -481,7 +476,7 @@ public class EntityListAdapter implements ListAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (actionEnabled && position == actionPosition) {
-            HorizontalMediaView tiav = (HorizontalMediaView) convertView;
+            HorizontalMediaView tiav = (HorizontalMediaView)convertView;
 
             if (tiav == null) {
                 tiav = new HorizontalMediaView(context);
@@ -490,7 +485,7 @@ public class EntityListAdapter implements ListAdapter {
             tiav.setBackgroundResource(R.drawable.list_bottom_tab);
             //We're gonna double pad this because we want to give it some visual distinction
             //and keep the icon more centered
-            int padding = (int) context.getResources().getDimension(R.dimen.entity_padding);
+            int padding = (int)context.getResources().getDimension(R.dimen.entity_padding);
             tiav.setPadding(padding, padding, padding, padding);
             return tiav;
         }
@@ -498,7 +493,7 @@ public class EntityListAdapter implements ListAdapter {
         Entity<TreeReference> entity = current.get(position);
         // if we use a <grid>, setup an AdvancedEntityView
         if (usesGridView) {
-            GridEntityView emv = (GridEntityView) convertView;
+            GridEntityView emv = (GridEntityView)convertView;
             int[] titleColor = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.entity_select_title_text_color});
             if (emv == null) {
                 emv = new GridEntityView(context, detail, entity, currentSearchTerms, mImageLoader, mFuzzySearchEnabled);
@@ -512,7 +507,7 @@ public class EntityListAdapter implements ListAdapter {
         }
         // if not, just use the normal row
         else {
-            EntityView emv = (EntityView) convertView;
+            EntityView emv = (EntityView)convertView;
 
             if (emv == null) {
                 emv = new EntityView(context, detail, entity, tts, currentSearchTerms, position, mFuzzySearchEnabled);
