@@ -61,6 +61,9 @@ public class EntityView extends LinearLayout {
     private boolean mFuzzySearchEnabled = true;
     private boolean mIsAsynchronous = false;
 
+    /**
+     * Creates row entry for entity
+     */
     private EntityView(Context context, Detail d, Entity e, TextToSpeech tts,
                        String[] searchTerms, long rowId, boolean mFuzzySearchEnabled) {
         super(context);
@@ -93,6 +96,9 @@ public class EntityView extends LinearLayout {
         this.mFuzzySearchEnabled = mFuzzySearchEnabled;
     }
 
+    /**
+     * Creates row entry for column headers
+     */
     private EntityView(Context context, Detail d, String[] headerText) {
         super(context);
         this.context = context;
