@@ -240,10 +240,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    protected boolean isTopNavEnabled() {
-        return false;
-    }
-
     @Override
     protected void onResume() {
         super.onResume();

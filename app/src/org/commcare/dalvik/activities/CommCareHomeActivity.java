@@ -653,11 +653,6 @@ public class CommCareHomeActivity
         return "";
     }
 
-    @Override
-    protected boolean isTopNavEnabled() {
-        return false;
-    }
-
     // region - implementing methods for SessionNavigationResponder
 
     @Override
