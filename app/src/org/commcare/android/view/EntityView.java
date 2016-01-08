@@ -133,7 +133,7 @@ public class EntityView extends LinearLayout {
     private View initView(Object data, String form, ViewId uniqueId, String sortField) {
         View retVal;
         if (FORM_IMAGE.equals(form)) {
-            retVal = (ImageView) View.inflate(context, R.layout.entity_item_image, null);
+            retVal = View.inflate(context, R.layout.entity_item_image, null);
         } else if (FORM_AUDIO.equals(form)) {
             String text = (String) data;
             AudioButton b;
@@ -209,7 +209,7 @@ public class EntityView extends LinearLayout {
         }
     }
 
-    /*
+    /**
      * Updates the AudioButton layout that is passed in, based on the
      * new id and source
      */
@@ -222,7 +222,7 @@ public class EntityView extends LinearLayout {
         }
     }
 
-    /*
+    /**
      * Updates the text layout that is passed in, based on the new text
      */
     private void setupTextAndTTSLayout(View layout, final String text, String searchField) {

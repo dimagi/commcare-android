@@ -231,7 +231,6 @@ public class BreadcrumbBarFragment extends Fragment {
 
                         Detail detail = session.getDetail(inlineDetail);
                         mInternalDetailView.showMenu();
-
                         mInternalDetailView.refresh(detail, tileData.second,0);
                     }
                     infoButton.setImageResource(R.drawable.icon_info_fill_brandbg);
