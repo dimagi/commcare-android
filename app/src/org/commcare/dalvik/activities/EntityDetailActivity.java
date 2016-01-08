@@ -15,7 +15,6 @@ import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.util.SessionStateUninitException;
@@ -42,7 +41,7 @@ public class EntityDetailActivity
     public static final String DETAIL_ID = "eda_detail_id";
     public static final String DETAIL_PERSISTENT_ID = "eda_persistent_id";
 
-    private NodeEntityFactory factory;
+    private Detail detail;
     private Pair<Detail, TreeReference> mEntityContext;
     private TreeReference mTreeReference;
     private int detailIndex;
@@ -82,9 +81,7 @@ public class EntityDetailActivity
             viewMode = session.isViewCommand(session.getCommand());
         }
 
-        factory =
-                new NodeEntityFactory(session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID)),
-                        asw.getEvaluationContext());
+        detail = session.getDetail(getIntent().getStringExtra(EntityDetailActivity.DETAIL_ID));
 
         mTreeReference =
                 SerializationUtil.deserializeFromIntent(getIntent(),
@@ -104,7 +101,6 @@ public class EntityDetailActivity
          * be useful to include the debugging print statement below.
          */
         this.detailIndex = i.getIntExtra("entity_detail_index", -1);
-        //if (detailIndex == -1) { System.out.println("WARNING: detailIndex not assigned from intent"); }
 
         if (this.getString(R.string.panes).equals("two")) {
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -128,7 +124,7 @@ public class EntityDetailActivity
         }
 
         mDetailView.setRoot((ViewGroup)container.findViewById(R.id.entity_detail_tabs));
-        mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex);
+        mDetailView.refresh(detail, mTreeReference, detailIndex);
 
         mDetailView.showMenu();
     }
@@ -156,7 +152,7 @@ public class EntityDetailActivity
         switch (requestCode) {
             case DetailCalloutListenerDefaultImpl.CALL_OUT:
                 if (resultCode == RESULT_CANCELED) {
-                    mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex);
+                    mDetailView.refresh(detail, mTreeReference, detailIndex);
                     return;
                 } else {
                     long duration = intent.getLongExtra(CallOutActivity.CALL_DURATION, 0);
