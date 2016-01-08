@@ -2218,26 +2218,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         finish();
     }
 
-    private boolean isBlockingUserInput() {
-        View cover = this.findViewById(R.id.form_entry_cover);
-
-        return cover != null && cover.getVisibility() == View.VISIBLE;
-    }
-
     @Override
     protected boolean onBackwardSwipe() {
-        if(isBlockingUserInput()) {
-            return true;
-        }
         showPreviousView(true);
         return true;
     }
 
     @Override
     protected boolean onForwardSwipe() {
-        if(isBlockingUserInput()) {
-            return true;
-        }
         //We've already computed the "is there more coming" stuff intensely in the the nav details
         //and set the forward button tag appropriately, so use that to determine whether we can
         //swipe forward.
