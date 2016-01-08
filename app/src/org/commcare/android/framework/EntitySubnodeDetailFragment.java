@@ -59,7 +59,7 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
             for (int i = 0; i < headers.length; ++i) {
                 headers[i] = childDetail.getFields()[i].getHeader().evaluate();
             }
-            EntityView headerView = new EntityView(thisActivity, childDetail, headers);
+            EntityView headerView = EntityView.buildHeadersEntityView(thisActivity, childDetail, headers);
             headerLayout.removeAllViews();
             headerLayout.addView(headerView);
             headerLayout.setVisibility(View.VISIBLE);

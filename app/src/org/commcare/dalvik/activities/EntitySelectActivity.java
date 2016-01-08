@@ -474,7 +474,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             // only add headers if we're not using grid mode
             if (!shortSelect.usesGridView()) {
                 //Hm, sadly we possibly need to rebuild this each time.
-                EntityView v = new EntityView(this, shortSelect, headers);
+                EntityView v = EntityView.buildHeadersEntityView(this, shortSelect, headers);
                 header.addView(v);
             }
 

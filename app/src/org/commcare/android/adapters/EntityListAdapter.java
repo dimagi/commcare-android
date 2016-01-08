@@ -510,7 +510,7 @@ public class EntityListAdapter implements ListAdapter {
             EntityView emv = (EntityView)convertView;
 
             if (emv == null) {
-                emv = new EntityView(context, detail, entity, tts, currentSearchTerms, position, mFuzzySearchEnabled);
+                emv = EntityView.buildEntryEntityView(context, detail, entity, tts, currentSearchTerms, position, mFuzzySearchEnabled);
             } else {
                 emv.setSearchTerms(currentSearchTerms);
                 emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);

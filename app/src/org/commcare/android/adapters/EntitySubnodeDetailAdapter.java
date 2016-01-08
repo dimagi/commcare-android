@@ -91,7 +91,7 @@ public class EntitySubnodeDetailAdapter implements ListAdapter, ModifiableEntity
         EntityView view = (EntityView)convertView;
         Entity entity = this.entities.get(position);
         if (view == null) {
-            view = new EntityView(context, detail, entity, null, null, position, false);
+            view = EntityView.buildEntryEntityView(context, detail, entity, null, null, position, false);
         } else {
             view.refreshViewsForNewEntity(entity, false, position);
         }
