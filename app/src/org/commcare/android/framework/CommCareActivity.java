@@ -64,7 +64,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     // Fields for implementing task transitions for CommCareTaskConnector
     private boolean inTaskTransition;
-    private boolean isMainScreenBlocked;
+
 
     /**
      * Used to indicate that the (progress) dialog associated with a task
@@ -98,6 +98,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      */
     private int dialogId = -1;
     private ContainerFragment<Bundle> managedUiState;
+    private boolean isMainScreenBlocked;
+
 
     @Override
     @TargetApi(14)
