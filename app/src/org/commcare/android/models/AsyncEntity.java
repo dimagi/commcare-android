@@ -185,22 +185,22 @@ public class AsyncEntity extends Entity<TreeReference> {
     }
 
     @Override
-    public boolean isValidField(int i) {
+    public boolean isValidField(int fieldIndex) {
         //NOTE: This totally jacks the asynchronicity. It's only used in
         //detail fields for now, so not super important, but worth bearing
         //in mind
         synchronized (mAsyncLock) {
             loadVariableContext();
-            if (getField(i).equals("")) {
+            if (getField(fieldIndex).equals("")) {
                 return false;
             }
 
             try {
-                this.relevancyData[i] = this.fields[i].isRelevant(this.context);
+                this.relevancyData[fieldIndex] = this.fields[fieldIndex].isRelevant(this.context);
             } catch (XPathSyntaxException e) {
-                throw new RuntimeException("Invalid relevant condition for field : " + fields[i].getHeader().toString());
+                throw new RuntimeException("Invalid relevant condition for field : " + fields[fieldIndex].getHeader().toString());
             }
-            return this.relevancyData[i];
+            return this.relevancyData[fieldIndex];
         }
     }
 
