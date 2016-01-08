@@ -31,7 +31,7 @@ public class NodeEntityFactory {
 
     public Entity<TreeReference> getEntity(TreeReference data) {
         EvaluationContext nodeContext = new EvaluationContext(ec, data);
-        getDetail().populateEvaluationContextVariables(nodeContext);
+        detail.populateEvaluationContextVariables(nodeContext);
 
         int length = detail.getHeaderForms().length;
         Object[] details = new Object[length];
@@ -39,7 +39,7 @@ public class NodeEntityFactory {
         String[] backgroundDetails = new String[length];
         boolean[] relevancyDetails = new boolean[length];
         int count = 0;
-        for (DetailField f : this.getDetail().getFields()) {
+        for (DetailField f : detail.getFields()) {
             try {
                 details[count] = f.getTemplate().evaluate(nodeContext);
                 Text sortText = f.getSort();
