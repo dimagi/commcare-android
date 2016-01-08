@@ -22,7 +22,6 @@ import java.util.List;
 public class EntityDetailAdapter implements ListAdapter, ModifiableEntityDetailAdapter {
 
     private final Context context;
-    private final CommCareSession session;
     private final Detail detail;
     private final Entity entity;
     private final DetailCalloutListener listener;
@@ -31,10 +30,10 @@ public class EntityDetailAdapter implements ListAdapter, ModifiableEntityDetailA
 
     private ListItemViewModifier modifier;
 
-    public EntityDetailAdapter(Context context, CommCareSession session, Detail detail, Entity entity,
-                               DetailCalloutListener listener, int detailIndex, ListItemViewModifier modifier) {
+    public EntityDetailAdapter(Context context, Detail detail, Entity entity,
+                               DetailCalloutListener listener, int detailIndex,
+                               ListItemViewModifier modifier) {
         this.context = context;
-        this.session = session;
         this.detail = detail;
         this.entity = entity;
         this.listener = listener;

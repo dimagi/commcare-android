@@ -80,7 +80,7 @@ public class EntityDetailFragment extends Fragment {
         final DetailCalloutListener detailCalloutListener =
                 thisActivity instanceof DetailCalloutListener ? ((DetailCalloutListener)thisActivity) : null;
         adapter = new EntityDetailAdapter(
-                thisActivity, asw.getSession(), childDetail, entity,
+                thisActivity, childDetail, entity,
                 detailCalloutListener, getArguments().getInt(DETAIL_INDEX),
                 modifier
         );
