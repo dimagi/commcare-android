@@ -61,12 +61,13 @@ public class EntityView extends LinearLayout {
     private boolean mFuzzySearchEnabled = true;
     private boolean mIsAsynchronous = false;
 
-    /*
-     * Constructor for row/column contents
+    /**
+     * Creates row entry for entity
      */
-    public EntityView(Context context, Detail d, Entity e, TextToSpeech tts,
-                      String[] searchTerms, long rowId, boolean mFuzzySearchEnabled) {
+    private EntityView(Context context, Detail d, Entity e, TextToSpeech tts,
+                       String[] searchTerms, long rowId, boolean mFuzzySearchEnabled) {
         super(context);
+
         this.context = context;
         //this is bad :(
         mIsAsynchronous = e instanceof AsyncEntity;
@@ -95,10 +96,10 @@ public class EntityView extends LinearLayout {
         this.mFuzzySearchEnabled = mFuzzySearchEnabled;
     }
 
-    /*
-     * Constructor for row/column headers
+    /**
+     * Creates row entry for column headers
      */
-    public EntityView(Context context, Detail d, String[] headerText) {
+    private EntityView(Context context, Detail d, String[] headerText) {
         super(context);
         this.context = context;
         this.views = new View[headerText.length];
@@ -126,14 +127,28 @@ public class EntityView extends LinearLayout {
         }
     }
 
-    /*
+    public static EntityView buildEntryEntityView(Context context, Detail detail,
+                                                  Entity entity, TextToSpeech tts,
+                                                  String[] searchTerms,
+                                                  long rowId, boolean isFuzzySearchEnabled) {
+        return new EntityView(context, detail, entity, tts,
+                searchTerms, rowId, isFuzzySearchEnabled);
+    }
+
+    public static EntityView buildHeadersEntityView(Context context,
+                                                    Detail detail,
+                                                    String[] headerText) {
+        return new EntityView(context, detail, headerText);
+    }
+
+    /**
      * Creates up a new view in the view with ID uniqueid, based upon
      * the entity's text and form
      */
     private View initView(Object data, String form, ViewId uniqueId, String sortField) {
         View retVal;
         if (FORM_IMAGE.equals(form)) {
-            retVal = (ImageView) View.inflate(context, R.layout.entity_item_image, null);
+            retVal = View.inflate(context, R.layout.entity_item_image, null);
         } else if (FORM_AUDIO.equals(form)) {
             String text = (String) data;
             AudioButton b;
@@ -158,7 +173,6 @@ public class EntityView extends LinearLayout {
     public void setSearchTerms(String[] terms) {
         this.searchTerms = terms;
     }
-
 
     public void refreshViewsForNewEntity(Entity e, boolean currentlySelected, long rowId) {
         for (int i = 0; i < e.getNumFields(); ++i) {
@@ -209,7 +223,7 @@ public class EntityView extends LinearLayout {
         }
     }
 
-    /*
+    /**
      * Updates the AudioButton layout that is passed in, based on the
      * new id and source
      */
@@ -222,7 +236,7 @@ public class EntityView extends LinearLayout {
         }
     }
 
-    /*
+    /**
      * Updates the text layout that is passed in, based on the new text
      */
     private void setupTextAndTTSLayout(View layout, final String text, String searchField) {

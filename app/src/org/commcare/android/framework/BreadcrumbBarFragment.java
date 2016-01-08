@@ -20,14 +20,12 @@ import android.view.animation.Animation;
 import android.view.animation.Transformation;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.AndroidUtil;
-import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.view.GridEntityView;
 import org.commcare.android.view.TabbedDetailView;
@@ -231,11 +229,9 @@ public class BreadcrumbBarFragment extends Fragment {
                         AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
                         CommCareSession session = asw.getSession();
 
-                        NodeEntityFactory factory = new NodeEntityFactory(session.getDetail(inlineDetail), session.getEvaluationContext(new AndroidInstanceInitializer(session)));
-                        Detail detail = factory.getDetail();
-                        mInternalDetailView.setDetail(detail);
-
-                        mInternalDetailView.refresh(factory.getDetail(), tileData.second,0);
+                        Detail detail = session.getDetail(inlineDetail);
+                        mInternalDetailView.showMenu();
+                        mInternalDetailView.refresh(detail, tileData.second,0);
                     }
                     infoButton.setImageResource(R.drawable.icon_info_fill_brandbg);
                     expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
