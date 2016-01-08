@@ -62,7 +62,7 @@ public class BreadcrumbBarFragment extends Fragment {
       @Override
       public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-     
+
         // Retain this fragment across configuration changes.
         setRetainInstance(true);
       }
@@ -95,7 +95,7 @@ public class BreadcrumbBarFragment extends Fragment {
 
         this.tile = findAndLoadCaseTile(activity);
     }
-        
+
     private void configureSimpleNav(Activity activity, ActionBar actionBar) {
         boolean showNav = true;
         if (activity instanceof CommCareActivity) {
@@ -127,10 +127,13 @@ public class BreadcrumbBarFragment extends Fragment {
         activity.setTitle("");
         actionBar.setDisplayShowHomeEnabled(false);
     }
-    
-    public static void expand(Activity activity, final View v) {
+
+    private static void expand(Activity activity, final View v) {
         Display display = activity.getWindowManager().getDefaultDisplay();
-        
+        if (activity instanceof CommCareActivity) {
+            ((CommCareActivity)activity).setMainScreenBlocked(true);
+        }
+
         int specHeight = MeasureSpec.makeMeasureSpec(display.getHeight(), MeasureSpec.AT_MOST);
 
         v.measure(LayoutParams.MATCH_PARENT, specHeight);
@@ -144,14 +147,14 @@ public class BreadcrumbBarFragment extends Fragment {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
                 RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
-                
+
                 if(interpolatedTime == 1) {
                     lp.height = 0;
                     lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 1);
-                } else {       
+                } else {
                         lp.height = (int)(targetHeight * interpolatedTime);
                 }
-                
+
                 v.requestLayout();
             }
 
@@ -166,9 +169,12 @@ public class BreadcrumbBarFragment extends Fragment {
         v.startAnimation(a);
     }
 
-    public static void collapse(final View v, final Runnable postExecuteLambda) {
+    private static void collapse(Activity activity, final View v) {
+        if (activity instanceof CommCareActivity) {
+            ((CommCareActivity)activity).setMainScreenBlocked(false);
+        }
         final int initialHeight = v.getMeasuredHeight();
-        
+
         RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
         lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 0);
         lp.height = initialHeight;
@@ -181,7 +187,6 @@ public class BreadcrumbBarFragment extends Fragment {
                     RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
                     lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 1);
                     lp.height = 0;
-                    postExecuteLambda.run();
                 }else{
                     v.getLayoutParams().height = initialHeight - (int)(initialHeight * interpolatedTime);
                     v.requestLayout();
@@ -204,7 +209,7 @@ public class BreadcrumbBarFragment extends Fragment {
         final Pair<View, TreeReference> tileData = this.loadTile(activity);
         View tile = tileData == null ? null : tileData.first;
         if(tile == null) { return null;}
-        
+
         final String inlineDetail = (String)tile.getTag();
 
         ((ViewGroup)holder.findViewById(R.id.com_tile_holder_frame)).addView(tile, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -233,24 +238,19 @@ public class BreadcrumbBarFragment extends Fragment {
                         mInternalDetailView.showMenu();
                         mInternalDetailView.refresh(detail, tileData.second,0);
                     }
-                    infoButton.setImageResource(R.drawable.icon_info_fill_brandbg);
                     expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
+                    infoButton.setImageResource(R.drawable.icon_info_fill_brandbg);
                     isClosed = false;
                 } else {
-                    //collapses view
+                    collapse(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
                     infoButton.setImageResource(R.drawable.icon_info_outline_brandbg);
-                    collapse(holder.findViewById(R.id.com_tile_holder_detail_master), new Runnable() {
-                        @Override
-                        public void run() {
-                        }
-                    });
                     isClosed = true;
                 }
             }
         };
 
         infoButton.setOnClickListener(toggleButtonClickListener);
-        
+
         return holder;
     }
 
@@ -378,19 +378,19 @@ public class BreadcrumbBarFragment extends Fragment {
 
         private Pair<View, TreeReference> buildContextTile(StackFrameStep stepToFrame, AndroidSessionWrapper asw) {
             if(stepToFrame == null) { return null; }
-            
+
             //check to make sure we can look up this child
             SessionDatum d = asw.getSession().findDatumDefinition(stepToFrame.getId());
             if(d == null || d.getPersistentDetail() == null) { return null; }
-            
-            //Make sure there is a valid reference to the entity we can build 
+
+            //Make sure there is a valid reference to the entity we can build
             Detail detail = asw.getSession().getDetail(d.getPersistentDetail());
-            
+
             EvaluationContext ec = asw.getEvaluationContext();
-            
+
             TreeReference ref = d.getEntityFromID(ec, stepToFrame.getValue());
             if(ref == null) { return null; }
-            
+
             Pair<View, TreeReference> r = buildContextTile(detail, ref, asw);
             r.first.setTag(d.getInlineDetail());
             return r;
@@ -398,7 +398,7 @@ public class BreadcrumbBarFragment extends Fragment {
 
         private Pair<View, TreeReference> buildContextTile(Detail detail, TreeReference ref, AndroidSessionWrapper asw) {
             NodeEntityFactory nef = new NodeEntityFactory(detail, asw.getEvaluationContext());
-            
+
             Entity entity = nef.getEntity(ref);
 
             Log.v("DEBUG-v", "Creating new GridEntityView for text header text");

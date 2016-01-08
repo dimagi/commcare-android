@@ -64,6 +64,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     // Fields for implementing task transitions for CommCareTaskConnector
     private boolean inTaskTransition;
+    private boolean isMainScreenBlocked;
 
     /**
      * Used to indicate that the (progress) dialog associated with a task
@@ -711,7 +712,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        if (isHorizontalSwipe(this, e1, e2)) {
+        if (isHorizontalSwipe(this, e1, e2) && !isMainScreenBlocked) {
             if (velocityX <= 0) {
                 return onForwardSwipe();
             }
@@ -821,5 +822,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      */
     protected boolean areFragmentsPaused() {
         return areFragmentsPaused;
+    }
+
+    public void setMainScreenBlocked(boolean isBlocked) {
+        isMainScreenBlocked = isBlocked;
     }
 }
