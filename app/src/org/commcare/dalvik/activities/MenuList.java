@@ -60,6 +60,11 @@ public class MenuList extends SaveSessionCommCareActivity implements OnItemClick
     }
 
     @Override
+    protected boolean isTopNavEnabled() {
+        return true;
+    }
+
+    @Override
     public String getActivityTitle() {
         //return adapter.getMenuTitle();
         return null;

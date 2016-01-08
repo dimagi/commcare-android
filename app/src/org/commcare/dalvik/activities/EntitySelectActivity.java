@@ -403,6 +403,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
+    protected boolean isTopNavEnabled() {
+        return true;
+    }
+
+    @Override
     public String getActivityTitle() {
         return null;
     }
