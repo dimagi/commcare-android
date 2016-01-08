@@ -36,36 +36,28 @@ public class NodeEntityFactory {
         int length = detail.getHeaderForms().length;
         Object[] details = new Object[length];
         String[] sortDetails = new String[length];
-        String[] backgroundDetails = new String[length];
         boolean[] relevancyDetails = new boolean[length];
         int count = 0;
         for (DetailField f : detail.getFields()) {
             try {
                 details[count] = f.getTemplate().evaluate(nodeContext);
                 Text sortText = f.getSort();
-                Text backgroundText = f.getBackground();
                 if (sortText == null) {
                     sortDetails[count] = null;
                 } else {
                     sortDetails[count] = sortText.evaluate(nodeContext);
                 }
-                if (backgroundText == null) {
-                    backgroundDetails[count] = "";
-                } else {
-                    backgroundDetails[count] = backgroundText.evaluate(nodeContext);
-                }
                 relevancyDetails[count] = f.isRelevant(nodeContext);
             } catch (XPathSyntaxException | XPathException xpe) {
                 xpe.printStackTrace();
                 details[count] = "<invalid xpath: " + xpe.getMessage() + ">";
-                backgroundDetails[count] = "";
                 // assume that if there's an error, user should see it
                 relevancyDetails[count] = true;
             }
             count++;
         }
 
-        return new Entity<>(details, sortDetails, backgroundDetails, relevancyDetails, data);
+        return new Entity<>(details, sortDetails, relevancyDetails, data);
     }
 
     public List<TreeReference> expandReferenceList(TreeReference treeReference) {

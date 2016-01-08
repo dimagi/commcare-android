@@ -212,30 +212,6 @@ public class AsyncEntity extends Entity<TreeReference> {
         return data;
     }
 
-    @Override
-    public String[] getBackgroundData() {
-        //Only called at display time, so shouldn't slow us down too much
-        synchronized (mAsyncLock) {
-            loadVariableContext();
-            for (int i = 0; i < this.getNumFields(); ++i) {
-                if (backgroundData[i] == null) {
-                    Text bg = fields[i].getBackground();
-                    if (bg == null) {
-                        backgroundData[i] = "";
-                    } else {
-                        try {
-                            backgroundData[i] = bg.evaluate(context);
-                        } catch (XPathException xpe) {
-                            xpe.printStackTrace();
-                            throw new RuntimeException("Invalid background output for field : " + fields[i].getHeader().toString());
-                        }
-                    }
-                }
-            }
-            return backgroundData;
-        }
-    }
-
     public String[] getSortFieldPieces(int i) {
         if (getSortField(i) == null) {
             return new String[0];

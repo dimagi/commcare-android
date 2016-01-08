@@ -11,16 +11,14 @@ public class Entity<T> {
     Object[] data;
     String[] sortData;
     boolean[] relevancyData;
-    String[] backgroundData;
 
     protected Entity(T t) {
         this.t = t;
     }
 
-    public Entity(Object[] data, String[] sortData, String[] backgroundData, boolean[] relevancyData, T t) {
+    public Entity(Object[] data, String[] sortData, boolean[] relevancyData, T t) {
         this.t = t;
         this.sortData = sortData;
-        this.backgroundData = backgroundData;
         this.data = data;
         this.relevancyData = relevancyData;
     }
@@ -73,10 +71,6 @@ public class Entity<T> {
 
     public Object[] getData() {
         return data;
-    }
-
-    public String[] getBackgroundData() {
-        return backgroundData;
     }
 
     public String[] getSortFieldPieces(int i) {
