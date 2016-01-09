@@ -100,7 +100,7 @@ public class FormNavigationUI {
         progressBar.setProgress(completedQuestiosn);
     }
 
-    public static void animateFinishArrow(CommCareActivity activity) {
+    public static void animateFinishArrow(final CommCareActivity activity) {
         ImageButton nextButton = (ImageButton)activity.findViewById(R.id.nav_btn_next);
         final View coverView = activity.findViewById(R.id.form_entry_cover);
 
@@ -109,11 +109,13 @@ public class FormNavigationUI {
             @Override
             public void onAnimationStart(Animation animation) {
                 coverView.setVisibility(View.VISIBLE);
+                activity.setMainScreenBlocked(true);
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
                 coverView.setVisibility(View.GONE);
+                activity.setMainScreenBlocked(false);
             }
 
             @Override

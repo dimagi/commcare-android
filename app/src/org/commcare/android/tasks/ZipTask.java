@@ -201,43 +201,6 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 
         Log.d(TAG, "doing zip task in background");
 
-        // ensure that SD is available, writable, and not emulated
-
-        boolean mExternalStorageAvailable = false;
-        boolean mExternalStorageWriteable = false;
-
-        boolean mExternalStorageEmulated = ReflectionUtil.mIsExternalStorageEmulatedHelper();
-
-        String state = Environment.getExternalStorageState();
-
-        ArrayList<String> externalMounts = FileUtil.getExternalMounts();
-
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            // We can read and write the media
-            mExternalStorageAvailable = mExternalStorageWriteable = true;
-        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            // We can only read the media
-            mExternalStorageAvailable = true;
-            mExternalStorageWriteable = false;
-        } else {
-            // Something else is wrong. It may be one of many other states, but all we need
-            //  to know is we can neither read nor write
-            mExternalStorageAvailable = mExternalStorageWriteable = false;
-        }
-
-        if (!mExternalStorageAvailable) {
-            publishProgress(Localization.get("bulk.form.sd.unavailable"));
-            return null;
-        }
-        if (!mExternalStorageWriteable) {
-            publishProgress(Localization.get("bulk.form.sd.unwritable"));
-            return null;
-        }
-        if (mExternalStorageEmulated && externalMounts.size() == 0) {
-            publishProgress(Localization.get("bulk.form.sd.emulated"));
-            return null;
-        }
-
         File baseDirectory = new File(CommCareWiFiDirectActivity.baseDirectory);
         File sourceDirectory = new File(CommCareWiFiDirectActivity.sourceDirectory);
 

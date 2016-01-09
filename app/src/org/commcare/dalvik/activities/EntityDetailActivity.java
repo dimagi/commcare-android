@@ -130,7 +130,7 @@ public class EntityDetailActivity
         mDetailView.setRoot((ViewGroup)container.findViewById(R.id.entity_detail_tabs));
         mDetailView.refresh(factory.getDetail(), mTreeReference, detailIndex);
 
-        mDetailView.setDetail(factory.getDetail());
+        mDetailView.showMenu();
     }
 
     public Pair<Detail, TreeReference> requestEntityContext() {

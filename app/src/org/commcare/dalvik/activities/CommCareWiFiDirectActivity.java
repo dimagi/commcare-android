@@ -1,5 +1,6 @@
 package org.commcare.dalvik.activities;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -17,13 +18,13 @@ import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
+import android.view.ViewTreeObserver;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import org.commcare.android.adapters.WiFiDirectAdapter;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.framework.DeviceDetailFragment;
@@ -79,10 +80,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     public enum wdState{send,receive,submit}
 
-    Button discoverButton;
-    Button sendButton;
-    Button submitButton;
-    Button changeModeButton;
+    private WiFiDirectAdapter adapter;
 
     public static String baseDirectory;
     public static String sourceDirectory;
@@ -107,6 +105,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.wifi_direct_main);
+        adapter = new WiFiDirectAdapter(this);
 
         myStatusText = (TextView)this.findViewById(R.id.my_status_text);
 
@@ -115,16 +114,8 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         stateStatusText = (TextView)this.findViewById(R.id.wifi_state_status);
 
         stateHeaderText = (TextView)this.findViewById(R.id.wifi_state_header);
-        
-        String baseDir = FileUtil.getDumpDirectory(this);
-        
-        if(baseDir == null){
-            Toast.makeText(CommCareWiFiDirectActivity.this, "Wi-Fi Direct Requires an External SD Card",
-                    Toast.LENGTH_LONG).show();
-            this.setResult(RESULT_CANCELED);
-            finish();
-            
-        }
+
+        String baseDir = this.getFilesDir().getAbsolutePath();
         
         baseDirectory = baseDir + "/" + Localization.get("wifi.direct.base.folder");
         sourceDirectory = baseDirectory + "/source";
@@ -132,42 +123,6 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         receiveDirectory = baseDirectory + "/receive";
         receiveZipDirectory = receiveDirectory + "/zipDest";
         writeDirectory = baseDirectory + "/write";
-        
-        discoverButton = (Button)this.findViewById(R.id.discover_button);
-        discoverButton.setOnClickListener(new OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                discoverPeers();
-            }
-
-        });
-
-        sendButton = (Button)this.findViewById(R.id.send_button);
-        sendButton.setOnClickListener(new OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                prepareFileTransfer();
-            }
-
-        });
-
-        submitButton = (Button)this.findViewById(R.id.submit_button);
-        submitButton.setOnClickListener(new OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                submitFiles();
-            }
-
-        });
-
-        changeModeButton = (Button)this.findViewById(R.id.reset_state_button);
-        changeModeButton.setOnClickListener(new OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                changeState();
-            }
-
-        });
 
         mManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
         mChannel = mManager.initialize(this, getMainLooper(), null);
@@ -176,7 +131,42 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
+        setupGridView();
         changeState();
+        if(savedInstanceState == null){
+            showChangeStateDialog();
+        }
+    }
+
+    public void showChangeStateDialog(){
+        showDialog(this, localize("wifi.direct.change.state.title").toString(),
+                localize("wifi.direct.change.state.text").toString());
+    }
+
+    private void setupGridView() {
+        final RecyclerView grid = (RecyclerView)findViewById(R.id.wifi_direct_gridview_buttons);
+        grid.setHasFixedSize(true);
+
+        StaggeredGridLayoutManager gridView =
+                new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
+        grid.setLayoutManager(gridView);
+        grid.setItemAnimator(null);
+        grid.setAdapter(adapter);
+
+        grid.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @SuppressLint("NewApi")
+            @Override
+            public void onGlobalLayout() {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                    grid.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                } else {
+                    grid.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+
+                grid.requestLayout();
+                adapter.notifyDataSetChanged();
+            }
+        });
     }
 
     /**
@@ -229,8 +219,8 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     }
 
     public void changeState(){
-        showDialog(this, localize("wifi.direct.change.state.title").toString(),
-                localize("wifi.direct.change.state.text").toString());
+        adapter.updateDisplayData();
+        adapter.notifyDataSetChanged();
     }
 
     public void showDialog(Activity activity, String title, String message) {
@@ -289,10 +279,8 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         Logger.log(TAG, "Device designated as sender");
         resetData();
         mState = wdState.send;
-        sendButton.setVisibility(View.VISIBLE);
-        submitButton.setVisibility(View.GONE);
-        discoverButton.setVisibility(View.VISIBLE);
         updateStatusText();
+        adapter.notifyDataSetChanged();
     }
 
     public void beReceiver(){
@@ -327,12 +315,9 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         resetData();
         hostGroup();
 
-
         mState = wdState.receive;
-        sendButton.setVisibility(View.GONE);
         updateStatusText();
-        discoverButton.setVisibility(View.GONE);
-        submitButton.setVisibility(View.GONE);
+        adapter.notifyDataSetChanged();
     }
 
     public void beSubmitter(){
@@ -365,12 +350,8 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         wifiFragment.resetConnectionGroup();
 
         mState = wdState.submit;
-
         updateStatusText();
-
-        discoverButton.setVisibility(View.GONE);
-        sendButton.setVisibility(View.GONE);
-        submitButton.setVisibility(View.VISIBLE);
+        adapter.notifyDataSetChanged();
     }
 
     public void cleanPostSend(){
@@ -424,7 +405,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
         final String url = this.getString(R.string.PostURL);
 
-        File receiveFolder = new File (writeDirectory);
+        File receiveFolder = new File(writeDirectory);
 
         if(!receiveFolder.isDirectory() || !receiveFolder.exists()){
             myStatusText.setText(Localization.get("wifi.direct.submit.missing", new String[] {receiveFolder.getPath()}));
@@ -539,7 +520,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     /* if successful, broadcasts WIFI_P2P_Peers_CHANGED_ACTION intent with list of peers
      * received in WiFiDirectBroadcastReceiver class
      */
-    public void discoverPeers(){
+    public void discoverPeers() {
         Logger.log(TAG, "Discovering Wi-fi direct peers");
 
         WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment) getSupportFragmentManager()
@@ -569,11 +550,11 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
                 Logger.log(TAG, "Discovery of Wi-fi peers failed");
 
-                if(reasonCode == 0 || reasonCode == 2){
+                if (reasonCode == 0 || reasonCode == 2) {
                     Toast.makeText(CommCareWiFiDirectActivity.this,
                             localize("wifi.direct.discovery.failed.generic"),
                             Toast.LENGTH_SHORT).show();
-                } else{
+                } else {
                     Toast.makeText(CommCareWiFiDirectActivity.this,
                             localize("wifi.direct.discovery.failed.specific", "" + reasonCode),
                             Toast.LENGTH_SHORT).show();
@@ -655,7 +636,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     public void onUnzipSuccessful(Integer result){
         Logger.log(TAG, "Successfully unzipped " + result.toString() +  " files.");
-        myStatusText.setText(localize("wifi.direct.receive.success", result.toString()));
+        myStatusText.setText(localize("wifi.direct.receive.successful", result.toString()));
         if(!FileUtil.deleteFileOrDir(new File(receiveDirectory))){
             Log.d(TAG, "source zip not succesfully deleted");
         }

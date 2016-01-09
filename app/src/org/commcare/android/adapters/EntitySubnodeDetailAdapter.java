@@ -12,8 +12,8 @@ import org.commcare.android.view.EntityView;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.instance.TreeReference;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by jschweers on 8/24/2015.
@@ -91,7 +91,7 @@ public class EntitySubnodeDetailAdapter implements ListAdapter, ModifiableEntity
         EntityView view = (EntityView)convertView;
         Entity entity = this.entities.get(position);
         if (view == null) {
-            view = new EntityView(context, detail, entity, null, null, position, false);
+            view = EntityView.buildEntryEntityView(context, detail, entity, null, null, position, false);
         } else {
             view.refreshViewsForNewEntity(entity, false, position);
         }

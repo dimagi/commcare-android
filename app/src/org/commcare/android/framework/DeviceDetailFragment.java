@@ -57,14 +57,9 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
      */
     public void resetViews() {
         Log.d(TAG, "resetting views");
-        mContentView.findViewById(R.id.btn_connect).setVisibility(View.VISIBLE);
         TextView view = (TextView) mContentView.findViewById(R.id.device_address);
-        view.setText("");
-        view = (TextView) mContentView.findViewById(R.id.group_owner);
         view.setText("");
         view = (TextView) mContentView.findViewById(R.id.status_text);
         view.setText("");
-        mContentView.findViewById(R.id.btn_start_client).setVisibility(View.GONE);
-        this.getView().setVisibility(View.GONE);
     }
 }
