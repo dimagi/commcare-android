@@ -60,6 +60,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
                     return instance.getFixtureStorage();
                 }
             };
+            parser.setSkipResources(true);
 
             Suite s = parser.parse();
 

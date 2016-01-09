@@ -1,8 +1,6 @@
 package org.commcare.dalvik.activities;
 
-import android.Manifest;
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -14,7 +12,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -43,8 +40,9 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.DemoUserBuilder;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.RuntimePermissionRequester;
 import org.commcare.android.framework.ManagedUiFramework;
+import org.commcare.android.framework.Permissions;
+import org.commcare.android.framework.RuntimePermissionRequester;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;
@@ -62,7 +60,6 @@ import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.ui.CustomBanner;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.util.MediaUtil;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
@@ -86,16 +83,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 
-    private final static String[] appPermissions =
-            new String[]{Manifest.permission.READ_PHONE_STATE,
-                    Manifest.permission.CALL_PHONE,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                    // leaving out READ_SMS, which is only needed for sms installs
-            };
-
     private static final int MENU_DEMO = Menu.FIRST;
     private static final int MENU_ABOUT = Menu.FIRST + 1;
     private static final int MENU_PERMISSIONS = Menu.FIRST + 2;
@@ -107,7 +94,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private static final int SEAT_APP_ACTIVITY = 0;
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
     public final static String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
-    private final static int ALL_PERMISSIONS_REQUEST = 1;
 
     @UiElement(value=R.id.screen_login_bad_password)
     private TextView errorBox;
@@ -258,57 +244,23 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             }
         });
 
-        acquireAllAppPerms();
-    }
-
-    private void acquireAllAppPerms() {
-        if (missingAppPermission()) {
-            if (shouldShowPermissionRationale()) {
-                AlertDialog dialog =
-                        DialogCreationHelpers.buildPermissionRequestDialog(this, this,
-                                Localization.get("permission.all.title"),
-                                Localization.get("permission.all.message"));
-                dialog.show();
-            } else {
-                requestNeededPermissions();
-            }
-        }
-    }
-
-    private boolean missingAppPermission() {
-        for (String perm : appPermissions) {
-            if (ContextCompat.checkSelfPermission(this, perm) == PackageManager.PERMISSION_DENIED) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean shouldShowPermissionRationale() {
-        for (String perm : appPermissions) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, perm)) {
-                return true;
-            }
-        }
-        return false;
+        Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
     }
 
     @Override
     @TargetApi(Build.VERSION_CODES.M)
-    public void requestNeededPermissions() {
-        ActivityCompat.requestPermissions(this, appPermissions,
-                ALL_PERMISSIONS_REQUEST);
+    public void requestNeededPermissions(int requestCode) {
+        ActivityCompat.requestPermissions(this, Permissions.getAppPermissions(),
+                requestCode);
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        String[] requiredPerms =
-                new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        String[] requiredPerms = Permissions.getRequiredPerms();
 
-        if (requestCode == ALL_PERMISSIONS_REQUEST) {
+        if (requestCode == Permissions.ALL_PERMISSIONS_REQUEST) {
             for (int i = 0; i < permissions.length; i++) {
                 for (String requiredPerm : requiredPerms) {
                     if (requiredPerm.equals(permissions[i]) &&
@@ -452,8 +404,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         // either case
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
         if (currentApp == null || !currentApp.getAppRecord().isUsable()) {
-            Intent i = new Intent(this, DispatchActivity.class);
-            startActivity(i);
+            // send back to dispatch activity
+            setResult(RESULT_OK);
+            this.finish();
             return;
         }
 
@@ -639,7 +592,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             DialogCreationHelpers.buildAboutCommCareDialog(this).show();
             return true;
         case MENU_PERMISSIONS:
-            acquireAllAppPerms();
+            Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
             return true;
         default:
             return otherResult;

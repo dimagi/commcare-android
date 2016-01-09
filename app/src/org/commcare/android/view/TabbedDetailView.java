@@ -94,10 +94,7 @@ public class TabbedDetailView extends RelativeLayout {
         });
     }
 
-    /**
-     * Populate view with content from given Detail.
-     */
-    public void setDetail(Detail detail) {
+    public void showMenu() {
         mMenu.setVisibility(VISIBLE);
     }
 

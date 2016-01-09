@@ -25,11 +25,12 @@ import android.widget.Toast;
 
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.fragments.ContainerFragment;
-import org.commcare.android.fragments.SetupEnterURLFragment;
-import org.commcare.android.fragments.SelectInstallModeFragment;
 import org.commcare.android.fragments.InstallConfirmFragment;
+import org.commcare.android.fragments.SelectInstallModeFragment;
+import org.commcare.android.fragments.SetupEnterURLFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
+import org.commcare.android.framework.Permissions;
 import org.commcare.android.framework.RuntimePermissionRequester;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.notifications.NotificationMessage;
@@ -74,14 +75,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         RuntimePermissionRequester {
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
 
-    public static final String KEY_PROFILE_REF = "app_profile_ref";
     private static final String KEY_UI_STATE = "current_install_ui_state";
     private static final String KEY_OFFLINE =  "offline_install";
     private static final String KEY_FROM_EXTERNAL = "from_external";
     private static final String KEY_FROM_MANAGER = "from_manager";
     private static final String KEY_MANUAL_SMS_INSTALL = "sms-install-triggered-manually";
 
-    private static final int SMS_PERMISSIONS_REQUEST = 1;
+    private static final int SMS_PERMISSIONS_REQUEST = 2;
 
     /**
      * Should the user be logged out when this activity is done?
@@ -146,6 +146,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         this.fromManager = this.getIntent().
                 getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
@@ -173,8 +174,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     this.uiState = UiState.READY_TO_INSTALL;
                     //Now just start up normally.
                 }
-            } else {
-                incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
             }
         } else {
             loadStateFromInstance(savedInstanceState);
@@ -187,6 +186,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         "incomingRef is: " + incomingRef + " " +
                         "startAllowed is: " + startAllowed + " "
         );
+
+        Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
 
         performSMSInstall(false);
     }
@@ -236,13 +237,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     protected void onResume() {
         super.onResume();
 
-        // If clicking the regular app icon brought us to CommCareSetupActivity
-        // (because that's where we were last time the app was up), but there are now
-        // 1 or more available apps, we want to redirect to CCHomeActivity
-        if (!fromManager && !fromExternal &&
-                CommCareApplication._().usableAppsPresent()) {
-            Intent i = new Intent(this, DispatchActivity.class);
-            startActivity(i);
+        if (!fromManager && !fromExternal && CommCareApplication._().usableAppsPresent()) {
+            // If clicking the regular app icon brought us to CommCareSetupActivity
+            // (because that's where we were last time the app was up), but there are now
+            // 1 or more available apps, we want to fall back to dispatch activity
+            setResult(RESULT_OK);
+            this.finish();
+            return;
         }
 
         if (isSingleAppBuild()) {
@@ -279,9 +280,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         switch (uiState) {
             case READY_TO_INSTALL:
                 if (incomingRef == null || incomingRef.length() == 0) {
-                    Log.e(TAG, "During install: IncomingRef is empty!");
-                    Toast.makeText(getApplicationContext(), "Invalid URL: '" +
-                            incomingRef + "'", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "During install: incomingRef is empty!");
+                    Toast.makeText(getApplicationContext(), "Empty URL provided",
+                            Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -361,7 +362,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 }
                 break;
         }
-        if (result == null) return;
+        if (result == null) {
+            return;
+        }
         incomingRef = result;
         this.uiState = UiState.READY_TO_INSTALL;
 
@@ -379,10 +382,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
 
         uiStateScreenTransition();
-    }
-
-    private String getRef() {
-        return incomingRef;
     }
 
     private CommCareApp getCommCareApp() {
@@ -467,7 +466,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     };
 
             task.connect(this);
-            task.execute(getRef());
+            task.execute(incomingRef);
         } else {
             Log.i(TAG, "During install: blocked a resource install press since a task was already running");
         }
@@ -478,13 +477,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onCreateOptionsMenu(menu);
         menu.add(0, MODE_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         menu.add(0, MODE_SMS, 1, Localization.get("menu.sms")).setIcon(android.R.drawable.stat_notify_chat);
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-
         return true;
     }
 
@@ -505,11 +497,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     Manifest.permission.READ_SMS)) {
                 AlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(this, this,
+                                SMS_PERMISSIONS_REQUEST,
                                 Localization.get("permission.sms.install.title"),
                                 Localization.get("permission.sms.install.message"));
                 dialog.show();
             } else {
-                requestNeededPermissions();
+                requestNeededPermissions(SMS_PERMISSIONS_REQUEST);
             }
         } else {
             scanSMSLinks(installTriggeredManually);
@@ -517,10 +510,16 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    public void requestNeededPermissions() {
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.READ_SMS},
-                SMS_PERMISSIONS_REQUEST);
+    public void requestNeededPermissions(int requestCode) {
+        if (requestCode == SMS_PERMISSIONS_REQUEST) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.READ_SMS},
+                    requestCode);
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    Permissions.getAppPermissions(),
+                    requestCode);
+        }
     }
 
     /**
@@ -814,6 +813,29 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     scanSMSLinks(manualSMSInstall);
                 }
             }
+        } else if (requestCode == Permissions.ALL_PERMISSIONS_REQUEST) {
+            String[] requiredPerms = Permissions.getRequiredPerms();
+
+            for (int i = 0; i < permissions.length; i++) {
+                for (String requiredPerm : requiredPerms) {
+                    if (requiredPerm.equals(permissions[i]) &&
+                            grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                        showMissingPermissionState();
+                        return;
+                    }
+                }
+            }
+            // external storage perms were enabled, so setup temp storage,
+            // which fails in application setup without external storage perms.
+            CommCareApplication._().prepareTemporaryStorage();
         }
+    }
+
+    private void showMissingPermissionState() {
+        // TODO PLM: instead of popping up the same message we should disable
+        // install buttons and show a message and button to re-request the
+        // permissions.
+        Permissions.acquireAllAppPermissions(this, this,
+                Permissions.ALL_PERMISSIONS_REQUEST);
     }
 }

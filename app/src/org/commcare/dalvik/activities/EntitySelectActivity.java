@@ -181,14 +181,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         selectDatum = session.getNeededDatum();
-
         shortSelect = session.getDetail(selectDatum.getShortDetail());
-
         mNoDetailMode = selectDatum.getLongDetail() == null;
 
         if (this.getString(R.string.panes).equals("two") && !mNoDetailMode) {
             //See if we're on a big 'ol screen.
-
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 //If we're in landscape mode, we can display this with the awesome UI.
 
@@ -477,7 +474,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             // only add headers if we're not using grid mode
             if (!shortSelect.usesGridView()) {
                 //Hm, sadly we possibly need to rebuild this each time.
-                EntityView v = new EntityView(this, shortSelect, headers);
+                EntityView v = EntityView.buildHeadersEntityView(this, shortSelect, headers);
                 header.addView(v);
             }
 
@@ -1113,7 +1110,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
             factory = new NodeEntityFactory(session.getDetail(selectedIntent.getStringExtra(EntityDetailActivity.DETAIL_ID)), session.getEvaluationContext(new AndroidInstanceInitializer(session)));
             Detail detail = factory.getDetail();
-            detailView.setDetail(detail);
+            detailView.showMenu();
 
             if (detail.isCompound()) {
                 // border around right panel doesn't look right when there are tabs

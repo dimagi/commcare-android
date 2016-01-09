@@ -82,11 +82,11 @@ public class EntityDetailAdapter implements ListAdapter, ModifiableEntityDetailA
     public View getView(int position, View convertView, ViewGroup parent) {
         EntityDetailView dv = (EntityDetailView)convertView;
         if (dv == null) {
-            dv = new EntityDetailView(context, session, detail, entity,
+            dv = new EntityDetailView(context, detail, entity,
                     valid.get(position), detailIndex);
             dv.setCallListener(listener);
         } else {
-            dv.setParams(session, detail, entity, valid.get(position), detailIndex);
+            dv.setParams(detail, entity, valid.get(position), detailIndex);
             dv.setCallListener(listener);
         }
         if (modifier != null) {
