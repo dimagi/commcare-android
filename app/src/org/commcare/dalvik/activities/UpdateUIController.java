@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.commcare.android.framework.CommCareActivityUIController;
 import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.view.SquareButtonWithText;
 import org.commcare.dalvik.R;
@@ -16,7 +17,7 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-class UpdateUIState {
+class UpdateUIController implements CommCareActivityUIController {
     private static final String UPDATE_UI_STATE_KEY = "update_activity_ui_state";
     private SquareButtonWithText checkUpdateButton;
     private SquareButtonWithText stopUpdateButton;
@@ -54,13 +55,12 @@ class UpdateUIState {
 
     private UIState currentUIState;
 
-    public UpdateUIState(UpdateActivity updateActivity) {
+    public UpdateUIController(UpdateActivity updateActivity) {
         activity = updateActivity;
-
-        setupUi();
     }
 
-    private void setupUi() {
+    @Override
+    public void setupUI() {
         activity.setContentView(R.layout.update_activity);
 
         progressBar = (ProgressBar)activity.findViewById(R.id.update_progress_bar);
@@ -73,6 +73,11 @@ class UpdateUIState {
 
         setupButtonListeners();
         idleUiState();
+    }
+
+    @Override
+    public void refreshView() {
+        refreshStatusText();
     }
 
     private void setupButtonListeners() {
@@ -203,7 +208,7 @@ class UpdateUIState {
         progressBar.setProgress(currentProgress);
     }
 
-    public void refreshStatusText() {
+    private void refreshStatusText() {
         CommCareApplication app = CommCareApplication._();
 
         int version = app.getCommCarePlatform().getCurrentProfile().getVersion();
