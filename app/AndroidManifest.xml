@@ -364,7 +364,8 @@
         <activity android:name=".activities.ConnectionDiagnosticActivity"
             android:windowSoftInputMode="adjustResize" >
         </activity>
-        <activity android:name=".activities.CommCareWiFiDirectActivity" >
+        <activity android:name=".activities.CommCareWiFiDirectActivity"
+            android:screenOrientation="portrait">
         </activity>
         <activity android:name=".activities.RecoveryActivity" >
         </activity>

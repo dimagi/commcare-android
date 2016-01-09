@@ -17,14 +17,14 @@ public class Stylizer {
         globalStyleString = "";
 
         if (globalStyleTable == null) {
-            globalStyleTable = new HashMap<String, String>();
+            globalStyleTable = new HashMap<>();
         }
 
-        ArrayList<String> mStyles = new ArrayList<String>();
+        ArrayList<String> mStyles = new ArrayList<>();
 
         try {
             BufferedReader bReader = new BufferedReader(new InputStreamReader(c.getAssets().open("app_styles.txt")));
-            ArrayList<String> values = new ArrayList<String>();
+            ArrayList<String> values = new ArrayList<>();
             String line = bReader.readLine();
             while (line != null) {
                 values.add(line);

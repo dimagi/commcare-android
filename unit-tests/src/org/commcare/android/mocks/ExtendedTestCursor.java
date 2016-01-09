@@ -14,7 +14,7 @@ public class ExtendedTestCursor extends RoboCursor {
   public String[] selectionArgs;
   public String sortOrder;
   protected Object[][] results = new Object[0][0];
-  protected List<String> columnNames= new ArrayList<String>();
+  protected List<String> columnNames= new ArrayList<>();
   int resultsIndex = -1;
   boolean closeWasCalled;
 

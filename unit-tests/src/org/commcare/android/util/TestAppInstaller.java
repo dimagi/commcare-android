@@ -1,6 +1,5 @@
 package org.commcare.android.util;
 
-import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.DemoUserBuilder;
@@ -13,7 +12,6 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.javarosa.core.model.User;
 import org.javarosa.core.util.PropertyUtils;
-import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 

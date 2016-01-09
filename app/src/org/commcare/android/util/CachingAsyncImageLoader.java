@@ -20,7 +20,7 @@ import android.widget.ImageView;
 @SuppressLint("NewApi")
 public class CachingAsyncImageLoader implements ComponentCallbacks2 {
     private final TCLruCache cache;
-    private final int CACHE_DIVISOR =2;
+    private static final int CACHE_DIVISOR =2;
     private final Context context;
 
     public CachingAsyncImageLoader(Context context) {

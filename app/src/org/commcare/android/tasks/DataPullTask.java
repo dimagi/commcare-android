@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -23,7 +22,6 @@ import org.commcare.android.tasks.network.DataPullRequester;
 import org.commcare.android.tasks.network.DataPullResponseFactory;
 import org.commcare.android.tasks.network.RemoteDataPullResponse;
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.bitcache.BitCache;
@@ -49,7 +47,6 @@ import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.SocketTimeoutException;
@@ -476,8 +473,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     private void purgeCases() {
         long start = System.currentTimeMillis();
         //We need to determine if we're using ownership for purging. For right now, only in sync mode
-        Vector<String> owners = new Vector<String>();
-        Vector<String> users = new Vector<String>(); 
+        Vector<String> owners = new Vector<>();
+        Vector<String> users = new Vector<>();
         for(IStorageIterator<User> userIterator = CommCareApplication._().getUserStorage(User.STORAGE_KEY, User.class).iterate(); userIterator.hasMore();) {
             String id = userIterator.nextRecord().getUniqueId();
             owners.addElement(id);
@@ -500,6 +497,11 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
             
         SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
         CasePurgeFilter filter = new CasePurgeFilter(storage, owners);
+        if (filter.invalidEdgesWereRemoved()) {
+            Logger.log(AndroidLogger.SOFT_ASSERT, "An invalid edge was created in the internal " +
+                    "case DAG of a case purge filter, meaning that at least 1 case on the " +
+                    "device had an index into another case that no longer exists on the device");
+        }
         int removedCases = storage.removeAll(filter).size();
         
         SqlStorage<Ledger> stockStorage = CommCareApplication._().getUserStorage(Ledger.STORAGE_KEY, Ledger.class);

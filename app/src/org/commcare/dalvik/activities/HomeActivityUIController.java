@@ -15,7 +15,6 @@ import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Profile;
 
-import java.util.Arrays;
 import java.util.Vector;
 
 /**

@@ -47,7 +47,7 @@ public class MenuGrid extends SaveSessionCommCareActivity implements OnItemClick
         String menuId = getIntent().getStringExtra(SessionFrame.STATE_COMMAND_ID);
         
        if (menuId == null) {
-           menuId= "root";
+           menuId = Menu.ROOT_MENU_ID;
        }
        
        adapter = new GridMenuAdapter(this, platform,menuId);

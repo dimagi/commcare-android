@@ -4,48 +4,13 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="fill_parent"
-     android:visibility="gone"
-    >
+     android:visibility="gone">
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <Button
-                android:id="@+id/btn_connect"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Connect" />
-            <Button
-                android:id="@+id/btn_disconnect"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Disconnect" />
-            <Button
-                android:id="@+id/btn_start_client"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Send Forms"
-                android:visibility="gone" />
-            <Button
-                android:id="@+id/btn_zip_files"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Zip files"/>
-        </LinearLayout>
         <TextView
             android:id="@+id/device_address"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:id="@+id/group_owner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-        <TextView
-            android:id="@+id/group_ip"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>

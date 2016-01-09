@@ -46,20 +46,6 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     Long[] results;
     File dumpFolder;
 
-    public static final long FULL_SUCCESS = 0;
-    public static final long PARTIAL_SUCCESS = 1;
-    public static final long FAILURE = 2;
-    public static final long TRANSPORT_FAILURE = 4;
-    public static final long PROGRESS_ALL_PROCESSED = 8;
-
-    public static final long SUBMISSION_BEGIN = 16;
-    public static final long SUBMISSION_START = 32;
-    public static final long SUBMISSION_NOTIFY = 64;
-    public static final long SUBMISSION_DONE = 128;
-
-    public static final long PROGRESS_LOGGED_OUT = 256;
-    public static final long PROGRESS_SDCARD_REMOVED = 512;
-
     public static final int ZIP_TASK_ID = 72135;
 
     public ZipTask(Context c) {
@@ -103,11 +89,11 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 
         //If we're listening, figure out how much (roughly) we have to send
         long bytes = 0;
-        for (int j = 0; j < files.length; j++) {
+        for (File file : files) {
             //Make sure we'll be sending it
             boolean supported = false;
             for (String ext : SUPPORTED_FILE_EXTS) {
-                if (files[j].getName().endsWith(ext)) {
+                if (file.getName().endsWith(ext)) {
                     supported = true;
                     break;
                 }
@@ -116,29 +102,28 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                 continue;
             }
 
-            bytes += files[j].length();
+            bytes += file.length();
         }
 
         final Cipher decrypter = FormUploadUtil.getDecryptCipher(key);
 
-        for (int j = 0; j < files.length; j++) {
-            File f = files[j];
+        for (File file : files) {
             // This is not the ideal long term solution for determining whether we need decryption, but works
-            if (f.getName().endsWith(".xml")) {
+            if (file.getName().endsWith(".xml")) {
                 try {
                     Log.d(TAG, "trying zip copy2");
-                    FileUtil.copyFile(f, new File(myDir, f.getName()), decrypter, null);
+                    FileUtil.copyFile(file, new File(myDir, file.getName()), decrypter, null);
                 } catch (IOException ie) {
-                    Log.d(TAG, "faield zip copywith2: " + f.getName());
+                    Log.d(TAG, "faield zip copywith2: " + file.getName());
                     publishProgress(("File writing failed: " + ie.getMessage()));
                     return FormUploadUtil.FAILURE;
                 }
             } else {
                 try {
                     Log.d(TAG, "trying zip copy2");
-                    FileUtil.copyFile(f, new File(myDir, f.getName()));
+                    FileUtil.copyFile(file, new File(myDir, file.getName()));
                 } catch (IOException ie) {
-                    Log.d(TAG, "faield zip copy2 " + f.getName() + "with messageL " + ie.getMessage());
+                    Log.d(TAG, "faield zip copy2 " + file.getName() + "with messageL " + ie.getMessage());
                     publishProgress(("File writing failed: " + ie.getMessage()));
                     return FormUploadUtil.FAILURE;
                 }
@@ -160,8 +145,8 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 
             File[] fileArray = targetFilePath.listFiles();
 
-            for (int i = 0; i < fileArray.length; i++) {
-                File[] subFileArray = fileArray[i].listFiles();
+            for (File file : fileArray) {
+                File[] subFileArray = file.listFiles();
                 zipFolder(subFileArray, zipFile, out);
             }
 
@@ -178,12 +163,12 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 
         byte data[] = new byte[BUFFER_SIZE];
 
-        for (int i = 0; i < files.length; i++) {
-            FileInputStream fi = new FileInputStream(files[i]);
+        for (File file : files) {
+            FileInputStream fi = new FileInputStream(file);
             origin = new BufferedInputStream(fi, BUFFER_SIZE);
             try {
 
-                String tempPath = files[i].getPath();
+                String tempPath = file.getPath();
 
                 Log.d(TAG, "827 zipping folder with path: " + tempPath);
 
@@ -214,43 +199,6 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     protected FormRecord[] doTaskBackground(String... params) {
 
         Log.d(TAG, "doing zip task in background");
-
-        // ensure that SD is available, writable, and not emulated
-
-        boolean mExternalStorageAvailable = false;
-        boolean mExternalStorageWriteable = false;
-
-        boolean mExternalStorageEmulated = ReflectionUtil.mIsExternalStorageEmulatedHelper();
-
-        String state = Environment.getExternalStorageState();
-
-        ArrayList<String> externalMounts = FileUtil.getExternalMounts();
-
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            // We can read and write the media
-            mExternalStorageAvailable = mExternalStorageWriteable = true;
-        } else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            // We can only read the media
-            mExternalStorageAvailable = true;
-            mExternalStorageWriteable = false;
-        } else {
-            // Something else is wrong. It may be one of many other states, but all we need
-            //  to know is we can neither read nor write
-            mExternalStorageAvailable = mExternalStorageWriteable = false;
-        }
-
-        if (!mExternalStorageAvailable) {
-            publishProgress(Localization.get("bulk.form.sd.unavailable"));
-            return null;
-        }
-        if (!mExternalStorageWriteable) {
-            publishProgress(Localization.get("bulk.form.sd.unwritable"));
-            return null;
-        }
-        if (mExternalStorageEmulated && externalMounts.size() == 0) {
-            publishProgress(Localization.get("bulk.form.sd.emulated"));
-            return null;
-        }
 
         File baseDirectory = new File(CommCareWiFiDirectActivity.baseDirectory);
         File sourceDirectory = new File(CommCareWiFiDirectActivity.sourceDirectory);

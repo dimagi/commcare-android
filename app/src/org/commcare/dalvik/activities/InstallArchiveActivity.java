@@ -87,7 +87,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     }
     
     private void createArchive(String filepath){
-        String currentRef = filepath;
 
         UnzipTask<InstallArchiveActivity> mUnzipTask = new UnzipTask<InstallArchiveActivity>() {
             @Override
@@ -117,14 +116,13 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             }
         };
 
-        String readDir = currentRef;
-        File mFile = new File(currentRef);
+        File mFile = new File(filepath);
         String targetDirectory = getTargetFolder();
         FileUtil.deleteFileOrDir(targetDirectory);
 
         mUnzipTask.connect(InstallArchiveActivity.this);
-        Log.d(TAG, "executing task with: " + targetDirectory + " , " + readDir);
-        mUnzipTask.execute(readDir, targetDirectory);
+        Log.d(TAG, "executing task with: " + targetDirectory + " , " + filepath);
+        mUnzipTask.execute(filepath, targetDirectory);
 
     }
 

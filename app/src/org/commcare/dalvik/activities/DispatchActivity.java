@@ -3,6 +3,7 @@ package org.commcare.dalvik.activities;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
@@ -44,6 +45,42 @@ public class DispatchActivity extends FragmentActivity {
     private boolean startFromLogin;
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
+    private boolean shortcutExtraWasConsumed;
+
+    private static final String EXTRA_CONSUMED_KEY = "shortcut_extra_was_consumed";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        if (finishIfNotRoot()) {
+            return;
+        }
+
+        if (savedInstanceState != null) {
+            shortcutExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
+        }
+    }
+
+    /**
+     * A workaround required by Android Bug #2373 -- An app launched from the Google Play store
+     * has different intent flags than one launched from the App launcher, which ruins the back
+     * stack and prevents the app from launching a high affinity task.
+     *
+     * @return if finish() was called
+     */
+    private boolean finishIfNotRoot() {
+        if (!isTaskRoot()) {
+            Intent intent = getIntent();
+            String action = intent.getAction();
+            if (intent.hasCategory(Intent.CATEGORY_LAUNCHER) && action != null && action.equals(Intent.ACTION_MAIN)) {
+                finish();
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     @Override
     protected void onResume() {
@@ -56,6 +93,12 @@ public class DispatchActivity extends FragmentActivity {
         }
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(EXTRA_CONSUMED_KEY, shortcutExtraWasConsumed);
+    }
+
     private void dispatch() {
         if (isDbInBadState()) {
             // approrpiate error dialog has been triggered, don't continue w/ dispatch
@@ -65,15 +108,14 @@ public class DispatchActivity extends FragmentActivity {
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
 
         if (currentApp == null) {
-            // no app present, launch setup activity
             if (CommCareApplication._().usableAppsPresent()) {
-                // This is BAD -- means we ended up at home screen with no seated app, but there
-                // are other usable apps available. Should not be able to happen.
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "In CommCareHomeActivity with no" +
-                        "seated app, but there are other usable apps available on the device.");
+                CommCareApplication._().initFirstUsableAppRecord();
+                // Recurse in order to make the correct decision based on the new state
+                dispatch();
+            } else {
+                Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
+                this.startActivityForResult(i, INIT_APP);
             }
-            Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
-            this.startActivityForResult(i, INIT_APP);
         } else {
             // Note that the order in which these conditions are checked matters!!
             try {
@@ -95,7 +137,8 @@ public class DispatchActivity extends FragmentActivity {
                 } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
                     // CommCare was launched from an external app, with a session descriptor
                     handleExternalLaunch();
-                } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT)) {
+                } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT) &&
+                        !shortcutExtraWasConsumed) {
                     // CommCare was launched from a shortcut
                     handleShortcutLaunch();
                 } else {
@@ -218,6 +261,7 @@ public class DispatchActivity extends FragmentActivity {
                     this.getIntent().getStringExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT));
 
             getIntent().removeExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT);
+            shortcutExtraWasConsumed = true;
             Intent i = new Intent(this, CommCareHomeActivity.class);
             i.putExtra(WAS_SHORTCUT_LAUNCH, true);
             startActivityForResult(i, HOME_SCREEN);

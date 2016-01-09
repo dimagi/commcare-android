@@ -60,7 +60,7 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
 
             // create a new date time from date object using default time zone
             DateTime ldt =
-                new DateTime(((Date) ((TimeData) getCurrentAnswer()).getValue()).getTime());
+                new DateTime(((Date) getCurrentAnswer().getValue()).getTime());
             Log.d(TAG, "retrieving:" + ldt);
 
             int altVal = ldt.getHourOfDay() == 1 ? 2 : 1;

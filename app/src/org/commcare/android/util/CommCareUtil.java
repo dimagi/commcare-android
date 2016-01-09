@@ -2,23 +2,18 @@ package org.commcare.android.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 import android.widget.Toast;
 
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
-import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.util.ArrayUtilities;
-import org.javarosa.model.xform.DataModelSerializer;
 import org.javarosa.xpath.expr.XPathExpression;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Vector;
 
 /**
@@ -37,7 +32,7 @@ public class CommCareUtil {
         ///... Nooooot so clean.
         if(userFixtures.size() == 1) {
             //easy case, one fixture, use it
-            return (FormInstance)userFixtureStorage.read(userFixtures.elementAt(0));
+            return userFixtureStorage.read(userFixtures.elementAt(0));
             //TODO: Userid check anyway?
         } else if(userFixtures.size() > 1){
             //intersect userid and fixtureid set.
@@ -48,7 +43,7 @@ public class CommCareUtil {
             if(relevantUserFixtures.size() != 0) {
                 Integer userFixture = ArrayUtilities.intersectSingle(userFixtures, relevantUserFixtures);
                 if(userFixture != null) {
-                    return (FormInstance)userFixtureStorage.read(userFixture);
+                    return userFixtureStorage.read(userFixture);
                 }
             }
         }
@@ -57,12 +52,12 @@ public class CommCareUtil {
         Vector<Integer> appFixtures = appFixtureStorage.getIDsForValue(FormInstance.META_ID, refId);
         Integer globalFixture = ArrayUtilities.intersectSingle(appFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, ""), appFixtures);
         if(globalFixture != null) {
-            return (FormInstance)appFixtureStorage.read(globalFixture);
+            return appFixtureStorage.read(globalFixture);
         } else {
             //See if we have one manually placed in the suite
             Integer userFixture = ArrayUtilities.intersectSingle(appFixtureStorage.getIDsForValue(FormInstance.META_XMLNS, userId), appFixtures);
             if(userFixture != null) {
-                return (FormInstance)appFixtureStorage.read(userFixture);
+                return appFixtureStorage.read(userFixture);
             }
             //Otherwise, nothing
             return null;

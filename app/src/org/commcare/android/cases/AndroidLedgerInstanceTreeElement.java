@@ -40,9 +40,9 @@ public class AndroidLedgerInstanceTreeElement extends LedgerInstanceTreeElement 
         if (ledgers != null) {
             return;
         }
-        objectIdMapping = new Hashtable<Integer, Integer>();
-        ledgers = new Vector<LedgerChildElement>();
-        primaryIdMapping = new Hashtable<String, Integer>();
+        objectIdMapping = new Hashtable<>();
+        ledgers = new Vector<>();
+        primaryIdMapping = new Hashtable<>();
         int mult = 0;
         for (IStorageIterator i = ((SqlStorage<ACase>) getStorage()).iterate(false, Ledger.INDEX_ENTITY_ID); i.hasMore(); ) {
             int id = i.peekID();
@@ -60,10 +60,10 @@ public class AndroidLedgerInstanceTreeElement extends LedgerInstanceTreeElement 
         //This is kind of (ok, so really) awkward looking, but we can't use sets in 
         //ccj2me (Thanks, Nokia!) also, there's no _collections_ interface in
         //j2me (thanks Sun!) so this is what we get.
-        HashSet<Integer> selected = new HashSet<Integer>(selectedCases);
+        HashSet<Integer> selected = new HashSet<>(selectedCases);
         selected.addAll(selectedCases);
 
-        HashSet<Integer> other = new HashSet<Integer>();
+        HashSet<Integer> other = new HashSet<>();
         other.addAll(cases);
 
         selected.retainAll(other);
