@@ -47,11 +47,7 @@ public class ManagedUiFramework {
 
                     try {
                         View v = activity.findViewById(element.value());
-                        if (activity.usesUIController()) {
-                            f.set(activity.getUIController(), v);
-                        } else {
-                            f.set(activity, v);
-                        }
+                        setValueOfField(activity, v, f);
 
                         String localeString = element.locale();
                         if (!"".equals(localeString)) {
@@ -93,12 +89,7 @@ public class ManagedUiFramework {
 
                     try {
                         View v = activity.findViewById(element.value());
-                        if (activity.usesUIController()) {
-                            f.set(activity.getUIController(), v);
-                        } else {
-                            f.set(activity, v);
-                        }
-
+                        setValueOfField(activity, v, f);
                         restoredFromSaved(v, f, element, savedInstanceState);
                     } catch (IllegalArgumentException e) {
                         e.printStackTrace();
@@ -129,15 +120,6 @@ public class ManagedUiFramework {
                 Log.d("loadFields", "NullPointerException when trying to find view with id: " +
                         element.value() + ", element is: " + f + " (" + f.getName() + ")");
             }
-        }
-    }
-
-    private static Class getClassHoldingFields(CommCareActivity activity) {
-        CommCareActivityUIController uiController = activity.getUIController();
-        if (uiController != null) {
-            return uiController.getClass();
-        } else {
-            return activity.getClass();
         }
     }
 
@@ -189,5 +171,23 @@ public class ManagedUiFramework {
             }
         }
         return bundle;
+    }
+
+    private static Class getClassHoldingFields(CommCareActivity activity) {
+        CommCareActivityUIController uiController = activity.getUIController();
+        if (uiController != null) {
+            return uiController.getClass();
+        } else {
+            return activity.getClass();
+        }
+    }
+
+    private static void setValueOfField(CommCareActivity activity, View v, Field f)
+            throws IllegalAccessException {
+        if (activity.usesUIController()) {
+            f.set(activity.getUIController(), v);
+        } else {
+            f.set(activity, v);
+        }
     }
 }

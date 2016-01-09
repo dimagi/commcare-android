@@ -834,7 +834,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * Default implementation -- any activity that uses a uiController must override this
      */
     public void initUIController() {
-
     }
 
     /**

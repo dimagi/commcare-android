@@ -8,7 +8,6 @@ import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import org.commcare.android.adapters.HomeScreenAdapter;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.CommCareActivityUIController;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
