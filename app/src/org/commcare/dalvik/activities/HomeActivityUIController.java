@@ -21,7 +21,7 @@ import java.util.Vector;
 /**
  * @author amstone326
  */
-public class HomeActivityUIController extends CommCareActivityUIController {
+public class HomeActivityUIController implements CommCareActivityUIController {
 
     private final CommCareHomeActivity activity;
 
@@ -32,7 +32,7 @@ public class HomeActivityUIController extends CommCareActivityUIController {
     }
 
     @Override
-    protected void setupUI() {
+    public void setupUI() {
         activity.setContentView(R.layout.home_screen);
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(), CommCareHomeActivity.isDemoUser());
         setupGridView();

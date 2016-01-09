@@ -3,10 +3,10 @@ package org.commcare.android.framework;
 /**
  * Created by amstone326 on 1/9/16.
  */
-public abstract class CommCareActivityUIController {
+public interface CommCareActivityUIController {
 
-    protected abstract void setupUI();
+    void setupUI();
 
-    public abstract void refreshView();
+    void refreshView();
 
 }

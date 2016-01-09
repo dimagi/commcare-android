@@ -40,7 +40,7 @@ import java.util.ArrayList;
  * Created by amstone326 on 1/8/16.
  */
 @ManagedUi(R.layout.screen_login)
-public class LoginActivityUIController extends CommCareActivityUIController {
+public class LoginActivityUIController implements CommCareActivityUIController {
 
     @UiElement(value= R.id.screen_login_bad_password)
     private TextView errorBox;
@@ -86,7 +86,7 @@ public class LoginActivityUIController extends CommCareActivityUIController {
     }
 
     @Override
-    protected void setupUI() {
+    public void setupUI() {
 
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS |
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
