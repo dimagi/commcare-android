@@ -19,7 +19,9 @@ import org.commcare.suite.model.Profile;
 import java.util.Vector;
 
 /**
- * @author amstone326
+ * Handles home activity UI
+ *
+ * @author Aliza Stone (astone@dimagi.com)
  */
 public class HomeActivityUIController implements CommCareActivityUIController {
 

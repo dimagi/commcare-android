@@ -37,7 +37,9 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.ArrayList;
 
 /**
- * Created by amstone326 on 1/8/16.
+ * Handles login activity UI
+ *
+ * @author Aliza Stone (astone@dimagi.com)
  */
 @ManagedUi(R.layout.screen_login)
 public class LoginActivityUIController implements CommCareActivityUIController {
