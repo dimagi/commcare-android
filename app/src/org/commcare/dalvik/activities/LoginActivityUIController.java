@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.InputType;
 import android.text.TextWatcher;
@@ -20,6 +21,9 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.framework.CommCareActivityUIController;
+import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.ManagedUiFramework;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.session.DevSessionRestorer;
@@ -35,7 +39,8 @@ import java.util.ArrayList;
 /**
  * Created by amstone326 on 1/8/16.
  */
-public class LoginActivityUIController {
+@ManagedUi(R.layout.screen_login)
+public class LoginActivityUIController extends CommCareActivityUIController {
 
     @UiElement(value= R.id.screen_login_bad_password)
     private TextView errorBox;
@@ -78,10 +83,11 @@ public class LoginActivityUIController {
 
     public LoginActivityUIController(LoginActivity activity) {
         this.activity = activity;
-        setupUI();
     }
 
-    private void setupUI() {
+    @Override
+    protected void setupUI() {
+
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS |
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
 
@@ -133,6 +139,31 @@ public class LoginActivityUIController {
                     }
                 });
 
+    }
+
+    @Override
+    public void refreshView() {
+        // In case the seated app has changed since last time we were in LoginActivity
+        refreshForNewApp();
+
+        updateBanner();
+
+        activity.restoreEnteredTextFromRotation();
+
+        // Decide whether or not to show the app selection spinner based upon # of usable apps
+        ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getUsableAppRecords();
+
+        if (readyApps.size() == 1) {
+            // Set this app as the last selected app, for use in choosing what app to initialize
+            // on first startup
+            ApplicationRecord r = readyApps.get(0);
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+            prefs.edit().putString(LoginActivity.KEY_LAST_APP, r.getUniqueId()).commit();
+
+            setSingleAppUIState();
+        } else {
+            activity.populateAppSpinner(readyApps);
+        }
     }
 
     public void refreshForNewApp() {

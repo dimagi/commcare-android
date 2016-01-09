@@ -22,12 +22,24 @@ public class ManagedUiFramework {
         return c.isAnnotationPresent(ManagedUi.class);
     }
 
+    public static void setContentView(CommCareActivity activity) {
+        if (activity.usesUIController()) {
+            activity.setContentView(
+                    activity.getUIController().getClass().getAnnotation(ManagedUi.class).value());
+        } else {
+            activity.setContentView(
+                    activity.getClass().getAnnotation(ManagedUi.class).value());
+        }
+    }
+
     /**
      * Set text for activity's UiElement annotated fields
      */
     public static void loadUiElements(CommCareActivity activity) {
-        Class c = activity.getClass();
-        for (Field f : c.getDeclaredFields()) {
+
+        Class classHoldingFields = getClassHoldingFields(activity);
+
+        for (Field f : classHoldingFields.getDeclaredFields()) {
             if (f.isAnnotationPresent(UiElement.class)) {
                 UiElement element = f.getAnnotation(UiElement.class);
                 try {
@@ -35,7 +47,11 @@ public class ManagedUiFramework {
 
                     try {
                         View v = activity.findViewById(element.value());
-                        f.set(activity, v);
+                        if (activity.usesUIController()) {
+                            f.set(activity.getUIController(), v);
+                        } else {
+                            f.set(activity, v);
+                        }
 
                         String localeString = element.locale();
                         if (!"".equals(localeString)) {
@@ -66,8 +82,10 @@ public class ManagedUiFramework {
      */
     public static void restoreUiElements(CommCareActivity activity,
                                          Bundle savedInstanceState) {
-        Class c = activity.getClass();
-        for (Field f : c.getDeclaredFields()) {
+
+        Class classHoldingFields = getClassHoldingFields(activity);
+
+        for (Field f : classHoldingFields.getDeclaredFields()) {
             if (f.isAnnotationPresent(UiElement.class)) {
                 UiElement element = f.getAnnotation(UiElement.class);
                 try {
@@ -75,7 +93,11 @@ public class ManagedUiFramework {
 
                     try {
                         View v = activity.findViewById(element.value());
-                        f.set(activity, v);
+                        if (activity.usesUIController()) {
+                            f.set(activity.getUIController(), v);
+                        } else {
+                            f.set(activity, v);
+                        }
 
                         restoredFromSaved(v, f, element, savedInstanceState);
                     } catch (IllegalArgumentException e) {
@@ -110,6 +132,15 @@ public class ManagedUiFramework {
         }
     }
 
+    private static Class getClassHoldingFields(CommCareActivity activity) {
+        CommCareActivityUIController uiController = activity.getUIController();
+        if (uiController != null) {
+            return uiController.getClass();
+        } else {
+            return activity.getClass();
+        }
+    }
+
     private static String getElementKey(UiElement element) {
         return String.valueOf(element.value());
     }
@@ -122,15 +153,22 @@ public class ManagedUiFramework {
      * Store the state of the activity's UiElement annotated fields.
      */
     public static Bundle saveUiStateToBundle(CommCareActivity activity) {
+
         Bundle bundle = new Bundle();
-        Class c = activity.getClass();
-        for (Field f : c.getDeclaredFields()) {
+        Class classHoldingFields = getClassHoldingFields(activity);
+
+        for (Field f : classHoldingFields.getDeclaredFields()) {
             if (f.isAnnotationPresent(UiElement.class)) {
                 UiElement element = f.getAnnotation(UiElement.class);
                 try {
                     f.setAccessible(true);
                     try {
-                        View v = (View)f.get(activity);
+                        View v;
+                        if (activity.usesUIController()) {
+                            v = (View)f.get(activity.getUIController());
+                        } else {
+                            v = (View)f.get(activity);
+                        }
                         String elementKey = getElementKey(element);
                         int vis = v.getVisibility();
                         bundle.putInt(elementKey + "_visibility", vis);

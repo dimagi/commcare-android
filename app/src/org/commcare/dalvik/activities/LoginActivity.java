@@ -16,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import org.commcare.android.database.SqlStorage;
@@ -24,8 +23,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.DemoUserBuilder;
 import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.ManagedUiFramework;
+import org.commcare.android.framework.CommCareActivityUIController;
 import org.commcare.android.framework.Permissions;
 import org.commcare.android.framework.RuntimePermissionRequester;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -41,7 +39,6 @@ import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
-import org.commcare.android.ui.CustomBanner;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
@@ -49,7 +46,6 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogCreationHelpers;
-import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -60,7 +56,6 @@ import java.util.ArrayList;
 /**
  * @author ctsims
  */
-@ManagedUi(R.layout.screen_login)
 public class LoginActivity extends CommCareActivity<LoginActivity>
         implements OnItemSelectedListener, RuntimePermissionRequester {
 
@@ -93,7 +88,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        uiController = new LoginActivityUIController(this);
+        uiController.setupUI();
 
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -267,7 +262,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         // Otherwise, refresh the activity for current conditions
-        refresh();
+        uiController.refreshView();
     }
 
     @Override
@@ -504,43 +499,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         return dialog;
     }
 
-    private void refresh() {
-
-        // In case the seated app has changed since last time we were in LoginActivity
-        uiController.refreshForNewApp();
-
-        uiController.updateBanner();
-
-        restoreEnteredTextFromRotation();
-
-        // Decide whether or not to show the app selection spinner based upon # of usable apps
-        ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getUsableAppRecords();
-
-        if (readyApps.size() == 1) {
-            // Set this app as the last selected app, for use in choosing what app to initialize
-            // on first startup
-            ApplicationRecord r = readyApps.get(0);
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-            prefs.edit().putString(KEY_LAST_APP, r.getUniqueId()).commit();
-
-            uiController.setSingleAppUIState();
-        } else {
-            ArrayList<String> appNames = new ArrayList<>();
-            appIdDropdownList.clear();
-            for (ApplicationRecord r : readyApps) {
-                appNames.add(r.getDisplayName());
-                appIdDropdownList.add(r.getUniqueId());
-            }
-
-            // Want to set the spinner's selection to match whatever the currently seated app is
-            String currAppId = CommCareApplication._().getCurrentApp().getUniqueId();
-            int position = appIdDropdownList.indexOf(currAppId);
-
-            uiController.setMultipleAppsUIState(appNames, position);
-        }
-    }
-
-    private void restoreEnteredTextFromRotation() {
+    protected void restoreEnteredTextFromRotation() {
         if (usernameBeforeRotation != null) {
             uiController.setUsername(usernameBeforeRotation);
             usernameBeforeRotation = null;
@@ -549,6 +508,20 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             uiController.setPassword(passwordBeforeRotation);
             passwordBeforeRotation = null;
         }
+    }
+
+    protected void populateAppSpinner(ArrayList<ApplicationRecord> readyApps) {
+        ArrayList<String> appNames = new ArrayList<>();
+        appIdDropdownList.clear();
+        for (ApplicationRecord r : readyApps) {
+            appNames.add(r.getDisplayName());
+            appIdDropdownList.add(r.getUniqueId());
+        }
+
+        // Want to set the spinner's selection to match whatever the currently seated app is
+        String currAppId = CommCareApplication._().getCurrentApp().getUniqueId();
+        int position = appIdDropdownList.indexOf(currAppId);
+        uiController.setMultipleAppsUIState(appNames, position);
     }
 
     @Override
@@ -621,4 +594,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         startOta();
     }
+
+    @Override
+    public void initUIController() {
+        uiController = new LoginActivityUIController(this);
+    }
+
+    @Override
+    public CommCareActivityUIController getUIController() {
+        return this.uiController;
+    }
+
 }
