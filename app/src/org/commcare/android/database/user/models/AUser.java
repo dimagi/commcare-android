@@ -172,14 +172,6 @@ public class AUser implements Persistable, IMetaData
         return this.properties.get(key);
     }
 
-    public Hashtable getMetaData() {
-        Hashtable ret = new Hashtable();
-        for (String name : getMetaDataFields()) {
-            ret.put(name, getMetaData(name));
-        }
-        return ret;
-    }
-
     public void setSyncToken(String syncToken) {
         this.syncToken = syncToken;
     }
