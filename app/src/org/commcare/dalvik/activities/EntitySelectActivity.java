@@ -13,7 +13,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -93,7 +92,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         implements TextWatcher,
         EntityLoaderListener,
         OnItemClickListener,
-        TextToSpeech.OnInitListener,
         DetailCalloutListener {
     private static final String TAG = EntitySelectActivity.class.getSimpleName();
 
@@ -119,8 +117,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private ImageButton barcodeButton;
     private SearchView searchView;
     private MenuItem searchItem;
-
-    private TextToSpeech tts;
 
     private SessionDatum selectDatum;
 
@@ -268,9 +264,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         searchbox.requestFocus();
 
         persistAdapterState(view);
-
-        //cts: disabling for non-demo purposes
-        //tts = new TextToSpeech(this, this);
 
         restoreLastQueryString();
 
@@ -917,23 +910,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (adapter != null) {
             adapter.signalKilled();
         }
-
-        if (tts != null) {
-            tts.stop();
-            tts.shutdown();
-        }
     }
-
-    @Override
-    public void onInit(int status) {
-
-        if (status == TextToSpeech.SUCCESS) {
-            //using the default speech engine for now.
-        } else {
-        }
-
-    }
-
 
     @Override
     public void deliverResult(List<Entity<TreeReference>> entities,
@@ -954,7 +931,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         setupDivider(view);
 
-        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, factory);
+        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, null, factory);
 
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
