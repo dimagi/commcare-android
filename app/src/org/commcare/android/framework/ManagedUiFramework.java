@@ -37,7 +37,7 @@ public class ManagedUiFramework {
      */
     public static void loadUiElements(CommCareActivity activity) {
 
-        Class classHoldingFields = getClassHoldingFields(activity);
+        Class classHoldingFields = getObjectHoldingFields(activity).getClass();
 
         for (Field f : classHoldingFields.getDeclaredFields()) {
             if (f.isAnnotationPresent(UiElement.class)) {
@@ -79,7 +79,7 @@ public class ManagedUiFramework {
     public static void restoreUiElements(CommCareActivity activity,
                                          Bundle savedInstanceState) {
 
-        Class classHoldingFields = getClassHoldingFields(activity);
+        Class classHoldingFields = getObjectHoldingFields(activity).getClass();
 
         for (Field f : classHoldingFields.getDeclaredFields()) {
             if (f.isAnnotationPresent(UiElement.class)) {
@@ -137,20 +137,15 @@ public class ManagedUiFramework {
     public static Bundle saveUiStateToBundle(CommCareActivity activity) {
 
         Bundle bundle = new Bundle();
-        Class classHoldingFields = getClassHoldingFields(activity);
+        Object objectHoldingFields = getObjectHoldingFields(activity);
 
-        for (Field f : classHoldingFields.getDeclaredFields()) {
+        for (Field f : objectHoldingFields.getClass().getDeclaredFields()) {
             if (f.isAnnotationPresent(UiElement.class)) {
                 UiElement element = f.getAnnotation(UiElement.class);
                 try {
                     f.setAccessible(true);
                     try {
-                        View v;
-                        if (activity.usesUIController()) {
-                            v = (View)f.get(getUIController(activity));
-                        } else {
-                            v = (View)f.get(activity);
-                        }
+                        View v = (View)f.get(objectHoldingFields);
                         String elementKey = getElementKey(element);
                         int vis = v.getVisibility();
                         bundle.putInt(elementKey + "_visibility", vis);
@@ -173,11 +168,11 @@ public class ManagedUiFramework {
         return bundle;
     }
 
-    private static Class getClassHoldingFields(CommCareActivity activity) {
+    private static Object getObjectHoldingFields(CommCareActivity activity) {
         if (activity.usesUIController()) {
-            return getUIController(activity).getClass();
+            return getUIController(activity);
         } else {
-            return activity.getClass();
+            return activity;
         }
     }
 
