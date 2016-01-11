@@ -55,6 +55,7 @@ import org.commcare.android.view.TabbedDetailView;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.utils.EntityDetailUtils;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.DialogChoiceItem;
 import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
@@ -84,8 +85,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * TODO: Lots of locking and state-based cleanup
- *
  * @author ctsims
  */
 public class EntitySelectActivity extends SaveSessionCommCareActivity
@@ -212,7 +211,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
                         // attach the selected entity to the new detail intent
                         // we're launching
-                        Intent detailIntent = getDetailIntent(selectedRef, null);
+                        Intent detailIntent = EntityDetailUtils.getDetailIntent(getApplicationContext(), selectedRef, null, selectDatum, asw);
 
                         startOther = true;
                         startActivityForResult(detailIntent, CONFIRM_SELECT);
@@ -226,6 +225,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         view.setOnItemClickListener(this);
         setupDivider(view);
 
+        setupTopToolbar(view);
+    }
+
+    private void setupTopToolbar(ListView view) {
         TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
         //use the old method here because some Android versions don't like Spannables for titles
         searchLabel.setText(Localization.get("select.search.label"));
@@ -432,7 +435,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     //Once we've done the initial dispatch, we don't want to end up triggering it later.
                     this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
 
-                    Intent i = getDetailIntent(entity, null);
+                    Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(), entity, null, selectDatum, asw);
                     if (adapter != null) {
                         i.putExtra("entity_detail_index", adapter.getPosition(entity));
                         i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID,
@@ -504,49 +507,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         saveLastQueryString();
     }
 
-    /**
-     * Get an intent for displaying the confirm detail screen for an element (either just populates
-     * the given intent with the necessary information, or creates a new one if it is null)
-     *
-     * @param contextRef reference to the selected element for which to display
-     *                   detailed view
-     * @return The intent argument, or a newly created one, with element
-     * selection information attached.
-     */
-    private Intent getDetailIntent(TreeReference contextRef, Intent detailIntent) {
-        if (detailIntent == null) {
-            detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
-        }
-        return populateDetailIntent(detailIntent, contextRef, this.selectDatum, this.asw);
-    }
-
-    /**
-     * Attach all element selection information to the intent argument and return the resulting
-     * intent
-     */
-    protected static Intent populateDetailIntent(Intent detailIntent,
-                                                 TreeReference contextRef,
-                                                 SessionDatum selectDatum,
-                                                 AndroidSessionWrapper asw) {
-
-        String caseId = SessionDatum.getCaseIdFromReference(
-                contextRef, selectDatum, asw.getEvaluationContext());
-        detailIntent.putExtra(SessionFrame.STATE_DATUM_VAL, caseId);
-
-        // Include long datum info if present
-        if (selectDatum.getLongDetail() != null) {
-            detailIntent.putExtra(EntityDetailActivity.DETAIL_ID,
-                    selectDatum.getLongDetail());
-            detailIntent.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID,
-                    selectDatum.getPersistentDetail());
-        }
-
-        SerializationUtil.serializeToIntent(detailIntent,
-                EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
-
-        return detailIntent;
-    }
-
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if (id == EntityListAdapter.SPECIAL_ACTION) {
@@ -562,7 +522,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             displayReferenceAwesome(selection, position);
             updateSelectedItem(selection, false);
         } else {
-            Intent i = getDetailIntent(selection, null);
+            Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(),
+                    selection, null, selectDatum, asw);
             i.putExtra("entity_detail_index", position);
             if (mNoDetailMode) {
                 // Not actually launching detail intent because there's no confirm detail available
@@ -624,7 +585,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     if (inAwesomeMode) {
                         this.displayReferenceAwesome(r, adapter.getPosition(r));
                     } else {
-                        Intent i = this.getDetailIntent(r, null);
+                        Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(),
+                                r, null, selectDatum, asw);
                         if (mNoDetailMode) {
                             returnWithResult(i);
                         } else {
@@ -992,10 +954,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             view.setDivider(layerDrawable);
         } else {
             view.setDivider(null);
-
         }
-        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
 
+        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
     }
 
     private void updateSelectedItem(boolean forceMove) {
@@ -1018,7 +979,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
         }
     }
-
 
     @Override
     public void attach(EntityLoaderTask task) {
@@ -1055,7 +1015,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
-        selectedIntent = getDetailIntent(selection, getIntent());
+        selectedIntent = EntityDetailUtils.getDetailIntent(getApplicationContext(),
+                selection, getIntent(), selectDatum, asw);
         //this should be 100% "fragment" able
         if (!rightFrameSetup) {
             findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
@@ -1104,7 +1065,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public void deliverError(Exception e) {
         displayException(e);
     }
-
 
     @Override
     protected boolean onForwardSwipe() {

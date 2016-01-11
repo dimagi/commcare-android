@@ -43,6 +43,7 @@ import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.utils.EntityDetailUtils;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -774,7 +775,7 @@ public class CommCareHomeActivity
         } else {
             // Launch entity detail activity
             Intent detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
-            EntitySelectActivity.populateDetailIntent(
+            EntityDetailUtils.populateDetailIntent(
                     detailIntent, contextRef, selectDatum, asw);
             addPendingDataExtra(detailIntent, session);
             addPendingDatumIdExtra(detailIntent, session);
