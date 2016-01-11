@@ -4,11 +4,13 @@ import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.util.List;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -16,6 +18,7 @@ import java.util.List;
 public class NodeEntityFactory {
     private boolean mEntitySetInitialized = false;
     private static final Object mPreparationLock = new Object();
+    private HereFunctionHandler hereFunctionHandler;
 
     protected final EvaluationContext ec;
     protected final Detail detail;
@@ -23,6 +26,7 @@ public class NodeEntityFactory {
     public NodeEntityFactory(Detail d, EvaluationContext ec) {
         this.detail = d;
         this.ec = ec;
+        this.hereFunctionHandler = new HereFunctionHandler();
     }
 
     public Detail getDetail() {
@@ -33,6 +37,8 @@ public class NodeEntityFactory {
         EvaluationContext nodeContext = new EvaluationContext(ec, data);
         getDetail().populateEvaluationContextVariables(nodeContext);
         //return new AsyncEntity<TreeReference>(detail.getFields(), nodeContext, data);
+
+        nodeContext.addFunctionHandler(hereFunctionHandler);
 
         int length = detail.getHeaderForms().length;
         Object[] details = new Object[length];
@@ -117,6 +123,34 @@ public class NodeEntityFactory {
                 throw new RuntimeException("A Node Entity Factory was not prepared before usage. prepareEntities() must be called before a call to isEntitySetReady()");
             }
             return isEntitySetReadyInternal();
+        }
+    }
+
+    private class HereFunctionHandler implements IFunctionHandler {
+        public static final String HERE_NAME = "here";
+
+        public HereFunctionHandler() {}
+
+        public String getName() {
+            return HERE_NAME;
+        }
+
+        public Vector getPrototypes() {
+            Vector p = new Vector();
+            p.addElement(new Class[0]);
+            return p;
+        }
+
+        public boolean rawArgs() {
+            return false;
+        }
+
+        public boolean realTime() {
+            return true;
+        }
+
+        public Object eval(Object[] args, EvaluationContext ec) {
+            return "42.33 -71.11";
         }
     }
 }
