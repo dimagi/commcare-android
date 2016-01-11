@@ -23,13 +23,8 @@ public class ManagedUiFramework {
     }
 
     public static void setContentView(CommCareActivity activity) {
-        if (activity.usesUIController()) {
-            activity.setContentView(
-                    getUIController(activity).getClass().getAnnotation(ManagedUi.class).value());
-        } else {
-            activity.setContentView(
-                    activity.getClass().getAnnotation(ManagedUi.class).value());
-        }
+        activity.setContentView(
+                activity.getUIManager().getClass().getAnnotation(ManagedUi.class).value());
     }
 
     /**
@@ -37,7 +32,7 @@ public class ManagedUiFramework {
      */
     public static void loadUiElements(CommCareActivity activity) {
 
-        Class classHoldingFields = getObjectHoldingFields(activity).getClass();
+        Class classHoldingFields = activity.getUIManager().getClass();
 
         for (Field f : classHoldingFields.getDeclaredFields()) {
             if (f.isAnnotationPresent(UiElement.class)) {
@@ -47,7 +42,7 @@ public class ManagedUiFramework {
 
                     try {
                         View v = activity.findViewById(element.value());
-                        setValueOfField(activity, v, f);
+                        f.set(activity.getUIManager(), v);
 
                         String localeString = element.locale();
                         if (!"".equals(localeString)) {
@@ -79,7 +74,7 @@ public class ManagedUiFramework {
     public static void restoreUiElements(CommCareActivity activity,
                                          Bundle savedInstanceState) {
 
-        Class classHoldingFields = getObjectHoldingFields(activity).getClass();
+        Class classHoldingFields = activity.getUIManager().getClass();
 
         for (Field f : classHoldingFields.getDeclaredFields()) {
             if (f.isAnnotationPresent(UiElement.class)) {
@@ -89,7 +84,7 @@ public class ManagedUiFramework {
 
                     try {
                         View v = activity.findViewById(element.value());
-                        setValueOfField(activity, v, f);
+                        f.set(activity.getUIManager(), v);
                         restoredFromSaved(v, f, element, savedInstanceState);
                     } catch (IllegalArgumentException e) {
                         e.printStackTrace();
@@ -137,7 +132,7 @@ public class ManagedUiFramework {
     public static Bundle saveUiStateToBundle(CommCareActivity activity) {
 
         Bundle bundle = new Bundle();
-        Object objectHoldingFields = getObjectHoldingFields(activity);
+        Object objectHoldingFields = activity.getUIManager();
 
         for (Field f : objectHoldingFields.getClass().getDeclaredFields()) {
             if (f.isAnnotationPresent(UiElement.class)) {
@@ -166,27 +161,5 @@ public class ManagedUiFramework {
             }
         }
         return bundle;
-    }
-
-    private static Object getObjectHoldingFields(CommCareActivity activity) {
-        if (activity.usesUIController()) {
-            return getUIController(activity);
-        } else {
-            return activity;
-        }
-    }
-
-    private static void setValueOfField(CommCareActivity activity, View v, Field f)
-            throws IllegalAccessException {
-        if (activity.usesUIController()) {
-            f.set(getUIController(activity), v);
-        } else {
-            f.set(activity, v);
-        }
-    }
-
-    private static CommCareActivityUIController getUIController(CommCareActivity withController) {
-        return ((WithUIController)withController).getUIController();
-
     }
 }
