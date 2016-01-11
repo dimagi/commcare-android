@@ -41,7 +41,7 @@ install.button.retry=Retry Installation
 install.button.start=Start Install
 install.bad.ref=You did not scan a valid URL. Please try again.
 install.bad.login=Login to Existing App
-install.appprofile=Enter your app install address
+install.appprofile=Enter your app code
 
 upgrade.button.retry=Retry Upgrade
 upgrade.button.startover=Restart Upgrade
