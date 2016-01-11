@@ -1,26 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-    >
+                android:layout_height="match_parent">
+
     <FrameLayout
         android:id="@+id/universal_frame_tile"
-        android:layout_alignParentTop="true"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
     </FrameLayout>
+
     <FrameLayout
         android:id="@+id/form_entry_header_pane"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/universal_frame_tile">
     </FrameLayout>
+
     <TextView
         android:id="@+id/nav_badge"
         android:layout_width="@dimen/badge_circum_outer"
         android:layout_height="@dimen/badge_circum_outer"
         android:layout_alignParentRight="true"
         android:layout_alignTop="@id/nav_badge"
+        android:layout_below="@id/form_entry_header_pane"
         android:layout_marginBottom="@dimen/badge_offset"
         android:layout_marginRight="@dimen/badge_offset_side"
         android:background="@drawable/badge_background"
@@ -28,10 +31,8 @@
         android:text="6"
         android:textColor="@color/white"
         android:textStyle="bold"
-        android:layout_below="@id/form_entry_header_pane"
-        android:visibility="invisible" />
-    
-    
+        android:visibility="invisible"/>
+
     <ImageView
         android:id="@+id/nav_badge_border_drawer"
         android:layout_width="@dimen/badge_circum_outer"
@@ -40,7 +41,7 @@
         android:layout_alignTop="@id/nav_badge"
         android:scaleType="matrix"
         android:src="@drawable/badge_border"
-        android:visibility="invisible" >
+        android:visibility="invisible">
 
     </ImageView>
 
@@ -49,25 +50,24 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/nav_badge"
-        android:background="@color/cc_core_bg"
-        android:minHeight="@dimen/new_progressbar_minheight"
-        android:gravity="center_vertical"
-        android:paddingLeft="@dimen/content_start"
-        android:paddingRight="@dimen/content_start"
         android:layout_marginTop="@dimen/badge_overlap_offset"
-        >
+        android:background="@color/cc_core_bg"
+        android:gravity="center_vertical"
+        android:minHeight="@dimen/new_progressbar_minheight"
+        android:paddingLeft="@dimen/content_start"
+        android:paddingRight="@dimen/content_start">
 
         <ImageButton
             android:id="@+id/nav_btn_prev"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="@dimen/new_progressbar_button_minwidth"
-            android:minHeight="@dimen/new_progressbar_button_minheight"
-            android:paddingRight="@dimen/new_progressbar_button_padding"
             android:layout_alignParentLeft="true"
             android:background="@drawable/selector_button_press"
+            android:minHeight="@dimen/new_progressbar_button_minheight"
+            android:minWidth="@dimen/new_progressbar_button_minwidth"
             android:paddingLeft="@dimen/content_start"
-            android:src="@drawable/icon_chevron_left_brand" />
+            android:paddingRight="@dimen/new_progressbar_button_padding"
+            android:src="@drawable/icon_chevron_left_brand"/>
 
         <ProgressBar
             android:id="@+id/nav_prog_bar"
@@ -76,86 +76,84 @@
             android:layout_height="wrap_content"
             android:layout_alignBottom="@id/nav_btn_prev"
             android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/nav_btn_next"
-            android:layout_toRightOf="@id/nav_btn_prev"
+            android:layout_centerInParent="true"
             android:layout_marginLeft="@dimen/content_start"
             android:layout_marginRight="@dimen/content_start"
-            android:paddingBottom="@dimen/content_start"
-            android:paddingTop="@dimen/content_start"
+            android:layout_toLeftOf="@+id/nav_btn_next"
+            android:layout_toRightOf="@id/nav_btn_prev"
             android:indeterminate="false"
             android:indeterminateOnly="false"
             android:max="100"
+            android:paddingBottom="@dimen/content_start"
+            android:paddingTop="@dimen/content_start"
             android:progress="0"
-            android:progressDrawable="@drawable/progressbar_modern"
-            android:layout_centerInParent="true"
-            />
+            android:progressDrawable="@drawable/progressbar_modern"/>
 
         <ImageButton
             android:id="@+id/nav_btn_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="@dimen/new_progressbar_button_minwidth"
-            android:minHeight="@dimen/new_progressbar_button_minheight"
-            android:paddingLeft="@dimen/new_progressbar_button_padding"
             android:layout_alignParentRight="true"
             android:background="@drawable/selector_button_press"
+            android:minHeight="@dimen/new_progressbar_button_minheight"
+            android:minWidth="@dimen/new_progressbar_button_minwidth"
+            android:paddingLeft="@dimen/new_progressbar_button_padding"
             android:paddingRight="@dimen/content_start"
-            android:src="@drawable/icon_chevron_right_brand" />
+            android:src="@drawable/icon_chevron_right_brand"/>
     </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/form_entry_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/nav_pane"
-        >
+        android:layout_below="@id/nav_pane">
 
         <TextView
             android:id="@+id/form_entry_group_label"
+            style="@style/TextViewV2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="gone"
-            android:text="Header Text"
-            style="@style/TextViewV2"
             android:paddingLeft="@dimen/content_min_margin"
             android:paddingRight="@dimen/content_min_margin"
-            />
+            android:text="Header Text"
+            android:visibility="gone"/>
     </FrameLayout>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/form_entry_header"
-        android:layout_above="@+id/form_entry_labels">
+        android:layout_above="@+id/form_entry_labels"
+        android:layout_below="@id/form_entry_header">
+
         <FrameLayout
             android:id="@+id/form_entry_pane"
-            android:background="@color/white"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-    <include layout="@layout/component_drop_shadow"/>
+            android:layout_height="match_parent"
+            android:background="@color/white"/>
+
+        <include layout="@layout/component_drop_shadow"/>
+
         <FrameLayout
             android:id="@+id/form_entry_cover"
-            android:background="@color/transclucent_nearly_solid_grey"
-            android:visibility="gone"
-            android:clickable="true"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:background="@color/transclucent_nearly_solid_grey"
+            android:clickable="true"
+            android:visibility="gone"/>
     </FrameLayout>
 
     <FrameLayout
         android:id="@+id/form_entry_labels"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/screen_form_entry_bottom_anchor"
-        >
+        android:layout_above="@+id/screen_form_entry_bottom_anchor">
 
         <LinearLayout
             android:id="@+id/form_entry_label_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            android:orientation="vertical">
         </LinearLayout>
-
     </FrameLayout>
 
     <View
@@ -163,5 +161,4 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_alignParentBottom="true"/>
-
 </RelativeLayout>
