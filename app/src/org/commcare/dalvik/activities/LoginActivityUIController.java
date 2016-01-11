@@ -68,7 +68,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     @UiElement(R.id.welcome_msg)
     private TextView welcomeMessage;
 
-    private LoginActivity activity;
+    private final LoginActivity activity;
 
     private final TextWatcher textWatcher = new TextWatcher() {
         @Override
@@ -168,7 +168,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         }
     }
 
-    public void refreshForNewApp() {
+    private void refreshForNewApp() {
         // Remove any error content from trying to log into a different app
         setStyleDefault();
 
@@ -206,7 +206,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         }
     }
 
-    public void setErrorMessageUI(String message) {
+    protected void setErrorMessageUI(String message) {
         setLoginBoxesColorError();
 
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg), null, null, null);
@@ -230,7 +230,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         password.setTextColor(errorColor);
     }
 
-    public void setStyleDefault() {
+    private void setStyleDefault() {
         setLoginBoxesColorNormal();
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50), null, null, null);
         password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);
@@ -241,16 +241,16 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         }
     }
 
-    public void clearErrorMessage() {
+    protected void clearErrorMessage() {
         errorBox.setVisibility(View.GONE);
     }
 
-    public void setSingleAppUIState() {
+    private void setSingleAppUIState() {
         spinner.setVisibility(View.GONE);
         welcomeMessage.setText(Localization.get("login.welcome.single"));
     }
 
-    public void setMultipleAppsUIState(ArrayList<String> appNames, int position) {
+    protected void setMultipleAppsUIState(ArrayList<String> appNames, int position) {
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(activity,
@@ -263,13 +263,13 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         spinner.setVisibility(View.VISIBLE);
     }
 
-    public void setPermissionsGrantedState() {
+    protected void setPermissionsGrantedState() {
         loginButton.setEnabled(true);
         errorBox.setVisibility(View.GONE);
         errorBox.setText("");
     }
 
-    public void setPermissionDeniedState() {
+    protected void setPermissionDeniedState() {
         loginButton.setEnabled(false);
         errorBox.setVisibility(View.VISIBLE);
         errorBox.setText(Localization.get("permission.all.denial.message"));
@@ -293,7 +293,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         loginButton.setTextColor(getResources().getColor(R.color.cc_neutral_bg));
     }
 
-    public void restoreLastUser() {
+    protected void restoreLastUser() {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
         if (lastUser != null) {
@@ -302,27 +302,27 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         }
     }
 
-    public boolean isRestoreSessionChecked() {
+    protected boolean isRestoreSessionChecked() {
         return restoreSessionCheckbox.isChecked();
     }
 
-    public String getEnteredUsername() {
+    protected String getEnteredUsername() {
         return username.getText().toString();
     }
 
-    public String getEnteredPassword() {
+    protected String getEnteredPassword() {
         return password.getText().toString();
     }
 
-    public void setUsername(String s) {
+    protected void setUsername(String s) {
         username.setText(s);
     }
 
-    public void setPassword(String s) {
+    protected void setPassword(String s) {
         password.setText(s);
     }
 
-    public void updateBanner() {
+    private void updateBanner() {
         ImageView topBannerImageView =
                 (ImageView)banner.findViewById(org.commcare.dalvik.R.id.main_top_banner);
         if (!CustomBanner.useCustomBannerFitToActivity(activity, topBannerImageView)) {
