@@ -36,6 +36,7 @@ import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.QuestionExtensionReceiver;
+import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.services.Logger;
@@ -49,6 +50,7 @@ import org.odk.collect.android.views.ShrinkingTextView;
 import org.odk.collect.android.views.media.MediaLayout;
 
 import java.io.File;
+import java.util.Vector;
 
 public abstract class QuestionWidget extends LinearLayout implements QuestionExtensionReceiver {
     private final static String TAG = QuestionWidget.class.getSimpleName();
@@ -366,12 +368,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         }
     }
 
-    public void setChoiceText(TextView choiceText, FormEntryPrompt prompt, int index){
-        String markdownText = mPrompt.getSelectItemMarkdownText(mPrompt.getSelectChoices().get(index));
+    public void setChoiceText(TextView choiceText, Vector<SelectChoice> choices, int index){
+        String markdownText = mPrompt.getSelectItemMarkdownText(choices.get(index));
         if(markdownText != null){
             choiceText.setText(forceMarkdown(markdownText));
         } else{
-            choiceText.setText(mPrompt.getSelectChoiceText(mPrompt.getSelectChoices().get(index)));
+            choiceText.setText(mPrompt.getSelectChoiceText(choices.get(index)));
         }
     }
 

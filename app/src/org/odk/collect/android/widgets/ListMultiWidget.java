@@ -178,7 +178,7 @@ public class ListMultiWidget extends QuestionWidget {
                 // build text label. Don't assign the text to the built in label to he
                 // button because it aligns horizontally, and we want the label on top
                 TextView label = new TextView(getContext());
-                setChoiceText(label, mPrompt, i);
+                setChoiceText(label, mItems, i);
                 label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
                 if (!displayLabel) {
                     label.setVisibility(View.GONE);

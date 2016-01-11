@@ -121,7 +121,7 @@ public class LabelWidget extends QuestionWidget {
                 // build text label. Don't assign the text to the built in label to he
                 // button because it aligns horizontally, and we want the label on top
                 label = new TextView(getContext());
-                setChoiceText(label, mPrompt, i);
+                setChoiceText(label, mItems, i);
                 label.setTextSize(TypedValue.COMPLEX_UNIT_DIP, TEXTSIZE);
 
                 // answer layout holds the label text/image on top and the radio button on bottom
