@@ -182,53 +182,61 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (this.getString(R.string.panes).equals("two") && !mNoDetailMode) {
             //See if we're on a big 'ol screen.
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                //If we're in landscape mode, we can display this with the awesome UI.
-
-                //Inflate and set up the normal view for now.
-                setContentView(R.layout.screen_compound_select);
-                View.inflate(this, R.layout.entity_select_layout, (ViewGroup)findViewById(R.id.screen_compound_select_left_pane));
-                inAwesomeMode = true;
-
-                rightFrame = (FrameLayout)findViewById(R.id.screen_compound_select_right_pane);
-
-                TextView message = (TextView)findViewById(R.id.screen_compound_select_prompt);
-                //use the old method here because some Android versions don't like Spannables for titles
-                message.setText(Localization.get("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
+                setupLandscapeDualPaneView();
             } else {
-                setContentView(R.layout.entity_select_layout);
-                //So we're not in landscape mode anymore, but were before. If we had something selected, we 
-                //need to go to the detail screen instead.
-                if (savedInstanceState != null) {
-                    Intent intent = this.getIntent();
-
-                    TreeReference selectedRef = SerializationUtil.deserializeFromIntent(intent,
-                            EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
-                    if (selectedRef != null) {
-                        // remove the reference from this intent, ensuring we
-                        // don't re-launch the detail for an entity even after
-                        // it being de-selected.
-                        intent.removeExtra(EntityDetailActivity.CONTEXT_REFERENCE);
-
-                        // attach the selected entity to the new detail intent
-                        // we're launching
-                        Intent detailIntent = EntityDetailUtils.getDetailIntent(getApplicationContext(), selectedRef, null, selectDatum, asw);
-
-                        startOther = true;
-                        startActivityForResult(detailIntent, CONFIRM_SELECT);
-                    }
-                }
+                boolean isOrientationChange = savedInstanceState != null;
+                setupPortraitDualPaneView(isOrientationChange);
             }
         } else {
             setContentView(R.layout.entity_select_layout);
         }
+
         ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
         view.setOnItemClickListener(this);
-        setupDivider(view);
 
-        setupTopToolbar(view);
+        setupDivider(view);
+        setupToolbar(view);
     }
 
-    private void setupTopToolbar(ListView view) {
+    private void setupLandscapeDualPaneView() {
+        //Inflate and set up the normal view for now.
+        setContentView(R.layout.screen_compound_select);
+        View.inflate(this, R.layout.entity_select_layout, (ViewGroup)findViewById(R.id.screen_compound_select_left_pane));
+        inAwesomeMode = true;
+
+        rightFrame = (FrameLayout)findViewById(R.id.screen_compound_select_right_pane);
+
+        TextView message = (TextView)findViewById(R.id.screen_compound_select_prompt);
+        //use the old method here because some Android versions don't like Spannables for titles
+        message.setText(Localization.get("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
+    }
+
+    private void setupPortraitDualPaneView(boolean isOrientationChange) {
+        setContentView(R.layout.entity_select_layout);
+        //So we're not in landscape mode anymore, but were before. If we had something selected, we
+        //need to go to the detail screen instead.
+        if (isOrientationChange) {
+            Intent intent = this.getIntent();
+
+            TreeReference selectedRef = SerializationUtil.deserializeFromIntent(intent,
+                    EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+            if (selectedRef != null) {
+                // remove the reference from this intent, ensuring we
+                // don't re-launch the detail for an entity even after
+                // it being de-selected.
+                intent.removeExtra(EntityDetailActivity.CONTEXT_REFERENCE);
+
+                // attach the selected entity to the new detail intent
+                // we're launching
+                Intent detailIntent = EntityDetailUtils.getDetailIntent(getApplicationContext(), selectedRef, null, selectDatum, asw);
+
+                startOther = true;
+                startActivityForResult(detailIntent, CONFIRM_SELECT);
+            }
+        }
+    }
+
+    private void setupToolbar(ListView view) {
         TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
         //use the old method here because some Android versions don't like Spannables for titles
         searchLabel.setText(Localization.get("select.search.label"));
