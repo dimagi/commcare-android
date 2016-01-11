@@ -24,6 +24,7 @@ import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.CommCareActivityUIController;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
+import org.commcare.android.framework.WithUIController;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -74,7 +75,7 @@ import java.util.Vector;
 
 public class CommCareHomeActivity
         extends SessionAwareCommCareActivity<CommCareHomeActivity>
-        implements SessionNavigationResponder {
+        implements SessionNavigationResponder, WithUIController {
 
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 

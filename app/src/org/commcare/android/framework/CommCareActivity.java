@@ -118,9 +118,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             AudioController.INSTANCE.releaseCurrentMediaEntity();
         }
 
-        // Has no effect if the activity is not using a uiController, but must be called before
-        // persistManagedUiState() for those activities that are using one
-        initUIController();
+        // For activities using a uiController, this must be called before persistManagedUiState()
+        if (usesUIController()) {
+            ((WithUIController)this).initUIController();
+        }
 
         persistManagedUiState(fm);
 
@@ -830,28 +831,17 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         isMainScreenBlocked = isBlocked;
     }
 
-    /**
-     * Default implementation -- any activity that uses a uiController must override this
-     */
-    public void initUIController() {
-    }
-
-    /**
-     * Default implementation -- any activity that uses a uiController must override this
-     */
-    public CommCareActivityUIController getUIController() {
-        return null;
-    }
-
     public boolean usesUIController() {
-        return getUIController() != null;
+        return this instanceof WithUIController;
     }
 
     private boolean isManagedUiActivity() {
+        Class classWithAnnotation;
         if (usesUIController()) {
-            return ManagedUiFramework.isManagedUi(getUIController().getClass());
+            classWithAnnotation = ((WithUIController)this).getUIController().getClass();
         } else {
-            return ManagedUiFramework.isManagedUi(this.getClass());
+            classWithAnnotation = this.getClass();
         }
+        return ManagedUiFramework.isManagedUi(classWithAnnotation);
     }
 }

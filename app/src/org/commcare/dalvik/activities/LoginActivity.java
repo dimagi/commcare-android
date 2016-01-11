@@ -26,6 +26,7 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.CommCareActivityUIController;
 import org.commcare.android.framework.Permissions;
 import org.commcare.android.framework.RuntimePermissionRequester;
+import org.commcare.android.framework.WithUIController;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.models.notifications.NotificationMessage;
@@ -57,7 +58,7 @@ import java.util.ArrayList;
  * @author ctsims
  */
 public class LoginActivity extends CommCareActivity<LoginActivity>
-        implements OnItemSelectedListener, RuntimePermissionRequester {
+        implements OnItemSelectedListener, RuntimePermissionRequester, WithUIController {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 

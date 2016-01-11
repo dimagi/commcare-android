@@ -25,7 +25,7 @@ public class ManagedUiFramework {
     public static void setContentView(CommCareActivity activity) {
         if (activity.usesUIController()) {
             activity.setContentView(
-                    activity.getUIController().getClass().getAnnotation(ManagedUi.class).value());
+                    getUIController(activity).getClass().getAnnotation(ManagedUi.class).value());
         } else {
             activity.setContentView(
                     activity.getClass().getAnnotation(ManagedUi.class).value());
@@ -147,7 +147,7 @@ public class ManagedUiFramework {
                     try {
                         View v;
                         if (activity.usesUIController()) {
-                            v = (View)f.get(activity.getUIController());
+                            v = (View)f.get(getUIController(activity));
                         } else {
                             v = (View)f.get(activity);
                         }
@@ -174,9 +174,8 @@ public class ManagedUiFramework {
     }
 
     private static Class getClassHoldingFields(CommCareActivity activity) {
-        CommCareActivityUIController uiController = activity.getUIController();
-        if (uiController != null) {
-            return uiController.getClass();
+        if (activity.usesUIController()) {
+            return getUIController(activity).getClass();
         } else {
             return activity.getClass();
         }
@@ -185,9 +184,14 @@ public class ManagedUiFramework {
     private static void setValueOfField(CommCareActivity activity, View v, Field f)
             throws IllegalAccessException {
         if (activity.usesUIController()) {
-            f.set(activity.getUIController(), v);
+            f.set(getUIController(activity), v);
         } else {
             f.set(activity, v);
         }
+    }
+
+    private static CommCareActivityUIController getUIController(CommCareActivity withController) {
+        return ((WithUIController)withController).getUIController();
+
     }
 }

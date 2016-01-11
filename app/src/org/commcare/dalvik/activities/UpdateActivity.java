@@ -7,6 +7,7 @@ import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.CommCareActivityUIController;
+import org.commcare.android.framework.WithUIController;
 import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.tasks.InstallStagedUpdateTask;
@@ -26,7 +27,7 @@ import org.javarosa.core.services.locale.Localization;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class UpdateActivity extends CommCareActivity<UpdateActivity>
-        implements TaskListener<Integer, AppInstallStatus> {
+        implements TaskListener<Integer, AppInstallStatus>, WithUIController {
 
     private static final String TAG = UpdateActivity.class.getSimpleName();
     private static final String TASK_CANCELLING_KEY = "update_task_cancelling";
