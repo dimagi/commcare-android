@@ -835,13 +835,15 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return this instanceof WithUIController;
     }
 
-    private boolean isManagedUiActivity() {
-        Class classWithAnnotation;
+    public Object getUIManager() {
         if (usesUIController()) {
-            classWithAnnotation = ((WithUIController)this).getUIController().getClass();
+            return ((WithUIController)this).getUIController();
         } else {
-            classWithAnnotation = this.getClass();
+            return this;
         }
-        return ManagedUiFramework.isManagedUi(classWithAnnotation);
+    }
+
+    private boolean isManagedUiActivity() {
+        return ManagedUiFramework.isManagedUi(getUIManager().getClass());
     }
 }
