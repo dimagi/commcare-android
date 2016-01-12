@@ -132,18 +132,6 @@ public class UserKeyRecord extends Persisted {
         return encryptedKey;
     }
 
-    public void assignPinToRecord(String pin, String password) {
-        this.passwordWrappedByPin = CryptUtil.wrapPasswordWithPin(password, pin);
-    }
-
-    public byte[] getWrappedPassword() {
-        return passwordWrappedByPin;
-    }
-
-    public boolean hasPinSet() {
-        return passwordWrappedByPin != null;
-    }
-
     /**
      * @return the validFrom
      */
@@ -244,14 +232,25 @@ public class UserKeyRecord extends Persisted {
                 hash.equals(UserKeyRecord.generatePwdHash(password, UserKeyRecord.extractSalt(hash))));
     }
 
+    public void assignPinToRecord(String pin, String password) {
+        this.passwordWrappedByPin = wrapPasswordWithPin(password, pin);
+    }
+
+    public byte[] getWrappedPassword() {
+        return passwordWrappedByPin;
+    }
+
+    public boolean hasPinSet() {
+        return passwordWrappedByPin != null;
+    }
+
     public boolean isPinValid(String pin) {
         // Unwrap wrapped password, and then call isPasswordValid() on the result of that
-        return false;
+        return isPasswordValid(getUnhashedPasswordViaPin(pin));
     }
 
     public String getUnhashedPasswordViaPin(String pin) {
-        //return unwrap(this.passwordWrappedByPin)
-        return null;
+        return unwrapPasswordWithPin(this.passwordWrappedByPin, pin);
     }
 
     /**
@@ -264,6 +263,14 @@ public class UserKeyRecord extends Persisted {
         } else {
             return isPasswordValid(password);
         }
+    }
+
+    public static byte[] wrapPasswordWithPin(String password, String pin) {
+        return CryptUtil.wrapByteArrayWithString(password.getBytes(), pin);
+    }
+
+    public static String unwrapPasswordWithPin(byte[] wrappedPassword, String pin) {
+        return new String(CryptUtil.unwrapByteArrayWithString(wrappedPassword, pin));
     }
 
     public byte[] unWrapKey(String password) {

@@ -88,15 +88,11 @@ public class CryptUtil {
         return null;
     }
 
-    public static byte[] wrapPasswordWithPin(String password, String pin) {
-        return wrapByteArrayWithString(password.getBytes(), pin);
-    }
-
     public static byte[] wrapKey(byte[] secretKey, String password) {
         return wrapByteArrayWithString(secretKey, password);
     }
 
-    private static byte[] wrapByteArrayWithString(byte[] bytes, String wrappingString) {
+    public static byte[] wrapByteArrayWithString(byte[] bytes, String wrappingString) {
         try {
             return encrypt(bytes, encodingCipher(wrappingString));
         } catch (InvalidKeySpecException | NoSuchAlgorithmException | InvalidKeyException e) {
@@ -106,19 +102,20 @@ public class CryptUtil {
         }
     }
 
-    public static byte[] unWrapKey(byte[] wrapped, String password) {
+    public static byte[] unwrapByteArrayWithString(byte[] wrapped, String wrappingString) {
         try {
-            Cipher cipher = decodingCipher(password);
+            Cipher cipher = decodingCipher(wrappingString);
             return decrypt(wrapped, cipher);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidKeySpecException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidKeyException e) {
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException e) {
             throw new RuntimeException(e);
         } catch (NoSuchPaddingException e) {
             return null;
         }
+    }
+
+
+    public static byte[] unWrapKey(byte[] wrapped, String password) {
+        return unwrapByteArrayWithString(wrapped, password);
     }
 
     private static byte[] append(byte[] one, byte[] two) {
