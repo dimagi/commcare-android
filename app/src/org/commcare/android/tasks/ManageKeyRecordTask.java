@@ -171,7 +171,8 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
          * b) We didn't find a matching record that is valid
          * c) There is a keyServerUrl to make the http callout to */
         //TODO AMS: Currently set this up that we will just never do a callout if in pin mode, but
-        // it's possible that we do want to try to update an invalid record?
+        // it's possible that we do want to try to update an invalid record? -- Likely not though
+        // b/c would need password
         calloutNeeded = !inPinMode && (!hasRecord || valid == null) && keyServerUrl != null;
         
         if (calloutNeeded) {
@@ -413,23 +414,23 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     private UserKeyRecord getInUserSandbox(String username, SqlStorage<UserKeyRecord> storage) {
         UserKeyRecord oldSandboxToMigrate = null;
         
-        for(UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
-            if(ukr.getType() == UserKeyRecord.TYPE_NEW) {
-                //This record is also new (which is kind of sketchy, actually), so it's not helpful.
+        for (UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
+            if (ukr.getType() == UserKeyRecord.TYPE_NEW) {
+                // This record is also new (which is kind of sketchy) so it's not helpful
                 continue;
             }
             
-            //Ok, so we have an old record that's been in use for this user. See if this password is the same
-            if(!ukr.isPasswordValid(password)) {
+            // Ok, so we have an old record that's been in use for this user. See if this password is the same
+            if (!ukr.isPasswordValid(password)) {
                 //Otherwise, this was saved for a different password. We would have simply overwritten the record
                 //if our sandboxes matched, so we can't do anything with it.
                 continue;
             }
             
-            //Ok, so only one more question: We may have migrated a sandbox in the past already, so we should only
-            //overwrite this record if it's the newest (although it's a bad sign if we have two existing sandboxes
-            //which can be unlocked with the same password)
-            if(oldSandboxToMigrate == null || ukr.getValidFrom().after(oldSandboxToMigrate.getValidFrom())) {
+            // Ok, so only one more question: We may have migrated a sandbox in the past already,
+            // so we should only overwrite this record if it's the newest (although it's a bad sign
+            // if we have two existing sandboxes which can be unlocked with the same password)
+            if (oldSandboxToMigrate == null || ukr.getValidFrom().after(oldSandboxToMigrate.getValidFrom())) {
                 oldSandboxToMigrate = ukr;
             } else {
                 Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Two old sandboxes exist with the same username");
