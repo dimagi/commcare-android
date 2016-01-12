@@ -56,11 +56,11 @@ import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.utils.EntityDetailUtils;
+import org.commcare.dalvik.activities.utils.EntitySelectRefreshTimer;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.DialogChoiceItem;
 import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.commcare.dalvik.preferences.CommCarePreferences;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Action;
@@ -81,8 +81,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * @author ctsims
@@ -151,16 +149,16 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private boolean rightFrameSetup = false;
     private NodeEntityFactory factory;
 
-    private Timer myTimer;
-    private final Object timerLock = new Object();
-    private boolean cancelled;
     private ContainerFragment<EntityListAdapter> containerFragment;
+    private EntitySelectRefreshTimer refreshTimer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         this.createDataSetObserver();
+
+        refreshTimer = new EntitySelectRefreshTimer();
 
         if (savedInstanceState != null) {
             mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
@@ -490,7 +488,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 theloader.attachListener(this);
                 theloader.execute(selectDatum.getNodeset());
             } else {
-                startTimer();
+                refreshTimer.start(this);
             }
         } catch (RuntimeException re) {
             createErrorDialog(re.getMessage(), true);
@@ -501,7 +499,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     protected void onPause() {
         super.onPause();
 
-        stopTimer();
+        refreshTimer.stop();
 
         if (adapter != null) {
             adapter.unregisterDataSetObserver(mListStateObserver);
@@ -511,7 +509,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     protected void onStop() {
         super.onStop();
-        stopTimer();
+        refreshTimer.stop();
         saveLastQueryString();
     }
 
@@ -930,7 +928,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             updateSelectedItem(true);
         }
 
-        this.startTimer();
+        refreshTimer.start(this);
     }
 
     private void setupDivider(ListView view) {
@@ -1100,51 +1098,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         return true;
     }
 
-    //Below is helper code for the Refresh Feature. 
-    //this is a dev feature and should get restructured before release in prod.
-    //If the devloper setting is turned off this code should do nothing.
-
-    private void triggerRebuild() {
+    /**
+     * Rough custom feature not meant for a general prod env.
+     */
+    public void triggerCaseListRefresh() {
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
             EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
             theloader.attachListener(this);
             theloader.execute(selectDatum.getNodeset());
-        }
-    }
-
-    private void startTimer() {
-        if (!DeveloperPreferences.isListRefreshEnabled()) {
-            return;
-        }
-        synchronized (timerLock) {
-            if (myTimer == null) {
-                myTimer = new Timer();
-                myTimer.schedule(new TimerTask() {
-
-                    @Override
-                    public void run() {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (!cancelled) {
-                                    triggerRebuild();
-                                }
-                            }
-                        });
-                    }
-                }, 15 * 1000, 15 * 1000);
-                cancelled = false;
-            }
-        }
-    }
-
-    private void stopTimer() {
-        synchronized (timerLock) {
-            if (myTimer != null) {
-                myTimer.cancel();
-                myTimer = null;
-                cancelled = true;
-            }
         }
     }
 }
