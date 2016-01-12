@@ -42,11 +42,6 @@ public class CalendaredDateFormatHandler implements IFunctionHandler {
         }
 
         @Override
-        public boolean realTime() {
-            return false;
-        }
-
-        @Override
         public Object eval(Object[] args, EvaluationContext ec) {
             if("".equals(args[0])) { return "";}
             Date d = (Date)XPathFuncExpr.toDate(args[0]);
