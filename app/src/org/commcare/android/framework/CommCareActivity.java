@@ -65,7 +65,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     // Fields for implementing task transitions for CommCareTaskConnector
     private boolean inTaskTransition;
 
-
     /**
      * Used to indicate that the (progress) dialog associated with a task
      * should be dismissed because the task has completed or been canceled.
@@ -100,7 +99,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private ContainerFragment<Bundle> managedUiState;
     private boolean isMainScreenBlocked;
 
-
     @Override
     @TargetApi(14)
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +116,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             // entering new activity, not just rotating one, so release old
             // media
             AudioController.INSTANCE.releaseCurrentMediaEntity();
+        }
+
+        // For activities using a uiController, this must be called before persistManagedUiState()
+        if (usesUIController()) {
+            ((WithUIController)this).initUIController();
         }
 
         persistManagedUiState(fm);
@@ -139,7 +142,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     private void persistManagedUiState(FragmentManager fm) {
-        if (ManagedUiFramework.isManagedUi(this.getClass())) {
+        if (isManagedUiActivity()) {
             managedUiState = (ContainerFragment)fm.findFragmentByTag("ui-state");
 
             if (managedUiState == null) {
@@ -153,14 +156,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     private void loadUiElementState(Bundle savedInstanceState) {
-        if (ManagedUiFramework.isManagedUi(this.getClass())) {
-            this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
+        ManagedUiFramework.setContentView(this);
 
-            if (savedInstanceState != null) {
-                ManagedUiFramework.restoreUiElements(this, savedInstanceState);
-            } else {
-                ManagedUiFramework.loadUiElements(this);
-            }
+        if (savedInstanceState != null) {
+            ManagedUiFramework.restoreUiElements(this, savedInstanceState);
+        } else {
+            ManagedUiFramework.loadUiElements(this);
         }
     }
 
@@ -273,7 +274,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onPause() {
         super.onPause();
 
-        if (ManagedUiFramework.isManagedUi(this.getClass())) {
+        if (isManagedUiActivity()) {
             managedUiState.setData(ManagedUiFramework.saveUiStateToBundle(this));
         }
 
@@ -828,5 +829,21 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     public void setMainScreenBlocked(boolean isBlocked) {
         isMainScreenBlocked = isBlocked;
+    }
+
+    public boolean usesUIController() {
+        return this instanceof WithUIController;
+    }
+
+    public Object getUIManager() {
+        if (usesUIController()) {
+            return ((WithUIController)this).getUIController();
+        } else {
+            return this;
+        }
+    }
+
+    private boolean isManagedUiActivity() {
+        return ManagedUiFramework.isManagedUi(getUIManager().getClass());
     }
 }

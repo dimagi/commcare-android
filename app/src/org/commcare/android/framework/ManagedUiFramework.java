@@ -22,12 +22,19 @@ public class ManagedUiFramework {
         return c.isAnnotationPresent(ManagedUi.class);
     }
 
+    public static void setContentView(CommCareActivity activity) {
+        activity.setContentView(
+                activity.getUIManager().getClass().getAnnotation(ManagedUi.class).value());
+    }
+
     /**
      * Set text for activity's UiElement annotated fields
      */
     public static void loadUiElements(CommCareActivity activity) {
-        Class c = activity.getClass();
-        for (Field f : c.getDeclaredFields()) {
+
+        Class classHoldingFields = activity.getUIManager().getClass();
+
+        for (Field f : classHoldingFields.getDeclaredFields()) {
             if (f.isAnnotationPresent(UiElement.class)) {
                 UiElement element = f.getAnnotation(UiElement.class);
                 try {
@@ -35,7 +42,7 @@ public class ManagedUiFramework {
 
                     try {
                         View v = activity.findViewById(element.value());
-                        f.set(activity, v);
+                        f.set(activity.getUIManager(), v);
 
                         String localeString = element.locale();
                         if (!"".equals(localeString)) {
@@ -66,8 +73,10 @@ public class ManagedUiFramework {
      */
     public static void restoreUiElements(CommCareActivity activity,
                                          Bundle savedInstanceState) {
-        Class c = activity.getClass();
-        for (Field f : c.getDeclaredFields()) {
+
+        Class classHoldingFields = activity.getUIManager().getClass();
+
+        for (Field f : classHoldingFields.getDeclaredFields()) {
             if (f.isAnnotationPresent(UiElement.class)) {
                 UiElement element = f.getAnnotation(UiElement.class);
                 try {
@@ -75,8 +84,7 @@ public class ManagedUiFramework {
 
                     try {
                         View v = activity.findViewById(element.value());
-                        f.set(activity, v);
-
+                        f.set(activity.getUIManager(), v);
                         restoredFromSaved(v, f, element, savedInstanceState);
                     } catch (IllegalArgumentException e) {
                         e.printStackTrace();
@@ -122,15 +130,17 @@ public class ManagedUiFramework {
      * Store the state of the activity's UiElement annotated fields.
      */
     public static Bundle saveUiStateToBundle(CommCareActivity activity) {
+
         Bundle bundle = new Bundle();
-        Class c = activity.getClass();
-        for (Field f : c.getDeclaredFields()) {
+        Object objectHoldingFields = activity.getUIManager();
+
+        for (Field f : objectHoldingFields.getClass().getDeclaredFields()) {
             if (f.isAnnotationPresent(UiElement.class)) {
                 UiElement element = f.getAnnotation(UiElement.class);
                 try {
                     f.setAccessible(true);
                     try {
-                        View v = (View)f.get(activity);
+                        View v = (View)f.get(objectHoldingFields);
                         String elementKey = getElementKey(element);
                         int vis = v.getVisibility();
                         bundle.putInt(elementKey + "_visibility", vis);
