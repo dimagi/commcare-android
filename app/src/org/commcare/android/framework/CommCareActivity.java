@@ -96,6 +96,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      */
     private int dialogId = -1;
     private ContainerFragment<Bundle> managedUiState;
+    private boolean isMainScreenBlocked;
 
     @Override
     @TargetApi(14)
@@ -114,6 +115,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             // entering new activity, not just rotating one, so release old
             // media
             AudioController.INSTANCE.releaseCurrentMediaEntity();
+        }
+
+        // For activities using a uiController, this must be called before persistManagedUiState()
+        if (usesUIController()) {
+            ((WithUIController)this).initUIController();
         }
 
         persistManagedUiState(fm);
@@ -135,7 +141,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     private void persistManagedUiState(FragmentManager fm) {
-        if (ManagedUiFramework.isManagedUi(this.getClass())) {
+        if (isManagedUiActivity()) {
             managedUiState = (ContainerFragment)fm.findFragmentByTag("ui-state");
 
             if (managedUiState == null) {
@@ -149,14 +155,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     private void loadUiElementState(Bundle savedInstanceState) {
-        if (ManagedUiFramework.isManagedUi(this.getClass())) {
-            this.setContentView(this.getClass().getAnnotation(ManagedUi.class).value());
+        ManagedUiFramework.setContentView(this);
 
-            if (savedInstanceState != null) {
-                ManagedUiFramework.restoreUiElements(this, savedInstanceState);
-            } else {
-                ManagedUiFramework.loadUiElements(this);
-            }
+        if (savedInstanceState != null) {
+            ManagedUiFramework.restoreUiElements(this, savedInstanceState);
+        } else {
+            ManagedUiFramework.loadUiElements(this);
         }
     }
 
@@ -269,7 +273,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onPause() {
         super.onPause();
 
-        if (ManagedUiFramework.isManagedUi(this.getClass())) {
+        if (isManagedUiActivity()) {
             managedUiState.setData(ManagedUiFramework.saveUiStateToBundle(this));
         }
 
@@ -662,7 +666,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        if (isHorizontalSwipe(this, e1, e2)) {
+        if (isHorizontalSwipe(this, e1, e2) && !isMainScreenBlocked) {
             if (velocityX <= 0) {
                 return onForwardSwipe();
             }
@@ -772,5 +776,25 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      */
     protected boolean areFragmentsPaused() {
         return areFragmentsPaused;
+    }
+
+    public void setMainScreenBlocked(boolean isBlocked) {
+        isMainScreenBlocked = isBlocked;
+    }
+
+    public boolean usesUIController() {
+        return this instanceof WithUIController;
+    }
+
+    public Object getUIManager() {
+        if (usesUIController()) {
+            return ((WithUIController)this).getUIController();
+        } else {
+            return this;
+        }
+    }
+
+    private boolean isManagedUiActivity() {
+        return ManagedUiFramework.isManagedUi(getUIManager().getClass());
     }
 }

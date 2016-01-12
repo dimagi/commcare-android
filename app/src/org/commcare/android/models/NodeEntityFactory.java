@@ -33,7 +33,6 @@ public class NodeEntityFactory {
     public Entity<TreeReference> getEntity(TreeReference data) {
         EvaluationContext nodeContext = new EvaluationContext(ec, data);
         getDetail().populateEvaluationContextVariables(nodeContext);
-        //return new AsyncEntity<TreeReference>(detail.getFields(), nodeContext, data);
 
         int length = detail.getHeaderForms().length;
         Object[] details = new Object[length];
