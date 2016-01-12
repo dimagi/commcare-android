@@ -368,12 +368,12 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         }
     }
 
-    public void setChoiceText(TextView choiceText, Vector<SelectChoice> choices, int index){
-        String markdownText = mPrompt.getSelectItemMarkdownText(choices.get(index));
+    public void setChoiceText(TextView choiceText, SelectChoice choice){
+        String markdownText = mPrompt.getSelectItemMarkdownText(choice);
         if(markdownText != null){
             choiceText.setText(forceMarkdown(markdownText));
         } else{
-            choiceText.setText(mPrompt.getSelectChoiceText(choices.get(index)));
+            choiceText.setText(mPrompt.getSelectChoiceText(choice));
         }
     }
 
