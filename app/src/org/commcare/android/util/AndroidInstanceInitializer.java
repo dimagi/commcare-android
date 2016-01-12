@@ -11,6 +11,8 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.TreeElement;
 
 /**
  * @author ctsims
@@ -66,5 +68,14 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
             return super.getDeviceId();
         }
         return phoneId;
+    }
+
+    @Override
+    protected AbstractTreeElement setupMigrationData(ExternalDataInstance instance) {
+        FormInstance fixture = null;
+
+        TreeElement root = fixture.getRoot();
+        root.setParent(instance.getBase());
+        return root;
     }
 }
