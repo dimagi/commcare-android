@@ -39,6 +39,7 @@ import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
+import org.commcare.android.tasks.templates.HttpCalloutTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.view.ViewUtil;
@@ -50,8 +51,6 @@ import org.commcare.dalvik.dialogs.DialogCreationHelpers;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 
 /**
@@ -300,39 +299,63 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private boolean tryLocalLogin(final String username, String passwordOrPin,
                                   final boolean warnMultipleAccounts, final boolean restoreSession) {
         try {
-            final boolean triggerTooManyUsers = getMatchingUsersCount(username) > 1
+            final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
 
             ManageKeyRecordTask<LoginActivity> task =
-                new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE,
-                        username, passwordOrPin, uiController.inPinMode(),
-                        CommCareApplication._().getCurrentApp(), restoreSession,
-                        new ManageKeyRecordListener<LoginActivity>() {
+                    new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE, username,
+                            passwordOrPin, uiController.inPinMode(),
+                            CommCareApplication._().getCurrentApp(), restoreSession,
+                            getLocalLoginListener(username, triggerMultipleUsersWarning)) {
 
                 @Override
-                public void keysLoginComplete(LoginActivity r) {
-                    if (triggerTooManyUsers) {
-                        Logger.log(AndroidLogger.SOFT_ASSERT,
-                                "Warning a user upon login that they already have another " +
-                                        "sandbox whose data will not transition over");
-                        // We've successfully pulled down new user data. Should see if the user
-                        // already has a sandbox and let them know that their old data doesn't transition
-                        r.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged), true);
-                        Logger.log(AndroidLogger.TYPE_USER, "User " + username + " has logged in for the first time with a new password. They may have unsent data in their other sandbox");
-                    }
-                    r.done();
+                protected void deliverUpdate(LoginActivity receiver, String... update) {
+                    receiver.updateProgress(update[0], TASK_KEY_EXCHANGE);
                 }
 
-                @Override
-                public void keysReadyForSync(LoginActivity r) {
-                    // TODO: we only wanna do this on the _first_ try. Not
-                    // subsequent ones (IE: On return from startOta)
-                    r.startOta();
-                }
+            };
 
-                @Override
-                public void keysDoneOther(LoginActivity r, HttpCalloutOutcomes outcome) {
-                    switch(outcome) {
+            task.connect(this);
+            task.execute();
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private ManageKeyRecordListener<LoginActivity> getLocalLoginListener(
+            final String username, final boolean triggerMultipleUsersWarning) {
+
+        return new ManageKeyRecordListener<LoginActivity>() {
+
+            @Override
+            public void keysLoginComplete(LoginActivity r) {
+                if (triggerMultipleUsersWarning) {
+                    Logger.log(AndroidLogger.SOFT_ASSERT,
+                            "Warning a user upon login that they already have another " +
+                                    "sandbox whose data will not transition over");
+                    // We've successfully pulled down new user data. Should see if the user
+                    // already has a sandbox and let them know that their old data doesn't transition
+                    r.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged), true);
+                    Logger.log(AndroidLogger.TYPE_USER,
+                            "User " + username + " has logged in for the first time with a new " +
+                                    "password. They may have unsent data in their other sandbox");
+                }
+                r.done();
+            }
+
+            @Override
+            public void keysReadyForSync(LoginActivity r) {
+                // TODO: we only wanna do this on the _first_ try. Not
+                // subsequent ones (IE: On return from startOta)
+                r.startOta();
+            }
+
+            @Override
+            public void keysDoneOther(LoginActivity r, HttpCalloutOutcomes outcome) {
+                switch(outcome) {
                     case AuthFailed:
                         Logger.log(AndroidLogger.TYPE_USER, "auth failed");
                         r.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
@@ -357,25 +380,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                         Logger.log(AndroidLogger.TYPE_USER, "unknown");
                         r.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                         break;
+                    case IncorrectPin:
+                        Logger.log(AndroidLogger.TYPE_USER, "incorrect pin");
+                        r.raiseLoginMessage(StockMessages.Auth_InvalidPin, true);
+                        break;
                     default:
                         break;
-                    }
                 }
-            }) {
-                @Override
-                protected void deliverUpdate(LoginActivity receiver, String... update) {
-                    receiver.updateProgress(update[0], TASK_KEY_EXCHANGE);
-                }
-            };
-
-            task.connect(this);
-            task.execute();
-
-            return true;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+            }
+        };
     }
 
     private int getMatchingUsersCount(String username) {

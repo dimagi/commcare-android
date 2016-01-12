@@ -37,6 +37,7 @@ import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
+import java.util.Vector;
 
 /**
  * Handles login activity UI
@@ -227,21 +228,30 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         SqlStorage<UserKeyRecord> existingUsers =
                 CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class);
 
-        UserKeyRecord matchingRecord = existingUsers.
-                getRecordsForValue(UserKeyRecord.META_USERNAME, getEnteredUsername()).firstElement();
-        if (matchingRecord != null) {
-            setExistingUserMode(matchingRecord);
+        // Even though we don't allow multiple users with same username in a domain, there can be
+        // multiple UKRs for 1 user (for ex if password changes)
+        Vector<UserKeyRecord> matchingRecords = existingUsers.
+                getRecordsForValue(UserKeyRecord.META_USERNAME, getEnteredUsername());
+
+        if (matchingRecords.size() > 0) {
+            setExistingUserMode(matchingRecords);
         } else {
             setNewUserMode();
         }
     }
 
-    private void setExistingUserMode(UserKeyRecord existingRecord) {
-        if (existingRecord.hasPinSet()) {
-            setPinPasswordMode();
-        } else {
-            setNormalPasswordMode();
+    private void setExistingUserMode(Vector<UserKeyRecord> existingMatchingRecords) {
+        for (UserKeyRecord record : existingMatchingRecords) {
+            // If ANY of the records have a PIN set, assume we are trying to log into that record
+            // TODO: AMS Is this the best way to handle this? What if 1 record has a PIN set and the other doesn't?
+            if (record.hasPinSet()) {
+                setPinPasswordMode();
+                return;
+            }
         }
+
+        // Otherwise, set to normal password mode
+        setNormalPasswordMode();
     }
 
     private void setNewUserMode() {

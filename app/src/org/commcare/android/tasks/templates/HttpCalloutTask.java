@@ -34,7 +34,8 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
         UnknownError,
         BadCertificate,
         Success,
-        NetworkFailureBadPassword
+        NetworkFailureBadPassword,
+        IncorrectPin
     }
 
     final Context c;
@@ -177,8 +178,10 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
 
     protected abstract HttpCalloutOutcomes doResponseOther(HttpResponse response);
 
-
-
+    /** Indicates whether, after doSetupTaskBeforeRequest() is executed, we actually need to
+     *  execute the http callout. If this is false, doSetupTaskBeforeRequest() will just be
+     *  followed by doPostCalloutTask()
+     */
     protected abstract boolean shouldMakeHttpCallout();
 
     protected abstract boolean calloutSuccessRequired();

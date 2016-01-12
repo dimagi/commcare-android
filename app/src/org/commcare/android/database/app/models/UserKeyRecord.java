@@ -241,7 +241,11 @@ public class UserKeyRecord extends Persisted {
     }
 
     public boolean isPinValid(String pin) {
+        // Unwrap wrapped password, and then call isPasswordValid() on the result of that
+    }
 
+    public String getUnhashedPasswordViaPin(String pin) {
+        //return unwrap(this.passwordWrappedByPin)
     }
 
     /**

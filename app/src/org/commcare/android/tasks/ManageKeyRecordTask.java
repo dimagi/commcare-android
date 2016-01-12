@@ -45,7 +45,7 @@ import java.util.NoSuchElementException;
  */
 public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     private final String username;
-    private final String password;
+    private String password;
     private final String pin;
     private final boolean inPinMode;
     
@@ -57,15 +57,11 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     
     final ManageKeyRecordListener<R> listener;
     
-    boolean userRecordExists = false;
+    boolean userRecordExists;
 
-    /** Indicates whether, after doSetupTaskBeforeRequest() is executed, we actually need to
-     *  execute the http callout. If this is false, doSetupTaskBeforeRequest() will just be
-     *  followed by doPostCalloutTask()
-     */
-    boolean calloutNeeded = false;
+    boolean calloutNeeded;
+    boolean calloutSuccessRequired;
 
-    boolean calloutSuccessRequired = false;
     final boolean restoreSession;
     
     User loggedIn = null;
@@ -78,7 +74,6 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         this.inPinMode = inPinMode;
         if (inPinMode) {
             this.pin = passwordOrPin;
-            // Note that when we log in in PIN mode, we do not have access to the un-hashed password!
             this.password = null;
         } else {
             this.password = passwordOrPin;
@@ -164,19 +159,21 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                 valid = ukr;
             }
         }
-        
-        // If we don't have any records and we aren't doing remote key management, this is as
-        // far as we're going
+
         if (!hasRecord && keyServerUrl == null) {
+            // If we don't have any records and we aren't doing remote key management, this is as
+            // far as we're going
             return HttpCalloutOutcomes.Success;
         }
 
-        // If we don't have any records, we need to do a callout
-        calloutSuccessRequired = !hasRecord;
-        
-        calloutNeeded = (calloutSuccessRequired || valid == null) && keyServerUrl != null;
+        /* Should only try to look for new records if ALL of the following are true:
+         * a) We're not in pin mode (otherwise, should only be try matching to an existing record on the device)
+         * b) We didn't find a matching record that is valid
+         * c) There is a keyServerUrl to make the http callout to */
+        calloutNeeded = (!hasRecord || valid == null) && keyServerUrl != null;
         
         if (calloutNeeded) {
+            calloutSuccessRequired = !hasRecord;
             Logger.log(AndroidLogger.TYPE_USER, "Performing key record callout." + (calloutSuccessRequired ? " Success is required for login" : ""));
             this.publishProgress(Localization.get("key.manage.callout"));
         }
@@ -277,7 +274,6 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         return calloutSuccessRequired;
     }
 
-
     @Override
     protected boolean processSuccessfulRequest() {
         if (keyRecords == null || keyRecords.size() == 0) {
@@ -329,15 +325,22 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         // First, check for consistency in our key records
         cleanupUserKeyRecords();
 
-        // XXX PLM: getCurrentValidRecord is called w/ acceptExpired set to
-        // true. Eventually we will enforce user key record expiration, but
-        // can't do so until we proactively refresh records that are going to
-        // expire in the next few months. Otherwise, devices that haven't
-        // accessed the internet in a while won't be able to perform logins.
         UserKeyRecord current = getCurrentValidRecord();
 
         if (current == null)  {
-            return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
+            if (inPinMode) {
+                // If we are in pin mode then we did not execute the callout task; just means there
+                // is no existing record matching the username/pin combo
+                return HttpCalloutOutcomes.IncorrectPin;
+            } else {
+                return HttpCalloutOutcomes.UnknownError;
+            }
+        }
+
+        if (inPinMode) {
+            // If we successfully found a matching record in pin mode, we are now going to need
+            // access to the un-hashed password to finish up
+            this.password = current.getUnhashedPasswordViaPin(this.pin);
         }
 
         // Now, see if we need to do anything to process our new record.
@@ -350,27 +353,28 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                     // Switching over to using the old record instead of failing
                     current = getInUserSandbox(current.getUsername(), app.getStorage(UserKeyRecord.class));
 
-                    //Make sure we didn't somehow not get a new sandbox
+                    // Make sure we didn't somehow not get a new sandbox
                     if(current == null ){ 
-                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Somehow we both failed to migrate an old DB and also didn't _havE_ an old db");
+                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                                "Somehow we both failed to migrate an old DB and also didn't _havE_ an old db");
                         return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
                     }
                     
-                    //otherwise we're now keyed up with the old DB and we should be fine to log in
+                    // Otherwise we're now keyed up with the old DB and we should be fine to log in
                 }
             } else if (current.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
-                //Transition the legacy storage to the new format. We don't have a new record, so don't 
-                //worry
+                // Transition the legacy storage to the new format. We don't have a new record,
+                // so don't worry
                 try {
                     this.publishProgress(Localization.get("key.manage.legacy.begin"));
                     LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), current.unWrapKey(password), current);
                 } catch(Exception e) {
                     e.printStackTrace();
-                    //Ugh, high level trap catch
-                    //Problem during migration! We should try again? Maybe?
-                    //Or just leave the old one?
+                    // Ugh, high level trap catch
+                    // Problem during migration! We should try again? Maybe?
+                    // Or just leave the old one?
                     Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Error while trying to migrate legacy database! Exception: " + e.getMessage());
-                    //For now, fail.
+                    // For now, fail.
                     return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
                 }
             }
@@ -472,6 +476,11 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         return HttpCalloutOutcomes.BadResponse;
     }
 
+    // XXX PLM: getCurrentValidRecord is called w/ acceptExpired set to
+    // true. Eventually we will enforce user key record expiration, but
+    // can't do so until we proactively refresh records that are going to
+    // expire in the next few months. Otherwise, devices that haven't
+    // accessed the internet in a while won't be able to perform logins.
     private UserKeyRecord getCurrentValidRecord() {
         if (inPinMode) {
             return UserKeyRecord.getCurrentValidRecordByPin(app, username, pin, true);

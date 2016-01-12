@@ -372,6 +372,9 @@ callout.failure.sms=SMS app not found
 login.attempt.fail.auth.title=Invalid Username or Password
 login.attempt.fail.auth.detail=Your username or password was not recognized, please type them again and retry.
 
+login.attempt.fail.pin.title=Invalid PIN
+login.attempt.fail.pin.detail=You entered an incorrect PIN for the given username.
+
 login.attempt.fail.changed.title=Password Changed since Last Login
 login.attempt.fail.changed.detail=You've logged in with a new password since you're last login. You may need to log in with your old credentials to ensure you have no unsent data.
 login.attempt.fail.changed.action=If you had unsent data or incomplete forms on the phone before you logged in with your new password you should log out, and log in with your old password. Make sure all your unsent forms are sent and incomplete forms are submitted, then log in again with your new password and sync. 
