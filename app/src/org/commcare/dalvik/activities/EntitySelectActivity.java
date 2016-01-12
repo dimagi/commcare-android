@@ -59,6 +59,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.DialogChoiceItem;
 import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
+import org.commcare.dalvik.geo.HereFunctionHandler;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
@@ -69,12 +70,17 @@ import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.SessionDatum;
+import org.javarosa.core.model.data.GeoPointData;
+import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.expr.XPathFuncExpr;
+import org.odk.collect.android.activities.FormEntryActivity;
+import org.odk.collect.android.activities.GeoPointActivity;
 import org.odk.collect.android.views.media.AudioController;
 
 import java.io.IOException;
@@ -107,6 +113,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private static final int MAP_SELECT = 2;
     private static final int BARCODE_FETCH = 1;
     private static final int CALLOUT = 3;
+    private static final int LOCATION_REQUEST = 4;
 
     private static final int MENU_SORT = Menu.FIRST + 1;
     private static final int MENU_MAP = Menu.FIRST + 2;
@@ -160,6 +167,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private final Object timerLock = new Object();
     private boolean cancelled;
     private ContainerFragment<EntityListAdapter> containerFragment;
+
+    // Singleton HereFunctionHandler used by entities.
+    // The location inside is not calculated until GeoPointActivity returns.
+    public static final HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -649,6 +660,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     refreshView();
                     return;
                 }
+            case LOCATION_REQUEST:
+                if (resultCode == RESULT_OK) {
+                    hereFunctionHandler.setLocationString(FormEntryActivity.LOCATION_RESULT);
+                }
             default:
                 super.onActivityResult(requestCode, resultCode, intent);
         }
@@ -895,6 +910,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             final int index = i;
             View.OnClickListener listener = new View.OnClickListener() {
                 public void onClick(View v) {
+                    Intent i = new Intent(EntitySelectActivity.this, GeoPointActivity.class);
+                    startActivityForResult(i, LOCATION_REQUEST);
                     adapter.sortEntities(new int[]{keyArray[index]});
                     adapter.applyFilter(getSearchText().toString());
                     dialog.dismiss();
