@@ -60,7 +60,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
         //Since we can proceed with the task either way, but we 
         //still wanna know whether it failed
         boolean calloutFailed = false;
-        if (HttpCalloutNeeded()) {
+        if (shouldMakeHttpCallout()) {
             HttpCalloutOutcomes outcome;
 
             try {
@@ -88,25 +88,24 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
             //If we needed the callout to succeed and it didn't, return our failure.
             if (outcome != HttpCalloutOutcomes.Success) {
                 //TODO:Cleanup?
-                if (HttpCalloutRequired()) {
+                if (calloutSuccessRequired()) {
                     return outcome;
                 } else {
                     calloutFailed = true;
                 }
             } else {
-                if (!processSuccesfulRequest()) {
+                if (!processSuccessfulRequest()) {
                     return HttpCalloutOutcomes.BadResponse;
                 }
             }
         }
 
-        //So either we didn't need our our HTTP callout or we succeeded. Either way, move on
-        //to the next step
-
+        // So either we didn't need our our HTTP callout or we succeeded. Either way, move on
+        // to the next step
         return doPostCalloutTask(calloutFailed);
     }
 
-    protected boolean processSuccesfulRequest() {
+    protected boolean processSuccessfulRequest() {
         return true;
     }
 
@@ -179,9 +178,10 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
     protected abstract HttpCalloutOutcomes doResponseOther(HttpResponse response);
 
 
-    protected abstract boolean HttpCalloutNeeded();
 
-    protected abstract boolean HttpCalloutRequired();
+    protected abstract boolean shouldMakeHttpCallout();
+
+    protected abstract boolean calloutSuccessRequired();
 
     protected abstract HttpCalloutOutcomes doPostCalloutTask(boolean httpFailed);
 

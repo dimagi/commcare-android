@@ -4,9 +4,11 @@
 package org.commcare.android.database.app.models;
 
 import org.commcare.android.crypt.CryptUtil;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.modern.models.MetaField;
 import org.javarosa.core.util.PropertyUtils;
 
@@ -54,21 +56,31 @@ public class UserKeyRecord extends Persisted {
     @Persisting(1)
     @MetaField(META_USERNAME)
     private String username;
+
     @Persisting(2)
     private String passwordHash;
+
     @Persisting(3)
     private byte[] encryptedKey;
+
     @Persisting(4)
     private Date validFrom;
+
     @Persisting(5)
     private Date validTo;
-    @Persisting(6)
+
     /** The unique ID of the data sandbox covered by this key **/
+    @Persisting(6)
     @MetaField(META_SANDBOX_ID)
     private String uuid;
+
     @MetaField(META_KEY_STATUS)
     @Persisting(7)
     private int type;
+
+    /** The hashed password wrapped by a numeric PIN **/
+    @Persisting(8)
+    private byte[] passwordWrappedByPin;
 
     /**
      * Serialization Only!
@@ -77,14 +89,22 @@ public class UserKeyRecord extends Persisted {
 
     }
 
-    public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey, Date validFrom, Date validTo, String uuid) {
+    public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey,
+                         Date validFrom, Date validTo, String uuid) {
         this(username, passwordHash, encryptedKey, validFrom, validTo, uuid, TYPE_NORMAL);
     }
 
-    public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey, Date validFrom, Date validTo, String uuid, int type) {
+    public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey,
+                         Date validFrom, Date validTo, String uuid, int type) {
+        this(username, passwordHash, null, encryptedKey, validFrom, validTo, uuid, type);
+    }
+
+    public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey,
+                         byte[] wrappedPassword, Date validFrom, Date validTo, String uuid, int type) {
         this.username = username;
         this.passwordHash = passwordHash;
         this.encryptedKey = encryptedKey;
+        this.passwordWrappedByPin = wrappedPassword;
         this.validFrom = validFrom;
         this.validTo = validTo;
         this.uuid = uuid;
@@ -110,6 +130,14 @@ public class UserKeyRecord extends Persisted {
      */
     public byte[] getEncryptedKey() {
         return encryptedKey;
+    }
+
+    public byte[] getWrappedPassword() {
+        return passwordWrappedByPin;
+    }
+
+    public boolean hasPinSet() {
+        return passwordWrappedByPin != null;
     }
 
     /**
@@ -200,12 +228,32 @@ public class UserKeyRecord extends Persisted {
     }
 
     public boolean isPasswordValid(String password) {
+        if (password == null) {
+            return false;
+        }
+
         String hash = this.getPasswordHash();
 
         // Is the local hash value a valid hash string pattern
         // and does it match the hashed password (using the extracted salt)?
         return (HASH_STRING_PATTERN.matcher(hash).matches() &&
                 hash.equals(UserKeyRecord.generatePwdHash(password, UserKeyRecord.extractSalt(hash))));
+    }
+
+    public boolean isPinValid(String pin) {
+
+    }
+
+    /**
+     * Must be called with 1 of the 2 values set to null, which indicates that we should check
+     * based upon the other
+     */
+    public boolean isPasswordOrPinValid(String password, String pin) {
+        if (pin != null) {
+            return isPinValid(pin);
+        } else {
+            return isPasswordValid(password);
+        }
     }
 
     public byte[] unWrapKey(String password) {
@@ -235,4 +283,40 @@ public class UserKeyRecord extends Persisted {
                 (validTo == null ||
                         (validTo.getTime() != Long.MAX_VALUE && validTo.after(today))));
     }
+
+    public static UserKeyRecord getCurrentValidRecordByPassword(CommCareApp app, String username,
+                                                                String pw, boolean acceptExpired) {
+        return getCurrentValidRecord(app, username, pw, null, acceptExpired);
+    }
+
+    public static UserKeyRecord getCurrentValidRecordByPin(CommCareApp app, String username,
+                                                           String pin, boolean acceptExpired) {
+        return getCurrentValidRecord(app, username, null, pin, acceptExpired);
+    }
+
+    /**
+     * @return User record that matches username/password or username/pin. Null if not found
+     * or user record validity date is expired.
+     */
+    private static UserKeyRecord getCurrentValidRecord(CommCareApp app, String username, String pw,
+                                                       String pin, boolean acceptExpired) {
+        UserKeyRecord invalidRecord = null;
+        SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
+
+        for (UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
+            if (ukr.isPasswordOrPinValid(pw, pin)) {
+                if (ukr.isCurrentlyValid()) {
+                    return ukr;
+                } else {
+                    invalidRecord = ukr;
+                }
+            }
+        }
+
+        if (acceptExpired) {
+            return invalidRecord;
+        }
+        return null;
+    }
+
 }

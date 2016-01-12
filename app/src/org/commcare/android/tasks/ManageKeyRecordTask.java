@@ -37,15 +37,17 @@ import java.util.NoSuchElementException;
  * This task uses three steps
  * 1) Clean up user key records and figure out whether we need to look for
  * new records
- * 2) Fetch new records [HTTP step]
+ * 2) Fetch new records [HTTP step] (not always executed)
  * 3) Process the new records and perform any necessary data migration
  * 
  * @author ctsims
  *
  */
 public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
-    final String username;
-    final String password;
+    private final String username;
+    private final String password;
+    private final String pin;
+    private final boolean inPinMode;
     
     final CommCareApp app;
     
@@ -56,19 +58,32 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     final ManageKeyRecordListener<R> listener;
     
     boolean userRecordExists = false;
-    
+
+    /** Indicates whether, after doSetupTaskBeforeRequest() is executed, we actually need to
+     *  execute the http callout. If this is false, doSetupTaskBeforeRequest() will just be
+     *  followed by doPostCalloutTask()
+     */
     boolean calloutNeeded = false;
-    boolean calloutRequired = false;
+
+    boolean calloutSuccessRequired = false;
     final boolean restoreSession;
     
     User loggedIn = null;
     
-    public ManageKeyRecordTask(Context c, int taskId, String username, String password,
-                               CommCareApp app, boolean restoreSession,
+    public ManageKeyRecordTask(Context c, int taskId, String username, String passwordOrPin,
+                               boolean inPinMode, CommCareApp app, boolean restoreSession,
                                ManageKeyRecordListener<R> listener) {
         super(c);
         this.username = username;
-        this.password = password;
+        this.inPinMode = inPinMode;
+        if (inPinMode) {
+            this.pin = passwordOrPin;
+            // Note that when we log in in PIN mode, we do not have access to the un-hashed password!
+            this.password = null;
+        } else {
+            this.password = passwordOrPin;
+            this.pin = null;
+        }
         this.app = app;
         this.restoreSession = restoreSession;
         
@@ -82,9 +97,9 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 
     @Override
     protected void deliverResult(R receiver, HttpCalloutOutcomes result) {        
-        //If this task completed and we logged in.
-        if(result == HttpCalloutOutcomes.Success) {
-            if(loggedIn == null) {
+        // If this task completed and we logged in.
+        if (result == HttpCalloutOutcomes.Success) {
+            if (loggedIn == null) {
                 //If we got here, we didn't "log in" fully. IE: We have a key record and a
                 //functional sandbox, but this user has never been synced, so we aren't
                 //really "logged in".
@@ -95,8 +110,8 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                 listener.keysLoginComplete(receiver);
                 return;
             }
-        } else if(result == HttpCalloutOutcomes.NetworkFailure) {
-            if(calloutNeeded && userRecordExists){
+        } else if (result == HttpCalloutOutcomes.NetworkFailure) {
+            if (calloutNeeded && userRecordExists) {
                 result = HttpCalloutOutcomes.NetworkFailureBadPassword;
             }
         }
@@ -118,59 +133,56 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 
     @Override
     protected HttpCalloutOutcomes doSetupTaskBeforeRequest() {
-        //This step needs to determine three things
-        //1) Whether we are doing remote key management
-        //2) Whether we should look for new key records
-        //3) Whether we _need_ new key records, or can proceed without them
-        //if the fetch fails.
+        /**
+         * This step needs to determine three things:
+         * 1) Whether we are doing remote key management
+         * 2) Whether we should look for new key records
+         * 3) Whether we _need_ new key records, or can proceed without them if the fetch fails.
+         */
         
-        //Otherwise, we're going to need to look through our key records, so 
-        //clean up the existing key records and make sure we're in a consistent state
+        // Clean up the existing key records and make sure we're in a consistent state
         cleanupUserKeyRecords();
         
-        //Now, see whether we have a valid record for this username/password combo
-        
+        // Now, see whether we have a valid record for this username/password/pin combo
         boolean hasRecord = false;
         userRecordExists = false;
         UserKeyRecord valid = null;
         
         SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
-        for(UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
+        for (UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
             userRecordExists = true;
-            
-            if(!ukr.isPasswordValid(password)) {
-                //This record is for a different password
+
+            if (!ukr.isPasswordOrPinValid(password, pin)) {
                 continue;
             }
             
-            //regardless of whether it's "valid", we have a record. 
+            // Regardless of whether it's "valid", we have a record
             hasRecord = true;
             
-            //ok, now check whether this record is fully valid, or we need to look for an update
-            if(ukr.isCurrentlyValid()) {
+            // Now check whether this record is fully valid, or we need to look for an update
+            if (ukr.isCurrentlyValid()) {
                 valid = ukr;
             }
         }
         
-        //If we don't have any records and we aren't doing remote key management, this is as
-        //far as we're going
-        if(!hasRecord && keyServerUrl == null) { return HttpCalloutOutcomes.Success;}
+        // If we don't have any records and we aren't doing remote key management, this is as
+        // far as we're going
+        if (!hasRecord && keyServerUrl == null) {
+            return HttpCalloutOutcomes.Success;
+        }
 
-        //If we don't have any records, we need to do a callout
-        calloutRequired = !hasRecord;
+        // If we don't have any records, we need to do a callout
+        calloutSuccessRequired = !hasRecord;
         
-        calloutNeeded = (calloutRequired || valid == null) && keyServerUrl != null; 
+        calloutNeeded = (calloutSuccessRequired || valid == null) && keyServerUrl != null;
         
-        if(calloutNeeded) {
-            Logger.log(AndroidLogger.TYPE_USER, "Performing key record callout." + (calloutRequired ? " Success is required for login" : ""));
+        if (calloutNeeded) {
+            Logger.log(AndroidLogger.TYPE_USER, "Performing key record callout." + (calloutSuccessRequired ? " Success is required for login" : ""));
             this.publishProgress(Localization.get("key.manage.callout"));
         }
         
         return null;
     }
-
-    
-    //Functionality that doesn't necessarily "belong" to this workflow:
 
     private void cleanupUserKeyRecords() {
         UserKeyRecord currentlyValid = null;
@@ -180,36 +192,38 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         
         //TODO: We dont' need to read these records, we can read the metadata straight.
         SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
-        for(UserKeyRecord record : storage) {
-            if(record.getType() == UserKeyRecord.TYPE_NORMAL) {
-                if(record.getUsername().equals(username) && record.isCurrentlyValid() && record.isPasswordValid(password)) {
-                    if(currentlyValid == null) {
+        for (UserKeyRecord record : storage) {
+            if (record.getType() == UserKeyRecord.TYPE_NORMAL) {
+                if (record.getUsername().equals(username) && record.isCurrentlyValid() && record.isPasswordOrPinValid(password, pin)) {
+                    if (currentlyValid == null) {
                         currentlyValid = record;
                     } else {
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User " + username + " has more than one currently valid key record!!");
                     }
                 }
-            } else if(record.getType() == UserKeyRecord.TYPE_NEW) {
-                //See if we have another sandbox with this ID that is fully initialized.
-                if(storage.getIDsForValues(new String[] {UserKeyRecord.META_SANDBOX_ID, UserKeyRecord.META_KEY_STATUS}, new Object[] {record.getUuid(), UserKeyRecord.TYPE_NORMAL}).size() > 0) {
-                    
+            } else if (record.getType() == UserKeyRecord.TYPE_NEW) {
+                // See if we have another sandbox with this ID that is fully initialized.
+                if (storage.getIDsForValues(
+                        new String[]{UserKeyRecord.META_SANDBOX_ID, UserKeyRecord.META_KEY_STATUS},
+                        new Object[] {record.getUuid(), UserKeyRecord.TYPE_NORMAL}
+                ).size() > 0) {
                     Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Marking new sandbox " + record.getUuid() + " as initialized, since it's already in use on this device");
-                    //If so, this sandbox _has_ to have already been initialized, and we should treat it as such.
+                    // If so, this sandbox _has_ to have already been initialized, and we should treat it as such.
                     record.setType(UserKeyRecord.TYPE_NORMAL);
                     storage.write(record);
                 }
             } else if (record.getType() == UserKeyRecord.TYPE_PENDING_DELETE) {
                 Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Cleaning up sandbox which is pending removal");
                 
-                //See if there are more records in this sandbox. (If so, we can just wipe this record and move on) 
-                if(storage.getIDsForValue(UserKeyRecord.META_SANDBOX_ID, record.getUuid()).size() > 2) {
+                // See if there are more records in this sandbox. (If so, we can just wipe this record and move on)
+                if (storage.getIDsForValue(UserKeyRecord.META_SANDBOX_ID, record.getUuid()).size() > 2) {
                     Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Record for sandbox " + record.getUuid() + " has siblings. Removing record");
                     
                     //TODO: Will this invalidate our iterator?
                     storage.remove(record);
                 } else {
-                    //Otherwise, we should see if we can read the data, and if so, wipe it as well as the record.
-                    if(record.isPasswordValid(password)) {
+                    // Otherwise, we should see if we can read the data, and if so, wipe it as well as the record.
+                    if (record.isPasswordValid(password)) {
                         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Current user has access to purgable sandbox " + record.getUuid() + ". Wiping that sandbox");
                         UserSandboxUtils.purgeSandbox(this.getContext(), app, record,record.unWrapKey(password));
                     }
@@ -254,19 +268,19 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     }
     
     @Override
-    protected boolean HttpCalloutNeeded() {
+    protected boolean shouldMakeHttpCallout() {
         return calloutNeeded;
     }
 
     @Override
-    protected boolean HttpCalloutRequired() {
-        return calloutRequired;
+    protected boolean calloutSuccessRequired() {
+        return calloutSuccessRequired;
     }
 
 
     @Override
-    protected boolean processSuccesfulRequest() {
-        if(keyRecords == null || keyRecords.size() == 0) {
+    protected boolean processSuccessfulRequest() {
+        if (keyRecords == null || keyRecords.size() == 0) {
             Logger.log(AndroidLogger.TYPE_USER, "No key records received on server request!");
             return false;
         }
@@ -275,22 +289,31 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
         try {
             //We successfully received and parsed out some key records! Let's update the db
-            for(UserKeyRecord record : keyRecords) {
-                //See if we already have a key record for this sandbox and user  (There should _definitely_ only be one if there is one)
+            for (UserKeyRecord record : keyRecords) {
+
+                // See if we already have a key record for this sandbox and user
+                // (There should _definitely_ only be one if there is one)
                 UserKeyRecord existing;
+
                 try {
-                    existing = storage.getRecordForValues(new String[] {UserKeyRecord.META_SANDBOX_ID, UserKeyRecord.META_USERNAME} , new Object[] {record.getUuid(), record.getUsername()});
+                    existing = storage.getRecordForValues(
+                            new String[]{UserKeyRecord.META_SANDBOX_ID, UserKeyRecord.META_USERNAME},
+                            new Object[] {record.getUuid(), record.getUsername()});
                     
                     Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Got new record for existing sandbox " + existing.getUuid() + " . Merging");
                     //So we have an existing record. Either we're updating our current record and we're updating the key details
                     //or our password has changed and we need to overwrite the existing key record. Either way, all
                     //we should need to do is merge the records.
                     
-                    UserKeyRecord ukr = new UserKeyRecord(record.getUsername(), record.getPasswordHash(), record.getEncryptedKey(), record.getValidFrom(), record.getValidTo(), record.getUuid(), existing.getType());
+                    UserKeyRecord ukr = new UserKeyRecord(
+                            record.getUsername(), record.getPasswordHash(),
+                            record.getEncryptedKey(), record.getWrappedPassword(),
+                            record.getValidFrom(), record.getValidTo(), record.getUuid(),
+                            existing.getType());
                     ukr.setID(existing.getID());
                     storage.write(ukr);
                 } catch(NoSuchElementException nsee) {
-                    //If there's no existing record, write this new one (we'll handle updating the status later)
+                    // If there's no existing record, write this new one (we'll handle updating the status later)
                     storage.write(record);
                 }
             }
@@ -303,9 +326,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     
     @Override
     protected HttpCalloutTask.HttpCalloutOutcomes doPostCalloutTask(boolean calloutFailed) {
-        //Now we need to complete our login 
-        
-        //First, check for consistency in our key records
+        // First, check for consistency in our key records
         cleanupUserKeyRecords();
 
         // XXX PLM: getCurrentValidRecord is called w/ acceptExpired set to
@@ -313,23 +334,21 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         // can't do so until we proactively refresh records that are going to
         // expire in the next few months. Otherwise, devices that haven't
         // accessed the internet in a while won't be able to perform logins.
-        UserKeyRecord current = getCurrentValidRecord(app, username, password, true);
+        UserKeyRecord current = getCurrentValidRecord();
 
         if (current == null)  {
             return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
         }
 
-        //Now, see if we need to do anything to process our new record. 
+        // Now, see if we need to do anything to process our new record.
         if (current.getType() != UserKeyRecord.TYPE_NORMAL) {
-            if(current.getType() == UserKeyRecord.TYPE_NEW) {
-                //See if we can migrate an old sandbox's data to the new sandbox.
-                if(!lookForAndMigrateOldSandbox(current)) {
-                    //Problem during migration! We should try again? Maybe?
-                    //Or just leave the old one?
-                    
-                    
-                    //Switching over to using the old record instead of failing
-                    current = getInUseSandbox(current.getUsername(), app.getStorage(UserKeyRecord.class));
+            if (current.getType() == UserKeyRecord.TYPE_NEW) {
+                // See if we can migrate an old sandbox's data to the new sandbox.
+                if (!lookForAndMigrateOldSandbox(current)) {
+                    // TODO: Problem during migration! Should potentially try again instead of leaving old one
+
+                    // Switching over to using the old record instead of failing
+                    current = getInUserSandbox(current.getUsername(), app.getStorage(UserKeyRecord.class));
 
                     //Make sure we didn't somehow not get a new sandbox
                     if(current == null ){ 
@@ -375,7 +394,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         return HttpCalloutTask.HttpCalloutOutcomes.Success;
     }
     
-    private UserKeyRecord getInUseSandbox(String username, SqlStorage<UserKeyRecord> storage) {
+    private UserKeyRecord getInUserSandbox(String username, SqlStorage<UserKeyRecord> storage) {
         UserKeyRecord oldSandboxToMigrate = null;
         
         for(UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
@@ -412,7 +431,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         //sandbox's data).
         SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
 
-        UserKeyRecord oldSandboxToMigrate = getInUseSandbox(newRecord.getUsername(), storage);
+        UserKeyRecord oldSandboxToMigrate = getInUserSandbox(newRecord.getUsername(), storage);
 
         //Our new record is completely new. Easy and awesome. Record and move on.
         if(oldSandboxToMigrate == null) {
@@ -448,35 +467,16 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         }
     }
 
-    /**
-     * @return User record that matches username/password. Null if not found
-     * or user record validity date is expired.
-     */
-    public static UserKeyRecord getCurrentValidRecord(CommCareApp app,
-                                                      String username,
-                                                      String password,
-                                                      boolean acceptExpired) {
-        UserKeyRecord invalidRecord = null;
-        SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
-
-        for (UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
-            if (ukr.isPasswordValid(password)) {
-                if (ukr.isCurrentlyValid()) {
-                    return ukr;
-                } else {
-                    invalidRecord = ukr;
-                }
-            }
-        }
-
-        if (acceptExpired) {
-            return invalidRecord;
-        }
-        return null;
-    }
-
     @Override
     protected HttpCalloutOutcomes doResponseOther(HttpResponse response) {
         return HttpCalloutOutcomes.BadResponse;
+    }
+
+    private UserKeyRecord getCurrentValidRecord() {
+        if (inPinMode) {
+            return UserKeyRecord.getCurrentValidRecordByPin(app, username, pin, true);
+        } else {
+            return UserKeyRecord.getCurrentValidRecordByPassword(app, username, password, true);
+        }
     }
 }

@@ -225,7 +225,7 @@ public class InstanceProvider extends ContentProvider {
 
                 SecretKey key;
                 try {
-                    key = CommCareApplication._().createNewSymetricKey();
+                    key = CommCareApplication._().createNewSymmetricKey();
                 } catch (SessionUnavailableException e) {
                     throw new UserStorageClosedException(e.getMessage());
                 }

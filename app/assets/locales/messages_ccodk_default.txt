@@ -137,6 +137,7 @@ login.attempt.badcred=Username or password are incorrect. Please try again.
 
 login.username=Username
 login.password=Password
+login.pin.password=PIN
 login.button=Log In
 login.sync=Synchronize with server
 login.bad.password=We couldn't find a user with this password. Please try another!

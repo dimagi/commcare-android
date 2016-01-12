@@ -89,20 +89,10 @@ public class CryptUtil {
             e.printStackTrace();
         }
         return null;
-//        
-//        ByteArrayInputStream bis = new ByteArrayInputStream(input);
-//        CipherInputStream cis = new CipherInputStream(bis, cipher);
-//        
-//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-//        
-//        AndroidStreamUtil.writeFromInputToOutput(new BufferedInputStream(cis), bos);
-//        
-//        return bos.toByteArray();
     }
 
     public static byte[] wrapKey(byte[] secretKey, String password) {
         try {
-            //SecretKeySpec spec = (SecretKeySpec)SecretKeyFactory.getInstance("AES").getKeySpec(key, javax.crypto.spec.SecretKeySpec.class);
             return encrypt(secretKey, encodingCipher(password));
         } catch (InvalidKeySpecException e) {
             throw new RuntimeException(e);
@@ -155,7 +145,7 @@ public class CryptUtil {
         return null;
     }
 
-    public static SecretKey generateSymetricKey(byte[] prngSeed) {
+    public static SecretKey generateSymmetricKey(byte[] prngSeed) {
         KeyGenerator generator;
         try {
             generator = KeyGenerator.getInstance("AES");

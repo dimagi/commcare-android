@@ -25,7 +25,6 @@ import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.activities.DispatchActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -427,13 +426,13 @@ public class CommCareSessionService extends Service {
         }
     }
 
-    public SecretKey createNewSymetricKey() throws SessionUnavailableException {
+    public SecretKey createNewSymmetricKey() throws SessionUnavailableException {
         synchronized (lock) {
             // Ensure we have a key to work with
             if (!isActive()) {
                 throw new SessionUnavailableException("Can't generate new key when the user session key is empty.");
             }
-            return CryptUtil.generateSymetricKey(CryptUtil.uniqueSeedFromSecureStatic(key));
+            return CryptUtil.generateSymmetricKey(CryptUtil.uniqueSeedFromSecureStatic(key));
         }
     }
 

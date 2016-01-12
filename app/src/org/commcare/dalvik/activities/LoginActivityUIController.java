@@ -21,6 +21,8 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivityUIController;
 import org.commcare.android.framework.ManagedUi;
@@ -51,7 +53,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     private EditText username;
 
     @UiElement(value=R.id.edit_password, locale="login.password")
-    private EditText password;
+    private EditText passwordOrPin;
 
     @UiElement(R.id.screen_login_banner_pane)
     private View banner;
@@ -70,7 +72,23 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private final LoginActivity activity;
 
-    private final TextWatcher textWatcher = new TextWatcher() {
+    private boolean inPinMode;
+
+    private final TextWatcher usernameTextWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        }
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+        }
+        @Override
+        public void afterTextChanged(Editable s) {
+            setStyleDefault();
+            checkEnteredUsernameForMatch();
+        }
+    };
+
+    private final TextWatcher passwordTextWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         }
@@ -89,9 +107,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @Override
     public void setupUI() {
-
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS |
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+        username.setHint(Localization.get("login.username"));
 
         setLoginBoxesColorNormal();
 
@@ -101,11 +119,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             }
         });
 
-        username.addTextChangedListener(textWatcher);
-        password.addTextChangedListener(textWatcher);
-
-        username.setHint(Localization.get("login.username"));
-        password.setHint(Localization.get("login.password"));
+        username.addTextChangedListener(usernameTextWatcher);
+        passwordOrPin.addTextChangedListener(passwordTextWatcher);
 
         final View activityRootView = activity.findViewById(R.id.screen_login_main);
         final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -145,8 +160,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @Override
     public void refreshView() {
-        // In case the seated app has changed since last time we were in LoginActivity
-        refreshForNewApp();
+        refreshForNewApp(); // In case the seated app has changed
 
         updateBanner();
 
@@ -177,15 +191,18 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         if (lastUser != null) {
             // If there was a last user for this app, show it
             username.setText(lastUser);
-            password.requestFocus();
+            passwordOrPin.requestFocus();
         } else {
             // Otherwise, clear the username text so it does not show a username from a different app
             username.setText("");
             username.requestFocus();
         }
 
+        // Since the entered username may have changed, need to re-check if we should be in PIN mode
+        checkEnteredUsernameForMatch();
+
         // Clear any password text that was entered for a different app
-        password.setText("");
+        passwordOrPin.setText("");
 
         // Refresh the breadcrumb bar for new app name
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
@@ -206,11 +223,52 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         }
     }
 
+    private void checkEnteredUsernameForMatch() {
+        SqlStorage<UserKeyRecord> existingUsers =
+                CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class);
+
+        UserKeyRecord matchingRecord = existingUsers.
+                getRecordsForValue(UserKeyRecord.META_USERNAME, getEnteredUsername()).firstElement();
+        if (matchingRecord != null) {
+            setExistingUserMode(matchingRecord);
+        } else {
+            setNewUserMode();
+        }
+    }
+
+    private void setExistingUserMode(UserKeyRecord existingRecord) {
+        if (existingRecord.hasPinSet()) {
+            setPinPasswordMode();
+        } else {
+            setNormalPasswordMode();
+        }
+    }
+
+    private void setNewUserMode() {
+        setNormalPasswordMode();
+    }
+
+    private void setNormalPasswordMode() {
+        inPinMode = false;
+        passwordOrPin.setHint(Localization.get("login.password"));
+        passwordOrPin.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+    }
+
+    private void setPinPasswordMode() {
+        inPinMode = true;
+        passwordOrPin.setHint(Localization.get("login.pin.password"));
+        passwordOrPin.setInputType(InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+    }
+
+    protected boolean inPinMode() {
+        return inPinMode;
+    }
+
     protected void setErrorMessageUI(String message) {
         setLoginBoxesColorError();
 
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_attnneg), null, null, null);
-        password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_attnneg), null, null, null);
+        passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_attnneg), null, null, null);
         loginButton.setBackgroundColor(getResources().getColor(R.color.cc_attention_negative_bg));
         loginButton.setTextColor(getResources().getColor(R.color.cc_attention_negative_text));
 
@@ -221,19 +279,19 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     private void setLoginBoxesColorNormal() {
         int normalColor = getResources().getColor(R.color.login_edit_text_color);
         username.setTextColor(normalColor);
-        password.setTextColor(normalColor);
+        passwordOrPin.setTextColor(normalColor);
     }
 
     private void setLoginBoxesColorError() {
         int errorColor = getResources().getColor(R.color.login_edit_text_color_error);
         username.setTextColor(errorColor);
-        password.setTextColor(errorColor);
+        passwordOrPin.setTextColor(errorColor);
     }
 
     private void setStyleDefault() {
         setLoginBoxesColorNormal();
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50), null, null, null);
-        password.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);
+        passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);
         setupLoginButton();
         if (loginButton.isEnabled()) {
             // don't hide error box when showing permission error
@@ -298,7 +356,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
         if (lastUser != null) {
             username.setText(lastUser);
-            password.requestFocus();
+            passwordOrPin.requestFocus();
         }
     }
 
@@ -310,16 +368,16 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         return username.getText().toString();
     }
 
-    protected String getEnteredPassword() {
-        return password.getText().toString();
+    protected String getEnteredPasswordOrPin() {
+        return passwordOrPin.getText().toString();
     }
 
     protected void setUsername(String s) {
         username.setText(s);
     }
 
-    protected void setPassword(String s) {
-        password.setText(s);
+    protected void setPasswordOrPin(String s) {
+        passwordOrPin.setText(s);
     }
 
     private void updateBanner() {

@@ -137,7 +137,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (!"".equals(enteredUsername) && enteredUsername != null) {
             savedInstanceState.putString(KEY_ENTERED_USER, enteredUsername);
         }
-        String enteredPassword = uiController.getEnteredPassword();
+        String enteredPassword = uiController.getEnteredPasswordOrPin();
         if (!"".equals(enteredPassword) && enteredPassword != null) {
             savedInstanceState.putString(KEY_ENTERED_PW, enteredPassword);
         }
@@ -150,7 +150,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected void initiateLoginAttempt(boolean restoreSession) {
         uiController.clearErrorMessage();
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
-        DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPassword());
+        DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPasswordOrPin());
 
         if (ResourceInstallUtils.isUpdateReadyToInstall()) {
             // install update, which triggers login upon completion
@@ -175,7 +175,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         // submissions) more centrally.
 
         DataPullTask<LoginActivity> dataPuller = 
-            new DataPullTask<LoginActivity>(getUniformUsername(), uiController.getEnteredPassword(),
+            new DataPullTask<LoginActivity>(getUniformUsername(), uiController.getEnteredPasswordOrPin(),
                  prefs.getString("ota-restore-url", LoginActivity.this.getString(R.string.ota_restore_url)),
                  LoginActivity.this) {
                     @Override
@@ -278,7 +278,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 DevSessionRestorer.getAutoLoginCreds();
         if (userAndPass != null) {
             uiController.setUsername(userAndPass.first);
-            uiController.setPassword(userAndPass.second);
+            uiController.setPasswordOrPin(userAndPass.second);
 
             if (!getIntent().getBooleanExtra(USER_TRIGGERED_LOGOUT, false)) {
                 // If we are attempting auto-login, assume that we want to restore a saved session
@@ -293,52 +293,28 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     
     private boolean tryLocalLogin(final boolean warnMultipleAccounts, boolean restoreSession) {
         //TODO: check username/password for emptiness
-        return tryLocalLogin(
-                getUniformUsername(), uiController.getEnteredPassword(),
+        return tryLocalLogin(getUniformUsername(), uiController.getEnteredPasswordOrPin(),
                 warnMultipleAccounts, restoreSession);
     }
         
-    private boolean tryLocalLogin(final String username, String password,
+    private boolean tryLocalLogin(final String username, String passwordOrPin,
                                   final boolean warnMultipleAccounts, final boolean restoreSession) {
-        try{
-            // TODO: We don't actually even use this anymore other than for hte
-            // local login count, which seems super silly.
-            UserKeyRecord matchingRecord = null;
-            int count = 0;
-            for(UserKeyRecord record : storage()) {
-                if(!record.getUsername().equals(username)) {
-                    continue;
-                }
-                count++;
-                String hash = record.getPasswordHash();
-                if(hash.contains("$")) {
-                    String alg = "sha1";
-                    String salt = hash.split("\\$")[1];
-                    String check = hash.split("\\$")[2];
-                    MessageDigest md = MessageDigest.getInstance("SHA-1");
-                    BigInteger number = new BigInteger(1, md.digest((salt+password).getBytes()));
-                    String hashed = number.toString(16);
-
-                    while (hashed.length() < check.length()) {
-                        hashed = "0" + hashed;
-                    }
-                    if (hash.equals(alg + "$" + salt + "$" + hashed)) {
-                        matchingRecord = record;
-                    }
-                }
-            }
-
-            final boolean triggerTooManyUsers = count > 1 && warnMultipleAccounts;
+        try {
+            final boolean triggerTooManyUsers = getMatchingUsersCount(username) > 1
+                    && warnMultipleAccounts;
 
             ManageKeyRecordTask<LoginActivity> task =
                 new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE,
-                        username, password,
+                        username, passwordOrPin, uiController.inPinMode(),
                         CommCareApplication._().getCurrentApp(), restoreSession,
                         new ManageKeyRecordListener<LoginActivity>() {
 
                 @Override
                 public void keysLoginComplete(LoginActivity r) {
                     if (triggerTooManyUsers) {
+                        Logger.log(AndroidLogger.SOFT_ASSERT,
+                                "Warning a user upon login that they already have another " +
+                                        "sandbox whose data will not transition over");
                         // We've successfully pulled down new user data. Should see if the user
                         // already has a sandbox and let them know that their old data doesn't transition
                         r.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged), true);
@@ -396,10 +372,20 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             task.execute();
 
             return true;
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    private int getMatchingUsersCount(String username) {
+        int count = 0;
+        for (UserKeyRecord record : storage()) {
+            if (record.getUsername().equals(username)) {
+                count++;
+            }
+        }
+        return count;
     }
     
     private void done() {
@@ -506,7 +492,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             usernameBeforeRotation = null;
         }
         if (passwordBeforeRotation != null) {
-            uiController.setPassword(passwordBeforeRotation);
+            uiController.setPasswordOrPin(passwordBeforeRotation);
             passwordBeforeRotation = null;
         }
     }

@@ -316,8 +316,8 @@ public class CommCareApplication extends Application {
         unbindUserSessionService();
     }
 
-    public SecretKey createNewSymetricKey() throws SessionUnavailableException {
-        return getSession().createNewSymetricKey();
+    public SecretKey createNewSymmetricKey() throws SessionUnavailableException {
+        return getSession().createNewSymmetricKey();
     }
 
     public int[] getCommCareVersion() {
