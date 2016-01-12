@@ -144,7 +144,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private OnClickListener barcodeScanOnClickListener;
 
     private boolean resuming = false;
-    private boolean startOther = false;
+    private boolean isStartingDetailActivity = false;
 
     private boolean rightFrameSetup = false;
     private NodeEntityFactory factory;
@@ -228,7 +228,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 // we're launching
                 Intent detailIntent = EntityDetailUtils.getDetailIntent(getApplicationContext(), selectedRef, null, selectDatum, asw);
 
-                startOther = true;
+                isStartingDetailActivity = true;
                 startActivityForResult(detailIntent, CONFIRM_SELECT);
             }
         }
@@ -418,7 +418,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     protected void onResume() {
         super.onResume();
         //Don't go through making the whole thing if we're finishing anyway.
-        if (this.isFinishing() || startOther) {
+        if (this.isFinishing() || isStartingDetailActivity) {
             return;
         }
 
