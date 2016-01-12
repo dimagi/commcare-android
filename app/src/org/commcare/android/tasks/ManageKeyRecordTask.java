@@ -321,7 +321,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                             existing.getType());
                     ukr.setID(existing.getID());
                     storage.write(ukr);
-                } catch(NoSuchElementException nsee) {
+                } catch (NoSuchElementException nsee) {
                     // If there's no existing record, write this new one (we'll handle updating the status later)
                     storage.write(record);
                 }

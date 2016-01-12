@@ -37,9 +37,11 @@ public class CryptUtil {
 
     private static final String PBE_PROVIDER = "PBEWITHSHA-256AND256BITAES-CBC-BC";
 
-    private static Cipher encodingCipher(String password) throws NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, InvalidKeySpecException {
+    private static Cipher encodingCipher(String passwordOrPin)
+            throws NoSuchAlgorithmException, InvalidKeyException,
+            NoSuchPaddingException, InvalidKeySpecException {
 
-        KeySpec spec = new PBEKeySpec(password.toCharArray(), "SFDWFDCF".getBytes(), 10);
+        KeySpec spec = new PBEKeySpec(passwordOrPin.toCharArray(), "SFDWFDCF".getBytes(), 10);
         SecretKeyFactory factory = SecretKeyFactory.getInstance(PBE_PROVIDER);
         SecretKey key = factory.generateSecret(spec);
 
@@ -78,27 +80,26 @@ public class CryptUtil {
     }
 
     public static byte[] decrypt(byte[] input, Cipher cipher) {
-
         try {
             return cipher.doFinal(input);
-        } catch (IllegalBlockSizeException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            // TODO Auto-generated catch block
+        } catch (IllegalBlockSizeException | BadPaddingException e) {
             e.printStackTrace();
         }
         return null;
     }
 
+    public static byte[] wrapPasswordWithPin(String password, String pin) {
+        return wrapByteArrayWithString(password.getBytes(), pin);
+    }
+
     public static byte[] wrapKey(byte[] secretKey, String password) {
+        return wrapByteArrayWithString(secretKey, password);
+    }
+
+    private static byte[] wrapByteArrayWithString(byte[] bytes, String wrappingString) {
         try {
-            return encrypt(secretKey, encodingCipher(password));
-        } catch (InvalidKeySpecException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidKeyException e) {
+            return encrypt(bytes, encodingCipher(wrappingString));
+        } catch (InvalidKeySpecException | NoSuchAlgorithmException | InvalidKeyException e) {
             throw new RuntimeException(e);
         } catch (NoSuchPaddingException e) {
             return null;

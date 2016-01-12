@@ -132,6 +132,10 @@ public class UserKeyRecord extends Persisted {
         return encryptedKey;
     }
 
+    public void assignPinToRecord(String pin, String password) {
+        this.passwordWrappedByPin = CryptUtil.wrapPasswordWithPin(password, pin);
+    }
+
     public byte[] getWrappedPassword() {
         return passwordWrappedByPin;
     }
@@ -242,10 +246,12 @@ public class UserKeyRecord extends Persisted {
 
     public boolean isPinValid(String pin) {
         // Unwrap wrapped password, and then call isPasswordValid() on the result of that
+        return false;
     }
 
     public String getUnhashedPasswordViaPin(String pin) {
         //return unwrap(this.passwordWrappedByPin)
+        return null;
     }
 
     /**

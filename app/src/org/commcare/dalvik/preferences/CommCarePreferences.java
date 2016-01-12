@@ -104,6 +104,8 @@ public class CommCarePreferences
     public final static String PRINT_DOC_LOCATION = "print_doc_location";
     private final static String PREF_MANAGER_PRINT_KEY = "print-doc-location";
 
+    public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
