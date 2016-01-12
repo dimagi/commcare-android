@@ -662,7 +662,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 }
             case LOCATION_REQUEST:
                 if (resultCode == RESULT_OK) {
-                    hereFunctionHandler.setLocationString(FormEntryActivity.LOCATION_RESULT);
+                    hereFunctionHandler.setLocationString(
+                            intent.getStringExtra(FormEntryActivity.LOCATION_RESULT));
                 }
             default:
                 super.onActivityResult(requestCode, resultCode, intent);
