@@ -86,7 +86,7 @@ public class TestAppInstaller {
     public static void login(String username, String password) {
         CommCareApp ccApp = CommCareApplication._().getCurrentApp();
         UserKeyRecord keyRecord =
-                ManageKeyRecordTask.getCurrentValidRecord(ccApp, username, password, true);
+                UserKeyRecord.getCurrentValidRecordByPassword(ccApp, username, password, true);
         startSessionService(keyRecord, password);
     }
 

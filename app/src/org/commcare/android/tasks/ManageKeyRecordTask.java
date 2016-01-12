@@ -170,7 +170,9 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
          * a) We're not in pin mode (otherwise, should only be try matching to an existing record on the device)
          * b) We didn't find a matching record that is valid
          * c) There is a keyServerUrl to make the http callout to */
-        calloutNeeded = (!hasRecord || valid == null) && keyServerUrl != null;
+        //TODO AMS: Currently set this up that we will just never do a callout if in pin mode, but
+        // it's possible that we do want to try to update an invalid record?
+        calloutNeeded = !inPinMode && (!hasRecord || valid == null) && keyServerUrl != null;
         
         if (calloutNeeded) {
             calloutSuccessRequired = !hasRecord;
@@ -187,42 +189,52 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         //which shares the sandbox ID, we can set the status of the new record to be
         //the same as the old record.
         
-        //TODO: We dont' need to read these records, we can read the metadata straight.
         SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
-        for (UserKeyRecord record : storage) {
-            if (record.getType() == UserKeyRecord.TYPE_NORMAL) {
-                if (record.getUsername().equals(username) && record.isCurrentlyValid() && record.isPasswordOrPinValid(password, pin)) {
-                    if (currentlyValid == null) {
-                        currentlyValid = record;
-                    } else {
-                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User " + username + " has more than one currently valid key record!!");
-                    }
+
+        for (UserKeyRecord normalRecord :
+                storage.getRecordsForValue(UserKeyRecord.META_KEY_STATUS, UserKeyRecord.TYPE_NORMAL)) {
+
+            if (normalRecord.getUsername().equals(username) && normalRecord.isCurrentlyValid()
+                    && normalRecord.isPasswordOrPinValid(password, pin)) {
+                if (currentlyValid == null) {
+                    currentlyValid = normalRecord;
+                } else {
+                    Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User " + username + " has more than one currently valid key record!!");
                 }
-            } else if (record.getType() == UserKeyRecord.TYPE_NEW) {
-                // See if we have another sandbox with this ID that is fully initialized.
-                if (storage.getIDsForValues(
-                        new String[]{UserKeyRecord.META_SANDBOX_ID, UserKeyRecord.META_KEY_STATUS},
-                        new Object[] {record.getUuid(), UserKeyRecord.TYPE_NORMAL}
-                ).size() > 0) {
-                    Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Marking new sandbox " + record.getUuid() + " as initialized, since it's already in use on this device");
-                    // If so, this sandbox _has_ to have already been initialized, and we should treat it as such.
-                    record.setType(UserKeyRecord.TYPE_NORMAL);
-                    storage.write(record);
-                }
-            } else if (record.getType() == UserKeyRecord.TYPE_PENDING_DELETE) {
+            }
+        }
+
+        for (UserKeyRecord newRecord :
+                storage.getRecordsForValue(UserKeyRecord.META_KEY_STATUS, UserKeyRecord.TYPE_NEW)) {
+
+            // See if we have another sandbox with this ID that is fully initialized.
+            if (storage.getIDsForValues(
+                    new String[]{UserKeyRecord.META_SANDBOX_ID, UserKeyRecord.META_KEY_STATUS},
+                    new Object[]{newRecord.getUuid(), UserKeyRecord.TYPE_NORMAL}
+            ).size() > 0) {
+                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Marking new sandbox " + newRecord.getUuid() + " as initialized, since it's already in use on this device");
+                // If so, this sandbox _has_ to have already been initialized, and we should treat it as such.
+                newRecord.setType(UserKeyRecord.TYPE_NORMAL);
+                storage.write(newRecord);
+            }
+
+
+        for (UserKeyRecord recordPendingDelete :
+                storage.getRecordsForValue(UserKeyRecord.META_KEY_STATUS, UserKeyRecord.TYPE_PENDING_DELETE)) {
                 Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Cleaning up sandbox which is pending removal");
                 
                 // See if there are more records in this sandbox. (If so, we can just wipe this record and move on)
-                if (storage.getIDsForValue(UserKeyRecord.META_SANDBOX_ID, record.getUuid()).size() > 2) {
-                    Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Record for sandbox " + record.getUuid() + " has siblings. Removing record");
+                if (storage.getIDsForValue(UserKeyRecord.META_SANDBOX_ID, recordPendingDelete.getUuid()).size() > 2) {
+                    Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Record for sandbox " + recordPendingDelete.getUuid() + " has siblings. Removing record");
                     
                     //TODO: Will this invalidate our iterator?
-                    storage.remove(record);
+                    storage.remove(recordPendingDelete);
                 } else {
                     // Otherwise, we should see if we can read the data, and if so, wipe it as well as the record.
-                    if (record.isPasswordValid(password)) {
-                        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Current user has access to purgable sandbox " + record.getUuid() + ". Wiping that sandbox");
-                        UserSandboxUtils.purgeSandbox(this.getContext(), app, record,record.unWrapKey(password));
+                    if (recordPendingDelete.isPasswordValid(password)) {
+                        //TODO AMS: Changed this such that you can only wipe the record if it was a password login -- is that OK?
+                        Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Current user has access to purgable sandbox " + recordPendingDelete.getUuid() + ". Wiping that sandbox");
+                        UserSandboxUtils.purgeSandbox(this.getContext(), app, recordPendingDelete, recordPendingDelete.unWrapKey(password));
                     }
                     //Do we do anything here if we couldn't open the sandbox?
                 }
