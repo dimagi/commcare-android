@@ -33,7 +33,6 @@ import org.commcare.dalvik.geo.EntityOverlay;
 import org.commcare.dalvik.geo.EntityOverlayItemFactory;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.GeoPointData;
@@ -74,7 +73,6 @@ public class EntityMapActivity extends MapActivity {
         mGeoCoder = new Geocoder(this);
 
         session = CommCareApplication._().getCurrentSession();
-        Vector<Entry> entries = session.getEntriesForCommand(session.getCommand());
 
         SessionDatum selectDatum = session.getNeededDatum();
         Detail detail = session.getDetail(selectDatum.getShortDetail());

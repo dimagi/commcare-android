@@ -11,7 +11,7 @@ import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
-import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.EntryBase;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.xml.SuiteParser;
@@ -128,10 +128,10 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
                 }
 
             }).parse();
-            Hashtable<String, Entry> mHashtable = mSuite.getEntries();
+            Hashtable<String, EntryBase> mHashtable = mSuite.getEntries();
             for (Enumeration en = mHashtable.keys(); en.hasMoreElements(); ) {
                 String key = (String) en.nextElement();
-                Entry mEntry = mHashtable.get(key);
+                EntryBase mEntry = mHashtable.get(key);
 
                 FileUtil.checkReferenceURI(r, mEntry.getAudioURI(), problems);
                 FileUtil.checkReferenceURI(r, mEntry.getImageURI(), problems);

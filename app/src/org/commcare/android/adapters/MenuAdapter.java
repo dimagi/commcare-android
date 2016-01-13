@@ -19,6 +19,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.EntryBase;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.SessionDatum;
@@ -58,7 +59,7 @@ public class MenuAdapter implements ListAdapter {
 
         Vector<MenuDisplayable> items = new Vector<>();
 
-        Hashtable<String, Entry> map = platform.getMenuMap();
+        Hashtable<String, EntryBase> map = platform.getMenuMap();
         asw = CommCareApplication._().getCurrentSessionWrapper();
         EvaluationContext ec;
         for (Suite s : platform.getInstalledSuites()) {
@@ -105,8 +106,8 @@ public class MenuAdapter implements ListAdapter {
                                 }
                             }
 
-                            Entry e = map.get(command);
-                            if (e.getXFormNamespace() == null) {
+                            EntryBase e = map.get(command);
+                            if (e.isView()) {
                                 //If this is a "view", not an "entry"
                                 //we only want to display it if all of its 
                                 //datums are not already present
