@@ -940,23 +940,11 @@ public class CommCareHomeActivity
             } else {
                 // Display the normal home screen!
                 uiController.refreshView();
-                showPendingUserMessage();
             }
         } catch (SessionUnavailableException e) {
             // User was logged out somehow, so we want to return to dispatch activity
             setResult(RESULT_OK);
             this.finish();
-        }
-    }
-
-    /**
-     * If a message for the user has been set in CommCareApplication, show it and then clear it
-     */
-    private void showPendingUserMessage() {
-        String[] messageAndTitle = CommCareApplication._().getPendingUserMessage();
-        if (messageAndTitle != null) {
-            AlertDialogFactory.getBasicAlertFactory(this, messageAndTitle[1], messageAndTitle[0], null);
-            CommCareApplication._().clearPendingUserMessage();
         }
     }
 

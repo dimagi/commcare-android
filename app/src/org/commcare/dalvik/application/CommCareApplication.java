@@ -865,7 +865,6 @@ public class CommCareApplication extends Application {
 
                     // Don't let anyone touch this until it's logged in
                     // Open user database
-
                     mBoundService.prepareStorage(key, record);
 
                     if (record != null) {
