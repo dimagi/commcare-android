@@ -20,6 +20,7 @@ import java.util.List;
 public class NodeEntityFactory {
     private boolean mEntitySetInitialized = false;
     private static final Object mPreparationLock = new Object();
+    // Function handler for handling XPath evaluation of the function here().
     private HereFunctionHandler hereFunctionHandler;
 
     protected final EvaluationContext ec;

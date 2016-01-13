@@ -29,6 +29,8 @@ import java.util.Vector;
  * In addition, an EntitySelectActivity can register itself to be refreshed whenever
  * a new value of here() is obtained (whenever the location changes).
  *
+ * No locations are requested if here() is never evaluated.
+ *
  * @author Forest Tong
  */
 public class HereFunctionHandler implements IFunctionHandler, LocationListener {

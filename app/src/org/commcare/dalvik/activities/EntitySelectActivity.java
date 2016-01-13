@@ -162,6 +162,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private boolean cancelled;
     private ContainerFragment<EntityListAdapter> containerFragment;
 
+    // Function handler for handling XPath evaluation of the function here().
+    // Although only one instance is created, which is used by NodeEntityFactory,
+    // every instance of EntitySelectActivity registers itself (one at a time)
+    // to listen to the handler and refresh whenever a new location is obtained.
     public static HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
 
     @Override
