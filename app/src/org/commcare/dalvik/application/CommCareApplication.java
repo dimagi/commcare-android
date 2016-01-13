@@ -167,6 +167,9 @@ public class CommCareApplication extends Application {
      */
     private final PopupHandler toaster = new PopupHandler(this);
 
+    private String messageForUserOnDispatch;
+    private String titleForUserMessage;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -241,8 +244,7 @@ public class CommCareApplication extends Application {
         i.putExtra(UnrecoverableErrorActivity.EXTRA_USE_MESSAGE, useExtraMessage);
 
         // start a new stack and forget where we were (so we don't restart the app from there)
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_CLEAR_TOP |
-                Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 
         c.startActivity(i);
     }
@@ -863,20 +865,8 @@ public class CommCareApplication extends Application {
 
                     // Don't let anyone touch this until it's logged in
                     // Open user database
-                    try {
-                        mBoundService.prepareStorage(key, record);
-                    } catch (MigrationException e) {
-                        if (e.isDefiniteFailure()) {
-                            CommCareApplication._().triggerHandledAppExit(CommCareApplication.this,
-                                    getString(R.string.migration_definite_failure),
-                                    getString(R.string.migration_failure_title), false);
-                        } else {
-                            CommCareApplication._().triggerHandledAppExit(CommCareApplication.this,
-                                    getString(R.string.migration_possible_failure),
-                                    getString(R.string.migration_failure_title), false);
-                        }
-                        return;
-                    }
+
+                    mBoundService.prepareStorage(key, record);
 
                     if (record != null) {
                         //Ok, so we have a login that was successful, but do we have a user model in the DB?
@@ -1348,5 +1338,22 @@ public class CommCareApplication extends Application {
             public void onServiceDisconnected(ComponentName className) {
             }
         };
+    }
+
+    public void storeMessageForUserOnDispatch(String title, String message) {
+        this.titleForUserMessage = title;
+        this.messageForUserOnDispatch = message;
+    }
+
+    public String[] getPendingUserMessage() {
+        if (messageForUserOnDispatch != null) {
+            return new String[]{messageForUserOnDispatch, titleForUserMessage};
+        }
+        return null;
+    }
+
+    public void clearPendingUserMessage() {
+        messageForUserOnDispatch = null;
+        titleForUserMessage = null;
     }
 }

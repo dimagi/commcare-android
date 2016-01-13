@@ -8,12 +8,10 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.database.global.models.ApplicationRecordV1;
 import org.commcare.android.database.migration.FixtureSerializationMigration;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.ACasePreV6Model;
@@ -240,17 +238,17 @@ class UserDatabaseUpgrader {
 
         db.beginTransaction();
         try {
-            if (multipleInstalledAppRecords()) {
-                // Cannot migrate FormRecords once this device has already started installing
-                // multiple applications, because there is no way to know which of those apps the
-                // existing FormRecords belong to
-                throw new MigrationException(true);
-            }
-
             SqlStorage<FormRecordV1> oldStorage = new SqlStorage<>(
                     FormRecord.STORAGE_KEY,
                     FormRecordV1.class,
                     new ConcreteAndroidDbHelper(c, db));
+
+            if (multipleInstalledAppRecords()) {
+                // Cannot migrate FormRecords once this device has already started installing
+                // multiple applications, because there is no way to know which of those apps the
+                // existing FormRecords belong to
+                deleteExistingFormRecordsAndWarnUser(oldStorage);
+            }
 
             String appId = getInstalledAppRecord().getApplicationId();
             Vector<FormRecord> upgradedRecords = new Vector<>();
@@ -353,5 +351,16 @@ class UserDatabaseUpgrader {
             }
         }
         return null;
+    }
+
+    private static void deleteExistingFormRecordsAndWarnUser(SqlStorage<FormRecordV1> existingRecords) {
+        for (FormRecordV1 record : existingRecords) {
+            existingRecords.remove(record.getID());
+        }
+        String warningTitle = "Minor data loss during upgrade";
+        String warningMessage = "Due to the experimental state of" +
+                "multiple application seating, we were not able to migrate all of your app data" +
+                "during upgrade. Any saved, incomplete, and unsent forms on the device were deleted.";
+        CommCareApplication._().storeMessageForUserOnDispatch(warningTitle, warningMessage);
     }
 }
