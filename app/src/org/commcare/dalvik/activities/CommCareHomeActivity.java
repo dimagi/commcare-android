@@ -24,7 +24,9 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.CommCareActivityUIController;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
+import org.commcare.android.framework.WithUIController;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -75,7 +77,7 @@ import java.util.Vector;
 
 public class CommCareHomeActivity
         extends SessionAwareCommCareActivity<CommCareHomeActivity>
-        implements SessionNavigationResponder {
+        implements SessionNavigationResponder, WithUIController {
 
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
@@ -156,7 +158,7 @@ public class CommCareHomeActivity
         }
 
         ACRAUtil.registerAppData();
-        uiController = new HomeActivityUIController(this);
+        uiController.setupUI();
         sessionNavigator = new SessionNavigator(this);
         formAndDataSyncer = new FormAndDataSyncer(this);
 
@@ -259,10 +261,6 @@ public class CommCareHomeActivity
     protected void userTriggeredLogout() {
         setResult(RESULT_OK);
         finish();
-    }
-
-    public HomeActivityUIController getUiController() {
-        return this.uiController;
     }
 
     @Override
@@ -1222,4 +1220,15 @@ public class CommCareHomeActivity
             throw new RuntimeException("On principal of design, only meant for testing purposes");
         }
     }
+
+    @Override
+    public void initUIController() {
+        uiController = new HomeActivityUIController(this);
+    }
+
+    @Override
+    public CommCareActivityUIController getUIController() {
+        return this.uiController;
+    }
+
 }
