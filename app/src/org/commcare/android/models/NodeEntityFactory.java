@@ -1,9 +1,6 @@
 package org.commcare.android.models;
 
-import android.content.Context;
-
 import org.commcare.dalvik.activities.EntitySelectActivity;
-import org.commcare.dalvik.geo.HereFunctionHandler;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
@@ -20,8 +17,6 @@ import java.util.List;
 public class NodeEntityFactory {
     private boolean mEntitySetInitialized = false;
     private static final Object mPreparationLock = new Object();
-    // Function handler for handling XPath evaluation of the function here().
-    private HereFunctionHandler hereFunctionHandler;
 
     protected final EvaluationContext ec;
     protected final Detail detail;
@@ -29,7 +24,6 @@ public class NodeEntityFactory {
     public NodeEntityFactory(Detail d, EvaluationContext ec) {
         this.detail = d;
         this.ec = ec;
-        this.hereFunctionHandler = EntitySelectActivity.hereFunctionHandler;
     }
 
     public Detail getDetail() {
@@ -40,7 +34,7 @@ public class NodeEntityFactory {
         EvaluationContext nodeContext = new EvaluationContext(ec, data);
         getDetail().populateEvaluationContextVariables(nodeContext);
 
-        nodeContext.addFunctionHandler(hereFunctionHandler);
+        nodeContext.addFunctionHandler(EntitySelectActivity.hereFunctionHandler);
 
         int length = detail.getHeaderForms().length;
         Object[] details = new Object[length];

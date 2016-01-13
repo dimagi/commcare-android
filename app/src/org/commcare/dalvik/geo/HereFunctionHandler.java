@@ -126,23 +126,20 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {}
 
-    // Methods for implementing IFunctionHandler
-
+    @Override
     public String getName() {
         return HERE_NAME;
     }
 
+    @Override
     public Vector getPrototypes() {
         Vector p = new Vector();
         p.addElement(new Class[0]);
         return p;
     }
 
+    @Override
     public boolean rawArgs() {
         return false;
-    }
-
-    public boolean realTime() {
-        return true;
     }
 }
