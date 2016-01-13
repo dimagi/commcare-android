@@ -72,7 +72,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private static final int SEAT_APP_ACTIVITY = 0;
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
     public final static String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
-    public final static String WAS_PASSWORD_LOGIN = "logged-in-with-password";
+    public final static String PASSWORD_FROM_LOGIN = "password-used-on-login";
     
     private static final int TASK_KEY_EXCHANGE = 1;
     private static final int TASK_UPGRADE_INSTALL = 2;
@@ -407,7 +407,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 
         Intent i = new Intent();
-        i.putExtra(WAS_PASSWORD_LOGIN, !uiController.inPinMode());
+        if (!uiController.inPinMode()) {
+            i.putExtra(PASSWORD_FROM_LOGIN, uiController.getEnteredPasswordOrPin());
+        }
         setResult(RESULT_OK, i);
         finish();
     }

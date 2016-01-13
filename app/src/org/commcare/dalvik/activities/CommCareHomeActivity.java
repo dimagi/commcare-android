@@ -213,24 +213,25 @@ public class CommCareHomeActivity
                 showDemoModeWarning();
             }
 
-            if (shouldLaunchPinCreation()) {
-                launchPinCreateScreen();
+            String passwordFromLastLogin =
+                    getIntent().getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
+            if (passwordFromLastLogin != null && shouldLaunchPinCreation()) {
+                launchPinCreateScreen(passwordFromLastLogin);
             }
         }
     }
 
     private boolean shouldLaunchPinCreation() {
         boolean pinCreationEnabledForApp = DeveloperPreferences.shouldOfferPinForLogin();
-        boolean loggedInWithPassword =
-                getIntent().getBooleanExtra(LoginActivity.WAS_PASSWORD_LOGIN, false);
         boolean alreadyDismissedPinCreation =
                 CommCareApplication._().getCurrentApp().getAppPreferences()
                         .getBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, false);
-        return pinCreationEnabledForApp && loggedInWithPassword && !alreadyDismissedPinCreation;
+        return pinCreationEnabledForApp && !alreadyDismissedPinCreation;
     }
 
-    private void launchPinCreateScreen() {
+    private void launchPinCreateScreen(String password) {
         Intent i = new Intent(getApplicationContext(), CreatePinActivity.class);
+        i.putExtra(LoginActivity.PASSWORD_FROM_LOGIN, password);
         startActivityForResult(i, CREATE_PIN);
     }
 
@@ -433,7 +434,9 @@ public class CommCareHomeActivity
                     }
                     break;
                 case CREATE_PIN:
-
+                    if (resultCode == RESULT_CANCELED) {
+                        return;
+                    }
                     break;
             }
             startNextSessionStepSafe();
