@@ -170,7 +170,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private boolean cancelled;
     private ContainerFragment<EntityListAdapter> containerFragment;
 
-    public static HereFunctionHandler hereFunctionHandler;
+    public static HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
