@@ -65,7 +65,6 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.DialogChoiceItem;
 import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.commcare.dalvik.geo.HereFunctionHandler;
-import org.commcare.dalvik.geo.HereLocationListener;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
@@ -82,14 +81,12 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.odk.collect.android.utilities.GeoUtils;
 import org.odk.collect.android.views.media.AudioController;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -169,8 +166,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private final Object timerLock = new Object();
     private boolean cancelled;
     private ContainerFragment<EntityListAdapter> containerFragment;
-
-    public static HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -291,8 +286,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (!isUsingActionBar()) {
             searchbox.setText(lastQueryString);
         }
-
-        startLocationListening();
     }
 
     private void persistAdapterState(ListView view) {
@@ -1215,23 +1208,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 myTimer.cancel();
                 myTimer = null;
                 cancelled = true;
-            }
-        }
-    }
-
-    private void startLocationListening() {
-        LocationManager mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Set<String> mProviders = GeoUtils.evaluateProviders(mLocationManager);
-
-        HereLocationListener hereLocationListener = new HereLocationListener(hereFunctionHandler);
-        for (String provider : mProviders) {
-            if ((provider.equals(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||
-                    (provider.equals(LocationManager.NETWORK_PROVIDER) && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
-                Location lastKnownLocation = mLocationManager.getLastKnownLocation(provider);
-                hereFunctionHandler.setLocation(HereLocationListener.toGeoPointData(lastKnownLocation));
-
-                mLocationManager.requestLocationUpdates(provider, 0, 0, hereLocationListener);
-                // Do we need to remove updates onPause?
             }
         }
     }

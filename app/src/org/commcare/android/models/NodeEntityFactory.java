@@ -1,5 +1,7 @@
 package org.commcare.android.models;
 
+import android.content.Context;
+
 import org.commcare.dalvik.activities.EntitySelectActivity;
 import org.commcare.dalvik.geo.HereFunctionHandler;
 import org.commcare.suite.model.Detail;
@@ -26,7 +28,7 @@ public class NodeEntityFactory {
     public NodeEntityFactory(Detail d, EvaluationContext ec) {
         this.detail = d;
         this.ec = ec;
-        this.hereFunctionHandler = EntitySelectActivity.hereFunctionHandler;
+        this.hereFunctionHandler = new HereFunctionHandler();
     }
 
     public Detail getDetail() {
