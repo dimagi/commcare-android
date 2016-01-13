@@ -1,7 +1,6 @@
 package org.commcare.dalvik.geo;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -34,6 +33,8 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     private boolean locationUpdatesRequested = false;
 
     private Context context;
+    // If there are more general uses for HereFunctionHandler, the type of this field can be
+    // generalized to a listener interface.
     private EntitySelectActivity entitySelectActivity;
 
     public HereFunctionHandler() {
@@ -66,6 +67,14 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         return true;
     }
 
+    // Setting up and subscribing to the location manager is delayed until here() is actually
+    // evaluated.
+    public Object eval(Object[] args, EvaluationContext ec) {
+        if(!locationUpdatesRequested) requestLocationUpdates();
+        if(location == null) return "";
+        return location.getDisplayText();
+    }
+
     private void requestLocationUpdates() {
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         mProviders = GeoUtils.evaluateProviders(mLocationManager);
@@ -73,14 +82,16 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         for (String provider : mProviders) {
             if ((provider.equals(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||
                     (provider.equals(LocationManager.NETWORK_PROVIDER) && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
-                Location lastKnownLocation = mLocationManager.getLastKnownLocation(provider);
-                this.location = toGeoPointData(lastKnownLocation);
-                Log.i("HereFunctionHandler", "last known location: " + this.location.getDisplayText());
+                // This is non-null if the calling activity pauses.
+                if (location == null) {
+                    Location lastKnownLocation = mLocationManager.getLastKnownLocation(provider);
+                    this.location = toGeoPointData(lastKnownLocation);
+                    Log.i("HereFunctionHandler", "last known location: " + this.location.getDisplayText());
+                }
 
                 // Looper is necessary because requestLocationUpdates is called inside an AsyncTask (EntityLoaderTask).
                 // What values for minTime and minDistance?
                 mLocationManager.requestLocationUpdates(provider, 0, 0, this, Looper.getMainLooper());
-                // Do we need to remove updates onPause?
             }
         }
 
@@ -98,19 +109,13 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         locationUpdatesRequested = false;
     }
 
-    public Object eval(Object[] args, EvaluationContext ec) {
-        if(!locationUpdatesRequested) requestLocationUpdates();
-        if(location == null) return "";
-        return location.getDisplayText();
-    }
-
     @Override
     public void onLocationChanged(Location location) {
         // Do we need to check the accuracy of the location?
         this.location = toGeoPointData(location);
         Log.i("HereFunctionHandler", "location has been set to " + this.location.getDisplayText());
         if (entitySelectActivity != null) {
-            entitySelectActivity.triggerRebuild();
+            entitySelectActivity.loadEntities();
         }
     }
 

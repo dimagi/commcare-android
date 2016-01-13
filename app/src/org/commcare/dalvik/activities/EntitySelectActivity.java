@@ -486,13 +486,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 header.addView(v);
             }
 
-            if (adapter == null &&
-                    loader == null &&
-                    !EntityLoaderTask.attachToActivity(this)) {
-                EntityLoaderTask theloader =
-                        new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
-                theloader.attachListener(this);
-                theloader.execute(selectDatum.getNodeset());
+            if (adapter == null) {
+                loadEntities();
             } else {
                 startTimer();
             }
@@ -1165,40 +1160,35 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         return true;
     }
 
-    //Below is helper code for the Refresh Feature. 
-    //this is a dev feature and should get restructured before release in prod.
-    //If the developer setting is turned off this code should do nothing.
-
-    public void triggerRebuild() {
+    public void loadEntities() {
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
-            EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
-            theloader.attachListener(this);
-            theloader.execute(selectDatum.getNodeset());
+            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
+            entityLoader.attachListener(this);
+            entityLoader.execute(selectDatum.getNodeset());
         }
     }
 
     private void startTimer() {
-        if (!DeveloperPreferences.isListRefreshEnabled()) {
-            return;
-        }
-        synchronized (timerLock) {
-            if (myTimer == null) {
-                myTimer = new Timer();
-                myTimer.schedule(new TimerTask() {
+        if (DeveloperPreferences.isListRefreshEnabled()) {
+            synchronized (timerLock) {
+                if (myTimer == null) {
+                    myTimer = new Timer();
+                    myTimer.schedule(new TimerTask() {
 
-                    @Override
-                    public void run() {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (!cancelled) {
-                                    triggerRebuild();
+                        @Override
+                        public void run() {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (!cancelled) {
+                                        loadEntities();
+                                    }
                                 }
-                            }
-                        });
-                    }
-                }, 15 * 1000, 15 * 1000);
-                cancelled = false;
+                            });
+                        }
+                    }, 15 * 1000, 15 * 1000);
+                    cancelled = false;
+                }
             }
         }
     }
