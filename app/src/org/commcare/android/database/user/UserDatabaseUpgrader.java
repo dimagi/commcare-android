@@ -368,8 +368,8 @@ class UserDatabaseUpgrader {
 
         String warningTitle = "Minor data loss during upgrade";
         String warningMessage = "Due to the experimental state of" +
-                "multiple application seating, we were not able to migrate all of your app data" +
-                "during upgrade. Any saved, incomplete, and unsent forms on the device were deleted.";
+                " multiple application seating, we were not able to migrate all of your app data" +
+                " during upgrade. Any saved, incomplete, and unsent forms on the device were deleted.";
         CommCareApplication._().storeMessageForUserOnDispatch(warningTitle, warningMessage);
     }
 }
