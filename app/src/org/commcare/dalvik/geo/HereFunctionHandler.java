@@ -38,19 +38,16 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     private GeoPointData location;
 
     private LocationManager mLocationManager;
-    private Set<String> mProviders;
 
     // This flag keeps track of whether the location manager needs to be set up and subscribed to.
     private boolean locationUpdatesRequested = false;
 
-    private Context context;
+    private final Context context = CommCareApplication._().getApplicationContext();
     // If there are more general uses for HereFunctionHandler, the type of this field can be
     // generalized to a listener interface.
     private EntitySelectActivity entitySelectActivity;
 
-    public HereFunctionHandler() {
-        this.context = CommCareApplication._().getApplicationContext();
-    }
+    public HereFunctionHandler() {}
 
     public void registerEntitySelectActivity(EntitySelectActivity entitySelectActivity) {
         this.entitySelectActivity = entitySelectActivity;
@@ -66,7 +63,7 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
 
     private void requestLocationUpdates() {
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        mProviders = GeoUtils.evaluateProviders(mLocationManager);
+        Set<String> mProviders = GeoUtils.evaluateProviders(mLocationManager);
 
         for (String provider : mProviders) {
             if ((provider.equals(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||
