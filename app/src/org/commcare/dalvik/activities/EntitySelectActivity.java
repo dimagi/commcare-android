@@ -283,6 +283,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (!isUsingActionBar()) {
             searchbox.setText(lastQueryString);
         }
+
+        hereFunctionHandler.registerEntitySelectActivity(this);
     }
 
     private void persistAdapterState(ListView view) {
@@ -1165,9 +1167,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     //Below is helper code for the Refresh Feature. 
     //this is a dev feature and should get restructured before release in prod.
-    //If the devloper setting is turned off this code should do nothing.
+    //If the developer setting is turned off this code should do nothing.
 
-    private void triggerRebuild() {
+    public void triggerRebuild() {
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
             EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
             theloader.attachListener(this);

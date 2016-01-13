@@ -12,6 +12,7 @@ import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import org.commcare.dalvik.activities.EntitySelectActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
@@ -33,6 +34,7 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     private boolean locationUpdatesRequested = false;
 
     private Context context;
+    private EntitySelectActivity entitySelectActivity;
 
     public HereFunctionHandler() {
         this.context = CommCareApplication._().getApplicationContext();
@@ -44,6 +46,10 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
 
     public void setLocation(GeoPointData location) {
         this.location = location;
+    }
+
+    public void registerEntitySelectActivity(EntitySelectActivity entitySelectActivity) {
+        this.entitySelectActivity = entitySelectActivity;
     }
 
     public Vector getPrototypes() {
@@ -71,7 +77,8 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
                 this.location = toGeoPointData(lastKnownLocation);
                 Log.i("HereFunctionHandler", "last known location: " + this.location.getDisplayText());
 
-                // Looper is necessary because requestLocationUpdates is called inside an AsyncTask (EntityLoaderTask)
+                // Looper is necessary because requestLocationUpdates is called inside an AsyncTask (EntityLoaderTask).
+                // What values for minTime and minDistance?
                 mLocationManager.requestLocationUpdates(provider, 0, 0, this, Looper.getMainLooper());
                 // Do we need to remove updates onPause?
             }
@@ -102,6 +109,9 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         // Do we need to check the accuracy of the location?
         this.location = toGeoPointData(location);
         Log.i("HereFunctionHandler", "location has been set to " + this.location.getDisplayText());
+        if (entitySelectActivity != null) {
+            entitySelectActivity.triggerRebuild();
+        }
     }
 
     @Override
