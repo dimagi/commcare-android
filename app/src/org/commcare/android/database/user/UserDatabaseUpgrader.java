@@ -243,6 +243,12 @@ class UserDatabaseUpgrader {
                     FormRecordV1.class,
                     new ConcreteAndroidDbHelper(c, db));
 
+            // Alter the FormRecord table to include an app id column
+            db.execSQL(DbUtil.addColumnToTable(
+                    FormRecord.STORAGE_KEY,
+                    FormRecord.META_APP_ID,
+                    "TEXT"));
+
             if (multipleInstalledAppRecords()) {
                 // Cannot migrate FormRecords once this device has already started installing
                 // multiple applications, because there is no way to know which of those apps the
@@ -266,12 +272,6 @@ class UserDatabaseUpgrader {
                 newRecord.setID(oldRecord.getID());
                 upgradedRecords.add(newRecord);
             }
-
-            // Alter the FormRecord table to include an app id column
-            db.execSQL(DbUtil.addColumnToTable(
-                    FormRecord.STORAGE_KEY,
-                    FormRecord.META_APP_ID,
-                    "TEXT"));
 
             // Write all of the new records to the updated table
             SqlStorage<FormRecord> newStorage = new SqlStorage<>(
