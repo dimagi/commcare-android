@@ -15,7 +15,7 @@ import java.util.Date;
  *
  * @author amstone
  */
-@Table(FormRecord.STORAGE_KEY)
+@Table("FORMRECORDS")
 public class FormRecordV1 extends Persisted implements EncryptedModel {
 
     @Persisting(1)

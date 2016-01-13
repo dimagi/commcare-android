@@ -234,6 +234,10 @@ class UserDatabaseUpgrader {
      * Adding an appId field to FormRecords, for compatibility with multiple apps functionality
      */
     private boolean upgradeNineTen(SQLiteDatabase db) {
+        // This process could take a while, so tell the service to wait longer to make sure
+        // it can finish
+        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+
         db.beginTransaction();
         try {
             if (multipleInstalledAppRecords()) {
@@ -265,7 +269,7 @@ class UserDatabaseUpgrader {
             }
 
             // Alter the FormRecord table to include an app id column
-            db.execSQL(DatabaseAppOpenHelper.addColumnToTable(
+            db.execSQL(DbUtil.addColumnToTable(
                     FormRecord.STORAGE_KEY,
                     FormRecord.META_APP_ID,
                     "TEXT"));

@@ -70,10 +70,11 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
     @Override
     protected Integer doTaskBackground(Void... params) {
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
 
         Vector<Integer> recordsToRemove = storage.getIDsForValues(
-                new String[]{FormRecord.META_STATUS},
-                new String[]{FormRecord.STATUS_SAVED});
+                new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new String[]{FormRecord.STATUS_SAVED, currentAppId});
         int numOldRecordsRemoved = recordsToRemove.size();
 
         Vector<Integer> unindexedRecords = storage.getIDsForValues(new String[] { FormRecord.META_STATUS}, new String[] { FormRecord.STATUS_UNINDEXED });

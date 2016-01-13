@@ -108,13 +108,6 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
         return indexOnTableCommand(indexName, tableName, Resource.META_INDEX_PARENT_GUID);
     }
 
-    /**
-     * Build and return SQL command to add a column to a table
-     */
-    public static String addColumnToTable(String tableName, String columnName, String dataType) {
-        return "ALTER TABLE " + tableName + " ADD " + columnName + " " + dataType;
-    }
-
     public SQLiteDatabase getWritableDatabase(String key) {
         try {
             return super.getWritableDatabase(key);
