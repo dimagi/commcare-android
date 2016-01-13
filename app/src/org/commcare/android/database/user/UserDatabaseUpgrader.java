@@ -238,20 +238,21 @@ class UserDatabaseUpgrader {
 
         db.beginTransaction();
         try {
-            if (multipleInstalledAppRecords()) {
-                // Cannot migrate FormRecords once this device has already started installing
-                // multiple applications, because there is no way to know which of those apps the
-                // existing FormRecords belong to
-                //deleteExistingFormRecordsAndWarnUser(oldStorage);
-                db.delete("FORMRECORDS", null, null);
-                db.setTransactionSuccessful();
-                return true;
-            }
-
             SqlStorage<FormRecordV1> oldStorage = new SqlStorage<>(
                     FormRecord.STORAGE_KEY,
                     FormRecordV1.class,
                     new ConcreteAndroidDbHelper(c, db));
+
+            if (multipleInstalledAppRecords()) {
+                // Cannot migrate FormRecords once this device has already started installing
+                // multiple applications, because there is no way to know which of those apps the
+                // existing FormRecords belong to
+                deleteExistingFormRecordsAndWarnUser(oldStorage);
+                addAppIdColumnToTable(db);
+                //db.delete("FORMRECORDS", null, null);
+                db.setTransactionSuccessful();
+                return true;
+            }
 
             String appId = getInstalledAppRecord().getApplicationId();
             Vector<FormRecord> upgradedRecords = new Vector<>();
@@ -364,7 +365,6 @@ class UserDatabaseUpgrader {
         for (FormRecordV1 record : oldStorage) {
             oldStorage.remove(record.getID());
         }
-        oldStorage.destroy();
 
         String warningTitle = "Minor data loss during upgrade";
         String warningMessage = "Due to the experimental state of" +
