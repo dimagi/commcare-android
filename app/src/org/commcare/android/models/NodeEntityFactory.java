@@ -28,7 +28,7 @@ public class NodeEntityFactory {
     public NodeEntityFactory(Detail d, EvaluationContext ec) {
         this.detail = d;
         this.ec = ec;
-        this.hereFunctionHandler = new HereFunctionHandler();
+        this.hereFunctionHandler = EntitySelectActivity.hereFunctionHandler;
     }
 
     public Detail getDetail() {

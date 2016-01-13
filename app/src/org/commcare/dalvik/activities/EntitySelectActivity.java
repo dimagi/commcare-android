@@ -59,6 +59,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.DialogChoiceItem;
 import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
+import org.commcare.dalvik.geo.HereFunctionHandler;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
@@ -160,6 +161,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private final Object timerLock = new Object();
     private boolean cancelled;
     private ContainerFragment<EntityListAdapter> containerFragment;
+
+    public static HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -505,6 +508,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (adapter != null) {
             adapter.unregisterDataSetObserver(mListStateObserver);
         }
+
+        hereFunctionHandler.stopLocationUpdates();
     }
 
     @Override
