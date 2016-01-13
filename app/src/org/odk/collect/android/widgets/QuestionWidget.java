@@ -9,6 +9,7 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
@@ -35,6 +36,7 @@ import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.QuestionExtensionReceiver;
+import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.services.Logger;
@@ -48,6 +50,7 @@ import org.odk.collect.android.views.ShrinkingTextView;
 import org.odk.collect.android.views.media.MediaLayout;
 
 import java.io.File;
+import java.util.Vector;
 
 public abstract class QuestionWidget extends LinearLayout implements QuestionExtensionReceiver {
     private final static String TAG = QuestionWidget.class.getSimpleName();
@@ -352,7 +355,27 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             s.setSpan(span, start, end, 0);
         }
         textView.setText(s);
-    }    
+    }
+
+    public void setQuestionText(TextView textView, FormEntryPrompt prompt){
+        if(prompt.getMarkdownText() != null){
+            textView.setText(forceMarkdown(prompt.getMarkdownText()));
+            textView.setMovementMethod(LinkMovementMethod.getInstance());
+            // Wrap to the size of the parent view
+            textView.setHorizontallyScrolling(false);
+        } else {
+            textView.setText(mPrompt.getLongText());
+        }
+    }
+
+    public void setChoiceText(TextView choiceText, SelectChoice choice){
+        String markdownText = mPrompt.getSelectItemMarkdownText(choice);
+        if(markdownText != null){
+            choiceText.setText(forceMarkdown(markdownText));
+        } else{
+            choiceText.setText(mPrompt.getSelectChoiceText(choice));
+        }
+    }
 
     /**
      * Add a Views containing the question text, audio (if applicable), and image (if applicable).
@@ -365,27 +388,15 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         String videoURI = mPrompt.getSpecialFormQuestionText("video");
         String inlineVideoUri = mPrompt.getSpecialFormQuestionText("video-inline");
         String qrCodeContent = mPrompt.getSpecialFormQuestionText("qrcode");
-        String markdownText = mPrompt.getMarkdownText();
 
         // shown when image is clicked
         String bigImageURI = mPrompt.getSpecialFormQuestionText("big-image");
 
         mQuestionText = (TextView)LayoutInflater.from(getContext()).inflate(R.layout.question_widget_text, this, false);
-        mQuestionText.setText(mPrompt.getLongText());
         mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
         mQuestionText.setId(38475483); // assign random id
 
-        // if we have markdown, use that.
-        if (markdownText != null) {
-            mQuestionText.setText(forceMarkdown(markdownText));
-            mQuestionText.setMovementMethod(LinkMovementMethod.getInstance());
-            // Wrap to the size of the parent view
-            mQuestionText.setHorizontallyScrolling(false);
-        } else {
-            mQuestionText.setText(mPrompt.getLongText());
-        }
-
-        mQuestionText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+        setQuestionText(mQuestionText, mPrompt);
 
         if(mPrompt.getLongText()!= null){
             if(mPrompt.getLongText().contains("\u260E")){

@@ -222,9 +222,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         restoreLastQueryString();
 
         if (!isUsingActionBar()) {
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "Setting lastQueryString (" + lastQueryString + ") in searchbox");
-            }
             setSearchText(lastQueryString);
         }
     }
@@ -489,9 +486,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                         searchItem.expandActionView();
                     }
                     setSearchText(lastQueryString);
-                    if (BuildConfig.DEBUG) {
-                        Log.v(TAG, "Setting lastQueryString in searchView: (" + lastQueryString + ")");
-                    }
                     if (adapter != null) {
                         adapter.applyTextFilter(lastQueryString == null ? "" : lastQueryString);
                     }
@@ -590,9 +584,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
         if (!isUsingActionBar()) {
             lastQueryString = filtertext;
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "Setting lastQueryString to (" + lastQueryString + ") in searchbox afterTextChanged event");
-            }
         }
     }
 

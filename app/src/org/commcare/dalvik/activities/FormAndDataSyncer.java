@@ -44,7 +44,7 @@ public class FormAndDataSyncer {
                     receiver.finish();
                     return;
                 }
-                activity.getUiController().refreshView();
+                activity.getUIController().refreshView();
 
                 int successfulSends = this.getSuccesfulSends();
 
@@ -128,9 +128,10 @@ public class FormAndDataSyncer {
 
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
-                receiver.getUiController().refreshView();
+                receiver.getUIController().refreshView();
                 String reportSyncLabel;
                 int reportSyncValue;
+
                 //TODO: SHARES _A LOT_ with login activity. Unify into service
                 switch (result) {
                     case DataPullTask.AUTH_FAILED:
