@@ -8,6 +8,7 @@ import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import org.commcare.android.adapters.HomeScreenAdapter;
+import org.commcare.android.framework.CommCareActivityUIController;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -15,13 +16,14 @@ import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Profile;
 
-import java.util.Arrays;
 import java.util.Vector;
 
 /**
- * @author amstone326
+ * Handles home activity UI
+ *
+ * @author Aliza Stone (astone@dimagi.com)
  */
-public class HomeActivityUIController {
+public class HomeActivityUIController implements CommCareActivityUIController {
 
     private final CommCareHomeActivity activity;
 
@@ -29,13 +31,18 @@ public class HomeActivityUIController {
 
     public HomeActivityUIController(CommCareHomeActivity activity) {
         this.activity = activity;
-        setupUI();
     }
 
-    private void setupUI() {
+    @Override
+    public void setupUI() {
         activity.setContentView(R.layout.home_screen);
         adapter = new HomeScreenAdapter(activity, getHiddenButtons(), CommCareHomeActivity.isDemoUser());
         setupGridView();
+    }
+
+    @Override
+    public void refreshView() {
+        adapter.notifyDataSetChanged();
     }
 
     private static Vector<String> getHiddenButtons() {
@@ -88,10 +95,6 @@ public class HomeActivityUIController {
         if (CommCareApplication._().getCurrentApp() != null) {
             activity.rebuildMenus();
         }
-    }
-
-    protected void refreshView() {
-        adapter.notifyDataSetChanged();
     }
 
     // TODO: Use syncNeeded flag to change color of sync message

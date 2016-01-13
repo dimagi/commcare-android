@@ -75,7 +75,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         RuntimePermissionRequester {
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
 
-    public static final String KEY_PROFILE_REF = "app_profile_ref";
     private static final String KEY_UI_STATE = "current_install_ui_state";
     private static final String KEY_OFFLINE =  "offline_install";
     private static final String KEY_FROM_EXTERNAL = "from_external";
@@ -147,6 +146,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         this.fromManager = this.getIntent().
                 getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
@@ -174,8 +174,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     this.uiState = UiState.READY_TO_INSTALL;
                     //Now just start up normally.
                 }
-            } else {
-                incomingRef = this.getIntent().getStringExtra(KEY_PROFILE_REF);
             }
         } else {
             loadStateFromInstance(savedInstanceState);
@@ -239,13 +237,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     protected void onResume() {
         super.onResume();
 
-        // If clicking the regular app icon brought us to CommCareSetupActivity
-        // (because that's where we were last time the app was up), but there are now
-        // 1 or more available apps, we want to redirect to CCHomeActivity
-        if (!fromManager && !fromExternal &&
-                CommCareApplication._().usableAppsPresent()) {
-            Intent i = new Intent(this, DispatchActivity.class);
-            startActivity(i);
+        if (!fromManager && !fromExternal && CommCareApplication._().usableAppsPresent()) {
+            // If clicking the regular app icon brought us to CommCareSetupActivity
+            // (because that's where we were last time the app was up), but there are now
+            // 1 or more available apps, we want to fall back to dispatch activity
+            setResult(RESULT_OK);
+            this.finish();
+            return;
         }
 
         if (isSingleAppBuild()) {
@@ -262,9 +260,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void onURLChosen(String url) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "SetupEnterURLFragment returned: " + url);
-        }
         incomingRef = url;
         this.uiState = UiState.READY_TO_INSTALL;
         uiStateScreenTransition();
@@ -282,9 +277,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         switch (uiState) {
             case READY_TO_INSTALL:
                 if (incomingRef == null || incomingRef.length() == 0) {
-                    Log.e(TAG, "During install: IncomingRef is empty!");
-                    Toast.makeText(getApplicationContext(), "Invalid URL: '" +
-                            incomingRef + "'", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "During install: incomingRef is empty!");
+                    Toast.makeText(getApplicationContext(), "Empty URL provided",
+                            Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -314,9 +309,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         int lastIndex = fgmts != null ? fgmts.size() - 1 : -1;
         if (lastIndex > -1) {
             fragment = fgmts.get(lastIndex);
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "Last fragment: " + fragment);
-            }
         }
         if (!(fragment instanceof SetupEnterURLFragment)) {
             // last fragment wasn't url entry, so default to the installation method chooser
@@ -364,7 +356,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 }
                 break;
         }
-        if (result == null) return;
+        if (result == null) {
+            return;
+        }
         incomingRef = result;
         this.uiState = UiState.READY_TO_INSTALL;
 
@@ -382,10 +376,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
 
         uiStateScreenTransition();
-    }
-
-    private String getRef() {
-        return incomingRef;
     }
 
     private CommCareApp getCommCareApp() {
@@ -470,7 +460,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     };
 
             task.connect(this);
-            task.execute(getRef());
+            task.execute(incomingRef);
         } else {
             Log.i(TAG, "During install: blocked a resource install press since a task was already running");
         }
@@ -481,13 +471,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         super.onCreateOptionsMenu(menu);
         menu.add(0, MODE_ARCHIVE, 0, Localization.get("menu.archive")).setIcon(android.R.drawable.ic_menu_upload);
         menu.add(0, MODE_SMS, 1, Localization.get("menu.sms")).setIcon(android.R.drawable.stat_notify_chat);
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-
         return true;
     }
 
@@ -836,6 +819,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     }
                 }
             }
+            // external storage perms were enabled, so setup temp storage,
+            // which fails in application setup without external storage perms.
+            CommCareApplication._().prepareTemporaryStorage();
         }
     }
 
