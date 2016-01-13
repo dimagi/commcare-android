@@ -22,7 +22,14 @@ import java.util.Set;
 import java.util.Vector;
 
 /**
- * Created by ftong on 1/12/16.
+ * HereFunctionHandler is a class that can be used to evaluate the here() XPath expression.
+ * In any context where here() needs to be evaluated, create a HereFunctionHandler and
+ * call addFunctionHandler to add it to the XPath evaluator.
+ *
+ * In addition, an EntitySelectActivity can register itself to be refreshed whenever
+ * a new value of here() is obtained (whenever the location changes).
+ *
+ * @author Forest Tong
  */
 public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     public static final String HERE_NAME = "here";
@@ -30,6 +37,8 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
 
     private LocationManager mLocationManager;
     private Set<String> mProviders;
+
+    // This flag keeps track of whether the location manager needs to be set up and subscribed to.
     private boolean locationUpdatesRequested = false;
 
     private Context context;
@@ -41,30 +50,8 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         this.context = CommCareApplication._().getApplicationContext();
     }
 
-    public String getName() {
-        return HERE_NAME;
-    }
-
-    public void setLocation(GeoPointData location) {
-        this.location = location;
-    }
-
     public void registerEntitySelectActivity(EntitySelectActivity entitySelectActivity) {
         this.entitySelectActivity = entitySelectActivity;
-    }
-
-    public Vector getPrototypes() {
-        Vector p = new Vector();
-        p.addElement(new Class[0]);
-        return p;
-    }
-
-    public boolean rawArgs() {
-        return false;
-    }
-
-    public boolean realTime() {
-        return true;
     }
 
     // Setting up and subscribing to the location manager is delayed until here() is actually
@@ -114,9 +101,19 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         // Do we need to check the accuracy of the location?
         this.location = toGeoPointData(location);
         Log.i("HereFunctionHandler", "location has been set to " + this.location.getDisplayText());
+        // Trigger refreshing of entity list.
         if (entitySelectActivity != null) {
             entitySelectActivity.loadEntities();
         }
+    }
+
+    public static GeoPointData toGeoPointData(Location location) {
+        return new GeoPointData(new double[]{
+                location.getLatitude(),
+                location.getLongitude(),
+                location.getAltitude(),
+                (double) location.getAccuracy()
+        });
     }
 
     @Override
@@ -130,13 +127,23 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {}
 
+    // Methods for implementing IFunctionHandler
 
-    public static GeoPointData toGeoPointData(Location location) {
-        return new GeoPointData(new double[]{
-                location.getLatitude(),
-                location.getLongitude(),
-                location.getAltitude(),
-                (double) location.getAccuracy()
-        });
+    public String getName() {
+        return HERE_NAME;
+    }
+
+    public Vector getPrototypes() {
+        Vector p = new Vector();
+        p.addElement(new Class[0]);
+        return p;
+    }
+
+    public boolean rawArgs() {
+        return false;
+    }
+
+    public boolean realTime() {
+        return true;
     }
 }
