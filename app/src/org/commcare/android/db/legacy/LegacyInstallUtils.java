@@ -323,7 +323,9 @@ public class LegacyInstallUtils {
             //There's not specific reason to thing this might happen, but might be valuable to double check
             if (newUserKeyRecords.getIDsForValue(UserKeyRecord.META_USERNAME, u.getUsername()).size() == 0) {
                 String sandboxId = PropertyUtils.genUUID().replace("-", "");
-                UserKeyRecord ukr = new UserKeyRecord(u.getUsername(), u.getPassword(), u.getWrappedKey(), new Date(), new Date(), sandboxId, UserKeyRecord.TYPE_LEGACY_TRANSITION);
+                UserKeyRecord ukr = new UserKeyRecord(u.getUsername(), u.getPasswordHash(),
+                        u.getWrappedKey(), new Date(), new Date(), sandboxId,
+                        UserKeyRecord.TYPE_LEGACY_TRANSITION);
                 newUserKeyRecords.write(ukr);
             }
         }

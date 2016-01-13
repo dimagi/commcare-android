@@ -393,14 +393,14 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
             }
         }
         
-        //Ok, so we're done with everything now. We should log in our local sandbox and proceed to the next step.
+        // Ok, so we're done with everything now. We should log in our local sandbox and proceed to the next step.
         CommCareApplication._().startUserSession(current.unWrapKey(password), current, restoreSession);
         
-        //So we may have logged in a key record but not a user (if we just received the
-        //key, but not the user's data, for instance). 
+        // So we may have logged in a key record but not a user (if we just received the
+        // key, but not the user's data, for instance).
         try {
             User u = CommCareApplication._().getSession().getLoggedInUser();
-            if(u != null) {
+            if (u != null) {
                 u.setCachedPwd(password);
                 loggedIn = u;
             }

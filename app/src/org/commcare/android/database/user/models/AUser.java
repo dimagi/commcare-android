@@ -212,7 +212,7 @@ public class AUser implements Persistable, IMetaData
 
     public User toNewUser() {
         User user = new User(username, password, uniqueId, getUserType());
-        user.setRecordId(recordId);
+        user.setID(recordId);
         user.setWrappedKey(getWrappedKey());
         user.properties = getProperties();
         user.setLastSyncToken(syncToken);
