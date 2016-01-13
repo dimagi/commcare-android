@@ -238,19 +238,20 @@ class UserDatabaseUpgrader {
 
         db.beginTransaction();
         try {
-            SqlStorage<FormRecordV1> oldStorage = new SqlStorage<>(
-                    FormRecord.STORAGE_KEY,
-                    FormRecordV1.class,
-                    new ConcreteAndroidDbHelper(c, db));
-
             if (multipleInstalledAppRecords()) {
                 // Cannot migrate FormRecords once this device has already started installing
                 // multiple applications, because there is no way to know which of those apps the
                 // existing FormRecords belong to
-                deleteExistingFormRecordsAndWarnUser(oldStorage);
-                //addAppIdColumnToTable(db);
+                //deleteExistingFormRecordsAndWarnUser(oldStorage);
+                db.delete("FORMRECORDS", null, null);
+                db.setTransactionSuccessful();
                 return true;
             }
+
+            SqlStorage<FormRecordV1> oldStorage = new SqlStorage<>(
+                    FormRecord.STORAGE_KEY,
+                    FormRecordV1.class,
+                    new ConcreteAndroidDbHelper(c, db));
 
             String appId = getInstalledAppRecord().getApplicationId();
             Vector<FormRecord> upgradedRecords = new Vector<>();
