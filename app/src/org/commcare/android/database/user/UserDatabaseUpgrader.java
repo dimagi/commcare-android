@@ -248,9 +248,9 @@ class UserDatabaseUpgrader {
                 // multiple applications, because there is no way to know which of those apps the
                 // existing FormRecords belong to
                 deleteExistingFormRecordsAndWarnUser(oldStorage);
-
                 addAppIdColumnToTable(db);
                 db.setTransactionSuccessful();
+                CommCareApplication._().clearUserData();
                 return true;
             }
 
