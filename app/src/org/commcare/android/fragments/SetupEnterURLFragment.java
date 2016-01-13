@@ -93,9 +93,6 @@ public class SetupEnterURLFragment extends Fragment {
             return url;
         }
         // if it's not the last (which should be "Raw") choice, we'll use the prefix
-        if (BuildConfig.DEBUG) {
-            Log.v(TAG, "Selected prefix: " + selectedPrefix + ", selected item is: " + prefixURLSpinner.getSelectedItem());
-        }
         if (selectedPrefix < prefixURLSpinner.getCount() - 1) {
             url = prefixURLSpinner.getSelectedItem() + "/" + url;
         }

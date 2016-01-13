@@ -119,9 +119,9 @@ public class CommCarePreferences
         ListPreference lp = new ListPreference(this);
         lp.setEntries(ChangeLocaleUtil.getLocaleNames());
         lp.setEntryValues(ChangeLocaleUtil.getLocaleCodes());
-        lp.setTitle("Change Locale");
+        lp.setTitle(Localization.get("home.menu.locale.change"));
         lp.setKey("cur_locale");
-        lp.setDialogTitle("Choose your Locale");
+        lp.setDialogTitle(Localization.get("home.menu.locale.select"));
         this.getPreferenceScreen().addPreference(lp);
         updatePreferencesText();
         setTitle("CommCare" + " > " + "Application Preferences");
