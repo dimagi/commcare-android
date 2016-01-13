@@ -243,17 +243,12 @@ class UserDatabaseUpgrader {
                     FormRecordV1.class,
                     new ConcreteAndroidDbHelper(c, db));
 
-            // Alter the FormRecord table to include an app id column
-            db.execSQL(DbUtil.addColumnToTable(
-                    FormRecord.STORAGE_KEY,
-                    FormRecord.META_APP_ID,
-                    "TEXT"));
-
             if (multipleInstalledAppRecords()) {
                 // Cannot migrate FormRecords once this device has already started installing
                 // multiple applications, because there is no way to know which of those apps the
                 // existing FormRecords belong to
                 deleteExistingFormRecordsAndWarnUser(oldStorage);
+                //addAppIdColumnToTable(db);
                 return true;
             }
 
@@ -273,6 +268,8 @@ class UserDatabaseUpgrader {
                 upgradedRecords.add(newRecord);
             }
 
+            addAppIdColumnToTable(db);
+
             // Write all of the new records to the updated table
             SqlStorage<FormRecord> newStorage = new SqlStorage<>(
                     FormRecord.STORAGE_KEY,
@@ -287,6 +284,14 @@ class UserDatabaseUpgrader {
         } finally {
             db.endTransaction();
         }
+    }
+
+    private static void addAppIdColumnToTable(SQLiteDatabase db) {
+        // Alter the FormRecord table to include an app id column
+        db.execSQL(DbUtil.addColumnToTable(
+                FormRecord.STORAGE_KEY,
+                FormRecord.META_APP_ID,
+                "TEXT"));
     }
 
     private void updateIndexes(SQLiteDatabase db) {
@@ -354,10 +359,12 @@ class UserDatabaseUpgrader {
         return null;
     }
 
-    private static void deleteExistingFormRecordsAndWarnUser(SqlStorage<FormRecordV1> existingRecords) {
-        for (FormRecordV1 record : existingRecords) {
-            existingRecords.remove(record.getID());
+    private static void deleteExistingFormRecordsAndWarnUser(SqlStorage<FormRecordV1> oldStorage) {
+        for (FormRecordV1 record : oldStorage) {
+            oldStorage.remove(record.getID());
         }
+        oldStorage.destroy();
+
         String warningTitle = "Minor data loss during upgrade";
         String warningMessage = "Due to the experimental state of" +
                 "multiple application seating, we were not able to migrate all of your app data" +
