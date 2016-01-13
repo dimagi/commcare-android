@@ -248,8 +248,8 @@ class UserDatabaseUpgrader {
                 // multiple applications, because there is no way to know which of those apps the
                 // existing FormRecords belong to
                 deleteExistingFormRecordsAndWarnUser(oldStorage);
+
                 addAppIdColumnToTable(db);
-                //db.delete("FORMRECORDS", null, null);
                 db.setTransactionSuccessful();
                 return true;
             }
@@ -342,7 +342,7 @@ class UserDatabaseUpgrader {
                 CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
         int count = 0;
         for (ApplicationRecord r : storage) {
-            if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
+            if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED && r.resourcesValidated()) {
                 count++;
             }
         }
@@ -354,7 +354,7 @@ class UserDatabaseUpgrader {
                 CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
         for (Persistable p : storage) {
             ApplicationRecord r = (ApplicationRecord) p;
-            if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
+            if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED && r.resourcesValidated()) {
                 return r;
             }
         }
