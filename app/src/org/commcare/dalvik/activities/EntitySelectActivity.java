@@ -1,20 +1,25 @@
 package org.commcare.dalvik.activities;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -60,6 +65,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.DialogChoiceItem;
 import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.commcare.dalvik.geo.HereFunctionHandler;
+import org.commcare.dalvik.geo.HereLocationListener;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
@@ -70,23 +76,20 @@ import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.SessionDatum;
-import org.javarosa.core.model.data.GeoPointData;
-import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.javarosa.xpath.expr.XPathFuncExpr;
-import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.activities.GeoPointActivity;
+import org.odk.collect.android.utilities.GeoUtils;
 import org.odk.collect.android.views.media.AudioController;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -113,7 +116,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private static final int MAP_SELECT = 2;
     private static final int BARCODE_FETCH = 1;
     private static final int CALLOUT = 3;
-    private static final int LOCATION_REQUEST = 4;
 
     private static final int MENU_SORT = Menu.FIRST + 1;
     private static final int MENU_MAP = Menu.FIRST + 2;
@@ -168,9 +170,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private boolean cancelled;
     private ContainerFragment<EntityListAdapter> containerFragment;
 
-    // Singleton HereFunctionHandler used by entities.
-    // The location inside is not calculated until GeoPointActivity returns.
-    public static final HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
+    public static HereFunctionHandler hereFunctionHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -291,6 +291,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (!isUsingActionBar()) {
             searchbox.setText(lastQueryString);
         }
+
+        startLocationListening();
     }
 
     private void persistAdapterState(ListView view) {
@@ -660,11 +662,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     refreshView();
                     return;
                 }
-            case LOCATION_REQUEST:
-                if (resultCode == RESULT_OK) {
-                    hereFunctionHandler.setLocationString(
-                            intent.getStringExtra(FormEntryActivity.LOCATION_RESULT));
-                }
             default:
                 super.onActivityResult(requestCode, resultCode, intent);
         }
@@ -911,8 +908,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             final int index = i;
             View.OnClickListener listener = new View.OnClickListener() {
                 public void onClick(View v) {
-                    Intent i = new Intent(EntitySelectActivity.this, GeoPointActivity.class);
-                    startActivityForResult(i, LOCATION_REQUEST);
                     adapter.sortEntities(new int[]{keyArray[index]});
                     adapter.applyFilter(getSearchText().toString());
                     dialog.dismiss();
@@ -1220,6 +1215,23 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 myTimer.cancel();
                 myTimer = null;
                 cancelled = true;
+            }
+        }
+    }
+
+    private void startLocationListening() {
+        LocationManager mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Set<String> mProviders = GeoUtils.evaluateProviders(mLocationManager);
+
+        HereLocationListener hereLocationListener = new HereLocationListener(hereFunctionHandler);
+        for (String provider : mProviders) {
+            if ((provider.equals(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||
+                    (provider.equals(LocationManager.NETWORK_PROVIDER) && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+                Location lastKnownLocation = mLocationManager.getLastKnownLocation(provider);
+                hereFunctionHandler.setLocation(HereLocationListener.toGeoPointData(lastKnownLocation));
+
+                mLocationManager.requestLocationUpdates(provider, 0, 0, hereLocationListener);
+                // Do we need to remove updates onPause?
             }
         }
     }

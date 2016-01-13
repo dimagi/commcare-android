@@ -2,6 +2,7 @@ package org.commcare.dalvik.geo;
 
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
+import org.javarosa.core.model.data.GeoPointData;
 
 import java.util.Vector;
 
@@ -10,7 +11,7 @@ import java.util.Vector;
  */
 public class HereFunctionHandler implements IFunctionHandler {
     public static final String HERE_NAME = "here";
-    private String locationString = "";
+    private GeoPointData location;
 
     public HereFunctionHandler() {}
 
@@ -18,7 +19,7 @@ public class HereFunctionHandler implements IFunctionHandler {
         return HERE_NAME;
     }
 
-    public void setLocationString(String locationString) { this.locationString = locationString; }
+    public void setLocation(GeoPointData location) { this.location = location; }
 
     public Vector getPrototypes() {
         Vector p = new Vector();
@@ -35,6 +36,6 @@ public class HereFunctionHandler implements IFunctionHandler {
     }
 
     public Object eval(Object[] args, EvaluationContext ec) {
-        return locationString;
+        return location;
     }
 }
