@@ -22,9 +22,8 @@ import java.util.Set;
 import java.util.Vector;
 
 /**
- * HereFunctionHandler is a class that can be used to evaluate the here() XPath expression.
- * In any context where here() needs to be evaluated, create a HereFunctionHandler and
- * call addFunctionHandler to add it to the XPath evaluator.
+ * Allows evaluation contexts to support the here() XPath function,
+ * which returns the current location.
  *
  * In addition, an EntitySelectActivity can register itself to be refreshed whenever
  * a new value of here() is obtained (whenever the location changes).
@@ -41,6 +40,8 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
 
     // This flag keeps track of whether the location manager needs to be set up and subscribed to.
     private boolean locationUpdatesRequested = false;
+    // This flag keeps track of whether locationUpdatesRequested has ever been set to true
+    public boolean locationUpdatesHaveBeenRequested = false;
 
     private final Context context = CommCareApplication._().getApplicationContext();
     // If there are more general uses for HereFunctionHandler, the type of this field can be
@@ -53,15 +54,21 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         this.entitySelectActivity = entitySelectActivity;
     }
 
-    // Setting up and subscribing to the location manager is delayed until here() is actually
-    // evaluated.
+    public void unregisterEntitySelectActivity() {
+        this.entitySelectActivity = null;
+    }
+
     public Object eval(Object[] args, EvaluationContext ec) {
-        if(!locationUpdatesRequested) requestLocationUpdates();
-        if(location == null) return "";
+        if (!locationUpdatesRequested) {
+            requestLocationUpdates();
+        }
+        if (location == null) {
+            return "";
+        }
         return location.getDisplayText();
     }
 
-    private void requestLocationUpdates() {
+    public void requestLocationUpdates() {
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         Set<String> mProviders = GeoUtils.evaluateProviders(mLocationManager);
 
@@ -71,8 +78,10 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
                 // This is non-null if the calling activity pauses.
                 if (location == null) {
                     Location lastKnownLocation = mLocationManager.getLastKnownLocation(provider);
-                    this.location = toGeoPointData(lastKnownLocation);
-                    Log.i("HereFunctionHandler", "last known location: " + this.location.getDisplayText());
+                    if (lastKnownLocation != null) {
+                        this.location = toGeoPointData(lastKnownLocation);
+                        Log.i("HereFunctionHandler", "last known location: " + this.location.getDisplayText());
+                    }
                 }
 
                 // Looper is necessary because requestLocationUpdates is called inside an AsyncTask (EntityLoaderTask).
@@ -82,17 +91,20 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         }
 
         locationUpdatesRequested = true;
+        locationUpdatesHaveBeenRequested = true;
     }
 
     // Clients must call this when done using handler.
     public void stopLocationUpdates() {
-        // stops the GPS. Note that this will turn off the GPS if the screen goes to sleep.
-        if (ContextCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            mLocationManager.removeUpdates(this);
-        }
+        if (locationUpdatesRequested) {
+            // stops the GPS. Note that this will turn off the GPS if the screen goes to sleep.
+            if (ContextCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                    ContextCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                mLocationManager.removeUpdates(this);
+            }
 
-        locationUpdatesRequested = false;
+            locationUpdatesRequested = false;
+        }
     }
 
     @Override

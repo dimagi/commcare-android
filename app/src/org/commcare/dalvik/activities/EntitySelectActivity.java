@@ -284,8 +284,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (!isUsingActionBar()) {
             searchbox.setText(lastQueryString);
         }
-
-        hereFunctionHandler.registerEntitySelectActivity(this);
     }
 
     private void persistAdapterState(ListView view) {
@@ -460,6 +458,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
         }
 
+        hereFunctionHandler.registerEntitySelectActivity(this);
+        if (hereFunctionHandler.locationUpdatesHaveBeenRequested) {
+            hereFunctionHandler.requestLocationUpdates();
+        }
+
         refreshView();
     }
 
@@ -507,6 +510,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             adapter.unregisterDataSetObserver(mListStateObserver);
         }
 
+        hereFunctionHandler.unregisterEntitySelectActivity();
         hereFunctionHandler.stopLocationUpdates();
     }
 
