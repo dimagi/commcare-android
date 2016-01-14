@@ -223,8 +223,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                 return StreamsUtil.getStreamAsBytes(is);
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("Unable to read serialized object from file.");
+            throw new RuntimeException("Unable to read serialized object from file.", e);
         } finally {
             if (is != null) {
                 try {
@@ -291,9 +290,8 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
             extObj.writeExternal(new DataOutputStream(bos));
-        } catch (IOException e1) {
-            e1.printStackTrace();
-            throw new RuntimeException("Failed to serialize externalizable");
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to serialize externalizable", e);
         }
         return bos;
     }
@@ -308,7 +306,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             contentValues.put(DatabaseHelper.AES_COL, key);
             return key;
         } catch (SessionUnavailableException e) {
-            throw new RuntimeException("Session unavailable; can't generate encryption key.");
+            throw new RuntimeException("Session unavailable; can't generate encryption key.", e);
         }
     }
 
@@ -363,7 +361,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
             db.setTransactionSuccessful();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Unable update db entry to store data in filesystem", e);
         } finally {
             if (bos != null) {
                 try {
