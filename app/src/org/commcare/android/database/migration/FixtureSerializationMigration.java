@@ -14,7 +14,6 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.io.ByteArrayInputStream;
@@ -65,10 +64,11 @@ public class FixtureSerializationMigration {
             }
             SqlStorage<Persistable> oldUserFixtureStorage =
                     new SqlStorage<Persistable>("oldfixture", FormInstance.class, helper);
-            int count = 0;
+            int migratedFixtureCount = 0;
             for (SqlStorageIterator i = oldUserFixtureStorage.iterate(false); i.hasMore(); ) {
                 int id = i.nextID();
-                Log.d(TAG, "migrating fixture " + count++);
+                migratedFixtureCount++;
+                Log.d(TAG, "migrating fixture " + migratedFixtureCount);
                 FormInstance fixture = new FormInstance();
 
                 fixtureByteStream =
