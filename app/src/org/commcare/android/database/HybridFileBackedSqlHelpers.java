@@ -7,6 +7,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.modern.database.DatabaseHelper;
+import org.javarosa.core.util.PropertyUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
@@ -94,10 +95,9 @@ public class HybridFileBackedSqlHelpers {
     }
 
     private static File getUniqueFilename(File dbDir) {
-        String uniqueSuffix = "_" + (Math.random() * 5);
         String timeAsString =
                 DateTime.now().toString(DateTimeFormat.forPattern("MM_dd_yyyy_HH_mm_ss"));
-        String filename = timeAsString + uniqueSuffix;
+        String filename = timeAsString + PropertyUtils.genGUID(7);
         File newFile = new File(dbDir, filename);
         // keep trying until we find a filename that doesn't already exist
         while (newFile.exists()) {
