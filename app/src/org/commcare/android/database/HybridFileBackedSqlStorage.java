@@ -221,6 +221,9 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
                 return StreamsUtil.getStreamAsBytes(is);
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unable to read serialized object from file.");
         } finally {
             if (is != null) {
                 try {
