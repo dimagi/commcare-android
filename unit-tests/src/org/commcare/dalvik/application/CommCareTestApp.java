@@ -5,6 +5,8 @@ import org.commcare.android.database.UnencryptedHybridFileBackedSqlStorageMock;
 import org.javarosa.core.services.storage.Persistable;
 
 /**
+ * Delegator around CommCareApp allowing the test suite to override logic.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class CommCareTestApp extends CommCareApp {
@@ -12,6 +14,7 @@ public class CommCareTestApp extends CommCareApp {
 
     public CommCareTestApp(CommCareApp app) {
         super(app.getAppRecord());
+
         fileRoot = app.fileRoot;
         setAppResourceState(app.getAppResourceState());
         this.app = app;
