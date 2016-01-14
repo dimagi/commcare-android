@@ -363,7 +363,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
             db.setTransactionSuccessful();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         } finally {
             if (bos != null) {
                 try {
