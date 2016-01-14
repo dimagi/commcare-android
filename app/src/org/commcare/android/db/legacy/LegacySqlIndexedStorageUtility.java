@@ -89,7 +89,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
             int index = c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
             while (!c.isAfterLast()) {
                 byte[] data = c.getBlob(index);
-                indices.add(newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL))));
+                indices.add(newObject(data));
                 c.moveToNext();
             }
             c.close();
@@ -124,9 +124,8 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         }
         c.moveToFirst();
         byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
-        int dbId = c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
         c.close();
-        return newObject(data, dbId);
+        return newObject(data);
     }
 
     @Override
@@ -144,25 +143,38 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         }
         c.moveToFirst();
         byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
-        int dbId = c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
         c.close();
-        return newObject(data, dbId);
+        return newObject(data);
     }
 
     @Override
-    public T newObject(byte[] serializedObjectAsBytes, int dbEntryId) {
+    public T newObject(byte[] data, int dbEntryId) {
+        return newObject(data);
+    }
+
+    public T newObject(byte[] data) {
         try {
             T e = ctype.newInstance();
-            e.readExternal(new DataInputStream(new ByteArrayInputStream(serializedObjectAsBytes)), helper.getPrototypeFactory());
-            e.setID(dbEntryId);
+            e.readExternal(new DataInputStream(new ByteArrayInputStream(data)), helper.getPrototypeFactory());
 
             return e;
-        } catch (DeserializationException | IOException
-                | InstantiationException | IllegalAccessException e) {
+
+        } catch (IllegalAccessException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        } catch (InstantiationException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (DeserializationException e) {
+            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
     }
+
 
     @Override
     public int add(Externalizable e) {
@@ -254,7 +266,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
 
     @Override
     public T read(int id) {
-        return newObject(readBytes(id), id);
+        return newObject(readBytes(id));
     }
 
     @Override
