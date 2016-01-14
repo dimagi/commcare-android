@@ -1,11 +1,10 @@
 package org.commcare.android.crypt;
 
-import android.util.Log;
-
 import org.commcare.android.javarosa.AndroidLogger;
 import org.javarosa.core.services.Logger;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -40,7 +39,7 @@ public class EncryptionIO {
             try {
                 Cipher cipher = Cipher.getInstance("AES");
                 cipher.init(Cipher.ENCRYPT_MODE, symetricKey);
-                return new CipherOutputStream(fos, cipher);
+                return new BufferedOutputStream(new CipherOutputStream(fos, cipher));
 
                 //All of these exceptions imply a bad platform and should be irrecoverable (Don't ever
                 //write out data if the key isn't good, or the crypto isn't available)
