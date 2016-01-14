@@ -260,9 +260,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void onURLChosen(String url) {
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "SetupEnterURLFragment returned: " + url);
-        }
         incomingRef = url;
         this.uiState = UiState.READY_TO_INSTALL;
         uiStateScreenTransition();
@@ -312,9 +309,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         int lastIndex = fgmts != null ? fgmts.size() - 1 : -1;
         if (lastIndex > -1) {
             fragment = fgmts.get(lastIndex);
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "Last fragment: " + fragment);
-            }
         }
         if (!(fragment instanceof SetupEnterURLFragment)) {
             // last fragment wasn't url entry, so default to the installation method chooser
