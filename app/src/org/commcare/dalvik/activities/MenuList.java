@@ -86,9 +86,6 @@ public class MenuList extends SaveSessionCommCareActivity implements OnItemClick
         Object value = listView.getAdapter().getItem(position);
         // if value is null, probably it means that we clicked on the header view, so we just ignore it
         if (value == null) {
-            if (BuildConfig.DEBUG) {
-                Log.d("MenuList", "Null value on position " + position);
-            }
             return;
         }
         if (value instanceof Entry) {
