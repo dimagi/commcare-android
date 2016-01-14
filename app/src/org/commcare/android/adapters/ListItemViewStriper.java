@@ -12,7 +12,6 @@ public class ListItemViewStriper implements ListItemViewModifier, Parcelable {
     private final int mEvenColor;
 
     public ListItemViewStriper(int oddColor, int evenColor) {
-        super();
         mOddColor = oddColor;
         mEvenColor = evenColor;
     }
