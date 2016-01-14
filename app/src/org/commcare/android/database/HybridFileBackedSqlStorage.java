@@ -135,7 +135,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             return newObject(inputStream, dbEntryId);
         } catch (FileNotFoundException e) {
             // TODO PLM: throw runtime or return null?
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e);
         } finally {
             if (inputStream != null) {
                 try {
@@ -281,7 +281,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
             db.setTransactionSuccessful();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         } finally {
             db.endTransaction();
         }
@@ -319,9 +319,13 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             fileOutputStream = getOutputFileStream(filename, key);
             bos.writeTo(fileOutputStream);
         } finally {
-            if (fileOutputStream != null) {
-                fileOutputStream.close();
-            }
+                if (fileOutputStream != null) {
+                    try {
+                        fileOutputStream.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
         }
     }
 

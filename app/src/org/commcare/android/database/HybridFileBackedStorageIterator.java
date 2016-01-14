@@ -45,7 +45,7 @@ public class HybridFileBackedStorageIterator<T extends Persistable>
                 return storage.newObject(fileInputStream, nextID());
             } catch (FileNotFoundException e) {
                 // TODO PLM: throw runtime or return null?
-                throw new RuntimeException(e.getMessage());
+                throw new RuntimeException(e);
             }
         }
     }
