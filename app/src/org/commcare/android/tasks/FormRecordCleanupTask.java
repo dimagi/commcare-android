@@ -325,9 +325,9 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      * Remove form record and associated session state descriptor from storage
      * and delete form instance files linked to the form record.
      */
-    private static void wipeRecord(Context context, int sessionId,
+    public static <T extends FormRecord> void wipeRecord(Context context, int sessionId,
                                    int formRecordId,
-                                   SqlStorage<FormRecord> frStorage,
+                                   SqlStorage<T> frStorage,
                                    SqlStorage<SessionStateDescriptor> ssdStorage) {
         if(sessionId != -1) {
             try {

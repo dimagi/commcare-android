@@ -16,7 +16,7 @@ import java.util.Date;
  * @author amstone
  */
 @Table("FORMRECORDS")
-public class FormRecordV1 extends Persisted implements EncryptedModel {
+public class FormRecordV1 extends FormRecord {
 
     @Persisting(1)
     @MetaField(FormRecord.META_XMLNS)

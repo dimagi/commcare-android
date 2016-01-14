@@ -20,10 +20,13 @@ import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
+import org.javarosa.engine.models.Session;
 
 import java.util.Vector;
 
@@ -238,21 +241,21 @@ class UserDatabaseUpgrader {
 
         db.beginTransaction();
         try {
-            SqlStorage<FormRecordV1> oldStorage = new SqlStorage<>(
-                    FormRecord.STORAGE_KEY,
-                    FormRecordV1.class,
-                    new ConcreteAndroidDbHelper(c, db));
 
             if (multipleInstalledAppRecords()) {
                 // Cannot migrate FormRecords once this device has already started installing
                 // multiple applications, because there is no way to know which of those apps the
                 // existing FormRecords belong to
-                deleteExistingFormRecordsAndWarnUser(oldStorage);
+                deleteExistingFormRecordsAndWarnUser(c, db);
                 addAppIdColumnToTable(db);
                 db.setTransactionSuccessful();
-                CommCareApplication._().clearUserData();
                 return true;
             }
+
+            SqlStorage<FormRecordV1> oldStorage = new SqlStorage<>(
+                    FormRecord.STORAGE_KEY,
+                    FormRecordV1.class,
+                    new ConcreteAndroidDbHelper(c, db));
 
             String appId = getInstalledAppRecord().getApplicationId();
             Vector<FormRecord> upgradedRecords = new Vector<>();
@@ -361,9 +364,19 @@ class UserDatabaseUpgrader {
         return null;
     }
 
-    private static void deleteExistingFormRecordsAndWarnUser(SqlStorage<FormRecordV1> oldStorage) {
-        for (FormRecordV1 record : oldStorage) {
-            oldStorage.remove(record.getID());
+    private static void deleteExistingFormRecordsAndWarnUser(Context c, SQLiteDatabase db) {
+        SqlStorage<FormRecordV1> formRecordStorage = new SqlStorage<>(
+                FormRecord.STORAGE_KEY,
+                FormRecordV1.class,
+                new ConcreteAndroidDbHelper(c, db));
+
+        SqlStorage<SessionStateDescriptor> ssdStorage = new SqlStorage<>(
+                SessionStateDescriptor.STORAGE_KEY,
+                SessionStateDescriptor.class,
+                new ConcreteAndroidDbHelper(c, db));
+
+        for (SqlStorageIterator iterator = formRecordStorage.iterate(false); iterator.hasMore(); ) {
+            FormRecordCleanupTask.wipeRecord(c, -1, iterator.nextID(), formRecordStorage, ssdStorage);
         }
 
         String warningTitle = "Minor data loss during upgrade";
