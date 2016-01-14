@@ -60,7 +60,7 @@ public class EncryptionIO {
     }
 
     public static InputStream getFileInputStream(String filepath,
-                                                 SecretKeySpec symetricKey) {
+                                                 SecretKeySpec symetricKey) throws FileNotFoundException{
         final File file = new File(filepath);
         InputStream is;
         try {
@@ -81,10 +81,6 @@ public class EncryptionIO {
             //files are smaller than their contents (padded encryption data, etc),
             //so you can't actually know that's correct. We should be relying on the
             //methods we use to read data to make sure it's all coming out.
-        } catch (FileNotFoundException e) {
-            Log.e(TAG, "Cannot find " + file.getName());
-            e.printStackTrace();
-            return null;
         } catch (InvalidKeyException | NoSuchPaddingException
                 | NoSuchAlgorithmException e) {
             e.printStackTrace();

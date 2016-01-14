@@ -5,6 +5,7 @@ import android.database.Cursor;
 import org.commcare.modern.database.DatabaseHelper;
 import org.javarosa.core.services.storage.Persistable;
 
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 /**
@@ -38,9 +39,14 @@ public class HybridFileBackedStorageIterator<T extends Persistable>
             byte[] aesKeyBlob =
                     c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
 
-            InputStream fileInputStream =
-                    ((HybridFileBackedSqlStorage<T>)storage).getInputStreamFromFile(filename, aesKeyBlob);
-            return storage.newObject(fileInputStream, nextID());
+            try {
+                InputStream fileInputStream =
+                        ((HybridFileBackedSqlStorage<T>)storage).getInputStreamFromFile(filename, aesKeyBlob);
+                return storage.newObject(fileInputStream, nextID());
+            } catch (FileNotFoundException e) {
+                // TODO PLM: throw runtime or return null?
+                throw new RuntimeException(e.getMessage());
+            }
         }
     }
 }

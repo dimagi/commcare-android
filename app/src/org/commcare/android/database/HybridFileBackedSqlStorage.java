@@ -22,6 +22,7 @@ import org.javarosa.core.util.externalizable.Externalizable;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -132,6 +133,9 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         try {
             inputStream = getInputStreamFromFile(filename, aesKeyBlob);
             return newObject(inputStream, dbEntryId);
+        } catch (FileNotFoundException e) {
+            // TODO PLM: throw runtime or return null?
+            throw new RuntimeException(e.getMessage());
         } finally {
             if (inputStream != null) {
                 try {
@@ -151,7 +155,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         }
     }
 
-    protected InputStream getInputStreamFromFile(String filename, byte[] aesKeyBytes) {
+    protected InputStream getInputStreamFromFile(String filename, byte[] aesKeyBytes) throws FileNotFoundException {
         SecretKeySpec aesKey = new SecretKeySpec(aesKeyBytes, "AES");
         return EncryptionIO.getFileInputStream(filename, aesKey);
     }
@@ -215,9 +219,6 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                 String filename = cur.getString(cur.getColumnIndexOrThrow(DatabaseHelper.FILE_COL));
                 byte[] aesKeyBlob = cur.getBlob(cur.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
                 is = getInputStreamFromFile(filename, aesKeyBlob);
-                if (is == null) {
-                    throw new RuntimeException("Unable to open and decrypt file: " + filename);
-                }
 
                 return StreamsUtil.getStreamAsBytes(is);
             }

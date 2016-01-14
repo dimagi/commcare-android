@@ -205,7 +205,13 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
     private boolean importData(String filePath, FormEntryController fec) {
         // convert files into a byte array
-        InputStream is = EncryptionIO.getFileInputStream(filePath, mSymetricKey);
+        InputStream is;
+        try {
+            is = EncryptionIO.getFileInputStream(filePath, mSymetricKey);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unable to open encrypted form instance file: " + filePath);
+        }
 
         // get the root of the saved and template instances
         TreeElement savedRoot;
