@@ -366,7 +366,8 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                                 "Multiple session ID's pointing to the same form record");
                     }
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
+                e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                         "Session ID exists, but with no record (or broken record)");
             }
