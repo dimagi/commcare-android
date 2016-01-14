@@ -745,9 +745,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                         searchItem.expandActionView();
                     }
                     searchView.setQuery(lastQueryString, false);
-                    if (BuildConfig.DEBUG) {
-                        Log.v(TAG, "Setting lastQueryString in searchView: (" + lastQueryString + ")");
-                    }
                     if (adapter != null) {
                         adapter.applyFilter(lastQueryString == null ? "" : lastQueryString);
                     }
@@ -996,14 +993,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             int dividerWidth = viewWidth == 0 ? (int)getResources().getDimension(R.dimen.entity_select_divider_left_inset) : (int)(viewWidth / 6.0);
 
             Drawable divider = getResources().getDrawable(R.drawable.divider_case_list_modern);
-
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "ListView divider is: " + divider + ", estimated divider width is: " + dividerWidth + ", viewWidth (dp) is: " + viewWidthDP);
-            }
-
-            if (BuildConfig.DEBUG && (divider == null || !(divider instanceof LayerDrawable))) {
-                throw new AssertionError("Divider should be a LayerDrawable!");
-            }
 
             LayerDrawable layerDrawable = (LayerDrawable)divider;
 

@@ -234,17 +234,11 @@ public class CommCareVerificationActivity
         CommCareApplication._().getCurrentApp().setMMResourcesValidated();
         if(Intent.ACTION_VIEW.equals(CommCareVerificationActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "Returning to " + DispatchActivity.class.getSimpleName() + " on success");
-            }
             Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
             i.putExtra(KEY_REQUIRE_REFRESH, true);
             startActivity(i);
         } else {
             //Good to go
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "Returning to " + getIntent().getAction() + " on success");
-            }
             Intent i = new Intent(getIntent());
             i.putExtra(KEY_REQUIRE_REFRESH, true);
             setResult(RESULT_OK, i);

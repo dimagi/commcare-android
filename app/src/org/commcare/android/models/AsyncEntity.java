@@ -188,24 +188,24 @@ public class AsyncEntity extends Entity<TreeReference> {
     }
 
     @Override
-    public boolean isValidField(int i) {
+    public boolean isValidField(int fieldIndex) {
         //NOTE: This totally jacks the asynchronicity. It's only used in
         //detail fields for now, so not super important, but worth bearing
         //in mind
         synchronized (mAsyncLock) {
             loadVariableContext();
-            if (getField(i).equals("")) {
+            if (getField(fieldIndex).equals("")) {
                 return false;
             }
 
             try {
-                this.relevancyData[i] = this.fields[i].isRelevant(this.context);
+                this.relevancyData[fieldIndex] = this.fields[fieldIndex].isRelevant(this.context);
             } catch (XPathSyntaxException e) {
                 final String msg = "Invalid relevant condition for field : " + fields[i].getHeader().toString();
                 XPathErrorLogger.INSTANCE.logErrorToCurrentApp("unknown", msg);
                 throw new RuntimeException(msg);
             }
-            return this.relevancyData[i];
+            return this.relevancyData[fieldIndex];
         }
     }
 
@@ -215,31 +215,6 @@ public class AsyncEntity extends Entity<TreeReference> {
             this.getField(i);
         }
         return data;
-    }
-
-    @Override
-    public String[] getBackgroundData() {
-        //Only called at display time, so shouldn't slow us down too much
-        synchronized (mAsyncLock) {
-            loadVariableContext();
-            for (int i = 0; i < this.getNumFields(); ++i) {
-                if (backgroundData[i] == null) {
-                    Text bg = fields[i].getBackground();
-                    if (bg == null) {
-                        backgroundData[i] = "";
-                    } else {
-                        try {
-                            backgroundData[i] = bg.evaluate(context);
-                        } catch (XPathException xpe) {
-                            XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
-                            xpe.printStackTrace();
-                            throw new RuntimeException("Invalid background output for field : " + fields[i].getHeader().toString());
-                        }
-                    }
-                }
-            }
-            return backgroundData;
-        }
     }
 
     public String[] getSortFieldPieces(int i) {

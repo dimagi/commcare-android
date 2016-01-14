@@ -32,49 +32,40 @@ public class NodeEntityFactory {
 
     public Entity<TreeReference> getEntity(TreeReference data) {
         EvaluationContext nodeContext = new EvaluationContext(ec, data);
-        getDetail().populateEvaluationContextVariables(nodeContext);
+        detail.populateEvaluationContextVariables(nodeContext);
 
         int length = detail.getHeaderForms().length;
         Object[] details = new Object[length];
         String[] sortDetails = new String[length];
-        String[] backgroundDetails = new String[length];
         boolean[] relevancyDetails = new boolean[length];
         int count = 0;
-        for (DetailField f : this.getDetail().getFields()) {
+        for (DetailField f : detail.getFields()) {
             try {
                 details[count] = f.getTemplate().evaluate(nodeContext);
                 Text sortText = f.getSort();
-                Text backgroundText = f.getBackground();
                 if (sortText == null) {
                     sortDetails[count] = null;
                 } else {
                     sortDetails[count] = sortText.evaluate(nodeContext);
                 }
-                if (backgroundText == null) {
-                    backgroundDetails[count] = "";
-                } else {
-                    backgroundDetails[count] = backgroundText.evaluate(nodeContext);
-                }
                 relevancyDetails[count] = f.isRelevant(nodeContext);
             } catch (XPathSyntaxException e) {
-                storeErrorDetails(e, count, details, relevancyDetails, backgroundDetails);
+                storeErrorDetails(e, count, details, relevancyDetails);
             } catch (XPathException xpe) {
                 XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
-                storeErrorDetails(xpe, count, details, relevancyDetails, backgroundDetails);
+                storeErrorDetails(xpe, count, details, relevancyDetails);
             }
             count++;
         }
 
-        return new Entity<>(details, sortDetails, backgroundDetails, relevancyDetails, data);
+        return new Entity<>(details, sortDetails, relevancyDetails, data);
     }
 
     private static void storeErrorDetails(Exception e, int index,
                                           Object[] details,
-                                          boolean[] relevancyDetails,
-                                          String[] backgroundDetails) {
+                                          boolean[] relevancyDetails) {
         e.printStackTrace();
         details[index] = "<invalid xpath: " + e.getMessage() + ">";
-        backgroundDetails[index] = "";
         // assume that if there's an error, user should see it
         relevancyDetails[index] = true;
     }

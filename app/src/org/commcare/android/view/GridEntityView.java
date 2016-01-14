@@ -233,8 +233,6 @@ public class GridEntityView extends GridLayout {
 
         Log.v("TempForms", "Template: " + Arrays.toString(forms) + " | RowData: " + Arrays.toString(mRowData) + " | Coords: " + Arrays.toString(coords) + " | Styles: " + Arrays.toString(styles));
 
-        String[] bgData = entity.getBackgroundData();
-
         this.setBackgroundDrawable(null);
 
         this.setPadding(ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL, ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL);
