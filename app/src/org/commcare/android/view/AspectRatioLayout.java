@@ -18,12 +18,12 @@ public class AspectRatioLayout extends FrameLayout {
 
     public AspectRatioLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
-        initializeRatio(context, attrs);
+        initializeRatio(attrs);
     }
 
     public AspectRatioLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-        initializeRatio(context, attrs);
+        initializeRatio(attrs);
     }
     
     /**
@@ -34,7 +34,7 @@ public class AspectRatioLayout extends FrameLayout {
         mRatioHeight = ratioHeight;
     }
     
-    private void initializeRatio(Context context, AttributeSet attrs) {
+    private void initializeRatio(AttributeSet attrs) {
         if(!isInEditMode()) {
             String namespace = "http://schemas.android.com/apk/lib/" + this.getClass().getPackage().getName();
             mRatioWidth = attrs.getAttributeFloatValue(namespace, "ratio_width", 1);
