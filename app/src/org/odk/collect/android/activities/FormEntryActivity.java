@@ -2061,10 +2061,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * If form entry is being saved because key session is expiring then
      * continue closing the session/logging out.
      *
-     * @see org.odk.collect.android.listeners.FormSavedListener#savingComplete(int, boolean)
+     * @see org.odk.collect.android.listeners.FormSavedListener#savingComplete(int)
      */
     @Override
-    public void savingComplete(int saveStatus, boolean headless) {
+    public void savingComplete(int saveStatus) {
         // Did we just save a form because the key session
         // (CommCareSessionService) is ending?
         if (savingFormOnKeySessionExpiration) {
