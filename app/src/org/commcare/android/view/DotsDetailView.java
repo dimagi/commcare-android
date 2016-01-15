@@ -20,8 +20,6 @@ import org.commcare.android.util.DotsData.ReportType;
 import org.commcare.android.util.DotsEditListener;
 import org.commcare.dalvik.R;
 
-import java.util.Date;
-
 /**
  * @author ctsims
  *
@@ -58,7 +56,7 @@ public class DotsDetailView {
         
     }
 
-    public View LoadDotsDetailView(Context context, DotsDay day, int index, Date date, int dose, final DotsEditListener listener) {
+    public View LoadDotsDetailView(Context context, DotsDay day, int index, int dose, final DotsEditListener listener) {
         this.day = day;
         this.index = index;
         this.dose = dose;

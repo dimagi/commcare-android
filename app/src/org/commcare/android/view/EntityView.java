@@ -242,7 +242,7 @@ public class EntityView extends LinearLayout {
     private void setupTextAndTTSLayout(View layout, final String text, String searchField) {
         TextView tv = (TextView) layout.findViewById(R.id.component_audio_text_txt);
         tv.setVisibility(View.VISIBLE);
-        tv.setText(highlightSearches(this.getContext(), searchTerms, new SpannableString(text == null ? "" : text), searchField, mFuzzySearchEnabled, mIsAsynchronous));
+        tv.setText(highlightSearches(searchTerms, new SpannableString(text == null ? "" : text), searchField, mFuzzySearchEnabled, mIsAsynchronous));
         ImageButton btn = (ImageButton) layout.findViewById(R.id.component_audio_text_btn_audio);
         btn.setFocusable(false);
 
@@ -312,7 +312,7 @@ public class EntityView extends LinearLayout {
      * match. A background string can be provided which provides the exact data that is being
      * matched.
      */
-    public static Spannable highlightSearches(Context context, String[] searchTerms, Spannable raw, String backgroundString, boolean fuzzySearchEnabled, boolean strictMode) {
+    public static Spannable highlightSearches(String[] searchTerms, Spannable raw, String backgroundString, boolean fuzzySearchEnabled, boolean strictMode) {
         if (searchTerms == null) {
             return raw;
         }
