@@ -21,7 +21,6 @@ import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.User;
@@ -376,10 +375,6 @@ class UserDatabaseUpgrader {
 
         formRecordStorage.removeAll();
         ssdStorage.removeAll();
-
-        /*for (SqlStorageIterator iterator = formRecordStorage.iterate(false); iterator.hasMore(); ) {
-            FormRecordCleanupTask.wipeRecord(c, -1, iterator.nextID(), formRecordStorage, ssdStorage);
-        }*/
 
         String warningTitle = "Minor data loss during upgrade";
         String warningMessage = "Due to the experimental state of" +
