@@ -278,6 +278,10 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         setPrimedLoginUI();
     }
 
+    private void setPrimedLoginUI() {
+
+    }
+
     private void setNormalPasswordMode() {
         matchingRecord = null;
         loginMode = LoginActivity.LoginMode.PASSWORD;
@@ -294,10 +298,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     protected LoginActivity.LoginMode getLoginMode() {
         return loginMode;
-    }
-
-    public void clearPrimedLogin() {
-        matchingRecord.clearPrimedLogin();
     }
 
     protected void setErrorMessageUI(String message) {

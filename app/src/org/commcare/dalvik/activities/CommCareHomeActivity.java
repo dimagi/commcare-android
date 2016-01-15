@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -15,6 +16,7 @@ import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import org.commcare.android.database.SqlStorage;
@@ -48,7 +50,9 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.dialogs.DialogChoiceItem;
 import org.commcare.dalvik.dialogs.DialogCreationHelpers;
+import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -213,34 +217,78 @@ public class CommCareHomeActivity
                 showDemoModeWarning();
             }
 
-            // See if we should launch the pin create screen
-            LoginActivity.LoginMode loginMode = LoginActivity.LoginMode.fromString(
-                    getIntent().getStringExtra(LoginActivity.LOGIN_MODE));
-            if (shouldLaunchPinCreation(loginMode)) {
-                String passwordFromLastLogin =
-                        getIntent().getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
-                launchPinCreateScreen(loginMode, passwordFromLastLogin);
-            }
+            pinModeDecisionLogic();
         }
     }
 
-    private boolean shouldLaunchPinCreation(LoginActivity.LoginMode loginMode) {
-        if (loginMode == LoginActivity.LoginMode.PIN) {
-            return false;
-        } else if (loginMode == LoginActivity.LoginMode.PRIMED) {
-            return true;
-        } else {
+    // See if we should launch the pin create screen
+    private void pinModeDecisionLogic() {
+
+        LoginActivity.LoginMode loginMode = LoginActivity.LoginMode.fromString(
+                getIntent().getStringExtra(LoginActivity.LOGIN_MODE));
+
+        if (loginMode == LoginActivity.LoginMode.PRIMED) {
+            launchPinCreateScreen(loginMode);
+        } else if (loginMode == LoginActivity.LoginMode.PASSWORD) {
             boolean pinCreationEnabledForApp = DeveloperPreferences.shouldOfferPinForLogin();
             boolean alreadyDismissedPinCreation =
                     CommCareApplication._().getCurrentApp().getAppPreferences()
                             .getBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, false);
-            return pinCreationEnabledForApp && !alreadyDismissedPinCreation;
+            if (pinCreationEnabledForApp && !alreadyDismissedPinCreation) {
+                showPinChoiceDialog(loginMode);
+            }
         }
     }
 
-    private void launchPinCreateScreen(LoginActivity.LoginMode loginMode, String password) {
+    private void showPinChoiceDialog(final LoginActivity.LoginMode loginMode) {
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, "Create a PIN?");
+
+        DialogChoiceItem createPinChoice = new DialogChoiceItem("Yes, set my PIN now", -1,
+                new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                        launchPinCreateScreen(loginMode);
+                    }
+                });
+
+        DialogChoiceItem nextTimeChoice = new DialogChoiceItem("No, but ask again on next login", -1,
+                new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
+
+        DialogChoiceItem notAgainChoice = new DialogChoiceItem("No, and don't ask again", -1,
+                new View.OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                        CommCareApplication._().getCurrentApp().getAppPreferences()
+                                .edit()
+                                .putBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, true)
+                                .commit();
+                    }
+                });
+
+
+        dialog.setChoiceItems(new DialogChoiceItem[]{createPinChoice, nextTimeChoice, notAgainChoice});
+    }
+
+    private void launchPinCreateScreen(LoginActivity.LoginMode loginMode) {
         Intent i = new Intent(getApplicationContext(), CreatePinActivity.class);
-        i.putExtra(LoginActivity.PASSWORD_FROM_LOGIN, password);
+        if (loginMode == LoginActivity.LoginMode.PASSWORD) {
+            // We will only have received an intent with a password if this was a normal
+            // password-mode login. If it was a primed login, we will grab the saved password
+            // directly from the UKR instead
+            String passwordFromLastLogin =
+                    getIntent().getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
+            i.putExtra(LoginActivity.PASSWORD_FROM_LOGIN, passwordFromLastLogin);
+        }
         i.putExtra(LoginActivity.LOGIN_MODE, loginMode.toString());
         startActivityForResult(i, CREATE_PIN);
     }

@@ -164,6 +164,9 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="backup" cc:translatable="true">back to\nprevious\nprompt</string>
     <string name="barcode_scanner_error" cc:translatable="true">Sorry, Barcode Scanner is not installed!</string>
     <string name="cancel" cc:translatable="true">CANCEL</string>
+    <string name="continue_pin_button" cc:translatable="true">CONTINUE</string>
+    <string name="confirm_pin_button" cc:translatable="true">CONFIRM</string>
+    <string name="confirm_pin_directive" cc:translatable="true">Re-Enter the PIN you chose</string>
     <string name="cancel_loading_form" cc:translatable="true">Cancel</string>
     <string name="cancel_location" cc:translatable="true">Cancel</string>
     <string name="cancel_saving_form" cc:translatable="true">Cancel</string>
@@ -202,6 +205,7 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="enter_data_button" cc:translatable="true">Fill Blank Form</string>
     <string name="enter_data_description" cc:translatable="true">You are at the start of \"%s\". Swipe the screen as shown below to begin.</string>
     <string name="enter_data_message" cc:translatable="true">To navigate, swipe your finger horizontally on the screen as if turning pages in a book. Press the Menu button for more choices.</string>
+    <string name="enter_pin_directive" cc:translatable="true">Enter a 4-digit PIN</string>
     <string name="error_downloading" cc:translatable="true">Error Getting Form</string>
     <string name="error_occured" cc:translatable="true">Error Occurred</string>
     <string name="fetching_file" cc:translatable="true">Getting %1$s.\n\nForm %2$s of %3$s form(s).</string>

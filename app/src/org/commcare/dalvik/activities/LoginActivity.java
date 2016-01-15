@@ -601,8 +601,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (uiController.getLoginMode() == LoginMode.PRIMED) {
             // If we have a primed password, should just log the user in without checking anything
             done();
-            // And clear the primed login now that it's been used
-            uiController.clearPrimedLogin();
             return;
         }
 

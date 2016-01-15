@@ -339,7 +339,7 @@ public class UserKeyRecord extends Persisted {
         return null;
     }
 
-    public void setPrimedForNextLogin(String unhashedPassword) {
+    public void setPrimedPassword(String unhashedPassword) {
         this.rememberedPassword = unhashedPassword;
     }
 
@@ -347,7 +347,11 @@ public class UserKeyRecord extends Persisted {
         return this.rememberedPassword != null;
     }
 
-    public void clearPrimedLogin() {
+    public String getPrimedPassword() {
+        return this.rememberedPassword;
+    }
+
+    public void clearPrimedPassword() {
         this.rememberedPassword = null;
     }
 
