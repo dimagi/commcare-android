@@ -16,18 +16,19 @@ import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.javarosa.core.model.User;
 import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 
 /**
- * The central db point for
+ * The helper for opening/updating the user (encrypted) db space for
+ * CommCare. This stores users, cases, fixtures, form records, etc.
  *
  * @author ctsims
  */
-public class CommCareUserOpenHelper extends SQLiteOpenHelper {
+public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
 
     /**
      * Version History
@@ -51,7 +52,7 @@ public class CommCareUserOpenHelper extends SQLiteOpenHelper {
     private final String mUserId;
     private byte[] fileMigrationKeySeed = null;
 
-    public CommCareUserOpenHelper(Context context, String userId) {
+    public DatabaseUserOpenHelper(Context context, String userId) {
         super(context, getDbName(userId), null, USER_DB_VERSION);
         this.context = context;
         this.mUserId = userId;
