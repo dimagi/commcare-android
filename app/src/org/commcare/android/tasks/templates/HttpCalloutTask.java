@@ -71,9 +71,9 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
                 if (responseCode >= 200 && responseCode < 300) {
                     outcome = doResponseSuccess(response);
                 } else if (responseCode == 401) {
-                    outcome = doResponseAuthFailed(response);
+                    outcome = doResponseAuthFailed();
                 } else {
-                    outcome = doResponseOther(response);
+                    outcome = doResponseOther();
                 }
             } catch (ClientProtocolException | UnknownHostException e) {
                 outcome = HttpCalloutOutcomes.NetworkFailure;
@@ -103,7 +103,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
         //So either we didn't need our our HTTP callout or we succeeded. Either way, move on
         //to the next step
 
-        return doPostCalloutTask(calloutFailed);
+        return doPostCalloutTask();
     }
 
     protected boolean processSuccesfulRequest() {
@@ -117,8 +117,6 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
     protected abstract HttpResponse doHttpRequest() throws ClientProtocolException, IOException;
 
     protected HttpCalloutOutcomes doResponseSuccess(HttpResponse response) throws IOException {
-        beginResponseHandling(response);
-
         InputStream input = cacheResponseOpenHandle(response);
 
         TransactionParserFactory factory = getTransactionParserFactory();
@@ -168,21 +166,15 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
         return cache.retrieveCache();
     }
 
-    protected void beginResponseHandling(HttpResponse response) {
-        //Nothing unless required
-    }
-
-    protected HttpCalloutOutcomes doResponseAuthFailed(HttpResponse response) {
+    protected HttpCalloutOutcomes doResponseAuthFailed() {
         return HttpCalloutOutcomes.AuthFailed;
     }
 
-    protected abstract HttpCalloutOutcomes doResponseOther(HttpResponse response);
-
+    protected abstract HttpCalloutOutcomes doResponseOther();
 
     protected abstract boolean HttpCalloutNeeded();
 
     protected abstract boolean HttpCalloutRequired();
 
-    protected abstract HttpCalloutOutcomes doPostCalloutTask(boolean httpFailed);
-
+    protected abstract HttpCalloutOutcomes doPostCalloutTask();
 }
