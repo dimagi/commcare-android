@@ -99,7 +99,7 @@ public class UserKeyRecord extends Persisted {
 
     public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey,
                          Date validFrom, Date validTo, String uuid, int type) {
-        this(username, passwordHash, null, encryptedKey, validFrom, validTo, uuid, type);
+        this(username, passwordHash, encryptedKey, null, validFrom, validTo, uuid, type);
     }
 
     public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey,
@@ -112,6 +112,11 @@ public class UserKeyRecord extends Persisted {
         this.validTo = validTo;
         this.uuid = uuid;
         this.type = type;
+
+        if (passwordWrappedByPin == null) {
+            passwordWrappedByPin = new byte[0];
+        }
+        rememberedPassword = "";
     }
 
     /**
@@ -344,7 +349,7 @@ public class UserKeyRecord extends Persisted {
     }
 
     public boolean isPrimedForNextLogin() {
-        return this.rememberedPassword != null;
+        return !"".equals(rememberedPassword);
     }
 
     public String getPrimedPassword() {

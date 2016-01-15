@@ -339,6 +339,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="confirm_pin_button" cc:translatable="true">CONFIRM</string>
     <string name="confirm_pin_directive" cc:translatable="true">Re-Enter the PIN you chose</string>
     <string name="enter_pin_directive" cc:translatable="true">Enter a 4-digit PIN</string>
-    <string name="pins_dont_match" cc:translatable="true">Entered PINs don't match. Please try again.</string>
+    <string name="pins_dont_match" cc:translatable="true">Entered PINs don\'t match. Please try again.</string>
 
 </resources>
