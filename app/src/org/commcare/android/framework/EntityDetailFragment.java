@@ -40,7 +40,6 @@ public class EntityDetailFragment extends Fragment {
     ModifiableEntityDetailAdapter adapter;
 
     public EntityDetailFragment() {
-        super();
         this.asw = CommCareApplication._().getCurrentSessionWrapper();
     }
 
@@ -80,7 +79,7 @@ public class EntityDetailFragment extends Fragment {
         final DetailCalloutListener detailCalloutListener =
                 thisActivity instanceof DetailCalloutListener ? ((DetailCalloutListener)thisActivity) : null;
         adapter = new EntityDetailAdapter(
-                thisActivity, asw.getSession(), childDetail, entity,
+                thisActivity, childDetail, entity,
                 detailCalloutListener, getArguments().getInt(DETAIL_INDEX),
                 modifier
         );
@@ -95,13 +94,12 @@ public class EntityDetailFragment extends Fragment {
     protected Detail getChildDetail() {
         Bundle args = getArguments();
         final Detail detail = asw.getSession().getDetail(args.getString(DETAIL_ID));
-        Detail childDetail = detail;
-        final int thisIndex = args.getInt(CHILD_DETAIL_INDEX, -1);
-        final boolean detailCompound = thisIndex != -1;
+        final int childIndex = args.getInt(CHILD_DETAIL_INDEX, -1);
+        final boolean detailCompound = childIndex != -1;
         if (detailCompound) {
-            childDetail = detail.getDetails()[thisIndex];
+            return detail.getDetails()[childIndex];
         }
-        return childDetail;
+        return detail;
     }
 
     /**

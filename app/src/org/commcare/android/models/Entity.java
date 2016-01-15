@@ -1,10 +1,6 @@
-/**
- *
- */
 package org.commcare.android.models;
 
 import org.commcare.android.util.StringUtils;
-
 
 /**
  * @author ctsims
@@ -15,16 +11,14 @@ public class Entity<T> {
     Object[] data;
     String[] sortData;
     boolean[] relevancyData;
-    String[] backgroundData;
 
     protected Entity(T t) {
         this.t = t;
     }
 
-    public Entity(Object[] data, String[] sortData, String[] backgroundData, boolean[] relevancyData, T t) {
+    public Entity(Object[] data, String[] sortData, boolean[] relevancyData, T t) {
         this.t = t;
         this.sortData = sortData;
-        this.backgroundData = backgroundData;
         this.data = data;
         this.relevancyData = relevancyData;
     }
@@ -46,11 +40,10 @@ public class Entity<T> {
     }
 
     /**
-     * @param i index of field
      * @return True iff the given field is relevant and has a non-blank value.
      */
-    public boolean isValidField(int i) {
-        return !getField(i).equals("") && relevancyData[i];
+    public boolean isValidField(int fieldIndex) {
+        return relevancyData[fieldIndex] && !getField(fieldIndex).equals("");
     }
 
     /**
@@ -78,10 +71,6 @@ public class Entity<T> {
 
     public Object[] getData() {
         return data;
-    }
-
-    public String[] getBackgroundData() {
-        return backgroundData;
     }
 
     public String[] getSortFieldPieces(int i) {

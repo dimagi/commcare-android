@@ -2281,7 +2281,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
         // The onFling() captures the 'up' event so our view thinks it gets long pressed.
         // We don't wnat that, so cancel it.
-        mCurrentView.cancelLongPress();
+        if (mCurrentView != null) {
+            mCurrentView.cancelLongPress();
+        }
         return false;
     }
 
