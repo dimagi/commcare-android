@@ -29,7 +29,7 @@ public class SerializationUtil {
         return baos.toByteArray();
     }
     
-    public static <T extends Externalizable> T deserialize(byte[] bytes, String name, Class<T> type) {
+    public static <T extends Externalizable> T deserialize(byte[] bytes, Class<T> type) {
         T t;
         try {
             t = type.newInstance();
@@ -48,7 +48,7 @@ public class SerializationUtil {
     
     public static <T extends Externalizable> T deserializeFromIntent(Intent i, String name, Class<T> type) {
         if(!i.hasExtra(name)) { return null;}
-        return deserialize(i.getByteArrayExtra(name), name, type);
+        return deserialize(i.getByteArrayExtra(name), type);
     }
     
     public static void serializeToBundle(Bundle b, String name, Externalizable data) {
@@ -57,6 +57,6 @@ public class SerializationUtil {
 
     public static <T extends Externalizable> T deserializeFromBundle(Bundle b, String name, Class<T> type) {
         if(!b.containsKey(name)) { return null;}
-        return deserialize(b.getByteArray(name), name, type);
+        return deserialize(b.getByteArray(name), type);
     }
 }
