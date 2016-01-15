@@ -35,6 +35,7 @@
             android:id="@+id/pin_cancel_button"
             android:text="@string/cancel"
             android:textSize="@dimen/font_size_dp_medium"
+            android:enabled="false"
             android:layout_weight="1"/>
 
         <Button

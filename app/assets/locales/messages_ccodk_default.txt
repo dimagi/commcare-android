@@ -364,7 +364,7 @@ no.file.browser=Your device does not have a file browser installed. Please downl
 callout.failure.dialer=Device is not currently configured to make telephone calls
 callout.failure.sms=SMS app not found
 
-
+remember.password.for.next.login=Remember Password For Next Login
 
 
 

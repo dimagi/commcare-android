@@ -492,10 +492,10 @@ public class CommCareHomeActivity
                     }
                     break;
                 case CREATE_PIN:
-                    if (resultCode == RESULT_CANCELED) {
-                        return;
+                    if (getIntent().getBooleanExtra(CreatePinActivity.CHOSE_REMEMBER_PASSWORD, false)) {
+                        CommCareApplication._().closeUserSession();
                     }
-                    break;
+                    return;
             }
             startNextSessionStepSafe();
         }

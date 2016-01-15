@@ -1,11 +1,17 @@
 package org.commcare.dalvik.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -16,6 +22,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.User;
+import org.javarosa.core.services.locale.Localization;
 
 import java.util.Vector;
 
@@ -24,6 +31,8 @@ import java.util.Vector;
  */
 @ManagedUi(R.layout.create_pin_view)
 public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinActivity> {
+
+    private static final int MENU_REMEMBER_PW_AND_LOGOUT = Menu.FIRST;
 
     @UiElement(value=R.id.pin_entry)
     private EditText enterPinBox;
@@ -38,6 +47,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     private Button continueButton;
 
     private static final String TAG = CreatePinActivity.class.getSimpleName();
+    public static final String CHOSE_REMEMBER_PASSWORD = "chose-remember-password";
 
     private String unhashedUserPassword;
     private LoginActivity.LoginMode loginMode;
@@ -45,6 +55,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
 
     // Indicates whether the user is entering their PIN for the first time, or is confirming it
     private boolean inConfirmMode;
+    private String firstRoundPin;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,10 +79,13 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
             userRecord.clearPrimedPassword();
         }
 
-        setButtonListeners();
+        setListeners();
+        setInitialEntryMode();
     }
 
-    private void setButtonListeners() {
+    private void setListeners() {
+        enterPinBox.addTextChangedListener(getPinTextWatcher());
+
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,17 +106,52 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
         });
     }
 
-    private void processInitialPinEntry() {
-        String enteredPin = enterPinBox.getText().toString();
-        if (enteredPin.length() < 4) {
-            // Set prompt text to error message
-        } else {
+    private TextWatcher getPinTextWatcher() {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.length() == 4) {
+                    continueButton.setEnabled(true);
+                } else {
+                    continueButton.setEnabled(false);
+                }
+            }
+        };
+    }
 
-        }
+    private void processInitialPinEntry() {
+        firstRoundPin = enterPinBox.getText().toString();
+        setConfirmMode();
     }
 
     private void processConfirmPinEntry() {
+        String enteredPin = enterPinBox.getText().toString();
+        if (enteredPin.equals(firstRoundPin)) {
+            assignPin(enteredPin);
+            setResult(RESULT_OK);
+            finish();
+        } else {
+            Toast.makeText(this, getString(R.string.pins_dont_match), Toast.LENGTH_LONG);
+            setInitialEntryMode();
+        }
+    }
 
+    private void setInitialEntryMode() {
+        continueButton.setText(getString(R.string.continue_pin_button));
+        promptText.setText(getString(R.string.enter_pin_directive));
+        inConfirmMode = false;
+    }
+
+    private void setConfirmMode() {
+        continueButton.setText(getString(R.string.confirm_pin_button));
+        promptText.setText(getString(R.string.confirm_pin_directive));
+        inConfirmMode = true;
     }
 
     private UserKeyRecord getRecordForCurrentUser() {
@@ -117,12 +166,11 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
             return null;
         }
 
-        Vector<UserKeyRecord> matchingRecords =
-                CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class)
-                        .getRecordsForValue(UserKeyRecord.META_USERNAME, currentUser.getUsername());
-
-        for (UserKeyRecord record : matchingRecords) {
-            if (record.isPasswordValid(unhashedUserPassword)) {
+        String username = currentUser.getUsername();
+        String passwordHash = currentUser.getPasswordHash();
+        for (UserKeyRecord record :
+                CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class)) {
+            if (record.getUsername().equals(username) && record.getPasswordHash().equals(passwordHash)) {
                 return record;
             }
         }
@@ -130,27 +178,27 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     }
 
     private void assignPin(String pin) {
-        try {
-            User currentUser = CommCareApplication._().getSession().getLoggedInUser();
-            String username = currentUser.getUsername();
-            String passwordHash = currentUser.getPasswordHash();
-            UserKeyRecord currentUserRecord = null;
-            for (UserKeyRecord record :
-                    CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class)) {
-                if (record.getUsername().equals(username) && record.getPasswordHash().equals(passwordHash)) {
-                    currentUserRecord = record;
-                    break;
-                }
-            }
-            if (currentUserRecord == null) {
-                // Failed to find a ukr corresponding to this user; cannot proceed without it
-                setResult(RESULT_CANCELED);
-                finish();
-            }
-            currentUserRecord.assignPinToRecord(pin, unhashedUserPassword);
-        } catch (SessionUnavailableException e) {
+        userRecord.assignPinToRecord(pin, unhashedUserPassword);
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, MENU_REMEMBER_PW_AND_LOGOUT, 0,
+                Localization.get("remember.password.for.next.login"));
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == MENU_REMEMBER_PW_AND_LOGOUT) {
+            userRecord.setPrimedPassword(unhashedUserPassword);
+            Intent i = new Intent();
+            i.putExtra(CHOSE_REMEMBER_PASSWORD, true);
+            setResult(RESULT_OK, i);
+            finish();
         }
+        return true;
     }
 
 }
