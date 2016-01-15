@@ -8,6 +8,7 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteDatabaseHook;
 
+import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.util.externalizable.AndroidPrototypeFactory;
 import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -24,6 +25,7 @@ import dalvik.system.DexFile;
 
 public class DbUtil {
     private static final String TAG = DbUtil.class.getSimpleName();
+    public final static String orphanFileTableName = "OrphanedFiles";
     
     private static PrototypeFactory factory;
 
@@ -139,14 +141,14 @@ public class DbUtil {
        //if we didn't get here, we didn't crash (what a great way to be testing our db version, right?)
        oldDb.close();
    }
-   
+
    public static void createNumbersTable(SQLiteDatabase db) {
        //Virtual Table
        String dropStatement = "DROP TABLE IF EXISTS integers;";
        db.execSQL(dropStatement);
        String createStatement = "CREATE TABLE integers (i INTEGER);";
        db.execSQL(createStatement);
-       
+
        for(long i =0 ; i < 10; ++i) {
            db.execSQL("INSERT INTO integers VALUES (" + i + ");");
        }
@@ -157,5 +159,14 @@ public class DbUtil {
         Log.d(TAG, "SQL: " + sql);
         DatabaseUtils.dumpCursor(explain);
         explain.close();
+    }
+
+    /**
+     * Table of files scheduled for deletion. Entries added when file-based
+     * database transactions fail or when file-backed entries are removed.
+     */
+    public static void createOrphanedFileTable(SQLiteDatabase db) {
+        String createStatement = "CREATE TABLE " + orphanFileTableName + " (" + DatabaseHelper.FILE_COL + ");";
+        db.execSQL(createStatement);
     }
 }

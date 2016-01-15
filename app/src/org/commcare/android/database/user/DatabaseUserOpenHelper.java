@@ -6,7 +6,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
-import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
@@ -92,6 +91,8 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
             builder = new AndroidTableBuilder("fixture");
             builder.addFileBackedData(new FormInstance());
             database.execSQL(builder.getTableCreateString());
+
+            DbUtil.createOrphanedFileTable(database);
             
             builder = new AndroidTableBuilder(Ledger.STORAGE_KEY);
             builder.addData(new Ledger());

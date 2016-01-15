@@ -247,6 +247,14 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         SQLiteDatabase db = getDbOrThrow();
 
         try {
+
+            db.beginTransaction();
+            ContentValues cv = new ContentValues();
+            cv.put(DatabaseHelper.FILE_COL, filename);
+            long orphanInsertId = db.insertOrThrow(DbUtil.orphanFileTableName,
+                    DatabaseHelper.FILE_COL, cv);
+            db.setTransactionSuccessful();
+
             db.beginTransaction();
 
             long insertedId;
