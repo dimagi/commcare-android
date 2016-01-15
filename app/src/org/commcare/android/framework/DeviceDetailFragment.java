@@ -23,8 +23,7 @@ import org.commcare.dalvik.R;
 public class DeviceDetailFragment extends Fragment implements ConnectionInfoListener {
     private static final String TAG = DeviceDetailFragment.class.getSimpleName();
     private View mContentView = null;
-    ProgressDialog progressDialog = null;
-    
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mContentView = inflater.inflate(R.layout.device_detail, container);
@@ -34,9 +33,6 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
     @Override
     public void onConnectionInfoAvailable(final WifiP2pInfo info) {
         Log.d(TAG, "onConnectionInfoAvailable");
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
         this.getView().setVisibility(View.VISIBLE);
     }
 
