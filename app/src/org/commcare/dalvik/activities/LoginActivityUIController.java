@@ -73,7 +73,11 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private final LoginActivity activity;
 
-    private boolean inPinMode;
+    private LoginActivity.LoginMode loginMode;
+
+    // If we are currently in either PIN or PRIMED mode, this holds a reference to the UKR that
+    // we found to match the entered username
+    private UserKeyRecord matchingRecord;
 
     private final TextWatcher usernameTextWatcher = new TextWatcher() {
         @Override
@@ -104,6 +108,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     public LoginActivityUIController(LoginActivity activity) {
         this.activity = activity;
+        this.loginMode = LoginActivity.LoginMode.PASSWORD;
     }
 
     @Override
@@ -242,10 +247,19 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private void setExistingUserMode(Vector<UserKeyRecord> existingMatchingRecords) {
         for (UserKeyRecord record : existingMatchingRecords) {
-            // If ANY of the records have a PIN set, assume we are trying to log into that record
-            // TODO: AMS Is this the best way to handle this? What if 1 record has a PIN set and the other doesn't?
+            if (record.isPrimedForNextLogin()) {
+                // Primed login takes priority -- if any records have this set, assume we are
+                // trying to log into that record
+                setPrimedLoginMode(record);
+                return;
+            }
+        }
+
+        for (UserKeyRecord record : existingMatchingRecords) {
+            // Otherwise, if any of the records have a PIN set, assume we are trying to log into
+            // that record
             if (record.hasPinSet()) {
-                setPinPasswordMode();
+                setPinPasswordMode(record);
                 return;
             }
         }
@@ -258,20 +272,32 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         setNormalPasswordMode();
     }
 
+    private void setPrimedLoginMode(UserKeyRecord record) {
+        this.matchingRecord = record;
+        loginMode = LoginActivity.LoginMode.PRIMED;
+        setPrimedLoginUI();
+    }
+
     private void setNormalPasswordMode() {
-        inPinMode = false;
+        matchingRecord = null;
+        loginMode = LoginActivity.LoginMode.PASSWORD;
         passwordOrPin.setHint(Localization.get("login.password"));
         passwordOrPin.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
     }
 
-    private void setPinPasswordMode() {
-        inPinMode = true;
+    private void setPinPasswordMode(UserKeyRecord record) {
+        this.matchingRecord = record;
+        loginMode = LoginActivity.LoginMode.PIN;
         passwordOrPin.setHint(Localization.get("login.pin.password"));
         passwordOrPin.setInputType(InputType.TYPE_NUMBER_VARIATION_PASSWORD);
     }
 
-    protected boolean inPinMode() {
-        return inPinMode;
+    protected LoginActivity.LoginMode getLoginMode() {
+        return loginMode;
+    }
+
+    public void clearPrimedLogin() {
+        matchingRecord.clearPrimedLogin();
     }
 
     protected void setErrorMessageUI(String message) {
@@ -401,4 +427,5 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     private Resources getResources() {
         return activity.getResources();
     }
+
 }

@@ -14,16 +14,24 @@ import org.javarosa.core.model.User;
 public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinActivity> {
 
     private String unhashedUserPassword;
+    private LoginActivity.LoginMode loginMode;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        this.loginMode = LoginActivity.LoginMode.fromString(
+                getIntent().getStringExtra(LoginActivity.LOGIN_MODE));
         this.unhashedUserPassword = getIntent().getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
-        if (unhashedUserPassword == null) {
-            // Failed to pass along the user password somehow; cannot proceed without it
-            setResult(RESULT_CANCELED);
-            finish();
+
+        setupView();
+    }
+
+    private void setupView() {
+        if (loginMode == LoginActivity.LoginMode.PRIMED) {
+            // ONLY option is to set pin
+        } else {
+            // show all 3 options (set pin, don't show again, ask me next time)
         }
     }
 

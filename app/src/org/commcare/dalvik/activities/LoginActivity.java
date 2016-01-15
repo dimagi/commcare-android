@@ -72,6 +72,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private static final int SEAT_APP_ACTIVITY = 0;
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
     public final static String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
+
+    public final static String LOGIN_MODE = "login-mode";
     public final static String PASSWORD_FROM_LOGIN = "password-used-on-login";
     
     private static final int TASK_KEY_EXCHANGE = 1;
@@ -150,7 +152,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected void initiateLoginAttempt(boolean restoreSession) {
         uiController.clearErrorMessage();
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
-        DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPasswordOrPin());
+
+        if (uiController.getLoginMode() == LoginMode.PASSWORD) {
+            DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPasswordOrPin());
+        }
 
         if (ResourceInstallUtils.isUpdateReadyToInstall()) {
             // install update, which triggers login upon completion
@@ -294,18 +299,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private boolean tryLocalLogin(final boolean warnMultipleAccounts, boolean restoreSession) {
         //TODO: check username/password for emptiness
         return tryLocalLogin(getUniformUsername(), uiController.getEnteredPasswordOrPin(),
-                warnMultipleAccounts, restoreSession);
+                warnMultipleAccounts, restoreSession, uiController.getLoginMode());
     }
         
     private boolean tryLocalLogin(final String username, String passwordOrPin,
-                                  final boolean warnMultipleAccounts, final boolean restoreSession) {
+                                  final boolean warnMultipleAccounts, final boolean restoreSession,
+                                  LoginMode loginMode) {
         try {
             final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
                     && warnMultipleAccounts;
 
             ManageKeyRecordTask<LoginActivity> task =
                     new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE, username,
-                            passwordOrPin, uiController.inPinMode(),
+                            passwordOrPin, loginMode == LoginMode.PIN,
                             CommCareApplication._().getCurrentApp(), restoreSession,
                             getLocalLoginListener(username, triggerMultipleUsersWarning)) {
 
@@ -407,7 +413,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 
         Intent i = new Intent();
-        if (!uiController.inPinMode()) {
+        i.putExtra(LOGIN_MODE, uiController.getLoginMode().toString());
+        if (uiController.getLoginMode() == LoginMode.PASSWORD) {
             i.putExtra(PASSWORD_FROM_LOGIN, uiController.getEnteredPasswordOrPin());
         }
         setResult(RESULT_OK, i);
@@ -439,7 +446,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         switch(item.getItemId()) {
         case MENU_DEMO:
             DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
-            tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false ,false);
+            tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false ,
+                    false, LoginMode.PASSWORD);
             return true;
         case MENU_ABOUT:
             DialogCreationHelpers.buildAboutCommCareDialog(this).show();
@@ -590,10 +598,19 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void localLoginOrPullAndLogin(boolean restoreSession) {
+        if (uiController.getLoginMode() == LoginMode.PRIMED) {
+            // If we have a primed password, should just log the user in without checking anything
+            done();
+            // And clear the primed login now that it's been used
+            uiController.clearPrimedLogin();
+            return;
+        }
+
         if (tryLocalLogin(false, restoreSession)) {
             return;
         }
 
+        // If local login was not successful
         startOta();
     }
 
@@ -605,6 +622,37 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public CommCareActivityUIController getUIController() {
         return this.uiController;
+    }
+
+    public enum LoginMode {
+
+        PASSWORD("password-mode"),
+        PIN("pin-mode"),
+        PRIMED("primed-mode");
+
+        private String stringVersion;
+
+        LoginMode(String s) {
+            this.stringVersion = s;
+        }
+
+        @Override
+        public String toString() {
+            return this.stringVersion;
+        }
+
+        public static LoginMode fromString(String s) {
+            switch(s) {
+                case "password-mode":
+                    return PASSWORD;
+                case "pin-mode":
+                    return PIN;
+                case "primed-mode":
+                    return PRIMED;
+                default:
+                    return null;
+            }
+        }
     }
 
 }

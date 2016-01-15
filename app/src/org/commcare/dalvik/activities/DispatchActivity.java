@@ -44,6 +44,8 @@ public class DispatchActivity extends FragmentActivity {
 
     private boolean startFromLogin;
     private String passwordFromLastLogin;
+    private String lastLoginMode;
+
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
     private boolean shortcutExtraWasConsumed;
@@ -201,6 +203,7 @@ public class DispatchActivity extends FragmentActivity {
         Intent i = new Intent(this, CommCareHomeActivity.class);
         i.putExtra(START_FROM_LOGIN, startFromLogin);
         i.putExtra(LoginActivity.PASSWORD_FROM_LOGIN, passwordFromLastLogin);
+        i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
         startFromLogin = false;
         startActivityForResult(i, HOME_SCREEN);
     }
@@ -310,6 +313,7 @@ public class DispatchActivity extends FragmentActivity {
                     return;
                 }
                 passwordFromLastLogin = intent.getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
+                lastLoginMode = intent.getStringExtra(LoginActivity.LOGIN_MODE);
                 startFromLogin = true;
                 break;
             case HOME_SCREEN:

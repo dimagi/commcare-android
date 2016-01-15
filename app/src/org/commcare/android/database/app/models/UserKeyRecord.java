@@ -78,9 +78,12 @@ public class UserKeyRecord extends Persisted {
     @Persisting(7)
     private int type;
 
-    /** The hashed password wrapped by a numeric PIN **/
+    /** The un-hashed password wrapped by a numeric PIN **/
     @Persisting(8)
     private byte[] passwordWrappedByPin;
+
+    @Persisting(9)
+    private String rememberedPassword;
 
     /**
      * Serialization Only!
@@ -334,6 +337,18 @@ public class UserKeyRecord extends Persisted {
             return invalidRecord;
         }
         return null;
+    }
+
+    public void setPrimedForNextLogin(String unhashedPassword) {
+        this.rememberedPassword = unhashedPassword;
+    }
+
+    public boolean isPrimedForNextLogin() {
+        return this.rememberedPassword != null;
+    }
+
+    public void clearPrimedLogin() {
+        this.rememberedPassword = null;
     }
 
 }

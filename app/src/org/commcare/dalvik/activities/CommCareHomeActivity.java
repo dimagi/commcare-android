@@ -213,25 +213,35 @@ public class CommCareHomeActivity
                 showDemoModeWarning();
             }
 
-            String passwordFromLastLogin =
-                    getIntent().getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
-            if (passwordFromLastLogin != null && shouldLaunchPinCreation()) {
-                launchPinCreateScreen(passwordFromLastLogin);
+            // See if we should launch the pin create screen
+            LoginActivity.LoginMode loginMode = LoginActivity.LoginMode.fromString(
+                    getIntent().getStringExtra(LoginActivity.LOGIN_MODE));
+            if (shouldLaunchPinCreation(loginMode)) {
+                String passwordFromLastLogin =
+                        getIntent().getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
+                launchPinCreateScreen(loginMode, passwordFromLastLogin);
             }
         }
     }
 
-    private boolean shouldLaunchPinCreation() {
-        boolean pinCreationEnabledForApp = DeveloperPreferences.shouldOfferPinForLogin();
-        boolean alreadyDismissedPinCreation =
-                CommCareApplication._().getCurrentApp().getAppPreferences()
-                        .getBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, false);
-        return pinCreationEnabledForApp && !alreadyDismissedPinCreation;
+    private boolean shouldLaunchPinCreation(LoginActivity.LoginMode loginMode) {
+        if (loginMode == LoginActivity.LoginMode.PIN) {
+            return false;
+        } else if (loginMode == LoginActivity.LoginMode.PRIMED) {
+            return true;
+        } else {
+            boolean pinCreationEnabledForApp = DeveloperPreferences.shouldOfferPinForLogin();
+            boolean alreadyDismissedPinCreation =
+                    CommCareApplication._().getCurrentApp().getAppPreferences()
+                            .getBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, false);
+            return pinCreationEnabledForApp && !alreadyDismissedPinCreation;
+        }
     }
 
-    private void launchPinCreateScreen(String password) {
+    private void launchPinCreateScreen(LoginActivity.LoginMode loginMode, String password) {
         Intent i = new Intent(getApplicationContext(), CreatePinActivity.class);
         i.putExtra(LoginActivity.PASSWORD_FROM_LOGIN, password);
+        i.putExtra(LoginActivity.LOGIN_MODE, loginMode.toString());
         startActivityForResult(i, CREATE_PIN);
     }
 
