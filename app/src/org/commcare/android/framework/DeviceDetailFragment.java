@@ -1,7 +1,6 @@
 package org.commcare.android.framework;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
