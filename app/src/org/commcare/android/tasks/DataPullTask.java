@@ -72,7 +72,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     private long mSyncStartTime;
     
     private boolean wasKeyLoggedIn;
-    private boolean restoreSession;
+    private final boolean restoreSession;
     
     public static final int DATA_PULL_TASK_ID = 10;
     
