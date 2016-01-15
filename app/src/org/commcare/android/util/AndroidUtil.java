@@ -52,7 +52,7 @@ public class AndroidUtil {
         DataUtil.setUnionLambda(new AndroidUnionLambda());
     }
 
-    public static class AndroidUnionLambda extends UnionLambda {
+    private static class AndroidUnionLambda extends UnionLambda {
         public <T> Vector<T> union(Vector<T> a, Vector<T> b) {
             //This is kind of (ok, so really) awkward looking, but we can't use sets in 
             //ccj2me (Thanks, Nokia!) also, there's no _collections_ interface in

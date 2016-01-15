@@ -119,7 +119,7 @@ public class EntityDetailFragment extends Fragment {
     /**
      * @return Reference to this fragment's parent detail, which may be the same as this fragment's detail.
      */
-    public Detail getParentDetail() {
+    private Detail getParentDetail() {
         return asw.getSession().getDetail(getArguments().getString(DETAIL_ID));
     }
 
@@ -131,7 +131,7 @@ public class EntityDetailFragment extends Fragment {
      * @return An evaluation context ready to be used as the base of the subnode detail, including
      * any variable definitions included by the parent.
      */
-    protected EvaluationContext prepareEvaluationContext(TreeReference childReference) {
+    private EvaluationContext prepareEvaluationContext(TreeReference childReference) {
         EvaluationContext sessionContext = asw.getEvaluationContext();
         EvaluationContext parentDetailContext = new EvaluationContext(sessionContext, childReference);
         getParentDetail().populateEvaluationContextVariables(parentDetailContext);

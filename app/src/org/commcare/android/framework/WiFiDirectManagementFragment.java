@@ -39,10 +39,10 @@ public class WiFiDirectManagementFragment extends Fragment
     private boolean isHost;
     private boolean isConnected;
 
-    WifiP2pInfo info;
+    private WifiP2pInfo info;
 
-    public WifiP2pManager mManager;
-    public Channel mChannel;
+    private WifiP2pManager mManager;
+    private Channel mChannel;
 
     @Override
     public void onAttach(Context context) {
@@ -150,7 +150,7 @@ public class WiFiDirectManagementFragment extends Fragment
 
     }
 
-    public void refreshStatusText() {
+    private void refreshStatusText() {
 
         if (info == null) {
             return;
@@ -179,7 +179,7 @@ public class WiFiDirectManagementFragment extends Fragment
         }
     }
 
-    public void setDeviceConnected(boolean connected) {
+    private void setDeviceConnected(boolean connected) {
         isConnected = connected;
     }
 
@@ -187,7 +187,7 @@ public class WiFiDirectManagementFragment extends Fragment
         return isConnected;
     }
 
-    public void setStatusText(String text) {
+    private void setStatusText(String text) {
         Log.d(TAG, text);
         mStatusText.setText(text);
     }
@@ -196,7 +196,7 @@ public class WiFiDirectManagementFragment extends Fragment
         return isWifiP2pEnabled;
     }
 
-    public void setWifiP2pEnabled(boolean isWifiP2pEnabled) {
+    private void setWifiP2pEnabled(boolean isWifiP2pEnabled) {
         this.isWifiP2pEnabled = isWifiP2pEnabled;
     }
 

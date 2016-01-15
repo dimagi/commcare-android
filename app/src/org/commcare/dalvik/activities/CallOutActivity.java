@@ -48,8 +48,8 @@ public class CallOutActivity extends Activity
     private static String number;
     private String calloutAction;
 
-    TelephonyManager tManager;
-    CallListener listener;
+    private TelephonyManager tManager;
+    private CallListener listener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

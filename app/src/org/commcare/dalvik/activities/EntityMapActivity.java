@@ -53,15 +53,15 @@ public class EntityMapActivity extends MapActivity {
     private static final String TAG = EntityMapActivity.class.getSimpleName();
     private final static int LOCATION_PERMISSIONS_REQUEST = 1;
 
-    MapView map;
-    MyLocationOverlay mMyLocationOverlay;
-    Geocoder mGeoCoder;
-    LocationManager mLocationManager;
+    private MapView map;
+    private MyLocationOverlay mMyLocationOverlay;
+    private Geocoder mGeoCoder;
+    private LocationManager mLocationManager;
     
-    CommCareSession session;
+    private CommCareSession session;
 
-    EntityOverlay mEntityOverlay;
-    Vector<Entity<TreeReference>> entities;
+    private EntityOverlay mEntityOverlay;
+    private Vector<Entity<TreeReference>> entities;
     
     @Override
     protected void onCreate(Bundle icicle) {
@@ -220,7 +220,7 @@ public class EntityMapActivity extends MapActivity {
         return this.getString(debugId);
     }
 
-    EvaluationContext entityContext;
+    private EvaluationContext entityContext;
 
     private EvaluationContext getEC() {
         if(entityContext == null) {

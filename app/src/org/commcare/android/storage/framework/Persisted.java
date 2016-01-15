@@ -64,7 +64,7 @@ public class Persisted implements Persistable, IMetaData {
         }
     }
 
-    public static final Comparator<Field> orderedComparator = new Comparator<Field>() {
+    private static final Comparator<Field> orderedComparator = new Comparator<Field>() {
 
         @Override
         public int compare(Field f1, Field f2) {

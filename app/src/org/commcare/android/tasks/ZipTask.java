@@ -42,9 +42,9 @@ import javax.crypto.spec.SecretKeySpec;
 public abstract class ZipTask extends CommCareTask<String, String, FormRecord[], CommCareWiFiDirectActivity> {
     private static final String TAG = ZipTask.class.getSimpleName();
 
-    Context c;
-    Long[] results;
-    File dumpFolder;
+    private Context c;
+    private Long[] results;
+    private File dumpFolder;
 
     public static final int ZIP_TASK_ID = 72135;
 

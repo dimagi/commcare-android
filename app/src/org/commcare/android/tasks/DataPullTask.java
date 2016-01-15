@@ -97,7 +97,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     public static final int PROGRESS_DOWNLOADING = 256;
     private DataPullRequester dataPullRequester;
 
-    public DataPullTask(String username, String password, String server, Context context, boolean restoreOldSession) {
+    private DataPullTask(String username, String password, String server, Context context, boolean restoreOldSession) {
         this.server = server;
         this.username = username;
         this.password = password;
@@ -113,7 +113,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         this(username, password, server, context, false);
     }
 
-    public DataPullTask(String username, String password, String server, Context context, DataPullRequester dataPullRequester) {
+    private DataPullTask(String username, String password, String server, Context context, DataPullRequester dataPullRequester) {
         this(username, password, server, context);
         this.dataPullRequester = dataPullRequester;
     }

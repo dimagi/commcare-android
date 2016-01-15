@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.db.legacy;
 
 import android.content.ContentValues;
@@ -33,7 +30,7 @@ import javax.crypto.CipherOutputStream;
  */
 public abstract class LegacyDbHelper {
 
-    protected final Context c;
+    private final Context c;
     private Cipher encrypter;
     //private Hashtable<String, EncryptedModel> encryptedModels;
 

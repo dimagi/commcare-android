@@ -311,7 +311,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         wipeRecord(c, -1, formRecordId);
     }
 
-    public static void wipeRecord(Context c, int sessionId, int formRecordId) {
+    private static void wipeRecord(Context c, int sessionId, int formRecordId) {
         wipeRecord(c, sessionId, formRecordId,
                 CommCareApplication._().getUserStorage(FormRecord.class),
                 CommCareApplication._().getUserStorage(SessionStateDescriptor.class));

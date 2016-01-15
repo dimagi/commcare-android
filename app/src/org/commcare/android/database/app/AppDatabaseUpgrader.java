@@ -13,7 +13,7 @@ import org.commcare.resources.model.Resource;
 /**
  * @author ctsims
  */
-public class AppDatabaseUpgrader {
+class AppDatabaseUpgrader {
 
     private final Context context;
 

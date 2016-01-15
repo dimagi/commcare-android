@@ -262,7 +262,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         saveLastQueryString();
     }
 
-    public void onBarcodeFetch(int resultCode, Intent intent) {
+    private void onBarcodeFetch(int resultCode, Intent intent) {
         if (resultCode == Activity.RESULT_OK) {
             String result = intent.getStringExtra("SCAN_RESULT");
             if (result != null) {

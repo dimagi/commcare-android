@@ -22,7 +22,7 @@ import java.io.InputStreamReader;
  */
 public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, String, ConnectionDiagnosticTask.Test, R>
 {    
-    Context c;
+    private Context c;
 
     public enum Test
     {

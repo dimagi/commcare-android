@@ -92,11 +92,11 @@ public class AlertDialogFactory {
         dialog.show();
     }
 
-    public void finalizeView() {
+    private void finalizeView() {
         dialog.setView(this.view);
     }
 
-    public void makeCancelable() {
+    private void makeCancelable() {
         isCancelable = true;
         dialog.setCancelable(true);
     }

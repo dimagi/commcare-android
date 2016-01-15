@@ -150,7 +150,7 @@ public class DispatchActivity extends FragmentActivity {
         }
     }
 
-    public boolean isDbInBadState() {
+    private boolean isDbInBadState() {
         int dbState = CommCareApplication._().getDatabaseState();
         if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
             CommCareApplication._().triggerHandledAppExit(this,
@@ -169,7 +169,7 @@ public class DispatchActivity extends FragmentActivity {
         return false;
     }
 
-    public void handleDamagedApp() {
+    private void handleDamagedApp() {
         if (!CommCareApplication._().isStorageAvailable()) {
             createNoStorageDialog();
         } else {

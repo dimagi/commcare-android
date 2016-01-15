@@ -213,7 +213,7 @@ public class CommCareHomeActivity
         }
     }
 
-    protected void goToFormArchive(boolean incomplete) {
+    void goToFormArchive(boolean incomplete) {
         goToFormArchive(incomplete, null);
     }
 
@@ -228,7 +228,7 @@ public class CommCareHomeActivity
         startActivityForResult(i, GET_INCOMPLETE_FORM);
     }
 
-    protected void enterRootModule() {
+    void enterRootModule() {
         Intent i;
         if (useGridMenu(org.commcare.suite.model.Menu.ROOT_MENU_ID)) {
             i = new Intent(getApplicationContext(), MenuGrid.class);
@@ -251,7 +251,7 @@ public class CommCareHomeActivity
         return MENU_STYLE_GRID.equals(commonDisplayStyle);
     }
 
-    protected void userTriggeredLogout() {
+    void userTriggeredLogout() {
         setResult(RESULT_OK);
         finish();
     }
@@ -861,7 +861,7 @@ public class CommCareHomeActivity
     /**
      * Triggered by a user manually clicking the sync button
      */
-    protected void syncButtonPressed() {
+    void syncButtonPressed() {
         if (!ConnectivityStatus.isNetworkAvailable(CommCareHomeActivity.this)) {
             if (ConnectivityStatus.isAirplaneModeOn(CommCareHomeActivity.this)) {
                 displayMessage(Localization.get("notification.sync.airplane.action"), true, true);
@@ -979,15 +979,15 @@ public class CommCareHomeActivity
         showAlertDialog(factory);
     }
 
-    protected void displayMessage(String message) {
+    void displayMessage(String message) {
         displayMessage(message, false);
     }
 
-    protected void displayMessage(String message, boolean bad) {
+    void displayMessage(String message, boolean bad) {
         displayMessage(message, bad, false);
     }
 
-    protected void displayMessage(String message, boolean bad, boolean suppressToast) {
+    void displayMessage(String message, boolean bad, boolean suppressToast) {
         uiController.displayMessage(message, bad, suppressToast);
     }
 

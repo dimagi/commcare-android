@@ -63,7 +63,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
     // GUI calls?
     private final boolean headless;
     
-    final SecretKeySpec symetricKey;
+    private final SecretKeySpec symetricKey;
 
     public static final int SAVED = 500;
     public static final int SAVE_ERROR = 501;
@@ -297,7 +297,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         return true;
     }
     
-    public OutputStream createFileOutputStream(String path) throws FileNotFoundException {
+    private OutputStream createFileOutputStream(String path) throws FileNotFoundException {
         return createFileOutputStream(new File(path));
     }
     

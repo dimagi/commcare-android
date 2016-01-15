@@ -10,8 +10,8 @@ import java.io.OutputStream;
  */
 public class MemoryBitCache implements BitCache {
 
-    ByteArrayOutputStream bos;
-    byte[] data;
+    private ByteArrayOutputStream bos;
+    private byte[] data;
 
     protected MemoryBitCache() {
 

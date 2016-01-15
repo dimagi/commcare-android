@@ -195,7 +195,7 @@ public class CryptUtil {
         return getAesKeyCipher(aesKey, Cipher.DECRYPT_MODE);
     }
 
-    public static Cipher getAesKeyCipher(byte[] aesKey, int mode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+    private static Cipher getAesKeyCipher(byte[] aesKey, int mode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
         SecretKeySpec spec = new SecretKeySpec(aesKey, "AES");
         Cipher decrypter = Cipher.getInstance("AES");
         decrypter.init(mode, spec);

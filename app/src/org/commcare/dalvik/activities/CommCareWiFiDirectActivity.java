@@ -71,11 +71,11 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     public static final String KEY_NUMBER_DUMPED ="wd_num_dumped";
 
-    public WifiP2pManager mManager;
-    public Channel mChannel;
-    WiFiDirectBroadcastReceiver mReceiver;
+    private WifiP2pManager mManager;
+    private Channel mChannel;
+    private WiFiDirectBroadcastReceiver mReceiver;
 
-    IntentFilter mIntentFilter;
+    private IntentFilter mIntentFilter;
 
     public enum wdState{send,receive,submit}
 
@@ -84,20 +84,20 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     public static String baseDirectory;
     public static String sourceDirectory;
     public static String sourceZipDirectory;
-    public static String receiveDirectory;
-    public static String receiveZipDirectory;
-    public static String writeDirectory;
+    private static String receiveDirectory;
+    private static String receiveZipDirectory;
+    private static String writeDirectory;
 
-    public TextView myStatusText;
-    public TextView formCountText;
-    public TextView stateHeaderText;
-    public TextView stateStatusText;
+    private TextView myStatusText;
+    private TextView formCountText;
+    private TextView stateHeaderText;
+    private TextView stateStatusText;
 
-    public static final int FILE_SERVER_TASK_ID = 129123;
+    private static final int FILE_SERVER_TASK_ID = 129123;
 
     public wdState mState = wdState.send;
 
-    public FormRecord[] cachedRecords;
+    private FormRecord[] cachedRecords;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){
@@ -197,7 +197,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         unregisterReceiver(mReceiver);
     }
 
-    public void hostGroup(){
+    private void hostGroup(){
         Logger.log(TAG, "Hosting Wi-fi direct group");
 
         final FileServerFragment fsFragment = (FileServerFragment) getSupportFragmentManager()
@@ -217,12 +217,12 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         mManager.createGroup(mChannel, fragment);
     }
 
-    public void changeState(){
+    private void changeState(){
         adapter.updateDisplayData();
         adapter.notifyDataSetChanged();
     }
 
-    public void showDialog(Activity activity, String title, String message) {
+    private void showDialog(Activity activity, String title, String message) {
         AlertDialogFactory factory = new AlertDialogFactory(activity, title, message);
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
@@ -247,7 +247,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         showAlertDialog(factory);
     }
 
-    public void beSender(){
+    private void beSender(){
 
         myStatusText.setText(localize("wifi.direct.enter.send.mode"));
 
@@ -282,7 +282,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         adapter.notifyDataSetChanged();
     }
 
-    public void beReceiver(){
+    private void beReceiver(){
 
         Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Became receiver");
         myStatusText.setText(localize("wifi.direct.enter.receive.mode"));
@@ -319,7 +319,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         adapter.notifyDataSetChanged();
     }
 
-    public void beSubmitter(){
+    private void beSubmitter(){
 
         Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Became submitter");
         unzipFilesHelper();
@@ -353,7 +353,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         adapter.notifyDataSetChanged();
     }
 
-    public void cleanPostSend(){
+    private void cleanPostSend(){
 
         Logger.log(TAG, "cleaning forms after successful Wi-fi direct transfer");
 
@@ -391,7 +391,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     }
 
-    protected void onCleanSuccessful() {
+    private void onCleanSuccessful() {
         Logger.log(TAG, "clean successful");
         updateStatusText();
     }
@@ -462,7 +462,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         mSendTask.execute();
     }
 
-    public boolean unzipFilesHelper(){
+    private boolean unzipFilesHelper(){
         File receiveZipDir = new File(receiveDirectory);
         if(!receiveZipDir.exists() || !(receiveZipDir.isDirectory())){
             return false;
@@ -482,7 +482,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         return true;
     }
 
-    public void unzipFiles(String fn){
+    private void unzipFiles(String fn){
         Logger.log(TAG, "Unzipping files in Wi-fi direct");
         UnzipTask<CommCareWiFiDirectActivity> mUnzipTask = new UnzipTask<CommCareWiFiDirectActivity>() {
             @Override
@@ -597,7 +597,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         });
     }
 
-    public static void deleteIfExists(String filePath){
+    private static void deleteIfExists(String filePath){
         File toDelete = new File(filePath);
         if(toDelete.exists()){
             toDelete.delete();
@@ -620,7 +620,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         zipFiles();
     }
 
-    public void onZipSuccesful(FormRecord[] records){
+    private void onZipSuccesful(FormRecord[] records){
         Logger.log(TAG, "Successfully zipped files of size: " + records.length);
         myStatusText.setText(localize("wifi.direct.zip.successful"));
         this.cachedRecords = records;
@@ -628,12 +628,12 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         sendFiles();
     }
 
-    public void onZipError(){
+    private void onZipError(){
         FileUtil.deleteFileOrDir(new File(sourceDirectory));
         Log.d(CommCareWiFiDirectActivity.TAG, "Zip unsuccesful");
     }
 
-    public void onUnzipSuccessful(Integer result){
+    private void onUnzipSuccessful(Integer result){
         Logger.log(TAG, "Successfully unzipped " + result.toString() +  " files.");
         myStatusText.setText(localize("wifi.direct.receive.successful", result.toString()));
         if(!FileUtil.deleteFileOrDir(new File(receiveDirectory))){
@@ -642,7 +642,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         updateStatusText();
     }
 
-    public void zipFiles(){
+    private void zipFiles(){
         Logger.log(TAG, "Zipping Files");
         ZipTask mZipTask = new ZipTask(this) {
             @Override
@@ -671,7 +671,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         mZipTask.execute();
     }
 
-    public void sendFiles(){
+    private void sendFiles(){
         Logger.log(TAG, "Sending Files via Wi-fi Direct");
         TextView statusText = myStatusText;
         statusText.setText(localize("wifi.direct.send.forms"));
@@ -718,7 +718,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         Log.d(CommCareWiFiDirectActivity.TAG, "Task started");
     }
 
-    public void onSendSuccessful(){
+    private void onSendSuccessful(){
         Logger.log(TAG, "File Send Successful");
         Toast.makeText(CommCareWiFiDirectActivity.this, localize("wifi.direct.send.successful"),
                 Toast.LENGTH_SHORT).show();
@@ -728,11 +728,11 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         this.cleanPostSend();
     }
 
-    public void onSendFail(){
+    private void onSendFail(){
         Logger.log(TAG, "Error Sending Files");
     }
 
-    public void updateStatusText(){
+    private void updateStatusText(){
         SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
         //Get all forms which are either unsent or unprocessed
         Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});

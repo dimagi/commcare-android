@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.db.legacy;
 
 import org.commcare.android.database.DbUtil;
@@ -55,7 +52,7 @@ public class LegacyTableBuilder {
         rawCols.add(DbUtil.DATA_COL);
     }
 
-    HashSet<String> unique = new HashSet<>();
+    private HashSet<String> unique = new HashSet<>();
 
     public void setUnique(String columnName) {
         unique.add(scrubName(columnName));

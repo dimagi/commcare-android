@@ -22,7 +22,7 @@ import java.util.Vector;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class HomeButtons {
-    public final static String[] buttonNames =
+    private final static String[] buttonNames =
             new String[]{"start", "saved", "incomplete", "sync", "report", "logout"};
 
     public static HomeCardDisplayData[] buildButtonData(CommCareHomeActivity activity,

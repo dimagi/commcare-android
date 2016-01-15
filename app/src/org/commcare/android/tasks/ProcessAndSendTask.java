@@ -34,11 +34,11 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Long, Integer, R> implements DataSubmissionListener {
 
-    Context c;
-    String url;
-    Long[] results;
+    private Context c;
+    private String url;
+    private Long[] results;
     
-    final int sendTaskId;
+    private final int sendTaskId;
 
     public static final int PROCESSING_PHASE_ID = 8;
     public static final int SEND_PHASE_ID = 9;
@@ -52,7 +52,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     public static final long PROGRESS_LOGGED_OUT = 256;
     public static final long PROGRESS_SDCARD_REMOVED = 512;
 
-    DataSubmissionListener formSubmissionListener;
+    private DataSubmissionListener formSubmissionListener;
     private final FormRecordProcessor processor;
     
     private static final int SUBMISSION_ATTEMPTS = 2;
