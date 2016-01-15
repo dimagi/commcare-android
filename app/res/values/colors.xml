@@ -129,9 +129,4 @@
     <!-- Error Colors -->
     <color name="cc_error_bg_color">#EE5555</color>
     <color name="cc_error_text_color">#FFFFFF</color>
-
-    <!-- Install/Update Button Colors -->
-    <color name="cc_install_stop_button_bg">#D7D6D4</color>
-    <color name="cc_install_button_bg">#D6EACC</color>
-    <color name="cc_update_recheck_button_bg">#C1DFF5</color>
 </resources>
