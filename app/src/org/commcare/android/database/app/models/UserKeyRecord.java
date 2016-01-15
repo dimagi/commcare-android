@@ -249,7 +249,7 @@ public class UserKeyRecord extends Persisted {
     }
 
     public boolean hasPinSet() {
-        return passwordWrappedByPin != null;
+        return passwordWrappedByPin.length > 0;
     }
 
     public boolean isPinValid(String pin) {

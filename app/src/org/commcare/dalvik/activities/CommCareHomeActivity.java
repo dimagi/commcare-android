@@ -277,10 +277,11 @@ public class CommCareHomeActivity
 
 
         dialog.setChoiceItems(new DialogChoiceItem[]{createPinChoice, nextTimeChoice, notAgainChoice});
+        dialog.show();
     }
 
     private void launchPinCreateScreen(LoginActivity.LoginMode loginMode) {
-        Intent i = new Intent(getApplicationContext(), CreatePinActivity.class);
+        Intent i = new Intent(this, CreatePinActivity.class);
         if (loginMode == LoginActivity.LoginMode.PASSWORD) {
             // We will only have received an intent with a password if this was a normal
             // password-mode login. If it was a primed login, we will grab the saved password

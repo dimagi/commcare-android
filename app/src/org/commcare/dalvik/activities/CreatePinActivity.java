@@ -63,6 +63,11 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
 
         loginMode = LoginActivity.LoginMode.fromString(
                 getIntent().getStringExtra(LoginActivity.LOGIN_MODE));
+
+        if (loginMode == LoginActivity.LoginMode.PASSWORD) {
+            unhashedUserPassword = getIntent().getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
+        }
+
         userRecord = getRecordForCurrentUser();
         if (userRecord == null) {
             Log.i(TAG, "Something went wrong in CreatePinActivity. Could not get a matching user " +
@@ -72,9 +77,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
             return;
         }
 
-        if (loginMode == LoginActivity.LoginMode.PASSWORD) {
-            unhashedUserPassword = getIntent().getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
-        } else {
+        if (loginMode == LoginActivity.LoginMode.PRIMED) {
             unhashedUserPassword = userRecord.getPrimedPassword();
             userRecord.clearPrimedPassword();
         }
@@ -167,11 +170,18 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
         }
 
         String username = currentUser.getUsername();
-        String passwordHash = currentUser.getPasswordHash();
         for (UserKeyRecord record :
-                CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class)) {
-            if (record.getUsername().equals(username) && record.getPasswordHash().equals(passwordHash)) {
-                return record;
+                CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class)
+                        .getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
+            if (loginMode == LoginActivity.LoginMode.PASSWORD) {
+                if (record.isPasswordValid(this.unhashedUserPassword)) {
+                    return record;
+                }
+            } else {
+                // primed mode
+                if (record.isPrimedForNextLogin()) {
+                    return record;
+                }
             }
         }
         return null;

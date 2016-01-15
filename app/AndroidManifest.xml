@@ -380,6 +380,9 @@
         <activity
             android:name=".activities.SeatAppActivity" >
         </activity>
+        <activity
+            android:name=".activities.CreatePinActivity" >
+        </activity>
 
         <!-- Start Collect Manifest -->
 
