@@ -2590,15 +2590,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void reportFormEntry() {
-        TimedStatsTracker.registerEnterForm(getCurrentFormTitle());
+        TimedStatsTracker.registerEnterForm(getCurrentFormID());
     }
 
     private void reportFormExit() {
-        TimedStatsTracker.registerExitForm(getCurrentFormTitle());
+        TimedStatsTracker.registerExitForm(getCurrentFormID());
     }
 
-    private String getCurrentFormTitle() {
-        return mFormController.getFormTitle();
+    private int getCurrentFormID() {
+        return mFormController.getFormID();
     }
 
     /**

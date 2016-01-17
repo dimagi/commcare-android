@@ -185,21 +185,17 @@ public class GoogleAnalyticsUtils {
      * Report the length of a certain user event/action/concept
      *
      * @param action - Communicates the event/action/concept whose length is being measured
-     * @param label - Communicates the form id, IF the action is time in a form (empty otherwise)
      * @param value - Communicates the duration, in seconds
      */
-    public static void reportTimedEvent(String action, String label, int value) {
+    public static void reportTimedEvent(String action, int value) {
         if (analyticsDisabled()) {
             return;
         }
-        HitBuilders.EventBuilder builder = new HitBuilders.EventBuilder();
-        builder.setCategory(GoogleAnalyticsFields.CATEGORY_TIMED_EVENTS)
+        getTracker().send(new HitBuilders.EventBuilder()
+                .setCategory(GoogleAnalyticsFields.CATEGORY_TIMED_EVENTS)
                 .setAction(action)
-                .setValue(value);
-        if (!"".equals(label)) {
-            builder.setLabel(label);
-        }
-        getTracker().send(builder.build());
+                .setValue(value)
+                .build());
     }
 
     public static void createPreferenceOnClickListener(PreferenceManager manager,
