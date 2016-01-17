@@ -122,6 +122,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -806,23 +807,18 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Map<Integer, String> menuIdToAnalyticsEventLabel = createMenuItemToEventMapping();
+        GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
+                GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
+                menuIdToAnalyticsEventLabel.get(item.getItemId()));
         switch (item.getItemId()) {
             case MENU_LANGUAGES:
-                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                        GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
-                        GoogleAnalyticsFields.LABEL_CHANGE_LANGUAGE);
                 createLanguageDialog();
                 return true;
             case MENU_SAVE:
-                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                        GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
-                        GoogleAnalyticsFields.LABEL_SAVE_FORM);
                 saveFormToDisk(DO_NOT_EXIT);
                 return true;
             case MENU_HIERARCHY_VIEW:
-                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                        GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
-                        GoogleAnalyticsFields.LABEL_FORM_HIERARCHY);
                 if (currentPromptIsQuestion()) {
                     saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 }
@@ -830,9 +826,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 startActivityForResult(i, HIERARCHY_ACTIVITY);
                 return true;
             case MENU_PREFERENCES:
-                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                        GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
-                        GoogleAnalyticsFields.LABEL_CHANGE_SETTINGS);
                 Intent pref = new Intent(this, FormEntryPreferences.class);
                 startActivityForResult(pref, FORM_PREFERENCES_KEY);
                 return true;
@@ -842,6 +835,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private static Map<Integer, String> createMenuItemToEventMapping() {
+        Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
+        menuIdToAnalyticsEvent.put(MENU_LANGUAGES, GoogleAnalyticsFields.LABEL_CHANGE_LANGUAGE);
+        menuIdToAnalyticsEvent.put(MENU_SAVE, GoogleAnalyticsFields.LABEL_SAVE_FORM);
+        menuIdToAnalyticsEvent.put(MENU_HIERARCHY_VIEW, GoogleAnalyticsFields.LABEL_FORM_HIERARCHY);
+        menuIdToAnalyticsEvent.put(MENU_PREFERENCES, GoogleAnalyticsFields.LABEL_CHANGE_SETTINGS);
+        return menuIdToAnalyticsEvent;
     }
 
     /**

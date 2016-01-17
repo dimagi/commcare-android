@@ -31,6 +31,9 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.odk.collect.android.utilities.FileUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class CommCarePreferences
         extends SessionAwarePreferenceActivity
         implements OnSharedPreferenceChangeListener {
@@ -225,37 +228,41 @@ public class CommCarePreferences
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Map<Integer, String> menuIdToAnalyticsEventLabel = createMenuItemToEventMapping();
+        GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
+                GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                menuIdToAnalyticsEventLabel.get(item.getItemId()));
         switch (item.getItemId()) {
             case CLEAR_USER_DATA:
-                reportOptionsMenuItemEntry(GoogleAnalyticsFields.LABEL_CLEAR_USER_DATA);
                 CommCareApplication._().clearUserData();
                 this.finish();
                 return true;
             case FORCE_LOG_SUBMIT:
-                reportOptionsMenuItemEntry(GoogleAnalyticsFields.LABEL_FORCE_LOG_SUBMISSION);
                 CommCareUtil.triggerLogSubmission(this);
                 return true;
             case RECOVERY_MODE:
-                reportOptionsMenuItemEntry(GoogleAnalyticsFields.LABEL_RECOVERY_MODE);
                 Intent i = new Intent(this, RecoveryActivity.class);
                 this.startActivity(i);
                 return true;
             case SUPERUSER_PREFS:
-                reportOptionsMenuItemEntry(GoogleAnalyticsFields.LABEL_DEVELOPER_OPTIONS);
                 Intent intent = new Intent(this, DeveloperPreferences.class);
                 this.startActivity(intent);
                 return true;
             case MENU_CLEAR_SAVED_SESSION:
-                reportOptionsMenuItemEntry(GoogleAnalyticsFields.LABEL_CLEAR_SAVED_SESSION);
                 DevSessionRestorer.clearSession();
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private static void reportOptionsMenuItemEntry(String label) {
-        GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                GoogleAnalyticsFields.CATEGORY_CC_PREFS, label);
+    private static Map<Integer, String> createMenuItemToEventMapping() {
+        Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
+        menuIdToAnalyticsEvent.put(CLEAR_USER_DATA, GoogleAnalyticsFields.LABEL_CLEAR_USER_DATA);
+        menuIdToAnalyticsEvent.put(FORCE_LOG_SUBMIT, GoogleAnalyticsFields.LABEL_FORCE_LOG_SUBMISSION);
+        menuIdToAnalyticsEvent.put(RECOVERY_MODE, GoogleAnalyticsFields.LABEL_RECOVERY_MODE);
+        menuIdToAnalyticsEvent.put(SUPERUSER_PREFS, GoogleAnalyticsFields.LABEL_DEVELOPER_OPTIONS);
+        menuIdToAnalyticsEvent.put(MENU_CLEAR_SAVED_SESSION, GoogleAnalyticsFields.LABEL_CLEAR_SAVED_SESSION);
+        return menuIdToAnalyticsEvent;
     }
 
     public static boolean isInSenseMode() {
