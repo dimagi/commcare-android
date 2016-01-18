@@ -39,6 +39,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.acra.annotation.ReportsCrashes;
+import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.analytics.TimedStatsTracker;
 import org.commcare.android.database.AndroidDbHelper;
 import org.commcare.android.database.MigrationException;
@@ -236,7 +237,9 @@ public class CommCareApplication extends Application {
         }
 
         ACRAUtil.initACRA(this);
-        analyticsInstance = GoogleAnalytics.getInstance(this);
+        if (!GoogleAnalyticsUtils.versionIncompatible()) {
+            analyticsInstance = GoogleAnalytics.getInstance(this);
+        }
     }
 
     public void triggerHandledAppExit(Context c, String message) {

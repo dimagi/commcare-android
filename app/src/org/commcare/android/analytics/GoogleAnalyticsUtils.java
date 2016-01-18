@@ -1,5 +1,6 @@
 package org.commcare.android.analytics;
 
+import android.os.Build;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 
@@ -22,7 +23,7 @@ public class GoogleAnalyticsUtils {
      * Report a google analytics event that has only a category and an action
      */
     private static void reportEvent(String category, String action) {
-        if (analyticsDisabled()) {
+        if (analyticsDisabled() || versionIncompatible()) {
             return;
         }
         getTracker().send(new HitBuilders.EventBuilder()
@@ -35,7 +36,7 @@ public class GoogleAnalyticsUtils {
      * Report a google analytics event that has a category, action, and label
      */
     private static void reportEvent(String category, String action, String label) {
-        if (analyticsDisabled()) {
+        if (analyticsDisabled() || versionIncompatible()) {
             return;
         }
         getTracker().send(new HitBuilders.EventBuilder()
@@ -49,7 +50,7 @@ public class GoogleAnalyticsUtils {
      * Report a google analytics event that has a category, action, label, and value
      */
     private static void reportEvent(String category, String action, String label, int value) {
-        if (analyticsDisabled()) {
+        if (analyticsDisabled() || versionIncompatible()) {
             return;
         }
         getTracker().send(new HitBuilders.EventBuilder()
@@ -134,7 +135,7 @@ public class GoogleAnalyticsUtils {
      * Report a user event of changing the value of an item in a preferences menu
      */
     public static void reportEditPref(String category, String label, int value) {
-        if (analyticsDisabled()) {
+        if (analyticsDisabled() || versionIncompatible()) {
             return;
         }
         HitBuilders.EventBuilder builder = new HitBuilders.EventBuilder();
@@ -190,7 +191,7 @@ public class GoogleAnalyticsUtils {
      * @param value - Communicates the duration, in seconds
      */
     public static void reportTimedEvent(String action, int value) {
-        if (analyticsDisabled()) {
+        if (analyticsDisabled() || versionIncompatible()) {
             return;
         }
         getTracker().send(new HitBuilders.EventBuilder()
@@ -229,6 +230,10 @@ public class GoogleAnalyticsUtils {
 
     private static boolean analyticsDisabled() {
         return !DeveloperPreferences.areAnalyticsEnabled();
+    }
+
+    public static boolean versionIncompatible() {
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD;
     }
 
     // Currently unused, should remove later if it doesn't get used
