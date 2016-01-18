@@ -34,8 +34,6 @@ public class NodeEntityFactory {
         EvaluationContext nodeContext = new EvaluationContext(ec, data);
         detail.populateEvaluationContextVariables(nodeContext);
 
-        nodeContext.addFunctionHandler(EntitySelectActivity.hereFunctionHandler);
-
         int length = detail.getHeaderForms().length;
         Object[] details = new Object[length];
         String[] sortDetails = new String[length];

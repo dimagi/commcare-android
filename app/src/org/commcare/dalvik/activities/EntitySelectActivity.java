@@ -54,7 +54,6 @@ import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.view.EntityView;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.android.view.ViewUtil;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.DialogChoiceItem;
@@ -70,6 +69,7 @@ import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.SessionDatum;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -103,6 +103,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
     private static final String EXTRA_IS_MAP = "is_map";
+    private static final String CONTAINS_HERE_FUNCTION = "contains_here_function";
 
     private static final int CONFIRM_SELECT = 0;
     private static final int MAP_SELECT = 2;
@@ -167,6 +168,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     // every instance of EntitySelectActivity registers itself (one at a time)
     // to listen to the handler and refresh whenever a new location is obtained.
     public static HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
+    public boolean containsHereFunction = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -175,7 +177,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         this.createDataSetObserver();
 
         if (savedInstanceState != null) {
-            mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
+            this.mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
+            this.containsHereFunction = savedInstanceState.getBoolean(CONTAINS_HERE_FUNCTION);
         }
 
         asw = CommCareApplication._().getCurrentSessionWrapper();
@@ -283,6 +286,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         if (!isUsingActionBar()) {
             searchbox.setText(lastQueryString);
+        }
+
+        if (!this.containsHereFunction) {
+            hereFunctionHandler.refreshLocation();
         }
     }
 
@@ -459,8 +466,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         hereFunctionHandler.registerEntitySelectActivity(this);
-        if (hereFunctionHandler.locationUpdatesHaveBeenRequested) {
-            hereFunctionHandler.requestLocationUpdates();
+        if (this.containsHereFunction) {
+            hereFunctionHandler.allowGpsUse();
         }
 
         refreshView();
@@ -510,8 +517,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             adapter.unregisterDataSetObserver(mListStateObserver);
         }
 
+        hereFunctionHandler.forbidGpsUse();
         hereFunctionHandler.unregisterEntitySelectActivity();
-        hereFunctionHandler.stopLocationUpdates();
     }
 
     @Override
@@ -911,6 +918,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putBoolean(CONTAINS_HERE_FUNCTION, containsHereFunction);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (loader != null) {
@@ -945,52 +958,57 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     public void deliverResult(List<Entity<TreeReference>> entities,
                               List<TreeReference> references,
-                              NodeEntityFactory factory) {
-        loader = null;
-        Detail detail = session.getDetail(selectDatum.getShortDetail());
-        int[] order = detail.getSortOrder();
+                              NodeEntityFactory factory,
+                              boolean locationChanged) {
+        if (locationChanged) {
+            loadEntities();
+        } else {
+            loader = null;
+            Detail detail = session.getDetail(selectDatum.getShortDetail());
+            int[] order = detail.getSortOrder();
 
-        for (int i = 0; i < detail.getFields().length; ++i) {
-            String header = detail.getFields()[i].getHeader().evaluate();
-            if (order.length == 0 && !"".equals(header)) {
-                order = new int[]{i};
+            for (int i = 0; i < detail.getFields().length; ++i) {
+                String header = detail.getFields()[i].getHeader().evaluate();
+                if (order.length == 0 && !"".equals(header)) {
+                    order = new int[]{i};
+                }
             }
-        }
 
-        ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+            ListView view = ((ListView) this.findViewById(R.id.screen_entity_select_list));
 
-        setupDivider(view);
+            setupDivider(view);
 
-        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, factory);
+            adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, factory);
 
-        view.setAdapter(adapter);
-        adapter.registerDataSetObserver(this.mListStateObserver);
-        containerFragment.setData(adapter);
+            view.setAdapter(adapter);
+            adapter.registerDataSetObserver(this.mListStateObserver);
+            containerFragment.setData(adapter);
 
-        // Pre-select entity if one was provided in original intent
-        if (!resuming && !mNoDetailMode && inAwesomeMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
-            TreeReference entity =
-                    selectDatum.getEntityFromID(asw.getEvaluationContext(),
-                            this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
+            // Pre-select entity if one was provided in original intent
+            if (!resuming && !mNoDetailMode && inAwesomeMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
+                TreeReference entity =
+                        selectDatum.getEntityFromID(asw.getEvaluationContext(),
+                                this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
 
-            if (entity != null) {
-                displayReferenceAwesome(entity, adapter.getPosition(entity));
-                updateSelectedItem(entity, true);
+                if (entity != null) {
+                    displayReferenceAwesome(entity, adapter.getPosition(entity));
+                    updateSelectedItem(entity, true);
+                }
             }
+
+            findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+
+            if (adapter != null && filterString != null && !"".equals(filterString)) {
+                adapter.applyFilter(filterString);
+            }
+
+            //In landscape we want to select something now. Either the top item, or the most recently selected one
+            if (inAwesomeMode) {
+                updateSelectedItem(true);
+            }
+
+            this.startTimer();
         }
-
-        findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
-
-        if (adapter != null && filterString != null && !"".equals(filterString)) {
-            adapter.applyFilter(filterString);
-        }
-
-        //In landscape we want to select something now. Either the top item, or the most recently selected one
-        if (inAwesomeMode) {
-            updateSelectedItem(true);
-        }
-
-        this.startTimer();
     }
 
     private void setupDivider(ListView view) {
@@ -1156,7 +1174,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     public void loadEntities() {
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
-            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
+            EvaluationContext context = asw.getEvaluationContext();
+            context.addFunctionHandler(hereFunctionHandler);
+            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, context);
             entityLoader.attachListener(this);
             entityLoader.execute(selectDatum.getNodeset());
         }
@@ -1194,6 +1214,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 myTimer = null;
                 cancelled = true;
             }
+        }
+    }
+
+    public void onLocationChanged() {
+        if (loader == null) {
+            loadEntities();
         }
     }
 }

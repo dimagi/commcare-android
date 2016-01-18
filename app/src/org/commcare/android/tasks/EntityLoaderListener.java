@@ -10,6 +10,7 @@ public interface EntityLoaderListener {
     void attach(EntityLoaderTask task);
     void deliverResult(List<Entity<TreeReference>> entities,
                        List<TreeReference> references,
-                       NodeEntityFactory factory);
+                       NodeEntityFactory factory,
+                       boolean locationChanged);
     void deliverError(Exception e);
 }

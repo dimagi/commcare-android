@@ -11,6 +11,7 @@ import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
+import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.dalvik.activities.EntitySelectActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -38,15 +39,15 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
 
     private LocationManager mLocationManager;
 
-    // This flag keeps track of whether the location manager needs to be set up and subscribed to.
-    private boolean locationUpdatesRequested = false;
-    // This flag keeps track of whether locationUpdatesRequested has ever been set to true
-    public boolean locationUpdatesHaveBeenRequested = false;
+    private boolean requestingLocationUpdates;
+    private boolean locationGoodEnough;
 
     private final Context context = CommCareApplication._().getApplicationContext();
+
     // If there are more general uses for HereFunctionHandler, the type of this field can be
     // generalized to a listener interface.
     private EntitySelectActivity entitySelectActivity;
+    private EntityLoaderTask entityLoaderTask;
 
     public HereFunctionHandler() {}
 
@@ -58,9 +59,20 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         this.entitySelectActivity = null;
     }
 
+    public void registerEntityLoaderTask(EntityLoaderTask entityLoaderTask) {
+        this.entityLoaderTask = entityLoaderTask;
+    }
+
+    public void unregisterEntityLoaderTask() {
+        this.entityLoaderTask = null;
+    }
+
+    // The EntitySelectActivity must subscribe before this method is called if a fresh location is desired.
     public Object eval(Object[] args, EvaluationContext ec) {
-        if (!locationUpdatesRequested) {
-            requestLocationUpdates();
+        if (entitySelectActivity != null && !entitySelectActivity.containsHereFunction) {
+            refreshLocation();
+            allowGpsUse();
+            entitySelectActivity.containsHereFunction = true;
         }
         if (location == null) {
             return "";
@@ -68,7 +80,41 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         return location.getDisplayText();
     }
 
-    public void requestLocationUpdates() {
+    public void allowGpsUse() {
+        if (!locationGoodEnough && !requestingLocationUpdates) {
+            requestLocationUpdates();
+        }
+    }
+
+    public void forbidGpsUse() {
+        if (requestingLocationUpdates) {
+            removeLocationUpdates();
+        }
+    }
+
+    public void refreshLocation() {
+        this.locationGoodEnough = false;
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        this.location = toGeoPointData(location);
+        Log.i("HereFunctionHandler", "location has been set to " + this.location.getDisplayText());
+
+        if (this.location.getAccuracy() <= GeoUtils.ACCEPTABLE_ACCURACY) {
+            locationGoodEnough = true;
+            forbidGpsUse();
+        }
+
+        if (entitySelectActivity != null) {
+            entitySelectActivity.onLocationChanged();
+        }
+        if (entityLoaderTask != null) {
+            entityLoaderTask.onLocationChanged();
+        }
+    }
+
+    private void requestLocationUpdates() {
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         Set<String> mProviders = GeoUtils.evaluateProviders(mLocationManager);
 
@@ -87,34 +133,18 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
                 // Looper is necessary because requestLocationUpdates is called inside an AsyncTask (EntityLoaderTask).
                 // What values for minTime and minDistance?
                 mLocationManager.requestLocationUpdates(provider, 0, 0, this, Looper.getMainLooper());
+                requestingLocationUpdates = true;
             }
         }
-
-        locationUpdatesRequested = true;
-        locationUpdatesHaveBeenRequested = true;
     }
 
     // Clients must call this when done using handler.
-    public void stopLocationUpdates() {
-        if (locationUpdatesRequested) {
-            // stops the GPS. Note that this will turn off the GPS if the screen goes to sleep.
-            if (ContextCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                    ContextCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                mLocationManager.removeUpdates(this);
-            }
-
-            locationUpdatesRequested = false;
-        }
-    }
-
-    @Override
-    public void onLocationChanged(Location location) {
-        // Do we need to check the accuracy of the location?
-        this.location = toGeoPointData(location);
-        Log.i("HereFunctionHandler", "location has been set to " + this.location.getDisplayText());
-        // Trigger refreshing of entity list.
-        if (entitySelectActivity != null) {
-            entitySelectActivity.loadEntities();
+    private void removeLocationUpdates() {
+        // stops the GPS. Note that this will turn off the GPS if the screen goes to sleep.
+        if (ContextCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(this.context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mLocationManager.removeUpdates(this);
+            requestingLocationUpdates = false;
         }
     }
 
