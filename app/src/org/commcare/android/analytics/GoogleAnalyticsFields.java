@@ -136,6 +136,7 @@ public final class GoogleAnalyticsFields {
     public static int VALUE_UNREACHABLE_HOST = 4;
     public static int VALUE_CONNECTION_TIMEOUT = 5;
     public static int VALUE_UNKNOWN_FAILURE = 6;
+    public static int VALUE_STORAGE_FULL = 7;
 
     // Values for LABEL_AUTO_UPDATE
     public static int VALUE_NEVER = 0;
