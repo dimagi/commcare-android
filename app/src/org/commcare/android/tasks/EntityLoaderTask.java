@@ -7,7 +7,6 @@ import org.commcare.android.models.AsyncNodeEntityFactory;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
-import org.commcare.dalvik.activities.EntitySelectActivity;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
@@ -30,15 +29,12 @@ public class EntityLoaderTask
     private EntityLoaderListener listener;
     private Exception mException = null;
 
-    private boolean locationChanged = false;
-
     public EntityLoaderTask(Detail detail, EvaluationContext evalCtx) {
         if (detail.useAsyncStrategy()) {
             this.factory = new AsyncNodeEntityFactory(detail, evalCtx);
         } else {
             this.factory = new NodeEntityFactory(detail, evalCtx);
         }
-        EntitySelectActivity.hereFunctionHandler.registerEntityLoaderTask(this);
     }
 
     @Override
@@ -86,7 +82,7 @@ public class EntityLoaderTask
                         return;
                     }
 
-                    listener.deliverResult(result.first, result.second, factory, locationChanged);
+                    listener.deliverResult(result.first, result.second, factory);
 
                     return;
                 }
@@ -102,7 +98,6 @@ public class EntityLoaderTask
             // never know if it's going to get reattached
             if (System.currentTimeMillis() - waitingTime > 1000) {
                 pendingTask = null;
-                EntitySelectActivity.hereFunctionHandler.unregisterEntityLoaderTask();
                 return;
             }
         }
@@ -129,9 +124,5 @@ public class EntityLoaderTask
     public void attachListener(EntityLoaderListener listener) {
         this.listener = listener;
         listener.attach(this);
-    }
-
-    public void onLocationChanged() {
-        locationChanged = true;
     }
 }

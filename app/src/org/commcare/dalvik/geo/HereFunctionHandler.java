@@ -47,7 +47,6 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     // If there are more general uses for HereFunctionHandler, the type of this field can be
     // generalized to a listener interface.
     private EntitySelectActivity entitySelectActivity;
-    private EntityLoaderTask entityLoaderTask;
 
     public HereFunctionHandler() {}
 
@@ -57,14 +56,6 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
 
     public void unregisterEntitySelectActivity() {
         this.entitySelectActivity = null;
-    }
-
-    public void registerEntityLoaderTask(EntityLoaderTask entityLoaderTask) {
-        this.entityLoaderTask = entityLoaderTask;
-    }
-
-    public void unregisterEntityLoaderTask() {
-        this.entityLoaderTask = null;
     }
 
     // The EntitySelectActivity must subscribe before this method is called if a fresh location is desired.
@@ -108,9 +99,6 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
 
         if (entitySelectActivity != null) {
             entitySelectActivity.onLocationChanged();
-        }
-        if (entityLoaderTask != null) {
-            entityLoaderTask.onLocationChanged();
         }
     }
 

@@ -169,6 +169,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     // to listen to the handler and refresh whenever a new location is obtained.
     public static HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
     public boolean containsHereFunction = false;
+    public boolean locationChangedWhileLoading = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -958,56 +959,55 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     public void deliverResult(List<Entity<TreeReference>> entities,
                               List<TreeReference> references,
-                              NodeEntityFactory factory,
-                              boolean locationChanged) {
-        if (locationChanged) {
+                              NodeEntityFactory factory) {
+        loader = null;
+        Detail detail = session.getDetail(selectDatum.getShortDetail());
+        int[] order = detail.getSortOrder();
+
+        for (int i = 0; i < detail.getFields().length; ++i) {
+            String header = detail.getFields()[i].getHeader().evaluate();
+            if (order.length == 0 && !"".equals(header)) {
+                order = new int[]{i};
+            }
+        }
+
+        ListView view = ((ListView) this.findViewById(R.id.screen_entity_select_list));
+
+        setupDivider(view);
+
+        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, factory);
+
+        view.setAdapter(adapter);
+        adapter.registerDataSetObserver(this.mListStateObserver);
+        containerFragment.setData(adapter);
+
+        // Pre-select entity if one was provided in original intent
+        if (!resuming && !mNoDetailMode && inAwesomeMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
+            TreeReference entity =
+                    selectDatum.getEntityFromID(asw.getEvaluationContext(),
+                            this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
+
+            if (entity != null) {
+                displayReferenceAwesome(entity, adapter.getPosition(entity));
+                updateSelectedItem(entity, true);
+            }
+        }
+
+        findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+
+        if (adapter != null && filterString != null && !"".equals(filterString)) {
+            adapter.applyFilter(filterString);
+        }
+
+        //In landscape we want to select something now. Either the top item, or the most recently selected one
+        if (inAwesomeMode) {
+            updateSelectedItem(true);
+        }
+
+        this.startTimer();
+
+        if (locationChangedWhileLoading) {
             loadEntities();
-        } else {
-            loader = null;
-            Detail detail = session.getDetail(selectDatum.getShortDetail());
-            int[] order = detail.getSortOrder();
-
-            for (int i = 0; i < detail.getFields().length; ++i) {
-                String header = detail.getFields()[i].getHeader().evaluate();
-                if (order.length == 0 && !"".equals(header)) {
-                    order = new int[]{i};
-                }
-            }
-
-            ListView view = ((ListView) this.findViewById(R.id.screen_entity_select_list));
-
-            setupDivider(view);
-
-            adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, factory);
-
-            view.setAdapter(adapter);
-            adapter.registerDataSetObserver(this.mListStateObserver);
-            containerFragment.setData(adapter);
-
-            // Pre-select entity if one was provided in original intent
-            if (!resuming && !mNoDetailMode && inAwesomeMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
-                TreeReference entity =
-                        selectDatum.getEntityFromID(asw.getEvaluationContext(),
-                                this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
-
-                if (entity != null) {
-                    displayReferenceAwesome(entity, adapter.getPosition(entity));
-                    updateSelectedItem(entity, true);
-                }
-            }
-
-            findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
-
-            if (adapter != null && filterString != null && !"".equals(filterString)) {
-                adapter.applyFilter(filterString);
-            }
-
-            //In landscape we want to select something now. Either the top item, or the most recently selected one
-            if (inAwesomeMode) {
-                updateSelectedItem(true);
-            }
-
-            this.startTimer();
         }
     }
 
@@ -1172,14 +1172,17 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         return true;
     }
 
-    public void loadEntities() {
+    public boolean loadEntities() {
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
+            Log.i("HereFunctionHandler", "entities reloading");
             EvaluationContext context = asw.getEvaluationContext();
             context.addFunctionHandler(hereFunctionHandler);
             EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, context);
             entityLoader.attachListener(this);
             entityLoader.execute(selectDatum.getNodeset());
+            return true;
         }
+        return false;
     }
 
     private void startTimer() {
@@ -1218,8 +1221,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     public void onLocationChanged() {
-        if (loader == null) {
-            loadEntities();
+        boolean loaded = loadEntities();
+        if (!loaded) {
+            locationChangedWhileLoading = true;
         }
     }
 }

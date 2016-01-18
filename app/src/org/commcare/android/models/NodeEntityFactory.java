@@ -1,6 +1,5 @@
 package org.commcare.android.models;
 
-import org.commcare.dalvik.activities.EntitySelectActivity;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
