@@ -1,5 +1,6 @@
 package org.commcare.dalvik.activities;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -13,6 +14,7 @@ import android.text.TextWatcher;
 import android.util.StateSet;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -31,6 +33,7 @@ import org.commcare.android.framework.UiElement;
 import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.android.ui.CustomBanner;
 import org.commcare.android.util.MediaUtil;
+import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -70,6 +73,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @UiElement(R.id.welcome_msg)
     private TextView welcomeMessage;
+
+    @UiElement(value=R.id.primed_password_message, locale="login.primed.prompt")
+    private TextView loginPrimedMessage;
 
     private final LoginActivity activity;
 
@@ -255,7 +261,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             // Otherwise, if any of the records have a PIN set, assume we are trying to log into
             // that record
             if (record.hasPinSet()) {
-                setPinPasswordMode(record);
+                setPinPasswordMode();
                 return;
             }
         }
@@ -270,21 +276,33 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private void setPrimedLoginMode() {
         loginMode = LoginActivity.LoginMode.PRIMED;
-        passwordOrPin.setEnabled(false);
-        passwordOrPin.setHint(Localization.get("login.password.primed"));
-        errorBox.setText(Localization.get("login.primed.prompt"));
+        loginPrimedMessage.setVisibility(View.VISIBLE);
+        passwordOrPin.setVisibility(View.GONE);
+        username.requestFocus();
+        hideKeyboard();
+    }
+
+    private void hideKeyboard() {
+        View focus = activity.getCurrentFocus();
+        if (focus != null) {
+            InputMethodManager imm =
+                    (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(focus.getWindowToken(), 0);
+        }
     }
 
     private void setNormalPasswordMode() {
         loginMode = LoginActivity.LoginMode.PASSWORD;
-        passwordOrPin.setEnabled(true);
+        loginPrimedMessage.setVisibility(View.GONE);
+        passwordOrPin.setVisibility(View.VISIBLE);
         passwordOrPin.setHint(Localization.get("login.password"));
         passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
     }
 
-    private void setPinPasswordMode(UserKeyRecord record) {
+    private void setPinPasswordMode() {
         loginMode = LoginActivity.LoginMode.PIN;
-        passwordOrPin.setEnabled(true);
+        loginPrimedMessage.setVisibility(View.GONE);
+        passwordOrPin.setVisibility(View.VISIBLE);
         passwordOrPin.setHint(Localization.get("login.pin.password"));
         passwordOrPin.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
     }

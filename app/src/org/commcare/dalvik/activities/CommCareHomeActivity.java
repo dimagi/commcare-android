@@ -493,7 +493,7 @@ public class CommCareHomeActivity
                     }
                     break;
                 case CREATE_PIN:
-                    if (getIntent().getBooleanExtra(CreatePinActivity.CHOSE_REMEMBER_PASSWORD, false)) {
+                    if (intent.getBooleanExtra(CreatePinActivity.CHOSE_REMEMBER_PASSWORD, false)) {
                         CommCareApplication._().closeUserSession();
                     } else if (resultCode == RESULT_OK) {
                         Toast.makeText(this, getString(R.string.pin_set), Toast.LENGTH_SHORT).show();
