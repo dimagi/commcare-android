@@ -311,7 +311,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
             ManageKeyRecordTask<LoginActivity> task =
                     new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE, username,
-                            passwordOrPin, loginMode == LoginMode.PIN,
+                            passwordOrPin, loginMode,
                             CommCareApplication._().getCurrentApp(), restoreSession,
                             getLocalLoginListener(username, triggerMultipleUsersWarning)) {
 
@@ -598,12 +598,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private void localLoginOrPullAndLogin(boolean restoreSession) {
-        if (uiController.getLoginMode() == LoginMode.PRIMED) {
-            // If we have a primed password, should just log the user in without checking anything
-            done();
-            return;
-        }
-
         if (tryLocalLogin(false, restoreSession)) {
             return;
         }

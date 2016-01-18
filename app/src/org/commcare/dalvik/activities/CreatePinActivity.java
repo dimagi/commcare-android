@@ -76,6 +76,10 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
         }
 
         if (loginMode == LoginActivity.LoginMode.PRIMED) {
+            // Make user unable to cancel this activity if they were brought here by primed login
+            cancelButton.setEnabled(false);
+
+            // Get the primed password and then clear it
             unhashedUserPassword = userRecord.getPrimedPassword();
             userRecord.clearPrimedPassword();
             CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);

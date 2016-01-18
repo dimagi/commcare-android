@@ -8,6 +8,7 @@ import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.UserSandboxUtils;
+import org.commcare.dalvik.activities.LoginActivity;
 import org.javarosa.core.model.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -46,8 +47,8 @@ import java.util.NoSuchElementException;
 public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     private final String username;
     private String password;
-    private final String pin;
-    private final boolean inPinMode;
+    private String pin;
+    private final LoginActivity.LoginMode loginMode;
     
     final CommCareApp app;
     
@@ -67,18 +68,20 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     User loggedIn = null;
     
     public ManageKeyRecordTask(Context c, int taskId, String username, String passwordOrPin,
-                               boolean inPinMode, CommCareApp app, boolean restoreSession,
-                               ManageKeyRecordListener<R> listener) {
+                               LoginActivity.LoginMode loginMode, CommCareApp app,
+                               boolean restoreSession, ManageKeyRecordListener<R> listener) {
         super(c);
         this.username = username;
-        this.inPinMode = inPinMode;
-        if (inPinMode) {
+        this.loginMode = loginMode;
+
+        if (loginMode == LoginActivity.LoginMode.PIN) {
             this.pin = passwordOrPin;
             this.password = null;
-        } else {
+        } else if (loginMode == LoginActivity.LoginMode.PASSWORD) {
             this.password = passwordOrPin;
             this.pin = null;
         }
+
         this.app = app;
         this.restoreSession = restoreSession;
         
@@ -167,13 +170,12 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         }
 
         /* Should only try to look for new records if ALL of the following are true:
-         * a) We're not in pin mode (otherwise, should only be try matching to an existing record on the device)
+         * a) We're in normal password login mode (otherwise, should only be try matching to an existing record on the device)
          * b) We didn't find a matching record that is valid
          * c) There is a keyServerUrl to make the http callout to */
-        //TODO AMS: Currently set this up that we will just never do a callout if in pin mode, but
-        // it's possible that we do want to try to update an invalid record? -- Likely not though
-        // b/c would need password
-        calloutNeeded = !inPinMode && (!hasRecord || valid == null) && keyServerUrl != null;
+        calloutNeeded = (loginMode == LoginActivity.LoginMode.PASSWORD)
+                && (!hasRecord || valid == null)
+                && keyServerUrl != null;
         
         if (calloutNeeded) {
             calloutSuccessRequired = !hasRecord;
@@ -341,7 +343,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         UserKeyRecord current = getCurrentValidRecord();
 
         if (current == null)  {
-            if (inPinMode) {
+            if (loginMode == LoginActivity.LoginMode.PIN) {
                 // If we are in pin mode then we did not execute the callout task; just means there
                 // is no existing record matching the username/pin combo
                 return HttpCalloutOutcomes.IncorrectPin;
@@ -350,10 +352,12 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
             }
         }
 
-        if (inPinMode) {
+        if (loginMode == LoginActivity.LoginMode.PIN) {
             // If we successfully found a matching record in pin mode, we are now going to need
             // access to the un-hashed password to finish up
             this.password = current.getUnhashedPasswordViaPin(this.pin);
+        } else if (loginMode == LoginActivity.LoginMode.PRIMED) {
+            this.password = current.getPrimedPassword();
         }
 
         // Now, see if we need to do anything to process our new record.
@@ -495,10 +499,13 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     // expire in the next few months. Otherwise, devices that haven't
     // accessed the internet in a while won't be able to perform logins.
     private UserKeyRecord getCurrentValidRecord() {
-        if (inPinMode) {
+        if (loginMode == LoginActivity.LoginMode.PIN) {
             return UserKeyRecord.getCurrentValidRecordByPin(app, username, pin, true);
-        } else {
+        } else if (loginMode == LoginActivity.LoginMode.PASSWORD) {
             return UserKeyRecord.getCurrentValidRecordByPassword(app, username, password, true);
+        } else {
+            // primed mode
+            return UserKeyRecord.getMatchingPrimedRecord(app, username);
         }
     }
 }

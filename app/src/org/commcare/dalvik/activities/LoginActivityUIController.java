@@ -75,10 +75,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private LoginActivity.LoginMode loginMode;
 
-    // If we are currently in either PIN or PRIMED mode, this holds a reference to the UKR that
-    // we found to match the entered username
-    private UserKeyRecord matchingRecord;
-
     private final TextWatcher usernameTextWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -250,7 +246,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             if (record.isPrimedForNextLogin()) {
                 // Primed login takes priority -- if any records have this set, assume we are
                 // trying to log into that record
-                setPrimedLoginMode(record);
+                setPrimedLoginMode();
                 return;
             }
         }
@@ -272,26 +268,23 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         setNormalPasswordMode();
     }
 
-    private void setPrimedLoginMode(UserKeyRecord record) {
-        this.matchingRecord = record;
+    private void setPrimedLoginMode() {
         loginMode = LoginActivity.LoginMode.PRIMED;
-        setPrimedLoginUI();
-    }
-
-    private void setPrimedLoginUI() {
-
+        passwordOrPin.setEnabled(false);
+        passwordOrPin.setHint(Localization.get("login.password.primed"));
+        errorBox.setText(Localization.get("login.primed.prompt"));
     }
 
     private void setNormalPasswordMode() {
-        matchingRecord = null;
         loginMode = LoginActivity.LoginMode.PASSWORD;
+        passwordOrPin.setEnabled(true);
         passwordOrPin.setHint(Localization.get("login.password"));
         passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
     }
 
     private void setPinPasswordMode(UserKeyRecord record) {
-        this.matchingRecord = record;
         loginMode = LoginActivity.LoginMode.PIN;
+        passwordOrPin.setEnabled(true);
         passwordOrPin.setHint(Localization.get("login.pin.password"));
         passwordOrPin.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
     }

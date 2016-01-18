@@ -333,6 +333,16 @@ public class UserKeyRecord extends Persisted {
         return getCurrentValidRecord(app, username, null, pin, acceptExpired);
     }
 
+    public static UserKeyRecord getMatchingPrimedRecord(CommCareApp app, String username) {
+        SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
+        for (UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
+            if (ukr.isPrimedForNextLogin()) {
+                return ukr;
+            }
+        }
+        return null;
+    }
+
     /**
      * @return User record that matches username/password or username/pin. Null if not found
      * or user record validity date is expired.
@@ -371,7 +381,7 @@ public class UserKeyRecord extends Persisted {
     }
 
     public void clearPrimedPassword() {
-        this.rememberedPassword = null;
+        this.rememberedPassword = "";
     }
 
 }
