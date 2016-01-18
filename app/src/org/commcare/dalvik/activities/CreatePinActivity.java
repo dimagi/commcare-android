@@ -17,10 +17,8 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
 
 
@@ -59,23 +57,20 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        loginMode = LoginActivity.LoginMode.fromString(
-                getIntent().getStringExtra(LoginActivity.LOGIN_MODE));
-
-        if (loginMode == LoginActivity.LoginMode.PASSWORD) {
-            unhashedUserPassword = getIntent().getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
-        }
-
-        userRecord = getRecordForCurrentUser();
+        userRecord = CommCareApplication._().getRecordForCurrentUser();
         if (userRecord == null) {
-            Log.i(TAG, "Something went wrong in CreatePinActivity. Could not get a matching user " +
+            Log.i(TAG, "Something went wrong in CreatePinActivity. Could not find the current user " +
                     "record, so just finishing the activity");
             setResult(RESULT_CANCELED);
             this.finish();
             return;
         }
 
-        if (loginMode == LoginActivity.LoginMode.PRIMED) {
+        loginMode = LoginActivity.LoginMode.fromString(
+                getIntent().getStringExtra(LoginActivity.LOGIN_MODE));
+        if (loginMode == LoginActivity.LoginMode.PASSWORD) {
+            unhashedUserPassword = getIntent().getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
+        } else if (loginMode == LoginActivity.LoginMode.PRIMED) {
             // Make user unable to cancel this activity if they were brought here by primed login
             cancelButton.setEnabled(false);
 
@@ -88,6 +83,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
         setListeners();
         setInitialEntryMode();
     }
+
 
     private void setListeners() {
         enterPinBox.addTextChangedListener(getPinTextWatcher());
@@ -162,36 +158,6 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
         continueButton.setText(getString(R.string.confirm_pin_button));
         promptText.setText(getString(R.string.confirm_pin_directive));
         inConfirmMode = true;
-    }
-
-    private UserKeyRecord getRecordForCurrentUser() {
-        User currentUser;
-        try {
-            currentUser = CommCareApplication._().getSession().getLoggedInUser();
-        } catch (SessionUnavailableException e) {
-            Log.i(TAG, "Something went wrong in CreatePinActivity. There was no logged in user, " +
-                    "so just finishing the activity");
-            setResult(RESULT_CANCELED);
-            this.finish();
-            return null;
-        }
-
-        String username = currentUser.getUsername();
-        for (UserKeyRecord record :
-                CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class)
-                        .getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
-            if (loginMode == LoginActivity.LoginMode.PASSWORD) {
-                if (record.isPasswordValid(this.unhashedUserPassword)) {
-                    return record;
-                }
-            } else {
-                // primed mode
-                if (record.isPrimedForNextLogin()) {
-                    return record;
-                }
-            }
-        }
-        return null;
     }
 
     private void assignPin(String pin) {

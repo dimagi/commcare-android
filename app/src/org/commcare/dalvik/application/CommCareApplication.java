@@ -881,7 +881,7 @@ public class CommCareApplication extends Application {
                     mIsBinding = false;
 
                     if (user != null) {
-                        mBoundService.startSession(user);
+                        mBoundService.startSession(user, record);
                         if (restoreSession) {
                             CommCareApplication.this.sessionWrapper = DevSessionRestorer.restoreSessionFromPrefs(getCommCarePlatform());
                         } else {
@@ -1091,6 +1091,15 @@ public class CommCareApplication extends Application {
             }
         } else {
             throw new SessionUnavailableException();
+        }
+    }
+
+
+    public UserKeyRecord getRecordForCurrentUser() {
+        try {
+            return getSession().getUserKeyRecord();
+        } catch (SessionUnavailableException e) {
+            return null;
         }
     }
 

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -20,6 +19,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.framework.BreadcrumbBarFragment;
@@ -116,6 +116,7 @@ public class CommCareHomeActivity
     private static final int MEDIA_VALIDATOR_ACTIVITY=8192;
 
     private static final int CREATE_PIN = 16384;
+    private static final int AUTHENTICATION_FOR_PIN = 32768;
 
     private static final int MENU_PREFERENCES = Menu.FIRST;
     private static final int MENU_UPDATE = Menu.FIRST + 1;
@@ -126,6 +127,7 @@ public class CommCareHomeActivity
     private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 6;
     private static final int MENU_SAVED_FORMS = Menu.FIRST + 7;
     private static final int MENU_ABOUT = Menu.FIRST + 8;
+    private static final int MENU_PIN = Menu.FIRST + 9;
 
     /**
      * Restart is a special CommCare return code which means that the session was invalidated in the
@@ -280,16 +282,31 @@ public class CommCareHomeActivity
         dialog.show();
     }
 
+    private void launchPinAuthentication() {
+        Intent i = new Intent(this, PinAuthenticationActivity.class);
+        startActivityForResult(i, AUTHENTICATION_FOR_PIN);
+    }
+
     private void launchPinCreateScreen(LoginActivity.LoginMode loginMode) {
+        launchPinCreateScreen(loginMode, null);
+    }
+
+    private void launchPinCreateScreen(LoginActivity.LoginMode loginMode, String passwordFromAuth) {
         Intent i = new Intent(this, CreatePinActivity.class);
+
         if (loginMode == LoginActivity.LoginMode.PASSWORD) {
-            // We will only have received an intent with a password if this was a normal
-            // password-mode login. If it was a primed login, we will grab the saved password
-            // directly from the UKR instead
-            String passwordFromLastLogin =
-                    getIntent().getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
-            i.putExtra(LoginActivity.PASSWORD_FROM_LOGIN, passwordFromLastLogin);
+            if (passwordFromAuth != null) {
+                // We just came from the PinAuthenticationActivity, so getting password from there
+                i.putExtra(LoginActivity.PASSWORD_FROM_LOGIN, passwordFromAuth);
+            } else {
+                // We just went through actual log in, so have received an intent with a
+                // password
+                String passwordFromLastLogin =
+                        getIntent().getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
+                i.putExtra(LoginActivity.PASSWORD_FROM_LOGIN, passwordFromLastLogin);
+            }
         }
+
         i.putExtra(LoginActivity.LOGIN_MODE, loginMode.toString());
         startActivityForResult(i, CREATE_PIN);
     }
@@ -492,8 +509,15 @@ public class CommCareHomeActivity
                         return;
                     }
                     break;
+                case AUTHENTICATION_FOR_PIN:
+                    if (resultCode == RESULT_OK) {
+                        String password = intent.getStringExtra(PinAuthenticationActivity.PASSWORD_FROM_AUTH);
+                        launchPinCreateScreen(LoginActivity.LoginMode.PASSWORD, password);
+                    }
                 case CREATE_PIN:
-                    if (intent.getBooleanExtra(CreatePinActivity.CHOSE_REMEMBER_PASSWORD, false)) {
+                    boolean choseRememberPassword = (intent == null) ? false :
+                            intent.getBooleanExtra(CreatePinActivity.CHOSE_REMEMBER_PASSWORD, false);
+                    if (choseRememberPassword) {
                         CommCareApplication._().closeUserSession();
                     } else if (resultCode == RESULT_OK) {
                         Toast.makeText(this, getString(R.string.pin_set), Toast.LENGTH_SHORT).show();
@@ -1111,6 +1135,7 @@ public class CommCareHomeActivity
                 android.R.drawable.ic_menu_save);
         menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
                 android.R.drawable.ic_menu_help);
+        menu.add(0, MENU_PIN, 0, Localization.get("home.menu.pin"));
         return true;
     }
 
@@ -1130,8 +1155,9 @@ public class CommCareHomeActivity
             menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
             menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
             menu.findItem(MENU_ABOUT).setVisible(enableMenus);
+            menu.findItem(MENU_PIN).setVisible(enableMenus
+                    && DeveloperPreferences.shouldOfferPinForLogin());
         } catch (SessionUnavailableException sue) {
-            //Nothing
         }
         return true;
     }
@@ -1167,6 +1193,8 @@ public class CommCareHomeActivity
             case MENU_ABOUT:
                 showAboutCommCareDialog();
                 return true;
+            case MENU_PIN:
+                launchPinAuthentication();
         }
         return super.onOptionsItemSelected(item);
     }

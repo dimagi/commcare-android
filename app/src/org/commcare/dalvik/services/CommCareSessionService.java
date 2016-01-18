@@ -83,6 +83,7 @@ public class CommCareSessionService extends Service {
     private final Object lock = new Object();
 
     private User user;
+    private int userKeyRecordID;
 
     private SQLiteDatabase userDatabase;
 
@@ -261,7 +262,7 @@ public class CommCareSessionService extends Service {
      *
      * @param user attach this user to the session
      */
-    public void startSession(User user) {
+    public void startSession(User user, UserKeyRecord record) {
         synchronized (lock) {
             if (user != null) {
                 Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
@@ -272,6 +273,7 @@ public class CommCareSessionService extends Service {
             }
 
             this.user = user;
+            this.userKeyRecordID = record.getID();
 
             this.sessionExpireDate = new Date(new Date().getTime() + sessionLength);
 
@@ -441,6 +443,11 @@ public class CommCareSessionService extends Service {
             throw new SessionUnavailableException();
         }
         return user;
+    }
+
+    public UserKeyRecord getUserKeyRecord() {
+        return CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class)
+                .getRecordForValue(UserKeyRecord.META_SANDBOX_ID, this.userKeyRecordID);
     }
 
     public DataSubmissionListener startDataSubmissionListener() {
