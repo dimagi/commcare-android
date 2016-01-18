@@ -83,7 +83,7 @@ public class CommCareSessionService extends Service {
     private final Object lock = new Object();
 
     private User user;
-    private int userKeyRecordID;
+    private String userKeyRecordUuid;
 
     private SQLiteDatabase userDatabase;
 
@@ -273,7 +273,7 @@ public class CommCareSessionService extends Service {
             }
 
             this.user = user;
-            this.userKeyRecordID = record.getID();
+            this.userKeyRecordUuid = record.getUuid();
 
             this.sessionExpireDate = new Date(new Date().getTime() + sessionLength);
 
@@ -447,7 +447,7 @@ public class CommCareSessionService extends Service {
 
     public UserKeyRecord getUserKeyRecord() {
         return CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class)
-                .getRecordForValue(UserKeyRecord.META_SANDBOX_ID, this.userKeyRecordID);
+                .getRecordForValue(UserKeyRecord.META_SANDBOX_ID, this.userKeyRecordUuid);
     }
 
     public DataSubmissionListener startDataSubmissionListener() {

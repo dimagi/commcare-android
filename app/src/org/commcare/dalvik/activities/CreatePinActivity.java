@@ -86,7 +86,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
 
 
     private void setListeners() {
-        enterPinBox.addTextChangedListener(getPinTextWatcher());
+        enterPinBox.addTextChangedListener(getPinTextWatcher(continueButton));
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -106,25 +106,6 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
                 }
             }
         });
-    }
-
-    private TextWatcher getPinTextWatcher() {
-        return new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (s.length() == 4) {
-                    continueButton.setEnabled(true);
-                } else {
-                    continueButton.setEnabled(false);
-                }
-            }
-        };
     }
 
     private void processInitialPinEntry() {
@@ -184,6 +165,25 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
             finish();
         }
         return true;
+    }
+
+    public static TextWatcher getPinTextWatcher(final Button confirmButton) {
+        return new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.length() == 4) {
+                    confirmButton.setEnabled(true);
+                } else {
+                    confirmButton.setEnabled(false);
+                }
+            }
+        };
     }
 
 }

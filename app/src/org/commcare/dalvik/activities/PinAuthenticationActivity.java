@@ -3,16 +3,40 @@ package org.commcare.dalvik.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
+import org.commcare.android.framework.UiElement;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 
 /**
  * Created by amstone326 on 1/18/16.
  */
+@ManagedUi(R.layout.pin_auth_view)
 public class PinAuthenticationActivity extends
         SessionAwareCommCareActivity<PinAuthenticationActivity> {
+
+    @UiElement(R.id.auth_prompt_text)
+    private TextView promptText;
+
+    @UiElement(R.id.pin_entry)
+    private EditText pinEntry;
+
+    @UiElement(R.id.password_entry)
+    private EditText passwordEntry;
+
+    @UiElement(R.id.pin_auth_confirm_button)
+    private Button confirmButton;
+
+    @UiElement(R.id.pin_auth_cancel_button)
+    private Button cancelButton;
 
     private static final String TAG = PinAuthenticationActivity.class.getSimpleName();
 
@@ -26,21 +50,98 @@ public class PinAuthenticationActivity extends
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setRecordAndAuthMode();
+        if (!setRecordAndAuthMode()) {
+            return;
+        }
+        setupUI();
     }
 
     private void setupUI() {
-        //TODO: Create view and refresh UI based on the auth mode
+        if (authMode == LoginActivity.LoginMode.PASSWORD) {
+            setPasswordAuthModeUI();
+        } else {
+            setPinAuthModeUI();
+        }
+
+        confirmButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                if (authMode == LoginActivity.LoginMode.PASSWORD) {
+                    checkEnteredPassword();
+                } else {
+                    checkEnteredPin();
+                }
+            }
+        });
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                setResult(RESULT_CANCELED);
+                finish();
+            }
+        });
     }
 
-    private void setRecordAndAuthMode() {
+    private void setPinAuthModeUI() {
+        promptText.setText("Enter your current PIN");
+        pinEntry.setVisibility(View.VISIBLE);
+        passwordEntry.setVisibility(View.GONE);
+        confirmButton.setEnabled(false);
+        pinEntry.addTextChangedListener(CreatePinActivity.getPinTextWatcher(confirmButton));
+    }
+
+    private void setPasswordAuthModeUI() {
+        promptText.setText("Enter your password");
+        passwordEntry.setVisibility(View.VISIBLE);
+        pinEntry.setVisibility(View.GONE);
+        confirmButton.setEnabled(true);
+    }
+
+    private void checkEnteredPassword() {
+        String enteredPassword = passwordEntry.getText().toString();
+        if (currentRecord.isPasswordValid(enteredPassword)) {
+            passwordObtainedFromAuth = enteredPassword;
+            onSuccessfulAuth();
+        } else {
+            onUnsuccessfulAuth();
+        }
+    }
+
+    private void checkEnteredPin() {
+        String enteredPin = pinEntry.getText().toString();
+        if (currentRecord.isPinValid(enteredPin)) {
+            passwordObtainedFromAuth = currentRecord.getUnhashedPasswordViaPin(enteredPin);
+            onSuccessfulAuth();
+        } else {
+            onUnsuccessfulAuth();
+        }
+    }
+
+    private void onUnsuccessfulAuth() {
+        if (authMode == LoginActivity.LoginMode.PIN) {
+            Toast.makeText(this, "Entered PIN was incorrect. Please try again.", Toast.LENGTH_LONG).show();
+            pinEntry.setText("");
+        } else {
+            Toast.makeText(this, "Entered password was incorrect. Please try again.", Toast.LENGTH_LONG).show();
+            passwordEntry.setText("");
+        }
+    }
+
+    /**
+     *
+     * @return If the call completed successfully
+     */
+    private boolean setRecordAndAuthMode() {
         currentRecord = CommCareApplication._().getRecordForCurrentUser();
         if (currentRecord == null) {
             Log.i(TAG, "Something went wrong in PinAuthenticationActivity. Could not find the " +
                     "current user record, so just finishing the activity");
             setResult(RESULT_CANCELED);
             this.finish();
-            return;
+            return false;
         }
 
         if (currentRecord.hasPinSet()) {
@@ -51,8 +152,7 @@ public class PinAuthenticationActivity extends
             // Otherwise, we're going to need them to enter their password
             authMode = LoginActivity.LoginMode.PASSWORD;
         }
-
-        setupUI();
+        return true;
     }
 
     private void onSuccessfulAuth() {

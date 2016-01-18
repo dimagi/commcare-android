@@ -514,6 +514,7 @@ public class CommCareHomeActivity
                         String password = intent.getStringExtra(PinAuthenticationActivity.PASSWORD_FROM_AUTH);
                         launchPinCreateScreen(LoginActivity.LoginMode.PASSWORD, password);
                     }
+                    return;
                 case CREATE_PIN:
                     boolean choseRememberPassword = (intent == null) ? false :
                             intent.getBooleanExtra(CreatePinActivity.CHOSE_REMEMBER_PASSWORD, false);
