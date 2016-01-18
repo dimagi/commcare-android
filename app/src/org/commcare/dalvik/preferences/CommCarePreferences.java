@@ -118,6 +118,8 @@ public class CommCarePreferences
     private final static String PREFS_LOCALE_KEY = "cur_locale";
     private final static String PREFS_PRINT_KEY = "print-doc-location";
 
+    private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -137,35 +139,26 @@ public class CommCarePreferences
         updatePreferencesText();
         setTitle("CommCare" + " > " + "Application Preferences");
 
-        createPreferenceOnClickListeners(prefMgr);
+        populatePrefKeyToEventLabelMapping();
+        GoogleAnalyticsUtils.createPreferenceOnClickListeners(prefMgr, prefKeyToAnalyticsEvent,
+                GoogleAnalyticsFields.CATEGORY_CC_PREFS);
+        // Override the default listener for the print pref key b/c it has extra behavior
+        createPrintPrefOnClickListener(prefMgr);
     }
 
-    private void createPreferenceOnClickListeners(PreferenceManager prefManager) {
-        String[] prefKeys = {
-                PREFS_APP_SERVER_KEY,
-                PREFS_DATA_SERVER_KEY,
-                PREFS_SUBMISSION_URL_KEY,
-                PREFS_KEY_SERVER_KEY,
-                PREFS_FORM_RECORD_KEY,
-                PREFS_UPDATE_FREQUENCY_KEY,
-                PREFS_FUZZY_SEARCH_KEY,
-                PREFS_LOCALE_KEY };
-        String[] analyticsLabels = {
-                GoogleAnalyticsFields.LABEL_APP_SERVER,
-                GoogleAnalyticsFields.LABEL_DATA_SERVER,
-                GoogleAnalyticsFields.LABEL_SUBMISSION_SERVER,
-                GoogleAnalyticsFields.LABEL_KEY_SERVER,
-                GoogleAnalyticsFields.LABEL_FORM_RECORD_SERVER,
-                GoogleAnalyticsFields.LABEL_AUTO_UPDATE,
-                GoogleAnalyticsFields.LABEL_FUZZY_SEARCH,
-                GoogleAnalyticsFields.LABEL_LOCALE };
+    private static void populatePrefKeyToEventLabelMapping() {
+        prefKeyToAnalyticsEvent.put(PREFS_APP_SERVER_KEY, GoogleAnalyticsFields.LABEL_APP_SERVER);
+        prefKeyToAnalyticsEvent.put(PREFS_DATA_SERVER_KEY, GoogleAnalyticsFields.LABEL_DATA_SERVER);
+        prefKeyToAnalyticsEvent.put(PREFS_SUBMISSION_URL_KEY, GoogleAnalyticsFields.LABEL_SUBMISSION_SERVER);
+        prefKeyToAnalyticsEvent.put(PREFS_KEY_SERVER_KEY, GoogleAnalyticsFields.LABEL_KEY_SERVER);
+        prefKeyToAnalyticsEvent.put(PREFS_FORM_RECORD_KEY, GoogleAnalyticsFields.LABEL_FORM_RECORD_SERVER);
+        prefKeyToAnalyticsEvent.put(PREFS_UPDATE_FREQUENCY_KEY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
+        prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
+        prefKeyToAnalyticsEvent.put(PREFS_LOCALE_KEY, GoogleAnalyticsFields.LABEL_LOCALE);
+        prefKeyToAnalyticsEvent.put(PREFS_PRINT_KEY, GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
+    }
 
-        for (int i = 0; i < prefKeys.length; i++) {
-            GoogleAnalyticsUtils.createPreferenceOnClickListener(prefManager, prefKeys[i],
-                    GoogleAnalyticsFields.CATEGORY_CC_PREFS, analyticsLabels[i]);
-        }
-
-        // Create this listener on its own because it has an extra call in it
+    private void createPrintPrefOnClickListener(PreferenceManager prefManager) {
         Preference pref = prefManager.findPreference(PREFS_PRINT_KEY);
         pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -178,6 +171,7 @@ public class CommCarePreferences
             }
         });
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -341,59 +335,32 @@ public class CommCarePreferences
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        int editPrefValue = -1;
         switch(key) {
-            case PREFS_APP_SERVER_KEY:
-                reportEditPreference(GoogleAnalyticsFields.LABEL_APP_SERVER);
-                break;
-            case PREFS_DATA_SERVER_KEY:
-                reportEditPreference(GoogleAnalyticsFields.LABEL_DATA_SERVER);
-                break;
-            case PREFS_SUBMISSION_URL_KEY:
-                reportEditPreference(GoogleAnalyticsFields.LABEL_SUBMISSION_SERVER);
-                break;
-            case PREFS_KEY_SERVER_KEY:
-                reportEditPreference(GoogleAnalyticsFields.LABEL_KEY_SERVER);
-                break;
-            case PREFS_FORM_RECORD_KEY:
-                reportEditPreference(GoogleAnalyticsFields.LABEL_FORM_RECORD_SERVER);
-                break;
             case PREFS_UPDATE_FREQUENCY_KEY:
                 String freq = sharedPreferences.getString(key, CommCarePreferences.FREQUENCY_NEVER);
-                int freqVal;
                 if (CommCarePreferences.FREQUENCY_NEVER.equals(freq)) {
-                    freqVal = GoogleAnalyticsFields.VALUE_NEVER;
+                    editPrefValue = GoogleAnalyticsFields.VALUE_NEVER;
                 } else if (CommCarePreferences.FREQUENCY_DAILY.equals(freq)) {
-                    freqVal = GoogleAnalyticsFields.VALUE_DAILY;
+                    editPrefValue = GoogleAnalyticsFields.VALUE_DAILY;
                 } else {
-                    freqVal = GoogleAnalyticsFields.VALUE_WEEKLY;
+                    editPrefValue = GoogleAnalyticsFields.VALUE_WEEKLY;
                 }
-                reportEditPreference(GoogleAnalyticsFields.LABEL_AUTO_UPDATE, freqVal);
                 break;
             case PREFS_FUZZY_SEARCH_KEY:
                 if (isFuzzySearchEnabled()) {
-                    reportEditPreference(GoogleAnalyticsFields.LABEL_FUZZY_SEARCH,
-                            GoogleAnalyticsFields.VALUE_ENABLED);
+                    editPrefValue = GoogleAnalyticsFields.VALUE_ENABLED;
                 } else {
-                    reportEditPreference(GoogleAnalyticsFields.LABEL_FUZZY_SEARCH,
-                            GoogleAnalyticsFields.VALUE_DISABLED);
+                    editPrefValue = GoogleAnalyticsFields.VALUE_DISABLED;
                 }
                 break;
             case PREFS_LOCALE_KEY:
                 Localization.setLocale(sharedPreferences.getString(key, "default"));
-                reportEditPreference(GoogleAnalyticsFields.LABEL_LOCALE);
-                break;
-            case PREFS_PRINT_KEY:
-                reportEditPreference(GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
                 break;
         }
-    }
 
-    private static void reportEditPreference(String label, int value) {
-        GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_CC_PREFS, label, value);
-    }
-
-    private static void reportEditPreference(String label) {
-        GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_CC_PREFS, label, -1);
+        GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                prefKeyToAnalyticsEvent.get(key), editPrefValue);
     }
 
     public static String getResizeMethod() {

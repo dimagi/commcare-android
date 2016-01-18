@@ -9,6 +9,8 @@ import com.google.android.gms.analytics.Tracker;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 
+import java.util.Map;
+
 /**
  * All methods used to report events to google analytics, and all supporting utils
  *
@@ -196,6 +198,15 @@ public class GoogleAnalyticsUtils {
                 .setAction(action)
                 .setValue(value)
                 .build());
+    }
+
+    public static void createPreferenceOnClickListeners(PreferenceManager prefManager,
+            Map<String, String> menuIdToAnalyticsEvent, String category ) {
+
+        for (String prefKey : menuIdToAnalyticsEvent.keySet()) {
+            createPreferenceOnClickListener(prefManager, prefKey, category,
+                    menuIdToAnalyticsEvent.get(prefKey));
+        }
     }
 
     public static void createPreferenceOnClickListener(PreferenceManager manager,

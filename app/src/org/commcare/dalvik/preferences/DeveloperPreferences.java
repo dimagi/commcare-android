@@ -4,6 +4,8 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+
 import org.commcare.android.analytics.GoogleAnalyticsFields;
 import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
@@ -12,6 +14,9 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class DeveloperPreferences extends SessionAwarePreferenceActivity
     implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -45,6 +50,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
     public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
 
+    private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,100 +64,47 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         addPreferencesFromResource(R.xml.preferences_developer);
         setTitle("Developer Preferences");
 
-        createPreferenceOnClickListeners(prefMgr);
+        populatePrefKeyToEventLabelMapping();
+        GoogleAnalyticsUtils.createPreferenceOnClickListeners(
+                prefMgr, prefKeyToAnalyticsEvent, GoogleAnalyticsFields.CATEGORY_DEV_PREFS);
     }
 
-    private void createPreferenceOnClickListeners(PreferenceManager prefManager) {
-        String[] prefKeys = {
-                SUPERUSER_ENABLED,
-                ACTION_BAR_ENABLED,
-                GRID_MENUS_ENABLED,
-                NAV_UI_ENABLED,
-                LIST_REFRESH_ENABLED,
-                NEWEST_APP_VERSION_ENABLED,
-                ENABLE_AUTO_LOGIN,
-                ENABLE_SAVE_SESSION,
-                CSS_ENABLED,
-                MARKDOWN_ENABLED,
-                ALTERNATE_QUESTION_LAYOUT_ENABLED,
-                FIRE_TRIGGERS_ON_SAVE,
-                HOME_REPORT_ENABLED};
-        String[] analyticsLabels = {
-                GoogleAnalyticsFields.LABEL_DEV_MODE,
-                GoogleAnalyticsFields.LABEL_ACTION_BAR,
-                GoogleAnalyticsFields.LABEL_GRID_MENUS,
-                GoogleAnalyticsFields.LABEL_NAV_UI,
-                GoogleAnalyticsFields.LABEL_ENTITY_LIST_REFRESH,
-                GoogleAnalyticsFields.LABEL_NEWEST_APP_VERSION,
-                GoogleAnalyticsFields.LABEL_AUTO_LOGIN,
-                GoogleAnalyticsFields.LABEL_SESSION_SAVING,
-                GoogleAnalyticsFields.LABEL_CSS,
-                GoogleAnalyticsFields.LABEL_MARKDOWN,
-                GoogleAnalyticsFields.LABEL_IMAGE_ABOVE_TEXT,
-                GoogleAnalyticsFields.LABEL_TRIGGERS_ON_SAVE,
-                GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED};
-
-        for (int i = 0; i < prefKeys.length; i++) {
-            GoogleAnalyticsUtils.createPreferenceOnClickListener(prefManager, prefKeys[i],
-                    GoogleAnalyticsFields.CATEGORY_DEV_PREFS, analyticsLabels[i]);
-        }
+    private static void populatePrefKeyToEventLabelMapping() {
+        prefKeyToAnalyticsEvent.put(SUPERUSER_ENABLED, GoogleAnalyticsFields.LABEL_DEV_MODE);
+        prefKeyToAnalyticsEvent.put(ACTION_BAR_ENABLED, GoogleAnalyticsFields.LABEL_ACTION_BAR);
+        prefKeyToAnalyticsEvent.put(GRID_MENUS_ENABLED, GoogleAnalyticsFields.LABEL_GRID_MENUS);
+        prefKeyToAnalyticsEvent.put(NAV_UI_ENABLED, GoogleAnalyticsFields.LABEL_NAV_UI);
+        prefKeyToAnalyticsEvent.put(LIST_REFRESH_ENABLED, GoogleAnalyticsFields.LABEL_ENTITY_LIST_REFRESH);
+        prefKeyToAnalyticsEvent.put(NEWEST_APP_VERSION_ENABLED, GoogleAnalyticsFields.LABEL_NEWEST_APP_VERSION);
+        prefKeyToAnalyticsEvent.put(ENABLE_AUTO_LOGIN, GoogleAnalyticsFields.LABEL_AUTO_LOGIN);
+        prefKeyToAnalyticsEvent.put(ENABLE_SAVE_SESSION, GoogleAnalyticsFields.LABEL_SESSION_SAVING);
+        prefKeyToAnalyticsEvent.put(CSS_ENABLED, GoogleAnalyticsFields.LABEL_CSS);
+        prefKeyToAnalyticsEvent.put(MARKDOWN_ENABLED, GoogleAnalyticsFields.LABEL_MARKDOWN);
+        prefKeyToAnalyticsEvent.put(ALTERNATE_QUESTION_LAYOUT_ENABLED, GoogleAnalyticsFields.LABEL_IMAGE_ABOVE_TEXT);
+        prefKeyToAnalyticsEvent.put(FIRE_TRIGGERS_ON_SAVE, GoogleAnalyticsFields.LABEL_TRIGGERS_ON_SAVE);
+        prefKeyToAnalyticsEvent.put(HOME_REPORT_ENABLED, GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED);
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        String editPrefLabel = "";
+        GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_DEV_PREFS,
+                getEditPrefLabel(key), getEditPrefValue(key));
         switch(key) {
-            case SUPERUSER_ENABLED:
-                editPrefLabel = GoogleAnalyticsFields.LABEL_DEV_MODE;
-                break;
-            case ACTION_BAR_ENABLED:
-                editPrefLabel = GoogleAnalyticsFields.LABEL_ACTION_BAR;
-                break;
-            case GRID_MENUS_ENABLED:
-                editPrefLabel = GoogleAnalyticsFields.LABEL_GRID_MENUS;
-                break;
-            case NAV_UI_ENABLED:
-                editPrefLabel = GoogleAnalyticsFields.LABEL_NAV_UI;
-                break;
-            case LIST_REFRESH_ENABLED:
-                editPrefLabel = GoogleAnalyticsFields.LABEL_ENTITY_LIST_REFRESH;
-                break;
-            case NEWEST_APP_VERSION_ENABLED:
-                editPrefLabel = GoogleAnalyticsFields.LABEL_NEWEST_APP_VERSION;
-                break;
             case ENABLE_AUTO_LOGIN:
-                editPrefLabel = GoogleAnalyticsFields.LABEL_AUTO_LOGIN;
                 if (!isAutoLoginEnabled()) {
                     DevSessionRestorer.clearPassword(sharedPreferences);
                 }
                 break;
             case ENABLE_SAVE_SESSION:
-                editPrefLabel = GoogleAnalyticsFields.LABEL_SESSION_SAVING;
                 if (!isSessionSavingEnabled()) {
                     DevSessionRestorer.clearSession();
                 }
                 break;
-            case CSS_ENABLED:
-                editPrefLabel = GoogleAnalyticsFields.LABEL_CSS;
-                break;
-            case MARKDOWN_ENABLED:
-                editPrefLabel = GoogleAnalyticsFields.LABEL_MARKDOWN;
-                break;
-            case ALTERNATE_QUESTION_LAYOUT_ENABLED:
-                editPrefLabel = GoogleAnalyticsFields.LABEL_IMAGE_ABOVE_TEXT;
-                break;
-            case FIRE_TRIGGERS_ON_SAVE:
-                editPrefLabel = GoogleAnalyticsFields.LABEL_TRIGGERS_ON_SAVE;
-                break;
-            case HOME_REPORT_ENABLED:
-                editPrefLabel = GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED;
-                break;
         }
+    }
 
-        if (!"".equals(editPrefLabel)) {
-            GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_DEV_PREFS,
-                    editPrefLabel, getEditPrefValue(key));
-        }
+    private static String getEditPrefLabel(String key) {
+        return prefKeyToAnalyticsEvent.get(key);
     }
 
     private static int getEditPrefValue(String key) {
