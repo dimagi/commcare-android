@@ -140,18 +140,22 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
             setResult(RESULT_OK);
             finish();
         } else {
-            Toast.makeText(this, getString(R.string.pins_dont_match), Toast.LENGTH_LONG);
+            Toast.makeText(this, getString(R.string.pins_dont_match), Toast.LENGTH_LONG).show();
             setInitialEntryMode();
         }
     }
 
     private void setInitialEntryMode() {
+        enterPinBox.setText("");
+        enterPinBox.requestFocus();
         continueButton.setText(getString(R.string.continue_pin_button));
         promptText.setText(getString(R.string.enter_pin_directive));
         inConfirmMode = false;
     }
 
     private void setConfirmMode() {
+        enterPinBox.setText("");
+        enterPinBox.requestFocus();
         continueButton.setText(getString(R.string.confirm_pin_button));
         promptText.setText(getString(R.string.confirm_pin_directive));
         inConfirmMode = true;

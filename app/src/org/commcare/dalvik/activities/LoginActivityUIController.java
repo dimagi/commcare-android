@@ -286,14 +286,14 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         matchingRecord = null;
         loginMode = LoginActivity.LoginMode.PASSWORD;
         passwordOrPin.setHint(Localization.get("login.password"));
-        passwordOrPin.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
     }
 
     private void setPinPasswordMode(UserKeyRecord record) {
         this.matchingRecord = record;
         loginMode = LoginActivity.LoginMode.PIN;
         passwordOrPin.setHint(Localization.get("login.pin.password"));
-        passwordOrPin.setInputType(InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
     }
 
     protected LoginActivity.LoginMode getLoginMode() {
