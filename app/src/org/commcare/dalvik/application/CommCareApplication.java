@@ -842,6 +842,7 @@ public class CommCareApplication extends Application {
         try {
             currentUserId = this.getSession().getLoggedInUser().getUniqueId();
         } catch (SessionUnavailableException e) {
+            currentUserId = null;
         }
     }
 
