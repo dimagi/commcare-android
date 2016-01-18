@@ -53,7 +53,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     @UiElement(value=R.id.edit_username, locale="login.username")
     private EditText username;
 
-    @UiElement(value=R.id.edit_password, locale="login.password")
+    @UiElement(value=R.id.edit_password)
     private EditText passwordOrPin;
 
     @UiElement(R.id.screen_login_banner_pane)
@@ -293,7 +293,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         this.matchingRecord = record;
         loginMode = LoginActivity.LoginMode.PIN;
         passwordOrPin.setHint(Localization.get("login.pin.password"));
-        passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        passwordOrPin.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
     }
 
     protected LoginActivity.LoginMode getLoginMode() {

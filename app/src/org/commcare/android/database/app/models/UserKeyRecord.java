@@ -253,10 +253,19 @@ public class UserKeyRecord extends Persisted {
     }
 
     public boolean isPinValid(String pin) {
-        // Unwrap wrapped password, and then call isPasswordValid() on the result of that
-        return isPasswordValid(getUnhashedPasswordViaPin(pin));
+        // First try to unwrap wrapped password with the PIN
+        String password = getUnhashedPasswordViaPin(pin);
+        if (password == null) {
+            return false;
+        }
+        // If unwrapping is successful, check if the resulting password is correct
+        return isPasswordValid(password);
     }
 
+    /**
+     * Returns the un-hashed password that was wrapped by the given PIN, or null if the given PIN
+     * is not valid to unwrap the wrapped password
+     */
     public String getUnhashedPasswordViaPin(String pin) {
         return unwrapPasswordWithPin(this.passwordWrappedByPin, pin);
     }
@@ -278,7 +287,12 @@ public class UserKeyRecord extends Persisted {
     }
 
     public static String unwrapPasswordWithPin(byte[] wrappedPassword, String pin) {
-        return new String(CryptUtil.unwrapByteArrayWithString(wrappedPassword, pin));
+        byte[] unwrapped = CryptUtil.unwrapByteArrayWithString(wrappedPassword, pin);
+        if (unwrapped == null) {
+            // If the pin could not unwrap the password, just return null
+            return null;
+        }
+        return new String(unwrapped);
     }
 
     public byte[] unWrapKey(String password) {

@@ -13,7 +13,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
@@ -24,7 +23,6 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
 
-import java.util.Vector;
 
 /**
  * Created by amstone326 on 1/12/16.
@@ -80,6 +78,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
         if (loginMode == LoginActivity.LoginMode.PRIMED) {
             unhashedUserPassword = userRecord.getPrimedPassword();
             userRecord.clearPrimedPassword();
+            CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
         }
 
         setListeners();
@@ -193,6 +192,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
 
     private void assignPin(String pin) {
         userRecord.assignPinToRecord(pin, unhashedUserPassword);
+        CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
     }
 
     @Override
@@ -207,6 +207,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == MENU_REMEMBER_PW_AND_LOGOUT) {
             userRecord.setPrimedPassword(unhashedUserPassword);
+            CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
             Intent i = new Intent();
             i.putExtra(CHOSE_REMEMBER_PASSWORD, true);
             setResult(RESULT_OK, i);
