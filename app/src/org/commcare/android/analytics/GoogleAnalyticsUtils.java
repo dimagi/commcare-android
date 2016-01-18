@@ -87,14 +87,24 @@ public class GoogleAnalyticsUtils {
     }
 
     /**
-     * Report a user event of triggering a form quit
+     * Report a user event of triggering a form exit attempt, and which mode they used to do so
+     *
+     * @param label - Indicates the way in which the user triggered the form exit
+     */
+    public static void reportFormQuitAttempt(String label) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
+                GoogleAnalyticsFields.ACTION_TRIGGER_QUIT_ATTEMPT, label);
+    }
+
+    /**
+     * Report an event of a form being exited
      *
      * @param label - Communicates which option the user selected on the exit form dialog, or none
      *              if form exit occurred without showing the dialog at all
      */
-    public static void reportFormQuitAttempt(String label) {
+    public static void reportFormExit(String label) {
         reportEvent(GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
-                GoogleAnalyticsFields.ACTION_QUIT_ATTEMPT, label);
+                GoogleAnalyticsFields.ACTION_EXIT_FORM, label);
     }
 
     public static void reportHomeButtonClick(String buttonLabel) {
