@@ -92,6 +92,9 @@ public class PaneledChoiceDialog {
     }
 
     public void addCollapsibleInfoPane(String messageContent) {
+        View extraInfoContainer = view.findViewById(R.id.extra_info_container);
+        extraInfoContainer.setVisibility(View.VISIBLE);
+
         TextView extraInfoContent = (TextView)view.findViewById(R.id.extra_info_content);
         extraInfoContent.setText(messageContent);
 

@@ -36,10 +36,12 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/extra_info_container"
         android:orientation="horizontal"
         android:layout_marginLeft="@dimen/standard_spacer_double"
         android:layout_marginRight="@dimen/standard_spacer_double"
-        android:layout_marginBottom="@dimen/standard_spacer_double">
+        android:layout_marginBottom="@dimen/standard_spacer_double"
+        android:visibility="gone" >
 
         <ImageButton
             android:id="@+id/extra_info_button"
