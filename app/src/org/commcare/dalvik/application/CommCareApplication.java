@@ -37,8 +37,8 @@ import net.sqlcipher.database.SQLiteException;
 
 import org.acra.annotation.ReportsCrashes;
 import org.commcare.android.database.AndroidDbHelper;
-import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.HybridFileBackedSqlStorage;
+import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -726,7 +726,7 @@ public class CommCareApplication extends Application {
         try {
             return currentApp.storageRoot() + currentApp + "/" + getSession().getLoggedInUser().getUniqueId() + "/";
         } catch (SessionUnavailableException e) {
-            return currentApp.storageRoot() + currentApp + "/";
+            throw new RuntimeException(e);
         }
     }
 
