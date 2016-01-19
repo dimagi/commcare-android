@@ -15,7 +15,7 @@
         android:orientation="vertical"
         android:layout_marginLeft="@dimen/standard_spacer_large"
         android:layout_marginRight="@dimen/standard_spacer_large"
-        android:layout_marginBottom="@dimen/standard_spacer_large"
+        android:layout_marginBottom="@dimen/standard_spacer_double"
         android:divider="?android:attr/listDivider"
         android:showDividers="middle" >
     </ListView>
@@ -32,5 +32,31 @@
         android:textColor="@color/dialog_button_color"
         android:visibility="gone">
     </Button>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginLeft="@dimen/standard_spacer_double"
+        android:layout_marginRight="@dimen/standard_spacer_double"
+        android:layout_marginBottom="@dimen/standard_spacer_double">
+
+        <ImageButton
+            android:id="@+id/extra_info_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/circle_button"
+            android:src="@drawable/icon_info_fill_neutral"
+            android:visibility="gone" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/extra_info_content"
+            android:layout_marginLeft="@dimen/standard_spacer"
+            android:textSize="@dimen/text_small"
+            android:visibility="gone" />
+
+    </LinearLayout>
 
 </LinearLayout>

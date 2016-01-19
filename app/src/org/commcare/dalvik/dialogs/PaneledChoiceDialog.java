@@ -8,6 +8,7 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -88,5 +89,28 @@ public class PaneledChoiceDialog {
 
     public void dismiss() {
         dialog.dismiss();
+    }
+
+    public void addCollapsibleInfoPane(String messageContent) {
+        TextView extraInfoContent = (TextView)view.findViewById(R.id.extra_info_content);
+        extraInfoContent.setText(messageContent);
+
+        final ImageButton extraInfoButton = (ImageButton)view.findViewById(R.id.extra_info_button);
+        extraInfoButton.setVisibility(View.VISIBLE);
+        extraInfoButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                toggleExtraInfoVisibility();
+            }
+        });
+    }
+
+    private void toggleExtraInfoVisibility() {
+        TextView extraInfoContent = (TextView)view.findViewById(R.id.extra_info_content);
+        if (extraInfoContent.getVisibility() == View.VISIBLE) {
+            extraInfoContent.setVisibility(View.GONE);
+        } else {
+            extraInfoContent.setVisibility(View.VISIBLE);
+        }
     }
 }

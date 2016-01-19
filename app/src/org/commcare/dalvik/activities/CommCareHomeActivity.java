@@ -286,6 +286,7 @@ public class CommCareHomeActivity
 
 
         dialog.setChoiceItems(new DialogChoiceItem[]{createPinChoice, nextTimeChoice, notAgainChoice});
+        dialog.addCollapsibleInfoPane(Localization.get("pin.dialog.extra.info"));
         dialog.show();
     }
 
