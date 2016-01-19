@@ -246,6 +246,18 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return false;
     }
 
+    /**
+     * If a message for the user has been set in CommCareApplication, show it and then clear it
+     */
+    private void showPendingUserMessage() {
+        String[] messageAndTitle = CommCareApplication._().getPendingUserMessage();
+        if (messageAndTitle != null) {
+            showAlertDialog(AlertDialogFactory.getBasicAlertFactory(
+                    this, messageAndTitle[1], messageAndTitle[0], null));
+            CommCareApplication._().clearPendingUserMessage();
+        }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -568,6 +580,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         if (alertDialogToShowOnResume != null && getCurrentAlertDialog() == null) {
             alertDialogToShowOnResume.show(getSupportFragmentManager(), KEY_ALERT_DIALOG_FRAG);
             alertDialogToShowOnResume = null;
+        } else {
+            showPendingUserMessage();
         }
     }
 
