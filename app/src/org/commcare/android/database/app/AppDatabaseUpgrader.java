@@ -166,6 +166,7 @@ public class AppDatabaseUpgrader {
                 storage.write(newUKR);
             }
 
+            db.setTransactionSuccessful();
             return true;
         } finally {
             db.endTransaction();
