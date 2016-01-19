@@ -7,14 +7,12 @@ import android.util.Pair;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.crypt.EncryptionIO;
-import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
 import org.javarosa.core.io.StreamsUtil;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
@@ -99,9 +97,10 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                 int dataColIndex = cur.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
                 int fileColIndex = cur.getColumnIndexOrThrow(DatabaseHelper.FILE_COL);
                 int aesColIndex = cur.getColumnIndexOrThrow(DatabaseHelper.AES_COL);
+                int idColIndex = cur.getColumnIndexOrThrow(DatabaseHelper.ID_COL);
                 while (!cur.isAfterLast()) {
                     byte[] serializedObj = cur.getBlob(dataColIndex);
-                    int dbEntryId = cur.getInt(cur.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
+                    int dbEntryId = cur.getInt(idColIndex);
                     if (serializedObj != null) {
                         // serialized object was small enough to fit in db entry
                         recordObjects.add(newObject(serializedObj, dbEntryId));
@@ -262,7 +261,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                 } else {
                     // store serialized object in file and file pointer in db
                     String dataFilePath = HybridFileBackedSqlHelpers.newFileForEntry(dbDir).getAbsolutePath();
-                    setFileAsOrphan(db, dataFilePath);
+                    HybridFileBackedSqlHelpers.setFileAsOrphan(db, dataFilePath);
 
                     db.beginTransaction();
                     ContentValues contentValues = helper.getNonDataContentValues(persistable);
@@ -271,7 +270,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                     insertedId = db.insertOrThrow(table, DatabaseHelper.FILE_COL, contentValues);
 
                     writeStreamToFile(bos, dataFilePath, key);
-                    unsetFileAsOrphan(db, dataFilePath);
+                    HybridFileBackedSqlHelpers.unsetFileAsOrphan(db, dataFilePath);
                 }
             } finally {
                 bos.close();
@@ -289,26 +288,6 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             throw new RuntimeException(e);
         } finally {
             db.endTransaction();
-        }
-    }
-
-    private static void setFileAsOrphan(SQLiteDatabase db, String filename) {
-        db.beginTransaction();
-        try {
-            ContentValues cv = new ContentValues();
-            cv.put(DatabaseHelper.FILE_COL, filename);
-            db.insertOrThrow(DbUtil.orphanFileTableName, DatabaseHelper.FILE_COL, cv);
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
-    }
-
-    private static void unsetFileAsOrphan(SQLiteDatabase db, String filename) {
-        int deleteCount = db.delete(DbUtil.orphanFileTableName, DatabaseHelper.FILE_COL + "=?", new String[]{filename});
-        if (deleteCount != 1) {
-            Logger.log(AndroidLogger.SOFT_ASSERT,
-                    "Unable to unset orphaned file: " + deleteCount + " entries effected.b");
         }
     }
 
@@ -382,7 +361,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                 updateEntryToStoreInDb(extObj, objectInDb, filename, bos, db, id);
             } else {
                 String newFilePath = HybridFileBackedSqlHelpers.newFileForEntry(dbDir).getAbsolutePath();
-                setFileAsOrphan(db, newFilePath);
+                HybridFileBackedSqlHelpers.setFileAsOrphan(db, newFilePath);
 
                 db.beginTransaction();
                 updateEntryToStoreInFs(extObj, objectInDb, filename,
@@ -414,7 +393,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             updatedContentValues.put(DatabaseHelper.FILE_COL, (String)null);
             updatedContentValues.put(DatabaseHelper.AES_COL, (byte[])null);
 
-            setFileAsOrphan(db, filename);
+            HybridFileBackedSqlHelpers.setFileAsOrphan(db, filename);
         }
         db.update(table, updatedContentValues,
                 DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
@@ -438,31 +417,31 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             updatedContentValues = helper.getNonDataContentValues(extObj);
             updatedContentValues.put(DatabaseHelper.FILE_COL, newFilePath);
 
-            setFileAsOrphan(db, currentFilePath);
+            HybridFileBackedSqlHelpers.setFileAsOrphan(db, currentFilePath);
         }
         db.update(table, updatedContentValues,
                 DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
 
         writeStreamToFile(bos, newFilePath, fileEncryptionKey);
-        unsetFileAsOrphan(db, newFilePath);
+        HybridFileBackedSqlHelpers.unsetFileAsOrphan(db, newFilePath);
     }
 
     @Override
     public void remove(int id) {
         SQLiteDatabase db = getDbOrThrow();
 
+        String filename = HybridFileBackedSqlHelpers.getEntryFilename(helper, table, id);
         db.beginTransaction();
         try {
-            String filename = HybridFileBackedSqlHelpers.getEntryFilename(helper, table, id);
-            if (filename != null) {
-                File dataFile = new File(filename);
-                dataFile.delete();
-            }
-
             db.delete(table, DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
+        }
+
+        if (filename != null) {
+            File dataFile = new File(filename);
+            dataFile.delete();
         }
     }
 
@@ -471,8 +450,9 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         if (ids.size() > 0) {
             SQLiteDatabase db = getDbOrThrow();
             db.beginTransaction();
+            List<String> filesToRemove;
             try {
-                HybridFileBackedSqlHelpers.removeFiles(ids, helper, table);
+                filesToRemove = HybridFileBackedSqlHelpers.getFilesToRemove(ids, helper, table);
                 List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(ids);
                 for (Pair<String, String[]> whereParams : whereParamList) {
                     String whereClause = DatabaseHelper.ID_COL + " IN " + whereParams.first;
@@ -482,6 +462,8 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             } finally {
                 db.endTransaction();
             }
+
+            HybridFileBackedSqlHelpers.removeFiles(filesToRemove);
         }
     }
 
@@ -491,12 +473,13 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
         db.beginTransaction();
         try {
-            FileUtil.deleteFileOrDir(dbDir);
             db.delete(table, null, null);
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }
+
+        FileUtil.deleteFileOrDir(dbDir);
     }
 
     @Override
@@ -523,9 +506,10 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
             SQLiteDatabase db = getDbOrThrow();
 
+            List<String> filesToRemove;
             db.beginTransaction();
             try {
-                HybridFileBackedSqlHelpers.removeFiles(removed, helper, table);
+                filesToRemove = HybridFileBackedSqlHelpers.getFilesToRemove(removed, helper, table);
                 for (Pair<String, String[]> whereParams : whereParamList) {
                     String whereClause = DatabaseHelper.ID_COL + " IN " + whereParams.first;
                     db.delete(table, whereClause, whereParams.second);
@@ -535,6 +519,8 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             } finally {
                 db.endTransaction();
             }
+
+            HybridFileBackedSqlHelpers.removeFiles(filesToRemove);
         }
 
         return removed;

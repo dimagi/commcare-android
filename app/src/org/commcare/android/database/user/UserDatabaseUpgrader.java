@@ -228,7 +228,7 @@ class UserDatabaseUpgrader {
      * scheme, and re-serialize them using the new scheme that preserves
      * attributes.
      */
-    private boolean upgradeEightNine(SQLiteDatabase db, int oldVersion, int newVersion) {
+    private boolean upgradeEightNine(SQLiteDatabase db) {
         Log.d(TAG, "starting user fixture migration");
         db.beginTransaction();
         try {

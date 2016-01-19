@@ -1,18 +1,22 @@
 package org.commcare.android.database;
 
+import android.content.ContentValues;
 import android.util.Pair;
 
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.modern.database.DatabaseHelper;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.PropertyUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -70,17 +74,65 @@ public class HybridFileBackedSqlHelpers {
         }
     }
 
-    protected static void removeFiles(List<Integer> idsBeingRemoved,
-                                      AndroidDbHelper helper,
-                                      String table) {
+    protected static List<String> getFilesToRemove(List<Integer> idsBeingRemoved,
+                                                   AndroidDbHelper helper,
+                                                   String table) {
+        ArrayList<String> files = new ArrayList<>();
         // delete files storing data for entries being removed
         for (Integer id : idsBeingRemoved) {
             String filename = HybridFileBackedSqlHelpers.getEntryFilename(helper, table, id);
-            if (filename != null) {
-                File datafile = new File(filename);
-                datafile.delete();
+            if (filename != null && new File(filename).exists()) {
+                files.add(filename);
             }
         }
+        return files;
+    }
+
+    protected static void removeFiles(List<String> filesToRemove) {
+        for (String filename : filesToRemove) {
+            File datafile = new File(filename);
+            datafile.delete();
+        }
+    }
+
+    protected static void setFileAsOrphan(SQLiteDatabase db, String filename) {
+        db.beginTransaction();
+        try {
+            ContentValues cv = new ContentValues();
+            cv.put(DatabaseHelper.FILE_COL, filename);
+            db.insertOrThrow(DbUtil.orphanFileTableName, DatabaseHelper.FILE_COL, cv);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    protected static void unsetFileAsOrphan(SQLiteDatabase db, String filename) {
+        int deleteCount = db.delete(DbUtil.orphanFileTableName, DatabaseHelper.FILE_COL + "=?", new String[]{filename});
+        if (deleteCount != 1) {
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "Unable to unset orphaned file: " + deleteCount + " entries effected.b");
+        }
+    }
+
+    public static void removeOrphanedFiles(SQLiteDatabase db) {
+        Cursor cur = db.query(DbUtil.orphanFileTableName, new String[] {DatabaseHelper.FILE_COL}, null, null, null, null, null);
+        ArrayList<String> files = new ArrayList<>();
+        try {
+            if (cur.getCount() > 0) {
+                cur.moveToFirst();
+                int fileColIndex = cur.getColumnIndexOrThrow(DatabaseHelper.FILE_COL);
+                while (!cur.isAfterLast()) {
+                    files.add(cur.getString(fileColIndex));
+                    cur.moveToNext();
+                }
+            }
+        } finally {
+            if (cur != null) {
+                cur.close();
+            }
+        }
+        removeFiles(files);
     }
 
     protected static File newFileForEntry(File dbDir) throws IOException {
