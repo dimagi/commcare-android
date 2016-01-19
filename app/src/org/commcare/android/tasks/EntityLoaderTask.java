@@ -7,6 +7,7 @@ import org.commcare.android.models.AsyncNodeEntityFactory;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
+import org.commcare.dalvik.activities.EntitySelectActivity;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
@@ -30,6 +31,7 @@ public class EntityLoaderTask
     private Exception mException = null;
 
     public EntityLoaderTask(Detail detail, EvaluationContext evalCtx) {
+        evalCtx.addFunctionHandler(EntitySelectActivity.hereFunctionHandler);
         if (detail.useAsyncStrategy()) {
             this.factory = new AsyncNodeEntityFactory(detail, evalCtx);
         } else {

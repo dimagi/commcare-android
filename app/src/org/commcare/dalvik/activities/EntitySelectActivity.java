@@ -1175,9 +1175,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public boolean loadEntities() {
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
             Log.i("HereFunctionHandler", "entities reloading");
-            EvaluationContext context = asw.getEvaluationContext();
-            context.addFunctionHandler(hereFunctionHandler);
-            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, context);
+            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
             entityLoader.attachListener(this);
             entityLoader.execute(selectDatum.getNodeset());
             return true;
