@@ -171,18 +171,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private boolean containsHereFunction = false;
     private boolean locationChangedWhileLoading = false;
 
-    public static HereFunctionHandler getHereFunctionHandler() {
-        return hereFunctionHandler;
-    }
-
-    public boolean getContainsHereFunction() {
-        return containsHereFunction;
-    }
-
-    public void setContainsHereFunction(boolean containsHereFunction) {
-        this.containsHereFunction = containsHereFunction;
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -194,6 +182,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             this.containsHereFunction = savedInstanceState.getBoolean(CONTAINS_HERE_FUNCTION);
             this.locationChangedWhileLoading = savedInstanceState.getBoolean(
                     LOCATION_CHANGED_WHILE_LOADING);
+        } else {
+            hereFunctionHandler.refreshLocation();
         }
 
         asw = CommCareApplication._().getCurrentSessionWrapper();
@@ -301,10 +291,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         if (!isUsingActionBar()) {
             searchbox.setText(lastQueryString);
-        }
-
-        if (!this.containsHereFunction) {
-            hereFunctionHandler.refreshLocation();
         }
     }
 
@@ -1241,5 +1227,17 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (!loaded) {
             locationChangedWhileLoading = true;
         }
+    }
+
+    public static HereFunctionHandler getHereFunctionHandler() {
+        return hereFunctionHandler;
+    }
+
+    public boolean getContainsHereFunction() {
+        return containsHereFunction;
+    }
+
+    public void setContainsHereFunction(boolean containsHereFunction) {
+        this.containsHereFunction = containsHereFunction;
     }
 }
