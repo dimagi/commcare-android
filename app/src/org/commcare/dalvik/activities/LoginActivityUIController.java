@@ -335,7 +335,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         passwordOrPin.setTextColor(errorColor);
     }
 
-    private void setStyleDefault() {
+    protected void setStyleDefault() {
         setLoginBoxesColorNormal();
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50), null, null, null);
         passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);

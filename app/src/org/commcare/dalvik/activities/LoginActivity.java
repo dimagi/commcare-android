@@ -465,6 +465,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 return true;
             case MENU_PASSWORD_MODE:
                 uiController.setNormalPasswordMode();
+                uiController.setStyleDefault();
+                uiController.setPasswordOrPin("");
                 return true;
         default:
             return otherResult;
