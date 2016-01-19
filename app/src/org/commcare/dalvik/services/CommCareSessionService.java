@@ -17,7 +17,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.user.CommCareUserOpenHelper;
+import org.commcare.android.database.user.DatabaseUserOpenHelper;
 import org.commcare.android.database.user.UserSandboxUtils;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.DataSubmissionListener;
@@ -252,7 +252,9 @@ public class CommCareSessionService extends Service {
             if (userDatabase != null && userDatabase.isOpen()) {
                 userDatabase.close();
             }
-            userDatabase = new CommCareUserOpenHelper(CommCareApplication._(), record.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
+
+            userDatabase = new DatabaseUserOpenHelper(CommCareApplication._(), record.getUuid())
+                    .getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
         }
     }
 

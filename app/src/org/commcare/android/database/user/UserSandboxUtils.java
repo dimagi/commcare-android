@@ -33,8 +33,8 @@ public class UserSandboxUtils {
         //Step one: Make a copy of the incoming sandbox's database and re-key it to use the new key.
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Migrating an existing user sandbox for " + newSandbox.getUsername());
 
-        File oldDb = c.getDatabasePath(CommCareUserOpenHelper.getDbName(incomingSandbox.getUuid()));
-        File newDb = c.getDatabasePath(CommCareUserOpenHelper.getDbName(newSandbox.getUuid()));
+        File oldDb = c.getDatabasePath(DatabaseUserOpenHelper.getDbName(incomingSandbox.getUuid()));
+        File newDb = c.getDatabasePath(DatabaseUserOpenHelper.getDbName(newSandbox.getUuid()));
 
         //TODO: Make sure old sandbox is already on newest version?
 
@@ -62,7 +62,7 @@ public class UserSandboxUtils {
 
         //OK, so now we have the Db transitioned. What we need to do now is go through and rekey all of our file references.
 
-        final SQLiteDatabase db = new CommCareUserOpenHelper(CommCareApplication._(), newSandbox.getUuid()).getWritableDatabase(newKeyEncoded);
+        final SQLiteDatabase db = new DatabaseUserOpenHelper(CommCareApplication._(), newSandbox.getUuid()).getWritableDatabase(newKeyEncoded);
 
         try {
 
@@ -193,14 +193,14 @@ public class UserSandboxUtils {
         //Ok, three steps here. Wipe files out, wipe database, remove key record
 
         //If the db is gone already, just remove the record and move on (something odd has happened)
-        if (!context.getDatabasePath(CommCareUserOpenHelper.getDbName(sandbox.getUuid())).exists()) {
+        if (!context.getDatabasePath(DatabaseUserOpenHelper.getDbName(sandbox.getUuid())).exists()) {
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Sandbox " + sandbox.getUuid() + " has already been purged. removing the record");
 
             SqlStorage<UserKeyRecord> ukr = app.getStorage(UserKeyRecord.class);
             ukr.remove(sandbox);
         }
 
-        final SQLiteDatabase db = new CommCareUserOpenHelper(CommCareApplication._(), sandbox.getUuid()).getWritableDatabase(getSqlCipherEncodedKey(key));
+        final SQLiteDatabase db = new DatabaseUserOpenHelper(CommCareApplication._(), sandbox.getUuid()).getWritableDatabase(getSqlCipherEncodedKey(key));
 
         try {
             AndroidDbHelper dbh = new AndroidDbHelper(context) {
@@ -249,7 +249,7 @@ public class UserSandboxUtils {
 
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "All files removed for sandbox. Deleting DB");
 
-        context.getDatabasePath(CommCareUserOpenHelper.getDbName(sandbox.getUuid())).delete();
+        context.getDatabasePath(DatabaseUserOpenHelper.getDbName(sandbox.getUuid())).delete();
 
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Database is gone. Get rid of this record");
 

@@ -22,6 +22,7 @@ import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.LoginActivity;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -128,13 +129,10 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         }
     }
 
-
     protected boolean checkAndStartUnsentTask(final Context context) {
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
 
-        //Get all forms which are either unsent or unprocessed
-        Vector<Integer> ids = storage.getIDsForValues(new String[]{FormRecord.META_STATUS}, new Object[]{FormRecord.STATUS_UNSENT});
-        ids.addAll(storage.getIDsForValues(new String[]{FormRecord.META_STATUS}, new Object[]{FormRecord.STATUS_COMPLETE}));
         if (ids.size() > 0) {
             FormRecord[] records = new FormRecord[ids.size()];
             for (int i = 0; i < ids.size(); ++i) {
