@@ -18,8 +18,10 @@ import org.javarosa.core.util.MD5;
  *
  * @author ctsims
  */
-@Table("android_cc_session")
+@Table(SessionStateDescriptor.STORAGE_KEY)
 public class SessionStateDescriptor extends Persisted implements EncryptedModel {
+
+    public static final String STORAGE_KEY = "android_cc_session";
 
     public static final String META_DESCRIPTOR_HASH = "descriptorhash";
 

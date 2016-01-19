@@ -36,8 +36,8 @@ public class AlertDialogFactory {
     }
 
     /**
-     * A shortcut method that will generate and show an alert dialog in one method call; to be
-     * used for dialogs that have a title, message, and one button with display text "OK"
+     * A shortcut method that will generate an alert dialog in one method call; to be used for
+     * dialogs that have a title, message, and one button with display text "OK"
      *
      * @param positiveButtonListener - the onClickListener to apply to the positive button. If
      *                          null, applies a default listener of just dismissing the dialog

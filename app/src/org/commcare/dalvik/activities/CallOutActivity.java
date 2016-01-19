@@ -1,7 +1,6 @@
 package org.commcare.dalvik.activities;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
@@ -10,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.telephony.PhoneStateListener;
@@ -29,7 +29,7 @@ import java.util.Date;
  * @author ctsims
  *
  */
-public class CallOutActivity extends Activity
+public class CallOutActivity extends FragmentActivity
         implements RuntimePermissionRequester {
 
     public static final String PHONE_NUMBER = "cos_pn";
