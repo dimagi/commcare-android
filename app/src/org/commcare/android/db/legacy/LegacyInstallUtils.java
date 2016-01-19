@@ -21,7 +21,7 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.ResourceModelUpdater;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.database.user.CommCareUserOpenHelper;
+import org.commcare.android.database.user.DatabaseUserOpenHelper;
 import org.commcare.android.database.user.UserSandboxUtils;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.FormRecord;
@@ -457,12 +457,12 @@ public class LegacyInstallUtils {
         SQLiteDatabase ourDb;
         //If we were able to iterate over the users, the key was fine, so let's use it to open our db
         try {
-            ourDb = new CommCareUserOpenHelper(CommCareApplication._(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
+            ourDb = new DatabaseUserOpenHelper(CommCareApplication._(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
         } catch (SQLiteException sle) {
             //Our database got corrupted. Fortunately this represents a new record, so we can't actually need it.
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Attempted migrated database got corrupted. Deleting it and starting over");
-            c.getDatabasePath(CommCareUserOpenHelper.getDbName(ukr.getUuid())).delete();
-            ourDb = new CommCareUserOpenHelper(CommCareApplication._(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
+            c.getDatabasePath(DatabaseUserOpenHelper.getDbName(ukr.getUuid())).delete();
+            ourDb = new DatabaseUserOpenHelper(CommCareApplication._(), ukr.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(oldKey));
         }
 
         final SQLiteDatabase currentUserDatabase = ourDb;
@@ -565,7 +565,7 @@ public class LegacyInstallUtils {
         //Now, if we've copied everything over to this user with no problems, we want to actually go back and wipe out all of the
         //data that is linked to specific files, since individual users might delete them out of their sandboxes.
         new LegacySqlIndexedStorageUtility<>("log_records", DeviceReportRecord.class, ldbh).removeAll();
-        new LegacySqlIndexedStorageUtility<>("FORMRECORDS", FormRecord.class, ldbh).removeAll();
+        new LegacySqlIndexedStorageUtility<>(FormRecord.STORAGE_KEY, FormRecord.class, ldbh).removeAll();
         new LegacySqlIndexedStorageUtility<>("android_cc_session", SessionStateDescriptor.class, ldbh).removeAll();
 
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| User transitioned! Closing db handles.");

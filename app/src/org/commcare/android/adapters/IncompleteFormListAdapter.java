@@ -158,9 +158,13 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         }
 
         records = new Vector<>();
-        // for each type of status in the filter, grab all the records that satisfy it
+        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
+        // Grab all form records that satisfy ANY of the statuses in the filter, AND belong to the
+        // currently seated app
         for (String status : filter.getStatus()) {
-            records.addAll(storage.getRecordsForValues(new String[]{FormRecord.META_STATUS}, new Object[]{status}));
+            records.addAll(storage.getRecordsForValues(
+                    new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                    new Object[]{status, currentAppId}));
         }
 
         // Sort FormRecords by modification time, most recent first.
