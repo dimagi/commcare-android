@@ -70,9 +70,12 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
     @Override
     protected Integer doTaskBackground(Void... params) {
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
 
-        Vector<Integer> recordsToRemove = storage.getIDsForValues(new String[] { FormRecord.META_STATUS}, new String[] { FormRecord.STATUS_SAVED });
-        int oldrecords = recordsToRemove.size();
+        Vector<Integer> recordsToRemove = storage.getIDsForValues(
+                new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new String[]{FormRecord.STATUS_SAVED, currentAppId});
+        int numOldRecordsRemoved = recordsToRemove.size();
 
         Vector<Integer> unindexedRecords = storage.getIDsForValues(new String[] { FormRecord.META_STATUS}, new String[] { FormRecord.STATUS_UNINDEXED });
         int count = 0;
@@ -103,9 +106,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             wipeRecord(context, -1, recordID, storage, ssdStorage);
         }
 
+        int totalRecordsRemoved = recordsToRemove.size();
         Log.d(TAG, "Synced: " + unindexedRecords.size() +
-                ". Removed: " + oldrecords + " old records, and " +
-                (recordsToRemove.size() - oldrecords) + " busted new ones");
+                ". Removed: " + numOldRecordsRemoved + " old records, and " +
+                (totalRecordsRemoved - numOldRecordsRemoved) + " busted new ones");
         return SUCCESS;
     }
 
@@ -276,11 +280,11 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             }
         }
 
-        // TODO: We should be committing all changes to form record models via
-        // the ASW objects, not manually.
+        // TODO: We should be committing all changes to form record models via the ASW objects,
+        // not manually.
         FormRecord parsed = new FormRecord(r.getInstanceURI().toString(),
                 r.getStatus(), r.getFormNamespace(), r.getAesKey(),
-                uuid[0], modified[0]);
+                uuid[0], modified[0], r.getAppId());
         parsed.setID(r.getID());
 
         // Make sure that the instance is no longer editable
@@ -321,7 +325,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      * Remove form record and associated session state descriptor from storage
      * and delete form instance files linked to the form record.
      */
-    private static void wipeRecord(Context context, int sessionId,
+    public static void wipeRecord(Context context, int sessionId,
                                    int formRecordId,
                                    SqlStorage<FormRecord> frStorage,
                                    SqlStorage<SessionStateDescriptor> ssdStorage) {
@@ -362,7 +366,8 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                                 "Multiple session ID's pointing to the same form record");
                     }
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
+                e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                         "Session ID exists, but with no record (or broken record)");
             }
