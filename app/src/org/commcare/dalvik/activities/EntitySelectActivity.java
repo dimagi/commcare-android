@@ -69,7 +69,6 @@ import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.SessionDatum;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -1007,7 +1006,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         this.startTimer();
 
         if (locationChangedWhileLoading) {
+            Log.i("HereFunctionHandler", "location changed while reloading");
             loadEntities();
+            locationChangedWhileLoading = false;
         }
     }
 
