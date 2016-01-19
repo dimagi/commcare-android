@@ -9,6 +9,7 @@ import org.commcare.android.adapters.HomeCardDisplayData;
 import org.commcare.android.adapters.SquareButtonViewHolder;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.utils.SyncDetailCalculations;
@@ -148,16 +149,18 @@ public class HomeButtons {
                                SquareButtonViewHolder squareButtonViewHolder,
                                Context context,
                                String notificationText) {
-                SqlStorage<FormRecord> formsStorage = CommCareApplication._().getUserStorage(FormRecord.class);
-                int numIncompleteForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE).size();
+                int numIncompleteForms = StorageUtils.getNumIncompleteForms();
                 if (numIncompleteForms > 0) {
-                    Spannable incompleteIndicator = (activity.localize("home.forms.incomplete.indicator",
-                            new String[]{String.valueOf(numIncompleteForms), Localization.get("home.forms.incomplete")}));
+                    Spannable incompleteIndicator =
+                            (activity.localize("home.forms.incomplete.indicator",
+                            new String[]{String.valueOf(numIncompleteForms),
+                                    Localization.get("home.forms.incomplete")}));
                     squareButtonViewHolder.textView.setText(incompleteIndicator);
                 } else {
                     squareButtonViewHolder.textView.setText(activity.localize("home.forms.incomplete"));
                 }
-                squareButtonViewHolder.textView.setTextColor(context.getResources().getColor(cardDisplayData.textColor));
+                squareButtonViewHolder.textView.setTextColor(context.getResources()
+                        .getColor(cardDisplayData.textColor));
                 squareButtonViewHolder.subTextView.setVisibility(View.GONE);
             }
         };

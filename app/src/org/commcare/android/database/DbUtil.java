@@ -171,4 +171,12 @@ public class DbUtil {
         DatabaseUtils.dumpCursor(explain);
         explain.close();
     }
+
+    /**
+     * Build and return SQL command to add a column to a table
+     */
+    public static String addColumnToTable(String tableName, String columnName, String dataType) {
+        return "ALTER TABLE " + tableName + " ADD " +
+                AndroidTableBuilder.scrubName(columnName) + " " + dataType;
+    }
 }
