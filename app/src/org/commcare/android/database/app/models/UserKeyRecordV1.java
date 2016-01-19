@@ -1,5 +1,6 @@
 package org.commcare.android.database.app.models;
 
+import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.modern.models.MetaField;
@@ -10,7 +11,7 @@ import java.util.Date;
  * Created by amstone326 on 1/19/16.
  */
 @Table(UserKeyRecordV1.STORAGE_KEY)
-public class UserKeyRecordV1 extends UserKeyRecord {
+public class UserKeyRecordV1 extends Persisted {
 
     public static final String META_USERNAME = "username";
     public static final String META_SANDBOX_ID = "sandbox_id";
@@ -42,5 +43,52 @@ public class UserKeyRecordV1 extends UserKeyRecord {
     @MetaField(META_KEY_STATUS)
     @Persisting(7)
     private int type;
+
+    /**
+     * @return the username
+     */
+    public String getUsername() {
+        return username;
+    }
+
+    /**
+     * @return the passwordHash
+     */
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    /**
+     * @return the encryptedKey
+     */
+    public byte[] getEncryptedKey() {
+        return encryptedKey;
+    }
+
+    /**
+     * @return the validFrom
+     */
+    public Date getValidFrom() {
+        return validFrom;
+    }
+
+    /**
+     * @return the validTo
+     */
+    public Date getValidTo() {
+        return validTo;
+    }
+
+    /**
+     * @return the uuid
+     */
+    public String getUuid() {
+        return uuid;
+    }
+
+    public int getType() {
+        return type;
+    }
+
 
 }

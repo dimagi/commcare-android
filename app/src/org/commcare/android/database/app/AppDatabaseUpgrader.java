@@ -12,6 +12,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.app.models.UserKeyRecordV1;
 import org.commcare.android.database.migration.FixtureSerializationMigration;
 import org.commcare.android.resource.AndroidResourceManager;
+import org.commcare.android.storage.framework.Persisted;
 import org.commcare.resources.model.Resource;
 
 /**
@@ -153,12 +154,12 @@ public class AppDatabaseUpgrader {
     private boolean upgradeSevenEight(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            SqlStorage<UserKeyRecord> storage = new SqlStorage<UserKeyRecord>(
+            SqlStorage<Persisted> storage = new SqlStorage<Persisted>(
                     UserKeyRecordV1.STORAGE_KEY,
                     UserKeyRecordV1.class,
                     new ConcreteAndroidDbHelper(context, db));
 
-            for (UserKeyRecord record : storage) {
+            for (Persisted record : storage) {
                 UserKeyRecordV1 oldUKR = (UserKeyRecordV1)record;
                 UserKeyRecord newUKR = UserKeyRecord.fromOldVersion(oldUKR);
                 newUKR.setID(oldUKR.getID());
