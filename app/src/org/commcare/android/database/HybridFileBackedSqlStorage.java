@@ -250,13 +250,11 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
         try {
 
-
-            db.beginTransaction();
-
             long insertedId;
             ByteArrayOutputStream bos = writeExternalizableToStream(persistable);
             try {
                 if (blobFitsInDb(bos)) {
+                    db.beginTransaction();
                     // serialized object small enough to fit in db
                     ContentValues contentValues = helper.getNonDataContentValues(persistable);
                     contentValues.put(DatabaseHelper.DATA_COL, bos.toByteArray());
@@ -265,6 +263,8 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                     // store serialized object in file and file pointer in db
                     String dataFilePath = HybridFileBackedSqlHelpers.newFileForEntry(dbDir).getAbsolutePath();
                     setFileAsOrphan(db, dataFilePath);
+
+                    db.beginTransaction();
                     ContentValues contentValues = helper.getNonDataContentValues(persistable);
                     contentValues.put(DatabaseHelper.FILE_COL, dataFilePath);
                     byte[] key = generateKeyAndAdd(contentValues);
@@ -293,9 +293,15 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     }
 
     private static void setFileAsOrphan(SQLiteDatabase db, String filename) {
-        ContentValues cv = new ContentValues();
-        cv.put(DatabaseHelper.FILE_COL, filename);
-        db.insertOrThrow(DbUtil.orphanFileTableName, DatabaseHelper.FILE_COL, cv);
+        db.beginTransaction();
+        try {
+            ContentValues cv = new ContentValues();
+            cv.put(DatabaseHelper.FILE_COL, filename);
+            db.insertOrThrow(DbUtil.orphanFileTableName, DatabaseHelper.FILE_COL, cv);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
 
     private static void unsetFileAsOrphan(SQLiteDatabase db, String filename) {
@@ -362,7 +368,6 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     public void update(int id, Externalizable extObj) {
         SQLiteDatabase db = getDbOrThrow();
 
-        db.beginTransaction();
         ByteArrayOutputStream bos = null;
         try {
             Pair<String, byte[]> filenameAndKey =
@@ -373,8 +378,10 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
             bos = writeExternalizableToStream(extObj);
             if (blobFitsInDb(bos)) {
+                db.beginTransaction();
                 updateEntryToStoreInDb(extObj, objectInDb, filename, bos, db, id);
             } else {
+                db.beginTransaction();
                 updateEntryToStoreInFs(extObj, objectInDb, filename,
                         fileEncryptionKey, bos, db, id);
             }
