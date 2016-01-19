@@ -7,12 +7,14 @@ import android.util.Pair;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.crypt.EncryptionIO;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
 import org.javarosa.core.io.StreamsUtil;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
@@ -248,12 +250,6 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
         try {
 
-            db.beginTransaction();
-            ContentValues cv = new ContentValues();
-            cv.put(DatabaseHelper.FILE_COL, filename);
-            long orphanInsertId = db.insertOrThrow(DbUtil.orphanFileTableName,
-                    DatabaseHelper.FILE_COL, cv);
-            db.setTransactionSuccessful();
 
             db.beginTransaction();
 
@@ -267,13 +263,15 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                     insertedId = db.insertOrThrow(table, DatabaseHelper.DATA_COL, contentValues);
                 } else {
                     // store serialized object in file and file pointer in db
-                    File dataFile = HybridFileBackedSqlHelpers.newFileForEntry(dbDir);
+                    String dataFilePath = HybridFileBackedSqlHelpers.newFileForEntry(dbDir).getAbsolutePath();
+                    setFileAsOrphan(db, dataFilePath);
                     ContentValues contentValues = helper.getNonDataContentValues(persistable);
-                    contentValues.put(DatabaseHelper.FILE_COL, dataFile.getAbsolutePath());
+                    contentValues.put(DatabaseHelper.FILE_COL, dataFilePath);
                     byte[] key = generateKeyAndAdd(contentValues);
                     insertedId = db.insertOrThrow(table, DatabaseHelper.FILE_COL, contentValues);
 
-                    writeStreamToFile(bos, dataFile.getAbsolutePath(), key);
+                    writeStreamToFile(bos, dataFilePath, key);
+                    unsetFileAsOrphan(db, dataFilePath);
                 }
             } finally {
                 bos.close();
@@ -291,6 +289,20 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             throw new RuntimeException(e);
         } finally {
             db.endTransaction();
+        }
+    }
+
+    private static void setFileAsOrphan(SQLiteDatabase db, String filename) {
+        ContentValues cv = new ContentValues();
+        cv.put(DatabaseHelper.FILE_COL, filename);
+        db.insertOrThrow(DbUtil.orphanFileTableName, DatabaseHelper.FILE_COL, cv);
+    }
+
+    private static void unsetFileAsOrphan(SQLiteDatabase db, String filename) {
+        int deleteCount = db.delete(DbUtil.orphanFileTableName, DatabaseHelper.FILE_COL + "=?", new String[]{filename});
+        if (deleteCount != 1) {
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "Unable to unset orphaned file: " + deleteCount + " entries effected.b");
         }
     }
 
