@@ -381,9 +381,12 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                 db.beginTransaction();
                 updateEntryToStoreInDb(extObj, objectInDb, filename, bos, db, id);
             } else {
+                String newFilePath = HybridFileBackedSqlHelpers.newFileForEntry(dbDir).getAbsolutePath();
+                setFileAsOrphan(db, newFilePath);
+
                 db.beginTransaction();
                 updateEntryToStoreInFs(extObj, objectInDb, filename,
-                        fileEncryptionKey, bos, db, id);
+                        newFilePath, fileEncryptionKey, bos, db, id);
             }
 
             db.setTransactionSuccessful();
@@ -411,15 +414,15 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             updatedContentValues.put(DatabaseHelper.FILE_COL, (String)null);
             updatedContentValues.put(DatabaseHelper.AES_COL, (byte[])null);
 
-            File dataFile = new File(filename);
-            dataFile.delete();
+            setFileAsOrphan(db, filename);
         }
         db.update(table, updatedContentValues,
                 DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
     }
 
     private void updateEntryToStoreInFs(Externalizable extObj, boolean objectInDb,
-                                        String filename, byte[] fileEncryptionKey,
+                                        String currentFilePath, String newFilePath,
+                                        byte[] fileEncryptionKey,
                                         ByteArrayOutputStream bos,
                                         SQLiteDatabase db,
                                         int id) throws IOException {
@@ -427,17 +430,21 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
         if (objectInDb) {
             // was in db but is now to big, null db data entry and write to file
             updatedContentValues = helper.getContentValuesWithCustomData(extObj, null);
-            filename = HybridFileBackedSqlHelpers.newFileForEntry(dbDir).getAbsolutePath();
-            updatedContentValues.put(DatabaseHelper.FILE_COL, filename);
+            updatedContentValues.put(DatabaseHelper.FILE_COL, newFilePath);
             fileEncryptionKey = generateKeyAndAdd(updatedContentValues);
         } else {
-            // was stored in a file all along, update file
+            // was stored in a file all along, atomically update file by
+            // writing to new and removing old file
             updatedContentValues = helper.getNonDataContentValues(extObj);
+            updatedContentValues.put(DatabaseHelper.FILE_COL, newFilePath);
+
+            setFileAsOrphan(db, currentFilePath);
         }
         db.update(table, updatedContentValues,
                 DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)});
 
-        writeStreamToFile(bos, filename, fileEncryptionKey);
+        writeStreamToFile(bos, newFilePath, fileEncryptionKey);
+        unsetFileAsOrphan(db, newFilePath);
     }
 
     @Override
