@@ -1,7 +1,9 @@
 package org.commcare.android.database;
 
 import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
 import org.junit.Assert;
@@ -59,7 +61,7 @@ public class HybridFileBackedSqlStorageTest {
         Assert.assertEquals(form2.getName(), form.getName());
 
         // ensure the old file was removed
-
+        clearOrphanedFiles();
         int fileCountAfter = dbDir.listFiles().length;
         Assert.assertTrue(fileCountBefore - fileCountAfter == 1);
 
@@ -78,6 +80,7 @@ public class HybridFileBackedSqlStorageTest {
         Assert.assertTrue(fileCountBefore == fileCountAfter);
 
         userFixtureStorage.remove(form.getID());
+        clearOrphanedFiles();
         fileCountAfter = dbDir.listFiles().length;
         Assert.assertTrue(fileCountBefore - fileCountAfter == 1);
     }
@@ -105,6 +108,7 @@ public class HybridFileBackedSqlStorageTest {
         Assert.assertEquals(newName, form.getName());
 
         // ensure the old file was removed
+        clearOrphanedUnencryptedFiles();
         int fileCountAfter = dbDir.listFiles().length;
         Assert.assertTrue(fileCountBefore - fileCountAfter == 1);
 
@@ -123,6 +127,7 @@ public class HybridFileBackedSqlStorageTest {
         Assert.assertTrue(fileCountBefore == fileCountAfter);
 
         appFixtureStorage.remove(form.getID());
+        clearOrphanedUnencryptedFiles();
         fileCountAfter = dbDir.listFiles().length;
         Assert.assertTrue(fileCountBefore - fileCountAfter == 1);
     }
@@ -181,5 +186,21 @@ public class HybridFileBackedSqlStorageTest {
                 userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
                         new String[]{"new-commtrack"});
         Assert.assertEquals(newName, userLevelFixture.getName());
+    }
+
+    private static void clearOrphanedFiles() {
+        try {
+            HybridFileBackedSqlHelpers.removeOrphanedFiles(CommCareApplication._().getUserDbHandle());
+        } catch (SessionUnavailableException e) {
+            Assert.fail("unable to clear orphaned files");
+        }
+    }
+
+    private static void clearOrphanedUnencryptedFiles() {
+        try {
+            HybridFileBackedSqlHelpers.removeOrphanedFiles(CommCareApp.getAppDatabaseForTesting());
+        } catch (SessionUnavailableException e) {
+            Assert.fail("unable to clear orphaned files");
+        }
     }
 }

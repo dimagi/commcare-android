@@ -15,7 +15,9 @@ import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.Stylizer;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.odk.provider.ProviderUtils;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.Resource;
@@ -324,5 +326,16 @@ public class CommCareApp {
      */
     public void refreshAppRecord() {
         this.record = CommCareApplication._().getAppById(this.record.getUniqueId());
+    }
+
+    /**
+     * For testing purposes only
+     */
+    public static SQLiteDatabase getAppDatabaseForTesting() throws SessionUnavailableException {
+        if (BuildConfig.DEBUG) {
+            return CommCareApplication._().getCurrentApp().buildAndroidDbHelper().getHandle();
+        } else {
+            throw new RuntimeException("For testing purposes only!");
+        }
     }
 }

@@ -132,7 +132,16 @@ public class HybridFileBackedSqlHelpers {
                 cur.close();
             }
         }
+
         removeFiles(files);
+
+        db.beginTransaction();
+        try {
+            db.delete(DbUtil.orphanFileTableName, null, null);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
     }
 
     protected static File newFileForEntry(File dbDir) throws IOException {
