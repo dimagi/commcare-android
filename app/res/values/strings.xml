@@ -335,11 +335,4 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="sign_button" cc:translatable="true">Gather Signature</string>
     <string name="markup_image" cc:translatable="true">Markup Image</string>
     <string name="draw_image" cc:translatable="true">Sketch Image</string>
-    <string name="continue_pin_button" cc:translatable="true">CONTINUE</string>
-    <string name="confirm_pin_button" cc:translatable="true">CONFIRM</string>
-    <string name="confirm_pin_directive" cc:translatable="true">Re-Enter the PIN you chose</string>
-    <string name="enter_pin_directive" cc:translatable="true">Enter a 4-digit PIN</string>
-    <string name="pins_dont_match" cc:translatable="true">Entered PINs don\'t match. Please try again.</string>
-    <string name="pin_set" cc:translatable="true">PIN set successfully</string>
-    <string name="pin_not_set" cc:translatable="true">No PIN was set</string>
 </resources>

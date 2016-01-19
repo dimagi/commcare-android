@@ -56,7 +56,6 @@
             android:layout_width="wrap_content"
             android:layout_height="@dimen/min_button_height"
             android:id="@+id/pin_auth_confirm_button"
-            android:text="@string/confirm_pin_button"
             android:textSize="@dimen/font_size_dp_medium"
             android:enabled="false"
             android:layout_weight="1"/>

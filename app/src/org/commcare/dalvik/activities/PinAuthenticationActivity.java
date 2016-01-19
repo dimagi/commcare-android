@@ -15,6 +15,7 @@ import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * Created by amstone326 on 1/18/16.
@@ -32,8 +33,8 @@ public class PinAuthenticationActivity extends
     @UiElement(R.id.password_entry)
     private EditText passwordEntry;
 
-    @UiElement(R.id.pin_auth_confirm_button)
-    private Button confirmButton;
+    @UiElement(value=R.id.pin_auth_confirm_button, locale="pin.auth.enter.button")
+    private Button enterButton;
 
     @UiElement(R.id.pin_auth_cancel_button)
     private Button cancelButton;
@@ -63,7 +64,7 @@ public class PinAuthenticationActivity extends
             setPinAuthModeUI();
         }
 
-        confirmButton.setOnClickListener(new View.OnClickListener() {
+        enterButton.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -86,18 +87,18 @@ public class PinAuthenticationActivity extends
     }
 
     private void setPinAuthModeUI() {
-        promptText.setText("Enter your current PIN");
+        promptText.setText(Localization.get("pin.auth.prompt.pin"));
         pinEntry.setVisibility(View.VISIBLE);
         passwordEntry.setVisibility(View.GONE);
-        confirmButton.setEnabled(false);
-        pinEntry.addTextChangedListener(CreatePinActivity.getPinTextWatcher(confirmButton));
+        enterButton.setEnabled(false);
+        pinEntry.addTextChangedListener(CreatePinActivity.getPinTextWatcher(enterButton));
     }
 
     private void setPasswordAuthModeUI() {
-        promptText.setText("Enter your password");
+        promptText.setText(Localization.get("pin.auth.prompt.password"));
         passwordEntry.setVisibility(View.VISIBLE);
         pinEntry.setVisibility(View.GONE);
-        confirmButton.setEnabled(true);
+        enterButton.setEnabled(true);
     }
 
     private void checkEnteredPassword() {
@@ -122,10 +123,10 @@ public class PinAuthenticationActivity extends
 
     private void onUnsuccessfulAuth() {
         if (authMode == LoginActivity.LoginMode.PIN) {
-            Toast.makeText(this, "Entered PIN was incorrect. Please try again.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, Localization.get("pin.auth.failed.pin"), Toast.LENGTH_LONG).show();
             pinEntry.setText("");
         } else {
-            Toast.makeText(this, "Entered password was incorrect. Please try again.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, Localization.get("pin.auth.failed.password"), Toast.LENGTH_LONG).show();
             passwordEntry.setText("");
         }
     }

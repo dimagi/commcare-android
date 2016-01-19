@@ -368,6 +368,24 @@ callout.failure.dialer=Device is not currently configured to make telephone call
 callout.failure.sms=SMS app not found
 
 remember.password.for.next.login=Remember PW For Next Login
+pin.dialog.prompt.set=Create a PIN?
+pin.dialog.prompt.reset=Reset your PIN?
+pin.dialog.yes=Yes, set my PIN now
+pin.dialog.not.now=No, but ask again on next login
+pin.dialog.never=No, and don't ask again
+pin.continue.button=CONTINUE
+pin.confirm.button=CONFIRM
+pin.directive.new=Enter a 4-digit PIN
+pin.directive.reset=Enter a new 4-digit PIN
+pin.directive.confirm=Re-Enter the PIN you chose
+pins.dont.match=Entered PINs don't match. Please try again.
+pin.set.success=PIN set successfully
+pin.not.set=No PIN was set
+pin.auth.failed.pin=Entered PIN was incorrect. Please try again.
+pin.auth.failed.password=Entered password was incorrect. Please try again.
+pin.auth.prompt.pin=Enter your current PIN
+pin.auth.prompt.password=Enter your password
+pin.auth.enter.button=ENTER
 
 
 #Put these into their own file

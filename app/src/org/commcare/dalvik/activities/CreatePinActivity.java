@@ -36,7 +36,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     @UiElement(value=R.id.pin_prompt_text)
     private TextView promptText;
 
-    @UiElement(value=R.id.pin_cancel_button)
+    @UiElement(value=R.id.pin_cancel_button, locale="option.cancel")
     private Button cancelButton;
 
     @UiElement(value=R.id.pin_confirm_button)
@@ -120,7 +120,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
             setResult(RESULT_OK);
             finish();
         } else {
-            Toast.makeText(this, getString(R.string.pins_dont_match), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, Localization.get("pins.dont.match"), Toast.LENGTH_SHORT).show();
             setInitialEntryMode();
         }
     }
@@ -128,16 +128,20 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     private void setInitialEntryMode() {
         enterPinBox.setText("");
         enterPinBox.requestFocus();
-        continueButton.setText(getString(R.string.continue_pin_button));
-        promptText.setText(getString(R.string.enter_pin_directive));
+        continueButton.setText(Localization.get("pin.continue.button"));
+        if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
+            promptText.setText(Localization.get("pin.directive.reset"));
+        } else {
+            promptText.setText(Localization.get("pin.directive.new"));
+        }
         inConfirmMode = false;
     }
 
     private void setConfirmMode() {
         enterPinBox.setText("");
         enterPinBox.requestFocus();
-        continueButton.setText(getString(R.string.confirm_pin_button));
-        promptText.setText(getString(R.string.confirm_pin_directive));
+        continueButton.setText(Localization.get("pin.confirm.button"));
+        promptText.setText(Localization.get("pin.directive.confirm"));
         inConfirmMode = true;
     }
 

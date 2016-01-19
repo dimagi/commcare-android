@@ -243,10 +243,17 @@ public class CommCareHomeActivity
     }
 
     private void showPinChoiceDialog(final LoginActivity.LoginMode loginMode) {
-        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, "Create a PIN?");
+        String promptMessage;
+        if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
+            promptMessage = Localization.get("pin.dialog.prompt.reset");
+        } else {
+            promptMessage = Localization.get("pin.dialog.prompt.set");
+        }
 
-        DialogChoiceItem createPinChoice = new DialogChoiceItem("Yes, set my PIN now", -1,
-                new View.OnClickListener() {
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, promptMessage);
+
+        DialogChoiceItem createPinChoice = new DialogChoiceItem(
+                Localization.get("pin.dialog.yes"), -1, new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
@@ -255,8 +262,8 @@ public class CommCareHomeActivity
                     }
                 });
 
-        DialogChoiceItem nextTimeChoice = new DialogChoiceItem("No, but ask again on next login", -1,
-                new View.OnClickListener() {
+        DialogChoiceItem nextTimeChoice = new DialogChoiceItem(
+                Localization.get("pin.dialog.not.now"), -1, new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
@@ -264,8 +271,8 @@ public class CommCareHomeActivity
                     }
                 });
 
-        DialogChoiceItem notAgainChoice = new DialogChoiceItem("No, and don't ask again", -1,
-                new View.OnClickListener() {
+        DialogChoiceItem notAgainChoice = new DialogChoiceItem(
+                Localization.get("pin.dialog.never"), -1, new View.OnClickListener() {
 
                     @Override
                     public void onClick(View v) {
@@ -521,9 +528,9 @@ public class CommCareHomeActivity
                     if (choseRememberPassword) {
                         CommCareApplication._().closeUserSession();
                     } else if (resultCode == RESULT_OK) {
-                        Toast.makeText(this, getString(R.string.pin_set), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, Localization.get("pin.set.success"), Toast.LENGTH_SHORT).show();
                     } else {
-                        Toast.makeText(this, getString(R.string.pin_not_set), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, Localization.get("pin.not.set"), Toast.LENGTH_SHORT).show();
                     }
                     return;
             }
