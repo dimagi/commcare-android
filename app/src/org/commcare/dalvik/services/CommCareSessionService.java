@@ -251,7 +251,9 @@ public class CommCareSessionService extends Service {
             if (userDatabase != null && userDatabase.isOpen()) {
                 userDatabase.close();
             }
-            userDatabase = new DatabaseUserOpenHelper(CommCareApplication._(), record.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
+
+            userDatabase = new DatabaseUserOpenHelper(CommCareApplication._(), record.getUuid())
+                    .getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
         }
     }
 

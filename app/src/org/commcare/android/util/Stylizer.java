@@ -6,19 +6,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Stylizer {
-    private HashMap<String, String> globalStyleTable;
     private String globalStyleString;
 
     public Stylizer(Context c) {
-
         globalStyleString = "";
-
-        if (globalStyleTable == null) {
-            globalStyleTable = new HashMap<>();
-        }
 
         ArrayList<String> mStyles = new ArrayList<>();
 
@@ -42,7 +35,6 @@ public class Stylizer {
             String style = mStyles.get(i);
             String key = style.substring(0, style.indexOf("="));
             String val = style.substring(style.indexOf('=') + 1);
-            globalStyleTable.put(key, val);
             globalStyleString += MarkupUtil.formatKeyVal(key, val);
         }
     }
