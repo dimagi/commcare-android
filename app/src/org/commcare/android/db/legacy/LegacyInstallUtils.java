@@ -565,7 +565,7 @@ public class LegacyInstallUtils {
         //Now, if we've copied everything over to this user with no problems, we want to actually go back and wipe out all of the
         //data that is linked to specific files, since individual users might delete them out of their sandboxes.
         new LegacySqlIndexedStorageUtility<>("log_records", DeviceReportRecord.class, ldbh).removeAll();
-        new LegacySqlIndexedStorageUtility<>("FORMRECORDS", FormRecord.class, ldbh).removeAll();
+        new LegacySqlIndexedStorageUtility<>(FormRecord.STORAGE_KEY, FormRecord.class, ldbh).removeAll();
         new LegacySqlIndexedStorageUtility<>("android_cc_session", SessionStateDescriptor.class, ldbh).removeAll();
 
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| User transitioned! Closing db handles.");
