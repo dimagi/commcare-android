@@ -368,6 +368,9 @@ callout.failure.dialer=Device is not currently configured to make telephone call
 callout.failure.sms=SMS app not found
 
 remember.password.for.next.login=Remember PW For Next Login
+remember.password.confirm.title=Log out and Remember Password?
+remember.password.confirm.message=This action will log you out and allow the next login to be completed without any authentication required. Upon next login, the user will then be required to create a PIN. Do you wish to proceed?
+
 pin.dialog.prompt.set=Create a PIN?
 pin.dialog.prompt.reset=Reset your PIN?
 pin.dialog.yes=Yes, set my PIN now

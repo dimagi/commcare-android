@@ -1,5 +1,6 @@
 package org.commcare.dalvik.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
@@ -19,6 +20,7 @@ import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.javarosa.core.services.locale.Localization;
 
 
@@ -161,14 +163,39 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == MENU_REMEMBER_PW_AND_LOGOUT) {
-            userRecord.setPrimedPassword(unhashedUserPassword);
-            CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
-            Intent i = new Intent();
-            i.putExtra(CHOSE_REMEMBER_PASSWORD, true);
-            setResult(RESULT_OK, i);
-            finish();
+            launchRememberPasswordConfirmDialog();
         }
         return true;
+    }
+
+    public void launchRememberPasswordConfirmDialog() {
+        AlertDialogFactory factory = new AlertDialogFactory(this,
+                Localization.get("remember.password.confirm.title"),
+                Localization.get("remember.password.confirm.message"));
+
+        factory.setPositiveButton(Localization.get("dialog.ok"), new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                userRecord.setPrimedPassword(unhashedUserPassword);
+                CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
+                Intent i = new Intent();
+                i.putExtra(CHOSE_REMEMBER_PASSWORD, true);
+                setResult(RESULT_OK, i);
+                finish();
+            }
+        });
+
+        factory.setNegativeButton(Localization.get("option.cancel"), new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        factory.showDialog();
     }
 
     public static TextWatcher getPinTextWatcher(final Button confirmButton) {
