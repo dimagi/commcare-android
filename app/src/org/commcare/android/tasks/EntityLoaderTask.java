@@ -31,7 +31,7 @@ public class EntityLoaderTask
     private Exception mException = null;
 
     public EntityLoaderTask(Detail detail, EvaluationContext evalCtx) {
-        evalCtx.addFunctionHandler(EntitySelectActivity.hereFunctionHandler);
+        evalCtx.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler());
         if (detail.useAsyncStrategy()) {
             this.factory = new AsyncNodeEntityFactory(detail, evalCtx);
         } else {

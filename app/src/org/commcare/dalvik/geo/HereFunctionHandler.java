@@ -30,7 +30,7 @@ import java.util.Vector;
  *
  * No locations are requested if here() is never evaluated.
  *
- * @author Forest Tong
+ * @author Forest Tong, Phillip Mates
  */
 public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     public static final String HERE_NAME = "here";
@@ -49,20 +49,20 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
 
     public HereFunctionHandler() {}
 
-    public void registerEntitySelectActivity(EntitySelectActivity entitySelectActivity) {
+    public void registerEvalLocationListener(EntitySelectActivity entitySelectActivity) {
         this.entitySelectActivity = entitySelectActivity;
     }
 
-    public void unregisterEntitySelectActivity() {
+    public void unregisterEvalLocationListener() {
         this.entitySelectActivity = null;
     }
 
     // The EntitySelectActivity must subscribe before this method is called if a fresh location is desired.
     public Object eval(Object[] args, EvaluationContext ec) {
-        if (entitySelectActivity != null && !entitySelectActivity.containsHereFunction) {
+        if (entitySelectActivity != null && !entitySelectActivity.getContainsHereFunction()) {
             refreshLocation();
             allowGpsUse();
-            entitySelectActivity.containsHereFunction = true;
+            entitySelectActivity.setContainsHereFunction(true);
         }
         if (location == null) {
             return "";
@@ -97,7 +97,7 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         }
 
         if (entitySelectActivity != null) {
-            entitySelectActivity.onLocationChanged();
+            entitySelectActivity.onEvalLocationChanged();
         }
     }
 

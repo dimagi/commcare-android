@@ -103,6 +103,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
     private static final String EXTRA_IS_MAP = "is_map";
     private static final String CONTAINS_HERE_FUNCTION = "contains_here_function";
+    private static final String LOCATION_CHANGED_WHILE_LOADING = "location_changed_while_loading";
 
     private static final int CONFIRM_SELECT = 0;
     private static final int MAP_SELECT = 2;
@@ -166,9 +167,21 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     // Although only one instance is created, which is used by NodeEntityFactory,
     // every instance of EntitySelectActivity registers itself (one at a time)
     // to listen to the handler and refresh whenever a new location is obtained.
-    public static final HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
-    public boolean containsHereFunction = false;
+    private static final HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
+    private boolean containsHereFunction = false;
     private boolean locationChangedWhileLoading = false;
+
+    public static HereFunctionHandler getHereFunctionHandler() {
+        return hereFunctionHandler;
+    }
+
+    public boolean getContainsHereFunction() {
+        return containsHereFunction;
+    }
+
+    public void setContainsHereFunction(boolean containsHereFunction) {
+        this.containsHereFunction = containsHereFunction;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -179,6 +192,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (savedInstanceState != null) {
             this.mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
             this.containsHereFunction = savedInstanceState.getBoolean(CONTAINS_HERE_FUNCTION);
+            this.locationChangedWhileLoading = savedInstanceState.getBoolean(
+                    LOCATION_CHANGED_WHILE_LOADING);
         }
 
         asw = CommCareApplication._().getCurrentSessionWrapper();
@@ -465,7 +480,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
         }
 
-        hereFunctionHandler.registerEntitySelectActivity(this);
+        hereFunctionHandler.registerEvalLocationListener(this);
         if (this.containsHereFunction) {
             hereFunctionHandler.allowGpsUse();
         }
@@ -518,7 +533,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         hereFunctionHandler.forbidGpsUse();
-        hereFunctionHandler.unregisterEntitySelectActivity();
+        hereFunctionHandler.unregisterEvalLocationListener();
     }
 
     @Override
@@ -919,8 +934,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putBoolean(CONTAINS_HERE_FUNCTION, containsHereFunction);
         super.onSaveInstanceState(savedInstanceState);
+
+        savedInstanceState.putBoolean(CONTAINS_HERE_FUNCTION, containsHereFunction);
+        savedInstanceState.putBoolean(LOCATION_CHANGED_WHILE_LOADING, locationChangedWhileLoading);
     }
 
     @Override
@@ -1219,7 +1236,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    public void onLocationChanged() {
+    public void onEvalLocationChanged() {
         boolean loaded = loadEntities();
         if (!loaded) {
             locationChangedWhileLoading = true;
