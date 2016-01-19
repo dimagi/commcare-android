@@ -1007,8 +1007,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         if (locationChangedWhileLoading) {
             Log.i("HereFunctionHandler", "location changed while reloading");
-            loadEntities();
             locationChangedWhileLoading = false;
+            loadEntities();
         }
     }
 

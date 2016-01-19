@@ -23,7 +23,7 @@ import java.util.Set;
  */
 public class GeoUtils {
     public static final double GOOD_ACCURACY = 5;             // Good enough accuracy to stop pinging the GPS altogether
-    public static final double ACCEPTABLE_ACCURACY = 0;    // Good enough accuracy to ask user if they want to record
+    public static final double ACCEPTABLE_ACCURACY = 1600;    // Good enough accuracy to ask user if they want to record
     public static final int MAXIMUM_WAIT = 300 * 1000;        // For passive collection, milliseconds to wait for GPS before giving up
     
     public static final String ACTION_CHECK_GPS_ENABLED = "org.odk.collect.android.utilities.GeoUtils.check";
