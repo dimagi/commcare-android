@@ -81,6 +81,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private LoginActivity.LoginMode loginMode;
 
+    private boolean manuallySwitchedToPasswordMode;
+
     private final TextWatcher usernameTextWatcher = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -280,6 +282,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         passwordOrPin.setVisibility(View.GONE);
         username.requestFocus();
         hideKeyboard();
+        manuallySwitchedToPasswordMode = false;
     }
 
     private void hideKeyboard() {
@@ -291,12 +294,14 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         }
     }
 
-    protected void setNormalPasswordMode() {
+    private void setNormalPasswordMode() {
         loginMode = LoginActivity.LoginMode.PASSWORD;
         loginPrimedMessage.setVisibility(View.GONE);
         passwordOrPin.setVisibility(View.VISIBLE);
         passwordOrPin.setHint(Localization.get("login.password"));
         passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        manuallySwitchedToPasswordMode = false;
+
     }
 
     private void setPinPasswordMode() {
@@ -305,6 +310,18 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         passwordOrPin.setVisibility(View.VISIBLE);
         passwordOrPin.setHint(Localization.get("login.pin.password"));
         passwordOrPin.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_VARIATION_PASSWORD);
+        manuallySwitchedToPasswordMode = false;
+    }
+
+    protected void manualSwitchToPasswordMode() {
+        setNormalPasswordMode();
+        setStyleDefault();
+        setPasswordOrPin("");
+        manuallySwitchedToPasswordMode = true;
+    }
+
+    public boolean userManuallySwitchedToPasswordMode() {
+        return manuallySwitchedToPasswordMode;
     }
 
     protected LoginActivity.LoginMode getLoginMode() {
@@ -335,7 +352,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         passwordOrPin.setTextColor(errorColor);
     }
 
-    protected void setStyleDefault() {
+    private void setStyleDefault() {
         setLoginBoxesColorNormal();
         username.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_user_neutral50), null, null, null);
         passwordOrPin.setCompoundDrawablesWithIntrinsicBounds(getResources().getDrawable(R.drawable.icon_lock_neutral50), null, null, null);

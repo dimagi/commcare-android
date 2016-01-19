@@ -77,6 +77,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public final static String LOGIN_MODE = "login-mode";
     public final static String PASSWORD_FROM_LOGIN = "password-used-on-login";
+    public final static String MANUAL_SWITCH_TO_PW_MODE = "manually-swithced-to-password-mode";
     
     private static final int TASK_KEY_EXCHANGE = 1;
     private static final int TASK_UPGRADE_INSTALL = 2;
@@ -418,6 +419,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         i.putExtra(LOGIN_MODE, uiController.getLoginMode().toString());
         if (uiController.getLoginMode() == LoginMode.PASSWORD) {
             i.putExtra(PASSWORD_FROM_LOGIN, uiController.getEnteredPasswordOrPin());
+            i.putExtra(MANUAL_SWITCH_TO_PW_MODE, uiController.userManuallySwitchedToPasswordMode());
         }
         setResult(RESULT_OK, i);
         finish();
@@ -464,9 +466,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
                 return true;
             case MENU_PASSWORD_MODE:
-                uiController.setNormalPasswordMode();
-                uiController.setStyleDefault();
-                uiController.setPasswordOrPin("");
+                uiController.manualSwitchToPasswordMode();
                 return true;
         default:
             return otherResult;

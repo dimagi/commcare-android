@@ -233,10 +233,13 @@ public class CommCareHomeActivity
             launchPinCreateScreen(loginMode);
         } else if (loginMode == LoginActivity.LoginMode.PASSWORD) {
             boolean pinCreationEnabledForApp = DeveloperPreferences.shouldOfferPinForLogin();
+            boolean userManuallyEnteredPasswordMode = getIntent()
+                    .getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
             boolean alreadyDismissedPinCreation =
                     CommCareApplication._().getCurrentApp().getAppPreferences()
                             .getBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, false);
-            if (pinCreationEnabledForApp && !alreadyDismissedPinCreation) {
+            if (pinCreationEnabledForApp &&
+                    (!alreadyDismissedPinCreation || userManuallyEnteredPasswordMode)) {
                 showPinChoiceDialog(loginMode);
             }
         }
@@ -281,6 +284,7 @@ public class CommCareHomeActivity
                                 .edit()
                                 .putBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, true)
                                 .commit();
+                        showFutureAccessDialog();
                     }
                 });
 
@@ -288,6 +292,13 @@ public class CommCareHomeActivity
         dialog.setChoiceItems(new DialogChoiceItem[]{createPinChoice, nextTimeChoice, notAgainChoice});
         dialog.addCollapsibleInfoPane(Localization.get("pin.dialog.extra.info"));
         dialog.show();
+    }
+
+    private void showFutureAccessDialog() {
+        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactory(this,
+                Localization.get("pin.dialog.set.later.title"),
+                Localization.get("pin.dialog.set.later.message"), null);
+        f.showDialog();
     }
 
     private void launchPinAuthentication() {
