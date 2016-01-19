@@ -4,6 +4,7 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 
 import java.text.SimpleDateFormat;
@@ -15,20 +16,46 @@ import java.util.Vector;
 
 /**
  * Simple utility/helper methods for common operations across
- * the applicaiton
+ * the application
  *
  * @author ctsims
  */
 public class StorageUtils {
+
+    public static Vector<Integer> getUnsentOrUnprocessedFormsForCurrentApp(
+            SqlStorage<FormRecord> storage) {
+
+        String currentAppId =
+                CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
+
+        Vector<Integer> ids = storage.getIDsForValues(
+                new String[] {FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[] {FormRecord.STATUS_UNSENT, currentAppId});
+        ids.addAll(storage.getIDsForValues(
+                new String[] {FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[] {FormRecord.STATUS_COMPLETE, currentAppId}));
+
+        return ids;
+    }
+
+    public static int getNumIncompleteForms() {
+        SqlStorage<FormRecord> formsStorage =
+                CommCareApplication._().getUserStorage(FormRecord.class);
+        String currentAppId =
+                CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
+
+        return formsStorage.getIDsForValues(
+                new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new String[]{FormRecord.STATUS_INCOMPLETE, currentAppId}).size();
+    }
+
     @SuppressWarnings("deprecation")
     public static FormRecord[] getUnsentRecords(SqlStorage<FormRecord> storage) {
         //TODO: This could all be one big sql query instead of doing it in code
 
-        //Get all forms which are either unsent or unprocessed
         Vector<Integer> ids;
         try {
-            ids = storage.getIDsForValues(new String[]{FormRecord.META_STATUS}, new Object[]{FormRecord.STATUS_UNSENT});
-            ids.addAll(storage.getIDsForValues(new String[]{FormRecord.META_STATUS}, new Object[]{FormRecord.STATUS_COMPLETE}));
+            ids = getUnsentOrUnprocessedFormsForCurrentApp(storage);
         } catch (UserStorageClosedException e) {
             // the db was closed down
             return new FormRecord[0];
