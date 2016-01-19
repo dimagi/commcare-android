@@ -1143,7 +1143,7 @@ public class CommCareHomeActivity
                 android.R.drawable.ic_menu_save);
         menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
                 android.R.drawable.ic_menu_help);
-        menu.add(0, MENU_PIN, 0, Localization.get("home.menu.pin"));
+        menu.add(0, MENU_PIN, 0, Localization.get("home.menu.pin.set"));
         return true;
     }
 
@@ -1163,6 +1163,11 @@ public class CommCareHomeActivity
             menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
             menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
             menu.findItem(MENU_ABOUT).setVisible(enableMenus);
+            if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
+                menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
+            } else {
+                menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.set"));
+            }
             menu.findItem(MENU_PIN).setVisible(enableMenus
                     && DeveloperPreferences.shouldOfferPinForLogin());
         } catch (SessionUnavailableException sue) {

@@ -93,7 +93,8 @@ home.menu.wifi.direct=Wifi Direct
 home.menu.connection.diagnostic=Connection Test
 home.menu.saved.forms=Saved Forms
 home.menu.about=About CommCare
-home.menu.pin=Set/Change My PIN
+home.menu.pin.set=Set My PIN
+home.menu.pin.change=Change My PIN
 
 home.developer.options.enabled=Developer Mode Enabled
 
