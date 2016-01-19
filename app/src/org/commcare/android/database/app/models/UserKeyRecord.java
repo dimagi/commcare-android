@@ -22,12 +22,14 @@ import java.util.regex.Pattern;
 /**
  * @author ctsims
  */
-@Table("user_key_records")
+@Table(UserKeyRecord.STORAGE_KEY)
 public class UserKeyRecord extends Persisted {
 
     public static final String META_USERNAME = "username";
     public static final String META_SANDBOX_ID = "sandbox_id";
     public static final String META_KEY_STATUS = "status";
+
+    public static final String STORAGE_KEY = "user_key_records";
 
     /**
      * This is a normal sandbox record that is ready to be used *
@@ -382,6 +384,17 @@ public class UserKeyRecord extends Persisted {
 
     public void clearPrimedPassword() {
         this.rememberedPassword = "";
+    }
+
+    public static UserKeyRecord fromOldVersion(UserKeyRecordV1 oldRecord) {
+        return new UserKeyRecord(
+                oldRecord.getUsername(),
+                oldRecord.getPasswordHash(),
+                oldRecord.getEncryptedKey(),
+                oldRecord.getValidFrom(),
+                oldRecord.getValidTo(),
+                oldRecord.getUuid(),
+                oldRecord.getType());
     }
 
 }

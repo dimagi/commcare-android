@@ -5,7 +5,11 @@ import android.content.Context;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.AndroidTableBuilder;
+import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.DbUtil;
+import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.app.models.UserKeyRecordV1;
 import org.commcare.android.database.migration.FixtureSerializationMigration;
 import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.resources.model.Resource;
@@ -23,7 +27,7 @@ public class AppDatabaseUpgrader {
 
     public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion == 1) {
-            if (upgradeOneTwo(db, oldVersion, newVersion)) {
+            if (upgradeOneTwo(db)) {
                 oldVersion = 2;
             }
         }
@@ -55,12 +59,17 @@ public class AppDatabaseUpgrader {
                 oldVersion = 7;
             }
         }
+
+        if (oldVersion == 7) {
+            if (upgradeSevenEight(db)) {
+                oldVersion = 8;
+            }
+        }
         //NOTE: If metadata changes are made to the Resource model, they need to be
         //managed by changing the TwoThree updater to maintain that metadata.
     }
 
-
-    private boolean upgradeTwoThree(SQLiteDatabase db) {
+    private boolean upgradeOneTwo(SQLiteDatabase db) {
         db.beginTransaction();
         try {
             AndroidTableBuilder builder = new AndroidTableBuilder("RECOVERY_RESOURCE_TABLE");
@@ -73,7 +82,7 @@ public class AppDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeOneTwo(SQLiteDatabase db, int oldVersion, int newVersion) {
+    private boolean upgradeTwoThree(SQLiteDatabase db) {
         db.beginTransaction();
         try {
             AndroidTableBuilder builder = new AndroidTableBuilder("RECOVERY_RESOURCE_TABLE");
@@ -139,5 +148,26 @@ public class AppDatabaseUpgrader {
      */
     private boolean upgradeSixSeven(SQLiteDatabase db) {
         return FixtureSerializationMigration.migrateFixtureDbBytes(db, context);
+    }
+
+    private boolean upgradeSevenEight(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            SqlStorage<UserKeyRecord> storage = new SqlStorage<UserKeyRecord>(
+                    UserKeyRecordV1.STORAGE_KEY,
+                    UserKeyRecordV1.class,
+                    new ConcreteAndroidDbHelper(context, db));
+
+            for (UserKeyRecord record : storage) {
+                UserKeyRecordV1 oldUKR = (UserKeyRecordV1)record;
+                UserKeyRecord newUKR = UserKeyRecord.fromOldVersion(oldUKR);
+                newUKR.setID(oldUKR.getID());
+                storage.write(newUKR);
+            }
+
+            return true;
+        } finally {
+            db.endTransaction();
+        }
     }
 }
