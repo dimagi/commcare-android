@@ -40,9 +40,10 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * used to update DB
      * V.8 - Merge commcare-odk and commcare User, make AUser legacy type.
      * V.9 - Update serialized fixtures in db to use new schema
+     * V.10 - Migration of FormRecord to add appId field
      */
 
-    private static final int USER_DB_VERSION = 9;
+    private static final int USER_DB_VERSION = 10;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 

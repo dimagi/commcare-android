@@ -168,6 +168,9 @@ public class CommCareApplication extends Application {
      */
     private final PopupHandler toaster = new PopupHandler(this);
 
+    private String messageForUserOnDispatch;
+    private String titleForUserMessage;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -885,7 +888,7 @@ public class CommCareApplication extends Application {
 
                     mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
 
-                    //Don't let anyone touch this until it's logged in
+                    // Don't let anyone touch this until it's logged in
                     // Open user database
                     mBoundService.prepareStorage(key, record);
 
@@ -1359,5 +1362,22 @@ public class CommCareApplication extends Application {
             public void onServiceDisconnected(ComponentName className) {
             }
         };
+    }
+
+    public void storeMessageForUserOnDispatch(String title, String message) {
+        this.titleForUserMessage = title;
+        this.messageForUserOnDispatch = message;
+    }
+
+    public String[] getPendingUserMessage() {
+        if (messageForUserOnDispatch != null) {
+            return new String[]{messageForUserOnDispatch, titleForUserMessage};
+        }
+        return null;
+    }
+
+    public void clearPendingUserMessage() {
+        messageForUserOnDispatch = null;
+        titleForUserMessage = null;
     }
 }
