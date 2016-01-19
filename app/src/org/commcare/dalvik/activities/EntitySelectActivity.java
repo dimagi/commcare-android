@@ -166,9 +166,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     // Although only one instance is created, which is used by NodeEntityFactory,
     // every instance of EntitySelectActivity registers itself (one at a time)
     // to listen to the handler and refresh whenever a new location is obtained.
-    public static HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
+    public static final HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
     public boolean containsHereFunction = false;
-    public boolean locationChangedWhileLoading = false;
+    private boolean locationChangedWhileLoading = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1173,7 +1173,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         return true;
     }
 
-    public boolean loadEntities() {
+    private boolean loadEntities() {
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
             Log.i("HereFunctionHandler", "entities reloading");
             EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());

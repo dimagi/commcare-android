@@ -11,7 +11,6 @@ import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
-import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.dalvik.activities.EntitySelectActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.condition.EvaluationContext;
