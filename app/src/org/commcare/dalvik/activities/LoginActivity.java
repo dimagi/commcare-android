@@ -64,6 +64,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private static final int MENU_DEMO = Menu.FIRST;
     private static final int MENU_ABOUT = Menu.FIRST + 1;
     private static final int MENU_PERMISSIONS = Menu.FIRST + 2;
+    private static final int MENU_PASSWORD_MODE = Menu.FIRST + 3;
+
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public final static String KEY_LAST_APP = "id_of_last_selected";
     public final static String KEY_ENTERED_USER = "entered-username";
@@ -433,10 +435,16 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_DEMO, 0, Localization.get("login.menu.demo")).setIcon(android.R.drawable.ic_menu_preferences);
         menu.add(0, MENU_ABOUT, 1, Localization.get("home.menu.about")).setIcon(android.R.drawable.ic_menu_help);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            menu.add(0, MENU_PERMISSIONS, 1, Localization.get("login.menu.permission")).setIcon(android.R.drawable.ic_menu_manage);
-        }
+        menu.add(0, MENU_PERMISSIONS, 1, Localization.get("login.menu.permission")).setIcon(android.R.drawable.ic_menu_manage);
+        menu.add(0, MENU_PASSWORD_MODE, 1, Localization.get("login.menu.password.mode"));
+        return true;
+    }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(MENU_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
+        menu.findItem(MENU_PASSWORD_MODE).setVisible(uiController.getLoginMode() == LoginMode.PIN);
         return true;
     }
 
@@ -444,17 +452,20 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean otherResult = super.onOptionsItemSelected(item);
         switch(item.getItemId()) {
-        case MENU_DEMO:
-            DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
-            tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false ,
-                    false, LoginMode.PASSWORD);
-            return true;
-        case MENU_ABOUT:
-            DialogCreationHelpers.buildAboutCommCareDialog(this).show();
-            return true;
-        case MENU_PERMISSIONS:
-            Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
-            return true;
+            case MENU_DEMO:
+                DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
+                tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false ,
+                        false, LoginMode.PASSWORD);
+                return true;
+            case MENU_ABOUT:
+                DialogCreationHelpers.buildAboutCommCareDialog(this).show();
+                return true;
+            case MENU_PERMISSIONS:
+                Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
+                return true;
+            case MENU_PASSWORD_MODE:
+                uiController.setNormalPasswordMode();
+                return true;
         default:
             return otherResult;
         }

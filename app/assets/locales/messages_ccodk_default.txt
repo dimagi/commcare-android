@@ -273,6 +273,7 @@ mult.install.error=Unexpected Error installing the multimedia! Please try again.
 
 login.menu.demo=Enter as Demo User
 login.menu.permission=Acquire Required Permissions
+login.menu.password.mode=Switch to Password Login Mode
 main.sync.demo=You cannot sync data down from the server when logged in in demo mode
 
 main.sync.demo.has.forms=Your forms have been submitted to the server; however, you cannot retrieve forms from the server in Demo mode.

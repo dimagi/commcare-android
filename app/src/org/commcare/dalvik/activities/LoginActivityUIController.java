@@ -291,7 +291,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         }
     }
 
-    private void setNormalPasswordMode() {
+    protected void setNormalPasswordMode() {
         loginMode = LoginActivity.LoginMode.PASSWORD;
         loginPrimedMessage.setVisibility(View.GONE);
         passwordOrPin.setVisibility(View.VISIBLE);
