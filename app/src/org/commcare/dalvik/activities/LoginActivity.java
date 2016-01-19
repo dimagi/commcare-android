@@ -287,6 +287,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (userAndPass != null) {
             uiController.setUsername(userAndPass.first);
             uiController.setPasswordOrPin(userAndPass.second);
+            uiController.setNormalPasswordMode();
 
             if (!getIntent().getBooleanExtra(USER_TRIGGERED_LOGOUT, false)) {
                 // If we are attempting auto-login, assume that we want to restore a saved session
