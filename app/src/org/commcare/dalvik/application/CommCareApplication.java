@@ -180,7 +180,6 @@ public class CommCareApplication extends Application {
 
     private GoogleAnalytics analyticsInstance;
     private Tracker analyticsTracker;
-    private String currentUserId;
 
     private String messageForUserOnDispatch;
     private String titleForUserMessage;
@@ -835,22 +834,10 @@ public class CommCareApplication extends Application {
     }
 
     public String getCurrentUserId() {
-        if (currentUserId != null) {
-            return currentUserId;
-        }
         try {
-            currentUserId = this.getSession().getLoggedInUser().getUniqueId();
-            return currentUserId;
+            return this.getSession().getLoggedInUser().getUniqueId();
         } catch (SessionUnavailableException e) {
             return "";
-        }
-    }
-
-    private void refreshUserIdCache() {
-        try {
-            currentUserId = this.getSession().getLoggedInUser().getUniqueId();
-        } catch (SessionUnavailableException e) {
-            currentUserId = null;
         }
     }
 
@@ -964,7 +951,6 @@ public class CommCareApplication extends Application {
                         }
                     }
 
-                    refreshUserIdCache();
                     TimedStatsTracker.registerStartSession();
                 }
             }
