@@ -251,6 +251,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
             long insertedId;
             ByteArrayOutputStream bos = writeExternalizableToStream(persistable);
+            String dataFilePath = null;
             try {
                 if (blobFitsInDb(bos)) {
                     db.beginTransaction();
@@ -260,7 +261,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                     insertedId = db.insertOrThrow(table, DatabaseHelper.DATA_COL, contentValues);
                 } else {
                     // store serialized object in file and file pointer in db
-                    String dataFilePath = HybridFileBackedSqlHelpers.newFileForEntry(dbDir).getAbsolutePath();
+                    dataFilePath = HybridFileBackedSqlHelpers.newFileForEntry(dbDir).getAbsolutePath();
                     HybridFileBackedSqlHelpers.setFileAsOrphan(db, dataFilePath);
 
                     db.beginTransaction();
@@ -270,7 +271,6 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                     insertedId = db.insertOrThrow(table, DatabaseHelper.FILE_COL, contentValues);
 
                     writeStreamToFile(bos, dataFilePath, key);
-                    HybridFileBackedSqlHelpers.unsetFileAsOrphan(db, dataFilePath);
                 }
             } finally {
                 bos.close();
@@ -283,6 +283,9 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                 throw new RuntimeException("Waaaaaaaaaay too many values");
             }
 
+            if (dataFilePath != null) {
+                HybridFileBackedSqlHelpers.unsetFileAsOrphan(db, dataFilePath);
+            }
             db.setTransactionSuccessful();
         } catch (IOException e) {
             throw new RuntimeException(e);

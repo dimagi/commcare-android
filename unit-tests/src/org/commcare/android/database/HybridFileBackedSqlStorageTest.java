@@ -6,6 +6,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.model.instance.FormInstanceWithFailures;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +32,47 @@ public class HybridFileBackedSqlStorageTest {
         HybridFileBackedSqlStorageMock.alwaysPutInFilesystem();
 
         StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass());
+    }
+
+    /**
+     * Write an object to the filesystem but fail before finializing the
+     * transaction. Test that the file is marked as orphan
+     */
+    @Test
+    public void atomicWriteTest() {
+        HybridFileBackedSqlStorageMock.alwaysPutInFilesystem();
+
+        HybridFileBackedSqlStorage<FormInstance> userFixtureStorage =
+                CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class);
+
+        FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                new String[]{"commtrack:programs"});
+        form.setID(-1);
+
+        // build a form instance that fails when setID is called, which happens
+        // at the end of db write
+        FormInstanceWithFailures failingForm = new FormInstanceWithFailures(form.getRoot());
+        FormInstanceWithFailures.setFailOnIdSet(true);
+
+        File dbDir = userFixtureStorage.getDbDirForTesting();
+        int fileCountBefore = dbDir.listFiles().length;
+
+        boolean didWriteFail = false;
+        try {
+            userFixtureStorage.write(failingForm);
+        } catch (RuntimeException e) {
+            didWriteFail = true;
+        }
+        Assert.assertTrue(didWriteFail);
+
+        // check that the file from the failed write is around
+        int fileCountAfter = dbDir.listFiles().length;
+        Assert.assertTrue(fileCountAfter - fileCountBefore == 1);
+
+        // check that the file is cleared with other orphan files
+        clearOrphanedFiles();
+        int fileCountAfterClear = dbDir.listFiles().length;
+        Assert.assertTrue(fileCountBefore - fileCountAfterClear == 0);
     }
 
     @Test
@@ -80,7 +122,6 @@ public class HybridFileBackedSqlStorageTest {
         Assert.assertTrue(fileCountBefore == fileCountAfter);
 
         userFixtureStorage.remove(form.getID());
-        clearOrphanedFiles();
         fileCountAfter = dbDir.listFiles().length;
         Assert.assertTrue(fileCountBefore - fileCountAfter == 1);
     }
@@ -127,7 +168,6 @@ public class HybridFileBackedSqlStorageTest {
         Assert.assertTrue(fileCountBefore == fileCountAfter);
 
         appFixtureStorage.remove(form.getID());
-        clearOrphanedUnencryptedFiles();
         fileCountAfter = dbDir.listFiles().length;
         Assert.assertTrue(fileCountBefore - fileCountAfter == 1);
     }
