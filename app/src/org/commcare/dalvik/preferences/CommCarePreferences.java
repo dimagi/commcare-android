@@ -189,6 +189,7 @@ public class CommCarePreferences
         switch (item.getItemId()) {
             case CLEAR_USER_DATA:
                 CommCareApplication._().clearUserData();
+                setResult(RESULT_OK);
                 this.finish();
                 return true;
             case FORCE_LOG_SUBMIT:
