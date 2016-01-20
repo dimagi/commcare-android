@@ -37,6 +37,7 @@ import net.sqlcipher.database.SQLiteException;
 
 import org.acra.annotation.ReportsCrashes;
 import org.commcare.android.database.AndroidDbHelper;
+import org.commcare.android.database.HybridFileBackedSqlHelpers;
 import org.commcare.android.database.HybridFileBackedSqlStorage;
 import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
@@ -926,6 +927,9 @@ public class CommCareApplication extends Application {
                         //Register that this user was the last to successfully log in if it's a real user
                         if (!User.TYPE_DEMO.equals(user.getUserType())) {
                             getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
+
+                            // clear any files orphaned by file-backed db transaction failures
+                            HybridFileBackedSqlHelpers.removeOrphanedFiles(mBoundService.getUserDbHandle());
 
                             PurgeStaleArchivedFormsTask.launchPurgeTask();
                         }

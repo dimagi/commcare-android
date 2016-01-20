@@ -6,6 +6,7 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.AndroidDbHelper;
+import org.commcare.android.database.HybridFileBackedSqlHelpers;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UnencryptedHybridFileBackedSqlStorage;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
@@ -218,7 +219,13 @@ public class CommCareApp {
             }
             
             initializeStylizer();
-            
+
+            try {
+                HybridFileBackedSqlHelpers.removeOrphanedFiles(buildAndroidDbHelper().getHandle());
+            } catch (SessionUnavailableException e) {
+                Logger.log(AndroidLogger.SOFT_ASSERT,
+                        "Unable to get app db handle to clear orphaned files");
+            }
             return true;
         }
         return false;
