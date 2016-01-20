@@ -27,7 +27,6 @@ import org.commcare.android.framework.CommCareActivityUIController;
 import org.commcare.android.framework.Permissions;
 import org.commcare.android.framework.RuntimePermissionRequester;
 import org.commcare.android.framework.WithUIController;
-import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
@@ -37,9 +36,7 @@ import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.InstallStagedUpdateTask;
-import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
-import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
@@ -47,7 +44,6 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogCreationHelpers;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 import java.math.BigInteger;
@@ -165,7 +161,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         return null;
     }
 
-    private void startOta() {
+    protected void startOta() {
         // We should go digest auth this user on the server and see whether to
         // pull them down.
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -334,58 +330,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE,
                         username, password,
                         CommCareApplication._().getCurrentApp(), restoreSession,
-                        new ManageKeyRecordListener<LoginActivity>() {
-
-                @Override
-                public void keysLoginComplete(LoginActivity r) {
-                    if (triggerTooManyUsers) {
-                        // We've successfully pulled down new user data. Should see if the user
-                        // already has a sandbox and let them know that their old data doesn't transition
-                        r.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged), true);
-                        Logger.log(AndroidLogger.TYPE_USER, "User " + username + " has logged in for the first time with a new password. They may have unsent data in their other sandbox");
-                    }
-                    r.done();
-                }
-
-                @Override
-                public void keysReadyForSync(LoginActivity r) {
-                    // TODO: we only wanna do this on the _first_ try. Not
-                    // subsequent ones (IE: On return from startOta)
-                    r.startOta();
-                }
-
-                @Override
-                public void keysDoneOther(LoginActivity r, HttpCalloutOutcomes outcome) {
-                    switch(outcome) {
-                    case AuthFailed:
-                        Logger.log(AndroidLogger.TYPE_USER, "auth failed");
-                        r.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
-                        break;
-                    case BadResponse:
-                        Logger.log(AndroidLogger.TYPE_USER, "bad response");
-                        r.raiseLoginMessage(StockMessages.Remote_BadRestore, true);
-                        break;
-                    case NetworkFailure:
-                        Logger.log(AndroidLogger.TYPE_USER, "bad network");
-                        r.raiseLoginMessage(StockMessages.Remote_NoNetwork, false);
-                        break;
-                    case NetworkFailureBadPassword:
-                        Logger.log(AndroidLogger.TYPE_USER, "bad network");
-                        r.raiseLoginMessage(StockMessages.Remote_NoNetwork_BadPass, true);
-                        break;
-                    case BadCertificate:
-                        Logger.log(AndroidLogger.TYPE_USER, "bad certificate");
-                        r.raiseLoginMessage(StockMessages.BadSSLCertificate, false);
-                        break;
-                    case UnknownError:
-                        Logger.log(AndroidLogger.TYPE_USER, "unknown");
-                        r.raiseLoginMessage(StockMessages.Restore_Unknown, true);
-                        break;
-                    default:
-                        break;
-                    }
-                }
-            }) {
+                        LoginKeyRecordDispatcher.buildKeyRecordListener(triggerTooManyUsers, username)) {
                 @Override
                 protected void deliverUpdate(LoginActivity receiver, String... update) {
                     receiver.updateProgress(update[0], TASK_KEY_EXCHANGE);
@@ -402,7 +347,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
     }
     
-    private void done() {
+    protected void done() {
         ACRAUtil.registerUserData();
 
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
@@ -451,13 +396,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
     }
 
-    private void raiseLoginMessage(MessageTag messageTag, boolean showTop) {
+    protected void raiseLoginMessage(MessageTag messageTag, boolean showTop) {
         NotificationMessage message = NotificationMessageFactory.message(messageTag,
                 NOTIFICATION_MESSAGE_LOGIN);
         raiseMessage(message, showTop);
     }
 
-    private void raiseMessage(NotificationMessage message, boolean showTop) {
+    protected void raiseMessage(NotificationMessage message, boolean showTop) {
         String toastText = message.getTitle();
         if (showTop) {
             CommCareApplication._().reportNotificationMessage(message);
