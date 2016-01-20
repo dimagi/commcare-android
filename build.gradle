@@ -167,6 +167,8 @@ android {
         buildConfigField "String", "BUILD_DATE", "\"" + getDate() + "\""
         buildConfigField "String", "BUILD_NUMBER", "\"" + computeVersionCode() + "\""
         buildConfigField "String", "TRUSTED_SOURCE_PUBLIC_KEY", "\"${project.ext.TRUSTED_SOURCE_PUBLIC_KEY}\""
+        buildConfigField "String", "ANALYTICS_TRACKING_ID_LIVE", "\"${project.ext.ANALYTICS_TRACKING_ID_LIVE}\""
+        buildConfigField "String", "ANALYTICS_TRACKING_ID_DEV", "\"${project.ext.ANALYTICS_TRACKING_ID_DEV}\""
     }
 
     compileOptions {
