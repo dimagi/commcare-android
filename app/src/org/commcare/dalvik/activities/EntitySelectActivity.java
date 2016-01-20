@@ -53,13 +53,13 @@ import org.commcare.android.util.SerializationUtil;
 import org.commcare.android.view.EntityView;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.android.view.ViewUtil;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.utils.EntityDetailUtils;
 import org.commcare.dalvik.activities.utils.EntitySelectRefreshTimer;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.DialogChoiceItem;
 import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
+import org.commcare.dalvik.geo.HereFunctionHandler;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
@@ -97,6 +97,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
     private static final String EXTRA_IS_MAP = "is_map";
+    private static final String CONTAINS_HERE_FUNCTION = "contains_here_function";
+    private static final String LOCATION_CHANGED_WHILE_LOADING = "location_changed_while_loading";
 
     private static final int CONFIRM_SELECT = 0;
     private static final int MAP_SELECT = 2;
@@ -152,6 +154,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private ContainerFragment<EntityListAdapter> containerFragment;
     private EntitySelectRefreshTimer refreshTimer;
 
+    // Function handler for handling XPath evaluation of the function here().
+    // Although only one instance is created, which is used by NodeEntityFactory,
+    // every instance of EntitySelectActivity registers itself (one at a time)
+    // to listen to the handler and refresh whenever a new location is obtained.
+    private static final HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
+    private boolean containsHereFunction = false;
+    private boolean locationChangedWhileLoading = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -161,7 +171,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         refreshTimer = new EntitySelectRefreshTimer();
 
         if (savedInstanceState != null) {
-            mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
+            this.mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
+            this.containsHereFunction = savedInstanceState.getBoolean(CONTAINS_HERE_FUNCTION);
+            this.locationChangedWhileLoading = savedInstanceState.getBoolean(
+                    LOCATION_CHANGED_WHILE_LOADING);
+        } else {
+            hereFunctionHandler.refreshLocation();
         }
 
         asw = CommCareApplication._().getCurrentSessionWrapper();
@@ -453,6 +468,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
         }
 
+        hereFunctionHandler.registerEvalLocationListener(this);
+        if (this.containsHereFunction) {
+            hereFunctionHandler.allowGpsUse();
+        }
+
         refreshView();
     }
 
@@ -480,13 +500,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 header.addView(v);
             }
 
-            if (adapter == null &&
-                    loader == null &&
-                    !EntityLoaderTask.attachToActivity(this)) {
-                EntityLoaderTask theloader =
-                        new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
-                theloader.attachListener(this);
-                theloader.execute(selectDatum.getNodeset());
+            if (adapter == null) {
+                loadEntities();
             } else {
                 refreshTimer.start(this);
             }
@@ -504,6 +519,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (adapter != null) {
             adapter.unregisterDataSetObserver(mListStateObserver);
         }
+
+        hereFunctionHandler.forbidGpsUse();
+        hereFunctionHandler.unregisterEvalLocationListener();
     }
 
     @Override
@@ -862,6 +880,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+        savedInstanceState.putBoolean(CONTAINS_HERE_FUNCTION, containsHereFunction);
+        savedInstanceState.putBoolean(LOCATION_CHANGED_WHILE_LOADING, locationChangedWhileLoading);
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (loader != null) {
@@ -892,7 +918,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
         }
 
-        ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
+        ListView view = ((ListView) this.findViewById(R.id.screen_entity_select_list));
 
         setupDivider(view);
 
@@ -926,6 +952,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         refreshTimer.start(this);
+
+        if (locationChangedWhileLoading) {
+            Log.i("HereFunctionHandler", "location changed while reloading");
+            locationChangedWhileLoading = false;
+            loadEntities();
+        }
     }
 
     private void setupDivider(ListView view) {
@@ -1087,14 +1119,33 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         return true;
     }
 
-    /**
-     * Rough custom feature not meant for a general prod env.
-     */
-    public void triggerCaseListRefresh() {
+    public boolean loadEntities() {
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
-            EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
-            theloader.attachListener(this);
-            theloader.execute(selectDatum.getNodeset());
+            Log.i("HereFunctionHandler", "entities reloading");
+            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
+            entityLoader.attachListener(this);
+            entityLoader.execute(selectDatum.getNodeset());
+            return true;
         }
+        return false;
+    }
+
+    public void onEvalLocationChanged() {
+        boolean loaded = loadEntities();
+        if (!loaded) {
+            locationChangedWhileLoading = true;
+        }
+    }
+
+    public static HereFunctionHandler getHereFunctionHandler() {
+        return hereFunctionHandler;
+    }
+
+    public boolean getContainsHereFunction() {
+        return containsHereFunction;
+    }
+
+    public void setContainsHereFunction(boolean containsHereFunction) {
+        this.containsHereFunction = containsHereFunction;
     }
 }
