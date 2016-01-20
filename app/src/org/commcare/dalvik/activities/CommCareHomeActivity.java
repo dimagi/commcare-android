@@ -273,7 +273,7 @@ public class CommCareHomeActivity
             case PREFERENCES_ACTIVITY:
                 // rebuild buttons in case language was changed
                 uiController.setupUI();
-                uiController.configUI();
+                rebuildMenus();
                 return;
             case MEDIA_VALIDATOR_ACTIVITY:
                 if(resultCode == RESULT_CANCELED){

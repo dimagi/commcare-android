@@ -86,15 +86,9 @@ public class HomeActivityUIController implements CommCareActivityUIController {
 
                 grid.requestLayout();
                 adapter.notifyDataSetChanged();
-                configUI();
+                activity.rebuildMenus();
             }
         });
-    }
-
-    protected void configUI() {
-        if (CommCareApplication._().getCurrentApp() != null) {
-            activity.rebuildMenus();
-        }
     }
 
     // TODO: Use syncNeeded flag to change color of sync message
