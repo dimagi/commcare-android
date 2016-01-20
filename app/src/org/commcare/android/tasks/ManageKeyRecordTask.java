@@ -8,17 +8,20 @@ import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.UserSandboxUtils;
-import org.javarosa.core.model.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.models.notifications.NotificationMessageFactory;
+import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.tasks.templates.HttpCalloutTask;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.activities.DataRestorer;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.xml.KeyRecordParser;
+import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -43,7 +46,7 @@ import java.util.NoSuchElementException;
  * @author ctsims
  *
  */
-public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
+public abstract class ManageKeyRecordTask<R extends DataRestorer> extends HttpCalloutTask<R> {
     final String username;
     final String password;
     
@@ -53,19 +56,18 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     
     ArrayList<UserKeyRecord> keyRecords;
     
-    final ManageKeyRecordListener<R> listener;
-    
     boolean userRecordExists = false;
     
     boolean calloutNeeded = false;
     boolean calloutRequired = false;
     final boolean restoreSession;
+    private final boolean triggerTooManyUsers;
     
     User loggedIn = null;
     
     public ManageKeyRecordTask(Context c, int taskId, String username, String password,
                                CommCareApp app, boolean restoreSession,
-                               ManageKeyRecordListener<R> listener) {
+                               boolean triggerTooManyUsers) {
         super(c);
         this.username = username;
         this.password = password;
@@ -76,8 +78,8 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         //long story
         keyServerUrl = "".equals(keyServerUrl) ? null : keyServerUrl;
         
-        this.listener = listener;
         this.taskId = taskId;
+        this.triggerTooManyUsers = triggerTooManyUsers;
     }
 
     @Override
@@ -89,10 +91,10 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                 //functional sandbox, but this user has never been synced, so we aren't
                 //really "logged in".
                 CommCareApplication._().releaseUserResourcesAndServices();
-                listener.keysReadyForSync(receiver);
+                keysReadyForSync(receiver);
                 return;
             } else {
-                listener.keysLoginComplete(receiver);
+                keysLoginComplete(receiver);
                 return;
             }
         } else if(result == HttpCalloutOutcomes.NetworkFailure) {
@@ -106,15 +108,59 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 
         //TODO: Do we wanna split this up at all? Seems unlikely. We don't have, like, a ton
         //more context that the receiving activity will
-        listener.keysDoneOther(receiver, result);
+        keysDoneOther(receiver, result);
+    }
+
+    protected void keysReadyForSync(R receiver) {
+        receiver.startOta();
+    }
+
+    protected void keysLoginComplete(R receiver) {
+        if (triggerTooManyUsers) {
+            // We've successfully pulled down new user data. Should see if the user
+            // already has a sandbox and let them know that their old data doesn't transition
+            receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged), true);
+            Logger.log(AndroidLogger.TYPE_USER, "User " + username + " has logged in for the first time with a new password. They may have unsent data in their other sandbox");
+        }
+        receiver.done();
+    }
+
+    protected void keysDoneOther(R receiver, HttpCalloutOutcomes outcome) {
+        switch (outcome) {
+            case AuthFailed:
+                Logger.log(AndroidLogger.TYPE_USER, "auth failed");
+                receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
+                break;
+            case BadResponse:
+                Logger.log(AndroidLogger.TYPE_USER, "bad response");
+                receiver.raiseLoginMessage(StockMessages.Remote_BadRestore, true);
+                break;
+            case NetworkFailure:
+                Logger.log(AndroidLogger.TYPE_USER, "bad network");
+                receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork, false);
+                break;
+            case NetworkFailureBadPassword:
+                Logger.log(AndroidLogger.TYPE_USER, "bad network");
+                receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork_BadPass, true);
+                break;
+            case BadCertificate:
+                Logger.log(AndroidLogger.TYPE_USER, "bad certificate");
+                receiver.raiseLoginMessage(StockMessages.BadSSLCertificate, false);
+                break;
+            case UnknownError:
+                Logger.log(AndroidLogger.TYPE_USER, "unknown");
+                receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
+                break;
+            default:
+                break;
+        }
     }
 
     @Override
     protected void deliverError(R receiver, Exception e) {
         Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, "Error executing task in background: " + e.getMessage());
-        listener.keysDoneOther(receiver, HttpCalloutOutcomes.UnknownError);
+        keysDoneOther(receiver, HttpCalloutOutcomes.UnknownError);
     }
-
 
     @Override
     protected HttpCalloutOutcomes doSetupTaskBeforeRequest() {
@@ -169,7 +215,6 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         return null;
     }
 
-    
     //Functionality that doesn't necessarily "belong" to this workflow:
 
     private void cleanupUserKeyRecords() {
@@ -219,9 +264,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
             //TODO: Specifically we should never have two sandboxes which can be opened by the same password (I think...)
         }
     }
-    
-    
-    
+
     //CTS: These will be fleshed out to comply with the server's Key Request/response protocol
 
     @Override
@@ -262,7 +305,6 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     protected boolean HttpCalloutRequired() {
         return calloutRequired;
     }
-
 
     @Override
     protected boolean processSuccesfulRequest() {

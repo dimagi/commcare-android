@@ -54,7 +54,7 @@ import java.util.ArrayList;
  * @author ctsims
  */
 public class LoginActivity extends CommCareActivity<LoginActivity>
-        implements OnItemSelectedListener, RuntimePermissionRequester, WithUIController {
+        implements DataRestorer, OnItemSelectedListener, RuntimePermissionRequester, WithUIController {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 
@@ -161,7 +161,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         return null;
     }
 
-    protected void startOta() {
+    @Override
+    public void startOta() {
         // We should go digest auth this user on the server and see whether to
         // pull them down.
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -330,7 +331,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE,
                         username, password,
                         CommCareApplication._().getCurrentApp(), restoreSession,
-                        LoginKeyRecordDispatcher.buildKeyRecordListener(triggerTooManyUsers, username)) {
+                        triggerTooManyUsers) {
                 @Override
                 protected void deliverUpdate(LoginActivity receiver, String... update) {
                     receiver.updateProgress(update[0], TASK_KEY_EXCHANGE);
@@ -346,8 +347,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             return false;
         }
     }
-    
-    protected void done() {
+
+    @Override
+    public void done() {
         ACRAUtil.registerUserData();
 
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
@@ -396,13 +398,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
     }
 
-    protected void raiseLoginMessage(MessageTag messageTag, boolean showTop) {
+    @Override
+    public void raiseLoginMessage(MessageTag messageTag, boolean showTop) {
         NotificationMessage message = NotificationMessageFactory.message(messageTag,
                 NOTIFICATION_MESSAGE_LOGIN);
         raiseMessage(message, showTop);
     }
 
-    protected void raiseMessage(NotificationMessage message, boolean showTop) {
+    @Override
+    public void raiseMessage(NotificationMessage message, boolean showTop) {
         String toastText = message.getTitle();
         if (showTop) {
             CommCareApplication._().reportNotificationMessage(message);
@@ -412,8 +416,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         uiController.setErrorMessageUI(toastText);
         Toast.makeText(this, toastText, Toast.LENGTH_LONG).show();
     }
-
-
 
     /**
      * Implementation of generateProgressDialog() for DialogController -- other methods
@@ -550,5 +552,4 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public CommCareActivityUIController getUIController() {
         return this.uiController;
     }
-
 }
