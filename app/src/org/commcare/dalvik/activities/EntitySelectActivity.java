@@ -59,6 +59,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.DialogChoiceItem;
 import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
+import org.commcare.dalvik.geo.HereFunctionHandler;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
@@ -160,6 +161,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private final Object timerLock = new Object();
     private boolean cancelled;
     private ContainerFragment<EntityListAdapter> containerFragment;
+
+    // Function handler for handling XPath evaluation of the function here().
+    // Although only one instance is created, which is used by NodeEntityFactory,
+    // every instance of EntitySelectActivity registers itself (one at a time)
+    // to listen to the handler and refresh whenever a new location is obtained.
+    public static HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -451,6 +458,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
         }
 
+        hereFunctionHandler.registerEntitySelectActivity(this);
+        if (hereFunctionHandler.locationUpdatesHaveBeenRequested) {
+            hereFunctionHandler.requestLocationUpdates();
+        }
+
         refreshView();
     }
 
@@ -478,13 +490,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 header.addView(v);
             }
 
-            if (adapter == null &&
-                    loader == null &&
-                    !EntityLoaderTask.attachToActivity(this)) {
-                EntityLoaderTask theloader =
-                        new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
-                theloader.attachListener(this);
-                theloader.execute(selectDatum.getNodeset());
+            if (adapter == null) {
+                loadEntities();
             } else {
                 startTimer();
             }
@@ -502,6 +509,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (adapter != null) {
             adapter.unregisterDataSetObserver(mListStateObserver);
         }
+
+        hereFunctionHandler.unregisterEntitySelectActivity();
+        hereFunctionHandler.stopLocationUpdates();
     }
 
     @Override
@@ -1144,40 +1154,35 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         return true;
     }
 
-    //Below is helper code for the Refresh Feature. 
-    //this is a dev feature and should get restructured before release in prod.
-    //If the devloper setting is turned off this code should do nothing.
-
-    private void triggerRebuild() {
+    public void loadEntities() {
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
-            EntityLoaderTask theloader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
-            theloader.attachListener(this);
-            theloader.execute(selectDatum.getNodeset());
+            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
+            entityLoader.attachListener(this);
+            entityLoader.execute(selectDatum.getNodeset());
         }
     }
 
     private void startTimer() {
-        if (!DeveloperPreferences.isListRefreshEnabled()) {
-            return;
-        }
-        synchronized (timerLock) {
-            if (myTimer == null) {
-                myTimer = new Timer();
-                myTimer.schedule(new TimerTask() {
+        if (DeveloperPreferences.isListRefreshEnabled()) {
+            synchronized (timerLock) {
+                if (myTimer == null) {
+                    myTimer = new Timer();
+                    myTimer.schedule(new TimerTask() {
 
-                    @Override
-                    public void run() {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (!cancelled) {
-                                    triggerRebuild();
+                        @Override
+                        public void run() {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (!cancelled) {
+                                        loadEntities();
+                                    }
                                 }
-                            }
-                        });
-                    }
-                }, 15 * 1000, 15 * 1000);
-                cancelled = false;
+                            });
+                        }
+                    }, 15 * 1000, 15 * 1000);
+                    cancelled = false;
+                }
             }
         }
     }

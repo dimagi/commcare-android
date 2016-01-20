@@ -1,5 +1,6 @@
 package org.commcare.android.models;
 
+import org.commcare.dalvik.activities.EntitySelectActivity;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
@@ -32,6 +33,8 @@ public class NodeEntityFactory {
     public Entity<TreeReference> getEntity(TreeReference data) {
         EvaluationContext nodeContext = new EvaluationContext(ec, data);
         detail.populateEvaluationContextVariables(nodeContext);
+
+        nodeContext.addFunctionHandler(EntitySelectActivity.hereFunctionHandler);
 
         int length = detail.getHeaderForms().length;
         Object[] details = new Object[length];
