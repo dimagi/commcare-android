@@ -304,18 +304,11 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         loginMode = LoginActivity.LoginMode.PRIMED;
         loginPrimedMessage.setVisibility(View.VISIBLE);
         passwordOrPin.setVisibility(View.GONE);
-        username.requestFocus();
-        hideKeyboard();
         manuallySwitchedToPasswordMode = false;
-    }
 
-    private void hideKeyboard() {
-        View focus = activity.getCurrentFocus();
-        if (focus != null) {
-            InputMethodManager imm =
-                    (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(focus.getWindowToken(), 0);
-        }
+        // Switch focus to a dummy (invisible) LinearLayout so that the keyboard doesn't show
+        View dummyView = activity.findViewById(R.id.dummy_focusable_view);
+        dummyView.requestFocus();
     }
 
     protected void setNormalPasswordMode() {
