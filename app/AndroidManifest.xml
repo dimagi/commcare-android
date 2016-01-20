@@ -6,7 +6,8 @@
           android:versionName="2.26">
 
     <uses-sdk
-        tools:overrideLibrary="com.etsy.android.grid"
+        tools:overrideLibrary="com.etsy.android.grid, com.google.android.gms.base,
+        com.google.android.gms, com.google.android.gms.maps"
         tools:replace="minSdkVersion" />
 
     <uses-permission android:name="android.permission.NFC" />
