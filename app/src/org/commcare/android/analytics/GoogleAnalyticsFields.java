@@ -16,6 +16,7 @@ public final class GoogleAnalyticsFields {
     public static String CATEGORY_SERVER_COMMUNICATION = "Server Communication";
     public static String CATEGORY_ARCHIVED_FORMS = "Archived Forms";
     public static String CATEGORY_TIMED_EVENTS = "Timed Events";
+    public static String CATEGORY_PRE_LOGIN_STATS = "Pre-Login Stats";
 
     // Actions for CATEGORY_HOME_SCREEN only
     public static String ACTION_BUTTON = "Button Press";
@@ -44,6 +45,9 @@ public final class GoogleAnalyticsFields {
     // Actions for CATEGORY_TIMED_EVENTS only
     public static String ACTION_TIME_IN_A_FORM = "Time Spent in A Form";
     public static String ACTION_SESSION_LENGTH = "Session Length";
+
+    // Actions for CATEGORY_PRE_LOGIN_STATS
+    public static String ACTION_APP_INSTALL = "New App Install";
 
     // Labels for ACTION_BUTTON
     public static String LABEL_START_BUTTON = "Start Button";
