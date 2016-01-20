@@ -127,8 +127,8 @@ public class CommCareApplication extends Application {
     private static final String TAG = CommCareApplication.class.getSimpleName();
 
     // Tracking ids for Google Analytics
-    private static final String LIVE_TRACKING_ID = "UA-69708208-1";
-    private static final String DEV_TRACKING_ID = "UA-69708208-2";
+    private static final String LIVE_TRACKING_ID = BuildConfig.ANALYTICS_TRACKING_ID_LIVE;
+    private static final String DEV_TRACKING_ID = BuildConfig.ANALYTICS_TRACKING_ID_DEV;
 
     private static final int STATE_UNINSTALLED = 0;
     public static final int STATE_UPGRADE = 1;
