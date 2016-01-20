@@ -331,7 +331,6 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         }
     }
 
-
     /**
      * This method actually writes the xml to disk.
      */
