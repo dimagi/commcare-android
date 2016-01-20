@@ -161,7 +161,7 @@ public class AppDatabaseUpgrader {
         boolean didFixturesMigrate =
                 FixtureSerializationMigration.migrateUnencryptedFixtureDbBytes(db,
                         context,
-                        CommCareApplication._().getCurrentApp().storageRoot());
+                        CommCareApplication._().getCurrentApp().fsPath("fixture_migration"));
 
         db.beginTransaction();
         try {

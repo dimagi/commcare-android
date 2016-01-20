@@ -247,7 +247,7 @@ class UserDatabaseUpgrader {
 
         boolean didFixturesMigrate =
                 FixtureSerializationMigration.migrateFixtureDbBytes(db, c,
-                        CommCareApplication._().getUserDbDir(), fileMigrationKey);
+                        CommCareApplication._().getCurrentApp().fsPath("fixture_migration"), fileMigrationKey);
 
         db.beginTransaction();
         try {

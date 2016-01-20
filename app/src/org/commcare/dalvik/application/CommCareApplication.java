@@ -728,7 +728,7 @@ public class CommCareApplication extends Application {
      */
     public String getUserDbDir() {
         try {
-            return currentApp.storageRoot() + currentApp + "/" + getSession().getLoggedInUser().getUniqueId() + "/";
+            return currentApp.storageRoot() + "/" + getSession().getLoggedInUser().getUniqueId() + "/";
         } catch (SessionUnavailableException e) {
             throw new RuntimeException(e);
         }
