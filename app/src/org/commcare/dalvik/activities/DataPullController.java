@@ -6,10 +6,10 @@ import org.commcare.android.models.notifications.NotificationMessage;
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public interface DataRestorer {
-    void startOta();
+public interface DataPullController {
+    void startDataPull();
 
-    void done();
+    void dataPullCompleted();
 
     void raiseLoginMessage(MessageTag messageTag, boolean showTop);
 

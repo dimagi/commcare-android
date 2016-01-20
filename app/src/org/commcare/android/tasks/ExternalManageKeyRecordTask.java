@@ -4,42 +4,42 @@ import android.content.Context;
 
 import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.models.notifications.NotificationMessage;
-import org.commcare.dalvik.activities.DataRestorer;
+import org.commcare.dalvik.activities.DataPullController;
 import org.commcare.dalvik.application.CommCareApp;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class ExternalManageKeyRecordTask extends ManageKeyRecordTask<ExternalManageKeyRecordTask.DummyDataRestorer> {
+public class ExternalManageKeyRecordTask extends ManageKeyRecordTask<ExternalManageKeyRecordTask.DummyDataPullController> {
     public ExternalManageKeyRecordTask(Context c, int taskId, String username, String password,
                                CommCareApp app, boolean restoreSession) {
         super(c, taskId, username, password, app, restoreSession, false);
     }
 
     @Override
-    protected void keysReadyForSync(DummyDataRestorer restorer) {
+    protected void keysReadyForSync(DummyDataPullController restorer) {
     }
 
     @Override
-    protected void keysLoginComplete(DummyDataRestorer restorer) {
+    protected void keysLoginComplete(DummyDataPullController restorer) {
     }
 
     @Override
-    protected void keysDoneOther(DummyDataRestorer restorer, HttpCalloutOutcomes outcomes) {
+    protected void keysDoneOther(DummyDataPullController restorer, HttpCalloutOutcomes outcomes) {
     }
 
     @Override
-    protected void deliverUpdate(DummyDataRestorer restorer, String... update) {
+    protected void deliverUpdate(DummyDataPullController restorer, String... update) {
     }
 
-    public static class DummyDataRestorer implements DataRestorer {
+    public static class DummyDataPullController implements DataPullController {
         @Override
-        public void startOta() {
+        public void startDataPull() {
 
         }
 
         @Override
-        public void done() {
+        public void dataPullCompleted() {
 
         }
 

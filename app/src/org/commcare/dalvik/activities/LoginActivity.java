@@ -54,7 +54,7 @@ import java.util.ArrayList;
  * @author ctsims
  */
 public class LoginActivity extends CommCareActivity<LoginActivity>
-        implements DataRestorer, OnItemSelectedListener, RuntimePermissionRequester, WithUIController {
+        implements DataPullController, OnItemSelectedListener, RuntimePermissionRequester, WithUIController {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 
@@ -162,7 +162,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     @Override
-    public void startOta() {
+    public void startDataPull() {
         // We should go digest auth this user on the server and see whether to
         // pull them down.
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -349,7 +349,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     @Override
-    public void done() {
+    public void dataPullCompleted() {
         ACRAUtil.registerUserData();
 
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
@@ -540,7 +540,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             return;
         }
 
-        startOta();
+        startDataPull();
     }
 
     @Override

@@ -15,7 +15,7 @@ import org.commcare.android.models.notifications.NotificationMessageFactory.Stoc
 import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.tasks.templates.HttpCalloutTask;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.dalvik.activities.DataRestorer;
+import org.commcare.dalvik.activities.DataPullController;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
@@ -46,7 +46,7 @@ import java.util.NoSuchElementException;
  * @author ctsims
  *
  */
-public abstract class ManageKeyRecordTask<R extends DataRestorer> extends HttpCalloutTask<R> {
+public abstract class ManageKeyRecordTask<R extends DataPullController> extends HttpCalloutTask<R> {
     final String username;
     final String password;
     
@@ -112,7 +112,7 @@ public abstract class ManageKeyRecordTask<R extends DataRestorer> extends HttpCa
     }
 
     protected void keysReadyForSync(R receiver) {
-        receiver.startOta();
+        receiver.startDataPull();
     }
 
     protected void keysLoginComplete(R receiver) {
@@ -122,7 +122,7 @@ public abstract class ManageKeyRecordTask<R extends DataRestorer> extends HttpCa
             receiver.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged), true);
             Logger.log(AndroidLogger.TYPE_USER, "User " + username + " has logged in for the first time with a new password. They may have unsent data in their other sandbox");
         }
-        receiver.done();
+        receiver.dataPullCompleted();
     }
 
     protected void keysDoneOther(R receiver, HttpCalloutOutcomes outcome) {
