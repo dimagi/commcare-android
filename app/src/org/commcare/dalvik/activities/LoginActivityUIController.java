@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -40,6 +41,8 @@ import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -54,7 +57,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     private TextView errorBox;
 
     @UiElement(value=R.id.edit_username, locale="login.username")
-    private EditText username;
+    private AutoCompleteTextView username;
 
     @UiElement(value=R.id.edit_password)
     private EditText passwordOrPin;
@@ -117,21 +120,43 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @Override
     public void setupUI() {
-        username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS |
-                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-        username.setHint(Localization.get("login.username"));
-
+        setupUsernameEntryBox();
         setLoginBoxesColorNormal();
+        setTextChangeListeners();
+        setBannerLayoutLogic();
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
                 activity.initiateLoginAttempt(isRestoreSessionChecked());
             }
         });
+    }
 
+    private void setTextChangeListeners() {
         username.addTextChangedListener(usernameTextWatcher);
         passwordOrPin.addTextChangedListener(passwordTextWatcher);
+    }
 
+    private void setupUsernameEntryBox() {
+        username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS |
+                InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+        username.setHint(Localization.get("login.username"));
+        ArrayAdapter<String> usernamesAdapter = new ArrayAdapter<>(activity,
+                android.R.layout.simple_dropdown_item_1line, getExistingUsernames());
+        username.setAdapter(usernamesAdapter);
+    }
+
+    private static String[] getExistingUsernames() {
+        SqlStorage<UserKeyRecord> existingUsers =
+                CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class);
+        Set<String> uniqueUsernames = new HashSet<>();
+        for (UserKeyRecord ukr : existingUsers) {
+            uniqueUsernames.add(ukr.getUsername());
+        }
+        return uniqueUsernames.toArray(new String[uniqueUsernames.size()]);
+    }
+
+    private void setBannerLayoutLogic() {
         final View activityRootView = activity.findViewById(R.id.screen_login_main);
         final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(
@@ -165,7 +190,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
                         }
                     }
                 });
-
     }
 
     @Override

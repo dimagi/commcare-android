@@ -86,21 +86,19 @@
                                 android:textSize="@dimen/text_medium"
                                 android:visibility="gone"/>
 
-                            <EditText
+                            <AutoCompleteTextView
                                 android:id="@+id/edit_username"
                                 style="@style/LoginEditTextV2"
                                 android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/login_edit_text"
-                                android:contentDescription="Username"
                                 android:drawableLeft="@drawable/icon_user_neutral50"
                                 android:hint="Username"
                                 android:inputType="text"
                                 android:nextFocusDown="@+id/edit_password"
                                 android:textSize="@dimen/text_medium">
-
                                 <requestFocus/>
-                            </EditText>
+                            </AutoCompleteTextView>
 
                             <EditText
                                 android:id="@+id/edit_password"
