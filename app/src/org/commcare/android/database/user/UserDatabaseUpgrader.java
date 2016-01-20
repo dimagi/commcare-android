@@ -232,6 +232,7 @@ class UserDatabaseUpgrader {
         Log.d(TAG, "starting user fixture migration");
         db.beginTransaction();
         try {
+            DbUtil.createOrphanedFileTable(db);
             // rename old fixture db
             db.execSQL("ALTER TABLE fixture RENAME TO oldfixture;");
 

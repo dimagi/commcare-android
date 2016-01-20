@@ -144,6 +144,8 @@ public class AppDatabaseUpgrader {
         Log.d("AppDatabaseUpgrader", "starting app fixture migration");
         db.beginTransaction();
         try {
+
+            DbUtil.createOrphanedFileTable(db);
             // rename old fixture db
             db.execSQL("ALTER TABLE fixture RENAME TO oldfixture;");
 
