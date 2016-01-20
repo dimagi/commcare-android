@@ -468,7 +468,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             // this should be unnecessary...
             @TargetApi(Build.VERSION_CODES.HONEYCOMB)
             @Override
-            public void onActionBarFound(MenuItem searchItem, SearchView searchView) {
+            public void onActionBarFound(MenuItem searchItem, SearchView searchView, MenuItem barcodeItem) {
                 FormRecordListActivity.this.searchItem = searchItem;
                 FormRecordListActivity.this.searchView = searchView;
                 if (lastQueryString != null && lastQueryString.length() > 0) {
