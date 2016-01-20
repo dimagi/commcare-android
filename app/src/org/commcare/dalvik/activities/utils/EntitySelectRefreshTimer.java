@@ -28,7 +28,7 @@ public class EntitySelectRefreshTimer {
                             @Override
                             public void run() {
                                 if (!cancelled) {
-                                    activity.triggerCaseListRefresh();
+                                    activity.loadEntities();
                                 }
                             }
                         });
