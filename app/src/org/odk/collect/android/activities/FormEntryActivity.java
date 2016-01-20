@@ -118,10 +118,10 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -383,6 +383,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     GoogleAnalyticsUtils.reportFormNavBackward(GoogleAnalyticsFields.LABEL_ARROW);
                     FormEntryActivity.this.showPreviousView(true);
                 } else {
+                    GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_PROGRESS_BAR_ARROW);
                     FormEntryActivity.this.triggerUserQuitInput();
                 }
             }
@@ -806,23 +807,18 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Map<Integer, String> menuIdToAnalyticsEventLabel = createMenuItemToEventMapping();
+        GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
+                GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
+                menuIdToAnalyticsEventLabel.get(item.getItemId()));
         switch (item.getItemId()) {
             case MENU_LANGUAGES:
-                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                        GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
-                        GoogleAnalyticsFields.LABEL_CHANGE_LANGUAGE);
                 createLanguageDialog();
                 return true;
             case MENU_SAVE:
-                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                        GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
-                        GoogleAnalyticsFields.LABEL_SAVE_FORM);
                 saveFormToDisk(DO_NOT_EXIT);
                 return true;
             case MENU_HIERARCHY_VIEW:
-                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                        GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
-                        GoogleAnalyticsFields.LABEL_FORM_HIERARCHY);
                 if (currentPromptIsQuestion()) {
                     saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 }
@@ -830,18 +826,25 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 startActivityForResult(i, HIERARCHY_ACTIVITY);
                 return true;
             case MENU_PREFERENCES:
-                GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                        GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
-                        GoogleAnalyticsFields.LABEL_CHANGE_SETTINGS);
                 Intent pref = new Intent(this, FormEntryPreferences.class);
                 startActivityForResult(pref, FORM_PREFERENCES_KEY);
                 return true;
             case android.R.id.home:
+                GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_NAV_BAR_ARROW);
                 triggerUserQuitInput();
                 return true;
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private static Map<Integer, String> createMenuItemToEventMapping() {
+        Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
+        menuIdToAnalyticsEvent.put(MENU_LANGUAGES, GoogleAnalyticsFields.LABEL_CHANGE_LANGUAGE);
+        menuIdToAnalyticsEvent.put(MENU_SAVE, GoogleAnalyticsFields.LABEL_SAVE_FORM);
+        menuIdToAnalyticsEvent.put(MENU_HIERARCHY_VIEW, GoogleAnalyticsFields.LABEL_FORM_HIERARCHY);
+        menuIdToAnalyticsEvent.put(MENU_PREFERENCES, GoogleAnalyticsFields.LABEL_CHANGE_SETTINGS);
+        return menuIdToAnalyticsEvent;
     }
 
     /**
@@ -1465,7 +1468,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         View.OnClickListener stayInFormListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_BACK_TO_FORM);
+                GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_BACK_TO_FORM);
                 dialog.dismiss();
             }
         };
@@ -1477,7 +1480,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         View.OnClickListener exitFormListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_EXIT_NO_SAVE);
+                GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_EXIT_NO_SAVE);
                 discardChangesAndExit();
             }
         };
@@ -1491,7 +1494,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             View.OnClickListener saveIncompleteListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_SAVE_AND_EXIT);
+                    GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_SAVE_AND_EXIT);
                     saveFormToDisk(EXIT);
                 }
             };
@@ -1967,7 +1970,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             createQuitDialog();
             return;
         }
-        GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_NO_DIALOG);
+        GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_NO_DIALOG);
     }
 
     /**
@@ -2011,6 +2014,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
+                GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_DEVICE_BUTTON);
             	triggerUserQuitInput();
                 return true;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
@@ -2590,15 +2594,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void reportFormEntry() {
-        TimedStatsTracker.registerEnterForm(getCurrentFormTitle());
+        TimedStatsTracker.registerEnterForm(getCurrentFormID());
     }
 
     private void reportFormExit() {
-        TimedStatsTracker.registerExitForm(getCurrentFormTitle());
+        TimedStatsTracker.registerExitForm(getCurrentFormID());
     }
 
-    private String getCurrentFormTitle() {
-        return mFormController.getFormTitle();
+    private int getCurrentFormID() {
+        return mFormController.getFormID();
     }
 
     /**

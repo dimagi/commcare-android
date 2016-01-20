@@ -15,69 +15,51 @@ import org.javarosa.core.services.locale.Localization;
 import in.uncod.android.bypass.Bypass;
 
 public class MarkupUtil {
-    static final HtmlSpanner htmlspanner = new HtmlSpanner();
+    private static final HtmlSpanner htmlspanner = new HtmlSpanner();
 
-    /*
-     * Developer Preference helper classes
-     */
-
-    public static Spannable styleSpannable(Context c, String message){
-
-        if(DeveloperPreferences.isMarkdownEnabled()){
+    public static Spannable styleSpannable(Context c, String message) {
+        if (DeveloperPreferences.isMarkdownEnabled()) {
             returnMarkdown(c, message);
         }
 
-        if(DeveloperPreferences.isCssEnabled()){
+        if (DeveloperPreferences.isCssEnabled()) {
             returnCSS(message);
         }
 
         return new SpannableString(message);
     }
 
-    public static Spannable localizeStyleSpannable(Context c, String localizationKey){
+    public static Spannable localizeStyleSpannable(Context c, String localizationKey) {
         return styleSpannable(c, Localization.get(localizationKey));
     }
 
-    public static Spannable localizeStyleSpannable(Context c, String localizationKey, String localizationArg){
+    public static Spannable localizeStyleSpannable(Context c, String localizationKey, String localizationArg) {
         return styleSpannable(c, Localization.get(localizationKey, localizationArg));
     }
 
-    public static Spannable localizeStyleSpannable(Context c, String localizationKey, String[] localizationArgs){
-        return styleSpannable( c, Localization.get(localizationKey, localizationArgs));
+    public static Spannable localizeStyleSpannable(Context c, String localizationKey, String[] localizationArgs) {
+        return styleSpannable(c, Localization.get(localizationKey, localizationArgs));
     }
 
-    public static Spannable returnMarkdown(Context c, String message){
+    public static Spannable returnMarkdown(Context c, String message) {
         return new SpannableString(generateMarkdown(c, message));
     }
 
-    public static Spannable returnCSS(String message){
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
+    public static Spannable returnCSS(String message) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
             return new SpannableString(Html.fromHtml(message));
         } else {
             return htmlspanner.fromHtml(MarkupUtil.getStyleString() + message);
         }
     }
 
-
-    /*
-     * Markdown styling utils from Bypass
-     * https://github.com/Uncodin/bypass
-     */
-
-    public static CharSequence localizeGenerateMarkdown(Context c, String localizationKey){
-        return generateMarkdown(c, Localization.get(localizationKey));
-    }
-
-    public static CharSequence localizeGenerateMarkdown(Context c, String localizationKey, String[] localizationArgs){
-        return generateMarkdown(c, Localization.get(localizationKey, localizationArgs));
-    }
-
-    public static CharSequence generateMarkdown(Context c, String message){
+    private static CharSequence generateMarkdown(Context c, String message) {
         Bypass bypass = new Bypass(c);
         return trimTrailingWhitespace(bypass.markdownToSpannable(convertCharacterEncodings(message)));
     }
-    
-    /** Trims trailing whitespace. Removes any of these characters:
+
+    /**
+     * Trims trailing whitespace. Removes any of these characters:
      * 0009, HORIZONTAL TABULATION
      * 000A, LINE FEED
      * 000B, VERTICAL TABULATION
@@ -87,46 +69,33 @@ public class MarkupUtil {
      * 001D, GROUP SEPARATOR
      * 001E, RECORD SEPARATOR
      * 001F, UNIT SEPARATOR
+     *
      * @return "" if source is null, otherwise string with all trailing whitespace removed
      * soruce: http://stackoverflow.com/questions/9589381/remove-extra-line-breaks-after-html-fromhtml
      */
-    public static CharSequence trimTrailingWhitespace(CharSequence source) {
-
-        if(source == null)
+    private static CharSequence trimTrailingWhitespace(CharSequence source) {
+        if (source == null) {
             return "";
+        }
 
         int i = source.length();
 
         // loop back to the first non-whitespace character
-        while(--i >= 0 && Character.isWhitespace(source.charAt(i))) {
+        while (--i >= 0 && Character.isWhitespace(source.charAt(i))) {
         }
 
-        return source.subSequence(0, i+1);
+        return source.subSequence(0, i + 1);
     }
 
-
-    /*
-     * Perform conversions from encodings
-     */
-
-    public static String convertCharacterEncodings(String input){
+    private static String convertCharacterEncodings(String input) {
         return convertNewlines(convertPoundSigns(input));
     }
 
-    /*
-     * Convert to newline
-     */
-
-    public static String convertNewlines(String input){
+    private static String convertNewlines(String input) {
         return input.replace("\\n", System.getProperty("line.separator"));
     }
 
-    /*
-     * Convert number signs
-     */
-
-    public static String convertPoundSigns(String input){
-
+    private static String convertPoundSigns(String input) {
         return input.replace("\\#", "#");
     }
     
@@ -134,15 +103,15 @@ public class MarkupUtil {
      * CSS style classes used by GridEntityView which has its own pattern (probably silly)
      */
 
-    public static Spannable getSpannable(String message){
-        if(!DeveloperPreferences.isCssEnabled()){
+    public static Spannable getSpannable(String message) {
+        if (!DeveloperPreferences.isCssEnabled()) {
             return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(message));
         }
         return htmlspanner.fromHtml(message);
     }
 
-    public static Spannable getCustomSpannable(String style, String message){
-        if(!DeveloperPreferences.isCssEnabled()){
+    public static Spannable getCustomSpannable(String style, String message) {
+        if (!DeveloperPreferences.isCssEnabled()) {
             return Spannable.Factory.getInstance().newSpannable(MarkupUtil.stripHtml(message));
         }
         String mStyles = "<style> " + style + " </style>";
@@ -150,21 +119,20 @@ public class MarkupUtil {
     }
 
 
-    public static String getStyleString(){
-
-        if(CommCareApplication._() != null && CommCareApplication._().getCurrentApp() != null){
+    private static String getStyleString() {
+        if (CommCareApplication._() != null && CommCareApplication._().getCurrentApp() != null) {
             return CommCareApplication._().getCurrentApp().getStylizer().getStyleString();
-        } else{
+        } else {
             // fail silently? 
             return "";
         }
     }
 
-    public static String formatKeyVal(String key, String val){
+    public static String formatKeyVal(String key, String val) {
         return "<style> #" + key + " " + val + " </style>";
     }
 
-    public static String stripHtml(String html) {
+    private static String stripHtml(String html) {
         return Html.fromHtml(html).toString();
     }
 }

@@ -73,6 +73,8 @@ import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.tasks.FormLoaderTask;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 public class CommCareHomeActivity
@@ -958,7 +960,7 @@ public class CommCareHomeActivity
             this.finish();
         }
     }
-    
+
     private void createAskUseOldDialog(final AndroidSessionWrapper state, final SessionStateDescriptor existing) {
         final AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         String title = Localization.get("app.workflow.incomplete.continue.title");
@@ -1062,51 +1064,55 @@ public class CommCareHomeActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Map<Integer, String> menuIdToAnalyticsEventLabel = createMenuItemToEventMapping();
+        GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
+                GoogleAnalyticsFields.CATEGORY_HOME_SCREEN,
+                menuIdToAnalyticsEventLabel.get(item.getItemId()));
         switch (item.getItemId()) {
             case MENU_PREFERENCES:
-                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_SETTINGS);
                 createPreferencesMenu(this);
                 return true;
             case MENU_UPDATE:
-                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_UPDATE_CC);
                 Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
                 startActivity(i);
                 return true;
             case MENU_REPORT_PROBLEM:
-                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_REPORT_PROBLEM);
                 startReportActivity();
                 return true;
             case MENU_VALIDATE_MEDIA:
-                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_VALIDATE_MM);
                 startValidationActivity();
                 return true;
             case MENU_DUMP_FORMS:
-                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_MANAGE_SD);
                 startFormDumpActivity();
                 return true;
             case MENU_WIFI_DIRECT:
-                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_WIFI_DIRECT);
                 startWifiDirectActivity();
                 return true;
             case MENU_CONNECTION_DIAGNOSTIC:
-                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_CONNECTION_TEST);
                 startMenuConnectionActivity();
                 return true;
             case MENU_SAVED_FORMS:
-                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_SAVED_FORMS);
                 goToFormArchive(false);
                 return true;
             case MENU_ABOUT:
-                reportOptionsItemEntry(GoogleAnalyticsFields.LABEL_ABOUT_CC);
                 showAboutCommCareDialog();
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    private static void reportOptionsItemEntry(String label) {
-        GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                GoogleAnalyticsFields.CATEGORY_HOME_SCREEN, label);
+    private static Map<Integer, String> createMenuItemToEventMapping() {
+        Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
+        menuIdToAnalyticsEvent.put(MENU_PREFERENCES, GoogleAnalyticsFields.LABEL_SETTINGS);
+        menuIdToAnalyticsEvent.put(MENU_UPDATE, GoogleAnalyticsFields.LABEL_UPDATE_CC);
+        menuIdToAnalyticsEvent.put(MENU_REPORT_PROBLEM, GoogleAnalyticsFields.LABEL_REPORT_PROBLEM);
+        menuIdToAnalyticsEvent.put(MENU_VALIDATE_MEDIA, GoogleAnalyticsFields.LABEL_VALIDATE_MM);
+        menuIdToAnalyticsEvent.put(MENU_DUMP_FORMS, GoogleAnalyticsFields.LABEL_MANAGE_SD);
+        menuIdToAnalyticsEvent.put(MENU_WIFI_DIRECT, GoogleAnalyticsFields.LABEL_WIFI_DIRECT);
+        menuIdToAnalyticsEvent.put(MENU_CONNECTION_DIAGNOSTIC, GoogleAnalyticsFields.LABEL_CONNECTION_TEST);
+        menuIdToAnalyticsEvent.put(MENU_SAVED_FORMS, GoogleAnalyticsFields.LABEL_SAVED_FORMS);
+        menuIdToAnalyticsEvent.put(MENU_ABOUT, GoogleAnalyticsFields.LABEL_ABOUT_CC);
+        return menuIdToAnalyticsEvent;
     }
 
     public static void createPreferencesMenu(Activity activity) {

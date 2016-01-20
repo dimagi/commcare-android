@@ -6,7 +6,7 @@ import org.commcare.android.cases.AndroidCaseInstanceTreeElement;
 import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.CommCareUserOpenHelper;
+import org.commcare.android.database.user.DatabaseUserOpenHelper;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.android.database.user.models.EntityStorageCache;
@@ -153,7 +153,7 @@ public class TestUtils {
      * @return The hook for the test user-db 
      */
     public static SQLiteDatabase getTestDb() {
-        CommCareUserOpenHelper helper = new CommCareUserOpenHelper(RuntimeEnvironment.application, "Test");
+        DatabaseUserOpenHelper helper = new DatabaseUserOpenHelper(RuntimeEnvironment.application, "Test");
         return helper.getWritableDatabase("Test");
     }
 

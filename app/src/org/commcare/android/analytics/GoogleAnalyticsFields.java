@@ -30,7 +30,8 @@ public final class GoogleAnalyticsFields {
     // Actions for CATEGORY_FORM_ENTRY only
     public static String ACTION_FORWARD = "Navigate Forward";
     public static String ACTION_BACKWARD = "Navigate Backward";
-    public static String ACTION_QUIT_ATTEMPT = "Attempt Quit Form Entry";
+    public static String ACTION_TRIGGER_QUIT_ATTEMPT = "Trigger Quit Attempt";
+    public static String ACTION_EXIT_FORM = "Form is Exited";
 
     // Actions for CATEGORY_SERVER_COMMUNICATION only
     public static String ACTION_USER_SYNC_ATTEMPT = "User Sync Attempt";
@@ -110,7 +111,12 @@ public final class GoogleAnalyticsFields {
     public static String LABEL_ARROW = "Press Arrow";
     public static String LABEL_SWIPE = "Swipe";
 
-    // Labels for ACTION_QUIT_ATTEMPT (in CATEGORY_FORM_ENTRY)
+    // Labels for ACTION_TRIGGER_QUIT_ATTEMPT (in CATEGORY_FORM_ENTRY)
+    public static String LABEL_DEVICE_BUTTON = "Device Back Button";
+    public static String LABEL_NAV_BAR_ARROW = "Nav Bar Back Arrow";
+    public static String LABEL_PROGRESS_BAR_ARROW = "Progress Bar Back Arrow";
+
+    // Labels for ACTION_EXIT_FORM (in CATEGORY_FORM_ENTRY)
     public static String LABEL_NO_DIALOG = "No Dialog Shown";
     public static String LABEL_SAVE_AND_EXIT = "Save and Exit";
     public static String LABEL_EXIT_NO_SAVE = "Exit without Saving";
@@ -136,6 +142,7 @@ public final class GoogleAnalyticsFields {
     public static int VALUE_UNREACHABLE_HOST = 4;
     public static int VALUE_CONNECTION_TIMEOUT = 5;
     public static int VALUE_UNKNOWN_FAILURE = 6;
+    public static int VALUE_STORAGE_FULL = 7;
 
     // Values for LABEL_AUTO_UPDATE
     public static int VALUE_NEVER = 0;

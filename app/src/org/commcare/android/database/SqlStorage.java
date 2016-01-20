@@ -117,12 +117,17 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         return getRecordsForValues(new String[]{fieldName}, new Object[]{value});
     }
 
+    /**
+     * Return all records from this SqlStorage object for which, for each field in fieldNames,
+     * the record has the correct corresponding value in values
+     */
     public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
         Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, null);
 
         Cursor c;
         try {
-            c = helper.getHandle().query(table, new String[]{DbUtil.DATA_COL}, whereClause.first, whereClause.second, null, null, null);
+            c = helper.getHandle().query(table, new String[]{DbUtil.DATA_COL}, whereClause.first,
+                    whereClause.second, null, null, null);
         } catch (SessionUnavailableException e) {
             throw new UserStorageClosedException(e.getMessage());
         }

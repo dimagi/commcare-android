@@ -131,25 +131,21 @@ public class FormAndDataSyncer {
                 activity) {
 
             @Override
-            protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
+            protected void deliverResult(CommCareHomeActivity receiver, PullTaskResult result) {
                 receiver.getUIController().refreshView();
-                String reportSyncLabel;
-                int reportSyncValue;
+
+                String reportSyncLabel = result.getCorrespondingGoogleAnalyticsLabel();
+                int reportSyncValue = result.getCorrespondingGoogleAnalyticsValue();
 
                 //TODO: SHARES _A LOT_ with login activity. Unify into service
                 switch (result) {
-                    case DataPullTask.AUTH_FAILED:
-                        reportSyncLabel = GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
-                        reportSyncValue = GoogleAnalyticsFields.VALUE_AUTH_FAILED;
+                    case AUTH_FAILED:
                         receiver.displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
                         break;
-                    case DataPullTask.BAD_DATA:
-                        reportSyncLabel = GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
-                        reportSyncValue = GoogleAnalyticsFields.VALUE_BAD_DATA;
+                    case BAD_DATA:
                         receiver.displayMessage(Localization.get("sync.fail.bad.data"), true);
                         break;
-                    case DataPullTask.DOWNLOAD_SUCCESS:
-                        reportSyncLabel = GoogleAnalyticsFields.LABEL_SYNC_SUCCESS;
+                    case DOWNLOAD_SUCCESS:
                         if (formsToSend) {
                             reportSyncValue = GoogleAnalyticsFields.VALUE_WITH_SEND_FORMS;
                         } else {
@@ -157,35 +153,24 @@ public class FormAndDataSyncer {
                         }
                         receiver.displayMessage(Localization.get("sync.success.synced"));
                         break;
-                    case DataPullTask.SERVER_ERROR:
-                        reportSyncLabel = GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
-                        reportSyncValue = GoogleAnalyticsFields.VALUE_SERVER_ERROR;
+                    case SERVER_ERROR:
                         receiver.displayMessage(Localization.get("sync.fail.server.error"));
                         break;
-                    case DataPullTask.UNREACHABLE_HOST:
-                        reportSyncLabel = GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
-                        reportSyncValue = GoogleAnalyticsFields.VALUE_UNREACHABLE_HOST;
+                    case UNREACHABLE_HOST:
                         receiver.displayMessage(Localization.get("sync.fail.bad.network"), true);
                         break;
-                    case DataPullTask.CONNECTION_TIMEOUT:
-                        reportSyncLabel = GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
-                        reportSyncValue = GoogleAnalyticsFields.VALUE_CONNECTION_TIMEOUT;
+                    case CONNECTION_TIMEOUT:
                         receiver.displayMessage(Localization.get("sync.fail.timeout"), true);
                         break;
-                    case DataPullTask.UNKNOWN_FAILURE:
-                        reportSyncLabel = GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
-                        reportSyncValue = GoogleAnalyticsFields.VALUE_UNKNOWN_FAILURE;
+                    case UNKNOWN_FAILURE:
                         receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
                         break;
-                    default:
-                        reportSyncLabel = GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
-                        reportSyncValue = GoogleAnalyticsFields.VALUE_UNKNOWN_FAILURE;
                 }
+
                 if (userTriggeredSync) {
                     GoogleAnalyticsUtils.reportSyncAttempt(
                             GoogleAnalyticsFields.ACTION_USER_SYNC_ATTEMPT,
                             reportSyncLabel, reportSyncValue);
-
                 } else {
                     GoogleAnalyticsUtils.reportSyncAttempt(
                             GoogleAnalyticsFields.ACTION_AUTO_SYNC_ATTEMPT,

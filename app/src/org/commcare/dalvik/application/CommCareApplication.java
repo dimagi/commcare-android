@@ -39,6 +39,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.acra.annotation.ReportsCrashes;
+import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.analytics.TimedStatsTracker;
 import org.commcare.android.database.AndroidDbHelper;
 import org.commcare.android.database.MigrationException;
@@ -47,7 +48,7 @@ import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.database.user.CommCareUserOpenHelper;
+import org.commcare.android.database.user.DatabaseUserOpenHelper;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.javarosa.AndroidLogEntry;
@@ -176,9 +177,14 @@ public class CommCareApplication extends Application {
      */
     private final PopupHandler toaster = new PopupHandler(this);
 
+
     private GoogleAnalytics analyticsInstance;
     private Tracker analyticsTracker;
     private String currentUserId;
+
+    private String messageForUserOnDispatch;
+    private String titleForUserMessage;
+
 
     @Override
     public void onCreate() {
@@ -236,7 +242,9 @@ public class CommCareApplication extends Application {
         }
 
         ACRAUtil.initACRA(this);
-        analyticsInstance = GoogleAnalytics.getInstance(this);
+        if (!GoogleAnalyticsUtils.versionIncompatible()) {
+            analyticsInstance = GoogleAnalytics.getInstance(this);
+        }
     }
 
     public void triggerHandledAppExit(Context c, String message) {
@@ -643,7 +651,7 @@ public class CommCareApplication extends Application {
         // 4) Delete all the user databases associated with this app
         SqlStorage<UserKeyRecord> userDatabase = app.getStorage(UserKeyRecord.class);
         for (UserKeyRecord user : userDatabase) {
-            File f = getDatabasePath(CommCareUserOpenHelper.getDbName(user.getUuid()));
+            File f = getDatabasePath(DatabaseUserOpenHelper.getDbName(user.getUuid()));
             if (!FileUtil.deleteFileOrDir(f)) {
                 Logger.log(AndroidLogger.TYPE_RESOURCES, "A user database was unable to be " +
                         "deleted during app uninstall. Aborting uninstall process for now.");
@@ -821,7 +829,7 @@ public class CommCareApplication extends Application {
         for (String id : dbIdsToRemove) {
             //TODO: We only wanna do this if the user is the _last_ one with a key to this id, actually.
             //(Eventually)
-            this.getDatabasePath(CommCareUserOpenHelper.getDbName(id)).delete();
+            this.getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
         }
         CommCareApplication._().closeUserSession();
     }
@@ -842,6 +850,7 @@ public class CommCareApplication extends Application {
         try {
             currentUserId = this.getSession().getLoggedInUser().getUniqueId();
         } catch (SessionUnavailableException e) {
+            currentUserId = null;
         }
     }
 
@@ -912,7 +921,7 @@ public class CommCareApplication extends Application {
 
                     mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
 
-                    //Don't let anyone touch this until it's logged in
+                    // Don't let anyone touch this until it's logged in
                     // Open user database
                     mBoundService.prepareStorage(key, record);
 
@@ -1389,5 +1398,22 @@ public class CommCareApplication extends Application {
             public void onServiceDisconnected(ComponentName className) {
             }
         };
+    }
+
+    public void storeMessageForUserOnDispatch(String title, String message) {
+        this.titleForUserMessage = title;
+        this.messageForUserOnDispatch = message;
+    }
+
+    public String[] getPendingUserMessage() {
+        if (messageForUserOnDispatch != null) {
+            return new String[]{messageForUserOnDispatch, titleForUserMessage};
+        }
+        return null;
+    }
+
+    public void clearPendingUserMessage() {
+        messageForUserOnDispatch = null;
+        titleForUserMessage = null;
     }
 }

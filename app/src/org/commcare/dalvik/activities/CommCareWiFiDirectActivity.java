@@ -43,6 +43,7 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.tasks.ZipTask;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
@@ -734,22 +735,18 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         Logger.log(TAG, "Error Sending Files");
     }
 
-    public void updateStatusText(){
-        SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-        //Get all forms which are either unsent or unprocessed
-        Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
-        ids.addAll(storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_COMPLETE}));
+    public void updateStatusText() {
+        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
 
         int numUnsyncedForms = ids.size();
-
-        int numUnsubmittedForms = 0;
+        int numUnsubmittedForms;
 
         File wDirectory = new File(writeDirectory);
 
-        if(!wDirectory.exists() || !wDirectory.isDirectory()){
+        if (!wDirectory.exists() || !wDirectory.isDirectory()) {
             numUnsubmittedForms = 0;
-        }
-        else{
+        } else {
             numUnsubmittedForms = wDirectory.listFiles().length;
         }
 

@@ -17,26 +17,26 @@ public class TimedStatsTracker {
 
     private static final String TAG = TimedStatsTracker.class.getSimpleName();
 
-    private static String KEY_LAST_FORM_NAME = "last-form-name";
+    private static String KEY_LAST_FORM_ID = "last-form-id";
     private static String KEY_LAST_FORM_START_TIME = "last-form-start-time";
     private static String KEY_LAST_SESSION_START_TIME = "last-session-start-time";
     private static String KEY_LAST_LOGGED_IN_USER = "last-logged-in-user";
 
-    public static void registerEnterForm(String formTitle) {
+    public static void registerEnterForm(int formID) {
         SharedPreferences.Editor editor =
                 CommCareApplication._().getCurrentApp().getAppPreferences().edit();
-        editor.putString(KEY_LAST_FORM_NAME, formTitle)
+        editor.putInt(KEY_LAST_FORM_ID, formID)
                 .putLong(KEY_LAST_FORM_START_TIME, currentTime())
                 .commit();
     }
 
-    public static void registerExitForm(String formTitle) {
+    public static void registerExitForm(int formID) {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         long enterTime = prefs.getLong(KEY_LAST_FORM_START_TIME, -1);
         if (enterTime != -1) {
-            String formLastEntered = prefs.getString(KEY_LAST_FORM_NAME, "");
-            if (formLastEntered.equals(formTitle)) {
-                reportTimedEvent(GoogleAnalyticsFields.ACTION_TIME_IN_A_FORM, formTitle,
+            int formLastEntered = prefs.getInt(KEY_LAST_FORM_ID, -1);
+            if (formLastEntered == formID) {
+                reportTimedEvent(GoogleAnalyticsFields.ACTION_TIME_IN_A_FORM,
                         computeElapsedTimeInSeconds(enterTime, currentTime()));
             } else {
                 Log.i(TAG, "Attempting to report exit form time for a different form than the " +
@@ -93,17 +93,9 @@ public class TimedStatsTracker {
 
     /**
      * Report the completion of a timed event and its length
-     *
-     * @param eventSpecificLabel - some piece of information specific to the given timed event,
-     *                           possibly empty
      */
-    private static void reportTimedEvent(String timedEvent, String eventSpecificLabel,
-                                         int timeInSeconds) {
-        GoogleAnalyticsUtils.reportTimedEvent(timedEvent, eventSpecificLabel, timeInSeconds);
-    }
-
     private static void reportTimedEvent(String timedEvent, int timeInSeconds) {
-        reportTimedEvent(timedEvent, "", timeInSeconds);
+        GoogleAnalyticsUtils.reportTimedEvent(timedEvent, timeInSeconds);
     }
 
 }
