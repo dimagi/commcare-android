@@ -119,9 +119,16 @@ public class PurgeStaleArchivedFormsTask
      */
     public static Vector<Integer> getSavedFormsToPurge(DateTime lastValidDate) {
         Vector<Integer> toPurge = new Vector<>();
+
         SqlStorage<FormRecord> formStorage =
                 CommCareApplication._().getUserStorage(FormRecord.class);
-        for (int id : formStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_SAVED)) {
+
+        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
+        Vector<Integer> savedFormsForThisApp = formStorage.getIDsForValues(
+                new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[]{FormRecord.STATUS_SAVED, currentAppId});
+
+        for (int id : savedFormsForThisApp) {
             String date =
                     formStorage.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
             try {

@@ -27,6 +27,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
     public static final String META_UUID = "UUID";
     public static final String META_XMLNS = "XMLNS";
     public static final String META_LAST_MODIFIED = "DATE_MODIFIED";
+    public static final String META_APP_ID = "APP_ID";
 
     /**
      * This form record is a stub that hasn't actually had data saved for it yet
@@ -80,6 +81,9 @@ public class FormRecord extends Persisted implements EncryptedModel {
     @Persisting(6)
     @MetaField(META_LAST_MODIFIED)
     private Date lastModified;
+    @Persisting(7)
+    @MetaField(META_APP_ID)
+    private String appId;
 
     public FormRecord() {
     }
@@ -88,7 +92,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
      * Creates a record of a form entry with the provided data. Note that none
      * of the parameters can be null...
      */
-    public FormRecord(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid, Date lastModified) {
+    public FormRecord(String instanceURI, String status, String xmlns, byte[] aesKey, String uuid,
+                      Date lastModified, String appId) {
         this.instanceURI = instanceURI;
         this.status = status;
         this.xmlns = xmlns;
@@ -99,6 +104,7 @@ public class FormRecord extends Persisted implements EncryptedModel {
         if (lastModified == null) {
             this.lastModified = new Date();
         }
+        this.appId = appId;
     }
 
     /**
@@ -106,7 +112,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
      * and status.
      */
     public FormRecord updateInstanceAndStatus(String instanceURI, String newStatus) {
-        FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey, uuid, lastModified);
+        FormRecord fr = new FormRecord(instanceURI, newStatus, xmlns, aesKey, uuid,
+                lastModified, appId);
         fr.recordId = this.recordId;
         return fr;
     }
@@ -138,12 +145,18 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return xmlns;
     }
 
+    @Override
     public boolean isEncrypted(String data) {
         return false;
     }
 
+    @Override
     public boolean isBlobEncrypted() {
         return true;
+    }
+
+    public String getAppId() {
+        return this.appId;
     }
 
     /**
