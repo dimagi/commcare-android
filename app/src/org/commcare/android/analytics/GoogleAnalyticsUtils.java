@@ -8,6 +8,7 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 
 import java.util.Map;
@@ -239,7 +240,7 @@ public class GoogleAnalyticsUtils {
     }
 
     private static boolean analyticsDisabled() {
-        return !DeveloperPreferences.areAnalyticsEnabled();
+        return !CommCarePreferences.isAnalyticsEnabled();
     }
 
     public static boolean versionIncompatible() {
