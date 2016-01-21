@@ -158,6 +158,9 @@ public class AppDatabaseUpgrader {
         return FixtureSerializationMigration.migrateFixtureDbBytes(db, context);
     }
 
+    /**
+     * Add fields to UserKeyRecord to support PIN auth
+     */
     private boolean upgradeSevenEight(SQLiteDatabase db) {
         db.beginTransaction();
         try {

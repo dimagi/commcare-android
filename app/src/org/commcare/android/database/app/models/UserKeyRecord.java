@@ -117,15 +117,17 @@ public class UserKeyRecord extends Persisted {
         this.username = username;
         this.passwordHash = passwordHash;
         this.encryptedKey = encryptedKey;
-        this.passwordWrappedByPin = wrappedPassword;
+        if (wrappedPassword != null) {
+            this.passwordWrappedByPin = wrappedPassword;
+        } else {
+            // Means no PIN has been assigned yet, so just set a placeholder that is non-null
+            // (Persisting fields can't be null)
+            this.passwordWrappedByPin = new byte[0];
+        }
         this.validFrom = validFrom;
         this.validTo = validTo;
         this.uuid = uuid;
         this.type = type;
-
-        if (passwordWrappedByPin == null) {
-            passwordWrappedByPin = new byte[0];
-        }
         this.rememberedPassword = "";
 
         // All new UKRs initialized to active
@@ -278,13 +280,8 @@ public class UserKeyRecord extends Persisted {
     }
 
     public boolean isPinValid(String pin) {
-        // First try to unwrap wrapped password with the PIN
-        String password = getUnhashedPasswordViaPin(pin);
-        if (password == null) {
-            return false;
-        }
-        // If unwrapping is successful, check if the resulting password is correct
-        return isPasswordValid(password);
+        // Unwrap wrapped password with the PIN, and then check if the resulting password is correct
+        return isPasswordValid(getUnhashedPasswordViaPin(pin));
     }
 
     /**

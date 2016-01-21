@@ -168,7 +168,7 @@
         <include layout="@layout/component_drop_shadow"/>
     </FrameLayout>
 
-    <!-- Dummy item to give focus to in order to prevent keyboard from showing -->
+    <!-- Dummy item to give focus to when we want to prevent keyboard from showing -->
     <LinearLayout
         android:focusable="true"
         android:focusableInTouchMode="true"
