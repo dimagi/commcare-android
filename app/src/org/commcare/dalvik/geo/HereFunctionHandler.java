@@ -101,8 +101,7 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     }
 
     public boolean locationProvidersFound() {
-        mProviders = GeoUtils.evaluateProvidersWithPermissions(mLocationManager, context);
-        return mProviders.size() > 0;
+        return GeoUtils.evaluateProvidersWithPermissions(mLocationManager, context).size() > 0;
     }
 
     private void requestLocationUpdates() {
