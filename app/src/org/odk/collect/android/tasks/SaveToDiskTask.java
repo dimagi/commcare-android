@@ -79,7 +79,12 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         this.instanceContentUri = instanceContentUri;
         this.symetricKey = symetricKey;
         this.headless = headless;
-        this.taskId = SAVING_TASK_ID;
+
+        if (headless) {
+            this.taskId = -1;
+        } else {
+            this.taskId = SAVING_TASK_ID;
+        }
     }
 
     /**

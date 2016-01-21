@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <dimen name="divider_left_margin">112dp</dimen>
-    <dimen name="entity_select_divider_left_inset">96dp</dimen>
-</resources>
