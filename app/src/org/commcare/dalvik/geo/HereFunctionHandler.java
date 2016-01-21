@@ -108,22 +108,19 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         mProviders = GeoUtils.evaluateProvidersWithPermissions(mLocationManager, context);
 
         for (String provider : mProviders) {
-            if ((provider.equals(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||
-                    (provider.equals(LocationManager.NETWORK_PROVIDER) && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
-                // This is non-null if the calling activity pauses.
-                if (location == null) {
-                    Location lastKnownLocation = mLocationManager.getLastKnownLocation(provider);
-                    if (lastKnownLocation != null) {
-                        this.location = toGeoPointData(lastKnownLocation);
-                        Log.i("HereFunctionHandler", "last known location: " + this.location.getDisplayText());
-                    }
+            // Ignore the inspector warnings; the permissions are already checked in evaluateProvidersWithPermissions.
+            if (location == null) {
+                Location lastKnownLocation = mLocationManager.getLastKnownLocation(provider);
+                if (lastKnownLocation != null) {
+                    this.location = toGeoPointData(lastKnownLocation);
+                    Log.i("HereFunctionHandler", "last known location: " + this.location.getDisplayText());
                 }
-
-                // Looper is necessary because requestLocationUpdates is called inside an AsyncTask (EntityLoaderTask).
-                // What values for minTime and minDistance?
-                mLocationManager.requestLocationUpdates(provider, 0, 0, this, Looper.getMainLooper());
-                requestingLocationUpdates = true;
             }
+
+            // Looper is necessary because requestLocationUpdates is called inside an AsyncTask (EntityLoaderTask).
+            // What values for minTime and minDistance?
+            mLocationManager.requestLocationUpdates(provider, 0, 0, this, Looper.getMainLooper());
+            requestingLocationUpdates = true;
         }
     }
 
