@@ -209,6 +209,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity> implements On
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
         String enteredUsername = username.getText().toString();
         if (!"".equals(enteredUsername) && enteredUsername != null) {
             savedInstanceState.putString(KEY_ENTERED_USER, enteredUsername);
