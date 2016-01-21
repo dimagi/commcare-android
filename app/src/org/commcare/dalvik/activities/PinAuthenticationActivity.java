@@ -18,7 +18,12 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.locale.Localization;
 
 /**
- * Created by amstone326 on 1/18/16.
+ * When a user selects Set/Reset PIN from the home activity options menu, they must first
+ * authenticate themselves in order to be able to do so. This is the activity that launches to
+ * prompt the user to enter either their current PIN, if it exists, or their password if it does
+ * not, before proceeding to the CreatePinActivity
+ *
+ * @author Aliza Stone (astone@dimagi.com)
  */
 @ManagedUi(R.layout.pin_auth_view)
 public class PinAuthenticationActivity extends

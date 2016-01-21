@@ -1,6 +1,5 @@
 package org.commcare.android.database.app.models;
 
-import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.modern.models.MetaField;
@@ -8,7 +7,11 @@ import org.commcare.modern.models.MetaField;
 import java.util.Date;
 
 /**
- * Created by amstone326 on 1/19/16.
+ * Represents the version of a UserKeyRecord that exists on any devices running a pre-2.26
+ * version of CommCare, which was deprecated in app db version 8. This class is used to read a
+ * UserKeyRecord that exists in such a database, in order to run a db upgrade.
+ *
+ * @author Aliza Stone (astone@dimagi.com)
  */
 @Table(UserKeyRecordV1.STORAGE_KEY)
 public class UserKeyRecordV1 extends UserKeyRecord {

@@ -25,7 +25,7 @@ import org.javarosa.core.services.locale.Localization;
 
 
 /**
- * Created by amstone326 on 1/12/16.
+ * @author Aliza Stone (astone@dimagi.com)
  */
 @ManagedUi(R.layout.create_pin_view)
 public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinActivity> {
