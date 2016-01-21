@@ -388,7 +388,9 @@ public class CommCareHomeActivity
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
                 case PREFERENCES_ACTIVITY:
-                    uiController.configUI();
+                    // rebuild buttons in case language was changed
+                    uiController.setupUI();
+                    rebuildOptionMenu();
                     return;
                 case MEDIA_VALIDATOR_ACTIVITY:
                     if(resultCode == RESULT_CANCELED){

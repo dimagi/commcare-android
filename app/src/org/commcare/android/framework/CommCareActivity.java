@@ -804,12 +804,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * Rebuild the activity's menu options based on the current state of the activity.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void rebuildMenus() {
-        // CommCare-159047: this method call rebuilds the options menu
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            invalidateOptionsMenu();
-        } else {
-            supportInvalidateOptionsMenu();
+    public void rebuildOptionMenu() {
+        if (CommCareApplication._().getCurrentApp() != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                invalidateOptionsMenu();
+            } else {
+                supportInvalidateOptionsMenu();
+            }
         }
     }
 
