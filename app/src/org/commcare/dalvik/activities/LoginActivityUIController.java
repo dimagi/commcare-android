@@ -258,42 +258,45 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     private void checkEnteredUsernameForMatch() {
+        UserKeyRecord matchingRecord = getActiveRecordForUsername(getEnteredUsername());
+        if (matchingRecord != null) {
+            setExistingUserMode(matchingRecord);
+        } else {
+            setNewUserMode();
+        }
+    }
+
+    /**
+     * @return the active UKR for the given username, or null if none exists
+     */
+    private static UserKeyRecord getActiveRecordForUsername(String username) {
         SqlStorage<UserKeyRecord> existingUsers =
                 CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class);
 
         // Even though we don't allow multiple users with same username in a domain, there can be
         // multiple UKRs for 1 user (for ex if password changes)
         Vector<UserKeyRecord> matchingRecords = existingUsers.
-                getRecordsForValue(UserKeyRecord.META_USERNAME, getEnteredUsername());
+                getRecordsForValue(UserKeyRecord.META_USERNAME, username);
 
-        if (matchingRecords.size() > 0) {
-            setExistingUserMode(matchingRecords);
-        } else {
-            setNewUserMode();
+        // However, we guarantee that there will be at most 1 record marked ACTIVE per username
+        for (UserKeyRecord record : matchingRecords) {
+            if (record.isActive()) {
+                return record;
+            }
         }
+        return null;
     }
 
-    private void setExistingUserMode(Vector<UserKeyRecord> existingMatchingRecords) {
-        for (UserKeyRecord record : existingMatchingRecords) {
-            if (record.isPrimedForNextLogin()) {
-                // Primed login takes priority -- if any records have this set, assume we are
-                // trying to log into that record
-                setPrimedLoginMode();
-                return;
-            }
+    private void setExistingUserMode(UserKeyRecord existingRecord) {
+        if (existingRecord.isPrimedForNextLogin()) {
+            // Primed login takes precedence (meaning if a record has a PIN set AND is primed for
+            // next login, we show primed mode rather than PIN mode)
+            setPrimedLoginMode();
+        } else if (existingRecord.hasPinSet()) {
+            setPinPasswordMode();
+        } else {
+            setNormalPasswordMode();
         }
-
-        for (UserKeyRecord record : existingMatchingRecords) {
-            // Otherwise, if any of the records have a PIN set, assume we are trying to log into
-            // that record
-            if (record.hasPinSet()) {
-                setPinPasswordMode();
-                return;
-            }
-        }
-
-        // Otherwise, set to normal password mode
-        setNormalPasswordMode();
     }
 
     private void setNewUserMode() {

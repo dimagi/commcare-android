@@ -28,6 +28,7 @@ import org.kxml2.io.KXmlParser;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
+import java.util.Vector;
 
 /**
  * This task is responsible for taking user credentials and attempting to
@@ -309,7 +310,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                 try {
                     existing = storage.getRecordForValues(
                             new String[]{UserKeyRecord.META_SANDBOX_ID, UserKeyRecord.META_USERNAME},
-                            new Object[] {record.getUuid(), record.getUsername()});
+                            new Object[]{record.getUuid(), record.getUsername()});
                     
                     Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Got new record for existing sandbox " + existing.getUuid() + " . Merging");
                     //So we have an existing record. Either we're updating our current record and we're updating the key details
@@ -327,12 +328,30 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
                     // If there's no existing record, write this new one (we'll handle updating the status later)
                     storage.write(record);
                 }
+
+                markOldRecordsInactive(storage, record.getUsername(), record.getUuid());
             }
         } catch (StorageFullException e) {
             e.printStackTrace();
             return false;
         }
         return true;
+    }
+
+    /** While there is guaranteed to be at most 1 existing record in the same sandbox for the same
+     * username, there may be multiple in OTHER sandboxes. We want to mark all of those except for
+     * the one we just wrote as inactive
+     */
+    private void markOldRecordsInactive(SqlStorage<UserKeyRecord> storage, String username,
+                                        String uuidOfActiveRecord) {
+        Vector<UserKeyRecord> allRecordsWithSameUsername = storage.getRecordsForValues(
+                new String[]{UserKeyRecord.META_USERNAME},
+                new Object[]{username});
+        for (UserKeyRecord r : allRecordsWithSameUsername) {
+            if (r.getUuid() != uuidOfActiveRecord) {
+                r.setInactive();
+            }
+        }
     }
     
     @Override

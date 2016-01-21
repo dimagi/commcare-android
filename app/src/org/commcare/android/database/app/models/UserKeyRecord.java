@@ -25,11 +25,11 @@ import java.util.regex.Pattern;
 @Table(UserKeyRecord.STORAGE_KEY)
 public class UserKeyRecord extends Persisted {
 
+    public static final String STORAGE_KEY = "user_key_records";
+
     public static final String META_USERNAME = "username";
     public static final String META_SANDBOX_ID = "sandbox_id";
     public static final String META_KEY_STATUS = "status";
-
-    public static final String STORAGE_KEY = "user_key_records";
 
     /**
      * This is a normal sandbox record that is ready to be used *
@@ -88,6 +88,13 @@ public class UserKeyRecord extends Persisted {
     private String rememberedPassword;
 
     /**
+     * If there are multiple UKRs for a single username in app storage, we guarantee that only
+     * 1 will be marked as active
+     */
+    @Persisting(10)
+    private boolean isActive;
+
+    /**
      * Serialization Only!
      */
     public UserKeyRecord() {
@@ -105,7 +112,8 @@ public class UserKeyRecord extends Persisted {
     }
 
     public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey,
-                         byte[] wrappedPassword, Date validFrom, Date validTo, String uuid, int type) {
+                         byte[] wrappedPassword, Date validFrom, Date validTo, String uuid,
+                         int type) {
         this.username = username;
         this.passwordHash = passwordHash;
         this.encryptedKey = encryptedKey;
@@ -118,7 +126,10 @@ public class UserKeyRecord extends Persisted {
         if (passwordWrappedByPin == null) {
             passwordWrappedByPin = new byte[0];
         }
-        rememberedPassword = "";
+        this.rememberedPassword = "";
+
+        // All new UKRs initialized to active
+        this.isActive = true;
     }
 
     /**
@@ -165,6 +176,18 @@ public class UserKeyRecord extends Persisted {
 
     public int getType() {
         return type;
+    }
+
+    public boolean isActive() {
+        return this.isActive;
+    }
+
+    public void setInactive() {
+        this.isActive = false;
+    }
+
+    public void setActive() {
+        this.isActive = true;
     }
 
     /**
@@ -386,8 +409,11 @@ public class UserKeyRecord extends Persisted {
         this.rememberedPassword = "";
     }
 
+    /**
+     * Used for app db migration only
+     */
     public static UserKeyRecord fromOldVersion(UserKeyRecordV1 oldRecord) {
-        return new UserKeyRecord(
+        UserKeyRecord newRecord = new UserKeyRecord(
                 oldRecord.getUsername(),
                 oldRecord.getPasswordHash(),
                 oldRecord.getEncryptedKey(),
@@ -395,6 +421,12 @@ public class UserKeyRecord extends Persisted {
                 oldRecord.getValidTo(),
                 oldRecord.getUuid(),
                 oldRecord.getType());
+
+        // Going to set all of these to inactive to start with, and then the migration code will
+        // take care of assigning the active flag back to the right ones
+        newRecord.setInactive();
+
+        return newRecord;
     }
 
 }

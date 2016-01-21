@@ -15,6 +15,13 @@ import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.resources.model.Resource;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * @author ctsims
  */
@@ -166,10 +173,55 @@ public class AppDatabaseUpgrader {
                 storage.write(newUKR);
             }
 
+            determineActiveRecords(storage);
+
             db.setTransactionSuccessful();
             return true;
         } finally {
             db.endTransaction();
+        }
+    }
+
+    /**
+     * UserKeyRecordV1 does not have the 'isActive' field (because it is being introduced with
+     * this migration). Go through and mark 1 UKR per username as active, based upon the following
+     * rules:
+     * -If there is only 1 record for a username, mark it as active
+     * -If there are multiple records for a username, mark the one with the latest validTo date as
+     * active
+     */
+    private void determineActiveRecords(SqlStorage<Persisted> newUKRStorage) {
+
+        // First, create a mapping from username --> list of UKRs
+        Map<String, List<UserKeyRecord>> usernamesToRecords = new HashMap<>();
+        for (Persisted p : newUKRStorage) {
+            UserKeyRecord record = (UserKeyRecord)p;
+            String username = record.getUsername();
+            List<UserKeyRecord> recordsForUsername = usernamesToRecords.get(username);
+            if (recordsForUsername == null) {
+                recordsForUsername = new ArrayList<>();
+            }
+            recordsForUsername.add(record);
+            usernamesToRecords.put(username, recordsForUsername);
+        }
+
+        // Then determine which record for each username to mark as active
+        for (String username : usernamesToRecords.keySet()) {
+            List<UserKeyRecord> records = usernamesToRecords.get(username);
+            if (records.size() == 1) {
+                // If there is only 1 record for a username, mark it as active
+                records.get(0).setActive();
+            } else {
+                // Otherwise, sort the records in decreasing order of validTo date, and then mark
+                // the first one in the list as active
+                Collections.sort(records, new Comparator<UserKeyRecord>() {
+                    @Override
+                    public int compare(UserKeyRecord lhs, UserKeyRecord rhs) {
+                        return lhs.getValidTo().compareTo(rhs.getValidTo());
+                    }
+                });
+                records.get(0).setActive();
+            }
         }
     }
 }
