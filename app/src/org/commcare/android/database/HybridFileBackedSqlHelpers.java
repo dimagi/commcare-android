@@ -115,6 +115,13 @@ public class HybridFileBackedSqlHelpers {
         }
     }
 
+    /**
+     * Remove files in the orphaned file table. Files are added to this table
+     * when file-backed db transactions fail, leaving the file on the
+     * filesystem.
+     *
+     * Order of operations expects filenames to be globally unique.
+     */
     public static void removeOrphanedFiles(SQLiteDatabase db) {
         Cursor cur = db.query(DbUtil.orphanFileTableName, new String[] {DatabaseHelper.FILE_COL}, null, null, null, null, null);
         ArrayList<String> files = new ArrayList<>();
