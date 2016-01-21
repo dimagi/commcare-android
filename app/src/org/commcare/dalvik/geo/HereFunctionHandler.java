@@ -36,12 +36,13 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     public static final String HERE_NAME = "here";
     private GeoPointData location;
 
-    private LocationManager mLocationManager;
-
     private boolean requestingLocationUpdates;
     private boolean locationGoodEnough;
 
     private final Context context = CommCareApplication._().getApplicationContext();
+    private final LocationManager mLocationManager = (LocationManager) context.getSystemService(
+            Context.LOCATION_SERVICE);
+    private Set<String> mProviders;
 
     // If there are more general uses for HereFunctionHandler, the type of this field can be
     // generalized to a listener interface.
@@ -59,10 +60,8 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
 
     // The EntitySelectActivity must subscribe before this method is called if a fresh location is desired.
     public Object eval(Object[] args, EvaluationContext ec) {
-        if (entitySelectActivity != null && !entitySelectActivity.getContainsHereFunction()) {
-            refreshLocation();
-            allowGpsUse();
-            entitySelectActivity.setContainsHereFunction(true);
+        if (entitySelectActivity != null) {
+            entitySelectActivity.onHereFunctionEvaluated();
         }
         if (location == null) {
             return "";
@@ -102,21 +101,12 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     }
 
     public boolean locationProvidersFound() {
-        mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        Set<String> mProviders = GeoUtils.evaluateProviders(mLocationManager);
-
-        for (String provider : mProviders) {
-            if ((provider.equals(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||
-                    (provider.equals(LocationManager.NETWORK_PROVIDER) && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
-                return true;
-            }
-        }
-        return false;
+        mProviders = GeoUtils.evaluateProvidersWithPermissions(mLocationManager, context);
+        return mProviders.size() > 0;
     }
 
     private void requestLocationUpdates() {
-        mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        Set<String> mProviders = GeoUtils.evaluateProviders(mLocationManager);
+        mProviders = GeoUtils.evaluateProvidersWithPermissions(mLocationManager, context);
 
         for (String provider : mProviders) {
             if ((provider.equals(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||

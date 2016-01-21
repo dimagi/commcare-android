@@ -1236,11 +1236,15 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         return hereFunctionHandler;
     }
 
-    public boolean getContainsHereFunction() {
-        return containsHereFunction;
-    }
+    public void onHereFunctionEvaluated() {
+        if (!containsHereFunction) {  // First time here() is evaluated
+            hereFunctionHandler.refreshLocation();
+            hereFunctionHandler.allowGpsUse();
+            containsHereFunction = true;
 
-    public void setContainsHereFunction(boolean containsHereFunction) {
-        this.containsHereFunction = containsHereFunction;
+            if (!hereFunctionHandler.locationProvidersFound()) {
+                // Show warning
+            }
+        }
     }
 }

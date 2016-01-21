@@ -1,10 +1,13 @@
 package org.odk.collect.android.utilities;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
+import android.support.v4.content.ContextCompat;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.dalvik.R;
@@ -53,6 +56,23 @@ public class GeoUtils {
             }
         }
                 
+        return set;
+    }
+
+    public static Set<String> evaluateProvidersWithPermissions(LocationManager manager, Context context) {
+        HashSet<String> set = new HashSet<>();
+
+        List<String> providers = manager.getProviders(true);
+        for (String provider : providers) {
+            if ((provider.equalsIgnoreCase(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(
+                            context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+                set.add(LocationManager.GPS_PROVIDER);
+            } if ((provider.equalsIgnoreCase(LocationManager.NETWORK_PROVIDER) && ContextCompat.checkSelfPermission(
+                            context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+                set.add(LocationManager.NETWORK_PROVIDER);
+            }
+        }
+
         return set;
     }
 
