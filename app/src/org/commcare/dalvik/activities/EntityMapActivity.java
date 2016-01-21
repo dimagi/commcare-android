@@ -2,7 +2,6 @@ package org.commcare.dalvik.activities;
 
 import android.annotation.TargetApi;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.util.Pair;
 
@@ -13,6 +12,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.AndroidInstanceInitializer;
@@ -30,11 +30,11 @@ import java.util.HashMap;
 import java.util.Vector;
 
 /**
- * @author ctsims
+ * @author Forest Tong, Phillip Mates
  */
 @TargetApi(11)
-public class EntityMapActivity extends FragmentActivity implements OnMapReadyCallback,
-        GoogleMap.OnMarkerClickListener {
+public class EntityMapActivity extends CommCareActivity implements OnMapReadyCallback,
+        GoogleMap.OnInfoWindowClickListener {
     private static final String TAG = EntityMapActivity.class.getSimpleName();
 
     private EvaluationContext entityEvaluationContext;
@@ -48,6 +48,7 @@ public class EntityMapActivity extends FragmentActivity implements OnMapReadyCal
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entity_map_view);
+
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -142,12 +143,12 @@ public class EntityMapActivity extends FragmentActivity implements OnMapReadyCal
             markerReferences.put(marker, entityLocation.first.getElement());
         }
 
-        map.setOnMarkerClickListener(this);
+        map.setOnInfoWindowClickListener(this);
     }
 
     @Override
-    public boolean onMarkerClick(Marker marker) {
-        return true;
+    public void onInfoWindowClick(Marker marker) {
+        Log.i(TAG, "hello");
     }
 
     private EvaluationContext getEvaluationContext() {
