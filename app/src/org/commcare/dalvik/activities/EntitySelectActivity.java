@@ -264,6 +264,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
 
         barcodeButton.setOnClickListener(barcodeScanOnClickListener);
+        if(callout.getImage() != null){
+            setupImageLayout(barcodeButton, callout.getImage());
+        }
 
         searchbox.addTextChangedListener(this);
         searchbox.requestFocus();
@@ -331,10 +334,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
      */
     private View.OnClickListener makeCalloutClickListener(Callout callout) {
         final CalloutData calloutData = callout.getRawCalloutData();
-
-        if (calloutData.getImage() != null) {
-            setupImageLayout(barcodeButton, calloutData.getImage());
-        }
 
         final Intent i = new Intent(calloutData.getActionName());
         for (Map.Entry<String, String> keyValue : calloutData.getExtras().entrySet()) {
@@ -783,8 +782,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION,
                         action.getDisplay().evaluate());
             }
-            makeCalloutClickListener(shortSelect.getCallout());
-            setupImageLayout(barcodeItem, shortSelect.getCallout().getImage());
+            if(shortSelect.getCallout().getImage() != null){
+                setupImageLayout(barcodeItem, shortSelect.getCallout().getImage());
+            }
         }
 
         return true;
