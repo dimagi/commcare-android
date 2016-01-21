@@ -141,11 +141,13 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         for (Pair<Entity<TreeReference>, LatLng> entityLocation: entityLocations) {
             Marker marker = map.addMarker(new MarkerOptions()
                     .position(entityLocation.second)
-                    .title(entityLocation.first.getFieldString(0)));
+                    .title(entityLocation.first.getFieldString(0))
+                    .snippet(entityLocation.first.getFieldString(1)));
             markerReferences.put(marker, entityLocation.first.getElement());
         }
 
         map.setOnInfoWindowClickListener(this);
+        map.setMyLocationEnabled(true);
     }
 
     @Override
