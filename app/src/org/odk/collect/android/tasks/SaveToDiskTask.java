@@ -69,7 +69,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
     public static final int SAVING_TASK_ID = 17;
 
 
-    public SaveToDiskTask(Uri mUri, Boolean saveAndExit, Boolean markCompleted, String updatedName, Context context, Uri instanceContentUri, SecretKeySpec symetricKey) {
+    public SaveToDiskTask(Uri mUri, Boolean saveAndExit, Boolean markCompleted, String updatedName, Context context, Uri instanceContentUri, SecretKeySpec symetricKey, boolean headless) {
         TAG = SaveToDiskTask.class.getSimpleName();
 
         this.mUri = mUri;
@@ -79,7 +79,12 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         this.context = context;
         this.instanceContentUri = instanceContentUri;
         this.symetricKey = symetricKey;
-        this.taskId = SAVING_TASK_ID;
+
+        if (headless) {
+            this.taskId = -1;
+        } else {
+            this.taskId = SAVING_TASK_ID;
+        }
     }
 
     /**
