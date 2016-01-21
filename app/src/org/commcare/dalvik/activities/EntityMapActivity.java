@@ -1,21 +1,17 @@
 package org.commcare.dalvik.activities;
 
 import android.annotation.TargetApi;
-import android.location.Address;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
+import android.util.Pair;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.maps.GeoPoint;
-import com.google.android.maps.OverlayItem;
 
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.AndroidInstanceInitializer;
@@ -28,11 +24,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.services.storage.StorageFullException;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Vector;
 
 /**
@@ -46,7 +38,7 @@ public class EntityMapActivity extends FragmentActivity implements OnMapReadyCal
     private CommCareSession session;
     Vector<Entity<TreeReference>> entities;
 
-    Vector<LatLng> locations;
+    Vector<Pair<Entity<TreeReference>, LatLng>> entityLocations;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,23 +61,23 @@ public class EntityMapActivity extends FragmentActivity implements OnMapReadyCal
         }
 
         int bogusAddresses = 0;
-        locations = new Vector<>();
-        for(Entity<TreeReference> e : entities) {
+        entityLocations = new Vector<>();
+        for(Entity<TreeReference> entity : entities) {
             for(int i = 0 ; i < detail.getHeaderForms().length; ++i ){
                 if("address".equals(detail.getTemplateForms()[i])) {
-                    String address = e.getFieldString(i).trim();
+                    String address = entity.getFieldString(i).trim();
                     if(address != null && !"".equals(address)) {
                         LatLng location = getLatLngFromAddress(address);
                         if (location == null) {
                             bogusAddresses++;
                         } else {
-                            locations.add(location);
+                            entityLocations.add(new Pair<>(entity, location));
                         }
                     }
                 }
             }
         }
-        Log.d(TAG, "Loaded. " + locations.size() +" addresses discovered, " + bogusAddresses + " could not be located");
+        Log.d(TAG, "Loaded. " + entityLocations.size() +" addresses discovered, " + bogusAddresses + " could not be located");
     }
 
     private LatLng getLatLngFromAddress(String address) {
@@ -139,10 +131,10 @@ public class EntityMapActivity extends FragmentActivity implements OnMapReadyCal
 
     @Override
     public void onMapReady(GoogleMap map) {
-        for (LatLng location: locations) {
+        for (Pair<Entity<TreeReference>, LatLng> entityLocation: entityLocations) {
             map.addMarker(new MarkerOptions()
-                    .position(location)
-                    .title("Marker"));
+                    .position(entityLocation.second)
+                    .title(entityLocation.first.getFieldString(0)));
         }
     }
 
