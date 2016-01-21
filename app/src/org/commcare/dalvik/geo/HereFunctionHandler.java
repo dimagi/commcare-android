@@ -101,6 +101,19 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         }
     }
 
+    public boolean locationProvidersFound() {
+        mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
+        Set<String> mProviders = GeoUtils.evaluateProviders(mLocationManager);
+
+        for (String provider : mProviders) {
+            if ((provider.equals(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||
+                    (provider.equals(LocationManager.NETWORK_PROVIDER) && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void requestLocationUpdates() {
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
         Set<String> mProviders = GeoUtils.evaluateProviders(mLocationManager);

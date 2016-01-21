@@ -292,6 +292,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (!isUsingActionBar()) {
             searchbox.setText(lastQueryString);
         }
+
+        Log.i("HereFunctionHandler", "Location providers found: " + Boolean.toString(
+                hereFunctionHandler.locationProvidersFound()));
     }
 
     private void persistAdapterState(ListView view) {
