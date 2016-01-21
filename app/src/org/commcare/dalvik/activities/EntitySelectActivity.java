@@ -1272,6 +1272,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                             case DialogInterface.BUTTON_POSITIVE:
                                 Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                                 activity.startActivity(intent);
+                                hereFunctionHandler.allowGpsUse();
                                 break;
                             case DialogInterface.BUTTON_NEGATIVE:
                                 break;
