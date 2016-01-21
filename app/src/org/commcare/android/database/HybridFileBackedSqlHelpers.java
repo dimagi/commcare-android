@@ -156,9 +156,7 @@ public class HybridFileBackedSqlHelpers {
     }
 
     private static File getUniqueFilename(File dbDir) {
-        String timeAsString =
-                DateTime.now().toString(DateTimeFormat.forPattern("MM_dd_yyyy_HH_mm_ss"));
-        String filename = timeAsString + PropertyUtils.genGUID(7);
+        String filename = PropertyUtils.genGUID(14);
         File newFile = new File(dbDir, filename);
         // keep trying until we find a filename that doesn't already exist
         while (newFile.exists()) {
