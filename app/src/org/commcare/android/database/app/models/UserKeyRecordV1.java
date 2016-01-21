@@ -11,7 +11,7 @@ import java.util.Date;
  * Created by amstone326 on 1/19/16.
  */
 @Table(UserKeyRecordV1.STORAGE_KEY)
-public class UserKeyRecordV1 extends Persisted {
+public class UserKeyRecordV1 extends UserKeyRecord {
 
     public static final String META_USERNAME = "username";
     public static final String META_SANDBOX_ID = "sandbox_id";
