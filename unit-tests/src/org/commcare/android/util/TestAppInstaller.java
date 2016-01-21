@@ -96,7 +96,7 @@ public class TestAppInstaller {
         CommCareSessionService ccService = new CommCareSessionService();
         ccService.createCipherPool();
         ccService.prepareStorage(keyRecord.unWrapKey(password), keyRecord);
-        ccService.startSession(getUserFromDb(ccService, keyRecord));
+        ccService.startSession(getUserFromDb(ccService, keyRecord), keyRecord);
 
         CommCareApplication._().setTestingService(ccService);
     }
