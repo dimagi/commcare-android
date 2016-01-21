@@ -271,6 +271,10 @@ public class CommCareHomeActivity
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
             case PREFERENCES_ACTIVITY:
+                if (sessionWasEnded()) {
+                    // We may have just cleared user data, in which case calling UI methods will crash
+                    return;
+                }
                 // rebuild buttons in case language was changed
                 uiController.setupUI();
                 rebuildOptionMenu();
@@ -417,6 +421,21 @@ public class CommCareHomeActivity
             startNextSessionStepSafe();
         }
         super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    private boolean sessionWasEnded() {
+        try {
+            if (!CommCareApplication._().getSession().isActive()) {
+                setResult(RESULT_OK);
+                this.finish();
+                return true;
+            }
+            return false;
+        } catch (SessionUnavailableException e) {
+            setResult(RESULT_OK);
+            this.finish();
+            return true;
+        }
     }
 
     private void startNextSessionStepSafe() {
