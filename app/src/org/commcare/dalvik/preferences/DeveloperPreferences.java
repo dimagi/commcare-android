@@ -178,7 +178,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     }
 
     public static boolean shouldOfferPinForLogin() {
-        return doesPropertyMatch(OFFER_PIN_FOR_LOGIN, CommCarePreferences.YES,
+        return doesPropertyMatch(OFFER_PIN_FOR_LOGIN, CommCarePreferences.NO,
                 CommCarePreferences.YES);
     }
 
