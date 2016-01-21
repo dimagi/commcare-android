@@ -8,7 +8,7 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 
 import java.util.Map;
 
@@ -194,6 +194,15 @@ public class GoogleAnalyticsUtils {
                 GoogleAnalyticsFields.ACTION_OPEN_ARCHIVED_FORM, label);
     }
 
+    public static void reportAppInstall() {
+        int[] ccVersion = CommCareApplication._().getCommCareVersion();
+        String stringifiedVersion = ("" + ccVersion[0]) + "." + ("" + ccVersion[1]);
+
+        reportEvent(GoogleAnalyticsFields.CATEGORY_PRE_LOGIN_STATS,
+                GoogleAnalyticsFields.ACTION_APP_INSTALL,
+                stringifiedVersion);
+    }
+
     /**
      * Report the length of a certain user event/action/concept
      *
@@ -239,7 +248,7 @@ public class GoogleAnalyticsUtils {
     }
 
     private static boolean analyticsDisabled() {
-        return !DeveloperPreferences.areAnalyticsEnabled();
+        return !CommCarePreferences.isAnalyticsEnabled();
     }
 
     public static boolean versionIncompatible() {

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -124,6 +125,7 @@ public class CommCareHomeActivity
     private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 6;
     private static final int MENU_SAVED_FORMS = Menu.FIRST + 7;
     private static final int MENU_ABOUT = Menu.FIRST + 8;
+    private static final int MENU_DISABLE_ANALYTICS = Menu.FIRST + 9;
 
     /**
      * Restart is a special CommCare return code which means that the session was invalidated in the
@@ -280,7 +282,9 @@ public class CommCareHomeActivity
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
             case PREFERENCES_ACTIVITY:
-                uiController.configUI();
+                // rebuild buttons in case language was changed
+                uiController.setupUI();
+                rebuildOptionMenu();
                 return;
             case MEDIA_VALIDATOR_ACTIVITY:
                 if(resultCode == RESULT_CANCELED){
@@ -1035,7 +1039,7 @@ public class CommCareHomeActivity
                 android.R.drawable.ic_menu_save);
         menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
                 android.R.drawable.ic_menu_help);
-
+        menu.add(0, MENU_DISABLE_ANALYTICS, 0, Localization.get("home.menu.disable.analytics"));
         return true;
     }
 
@@ -1056,6 +1060,7 @@ public class CommCareHomeActivity
             menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
             menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
             menu.findItem(MENU_ABOUT).setVisible(enableMenus);
+            menu.findItem(MENU_DISABLE_ANALYTICS).setVisible(CommCarePreferences.isAnalyticsEnabled());
         } catch (SessionUnavailableException sue) {
             //Nothing
         }
@@ -1097,6 +1102,9 @@ public class CommCareHomeActivity
             case MENU_ABOUT:
                 showAboutCommCareDialog();
                 return true;
+            case MENU_DISABLE_ANALYTICS:
+                showAnalyticsOptOutDialog();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -1113,6 +1121,33 @@ public class CommCareHomeActivity
         menuIdToAnalyticsEvent.put(MENU_SAVED_FORMS, GoogleAnalyticsFields.LABEL_SAVED_FORMS);
         menuIdToAnalyticsEvent.put(MENU_ABOUT, GoogleAnalyticsFields.LABEL_ABOUT_CC);
         return menuIdToAnalyticsEvent;
+    }
+
+    private void showAnalyticsOptOutDialog() {
+        AlertDialogFactory f = new AlertDialogFactory(this,
+                Localization.get("analytics.opt.out.title"),
+                Localization.get("analytics.opt.out.message"));
+
+        f.setPositiveButton(Localization.get("analytics.disable.button"),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        CommCarePreferences.disableAnalytics();
+                    }
+                });
+
+        f.setNegativeButton(Localization.get("option.cancel"),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        f.showDialog();
     }
 
     public static void createPreferencesMenu(Activity activity) {

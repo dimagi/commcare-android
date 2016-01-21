@@ -48,7 +48,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      */
     public final static String FIRE_TRIGGERS_ON_SAVE = "cc-fire-triggers-on-save";
     public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
-    public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
 
     private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
     
@@ -221,11 +220,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 
     public static boolean isHomeReportEnabled() {
         return doesPropertyMatch(HOME_REPORT_ENABLED, CommCarePreferences.NO,
-                CommCarePreferences.YES);
-    }
-
-    public static boolean areAnalyticsEnabled() {
-        return doesPropertyMatch(ANALYTICS_ENABLED, CommCarePreferences.YES,
                 CommCarePreferences.YES);
     }
 

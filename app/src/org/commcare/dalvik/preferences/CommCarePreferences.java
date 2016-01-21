@@ -104,6 +104,10 @@ public class CommCarePreferences
     public final static String PREFS_LOCALE_KEY = "cur_locale";
     public final static String PREFS_PRINT_DOC_LOCATION = "print_doc_location";
 
+    // Doesn't actually get shown in the CCPreferences activity, just storing the field here
+    // The 'Opt Out of Analytics' option appears in the home activity options menu
+    public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
+
     private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
 
     @Override
@@ -373,6 +377,22 @@ public class CommCarePreferences
     public static int getTargetInflationDensity() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return Integer.parseInt(properties.getString(KEY_TARGET_DENSITY, DEFAULT_TARGET_DENSITY));
+    }
+
+    public static boolean isAnalyticsEnabled() {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        if (app == null) {
+            return true;
+        }
+        return app.getAppPreferences().getBoolean(ANALYTICS_ENABLED, true);
+    }
+
+    public static void disableAnalytics() {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        if (app == null) {
+            return;
+        }
+        app.getAppPreferences().edit().putBoolean(ANALYTICS_ENABLED, false).commit();
     }
 
     public void updatePreferencesText() {
