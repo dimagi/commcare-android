@@ -1,6 +1,7 @@
 package org.commcare.dalvik.activities;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Pair;
@@ -16,6 +17,7 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.AndroidInstanceInitializer;
+import org.commcare.android.util.SerializationUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.session.CommCareSession;
@@ -148,7 +150,12 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Log.i(TAG, "hello");
+        Intent i = new Intent(EntityMapActivity.this.getIntent());
+        TreeReference ref = markerReferences.get(marker);
+        SerializationUtil.serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, ref);
+
+        setResult(RESULT_OK, i);
+        EntityMapActivity.this.finish();
     }
 
     private EvaluationContext getEvaluationContext() {
