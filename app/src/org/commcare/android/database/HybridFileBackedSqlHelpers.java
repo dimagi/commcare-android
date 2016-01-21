@@ -11,8 +11,6 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.modern.database.DatabaseHelper;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.PropertyUtils;
-import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
 
 import java.io.File;
 import java.io.IOException;
@@ -163,7 +161,7 @@ public class HybridFileBackedSqlHelpers {
     }
 
     private static File getUniqueFilename(File dbDir) {
-        String filename = PropertyUtils.genGUID(14);
+        String filename = PropertyUtils.genUUID();
         File newFile = new File(dbDir, filename);
         // keep trying until we find a filename that doesn't already exist
         while (newFile.exists()) {
