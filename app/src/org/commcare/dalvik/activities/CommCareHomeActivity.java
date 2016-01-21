@@ -387,166 +387,166 @@ public class CommCareHomeActivity
         } else {
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
-                case PREFERENCES_ACTIVITY:
-                    // rebuild buttons in case language was changed
-                    uiController.setupUI();
-                    rebuildOptionMenu();
+            case PREFERENCES_ACTIVITY:
+                // rebuild buttons in case language was changed
+                uiController.setupUI();
+                rebuildOptionMenu();
+                return;
+            case MEDIA_VALIDATOR_ACTIVITY:
+                if(resultCode == RESULT_CANCELED){
                     return;
-                case MEDIA_VALIDATOR_ACTIVITY:
-                    if(resultCode == RESULT_CANCELED){
-                        return;
-                    } else if (resultCode == RESULT_OK){
-                        Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
-                        return;
-                    }
-                case DUMP_FORMS_ACTIVITY:
-                    if(resultCode == RESULT_CANCELED){
-                        return;
-                    }
-                    else if(resultCode == DumpTask.BULK_DUMP_ID){
-                        int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
-
-                        displayMessage(Localization.get("bulk.form.dump.success",new String[] {""+dumpedCount}), false, false);
-
-                        uiController.refreshView();
-                        return;
-                    }
-                    else if(resultCode == SendTask.BULK_SEND_ID){
-                        int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
-
-                        displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
-
-                        Toast.makeText(this, Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
-                        uiController.refreshView();
-                        return;
-                    }
-                case CONNECTION_DIAGNOSTIC_ACTIVITY:
+                } else if (resultCode == RESULT_OK){
+                    Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
                     return;
-                case WIFI_DIRECT_ACTIVITY:
-                    if(resultCode == RESULT_CANCELED){
-                        return;
+                }
+            case DUMP_FORMS_ACTIVITY:
+                if(resultCode == RESULT_CANCELED){
+                    return;
+                }
+                else if(resultCode == DumpTask.BULK_DUMP_ID){
+                    int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
+
+                    displayMessage(Localization.get("bulk.form.dump.success",new String[] {""+dumpedCount}), false, false);
+
+                    uiController.refreshView();
+                    return;
+                }
+                else if(resultCode == SendTask.BULK_SEND_ID){
+                    int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
+
+                    displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
+
+                    Toast.makeText(this, Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
+                    uiController.refreshView();
+                    return;
+                }
+            case CONNECTION_DIAGNOSTIC_ACTIVITY:
+                return;
+            case WIFI_DIRECT_ACTIVITY:
+                if(resultCode == RESULT_CANCELED){
+                    return;
+                }
+                else if(resultCode == SendTask.BULK_SEND_ID){
+                    int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
+
+                    displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
+
+                    Toast.makeText(this, "Forms successfully submitted.", Toast.LENGTH_LONG).show();
+                    uiController.refreshView();
+                    return;
+                } else if(resultCode == WipeTask.WIPE_TASK_ID){
+                    int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
+
+                    displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
+
+                    Toast.makeText(this, "Forms successfully submitted.", Toast.LENGTH_LONG).show();
+                    uiController.refreshView();
+                    return;
+                }
+            case REPORT_PROBLEM_ACTIVITY:
+                if(resultCode == RESULT_CANCELED) {
+                    return;
+                }
+                else if(resultCode == RESULT_OK){
+                    CommCareApplication._().notifyLogsPending();
+                    uiController.refreshView();
+                    return;
+                }
+            case GET_INCOMPLETE_FORM:
+                //TODO: We might need to load this from serialized state?
+                if(resultCode == RESULT_CANCELED) {
+                    uiController.refreshView();
+                    return;
+                } else if(resultCode == RESULT_OK) {
+                    int record = intent.getIntExtra("FORMRECORDS", -1);
+                    if(record == -1) {
+                        //Hm, what to do here?
+                        break;
                     }
-                    else if(resultCode == SendTask.BULK_SEND_ID){
-                        int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
+                    FormRecord r = CommCareApplication._().getUserStorage(FormRecord.class).read(record);
 
-                        displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
-
-                        Toast.makeText(this, "Forms successfully submitted.", Toast.LENGTH_LONG).show();
-                        uiController.refreshView();
-                        return;
-                    } else if(resultCode == WipeTask.WIPE_TASK_ID){
-                        int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
-
-                        displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
-
-                        Toast.makeText(this, "Forms successfully submitted.", Toast.LENGTH_LONG).show();
-                        uiController.refreshView();
-                        return;
-                    }
-                case REPORT_PROBLEM_ACTIVITY:
-                    if(resultCode == RESULT_CANCELED) {
-                        return;
-                    }
-                    else if(resultCode == RESULT_OK){
-                        CommCareApplication._().notifyLogsPending();
-                        uiController.refreshView();
-                        return;
-                    }
-                case GET_INCOMPLETE_FORM:
-                    //TODO: We might need to load this from serialized state?
-                    if(resultCode == RESULT_CANCELED) {
-                        uiController.refreshView();
-                        return;
-                    } else if(resultCode == RESULT_OK) {
-                        int record = intent.getIntExtra("FORMRECORDS", -1);
-                        if(record == -1) {
-                            //Hm, what to do here?
-                            break;
-                        }
-                        FormRecord r = CommCareApplication._().getUserStorage(FormRecord.class).read(record);
-
-                        //Retrieve and load the appropriate ssd
-                        SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
-                        Vector<Integer> ssds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
-                        AndroidSessionWrapper currentState =
-                                CommCareApplication._().getCurrentSessionWrapper();
-                        if(ssds.size() == 1) {
-                            currentState.loadFromStateDescription(ssdStorage.read(ssds.firstElement()));
-                        } else {
-                            currentState.setFormRecordId(r.getID());
-                        }
-
-                        AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
-                        formEntry(platform.getFormContentUri(r.getFormNamespace()), r);
-                        return;
-                    }
-                    break;
-                case GET_COMMAND:
-                    //TODO: We might need to load this from serialized state?
+                    //Retrieve and load the appropriate ssd
+                    SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+                    Vector<Integer> ssds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
                     AndroidSessionWrapper currentState =
                             CommCareApplication._().getCurrentSessionWrapper();
-                    if (resultCode == RESULT_CANCELED) {
-                        if (currentState.getSession().getCommand() == null) {
-                            //Needed a command, and didn't already have one. Stepping back from
-                            //an empty state, Go home!
-                            currentState.reset();
-                            uiController.refreshView();
-                            return;
-                        } else {
-                            currentState.getSession().stepBack();
-                        }
-                    } else if (resultCode == RESULT_OK) {
-                        CommCareSession session = currentState.getSession();
-                        if (sessionStateUnchangedSinceCallout(session, intent)) {
-                            //Get our command, set it, and continue forward
-                            String command = intent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
-                            session.setCommand(command);
-                        } else {
-                            clearSessionAndExit(currentState, true);
-                            return;
-                        }
+                    if(ssds.size() == 1) {
+                        currentState.loadFromStateDescription(ssdStorage.read(ssds.firstElement()));
+                    } else {
+                        currentState.setFormRecordId(r.getID());
                     }
-                    break;
-                case GET_CASE:
-                    //TODO: We might need to load this from serialized state?
-                    AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
-                    CommCareSession currentSession = asw.getSession();
-                    if (resultCode == RESULT_CANCELED) {
-                        currentSession.stepBack();
-                    } else if (resultCode == RESULT_OK) {
-                        if (sessionStateUnchangedSinceCallout(currentSession, intent)) {
-                            String sessionDatumId = currentSession.getNeededDatum().getDataId();
-                            String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
-                            currentSession.setDatum(sessionDatumId, chosenCaseId);
-                        } else {
-                            clearSessionAndExit(asw, true);
-                            return;
-                        }
+
+                    AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
+                    formEntry(platform.getFormContentUri(r.getFormNamespace()), r);
+                    return;
+                }
+                break;
+            case GET_COMMAND:
+                //TODO: We might need to load this from serialized state?
+                AndroidSessionWrapper currentState =
+                        CommCareApplication._().getCurrentSessionWrapper();
+                if (resultCode == RESULT_CANCELED) {
+                    if (currentState.getSession().getCommand() == null) {
+                        //Needed a command, and didn't already have one. Stepping back from
+                        //an empty state, Go home!
+                        currentState.reset();
+                        uiController.refreshView();
+                        return;
+                    } else {
+                        currentState.getSession().stepBack();
                     }
-                    break;
-                case MODEL_RESULT:
-                    boolean fetchNext = processReturnFromFormEntry(resultCode, intent);
-                    if (!fetchNext) {
+                } else if (resultCode == RESULT_OK) {
+                    CommCareSession session = currentState.getSession();
+                    if (sessionStateUnchangedSinceCallout(session, intent)) {
+                        //Get our command, set it, and continue forward
+                        String command = intent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
+                        session.setCommand(command);
+                    } else {
+                        clearSessionAndExit(currentState, true);
                         return;
                     }
-                    break;
-                case AUTHENTICATION_FOR_PIN:
-                    if (resultCode == RESULT_OK) {
-                        String password = intent.getStringExtra(PinAuthenticationActivity.PASSWORD_FROM_AUTH);
-                        launchPinCreateScreen(LoginActivity.LoginMode.PASSWORD, password);
-                    }
-                    return;
-                case CREATE_PIN:
-                    boolean choseRememberPassword = (intent == null) ? false :
-                            intent.getBooleanExtra(CreatePinActivity.CHOSE_REMEMBER_PASSWORD, false);
-                    if (choseRememberPassword) {
-                        CommCareApplication._().closeUserSession();
-                    } else if (resultCode == RESULT_OK) {
-                        Toast.makeText(this, Localization.get("pin.set.success"), Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case GET_CASE:
+                //TODO: We might need to load this from serialized state?
+                AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+                CommCareSession currentSession = asw.getSession();
+                if (resultCode == RESULT_CANCELED) {
+                    currentSession.stepBack();
+                } else if (resultCode == RESULT_OK) {
+                    if (sessionStateUnchangedSinceCallout(currentSession, intent)) {
+                        String sessionDatumId = currentSession.getNeededDatum().getDataId();
+                        String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
+                        currentSession.setDatum(sessionDatumId, chosenCaseId);
                     } else {
-                        Toast.makeText(this, Localization.get("pin.not.set"), Toast.LENGTH_SHORT).show();
+                        clearSessionAndExit(asw, true);
+                        return;
                     }
+                }
+                break;
+            case MODEL_RESULT:
+                boolean fetchNext = processReturnFromFormEntry(resultCode, intent);
+                if (!fetchNext) {
                     return;
+                }
+                break;
+            case AUTHENTICATION_FOR_PIN:
+                if (resultCode == RESULT_OK) {
+                    String password = intent.getStringExtra(PinAuthenticationActivity.PASSWORD_FROM_AUTH);
+                    launchPinCreateScreen(LoginActivity.LoginMode.PASSWORD, password);
+                }
+                return;
+            case CREATE_PIN:
+                boolean choseRememberPassword = (intent == null) ? false :
+                        intent.getBooleanExtra(CreatePinActivity.CHOSE_REMEMBER_PASSWORD, false);
+                if (choseRememberPassword) {
+                    CommCareApplication._().closeUserSession();
+                } else if (resultCode == RESULT_OK) {
+                    Toast.makeText(this, Localization.get("pin.set.success"), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, Localization.get("pin.not.set"), Toast.LENGTH_SHORT).show();
+                }
+                return;
             }
             startNextSessionStepSafe();
         }
