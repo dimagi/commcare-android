@@ -100,19 +100,19 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private boolean isMainScreenBlocked;
 
     @Override
-    @TargetApi(14)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         FragmentManager fm = this.getSupportFragmentManager();
 
-        stateHolder = (TaskConnectorFragment) fm.findFragmentByTag("state");
+        stateHolder = (TaskConnectorFragment<R>) fm.findFragmentByTag("state");
 
         // stateHolder and its previous state aren't null if the activity is
         // being created due to an orientation change.
         if (stateHolder == null) {
             stateHolder = new TaskConnectorFragment<>();
             fm.beginTransaction().add(stateHolder, "state").commit();
+            fm.executePendingTransactions();
             // entering new activity, not just rotating one, so release old
             // media
             AudioController.INSTANCE.releaseCurrentMediaEntity();
