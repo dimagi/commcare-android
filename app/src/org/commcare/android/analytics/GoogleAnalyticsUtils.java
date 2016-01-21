@@ -195,12 +195,9 @@ public class GoogleAnalyticsUtils {
     }
 
     public static void reportAppInstall() {
-        int[] ccVersion = CommCareApplication._().getCommCareVersion();
-        String stringifiedVersion = ("" + ccVersion[0]) + "." + ("" + ccVersion[1]);
-
         reportEvent(GoogleAnalyticsFields.CATEGORY_PRE_LOGIN_STATS,
                 GoogleAnalyticsFields.ACTION_APP_INSTALL,
-                stringifiedVersion);
+                CommCareApplication._().getCurrentVersionString());
     }
 
     /**
