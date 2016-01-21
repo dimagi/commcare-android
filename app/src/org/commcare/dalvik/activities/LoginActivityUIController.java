@@ -141,19 +141,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         username.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS |
                 InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
         username.setHint(Localization.get("login.username"));
-        ArrayAdapter<String> usernamesAdapter = new ArrayAdapter<>(activity,
-                android.R.layout.simple_dropdown_item_1line, getExistingUsernames());
-        username.setAdapter(usernamesAdapter);
-    }
-
-    private static String[] getExistingUsernames() {
-        SqlStorage<UserKeyRecord> existingUsers =
-                CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class);
-        Set<String> uniqueUsernames = new HashSet<>();
-        for (UserKeyRecord ukr : existingUsers) {
-            uniqueUsernames.add(ukr.getUsername());
-        }
-        return uniqueUsernames.toArray(new String[uniqueUsernames.size()]);
     }
 
     private void setBannerLayoutLogic() {
@@ -214,6 +201,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         } else {
             activity.populateAppSpinner(readyApps);
         }
+
+        refreshUsernamesAdapter();
     }
 
     private void refreshForNewApp() {
@@ -255,6 +244,22 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         } else {
             restoreSessionCheckbox.setVisibility(View.GONE);
         }
+    }
+
+    private void refreshUsernamesAdapter() {
+        ArrayAdapter<String> usernamesAdapter = new ArrayAdapter<>(activity,
+                android.R.layout.simple_dropdown_item_1line, getExistingUsernames());
+        username.setAdapter(usernamesAdapter);
+    }
+
+    private static String[] getExistingUsernames() {
+        SqlStorage<UserKeyRecord> existingUsers =
+                CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class);
+        Set<String> uniqueUsernames = new HashSet<>();
+        for (UserKeyRecord ukr : existingUsers) {
+            uniqueUsernames.add(ukr.getUsername());
+        }
+        return uniqueUsernames.toArray(new String[uniqueUsernames.size()]);
     }
 
     private void checkEnteredUsernameForMatch() {
