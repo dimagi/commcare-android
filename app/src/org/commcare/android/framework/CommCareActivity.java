@@ -112,7 +112,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         if (stateHolder == null) {
             stateHolder = new TaskConnectorFragment<>();
             fm.beginTransaction().add(stateHolder, "state").commit();
-            fm.executePendingTransactions();
             // entering new activity, not just rotating one, so release old
             // media
             AudioController.INSTANCE.releaseCurrentMediaEntity();
