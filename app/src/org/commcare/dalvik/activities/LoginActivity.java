@@ -39,7 +39,6 @@ import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.ManageKeyRecordListener;
 import org.commcare.android.tasks.ManageKeyRecordTask;
-import org.commcare.android.tasks.templates.HttpCalloutTask;
 import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.ACRAUtil;
 import org.commcare.android.view.ViewUtil;
@@ -69,7 +68,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public final static String KEY_LAST_APP = "id_of_last_selected";
     public final static String KEY_ENTERED_USER = "entered-username";
-    public final static String KEY_ENTERED_PW = "entered-password";
+    public final static String KEY_ENTERED_PW_OR_PIN = "entered-password-or-pin";
 
     private static final int SEAT_APP_ACTIVITY = 0;
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
@@ -86,7 +85,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private final ArrayList<String> appIdDropdownList = new ArrayList<>();
 
     private String usernameBeforeRotation;
-    private String passwordBeforeRotation;
+    private String passwordOrPinBeforeRotation;
 
     private LoginActivityUIController uiController;
 
@@ -103,7 +102,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             // If the screen was rotated with entered text present, we will want to restore it
             // in onResume (can't do it here b/c will get overriden by logic in refreshForNewApp())
             usernameBeforeRotation = savedInstanceState.getString(KEY_ENTERED_USER);
-            passwordBeforeRotation = savedInstanceState.getString(KEY_ENTERED_PW);
+            passwordOrPinBeforeRotation = savedInstanceState.getString(KEY_ENTERED_PW_OR_PIN);
         }
 
         Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
@@ -142,9 +141,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (!"".equals(enteredUsername) && enteredUsername != null) {
             savedInstanceState.putString(KEY_ENTERED_USER, enteredUsername);
         }
-        String enteredPassword = uiController.getEnteredPasswordOrPin();
-        if (!"".equals(enteredPassword) && enteredPassword != null) {
-            savedInstanceState.putString(KEY_ENTERED_PW, enteredPassword);
+        String enteredPasswordOrPin = uiController.getEnteredPasswordOrPin();
+        if (!"".equals(enteredPasswordOrPin) && enteredPasswordOrPin != null) {
+            savedInstanceState.putString(KEY_ENTERED_PW_OR_PIN, enteredPasswordOrPin);
         }
     }
 
@@ -287,6 +286,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (userAndPass != null) {
             uiController.setUsername(userAndPass.first);
             uiController.setPasswordOrPin(userAndPass.second);
+            // If we're doing auto-login, means we're using a password so switch UI to pw mode
             uiController.setNormalPasswordMode();
 
             if (!getIntent().getBooleanExtra(USER_TRIGGERED_LOGOUT, false)) {
@@ -528,9 +528,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             uiController.setUsername(usernameBeforeRotation);
             usernameBeforeRotation = null;
         }
-        if (passwordBeforeRotation != null) {
-            uiController.setPasswordOrPin(passwordBeforeRotation);
-            passwordBeforeRotation = null;
+        if (passwordOrPinBeforeRotation != null) {
+            uiController.setPasswordOrPin(passwordOrPinBeforeRotation);
+            passwordOrPinBeforeRotation = null;
         }
     }
 

@@ -19,7 +19,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.framework.BreadcrumbBarFragment;
@@ -223,7 +222,7 @@ public class CommCareHomeActivity
         }
     }
 
-    // See if we should launch the pin create screen
+    // See if we should launch the pin choice dialog
     private void pinModeDecisionLogic() {
 
         LoginActivity.LoginMode loginMode = LoginActivity.LoginMode.fromString(
@@ -233,13 +232,16 @@ public class CommCareHomeActivity
             launchPinCreateScreen(loginMode);
         } else if (loginMode == LoginActivity.LoginMode.PASSWORD) {
             boolean pinCreationEnabledForApp = DeveloperPreferences.shouldOfferPinForLogin();
+            if (!pinCreationEnabledForApp) {
+                return;
+            }
+
             boolean userManuallyEnteredPasswordMode = getIntent()
                     .getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
             boolean alreadyDismissedPinCreation =
                     CommCareApplication._().getCurrentApp().getAppPreferences()
                             .getBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, false);
-            if (pinCreationEnabledForApp &&
-                    (!alreadyDismissedPinCreation || userManuallyEnteredPasswordMode)) {
+            if (!alreadyDismissedPinCreation || userManuallyEnteredPasswordMode) {
                 showPinChoiceDialog(loginMode);
             }
         }
@@ -257,7 +259,6 @@ public class CommCareHomeActivity
 
         DialogChoiceItem createPinChoice = new DialogChoiceItem(
                 Localization.get("pin.dialog.yes"), -1, new View.OnClickListener() {
-
                     @Override
                     public void onClick(View v) {
                         dialog.dismiss();
@@ -267,7 +268,6 @@ public class CommCareHomeActivity
 
         DialogChoiceItem nextTimeChoice = new DialogChoiceItem(
                 Localization.get("pin.dialog.not.now"), -1, new View.OnClickListener() {
-
                     @Override
                     public void onClick(View v) {
                         dialog.dismiss();
@@ -276,7 +276,6 @@ public class CommCareHomeActivity
 
         DialogChoiceItem notAgainChoice = new DialogChoiceItem(
                 Localization.get("pin.dialog.never"), -1, new View.OnClickListener() {
-
                     @Override
                     public void onClick(View v) {
                         dialog.dismiss();
@@ -284,7 +283,7 @@ public class CommCareHomeActivity
                                 .edit()
                                 .putBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, true)
                                 .commit();
-                        showFutureAccessDialog();
+                        showPinFutureAccessDialog();
                     }
                 });
 
@@ -294,7 +293,7 @@ public class CommCareHomeActivity
         dialog.show();
     }
 
-    private void showFutureAccessDialog() {
+    private void showPinFutureAccessDialog() {
         AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactory(this,
                 Localization.get("pin.dialog.set.later.title"),
                 Localization.get("pin.dialog.set.later.message"), null);

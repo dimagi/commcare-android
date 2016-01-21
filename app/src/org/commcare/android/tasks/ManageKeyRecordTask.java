@@ -371,9 +371,9 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
             }
         }
 
+        // If we successfully found a matching record in either PIN or Primed mode, we don't yet
+        // have access to the un-hashed password, but are going to need it now to finish up
         if (loginMode == LoginActivity.LoginMode.PIN) {
-            // If we successfully found a matching record in pin mode, we are now going to need
-            // access to the un-hashed password to finish up
             this.password = current.getUnhashedPasswordViaPin(this.pin);
         } else if (loginMode == LoginActivity.LoginMode.PRIMED) {
             this.password = current.getPrimedPassword();

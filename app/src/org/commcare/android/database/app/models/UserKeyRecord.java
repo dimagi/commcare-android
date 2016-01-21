@@ -366,8 +366,8 @@ public class UserKeyRecord extends Persisted {
     }
 
     /**
-     * @return User record that matches username/password or username/pin. Null if not found
-     * or user record validity date is expired.
+     * @return The user record that matches the given username/password or username/pin combo.
+     * Null if not found or user record validity date is expired.
      */
     private static UserKeyRecord getCurrentValidRecord(CommCareApp app, String username, String pw,
                                                        String pin, boolean acceptExpired) {

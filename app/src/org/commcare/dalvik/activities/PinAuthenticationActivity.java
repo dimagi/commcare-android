@@ -57,12 +57,40 @@ public class PinAuthenticationActivity extends
         setupUI();
     }
 
+    /**
+     * User the information in the current user's UKR to determine what auth mode we should be in
+     *
+     * @return If the call completed successfully
+     */
+    private boolean setRecordAndAuthMode() {
+        currentRecord = CommCareApplication._().getRecordForCurrentUser();
+        if (currentRecord == null) {
+            Log.i(TAG, "Something went wrong in PinAuthenticationActivity. Could not find the " +
+                    "current user record, so just finishing the activity");
+            setResult(RESULT_CANCELED);
+            this.finish();
+            return false;
+        }
+
+        if (currentRecord.hasPinSet()) {
+            // If a PIN is already set and the user is trying to change it, we can have them
+            // enter that, and then use it to get the password
+            authMode = LoginActivity.LoginMode.PIN;
+        } else {
+            // Otherwise, we're going to need them to enter their password
+            authMode = LoginActivity.LoginMode.PASSWORD;
+        }
+        return true;
+    }
+
     private void setupUI() {
         if (authMode == LoginActivity.LoginMode.PASSWORD) {
             setPasswordAuthModeUI();
         } else {
             setPinAuthModeUI();
         }
+
+        pinEntry.addTextChangedListener(CreatePinActivity.getPinTextWatcher(enterButton));
 
         enterButton.setOnClickListener(new View.OnClickListener() {
 
@@ -91,7 +119,6 @@ public class PinAuthenticationActivity extends
         pinEntry.setVisibility(View.VISIBLE);
         passwordEntry.setVisibility(View.GONE);
         enterButton.setEnabled(false);
-        pinEntry.addTextChangedListener(CreatePinActivity.getPinTextWatcher(enterButton));
     }
 
     private void setPasswordAuthModeUI() {
@@ -129,31 +156,6 @@ public class PinAuthenticationActivity extends
             Toast.makeText(this, Localization.get("pin.auth.failed.password"), Toast.LENGTH_LONG).show();
             passwordEntry.setText("");
         }
-    }
-
-    /**
-     *
-     * @return If the call completed successfully
-     */
-    private boolean setRecordAndAuthMode() {
-        currentRecord = CommCareApplication._().getRecordForCurrentUser();
-        if (currentRecord == null) {
-            Log.i(TAG, "Something went wrong in PinAuthenticationActivity. Could not find the " +
-                    "current user record, so just finishing the activity");
-            setResult(RESULT_CANCELED);
-            this.finish();
-            return false;
-        }
-
-        if (currentRecord.hasPinSet()) {
-            // If a PIN is already set and the user is trying to change it, we can have them
-            // enter that, and then use it to get the password
-            authMode = LoginActivity.LoginMode.PIN;
-        } else {
-            // Otherwise, we're going to need them to enter their password
-            authMode = LoginActivity.LoginMode.PASSWORD;
-        }
-        return true;
     }
 
     private void onSuccessfulAuth() {

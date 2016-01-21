@@ -180,10 +180,12 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
 
     /** Indicates whether, after doSetupTaskBeforeRequest() is executed, we actually need to
      *  execute the http callout. If this is false, doSetupTaskBeforeRequest() will just be
-     *  followed by doPostCalloutTask()
-     */
+     *  followed by doPostCalloutTask() */
     protected abstract boolean shouldMakeHttpCallout();
 
+    /**
+     * Indicates if we need the return status of the http callout to be SUCCESS in order to proceed
+     */
     protected abstract boolean calloutSuccessRequired();
 
     protected abstract HttpCalloutOutcomes doPostCalloutTask(boolean httpFailed);

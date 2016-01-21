@@ -1,6 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -14,7 +13,6 @@ import android.text.TextWatcher;
 import android.util.StateSet;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -34,7 +32,6 @@ import org.commcare.android.framework.UiElement;
 import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.android.ui.CustomBanner;
 import org.commcare.android.util.MediaUtil;
-import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -326,7 +323,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         passwordOrPin.setHint(Localization.get("login.password"));
         passwordOrPin.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
         manuallySwitchedToPasswordMode = false;
-
     }
 
     private void setPinPasswordMode() {
