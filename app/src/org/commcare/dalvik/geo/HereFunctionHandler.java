@@ -42,7 +42,6 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     private final Context context = CommCareApplication._().getApplicationContext();
     private final LocationManager mLocationManager = (LocationManager) context.getSystemService(
             Context.LOCATION_SERVICE);
-    private Set<String> mProviders;
 
     // If there are more general uses for HereFunctionHandler, the type of this field can be
     // generalized to a listener interface.
@@ -105,7 +104,7 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     }
 
     private void requestLocationUpdates() {
-        mProviders = GeoUtils.evaluateProvidersWithPermissions(mLocationManager, context);
+        Set<String> mProviders = GeoUtils.evaluateProvidersWithPermissions(mLocationManager, context);
 
         for (String provider : mProviders) {
             // Ignore the inspector warnings; the permissions are already checked in evaluateProvidersWithPermissions.
