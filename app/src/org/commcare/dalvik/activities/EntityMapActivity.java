@@ -10,6 +10,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.commcare.android.models.Entity;
@@ -25,13 +26,15 @@ import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeReference;
 
+import java.util.HashMap;
 import java.util.Vector;
 
 /**
  * @author ctsims
  */
 @TargetApi(11)
-public class EntityMapActivity extends FragmentActivity implements OnMapReadyCallback {
+public class EntityMapActivity extends FragmentActivity implements OnMapReadyCallback,
+        GoogleMap.OnMarkerClickListener {
     private static final String TAG = EntityMapActivity.class.getSimpleName();
 
     private EvaluationContext entityEvaluationContext;
@@ -39,6 +42,7 @@ public class EntityMapActivity extends FragmentActivity implements OnMapReadyCal
     Vector<Entity<TreeReference>> entities;
 
     Vector<Pair<Entity<TreeReference>, LatLng>> entityLocations;
+    HashMap<Marker, TreeReference> markerReferences = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,10 +136,18 @@ public class EntityMapActivity extends FragmentActivity implements OnMapReadyCal
     @Override
     public void onMapReady(GoogleMap map) {
         for (Pair<Entity<TreeReference>, LatLng> entityLocation: entityLocations) {
-            map.addMarker(new MarkerOptions()
+            Marker marker = map.addMarker(new MarkerOptions()
                     .position(entityLocation.second)
                     .title(entityLocation.first.getFieldString(0)));
+            markerReferences.put(marker, entityLocation.first.getElement());
         }
+
+        map.setOnMarkerClickListener(this);
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        return true;
     }
 
     private EvaluationContext getEvaluationContext() {
