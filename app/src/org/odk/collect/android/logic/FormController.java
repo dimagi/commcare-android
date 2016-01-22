@@ -112,6 +112,10 @@ public class FormController implements PendingCalloutInterface {
         return mFormEntryController.getModel().getFormTitle();
     }
 
+    public int getFormID() {
+        return mFormEntryController.getModel().getForm().getID();
+    }
+
     /**
      * @return the currently selected language.
      */
