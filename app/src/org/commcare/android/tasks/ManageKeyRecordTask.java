@@ -495,7 +495,8 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         //TODO: Ok, so what error handling do we need here? 
         try {
             //Otherwise we need to copy the old sandbox to a new location atomically (in case we fail).
-            UserSandboxUtils.migrateData(this.getContext(), app, oldSandboxToMigrate, oldKey, newRecord, CryptUtil.unWrapKey(newRecord.getEncryptedKey(), password));
+            UserSandboxUtils.migrateData(this.getContext(), app, oldSandboxToMigrate, oldKey, newRecord,
+                    CryptUtil.unwrapByteArrayWithString(newRecord.getEncryptedKey(), password));
             publishProgress(Localization.get("key.manage.migrate"));
             return true;
         } catch(IOException ioe) {

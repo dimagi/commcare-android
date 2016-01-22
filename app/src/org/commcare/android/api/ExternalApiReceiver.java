@@ -252,7 +252,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 return false;
             }
             //TODO: Extract this
-            byte[] key = CryptUtil.unWrapKey(matchingRecord.getEncryptedKey(), password);
+            byte[] key = CryptUtil.unwrapByteArrayWithString(matchingRecord.getEncryptedKey(), password);
             if (matchingRecord.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
                 LegacyInstallUtils.transitionLegacyUserStorage(context, CommCareApplication._().getCurrentApp(), key, matchingRecord);
             }

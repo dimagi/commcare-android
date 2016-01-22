@@ -199,7 +199,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
             activity.populateAppSpinner(readyApps);
         }
 
-        refreshUsernamesAdapter();
+        // Not using this for now, but may turn back on later
+        //refreshUsernamesAdapter();
     }
 
     private void refreshForNewApp() {

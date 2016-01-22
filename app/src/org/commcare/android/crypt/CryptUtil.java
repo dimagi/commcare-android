@@ -88,10 +88,6 @@ public class CryptUtil {
         return null;
     }
 
-    public static byte[] wrapKey(byte[] secretKey, String password) {
-        return wrapByteArrayWithString(secretKey, password);
-    }
-
     public static byte[] wrapByteArrayWithString(byte[] bytes, String wrappingString) {
         try {
             return encrypt(bytes, encodingCipher(wrappingString));
@@ -111,11 +107,6 @@ public class CryptUtil {
         } catch (NoSuchPaddingException e) {
             return null;
         }
-    }
-
-
-    public static byte[] unWrapKey(byte[] wrapped, String password) {
-        return unwrapByteArrayWithString(wrapped, password);
     }
 
     private static byte[] append(byte[] one, byte[] two) {

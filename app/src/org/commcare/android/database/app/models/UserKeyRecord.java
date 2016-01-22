@@ -319,7 +319,7 @@ public class UserKeyRecord extends Persisted {
 
     public byte[] unWrapKey(String password) {
         if (isPasswordValid(password)) {
-            return CryptUtil.unWrapKey(getEncryptedKey(), password);
+            return CryptUtil.unwrapByteArrayWithString(getEncryptedKey(), password);
         } else {
             //throw exception?
             return null;

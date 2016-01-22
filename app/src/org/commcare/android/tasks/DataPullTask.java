@@ -194,7 +194,9 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                             return UNKNOWN_FAILURE;
                         }
                         String sandboxId = PropertyUtils.genUUID().replace("-", "");
-                        ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password), CryptUtil.wrapKey(newKey.getEncoded(),password), new Date(), new Date(Long.MAX_VALUE), sandboxId);
+                        ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password),
+                                CryptUtil.wrapByteArrayWithString(newKey.getEncoded(),password),
+                                new Date(), new Date(Long.MAX_VALUE), sandboxId);
                         
                     } else {
                         ukr = UserKeyRecord.getCurrentValidRecordByPassword(app, username, password, true);
@@ -206,7 +208,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     }
                     
                     //add to transaction parser factory
-                    byte[] wrappedKey = CryptUtil.wrapKey(ukr.getEncryptedKey(),password);
+                    byte[] wrappedKey = CryptUtil.wrapByteArrayWithString(ukr.getEncryptedKey(),password);
                     factory.initUserParser(wrappedKey);
                 } else {
                     factory.initUserParser(CommCareApplication._().getSession().getLoggedInUser().getWrappedKey());
@@ -233,8 +235,9 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     if(loginNeeded) {                        
                         //This is necessary (currently) to make sure that data
                         //is encoded. Probably a better way to do this.
-                        CommCareApplication._().startUserSession(CryptUtil.unWrapKey(
-                                ukr.getEncryptedKey(), password), ukr, restoreSession);
+                        CommCareApplication._().startUserSession(
+                                CryptUtil.unwrapByteArrayWithString(ukr.getEncryptedKey(), password),
+                                ukr, restoreSession);
                         wasKeyLoggedIn = true;
                     }
                     
