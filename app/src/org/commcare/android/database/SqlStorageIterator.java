@@ -2,6 +2,7 @@ package org.commcare.android.database;
 
 import android.database.Cursor;
 
+import org.commcare.modern.database.DatabaseHelper;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.services.storage.StorageModifiedException;
@@ -13,18 +14,21 @@ import java.util.Iterator;
  */
 public class SqlStorageIterator<T extends Persistable> implements IStorageIterator, Iterator<T> {
 
-    Cursor c;
-    private SqlStorage<T> storage;
-    private boolean isClosedByProgress = false;
-    private int count;
-    private String primaryId;
+    final Cursor c;
+    protected final SqlStorage<T> storage;
+    protected boolean isClosedByProgress = false;
+    protected final int count;
+    protected final String primaryId;
 
     /**
      * only for use by subclasses which re-implement this behavior strategically (Note: Should be an interface pullout
      * not a subclass)
      */
-    SqlStorageIterator() {
-
+    SqlStorageIterator(Cursor cursor) {
+        this.c = cursor;
+        storage = null;
+        primaryId = null;
+        count = -1;
     }
 
     public SqlStorageIterator(Cursor c, SqlStorage<T> storage) {
@@ -69,7 +73,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
 
     @Override
     public int nextID() {
-        int id = c.getInt(c.getColumnIndexOrThrow(DbUtil.ID_COL));
+        int id = c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
         c.moveToNext();
         if (c.isAfterLast()) {
             c.close();
@@ -80,11 +84,9 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
 
     @Override
     public T nextRecord() {
-        byte[] data = c.getBlob(c.getColumnIndexOrThrow(DbUtil.DATA_COL));
+        byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
 
-        //we don't really use this
-        nextID();
-        return storage.newObject(data);
+        return storage.newObject(data, nextID());
     }
 
     @Override
@@ -105,7 +107,7 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
     }
 
     public int peekID() {
-        return c.getInt(c.getColumnIndexOrThrow(DbUtil.ID_COL));
+        return c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
     }
 
     public String getPrimaryId() {

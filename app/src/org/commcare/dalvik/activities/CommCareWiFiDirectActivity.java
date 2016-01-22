@@ -48,6 +48,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.WiFiDirectBroadcastReceiver;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -430,7 +431,8 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
         SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(
-                settings.getString("PostURL", url), receiveFolder){
+                settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, url),
+                receiveFolder){
 
             @Override
             protected void deliverResult(CommCareWiFiDirectActivity receiver, Boolean result) {

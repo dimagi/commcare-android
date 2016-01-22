@@ -46,6 +46,7 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogCreationHelpers;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -180,9 +181,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         // alternate route where we log in locally and sync (with unsent form
         // submissions) more centrally.
 
-        DataPullTask<LoginActivity> dataPuller = 
+        DataPullTask<LoginActivity> dataPuller =
             new DataPullTask<LoginActivity>(getUniformUsername(), uiController.getEnteredPasswordOrPin(),
-                 prefs.getString("ota-restore-url", LoginActivity.this.getString(R.string.ota_restore_url)),
+                 prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY,
+                         LoginActivity.this.getString(R.string.ota_restore_url)),
                  LoginActivity.this) {
                     @Override
                     protected void deliverResult(LoginActivity receiver, PullTaskResult result) {

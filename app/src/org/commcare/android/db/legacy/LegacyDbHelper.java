@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.db.legacy;
 
 import android.content.ContentValues;
@@ -12,6 +9,7 @@ import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.util.Base64;
+import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
@@ -137,7 +135,7 @@ public abstract class LegacyDbHelper {
             }
         }
 
-        values.put(DbUtil.DATA_COL, blob);
+        values.put(DatabaseHelper.DATA_COL, blob);
 
         return values;
     }

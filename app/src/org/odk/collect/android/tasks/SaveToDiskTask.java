@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
+import org.commcare.android.crypt.EncryptionIO;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
@@ -30,16 +31,10 @@ import org.odk.collect.android.utilities.EncryptionUtils.EncryptedFormInformatio
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 
-import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
@@ -191,7 +186,8 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
             payload = (ByteArrayPayload) serializer.createSerializedPayload(datamodel);
 
             // write out xml
-            exportXmlFile(payload, createFileOutputStream(FormEntryActivity.mInstancePath));
+            exportXmlFile(payload,
+                    EncryptionIO.createFileOutputStream(FormEntryActivity.mInstancePath, symetricKey));
 
         } catch (IOException e) {
             Log.e(TAG, "Error creating serialized payload");
@@ -230,7 +226,8 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
             File submissionXml = new File(instanceXml.getParentFile(), "submission.xml");
             // write out submission.xml -- the data to actually submit to aggregate
             try {
-                exportXmlFile(payload, createFileOutputStream(submissionXml.getAbsolutePath()));
+                exportXmlFile(payload,
+                        EncryptionIO.createFileOutputStream(submissionXml.getAbsolutePath(), symetricKey));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 throw new RuntimeException("Something is blocking acesss to the file at " + submissionXml.getAbsolutePath());
@@ -302,35 +299,6 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         return true;
     }
     
-    public OutputStream createFileOutputStream(String path) throws FileNotFoundException {
-        return createFileOutputStream(new File(path));
-    }
-    
-    private OutputStream createFileOutputStream(File path) throws FileNotFoundException {
-        FileOutputStream fos = new FileOutputStream(path);
-        if(symetricKey == null) {
-            return fos;
-        } else {
-            try {
-                Cipher cipher = Cipher.getInstance("AES");
-                cipher.init(Cipher.ENCRYPT_MODE, symetricKey);
-                return new CipherOutputStream(fos, cipher);
-                
-                //All of these exceptions imply a bad platform and should be irrecoverable (Don't ever
-                //write out data if the key isn't good, or the crypto isn't available)
-            } catch (InvalidKeyException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e.getMessage());
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e.getMessage());
-            } catch (NoSuchPaddingException e) {
-                e.printStackTrace();
-                throw new RuntimeException(e.getMessage());
-            }
-        }
-    }
-
     /**
      * This method actually writes the xml to disk.
      */
