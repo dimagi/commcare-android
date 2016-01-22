@@ -81,7 +81,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private static final int TASK_KEY_EXCHANGE = 1;
     private static final int TASK_UPGRADE_INSTALL = 2;
 
-    private SqlStorage<UserKeyRecord> storage;
     private final ArrayList<String> appIdDropdownList = new ArrayList<>();
 
     private String usernameBeforeRotation;
@@ -406,7 +405,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private int getMatchingUsersCount(String username) {
         int count = 0;
-        for (UserKeyRecord record : storage()) {
+        for (UserKeyRecord record : CommCareApplication._().getAppStorage(UserKeyRecord.class)) {
             if (record.getUsername().equals(username)) {
                 count++;
             }
@@ -426,13 +425,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
         setResult(RESULT_OK, i);
         finish();
-    }
-    
-    private SqlStorage<UserKeyRecord> storage() {
-        if (storage == null) {
-            storage = CommCareApplication._().getAppStorage(UserKeyRecord.class);
-        }
-        return storage;
     }
 
     @Override
