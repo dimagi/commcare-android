@@ -9,10 +9,12 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.Pair;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -41,6 +43,7 @@ import java.util.Vector;
 public class EntityMapActivity extends CommCareActivity implements OnMapReadyCallback,
         GoogleMap.OnInfoWindowClickListener {
     private static final String TAG = EntityMapActivity.class.getSimpleName();
+    private static final int MAP_PADDING = 50;
 
     private EvaluationContext entityEvaluationContext;
     private CommCareSession session;
@@ -142,14 +145,28 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     }
 
     @Override
-    public void onMapReady(GoogleMap map) {
+    public void onMapReady(final GoogleMap map) {
+        mMap = map;
+
+        LatLngBounds.Builder builder = new LatLngBounds.Builder();
         for (Pair<Entity<TreeReference>, LatLng> entityLocation: entityLocations) {
             Marker marker = map.addMarker(new MarkerOptions()
                     .position(entityLocation.second)
                     .title(entityLocation.first.getFieldString(0))
                     .snippet(entityLocation.first.getFieldString(1)));
             markerReferences.put(marker, entityLocation.first.getElement());
+            builder.include(entityLocation.second);
         }
+        final LatLngBounds bounds = builder.build();
+
+        // Move camera to be include all markers
+        // TODO: does this work for only 1 marker?
+        map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            @Override
+            public void onMapLoaded() {
+                map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING));
+            }
+        });
 
         map.setOnInfoWindowClickListener(this);
 
@@ -157,8 +174,6 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             map.setMyLocationEnabled(true);
         }
-
-        mMap = map;
     }
 
     @Override
