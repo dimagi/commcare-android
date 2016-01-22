@@ -197,8 +197,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 setupLandscapeDualPaneView();
             } else {
+                setContentView(R.layout.entity_select_layout);
+
                 boolean isOrientationChange = savedInstanceState != null;
-                setupPortraitDualPaneView(isOrientationChange);
+                restoreExistingSelection(isOrientationChange);
             }
         } else {
             setContentView(R.layout.entity_select_layout);
@@ -224,8 +226,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         message.setText(Localization.get("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
     }
 
-    private void setupPortraitDualPaneView(boolean isOrientationChange) {
-        setContentView(R.layout.entity_select_layout);
+    private void restoreExistingSelection(boolean isOrientationChange) {
         //So we're not in landscape mode anymore, but were before. If we had something selected, we
         //need to go to the detail screen instead.
         if (isOrientationChange) {
