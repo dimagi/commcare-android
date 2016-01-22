@@ -7,31 +7,17 @@ package org.commcare.dalvik.activities;
  */
 public enum LoginMode {
 
-    PASSWORD("password-mode"),
-    PIN("pin-mode"),
-    PRIMED("primed-mode");
-
-    private String stringVersion;
-
-    LoginMode(String s) {
-        this.stringVersion = s;
-    }
-
-    @Override
-    public String toString() {
-        return this.stringVersion;
-    }
+    PASSWORD, PIN, PRIMED;
 
     public static LoginMode fromString(String s) {
-        switch(s) {
-            case "password-mode":
-                return PASSWORD;
-            case "pin-mode":
-                return PIN;
-            case "primed-mode":
-                return PRIMED;
-            default:
-                return null;
+        if (PASSWORD.toString().equals(s)) {
+            return PASSWORD;
+        } else if (PIN.toString().equals(s)) {
+            return PIN;
+        } else if (PRIMED.toString().equals(s)) {
+            return PRIMED;
+        } else {
+            return null;
         }
     }
 }
