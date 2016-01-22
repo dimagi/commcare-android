@@ -64,11 +64,12 @@ public class GeoUtils {
 
         List<String> providers = manager.getProviders(true);
         for (String provider : providers) {
-            if ((provider.equalsIgnoreCase(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(
-                            context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+            if (provider.equalsIgnoreCase(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(
+                            context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 set.add(LocationManager.GPS_PROVIDER);
-            } if ((provider.equalsIgnoreCase(LocationManager.NETWORK_PROVIDER) && ContextCompat.checkSelfPermission(
-                            context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+            }
+            if (provider.equalsIgnoreCase(LocationManager.NETWORK_PROVIDER) && ContextCompat.checkSelfPermission(
+                            context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 set.add(LocationManager.NETWORK_PROVIDER);
             }
         }

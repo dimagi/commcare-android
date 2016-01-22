@@ -1253,7 +1253,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
+    /**
+     * Handler class for displaying alert dialog when no location providers are found.
+     * Message-passing is necessary because the dialog is displayed during the course of evaluation
+     * of the here() function, which occurs in a background thread (EntityLoaderTask).
+     */
     private static class LocationNotificationHandler extends Handler {
+        // Use a weak reference to avoid potential memory leaks
         private final WeakReference<EntitySelectActivity> mActivity;
 
         public LocationNotificationHandler(EntitySelectActivity activity) {
