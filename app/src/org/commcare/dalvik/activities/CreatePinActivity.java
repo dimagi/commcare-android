@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,8 +23,9 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.javarosa.core.services.locale.Localization;
 
-
 /**
+ * Activity that allows a user to set or reset their auth PIN
+ *
  * @author Aliza Stone (astone@dimagi.com)
  */
 @ManagedUi(R.layout.create_pin_view)
@@ -45,11 +45,12 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     @UiElement(value=R.id.pin_confirm_button)
     private Button continueButton;
 
-    private static final String TAG = CreatePinActivity.class.getSimpleName();
     public static final String CHOSE_REMEMBER_PASSWORD = "chose-remember-password";
 
+    private static final String WAS_IN_CONFIRM_MODE = "was-in-confirm-mode";
+    private static final String FIRST_ROUND_PIN = "first-round-pin";
+
     private String unhashedUserPassword;
-    private LoginMode loginMode;
     private UserKeyRecord userRecord;
 
     // Indicates whether the user is entering their PIN for the first time, or is confirming it
@@ -57,9 +58,9 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     private String firstRoundPin;
 
     @Override
-    public void onCreateAware(Bundle savedInstanceState) throws SessionUnavailableException {
+    protected void onCreateAware(Bundle savedInstanceState) throws SessionUnavailableException {
         userRecord = CommCareApplication._().getRecordForCurrentUser();
-        loginMode = LoginMode.fromString(
+        LoginMode loginMode = LoginMode.fromString(
                 getIntent().getStringExtra(LoginActivity.LOGIN_MODE));
 
         if (loginMode == LoginMode.PASSWORD) {
@@ -75,7 +76,12 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
         }
 
         setListeners();
-        setInitialEntryMode();
+        if (savedInstanceState != null && savedInstanceState.getBoolean(WAS_IN_CONFIRM_MODE)) {
+            firstRoundPin = savedInstanceState.getString(FIRST_ROUND_PIN);
+            setConfirmMode();
+        } else {
+            setInitialEntryMode();
+        }
     }
 
 
@@ -157,7 +163,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
         if (item.getItemId() == MENU_REMEMBER_PW_AND_LOGOUT) {
             launchRememberPasswordConfirmDialog();
         }
-        return true;
+        return super.onOptionsItemSelected(item);
     }
 
     public void launchRememberPasswordConfirmDialog() {
@@ -207,6 +213,14 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
                 }
             }
         };
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (inConfirmMode) {
+            outState.putBoolean(WAS_IN_CONFIRM_MODE, true);
+            outState.putString(FIRST_ROUND_PIN, firstRoundPin);
+        }
     }
 
 }

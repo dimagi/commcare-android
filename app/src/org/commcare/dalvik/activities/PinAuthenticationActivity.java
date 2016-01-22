@@ -54,7 +54,7 @@ public class PinAuthenticationActivity extends
     private String passwordObtainedFromAuth;
 
     @Override
-    public void onCreateAware(Bundle savedInstanceState) throws SessionUnavailableException {
+    protected void onCreateAware(Bundle savedInstanceState) throws SessionUnavailableException {
         if (!setRecordAndAuthMode()) {
             return;
         }

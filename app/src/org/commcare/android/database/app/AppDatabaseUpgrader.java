@@ -208,9 +208,9 @@ public class AppDatabaseUpgrader {
             List<UserKeyRecord> recordsForUsername = usernamesToRecords.get(username);
             if (recordsForUsername == null) {
                 recordsForUsername = new ArrayList<>();
+                usernamesToRecords.put(username, recordsForUsername);
             }
             recordsForUsername.add(record);
-            usernamesToRecords.put(username, recordsForUsername);
         }
 
         // Then determine which record for each username to mark as active
