@@ -69,7 +69,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                                       String directoryName) {
         super(tableName, classType, dbHelper);
 
-        final String subPath = GlobalConstants.FILE_CC_DB + directoryName + "/" + tableName;
+        final String subPath = GlobalConstants.FILE_CC_DB + directoryName + "/_" + tableName;
         dbDir = new File(CommCareApplication._().getCurrentApp().fsPath(subPath));
         setupDir();
     }

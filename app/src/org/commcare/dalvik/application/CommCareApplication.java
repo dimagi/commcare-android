@@ -88,6 +88,7 @@ import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.externalizable.AndroidClassHasher;
 import org.javarosa.core.model.User;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
@@ -724,7 +725,7 @@ public class CommCareApplication extends Application {
 
     public String getUserKeyRecordId() {
         try {
-            return "" + getSession().getUserKeyRecordID();
+            return getSession().getUserKeyRecordUUID();
         } catch (SessionUnavailableException e) {
             throw new RuntimeException(e);
         }
@@ -805,10 +806,10 @@ public class CommCareApplication extends Application {
         //TODO: We can just delete the db entirely.
 
         Editor sharedPreferencesEditor = CommCareApplication._().getCurrentApp().getAppPreferences().edit();
+        sharedPreferencesEditor.putString(CommCarePreferences.LAST_LOGGED_IN_USER, null).commit();
 
-        sharedPreferencesEditor.putString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
-
-        sharedPreferencesEditor.commit();
+        // manually clear file-backed fixture storage to ensure files are removed
+        CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class).removeAll();
 
         for (String id : dbIdsToRemove) {
             //TODO: We only wanna do this if the user is the _last_ one with a key to this id, actually.
