@@ -29,7 +29,7 @@ import org.javarosa.core.services.locale.Localization;
 public class PinAuthenticationActivity extends
         SessionAwareCommCareActivity<PinAuthenticationActivity> {
 
-    @UiElement(R.id.auth_prompt_text)
+    @UiElement(R.id.pin_prompt_text)
     private TextView promptText;
 
     @UiElement(R.id.pin_entry)
@@ -38,10 +38,10 @@ public class PinAuthenticationActivity extends
     @UiElement(R.id.password_entry)
     private EditText passwordEntry;
 
-    @UiElement(value=R.id.pin_auth_confirm_button, locale="pin.auth.enter.button")
+    @UiElement(value=R.id.pin_confirm_button, locale="pin.auth.enter.button")
     private Button enterButton;
 
-    @UiElement(R.id.pin_auth_cancel_button)
+    @UiElement(R.id.pin_cancel_button)
     private Button cancelButton;
 
     private static final String TAG = PinAuthenticationActivity.class.getSimpleName();

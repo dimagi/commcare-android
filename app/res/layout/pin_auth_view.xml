@@ -4,32 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/auth_prompt_text"
-        android:layout_centerHorizontal="true"
-        android:layout_margin="@dimen/standard_spacer_large"
-        android:textSize="@dimen/text_large" />
+    <include layout="@layout/pin_prompt_text" />
 
-    <EditText
-        android:id="@+id/pin_entry"
-        android:layout_height="60dp"
-        android:layout_width="match_parent"
-        android:textSize="@dimen/text_largest"
-        android:layout_margin="@dimen/standard_spacer_large"
-        android:layout_centerVertical="true"
-        android:gravity="center_horizontal"
-        android:inputType="numberPassword"
-        android:maxLength="4"
-        android:visibility="gone" >
-    </EditText>
+    <include layout="@layout/pin_text_entry"/>
 
     <EditText
         android:id="@+id/password_entry"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:textSize="@dimen/text_large"
+        android:textSize="@dimen/font_size_large"
         android:layout_margin="@dimen/standard_spacer_large"
         android:layout_centerVertical="true"
         android:gravity="center_horizontal"
@@ -37,30 +20,6 @@
         android:visibility="gone" >
     </EditText>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_alignParentBottom="true"
-        android:weightSum="2" >
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/min_button_height"
-            android:id="@+id/pin_auth_cancel_button"
-            android:text="@string/cancel"
-            android:textSize="@dimen/font_size_dp_medium"
-            android:layout_weight="1"/>
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/min_button_height"
-            android:id="@+id/pin_auth_confirm_button"
-            android:textSize="@dimen/font_size_dp_medium"
-            android:enabled="false"
-            android:layout_weight="1"/>
-
-    </LinearLayout>
-
+    <include layout="@layout/pin_screen_buttons"/>
 
 </RelativeLayout>

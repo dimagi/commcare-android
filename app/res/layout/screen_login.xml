@@ -145,7 +145,7 @@
                                 android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_margin="@dimen/standard_spacer"
-                                android:textSize="16dp"
+                                android:textSize="@dimen/font_size_medium"
                                 android:visibility="gone" />
 
                             <Button
