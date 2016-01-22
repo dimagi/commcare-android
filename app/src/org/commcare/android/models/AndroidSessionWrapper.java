@@ -13,8 +13,8 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
-import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.EntryBase;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
 import org.commcare.suite.model.Text;
@@ -301,7 +301,7 @@ public class AndroidSessionWrapper {
         Hashtable<String, EntryBase> menuMap = platform.getMenuMap();
         for (String key : menuMap.keySet()) {
             EntryBase e = menuMap.get(key);
-            if (!e.isView() && formNamespace.equals(((Entry)e).getXFormNamespace())) {
+            if (!e.isView() && formNamespace.equals(((FormEntry)e).getXFormNamespace())) {
                 //We have an entry. Don't worry too much about how we're supposed to get there for now.
 
                 //The ideal is that we only need one piece of data
@@ -327,7 +327,7 @@ public class AndroidSessionWrapper {
                     }
 
                     wrapper = new AndroidSessionWrapper(platform);
-                    wrapper.session.setCommand(platform.getModuleNameForEntry((Entry)e));
+                    wrapper.session.setCommand(platform.getModuleNameForEntry((FormEntry)e));
                     wrapper.session.setCommand(e.getCommandId());
                     wrapper.session.setDatum(datum.getDataId(), selectedValue);
                 }

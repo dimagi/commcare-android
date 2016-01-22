@@ -16,8 +16,8 @@ import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.view.IncompleteFormRecordView;
 import org.commcare.dalvik.activities.FormRecordListActivity.FormRecordFilter;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.EntryBase;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
 
@@ -97,7 +97,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
                 if (!entry.isView()) {
                     // Ensure that entry is actually <entry> and not a <view>,
                     // which can't define a form
-                    names.put(((Entry)entry).getXFormNamespace(), entry.getText());
+                    names.put(((FormEntry)entry).getXFormNamespace(), entry.getText());
                 }
             }
         }
