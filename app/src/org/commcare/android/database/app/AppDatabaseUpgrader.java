@@ -227,7 +227,7 @@ public class AppDatabaseUpgrader {
                 activeRecord = records.get(0);
             }
             activeRecord.setActive();
-            newUKRStorage.write(activeRecord);
+            //newUKRStorage.write(activeRecord);
         }
     }
 }
