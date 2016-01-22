@@ -75,12 +75,13 @@ project(':libraries:mapballoons') {
 }
 
 ext {
-  // Obtained from ~/.gradle/gradle.properites on build server or load default
+  // Obtained from ~/.gradle/gradle.properties on build server or load default
   // empty strings.
   ACRA_USER = project.properties['ACRA_USER'] ?: ""
   ACRA_PASSWORD = project.properties['ACRA_PASSWORD'] ?: ""
   ACRA_URL = project.properties['ACRA_URL'] ?: ""
   MAPS_API_KEY = project.properties['MAPS_API_KEY'] ?: ""
+  GOOGLE_PLAY_MAPS_API_KEY = project.properties['GOOGLE_PLAY_MAPS_API_KEY'] ?: ""
   RELEASE_STORE_FILE = project.properties['RELEASE_STORE_FILE'] ?: "."
   RELEASE_STORE_PASSWORD = project.properties['RELEASE_STORE_PASSWORD'] ?: ""
   RELEASE_KEY_ALIAS = project.properties['RELEASE_KEY_ALIAS'] ?: ""
@@ -143,7 +144,10 @@ android {
         applicationId "org.commcare.dalvik"
         resValue "string", "application_name", "CommCare"
         def odkProviderStr = "org.commcare.android.provider.odk"
-        manifestPlaceholders = [ odkProvider:odkProviderStr]
+        manifestPlaceholders = [
+            odkProvider:odkProviderStr,
+            googlePlayMapsApiKey:"\"${project.ext.GOOGLE_PLAY_MAPS_API_KEY}\""
+        ]
 
         versionCode computeVersionCode()
 

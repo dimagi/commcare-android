@@ -2,7 +2,10 @@ package org.commcare.dalvik.activities;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.Pair;
 
@@ -45,6 +48,8 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
     Vector<Pair<Entity<TreeReference>, LatLng>> entityLocations;
     HashMap<Marker, TreeReference> markerReferences = new HashMap<>();
+
+    GoogleMap mMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,7 +152,33 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         }
 
         map.setOnInfoWindowClickListener(this);
-        map.setMyLocationEnabled(true);
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            map.setMyLocationEnabled(true);
+        }
+
+        mMap = map;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (mMap != null && (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+            mMap.setMyLocationEnabled(true);
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        if (mMap != null && (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
+            mMap.setMyLocationEnabled(false);
+        }
     }
 
     @Override
