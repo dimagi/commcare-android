@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
@@ -13,6 +14,8 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -75,9 +78,11 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.odk.collect.android.utilities.GeoUtils;
 import org.odk.collect.android.views.media.AudioController;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -161,6 +166,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private static final HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
     private boolean containsHereFunction = false;
     private boolean locationChangedWhileLoading = false;
+
+    // Handler for displaying alert dialog when no location providers are found
+    private final LocationNotificationHandler locationNotificationHandler = new LocationNotificationHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -1141,11 +1149,54 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         return hereFunctionHandler;
     }
 
-    public boolean getContainsHereFunction() {
-        return containsHereFunction;
+    public void onHereFunctionEvaluated() {
+        if (!containsHereFunction) {  // First time here() is evaluated
+            hereFunctionHandler.refreshLocation();
+            hereFunctionHandler.allowGpsUse();
+            containsHereFunction = true;
+
+            if (!hereFunctionHandler.locationProvidersFound()) {
+                locationNotificationHandler.sendEmptyMessage(0);
+            }
+        }
     }
 
-    public void setContainsHereFunction(boolean containsHereFunction) {
-        this.containsHereFunction = containsHereFunction;
+    /**
+     * Handler class for displaying alert dialog when no location providers are found.
+     * Message-passing is necessary because the dialog is displayed during the course of evaluation
+     * of the here() function, which occurs in a background thread (EntityLoaderTask).
+     */
+    private static class LocationNotificationHandler extends Handler {
+        // Use a weak reference to avoid potential memory leaks
+        private final WeakReference<EntitySelectActivity> mActivity;
+
+        public LocationNotificationHandler(EntitySelectActivity activity) {
+            mActivity = new WeakReference<>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+
+            final EntitySelectActivity activity = mActivity.get();
+            if (activity != null) {
+                DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int i) {
+                        switch (i) {
+                            case DialogInterface.BUTTON_POSITIVE:
+                                Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                activity.startActivity(intent);
+                                hereFunctionHandler.allowGpsUse();
+                                break;
+                            case DialogInterface.BUTTON_NEGATIVE:
+                                break;
+                        }
+                        dialog.dismiss();
+                    }
+                };
+
+                GeoUtils.showNoGpsDialog(activity, onChangeListener);
+            }  // else handler has outlived activity, do nothing
+        }
     }
 }
