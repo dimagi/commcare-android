@@ -74,7 +74,9 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
     }
 
     @Override
-    public void deliverResult(List<Entity<TreeReference>> entities, List<TreeReference> references, NodeEntityFactory factory) {
+    public void deliverResult(List<Entity<TreeReference>> entities,
+                              List<TreeReference> references,
+                              NodeEntityFactory factory) {
         Bundle args = getArguments();
         Detail childDetail = asw.getSession().getDetail(args.getString(DETAIL_ID));
         final int thisIndex = args.getInt(CHILD_DETAIL_INDEX, -1);

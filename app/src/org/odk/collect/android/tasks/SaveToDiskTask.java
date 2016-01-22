@@ -84,7 +84,12 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         this.instanceContentUri = instanceContentUri;
         this.symetricKey = symetricKey;
         this.headless = headless;
-        this.taskId = SAVING_TASK_ID;
+
+        if (headless) {
+            this.taskId = -1;
+        } else {
+            this.taskId = SAVING_TASK_ID;
+        }
     }
 
     /**
@@ -326,7 +331,6 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         }
     }
 
-
     /**
      * This method actually writes the xml to disk.
      */
@@ -344,13 +348,16 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         }
     }
 
-
     @Override
-    protected void deliverResult(R receiver, Integer result) {
+    protected void onPostExecute(Integer result) {
         synchronized (this) {
             if (mSavedListener != null)
                 mSavedListener.savingComplete(result, headless);
         }
+    }
+
+    @Override
+    protected void deliverResult(R receiver, Integer result) {
     }
 
     @Override

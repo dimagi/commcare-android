@@ -18,6 +18,7 @@ import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.EntitySelectActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -110,10 +111,14 @@ public class EntityDetailFragment extends Fragment {
     }
 
     protected EvaluationContext getFactoryContext(TreeReference childReference) {
+        EvaluationContext factoryContext;
         if (getArguments().getInt(CHILD_DETAIL_INDEX, -1) != -1) {
-            return prepareEvaluationContext(childReference);
+            factoryContext = prepareEvaluationContext(childReference);
+        } else {
+            factoryContext = asw.getEvaluationContext();
         }
-        return asw.getEvaluationContext();
+        factoryContext.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler());
+        return factoryContext;
     }
 
     /**
