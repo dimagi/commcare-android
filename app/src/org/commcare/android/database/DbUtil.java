@@ -8,6 +8,7 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteDatabaseHook;
 
+import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.util.externalizable.AndroidPrototypeFactory;
 import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.Externalizable;
@@ -24,9 +25,7 @@ import dalvik.system.DexFile;
 
 public class DbUtil {
     private static final String TAG = DbUtil.class.getSimpleName();
-    
-    public static final String ID_COL = "commcare_sql_id";
-    public static final String DATA_COL = "commcare_sql_record";
+    public final static String orphanFileTableName = "OrphanedFiles";
     
     private static PrototypeFactory factory;
 
@@ -57,14 +56,10 @@ public class DbUtil {
         return factory;
         
     }
-    
-    /* Scans all classes accessible from the context class loader which belong to the given package and subpackages.
-    *
-    * @param packageName The base package
-    * @return The classes
-    * @throws ClassNotFoundException
-    * @throws IOException
-    */
+
+    /**
+     * Scans all classes accessible from the context class loader which belong to the given package and subpackages.
+     */
    @SuppressWarnings("unchecked")
     private static List<String> getClasses(String[] packageNames, Context c)
            throws IOException 
@@ -107,14 +102,8 @@ public class DbUtil {
                        classNames.add(cn);
                    }
                }
-           } catch(IllegalAccessError e) {
-               //nothing
-           } catch (SecurityException e) {
+           } catch (Error | Exception e) {
 
-           } catch(Exception e) {
-
-           } catch(Error e) {
-               
            }
        }
        
@@ -152,14 +141,14 @@ public class DbUtil {
        //if we didn't get here, we didn't crash (what a great way to be testing our db version, right?)
        oldDb.close();
    }
-   
+
    public static void createNumbersTable(SQLiteDatabase db) {
        //Virtual Table
        String dropStatement = "DROP TABLE IF EXISTS integers;";
        db.execSQL(dropStatement);
        String createStatement = "CREATE TABLE integers (i INTEGER);";
        db.execSQL(createStatement);
-       
+
        for(long i =0 ; i < 10; ++i) {
            db.execSQL("INSERT INTO integers VALUES (" + i + ");");
        }
@@ -170,6 +159,15 @@ public class DbUtil {
         Log.d(TAG, "SQL: " + sql);
         DatabaseUtils.dumpCursor(explain);
         explain.close();
+    }
+
+    /**
+     * Table of files scheduled for deletion. Entries added when file-based
+     * database transactions fail or when file-backed entries are removed.
+     */
+    public static void createOrphanedFileTable(SQLiteDatabase db) {
+        String createStatement = "CREATE TABLE IF NOT EXISTS " + orphanFileTableName + " (" + DatabaseHelper.FILE_COL + ");";
+        db.execSQL(createStatement);
     }
 
     /**

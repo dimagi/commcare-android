@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.database;
 
 import android.util.Pair;
@@ -12,13 +9,16 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Some additional table methods we need only on Androidp
+ * Additional table methods we need only on Android
  *
  * @author ctsims
  * @author wspride
- *
  */
 public class AndroidTableBuilder extends TableBuilder {
+
+    //TODO: Read this from SQL, not assume from context
+    private static final int MAX_SQL_ARGS = 950;
+
     public AndroidTableBuilder(Class c) {
         super(c, ((Table) c.getAnnotation(Table.class)).value());
     }
@@ -26,9 +26,6 @@ public class AndroidTableBuilder extends TableBuilder {
     public AndroidTableBuilder(String name) {
         super(name);
     }
-
-    //TODO: Read this from SQL, not assume from context
-    private static final int MAX_SQL_ARGS = 950;
 
     public static List<Pair<String, String[]>> sqlList(List<Integer> input) {
         return sqlList(input, MAX_SQL_ARGS);

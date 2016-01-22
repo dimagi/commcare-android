@@ -24,6 +24,7 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.User;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.util.Vector;
@@ -36,10 +37,14 @@ class UserDatabaseUpgrader {
 
     private boolean inSenseMode = false;
     private final Context c;
+    private final byte[] fileMigrationKey;
+    private final String userKeyRecordId;
 
-    public UserDatabaseUpgrader(Context c, boolean inSenseMode) {
-        this.inSenseMode = inSenseMode;
+    public UserDatabaseUpgrader(Context c, String userKeyRecordId, boolean inSenseMode, byte[] fileMigrationKey) {
         this.c = c;
+        this.userKeyRecordId = userKeyRecordId;
+        this.inSenseMode = inSenseMode;
+        this.fileMigrationKey = fileMigrationKey;
     }
 
     public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -226,7 +231,15 @@ class UserDatabaseUpgrader {
      * attributes.
      */
     private boolean upgradeEightNine(SQLiteDatabase db) {
-        return FixtureSerializationMigration.migrateFixtureDbBytes(db, c);
+        Log.d(TAG, "starting user fixture migration");
+
+        FixtureSerializationMigration.stageFixtureTables(db);
+
+        boolean didFixturesMigrate =
+                FixtureSerializationMigration.migrateFixtureDbBytes(db, c, userKeyRecordId, fileMigrationKey);
+
+        FixtureSerializationMigration.dropTempFixtureTable(db);
+        return didFixturesMigrate;
     }
 
     /**

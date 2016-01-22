@@ -7,6 +7,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.model.User;
 import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.AndroidLogSerializer;
@@ -73,7 +74,7 @@ public class ExceptionReporting {
         String URI = CommCareApplication._().getString(R.string.PostURL);
         try {
             SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-            URI = settings.getString("PostURL", CommCareApplication._().getString(R.string.PostURL));
+            URI = settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, CommCareApplication._().getString(R.string.PostURL));
         } catch (Exception e) {
             //D-oh. Really?
         }

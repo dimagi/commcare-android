@@ -13,7 +13,13 @@ public class GlobalConstants {
     public static final String FILE_CC_ATTACHMENTS = "attachments/";
     
     public static final String FILE_CC_FORMS = "formdata/";
-    
+
+    /**
+     * Root file directory for storing serialized objects for the file backed
+     * sql storage layer (currently used for fixtures).
+     */
+    public static final String FILE_CC_DB = "file_db/";
+
     public static final String CC_DB_NAME = "commcare";
     
     /**

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.crypt;
 
 import org.commcare.android.util.AndroidStreamUtil;
@@ -51,8 +48,9 @@ public class CryptUtil {
         return cipher;
     }
 
-    private static Cipher decodingCipher(String password) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException {
-
+    private static Cipher decodingCipher(String password)
+            throws NoSuchAlgorithmException, InvalidKeySpecException,
+            NoSuchPaddingException, InvalidKeyException {
         KeySpec spec = new PBEKeySpec(password.toCharArray(), "SFDWFDCF".getBytes(), 10);
         SecretKeyFactory factory = SecretKeyFactory.getInstance(PBE_PROVIDER);
         SecretKey key = factory.generateSecret(spec);
@@ -64,7 +62,6 @@ public class CryptUtil {
     }
 
     public static byte[] encrypt(byte[] input, Cipher cipher) {
-
         ByteArrayInputStream bis = new ByteArrayInputStream(input);
         CipherInputStream cis = new CipherInputStream(bis, cipher);
 
@@ -82,7 +79,7 @@ public class CryptUtil {
     public static byte[] decrypt(byte[] input, Cipher cipher) {
         try {
             return cipher.doFinal(input);
-        } catch (IllegalBlockSizeException | BadPaddingException e) {
+        } catch (BadPaddingException | IllegalBlockSizeException e) {
             e.printStackTrace();
         }
         return null;
@@ -126,9 +123,9 @@ public class CryptUtil {
         long uniqueBase = new Date().getTime();
         String baseString = Long.toHexString(uniqueBase);
         try {
-            return append(baseString.getBytes(), MessageDigest.getInstance("SHA-1").digest(secureStatic));
+            return append(baseString.getBytes(),
+                    MessageDigest.getInstance("SHA-1").digest(secureStatic));
         } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
@@ -141,7 +138,6 @@ public class CryptUtil {
             generator.init(256, new SecureRandom(prngSeed));
             return generator.generateKey();
         } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
@@ -154,13 +150,14 @@ public class CryptUtil {
             generator.init(256, new SecureRandom());
             return generator.generateKey();
         } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         return null;
     }
 
-    public static Cipher getPrivateKeyCipher(byte[] privateKey) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException {
+    public static Cipher getPrivateKeyCipher(byte[] privateKey)
+            throws InvalidKeyException, NoSuchAlgorithmException,
+            NoSuchPaddingException, InvalidKeySpecException {
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         KeySpec ks = new PKCS8EncodedKeySpec(privateKey);
         RSAPrivateKey privKey = (RSAPrivateKey) keyFactory.generatePrivate(ks);
@@ -170,11 +167,15 @@ public class CryptUtil {
         return c;
     }
 
-    public static Cipher getAesKeyCipher(byte[] aesKey) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+    public static Cipher getAesKeyCipher(byte[] aesKey)
+            throws NoSuchAlgorithmException, NoSuchPaddingException,
+            InvalidKeyException {
         return getAesKeyCipher(aesKey, Cipher.DECRYPT_MODE);
     }
 
-    public static Cipher getAesKeyCipher(byte[] aesKey, int mode) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+    public static Cipher getAesKeyCipher(byte[] aesKey, int mode)
+            throws NoSuchAlgorithmException, NoSuchPaddingException,
+            InvalidKeyException {
         SecretKeySpec spec = new SecretKeySpec(aesKey, "AES");
         Cipher decrypter = Cipher.getInstance("AES");
         decrypter.init(mode, spec);

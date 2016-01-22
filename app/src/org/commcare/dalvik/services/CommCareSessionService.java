@@ -83,6 +83,7 @@ public class CommCareSessionService extends Service {
     private final Object lock = new Object();
 
     private User user;
+    private String userKeyRecordUUID;
     private int userKeyRecordID;
 
     private SQLiteDatabase userDatabase;
@@ -247,13 +248,14 @@ public class CommCareSessionService extends Service {
      */
     public void prepareStorage(byte[] symetricKey, UserKeyRecord record) {
         synchronized (lock) {
+            this.userKeyRecordUUID = record.getUuid();
             this.key = symetricKey;
             pool.init();
             if (userDatabase != null && userDatabase.isOpen()) {
                 userDatabase.close();
             }
 
-            userDatabase = new DatabaseUserOpenHelper(CommCareApplication._(), record.getUuid())
+            userDatabase = new DatabaseUserOpenHelper(CommCareApplication._(), userKeyRecordUUID)
                     .getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
         }
     }
@@ -438,6 +440,15 @@ public class CommCareSessionService extends Service {
             }
             return CryptUtil.generateSymmetricKey(CryptUtil.uniqueSeedFromSecureStatic(key));
         }
+    }
+
+    public String getUserKeyRecordUUID() throws SessionUnavailableException {
+        if (key == null) {
+            // key record hasn't been set, so error out
+            throw new SessionUnavailableException();
+        }
+
+        return userKeyRecordUUID;
     }
 
     public User getLoggedInUser() throws SessionUnavailableException {
