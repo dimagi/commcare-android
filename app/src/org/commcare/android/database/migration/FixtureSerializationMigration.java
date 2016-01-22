@@ -3,9 +3,12 @@ package org.commcare.android.database.migration;
 import android.content.Context;
 import android.util.Log;
 
+import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.ConcreteAndroidDbHelper;
+import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.HybridFileBackedSqlStorage;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
@@ -106,10 +109,15 @@ public class FixtureSerializationMigration {
 
     public static void stageFixtureTables(SQLiteDatabase db) {
         db.beginTransaction();
+        boolean resumingMigration = doesTempFixtureTableExist(db);
+
         try {
             DbUtil.createOrphanedFileTable(db);
-            // rename old fixture db
-            db.execSQL("ALTER TABLE fixture RENAME TO oldfixture;");
+            if (resumingMigration) {
+                db.execSQL("DROP TABLE IF EXISTS fixture;");
+            } else {
+                db.execSQL("ALTER TABLE fixture RENAME TO oldfixture;");
+            }
 
             // make new fixture db w/ filepath and encryption key columns
             AndroidTableBuilder builder = new AndroidTableBuilder("fixture");
@@ -118,6 +126,25 @@ public class FixtureSerializationMigration {
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
+        }
+    }
+
+    private static boolean doesTempFixtureTableExist(SQLiteDatabase db) {
+        // "SELECT name FROM sqlite_master WHERE type='table' AND name='oldfixture';";
+        String whereClause = "type =? AND name =?";
+        String[] whereArgs = new String[]{
+                "table",
+                "oldfixture"
+        };
+        Cursor cursor = null;
+        try {
+            cursor = db.query("sqlite_master", new String[]{"name"},
+                    whereClause, whereArgs, null, null, null);
+            return cursor.getCount() > 0;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
     }
 

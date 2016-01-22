@@ -166,7 +166,7 @@ public class DbUtil {
      * database transactions fail or when file-backed entries are removed.
      */
     public static void createOrphanedFileTable(SQLiteDatabase db) {
-        String createStatement = "CREATE TABLE " + orphanFileTableName + " (" + DatabaseHelper.FILE_COL + ");";
+        String createStatement = "CREATE TABLE IF NOT EXISTS " + orphanFileTableName + " (" + DatabaseHelper.FILE_COL + ");";
         db.execSQL(createStatement);
     }
 
