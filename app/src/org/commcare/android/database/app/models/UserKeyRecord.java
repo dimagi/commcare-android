@@ -84,6 +84,8 @@ public class UserKeyRecord extends Persisted {
     @Persisting(8)
     private byte[] passwordWrappedByPin;
 
+    /** When a user selects the 'Remember password for next login' option, their un-hashed password
+     * gets saved here and then used in the next login, so that the user does not need to enter it */
     @Persisting(9)
     private String rememberedPassword;
 
