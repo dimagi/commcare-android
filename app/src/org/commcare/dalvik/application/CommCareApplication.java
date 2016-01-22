@@ -32,10 +32,15 @@ import android.text.format.DateUtils;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+import com.google.android.gms.analytics.Tracker;
+
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.acra.annotation.ReportsCrashes;
+import org.commcare.android.analytics.GoogleAnalyticsUtils;
+import org.commcare.android.analytics.TimedStatsTracker;
 import org.commcare.android.database.AndroidDbHelper;
 import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
@@ -43,7 +48,7 @@ import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.DatabaseGlobalOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.database.user.CommCareUserOpenHelper;
+import org.commcare.android.database.user.DatabaseUserOpenHelper;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.javarosa.AndroidLogEntry;
@@ -118,7 +123,12 @@ import javax.crypto.SecretKey;
         reportType = org.acra.sender.HttpSender.Type.JSON,
         httpMethod = org.acra.sender.HttpSender.Method.PUT)
 public class CommCareApplication extends Application {
+
     private static final String TAG = CommCareApplication.class.getSimpleName();
+
+    // Tracking ids for Google Analytics
+    private static final String LIVE_TRACKING_ID = BuildConfig.ANALYTICS_TRACKING_ID_LIVE;
+    private static final String DEV_TRACKING_ID = BuildConfig.ANALYTICS_TRACKING_ID_DEV;
 
     private static final int STATE_UNINSTALLED = 0;
     public static final int STATE_UPGRADE = 1;
@@ -166,6 +176,14 @@ public class CommCareApplication extends Application {
      * Handler to receive notifications and show them the user using toast.
      */
     private final PopupHandler toaster = new PopupHandler(this);
+
+
+    private GoogleAnalytics analyticsInstance;
+    private Tracker analyticsTracker;
+
+    private String messageForUserOnDispatch;
+    private String titleForUserMessage;
+
 
     @Override
     public void onCreate() {
@@ -223,6 +241,9 @@ public class CommCareApplication extends Application {
         }
 
         ACRAUtil.initACRA(this);
+        if (!GoogleAnalyticsUtils.versionIncompatible()) {
+            analyticsInstance = GoogleAnalytics.getInstance(this);
+        }
     }
 
     public void triggerHandledAppExit(Context c, String message) {
@@ -299,13 +320,13 @@ public class CommCareApplication extends Application {
     public void expireUserSession() {
         synchronized (serviceLock) {
             closeUserSession();
-
             SessionActivityRegistration.registerSessionExpiration();
             sendBroadcast(new Intent(SessionActivityRegistration.USER_SESSION_EXPIRED));
         }
     }
 
     public void releaseUserResourcesAndServices() {
+        String userBeingLoggedOut = CommCareApplication._().getCurrentUserId();
         try {
             CommCareApplication._().getSession().closeServiceResources();
         } catch (SessionUnavailableException e) {
@@ -314,10 +335,30 @@ public class CommCareApplication extends Application {
         }
 
         unbindUserSessionService();
+        TimedStatsTracker.registerEndSession(userBeingLoggedOut);
     }
 
-    public SecretKey createNewSymetricKey() throws SessionUnavailableException {
-        return getSession().createNewSymetricKey();
+    public SecretKey createNewSymmetricKey() throws SessionUnavailableException {
+        return getSession().createNewSymmetricKey();
+    }
+
+    synchronized public Tracker getDefaultTracker() {
+        if (analyticsTracker == null) {
+            // TODO: AMS - Will want to set this conditionally after test release
+            analyticsTracker = analyticsInstance.newTracker(DEV_TRACKING_ID);
+            analyticsTracker.enableAutoActivityTracking(true);
+        }
+        String userId = getCurrentUserId();
+        if (!"".equals(userId)) {
+            analyticsTracker.set("&uid", userId);
+        } else {
+            analyticsTracker.set("&uid", null);
+        }
+        return analyticsTracker;
+    }
+
+    public GoogleAnalytics getAnalyticsInstance() {
+        return analyticsInstance;
     }
 
     public int[] getCommCareVersion() {
@@ -335,7 +376,6 @@ public class CommCareApplication extends Application {
     public CommCareApp getCurrentApp() {
         return this.currentApp;
     }
-
 
     /**
      * Get the current CommCare session that's being executed
@@ -610,7 +650,7 @@ public class CommCareApplication extends Application {
         // 4) Delete all the user databases associated with this app
         SqlStorage<UserKeyRecord> userDatabase = app.getStorage(UserKeyRecord.class);
         for (UserKeyRecord user : userDatabase) {
-            File f = getDatabasePath(CommCareUserOpenHelper.getDbName(user.getUuid()));
+            File f = getDatabasePath(DatabaseUserOpenHelper.getDbName(user.getUuid()));
             if (!FileUtil.deleteFileOrDir(f)) {
                 Logger.log(AndroidLogger.TYPE_RESOURCES, "A user database was unable to be " +
                         "deleted during app uninstall. Aborting uninstall process for now.");
@@ -788,9 +828,17 @@ public class CommCareApplication extends Application {
         for (String id : dbIdsToRemove) {
             //TODO: We only wanna do this if the user is the _last_ one with a key to this id, actually.
             //(Eventually)
-            this.getDatabasePath(CommCareUserOpenHelper.getDbName(id)).delete();
+            this.getDatabasePath(DatabaseUserOpenHelper.getDbName(id)).delete();
         }
         CommCareApplication._().closeUserSession();
+    }
+
+    public String getCurrentUserId() {
+        try {
+            return this.getSession().getLoggedInUser().getUniqueId();
+        } catch (SessionUnavailableException e) {
+            return "";
+        }
     }
 
     public void prepareTemporaryStorage() {
@@ -860,7 +908,7 @@ public class CommCareApplication extends Application {
 
                     mBoundService = ((CommCareSessionService.LocalBinder)service).getService();
 
-                    //Don't let anyone touch this until it's logged in
+                    // Don't let anyone touch this until it's logged in
                     // Open user database
                     mBoundService.prepareStorage(key, record);
 
@@ -881,7 +929,7 @@ public class CommCareApplication extends Application {
                     mIsBinding = false;
 
                     if (user != null) {
-                        mBoundService.startSession(user);
+                        mBoundService.startSession(user, record);
                         if (restoreSession) {
                             CommCareApplication.this.sessionWrapper = DevSessionRestorer.restoreSessionFromPrefs(getCommCarePlatform());
                         } else {
@@ -902,6 +950,8 @@ public class CommCareApplication extends Application {
                             PurgeStaleArchivedFormsTask.launchPurgeTask();
                         }
                     }
+
+                    TimedStatsTracker.registerStartSession();
                 }
             }
 
@@ -932,7 +982,7 @@ public class CommCareApplication extends Application {
         //Create a new submission task no matter what. If nothing is pending, it'll see if there are unsent reports
         //and try to send them. Otherwise, it'll create the report
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        String url = settings.getString("PostURL", null);
+        String url = settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, null);
 
         if (url == null) {
             Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "PostURL isn't set. This should never happen");
@@ -1092,6 +1142,11 @@ public class CommCareApplication extends Application {
         } else {
             throw new SessionUnavailableException();
         }
+    }
+
+
+    public UserKeyRecord getRecordForCurrentUser() throws SessionUnavailableException {
+        return getSession().getUserKeyRecord();
     }
 
     // Start - Error message Hooks
@@ -1334,5 +1389,22 @@ public class CommCareApplication extends Application {
             public void onServiceDisconnected(ComponentName className) {
             }
         };
+    }
+
+    public void storeMessageForUserOnDispatch(String title, String message) {
+        this.titleForUserMessage = title;
+        this.messageForUserOnDispatch = message;
+    }
+
+    public String[] getPendingUserMessage() {
+        if (messageForUserOnDispatch != null) {
+            return new String[]{messageForUserOnDispatch, titleForUserMessage};
+        }
+        return null;
+    }
+
+    public void clearPendingUserMessage() {
+        messageForUserOnDispatch = null;
+        titleForUserMessage = null;
     }
 }

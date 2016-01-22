@@ -6,6 +6,8 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 
+import org.commcare.android.analytics.GoogleAnalyticsFields;
+import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
@@ -13,6 +15,7 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
 
@@ -42,7 +45,7 @@ public class FormAndDataSyncer {
                     receiver.finish();
                     return;
                 }
-                activity.getUiController().refreshView();
+                activity.getUIController().refreshView();
 
                 int successfulSends = this.getSuccesfulSends();
 
@@ -94,11 +97,11 @@ public class FormAndDataSyncer {
 
     private static String getFormPostURL(final Context context) {
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return settings.getString("PostURL", context.getString(R.string.PostURL));
+        return settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
+                context.getString(R.string.PostURL));
     }
 
-    public void syncData(boolean formsToSend,
-                         boolean userTriggeredSync) {
+    public void syncData(final boolean formsToSend, final boolean userTriggeredSync) {
         User u;
         try {
             u = CommCareApplication._().getSession().getLoggedInUser();
@@ -121,37 +124,57 @@ public class FormAndDataSyncer {
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         DataPullTask<CommCareHomeActivity> mDataPullTask = new DataPullTask<CommCareHomeActivity>(
-                u.getUsername(), u.getCachedPwd(),
-                prefs.getString("ota-restore-url", activity.getString(R.string.ota_restore_url)),
+                u.getUsername(),
+                u.getCachedPwd(),
+                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY,
+                        activity.getString(R.string.ota_restore_url)),
                 activity) {
 
             @Override
-            protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
-                receiver.getUiController().refreshView();
+            protected void deliverResult(CommCareHomeActivity receiver, PullTaskResult result) {
+                receiver.getUIController().refreshView();
+
+                String reportSyncLabel = result.getCorrespondingGoogleAnalyticsLabel();
+                int reportSyncValue = result.getCorrespondingGoogleAnalyticsValue();
 
                 //TODO: SHARES _A LOT_ with login activity. Unify into service
                 switch (result) {
-                    case DataPullTask.AUTH_FAILED:
+                    case AUTH_FAILED:
                         receiver.displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
                         break;
-                    case DataPullTask.BAD_DATA:
+                    case BAD_DATA:
                         receiver.displayMessage(Localization.get("sync.fail.bad.data"), true);
                         break;
-                    case DataPullTask.DOWNLOAD_SUCCESS:
+                    case DOWNLOAD_SUCCESS:
+                        if (formsToSend) {
+                            reportSyncValue = GoogleAnalyticsFields.VALUE_WITH_SEND_FORMS;
+                        } else {
+                            reportSyncValue = GoogleAnalyticsFields.VALUE_JUST_PULL_DATA;
+                        }
                         receiver.displayMessage(Localization.get("sync.success.synced"));
                         break;
-                    case DataPullTask.SERVER_ERROR:
+                    case SERVER_ERROR:
                         receiver.displayMessage(Localization.get("sync.fail.server.error"));
                         break;
-                    case DataPullTask.UNREACHABLE_HOST:
+                    case UNREACHABLE_HOST:
                         receiver.displayMessage(Localization.get("sync.fail.bad.network"), true);
                         break;
-                    case DataPullTask.CONNECTION_TIMEOUT:
+                    case CONNECTION_TIMEOUT:
                         receiver.displayMessage(Localization.get("sync.fail.timeout"), true);
                         break;
-                    case DataPullTask.UNKNOWN_FAILURE:
+                    case UNKNOWN_FAILURE:
                         receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
                         break;
+                }
+
+                if (userTriggeredSync) {
+                    GoogleAnalyticsUtils.reportSyncAttempt(
+                            GoogleAnalyticsFields.ACTION_USER_SYNC_ATTEMPT,
+                            reportSyncLabel, reportSyncValue);
+                } else {
+                    GoogleAnalyticsUtils.reportSyncAttempt(
+                            GoogleAnalyticsFields.ACTION_AUTO_SYNC_ATTEMPT,
+                            reportSyncLabel, reportSyncValue);
                 }
                 //TODO: What if the user info was updated?
             }

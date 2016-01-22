@@ -43,10 +43,12 @@ import org.commcare.android.tasks.WipeTask;
 import org.commcare.android.tasks.ZipTask;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.FileUtil;
+import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.WiFiDirectBroadcastReceiver;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -429,7 +431,8 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
         SendTask<CommCareWiFiDirectActivity> mSendTask = new SendTask<CommCareWiFiDirectActivity>(
-                settings.getString("PostURL", url), receiveFolder){
+                settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, url),
+                receiveFolder){
 
             @Override
             protected void deliverResult(CommCareWiFiDirectActivity receiver, Boolean result) {
@@ -732,22 +735,18 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         Logger.log(TAG, "Error Sending Files");
     }
 
-    public void updateStatusText(){
-        SqlStorage<FormRecord> storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-        //Get all forms which are either unsent or unprocessed
-        Vector<Integer> ids = storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_UNSENT});
-        ids.addAll(storage.getIDsForValues(new String[] {FormRecord.META_STATUS}, new Object[] {FormRecord.STATUS_COMPLETE}));
+    public void updateStatusText() {
+        SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
 
         int numUnsyncedForms = ids.size();
-
-        int numUnsubmittedForms = 0;
+        int numUnsubmittedForms;
 
         File wDirectory = new File(writeDirectory);
 
-        if(!wDirectory.exists() || !wDirectory.isDirectory()){
+        if (!wDirectory.exists() || !wDirectory.isDirectory()) {
             numUnsubmittedForms = 0;
-        }
-        else{
+        } else {
             numUnsubmittedForms = wDirectory.listFiles().length;
         }
 

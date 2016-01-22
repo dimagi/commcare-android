@@ -77,7 +77,7 @@ public class DemoUserBuilder {
     }
 
     private UserKeyRecord writeNewKeyRecord() {
-        byte[] encryptedKey = CryptUtil.wrapKey(randomKey, password);
+        byte[] encryptedKey = CryptUtil.wrapByteArrayWithString(randomKey, password);
 
         UserKeyRecord keyRecord =
                 new UserKeyRecord(username, passwordHash, encryptedKey,
@@ -92,7 +92,7 @@ public class DemoUserBuilder {
     private void writeNewUser(UserKeyRecord keyRecord) {
         SQLiteDatabase userDatabase = null;
         try {
-            userDatabase = new CommCareUserOpenHelper(CommCareApplication._(),
+            userDatabase = new DatabaseUserOpenHelper(CommCareApplication._(),
                     keyRecord.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(randomKey));
 
             User user = new User(username, passwordHash, username, userType);

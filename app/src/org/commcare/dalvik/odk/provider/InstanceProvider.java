@@ -225,12 +225,12 @@ public class InstanceProvider extends ContentProvider {
 
                 SecretKey key;
                 try {
-                    key = CommCareApplication._().createNewSymetricKey();
+                    key = CommCareApplication._().createNewSymmetricKey();
                 } catch (SessionUnavailableException e) {
                     throw new UserStorageClosedException(e.getMessage());
                 }
                 FormRecord r = new FormRecord(instanceUri.toString(), FormRecord.STATUS_UNINDEXED,
-                        xmlns, key.getEncoded(), null, new Date(0));
+                        xmlns, key.getEncoded(), null, new Date(0), mDbHelper.getAppId());
                 IStorageUtilityIndexed<FormRecord> storage =
                         CommCareApplication._().getUserStorage(FormRecord.class);
                 storage.write(r);

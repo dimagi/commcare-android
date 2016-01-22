@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
+import org.commcare.android.analytics.GoogleAnalyticsFields;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.android.database.SqlStorage;
@@ -61,7 +62,8 @@ import javax.crypto.SecretKey;
 /**
  * @author ctsims
  */
-public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Integer, R> implements CommCareOTARestoreListener {
+public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPullTask.PullTaskResult, R>
+        implements CommCareOTARestoreListener {
     private final String server;
     private final String username;
     private final String password;
@@ -76,15 +78,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     
     public static final int DATA_PULL_TASK_ID = 10;
     
-    public static final int DOWNLOAD_SUCCESS = 0;
-    public static final int AUTH_FAILED = 1;
-    public static final int BAD_DATA = 2;
-    public static final int UNKNOWN_FAILURE = 4;
-    public static final int UNREACHABLE_HOST = 8;
-    public static final int CONNECTION_TIMEOUT = 16;
-    public static final int SERVER_ERROR = 32;
-    public static final int STORAGE_FULL = 64;
-    
     public static final int PROGRESS_STARTED = 0;
     public static final int PROGRESS_CLEANED = 1;
     public static final int PROGRESS_AUTHED = 2;
@@ -97,7 +90,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     public static final int PROGRESS_DOWNLOADING = 256;
     private DataPullRequester dataPullRequester;
 
-    public DataPullTask(String username, String password, String server, Context context, boolean restoreOldSession) {
+    private DataPullTask(String username, String password, String server, Context context, boolean restoreOldSession) {
         this.server = server;
         this.username = username;
         this.password = password;
@@ -127,13 +120,13 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
     }
     
     @Override
-    protected Integer doTaskBackground(Void... params) {
+    protected PullTaskResult doTaskBackground(Void... params) {
         // Don't try to sync if logging out is occuring
         if (!CommCareSessionService.sessionAliveLock.tryLock()) {
             // TODO PLM: once this task is refactored into manageable
             // components, it should use the ManagedAsyncTask pattern of
             // checking for isCancelled() and aborting at safe places.
-            return UNKNOWN_FAILURE;
+            return PullTaskResult.UNKNOWN_FAILURE;
         }
 
 
@@ -160,7 +153,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
             //expected if we aren't initialized.
         }
         
-        int responseError = UNKNOWN_FAILURE;
+        PullTaskResult responseError = PullTaskResult.UNKNOWN_FAILURE;
         
         //This should be per _user_, not per app
         prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
@@ -183,30 +176,32 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
         UserKeyRecord ukr = null;
             
             try {
-                //This is a dangerous way to do this (the null settings), should revisit later
-                if(loginNeeded) {
-                    if(!useExternalKeys) {
-                        //Get the key 
+                // This is a dangerous way to do this (the null settings), should revisit later
+                if (loginNeeded) {
+                    if (!useExternalKeys) {
+                        // Get the key
                         SecretKey newKey = CryptUtil.generateSemiRandomKey();
                         
-                        if(newKey == null) {
+                        if (newKey == null) {
                             this.publishProgress(PROGRESS_DONE);
-                            return UNKNOWN_FAILURE;
+                            return PullTaskResult.UNKNOWN_FAILURE;
                         }
                         String sandboxId = PropertyUtils.genUUID().replace("-", "");
-                        ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password), CryptUtil.wrapKey(newKey.getEncoded(),password), new Date(), new Date(Long.MAX_VALUE), sandboxId);
+                        ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password),
+                                CryptUtil.wrapByteArrayWithString(newKey.getEncoded(),password),
+                                new Date(), new Date(Long.MAX_VALUE), sandboxId);
                         
                     } else {
-                        ukr = ManageKeyRecordTask.getCurrentValidRecord(app, username, password, true);
+                        ukr = UserKeyRecord.getCurrentValidRecordByPassword(app, username, password, true);
                         if(ukr == null) {
                             Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Shouldn't be able to not have a valid key record when OTA restoring with a key server");
                             this.publishProgress(PROGRESS_DONE);
-                            return UNKNOWN_FAILURE;
+                            return PullTaskResult.UNKNOWN_FAILURE;
                         }
                     }
                     
                     //add to transaction parser factory
-                    byte[] wrappedKey = CryptUtil.wrapKey(ukr.getEncryptedKey(),password);
+                    byte[] wrappedKey = CryptUtil.wrapByteArrayWithString(ukr.getEncryptedKey(),password);
                     factory.initUserParser(wrappedKey);
                 } else {
                     factory.initUserParser(CommCareApplication._().getSession().getLoggedInUser().getWrappedKey());
@@ -227,14 +222,15 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         CommCareApplication._().releaseUserResourcesAndServices();
                     }
                     Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
-                    return AUTH_FAILED;
+                    return PullTaskResult.AUTH_FAILED;
                 } else if(pullResponse.responseCode >= 200 && pullResponse.responseCode < 300) {
                     
                     if(loginNeeded) {                        
                         //This is necessary (currently) to make sure that data
                         //is encoded. Probably a better way to do this.
-                        CommCareApplication._().startUserSession(CryptUtil.unWrapKey(
-                                ukr.getEncryptedKey(), password), ukr, restoreSession);
+                        CommCareApplication._().startUserSession(
+                                CryptUtil.unwrapByteArrayWithString(ukr.getEncryptedKey(), password),
+                                ukr, restoreSession);
                         wasKeyLoggedIn = true;
                     }
                     
@@ -265,17 +261,17 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         Logger.log(AndroidLogger.TYPE_USER, "User Sync Successful|" + username);
                         updateCurrentUser(password);
                         this.publishProgress(PROGRESS_DONE);
-                        return DOWNLOAD_SUCCESS;
+                        return PullTaskResult.DOWNLOAD_SUCCESS;
                     } catch (InvalidStructureException e) {
                         e.printStackTrace();
                         
                         //TODO: Dump more details!!!
                         Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
-                        return BAD_DATA;
+                        return PullTaskResult.BAD_DATA;
                     } catch (XmlPullParserException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
-                        return BAD_DATA;
+                        return PullTaskResult.BAD_DATA;
                     } catch (UnfullfilledRequirementsException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, unfulfilled reqs |" + e.getMessage());
@@ -285,7 +281,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     } catch (RecordTooLargeException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Storage Full during user sync |" + e.getMessage());
-                        return STORAGE_FULL;
+                        return PullTaskResult.STORAGE_FULL;
                     }
                 } else if(pullResponse.responseCode == 412) {
                     //Our local state is bad. We need to do a full restore.
@@ -294,7 +290,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                     if(returnCode == PROGRESS_DONE) {
                         //All set! Awesome recovery
                         this.publishProgress(PROGRESS_DONE);
-                        return DOWNLOAD_SUCCESS;
+                        return PullTaskResult.DOWNLOAD_SUCCESS;
                     }
                     
                     else if(returnCode == PROGRESS_RECOVERY_FAIL_SAFE) {
@@ -305,7 +301,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                             CommCareApplication._().releaseUserResourcesAndServices();
                         }
                         this.publishProgress(PROGRESS_DONE);
-                        return UNKNOWN_FAILURE;
+                        return PullTaskResult.UNKNOWN_FAILURE;
                     } else if(returnCode == PROGRESS_RECOVERY_FAIL_BAD) {
                         //WELL! That wasn't so good. TODO: Is there anything 
                         //we can do about this?
@@ -315,7 +311,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                             CommCareApplication._().releaseUserResourcesAndServices();
                         }
                         this.publishProgress(PROGRESS_DONE);
-                        return UNKNOWN_FAILURE;
+                        return PullTaskResult.UNKNOWN_FAILURE;
                     }
                     
                     if(loginNeeded) {
@@ -326,24 +322,24 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
                         CommCareApplication._().releaseUserResourcesAndServices();
                     }
                     Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
-                    return SERVER_ERROR;
+                    return PullTaskResult.SERVER_ERROR;
                 }
                 
                 
             } catch (SocketTimeoutException e) {
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
-                responseError = CONNECTION_TIMEOUT;
+                responseError = PullTaskResult.CONNECTION_TIMEOUT;
             } catch (ConnectTimeoutException e) {
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
-                responseError = CONNECTION_TIMEOUT;
+                responseError = PullTaskResult.CONNECTION_TIMEOUT;
             } catch (ClientProtocolException e) {
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due network error|" + e.getMessage());
             } catch (UnknownHostException e) {
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
-                responseError = UNREACHABLE_HOST;
+                responseError = PullTaskResult.UNREACHABLE_HOST;
             } catch (IOException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -577,5 +573,34 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Intege
 
     public void reportDownloadProgress(int totalRead) {
         publishProgress(DataPullTask.PROGRESS_DOWNLOADING, totalRead);
+    }
+
+    public enum PullTaskResult {
+        DOWNLOAD_SUCCESS(-1),
+        AUTH_FAILED(GoogleAnalyticsFields.VALUE_AUTH_FAILED),
+        BAD_DATA(GoogleAnalyticsFields.VALUE_BAD_DATA),
+        UNKNOWN_FAILURE(GoogleAnalyticsFields.VALUE_UNKNOWN_FAILURE),
+        UNREACHABLE_HOST(GoogleAnalyticsFields.VALUE_UNREACHABLE_HOST),
+        CONNECTION_TIMEOUT(GoogleAnalyticsFields.VALUE_CONNECTION_TIMEOUT),
+        SERVER_ERROR(GoogleAnalyticsFields.VALUE_SERVER_ERROR),
+        STORAGE_FULL(GoogleAnalyticsFields.VALUE_STORAGE_FULL);
+
+        private int googleAnalyticsValue;
+
+        PullTaskResult(int googleAnalyticsValue) {
+            this.googleAnalyticsValue = googleAnalyticsValue;
+        }
+
+        public int getCorrespondingGoogleAnalyticsValue() {
+            return googleAnalyticsValue;
+        }
+
+        public String getCorrespondingGoogleAnalyticsLabel() {
+            if (this == DOWNLOAD_SUCCESS) {
+                return GoogleAnalyticsFields.LABEL_SYNC_SUCCESS;
+            } else {
+                return GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
+            }
+        }
     }
 }

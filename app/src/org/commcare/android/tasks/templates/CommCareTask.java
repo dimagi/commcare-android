@@ -1,6 +1,7 @@
 package org.commcare.android.tasks.templates;
 
 import android.os.AsyncTask;
+import android.util.Log;
 
 import org.javarosa.core.services.Logger;
 
@@ -148,6 +149,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver> extends M
                 // dialog/activity (i.e. task id != -1) then cancel because the
                 // task isn't expected to live past the associated
                 // dialog/activity
+                Log.d(TAG, "Cancelling " + TAG + " because the activity it was connected to is gone");
                 this.cancel(false);
             }
 

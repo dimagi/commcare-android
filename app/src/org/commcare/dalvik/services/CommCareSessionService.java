@@ -17,7 +17,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.user.CommCareUserOpenHelper;
+import org.commcare.android.database.user.DatabaseUserOpenHelper;
 import org.commcare.android.database.user.UserSandboxUtils;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.tasks.DataSubmissionListener;
@@ -25,7 +25,6 @@ import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.activities.DispatchActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -84,6 +83,7 @@ public class CommCareSessionService extends Service {
     private final Object lock = new Object();
 
     private User user;
+    private int userKeyRecordID;
 
     private SQLiteDatabase userDatabase;
 
@@ -252,7 +252,9 @@ public class CommCareSessionService extends Service {
             if (userDatabase != null && userDatabase.isOpen()) {
                 userDatabase.close();
             }
-            userDatabase = new CommCareUserOpenHelper(CommCareApplication._(), record.getUuid()).getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
+
+            userDatabase = new DatabaseUserOpenHelper(CommCareApplication._(), record.getUuid())
+                    .getWritableDatabase(UserSandboxUtils.getSqlCipherEncodedKey(key));
         }
     }
 
@@ -262,7 +264,7 @@ public class CommCareSessionService extends Service {
      *
      * @param user attach this user to the session
      */
-    public void startSession(User user) {
+    public void startSession(User user, UserKeyRecord record) {
         synchronized (lock) {
             if (user != null) {
                 Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
@@ -273,6 +275,7 @@ public class CommCareSessionService extends Service {
             }
 
             this.user = user;
+            this.userKeyRecordID = record.getID();
 
             this.sessionExpireDate = new Date(new Date().getTime() + sessionLength);
 
@@ -427,13 +430,13 @@ public class CommCareSessionService extends Service {
         }
     }
 
-    public SecretKey createNewSymetricKey() throws SessionUnavailableException {
+    public SecretKey createNewSymmetricKey() throws SessionUnavailableException {
         synchronized (lock) {
             // Ensure we have a key to work with
             if (!isActive()) {
                 throw new SessionUnavailableException("Can't generate new key when the user session key is empty.");
             }
-            return CryptUtil.generateSymetricKey(CryptUtil.uniqueSeedFromSecureStatic(key));
+            return CryptUtil.generateSymmetricKey(CryptUtil.uniqueSeedFromSecureStatic(key));
         }
     }
 
@@ -442,6 +445,11 @@ public class CommCareSessionService extends Service {
             throw new SessionUnavailableException();
         }
         return user;
+    }
+
+    public UserKeyRecord getUserKeyRecord() {
+        return CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class)
+                .read(this.userKeyRecordID);
     }
 
     public DataSubmissionListener startDataSubmissionListener() {

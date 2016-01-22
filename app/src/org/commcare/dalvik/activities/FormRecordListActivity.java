@@ -31,6 +31,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.adapters.IncompleteFormListAdapter;
+import org.commcare.android.analytics.GoogleAnalyticsFields;
+import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
@@ -52,6 +54,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
@@ -61,6 +64,8 @@ import org.odk.collect.android.logic.ArchivedFormRemoteRestore;
 public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity>
         implements TextWatcher, FormRecordLoadListener, OnItemClickListener, TaskListener<Void, Void> {
     private static final String TAG = FormRecordListActivity.class.getSimpleName();
+
+    private static final String FORM_RECORD_URL = CommCarePreferences.PREFS_FORM_RECORD_KEY;
 
     private static final int OPEN_RECORD = Menu.FIRST;
     private static final int DELETE_RECORD = Menu.FIRST + 1;
@@ -88,6 +93,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     private MenuItem searchItem;
 
     private View.OnClickListener barcodeScanOnClickListener;
+
+    private boolean incompleteMode;
 
     public enum FormRecordFilter {
 
@@ -174,6 +181,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         if (this.getIntent().hasExtra(FormRecord.META_STATUS)) {
             String incomingFilter = this.getIntent().getStringExtra(FormRecord.META_STATUS);
             if (incomingFilter.equals(FormRecord.STATUS_INCOMPLETE)) {
+                incompleteMode = true;
                 //special case, no special filtering options
                 adapter.setFormFilter(FormRecordFilter.Incomplete);
             }
@@ -217,9 +225,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         restoreLastQueryString();
 
         if (!isUsingActionBar()) {
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "Setting lastQueryString (" + lastQueryString + ") in searchbox");
-            }
             setSearchText(lastQueryString);
         }
     }
@@ -358,6 +363,11 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
      */
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
+        if (incompleteMode) {
+            GoogleAnalyticsUtils.reportOpenArchivedForm(GoogleAnalyticsFields.LABEL_INCOMPLETE);
+        } else {
+            GoogleAnalyticsUtils.reportOpenArchivedForm(GoogleAnalyticsFields.LABEL_COMPLETE);
+        }
         returnItem(position);
     }
 
@@ -479,9 +489,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                         searchItem.expandActionView();
                     }
                     setSearchText(lastQueryString);
-                    if (BuildConfig.DEBUG) {
-                        Log.v(TAG, "Setting lastQueryString in searchView: (" + lastQueryString + ")");
-                    }
                     if (adapter != null) {
                         adapter.applyTextFilter(lastQueryString == null ? "" : lastQueryString);
                     }
@@ -502,7 +509,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         });
         if (!FormRecordFilter.Incomplete.equals(adapter.getFilter())) {
             SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-            String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
+            String source = prefs.getString(FORM_RECORD_URL, this.getString(R.string.form_record_url));
 
             //If there's nowhere to fetch forms from, we can't really go fetch them
             if (!source.equals("")) {
@@ -533,7 +540,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         switch (item.getItemId()) {
             case DOWNLOAD_FORMS:
                 SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-                String source = prefs.getString("form-record-url", this.getString(R.string.form_record_url));
+                String source = prefs.getString(FORM_RECORD_URL, this.getString(R.string.form_record_url));
                 ArchivedFormRemoteRestore.pullArchivedFormsFromServer(source, this, platform);
                 return true;
             case MENU_SUBMIT_QUARANTINE_REPORT:
@@ -580,9 +587,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
         if (!isUsingActionBar()) {
             lastQueryString = filtertext;
-            if (BuildConfig.DEBUG) {
-                Log.v(TAG, "Setting lastQueryString to (" + lastQueryString + ") in searchbox afterTextChanged event");
-            }
         }
     }
 

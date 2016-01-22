@@ -39,6 +39,11 @@ public class NotificationMessageFactory {
         Auth_CredentialMismatch("notification.credential.mismatch"),
 
         /**
+         * The user entered an invalid pin for the given username
+         */
+        Auth_InvalidPin("login.attempt.fail.pin"),
+
+        /**
          * Server 500 when retrieving data.
          */
         Restore_RemoteError("notification.restore.remote.error"),

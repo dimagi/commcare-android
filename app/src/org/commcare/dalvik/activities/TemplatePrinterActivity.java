@@ -88,7 +88,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         } else {
             //Try to use the document location that was set in Settings menu
             SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-            path = prefs.getString(CommCarePreferences.PRINT_DOC_LOCATION, "");
+            path = prefs.getString(CommCarePreferences.PREFS_PRINT_DOC_LOCATION, "");
             if ("".equals(path)) {
                 showErrorDialog(Localization.get("missing.template.file"));
             } else {

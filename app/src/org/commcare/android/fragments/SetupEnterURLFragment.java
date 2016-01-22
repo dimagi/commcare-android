@@ -76,9 +76,6 @@ public class SetupEnterURLFragment extends Fragment {
             return url;
         }
         // if it's not the last (which should be "Raw") choice, we'll use the prefix
-        if (BuildConfig.DEBUG) {
-            Log.v(TAG, "Selected item is: " + prefixURLSpinner.getSelectedItem());
-        }
         if (!url.contains("://")) { // if there is no (http|jr):// prefix, we'll assume it's a http:// URL
             url = "http://" + url;
         }

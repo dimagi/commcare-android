@@ -15,6 +15,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.commcare.android.analytics.GoogleAnalyticsFields;
+import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
 import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.android.util.ChangeLocaleUtil;
@@ -29,19 +31,21 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 import org.odk.collect.android.utilities.FileUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class CommCarePreferences
         extends SessionAwarePreferenceActivity
         implements OnSharedPreferenceChangeListener {
-    //So these are stored in the R files, but I dont' seem to be able to figure out how to pull them
-    //out cleanly?
+
+    // So these are stored in the R files, but I don't seem to be able to figure out how to pull
+    // them out cleanly?
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
     public final static String AUTO_UPDATE_FREQUENCY = "cc-autoup-freq";
     public final static String FREQUENCY_NEVER = "freq-never";
     public final static String FREQUENCY_DAILY = "freq-daily";
-    public final static String FREQUENCY_WEEKLY = "freq-weekly";
 
     public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
-
     public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
 
     /**
@@ -52,20 +56,12 @@ public class CommCarePreferences
     public final static String LAST_UPDATE_ATTEMPT = "cc-last_up";
     public final static String LAST_SYNC_ATTEMPT = "last-ota-restore";
 
-    public final static String LOG_WEEKLY_SUBMIT = "log_prop_weekly";
-    public final static String LOG_DAILY_SUBMIT = "log_prop_daily";
-
     public final static String RESIZING_METHOD = "cc-resize-images";
 
     private static final String KEY_TARGET_DENSITY = "cc-inflation-target-density";
     private static final String DEFAULT_TARGET_DENSITY = "" + DisplayMetrics.DENSITY_DEFAULT;
 
-    public final static String NEVER = "log_never";
-    public final static String SHORT = "log_short";
-    public final static String FULL = "log_full";
-
-    // TODO PLM: these flags aren't provided by HQ built apps,
-    // should be replaced with LOG_WEEKLY_SUBMIT above!
+    // TODO PLM: these flags aren't provided by HQ built apps, should be replaced with LOG_WEEKLY_SUBMIT above!
     public final static String LOG_LAST_DAILY_SUBMIT = "log_prop_last_daily";
     public final static String LOG_NEXT_WEEKLY_SUBMIT = "log_prop_next_weekly";
 
@@ -83,7 +79,6 @@ public class CommCarePreferences
 
     public static final String DUMP_FOLDER_PATH = "dump-folder-path";
 
-    public final static String FUZZY_SEARCH = "cc-fuzzy-search-enabled";
     public final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
 
     public final static String LOGIN_DURATION = "cc-login-duration-seconds";
@@ -91,52 +86,86 @@ public class CommCarePreferences
     public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
     public final static String BRAND_BANNER_HOME = "brand-banner-home";
 
-    public final static String ACTIONBAR_PREFS = "actionbar-prefs";
-
     private static final int CLEAR_USER_DATA = Menu.FIRST;
     private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 1;
     private static final int RECOVERY_MODE = Menu.FIRST + 2;
     private static final int SUPERUSER_PREFS = Menu.FIRST + 3;
     private static final int MENU_CLEAR_SAVED_SESSION = Menu.FIRST + 4;
 
+    public static final int RESULT_DATA_RESET = RESULT_FIRST_USER + 1;
+
     // Fields for setting print template
     private static final int REQUEST_TEMPLATE = 0;
-    public final static String PRINT_DOC_LOCATION = "print_doc_location";
-    private final static String PREF_MANAGER_PRINT_KEY = "print-doc-location";
+
+    public final static String PREFS_APP_SERVER_KEY = "default_app_server";
+    public final static String PREFS_DATA_SERVER_KEY = "ota-restore-url";
+    public final static String PREFS_SUBMISSION_URL_KEY = "PostURL";
+    private final static String PREFS_KEY_SERVER_KEY = "default_key_server";
+    public final static String PREFS_FORM_RECORD_KEY = "form-record-url";
+    private final static String PREFS_FUZZY_SEARCH_KEY = "cc-fuzzy-search-enabled";
+    public final static String PREFS_LOCALE_KEY = "cur_locale";
+    public final static String PREFS_PRINT_DOC_LOCATION = "print_doc_location";
+
+    // Doesn't actually get shown in the CCPreferences activity, just storing the field here
+    // The 'Opt Out of Analytics' option appears in the home activity options menu
+    public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
+
+    private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
+
+    public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         PreferenceManager prefMgr = getPreferenceManager();
-
         prefMgr.setSharedPreferencesName((CommCareApplication._().getCurrentApp().getPreferencesFilename()));
-
         addPreferencesFromResource(R.xml.server_preferences);
+
+        GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
 
         ListPreference lp = new ListPreference(this);
         lp.setEntries(ChangeLocaleUtil.getLocaleNames());
         lp.setEntryValues(ChangeLocaleUtil.getLocaleCodes());
-        lp.setTitle("Change Locale");
-        lp.setKey("cur_locale");
-        lp.setDialogTitle("Choose your Locale");
+        lp.setTitle(Localization.get("home.menu.locale.change"));
+        lp.setKey(PREFS_LOCALE_KEY);
+        lp.setDialogTitle(Localization.get("home.menu.locale.select"));
         this.getPreferenceScreen().addPreference(lp);
         updatePreferencesText();
         setTitle("CommCare" + " > " + "Application Preferences");
 
-        //Set an OnPreferenceClickListener for Print doc location
-        Preference pref = prefMgr.findPreference(PREF_MANAGER_PRINT_KEY);
+        populatePrefKeyToEventLabelMapping();
+        GoogleAnalyticsUtils.createPreferenceOnClickListeners(prefMgr, prefKeyToAnalyticsEvent,
+                GoogleAnalyticsFields.CATEGORY_CC_PREFS);
+        // Override the default listener for the print pref key b/c it has extra behavior
+        createPrintPrefOnClickListener(prefMgr);
+    }
+
+    private static void populatePrefKeyToEventLabelMapping() {
+        prefKeyToAnalyticsEvent.put(PREFS_APP_SERVER_KEY, GoogleAnalyticsFields.LABEL_APP_SERVER);
+        prefKeyToAnalyticsEvent.put(PREFS_DATA_SERVER_KEY, GoogleAnalyticsFields.LABEL_DATA_SERVER);
+        prefKeyToAnalyticsEvent.put(PREFS_SUBMISSION_URL_KEY, GoogleAnalyticsFields.LABEL_SUBMISSION_SERVER);
+        prefKeyToAnalyticsEvent.put(PREFS_KEY_SERVER_KEY, GoogleAnalyticsFields.LABEL_KEY_SERVER);
+        prefKeyToAnalyticsEvent.put(PREFS_FORM_RECORD_KEY, GoogleAnalyticsFields.LABEL_FORM_RECORD_SERVER);
+        prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
+        prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
+        prefKeyToAnalyticsEvent.put(PREFS_LOCALE_KEY, GoogleAnalyticsFields.LABEL_LOCALE);
+        prefKeyToAnalyticsEvent.put(PREFS_PRINT_DOC_LOCATION, GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
+    }
+
+    private void createPrintPrefOnClickListener(PreferenceManager prefManager) {
+        Preference pref = prefManager.findPreference(PREFS_PRINT_DOC_LOCATION);
         pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                if (preference.getKey().equals(PREF_MANAGER_PRINT_KEY)) {
-                    startFileBrowser();
-                    return true;
-                }
-                return false;
+                GoogleAnalyticsUtils.reportPrefItemClick(
+                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                        GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
+                startFileBrowser();
+                return true;
             }
         });
     }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -149,7 +178,7 @@ public class CommCarePreferences
                 if (extension.equalsIgnoreCase("html")) {
                     SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().
                             getAppPreferences().edit();
-                    editor.putString(PRINT_DOC_LOCATION, filePath);
+                    editor.putString(PREFS_PRINT_DOC_LOCATION, filePath);
                     editor.commit();
                     Toast.makeText(this, Localization.get("template.success"), Toast.LENGTH_SHORT).show();
                 } else {
@@ -179,6 +208,7 @@ public class CommCarePreferences
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
         menu.findItem(SUPERUSER_PREFS).setVisible(DeveloperPreferences.isSuperuserEnabled());
         menu.findItem(MENU_CLEAR_SAVED_SESSION).setVisible(DevSessionRestorer.savedSessionPresent());
         return super.onPrepareOptionsMenu(menu);
@@ -186,9 +216,14 @@ public class CommCarePreferences
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Map<Integer, String> menuIdToAnalyticsEventLabel = createMenuItemToEventMapping();
+        GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
+                GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                menuIdToAnalyticsEventLabel.get(item.getItemId()));
         switch (item.getItemId()) {
             case CLEAR_USER_DATA:
                 CommCareApplication._().clearUserData();
+                setResult(RESULT_DATA_RESET);
                 this.finish();
                 return true;
             case FORCE_LOG_SUBMIT:
@@ -207,6 +242,16 @@ public class CommCarePreferences
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private static Map<Integer, String> createMenuItemToEventMapping() {
+        Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
+        menuIdToAnalyticsEvent.put(CLEAR_USER_DATA, GoogleAnalyticsFields.LABEL_CLEAR_USER_DATA);
+        menuIdToAnalyticsEvent.put(FORCE_LOG_SUBMIT, GoogleAnalyticsFields.LABEL_FORCE_LOG_SUBMISSION);
+        menuIdToAnalyticsEvent.put(RECOVERY_MODE, GoogleAnalyticsFields.LABEL_RECOVERY_MODE);
+        menuIdToAnalyticsEvent.put(SUPERUSER_PREFS, GoogleAnalyticsFields.LABEL_DEVELOPER_OPTIONS);
+        menuIdToAnalyticsEvent.put(MENU_CLEAR_SAVED_SESSION, GoogleAnalyticsFields.LABEL_CLEAR_SAVED_SESSION);
+        return menuIdToAnalyticsEvent;
     }
 
     public static boolean isInSenseMode() {
@@ -239,8 +284,7 @@ public class CommCarePreferences
 
     public static boolean isFuzzySearchEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-
-        return properties.getString(FUZZY_SEARCH, NO).equals(YES);
+        return properties.getString(PREFS_FUZZY_SEARCH_KEY, NO).equals(YES);
     }
 
     public static boolean isEntityDetailLoggingEnabled() {
@@ -286,9 +330,32 @@ public class CommCarePreferences
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals("cur_locale")) {
-            Localization.setLocale(sharedPreferences.getString(key, "default"));
+        int editPrefValue = -1;
+        switch(key) {
+            case AUTO_UPDATE_FREQUENCY:
+                String freq = sharedPreferences.getString(key, CommCarePreferences.FREQUENCY_NEVER);
+                if (CommCarePreferences.FREQUENCY_NEVER.equals(freq)) {
+                    editPrefValue = GoogleAnalyticsFields.VALUE_NEVER;
+                } else if (CommCarePreferences.FREQUENCY_DAILY.equals(freq)) {
+                    editPrefValue = GoogleAnalyticsFields.VALUE_DAILY;
+                } else {
+                    editPrefValue = GoogleAnalyticsFields.VALUE_WEEKLY;
+                }
+                break;
+            case PREFS_FUZZY_SEARCH_KEY:
+                if (isFuzzySearchEnabled()) {
+                    editPrefValue = GoogleAnalyticsFields.VALUE_ENABLED;
+                } else {
+                    editPrefValue = GoogleAnalyticsFields.VALUE_DISABLED;
+                }
+                break;
+            case PREFS_LOCALE_KEY:
+                Localization.setLocale(sharedPreferences.getString(key, "default"));
+                break;
         }
+
+        GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                prefKeyToAnalyticsEvent.get(key), editPrefValue);
     }
 
     public static String getResizeMethod() {
@@ -315,6 +382,22 @@ public class CommCarePreferences
     public static int getTargetInflationDensity() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return Integer.parseInt(properties.getString(KEY_TARGET_DENSITY, DEFAULT_TARGET_DENSITY));
+    }
+
+    public static boolean isAnalyticsEnabled() {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        if (app == null) {
+            return true;
+        }
+        return app.getAppPreferences().getBoolean(ANALYTICS_ENABLED, true);
+    }
+
+    public static void disableAnalytics() {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        if (app == null) {
+            return;
+        }
+        app.getAppPreferences().edit().putBoolean(ANALYTICS_ENABLED, false).commit();
     }
 
     public void updatePreferencesText() {
