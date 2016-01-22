@@ -13,7 +13,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -55,12 +54,13 @@ import org.commcare.android.view.EntityView;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.utils.EntityDetailUtils;
+import org.commcare.dalvik.activities.utils.EntitySelectRefreshTimer;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.DialogChoiceItem;
 import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.commcare.dalvik.geo.HereFunctionHandler;
 import org.commcare.dalvik.preferences.CommCarePreferences;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Action;
@@ -81,19 +81,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
- * TODO: Lots of locking and state-based cleanup
- *
  * @author ctsims
  */
 public class EntitySelectActivity extends SaveSessionCommCareActivity
         implements TextWatcher,
         EntityLoaderListener,
         OnItemClickListener,
-        TextToSpeech.OnInitListener,
         DetailCalloutListener {
     private static final String TAG = EntitySelectActivity.class.getSimpleName();
 
@@ -121,8 +116,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private ImageButton barcodeButton;
     private SearchView searchView;
     private MenuItem searchItem;
-
-    private TextToSpeech tts;
 
     private SessionDatum selectDatum;
 
@@ -153,15 +146,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private OnClickListener barcodeScanOnClickListener;
 
     private boolean resuming = false;
-    private boolean startOther = false;
+    private boolean isStartingDetailActivity = false;
 
     private boolean rightFrameSetup = false;
     private NodeEntityFactory factory;
 
-    private Timer myTimer;
-    private final Object timerLock = new Object();
-    private boolean cancelled;
     private ContainerFragment<EntityListAdapter> containerFragment;
+    private EntitySelectRefreshTimer refreshTimer;
 
     // Function handler for handling XPath evaluation of the function here().
     // Although only one instance is created, which is used by NodeEntityFactory,
@@ -176,6 +167,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         super.onCreate(savedInstanceState);
 
         this.createDataSetObserver();
+
+        refreshTimer = new EntitySelectRefreshTimer();
 
         if (savedInstanceState != null) {
             this.mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
@@ -202,49 +195,62 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (this.getString(R.string.panes).equals("two") && !mNoDetailMode) {
             //See if we're on a big 'ol screen.
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                //If we're in landscape mode, we can display this with the awesome UI.
-
-                //Inflate and set up the normal view for now.
-                setContentView(R.layout.screen_compound_select);
-                View.inflate(this, R.layout.entity_select_layout, (ViewGroup)findViewById(R.id.screen_compound_select_left_pane));
-                inAwesomeMode = true;
-
-                rightFrame = (FrameLayout)findViewById(R.id.screen_compound_select_right_pane);
-
-                TextView message = (TextView)findViewById(R.id.screen_compound_select_prompt);
-                //use the old method here because some Android versions don't like Spannables for titles
-                message.setText(Localization.get("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
+                setupLandscapeDualPaneView();
             } else {
                 setContentView(R.layout.entity_select_layout);
-                //So we're not in landscape mode anymore, but were before. If we had something selected, we 
-                //need to go to the detail screen instead.
-                if (savedInstanceState != null) {
-                    Intent intent = this.getIntent();
 
-                    TreeReference selectedRef = SerializationUtil.deserializeFromIntent(intent,
-                            EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
-                    if (selectedRef != null) {
-                        // remove the reference from this intent, ensuring we
-                        // don't re-launch the detail for an entity even after
-                        // it being de-selected.
-                        intent.removeExtra(EntityDetailActivity.CONTEXT_REFERENCE);
-
-                        // attach the selected entity to the new detail intent
-                        // we're launching
-                        Intent detailIntent = getDetailIntent(selectedRef, null);
-
-                        startOther = true;
-                        startActivityForResult(detailIntent, CONFIRM_SELECT);
-                    }
-                }
+                boolean isOrientationChange = savedInstanceState != null;
+                restoreExistingSelection(isOrientationChange);
             }
         } else {
             setContentView(R.layout.entity_select_layout);
         }
+
         ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
         view.setOnItemClickListener(this);
-        setupDivider(view);
 
+        setupDivider(view);
+        setupToolbar(view);
+    }
+
+    private void setupLandscapeDualPaneView() {
+        //Inflate and set up the normal view for now.
+        setContentView(R.layout.screen_compound_select);
+        View.inflate(this, R.layout.entity_select_layout, (ViewGroup)findViewById(R.id.screen_compound_select_left_pane));
+        inAwesomeMode = true;
+
+        rightFrame = (FrameLayout)findViewById(R.id.screen_compound_select_right_pane);
+
+        TextView message = (TextView)findViewById(R.id.screen_compound_select_prompt);
+        //use the old method here because some Android versions don't like Spannables for titles
+        message.setText(Localization.get("select.placeholder.message", new String[]{Localization.get("cchq.case")}));
+    }
+
+    private void restoreExistingSelection(boolean isOrientationChange) {
+        //So we're not in landscape mode anymore, but were before. If we had something selected, we
+        //need to go to the detail screen instead.
+        if (isOrientationChange) {
+            Intent intent = this.getIntent();
+
+            TreeReference selectedRef = SerializationUtil.deserializeFromIntent(intent,
+                    EntityDetailActivity.CONTEXT_REFERENCE, TreeReference.class);
+            if (selectedRef != null) {
+                // remove the reference from this intent, ensuring we
+                // don't re-launch the detail for an entity even after
+                // it being de-selected.
+                intent.removeExtra(EntityDetailActivity.CONTEXT_REFERENCE);
+
+                // attach the selected entity to the new detail intent
+                // we're launching
+                Intent detailIntent = EntityDetailUtils.getDetailIntent(getApplicationContext(), selectedRef, null, selectDatum, asw);
+
+                isStartingDetailActivity = true;
+                startActivityForResult(detailIntent, CONFIRM_SELECT);
+            }
+        }
+    }
+
+    private void setupToolbar(ListView view) {
         TextView searchLabel = (TextView)findViewById(R.id.screen_entity_select_search_label);
         //use the old method here because some Android versions don't like Spannables for titles
         searchLabel.setText(Localization.get("select.search.label"));
@@ -283,9 +289,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         searchbox.requestFocus();
 
         persistAdapterState(view);
-
-        //cts: disabling for non-demo purposes
-        //tts = new TextToSpeech(this, this);
 
         restoreLastQueryString();
 
@@ -431,7 +434,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     protected void onResume() {
         super.onResume();
         //Don't go through making the whole thing if we're finishing anyway.
-        if (this.isFinishing() || startOther) {
+        if (this.isFinishing() || isStartingDetailActivity) {
             return;
         }
 
@@ -454,7 +457,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     //Once we've done the initial dispatch, we don't want to end up triggering it later.
                     this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
 
-                    Intent i = getDetailIntent(entity, null);
+                    Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(), entity, null, selectDatum, asw);
                     if (adapter != null) {
                         i.putExtra("entity_detail_index", adapter.getPosition(entity));
                         i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID,
@@ -501,7 +504,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             if (adapter == null) {
                 loadEntities();
             } else {
-                startTimer();
+                refreshTimer.start(this);
             }
         } catch (RuntimeException re) {
             createErrorDialog(re.getMessage(), true);
@@ -512,7 +515,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     protected void onPause() {
         super.onPause();
 
-        stopTimer();
+        refreshTimer.stop();
 
         if (adapter != null) {
             adapter.unregisterDataSetObserver(mListStateObserver);
@@ -525,51 +528,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     protected void onStop() {
         super.onStop();
-        stopTimer();
+        refreshTimer.stop();
         saveLastQueryString();
-    }
-
-    /**
-     * Get an intent for displaying the confirm detail screen for an element (either just populates
-     * the given intent with the necessary information, or creates a new one if it is null)
-     *
-     * @param contextRef reference to the selected element for which to display
-     *                   detailed view
-     * @return The intent argument, or a newly created one, with element
-     * selection information attached.
-     */
-    private Intent getDetailIntent(TreeReference contextRef, Intent detailIntent) {
-        if (detailIntent == null) {
-            detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
-        }
-        return populateDetailIntent(detailIntent, contextRef, this.selectDatum, this.asw);
-    }
-
-    /**
-     * Attach all element selection information to the intent argument and return the resulting
-     * intent
-     */
-    protected static Intent populateDetailIntent(Intent detailIntent,
-                                                 TreeReference contextRef,
-                                                 SessionDatum selectDatum,
-                                                 AndroidSessionWrapper asw) {
-
-        String caseId = SessionDatum.getCaseIdFromReference(
-                contextRef, selectDatum, asw.getEvaluationContext());
-        detailIntent.putExtra(SessionFrame.STATE_DATUM_VAL, caseId);
-
-        // Include long datum info if present
-        if (selectDatum.getLongDetail() != null) {
-            detailIntent.putExtra(EntityDetailActivity.DETAIL_ID,
-                    selectDatum.getLongDetail());
-            detailIntent.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID,
-                    selectDatum.getPersistentDetail());
-        }
-
-        SerializationUtil.serializeToIntent(detailIntent,
-                EntityDetailActivity.CONTEXT_REFERENCE, contextRef);
-
-        return detailIntent;
     }
 
     @Override
@@ -587,7 +547,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             displayReferenceAwesome(selection, position);
             updateSelectedItem(selection, false);
         } else {
-            Intent i = getDetailIntent(selection, null);
+            Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(),
+                    selection, null, selectDatum, asw);
             i.putExtra("entity_detail_index", position);
             if (mNoDetailMode) {
                 // Not actually launching detail intent because there's no confirm detail available
@@ -649,7 +610,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     if (inAwesomeMode) {
                         this.displayReferenceAwesome(r, adapter.getPosition(r));
                     } else {
-                        Intent i = this.getDetailIntent(r, null);
+                        Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(),
+                                r, null, selectDatum, asw);
                         if (mNoDetailMode) {
                             returnWithResult(i);
                         } else {
@@ -940,23 +902,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (adapter != null) {
             adapter.signalKilled();
         }
-
-        if (tts != null) {
-            tts.stop();
-            tts.shutdown();
-        }
     }
-
-    @Override
-    public void onInit(int status) {
-
-        if (status == TextToSpeech.SUCCESS) {
-            //using the default speech engine for now.
-        } else {
-        }
-
-    }
-
 
     @Override
     public void deliverResult(List<Entity<TreeReference>> entities,
@@ -977,7 +923,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         setupDivider(view);
 
-        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, tts, factory);
+        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, null, factory);
 
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
@@ -1006,7 +952,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             updateSelectedItem(true);
         }
 
-        this.startTimer();
+        refreshTimer.start(this);
 
         if (locationChangedWhileLoading) {
             Log.i("HereFunctionHandler", "location changed while reloading");
@@ -1036,10 +982,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             view.setDivider(layerDrawable);
         } else {
             view.setDivider(null);
-
         }
-        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
 
+        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
     }
 
     private void updateSelectedItem(boolean forceMove) {
@@ -1062,7 +1007,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
         }
     }
-
 
     @Override
     public void attach(EntityLoaderTask task) {
@@ -1099,7 +1043,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void displayReferenceAwesome(final TreeReference selection, int detailIndex) {
-        selectedIntent = getDetailIntent(selection, getIntent());
+        selectedIntent = EntityDetailUtils.getDetailIntent(getApplicationContext(),
+                selection, getIntent(), selectDatum, asw);
         //this should be 100% "fragment" able
         if (!rightFrameSetup) {
             findViewById(R.id.screen_compound_select_prompt).setVisibility(View.GONE);
@@ -1149,7 +1094,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         displayException(e);
     }
 
-
     @Override
     protected boolean onForwardSwipe() {
         // If user has picked an entity, move along to form entry
@@ -1176,7 +1120,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         return true;
     }
 
-    private boolean loadEntities() {
+    public boolean loadEntities() {
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
             Log.i("HereFunctionHandler", "entities reloading");
             EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
@@ -1185,41 +1129,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             return true;
         }
         return false;
-    }
-
-    private void startTimer() {
-        if (DeveloperPreferences.isListRefreshEnabled()) {
-            synchronized (timerLock) {
-                if (myTimer == null) {
-                    myTimer = new Timer();
-                    myTimer.schedule(new TimerTask() {
-
-                        @Override
-                        public void run() {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if (!cancelled) {
-                                        loadEntities();
-                                    }
-                                }
-                            });
-                        }
-                    }, 15 * 1000, 15 * 1000);
-                    cancelled = false;
-                }
-            }
-        }
-    }
-
-    private void stopTimer() {
-        synchronized (timerLock) {
-            if (myTimer != null) {
-                myTimer.cancel();
-                myTimer = null;
-                cancelled = true;
-            }
-        }
     }
 
     public void onEvalLocationChanged() {

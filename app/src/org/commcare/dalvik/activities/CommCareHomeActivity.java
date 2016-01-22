@@ -45,6 +45,7 @@ import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.utils.EntityDetailUtils;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -271,8 +272,11 @@ public class CommCareHomeActivity
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
             case PREFERENCES_ACTIVITY:
-                // rebuild buttons in case language was changed
-                uiController.setupUI();
+                if (resultCode != CommCarePreferences.RESULT_DATA_RESET) {
+                    // rebuild home buttons in case language changed;
+                    // but only if we didn't just clear user data
+                    uiController.setupUI();
+                }
                 rebuildOptionMenu();
                 return;
             case MEDIA_VALIDATOR_ACTIVITY:
@@ -774,7 +778,7 @@ public class CommCareHomeActivity
         } else {
             // Launch entity detail activity
             Intent detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
-            EntitySelectActivity.populateDetailIntent(
+            EntityDetailUtils.populateDetailIntent(
                     detailIntent, contextRef, selectDatum, asw);
             addPendingDataExtra(detailIntent, session);
             addPendingDatumIdExtra(detailIntent, session);

@@ -132,7 +132,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
         String enteredUsername = uiController.getEnteredUsername();
         if (!"".equals(enteredUsername) && enteredUsername != null) {
             savedInstanceState.putString(KEY_ENTERED_USER, enteredUsername);
@@ -267,7 +269,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     @Override
-    public void onResumeFragments() {
+    protected void onResumeFragments() {
         super.onResumeFragments();
 
         tryAutoLogin();
