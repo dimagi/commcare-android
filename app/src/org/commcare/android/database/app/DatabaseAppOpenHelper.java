@@ -28,8 +28,9 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
      * V.5 - Added numbers table
      * V.6 - Added temporary upgrade table for ease of checking for new updates
      * V.7 - Update serialized fixtures in db to use new schema
+     * V.8 - Add fields to UserKeyRecord to support PIN auth
      */
-    private static final int DB_VERSION_APP = 7;
+    private static final int DB_VERSION_APP = 8;
 
     private static final String DB_LOCATOR_PREF_APP = "database_app_";
 
