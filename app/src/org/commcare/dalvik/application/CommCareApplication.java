@@ -42,6 +42,8 @@ import org.acra.annotation.ReportsCrashes;
 import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.analytics.TimedStatsTracker;
 import org.commcare.android.database.AndroidDbHelper;
+import org.commcare.android.database.HybridFileBackedSqlHelpers;
+import org.commcare.android.database.HybridFileBackedSqlStorage;
 import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
@@ -91,6 +93,7 @@ import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.externalizable.AndroidClassHasher;
 import org.javarosa.core.model.User;
+import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
@@ -741,12 +744,33 @@ public class CommCareApplication extends Application {
         return currentApp.getStorage(name, c);
     }
 
+    public <T extends Persistable> HybridFileBackedSqlStorage<T> getFileBackedAppStorage(String name, Class<T> c) {
+        return currentApp.getFileBackedStorage(name, c);
+    }
+
     public <T extends Persistable> SqlStorage<T> getUserStorage(Class<T> c) {
         return getUserStorage(c.getAnnotation(Table.class).value(), c);
     }
 
     public <T extends Persistable> SqlStorage<T> getUserStorage(String storage, Class<T> c) {
-        return new SqlStorage<>(storage, c, new AndroidDbHelper(this.getApplicationContext()) {
+        return new SqlStorage<>(storage, c, buildUserDbHandle());
+    }
+
+    public <T extends Persistable> HybridFileBackedSqlStorage<T> getFileBackedUserStorage(String storage, Class<T> c) {
+        return new HybridFileBackedSqlStorage<>(storage, c, buildUserDbHandle(),
+                getUserKeyRecordId(), CommCareApplication._().getCurrentApp());
+    }
+
+    public String getUserKeyRecordId() {
+        try {
+            return getSession().getUserKeyRecordUUID();
+        } catch (SessionUnavailableException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected AndroidDbHelper buildUserDbHandle() {
+        return new AndroidDbHelper(this.getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() throws SessionUnavailableException {
                 SQLiteDatabase database = getUserDbHandle();
@@ -755,7 +779,7 @@ public class CommCareApplication extends Application {
                 }
                 return database;
             }
-        });
+        };
     }
 
     public <T extends Persistable> SqlStorage<T> getRawStorage(String storage, Class<T> c, final SQLiteDatabase handle) {
@@ -820,10 +844,10 @@ public class CommCareApplication extends Application {
         //TODO: We can just delete the db entirely.
 
         Editor sharedPreferencesEditor = CommCareApplication._().getCurrentApp().getAppPreferences().edit();
+        sharedPreferencesEditor.putString(CommCarePreferences.LAST_LOGGED_IN_USER, null).commit();
 
-        sharedPreferencesEditor.putString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
-
-        sharedPreferencesEditor.commit();
+        // manually clear file-backed fixture storage to ensure files are removed
+        CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class).removeAll();
 
         for (String id : dbIdsToRemove) {
             //TODO: We only wanna do this if the user is the _last_ one with a key to this id, actually.
@@ -946,6 +970,9 @@ public class CommCareApplication extends Application {
                         //Register that this user was the last to successfully log in if it's a real user
                         if (!User.TYPE_DEMO.equals(user.getUserType())) {
                             getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
+
+                            // clear any files orphaned by file-backed db transaction failures
+                            HybridFileBackedSqlHelpers.removeOrphanedFiles(mBoundService.getUserDbHandle());
 
                             PurgeStaleArchivedFormsTask.launchPurgeTask();
                         }

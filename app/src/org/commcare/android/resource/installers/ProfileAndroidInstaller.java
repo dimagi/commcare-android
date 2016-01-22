@@ -110,7 +110,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     }
 
     private void initProperties(Profile profile) {
-        //Baaaaaad. Encapsulate this better!!!
+        // TODO Baaaaaad. Encapsulate this better!!!
         SharedPreferences prefs = CommCareApp.currentSandbox.getAppPreferences();
         Editor editor = prefs.edit();
         for (PropertySetter p : profile.getPropertySetters()) {
