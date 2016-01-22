@@ -1098,12 +1098,8 @@ public class CommCareApplication extends Application {
     }
 
 
-    public UserKeyRecord getRecordForCurrentUser() {
-        try {
-            return getSession().getUserKeyRecord();
-        } catch (SessionUnavailableException e) {
-            return null;
-        }
+    public UserKeyRecord getRecordForCurrentUser() throws SessionUnavailableException {
+        return getSession().getUserKeyRecord();
     }
 
     // Start - Error message Hooks

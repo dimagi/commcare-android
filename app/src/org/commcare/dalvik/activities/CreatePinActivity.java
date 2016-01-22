@@ -18,6 +18,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
@@ -56,20 +57,13 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     private String firstRoundPin;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreateAware(Bundle savedInstanceState) throws SessionUnavailableException {
         super.onCreate(savedInstanceState);
 
         userRecord = CommCareApplication._().getRecordForCurrentUser();
-        if (userRecord == null) {
-            Log.i(TAG, "Something went wrong in CreatePinActivity. Could not find the current user " +
-                    "record, so just finishing the activity");
-            setResult(RESULT_CANCELED);
-            this.finish();
-            return;
-        }
-
         loginMode = LoginMode.fromString(
                 getIntent().getStringExtra(LoginActivity.LOGIN_MODE));
+
         if (loginMode == LoginMode.PASSWORD) {
             unhashedUserPassword = getIntent().getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
         } else if (loginMode == LoginMode.PRIMED) {
@@ -131,7 +125,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
         enterPinBox.setText("");
         enterPinBox.requestFocus();
         continueButton.setText(Localization.get("pin.continue.button"));
-        if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
+        if (userRecord.hasPinSet()) {
             promptText.setText(Localization.get("pin.directive.reset"));
         } else {
             promptText.setText(Localization.get("pin.directive.new"));

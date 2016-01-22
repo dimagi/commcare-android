@@ -80,7 +80,7 @@ public class SessionActivityRegistration {
      * stack. The backstack clearing is necessary for exiting out of the app
      * if the login activity is cancelled
      */
-    private static void redirectToLogin(Context context) {
+    public static void redirectToLogin(Context context) {
         Intent i = new Intent(context.getApplicationContext(), DispatchActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(i);

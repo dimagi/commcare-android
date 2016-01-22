@@ -19,6 +19,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.framework.BreadcrumbBarFragment;
@@ -156,7 +157,7 @@ public class CommCareHomeActivity
     private static final String EXTRA_CONSUMED_KEY = "login_extra_was_consumed";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreateAware(Bundle savedInstanceState) throws SessionUnavailableException {
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null) {
@@ -193,7 +194,7 @@ public class CommCareHomeActivity
         }
     }
 
-    private void processFromLoginLaunch() {
+    private void processFromLoginLaunch() throws SessionUnavailableException {
         if (getIntent().getBooleanExtra(DispatchActivity.START_FROM_LOGIN, false) &&
                 !loginExtraWasConsumed) {
 
@@ -224,7 +225,7 @@ public class CommCareHomeActivity
     }
 
     // See if we should launch either the pin choice dialog, or the create pin activity directly
-    private void checkForPinLaunchConditions() {
+    private void checkForPinLaunchConditions() throws SessionUnavailableException {
 
         LoginMode loginMode = LoginMode.fromString(
                 getIntent().getStringExtra(LoginActivity.LOGIN_MODE));
@@ -251,9 +252,10 @@ public class CommCareHomeActivity
         }
     }
 
-    private void showPinChoiceDialog(final LoginMode loginMode) {
+    private void showPinChoiceDialog(final LoginMode loginMode) throws SessionUnavailableException {
         String promptMessage;
-        if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
+        UserKeyRecord currentUserRecord = CommCareApplication._().getRecordForCurrentUser();
+        if (currentUserRecord.hasPinSet()) {
             promptMessage = Localization.get("pin.dialog.prompt.reset");
         } else {
             promptMessage = Localization.get("pin.dialog.prompt.set");

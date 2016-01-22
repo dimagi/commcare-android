@@ -13,6 +13,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.locale.Localization;
@@ -53,7 +54,7 @@ public class PinAuthenticationActivity extends
     private String passwordObtainedFromAuth;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreateAware(Bundle savedInstanceState) throws SessionUnavailableException {
         super.onCreate(savedInstanceState);
 
         if (!setRecordAndAuthMode()) {
@@ -67,7 +68,7 @@ public class PinAuthenticationActivity extends
      *
      * @return If the call completed successfully
      */
-    private boolean setRecordAndAuthMode() {
+    private boolean setRecordAndAuthMode() throws SessionUnavailableException {
         currentRecord = CommCareApplication._().getRecordForCurrentUser();
         if (currentRecord == null) {
             Log.i(TAG, "Something went wrong in PinAuthenticationActivity. Could not find the " +
