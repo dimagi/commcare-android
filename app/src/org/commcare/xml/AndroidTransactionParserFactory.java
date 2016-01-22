@@ -44,13 +44,12 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
      */
     private Hashtable<String, String> formInstanceNamespaces;
 
-    
     public AndroidTransactionParserFactory(Context context, HttpRequestGenerator generator) {
         super(new AndroidSandbox(CommCareApplication._()));
         this.context = context;
         this.generator = generator;
     }
-    
+
     @Override
     public TransactionParser getParser(KXmlParser parser) {
         String namespace = parser.getNamespace();
@@ -79,9 +78,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
         };
     }
 
-    /*
-     * need to override to give access to generator
-     */
+    @Override
     public void initCaseParser() {
         final int[] tallies = new int[3];
         caseParser = new TransactionParserFactory() {

@@ -50,11 +50,12 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
     private final Context context;
 
     private final String mUserId;
+    private byte[] fileMigrationKeySeed = null;
 
-    public DatabaseUserOpenHelper(Context context, String userId) {
-        super(context, getDbName(userId), null, USER_DB_VERSION);
+    public DatabaseUserOpenHelper(Context context, String userKeyRecordId) {
+        super(context, getDbName(userKeyRecordId), null, USER_DB_VERSION);
         this.context = context;
-        this.mUserId = userId;
+        this.mUserId = userKeyRecordId;
     }
 
     public static String getDbName(String sandboxId) {
@@ -89,8 +90,10 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
             
             builder = new AndroidTableBuilder("fixture");
-            builder.addData(new FormInstance());
+            builder.addFileBackedData(new FormInstance());
             database.execSQL(builder.getTableCreateString());
+
+            DbUtil.createOrphanedFileTable(database);
             
             builder = new AndroidTableBuilder(Ledger.STORAGE_KEY);
             builder.addData(new Ledger());
@@ -124,6 +127,8 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public SQLiteDatabase getWritableDatabase(String key) {
+        fileMigrationKeySeed = key.getBytes();
+
         try {
             return super.getWritableDatabase(key);
         } catch (SQLiteException sqle) {
@@ -134,7 +139,6 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
         boolean inSenseMode = false;
         //TODO: Not a great way to get the current app! Pass this in to the constructor.
         //I am preeeeeety sure that we can't get here without _having_ an app/platform, but not 100%
@@ -148,6 +152,6 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
         } catch (Exception e) {
 
         }
-        new UserDatabaseUpgrader(context, inSenseMode).upgrade(db, oldVersion, newVersion);
+        new UserDatabaseUpgrader(context, mUserId, inSenseMode, fileMigrationKeySeed).upgrade(db, oldVersion, newVersion);
     }
 }

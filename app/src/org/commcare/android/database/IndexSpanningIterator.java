@@ -26,7 +26,7 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
     private boolean isClosedByProgress = false;
 
     /**
-     * Total expected records *
+     * Total expected records
      */
     private final int count;
 
@@ -60,11 +60,11 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
      * @param countValue - The number of ID's in the set
      */
     public IndexSpanningIterator(Cursor c, SqlStorage<T> storage, int minValue, int maxValue, int countValue) {
+        super(c);
         current = minValue;
 
         end = maxValue;
         count = countValue;
-        this.c = c;
         this.storage = storage;
 
         //If there's no input, there's no values to iterate over
