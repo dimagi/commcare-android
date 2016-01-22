@@ -720,7 +720,8 @@ public class CommCareApplication extends Application {
     }
 
     public <T extends Persistable> HybridFileBackedSqlStorage<T> getFileBackedUserStorage(String storage, Class<T> c) {
-        return new HybridFileBackedSqlStorage<>(storage, c, buildUserDbHandle(), getUserKeyRecordId());
+        return new HybridFileBackedSqlStorage<>(storage, c, buildUserDbHandle(),
+                getUserKeyRecordId(), CommCareApplication._().getCurrentApp());
     }
 
     public String getUserKeyRecordId() {

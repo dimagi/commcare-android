@@ -59,7 +59,8 @@ public class FixtureSerializationMigration {
                         new HybridFileBackedSqlStorageForMigration<Persistable>("fixture", FormInstance.class, helper, directoryName, fileMigrationKeySeed);
             } else {
                 fixtureStorage =
-                        new UnencryptedHybridFileBackedSqlStorage<Persistable>("fixture", FormInstance.class, helper);
+                        new UnencryptedHybridFileBackedSqlStorage<Persistable>("fixture",
+                                FormInstance.class, helper, CommCareApplication._().getCurrentApp());
             }
             SqlStorage<Persistable> oldUserFixtureStorage =
                     new SqlStorage<Persistable>("oldfixture", FormInstance.class, helper);

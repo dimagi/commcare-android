@@ -1,5 +1,6 @@
 package org.commcare.android.database;
 
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.io.ByteArrayOutputStream;
@@ -17,7 +18,7 @@ public class HybridFileBackedSqlStorageMock<T extends Persistable>
                                           Class<? extends T> ctype,
                                           AndroidDbHelper helper,
                                           String baseDir) {
-        super(table, ctype, helper, baseDir);
+        super(table, ctype, helper, baseDir, CommCareApplication._().getCurrentApp());
     }
 
     public static void alwaysPutInDatabase() {

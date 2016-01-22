@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.AndroidDbHelper;
 import org.commcare.android.database.HybridFileBackedSqlStorage;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
 import org.javarosa.core.services.storage.Persistable;
 
@@ -22,7 +23,7 @@ public class HybridFileBackedSqlStorageForMigration<T extends Persistable> exten
                                                   AndroidDbHelper helper,
                                                   String baseDir,
                                                   byte[] fileKeySeed) {
-        super(table, ctype, helper, baseDir);
+        super(table, ctype, helper, baseDir, CommCareApplication._().getCurrentApp());
 
         this.fileKeySeed = fileKeySeed;
     }

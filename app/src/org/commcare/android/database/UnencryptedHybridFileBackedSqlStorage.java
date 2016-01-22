@@ -2,6 +2,7 @@ package org.commcare.android.database;
 
 import android.content.ContentValues;
 
+import org.commcare.dalvik.application.AppFilePathBuilder;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.io.BufferedInputStream;
@@ -23,8 +24,9 @@ public class UnencryptedHybridFileBackedSqlStorage<T extends Persistable>
         extends HybridFileBackedSqlStorage<T> {
     public UnencryptedHybridFileBackedSqlStorage(String table,
                                                  Class<? extends T> ctype,
-                                                 AndroidDbHelper helper) {
-        super(table, ctype, helper, "app_level");
+                                                 AndroidDbHelper helper,
+                                                 AppFilePathBuilder fsPathBuilder) {
+        super(table, ctype, helper, "app_level", fsPathBuilder);
     }
 
     @Override

@@ -10,6 +10,7 @@ import org.commcare.android.crypt.EncryptionIO;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.application.AppFilePathBuilder;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
 import org.javarosa.core.io.StreamsUtil;
@@ -62,15 +63,17 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
      * @param tableName     name of database table
      * @param classType     type of object being stored in this database
      * @param directoryName Name of storage root subdir where entry files are placed
+     * @param fsPathBuilder Resolves a db dir path to the correct app dir in external storage
      */
     public HybridFileBackedSqlStorage(String tableName,
                                       Class<? extends T> classType,
                                       AndroidDbHelper dbHelper,
-                                      String directoryName) {
+                                      String directoryName,
+                                      AppFilePathBuilder fsPathBuilder) {
         super(tableName, classType, dbHelper);
 
         final String subPath = GlobalConstants.FILE_CC_DB + directoryName + "/_" + tableName;
-        dbDir = new File(CommCareApplication._().getCurrentApp().fsPath(subPath));
+        dbDir = new File(fsPathBuilder.fsPath(subPath));
         setupDir();
     }
 

@@ -1,5 +1,6 @@
 package org.commcare.android.database;
 
+import org.commcare.dalvik.application.AppFilePathBuilder;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.io.ByteArrayOutputStream;
@@ -15,8 +16,9 @@ public class UnencryptedHybridFileBackedSqlStorageMock<T extends Persistable>
 
     public UnencryptedHybridFileBackedSqlStorageMock(String table,
                                                      Class<? extends T> ctype,
-                                                     AndroidDbHelper helper) {
-        super(table, ctype, helper);
+                                                     AndroidDbHelper helper,
+                                                     AppFilePathBuilder fsPathBuilder) {
+        super(table, ctype, helper, fsPathBuilder);
     }
 
     public static void alwaysPutInDatabase() {

@@ -40,7 +40,7 @@ import java.io.File;
  *
  * @author ctsims
  */
-public class CommCareApp {
+public class CommCareApp implements AppFilePathBuilder {
     private ApplicationRecord record;
 
     protected JavaFileRoot fileRoot;
@@ -96,8 +96,9 @@ public class CommCareApp {
         }
     }
 
-    public String fsPath(String relative) {
-        return storageRoot() + relative;
+    @Override
+    public String fsPath(String relativeSubDir) {
+        return storageRoot() + relativeSubDir;
     }
 
     private void initializeFileRoots() {
@@ -286,7 +287,7 @@ public class CommCareApp {
     }
 
     public <T extends Persistable> UnencryptedHybridFileBackedSqlStorage<T> getFileBackedStorage(String name, Class<T> c) {
-        return new UnencryptedHybridFileBackedSqlStorage<>(name, c, buildAndroidDbHelper());
+        return new UnencryptedHybridFileBackedSqlStorage<>(name, c, buildAndroidDbHelper(), this);
     }
 
     protected AndroidDbHelper buildAndroidDbHelper() {
