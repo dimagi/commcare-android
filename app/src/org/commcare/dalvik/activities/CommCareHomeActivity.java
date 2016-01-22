@@ -225,12 +225,12 @@ public class CommCareHomeActivity
     // See if we should launch the pin choice dialog
     private void pinModeDecisionLogic() {
 
-        LoginActivity.LoginMode loginMode = LoginActivity.LoginMode.fromString(
+        LoginMode loginMode = LoginMode.fromString(
                 getIntent().getStringExtra(LoginActivity.LOGIN_MODE));
 
-        if (loginMode == LoginActivity.LoginMode.PRIMED) {
+        if (loginMode == LoginMode.PRIMED) {
             launchPinCreateScreen(loginMode);
-        } else if (loginMode == LoginActivity.LoginMode.PASSWORD) {
+        } else if (loginMode == LoginMode.PASSWORD) {
             boolean pinCreationEnabledForApp = DeveloperPreferences.shouldOfferPinForLogin();
             if (!pinCreationEnabledForApp) {
                 return;
@@ -247,7 +247,7 @@ public class CommCareHomeActivity
         }
     }
 
-    private void showPinChoiceDialog(final LoginActivity.LoginMode loginMode) {
+    private void showPinChoiceDialog(final LoginMode loginMode) {
         String promptMessage;
         if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
             promptMessage = Localization.get("pin.dialog.prompt.reset");
@@ -305,14 +305,14 @@ public class CommCareHomeActivity
         startActivityForResult(i, AUTHENTICATION_FOR_PIN);
     }
 
-    private void launchPinCreateScreen(LoginActivity.LoginMode loginMode) {
+    private void launchPinCreateScreen(LoginMode loginMode) {
         launchPinCreateScreen(loginMode, null);
     }
 
-    private void launchPinCreateScreen(LoginActivity.LoginMode loginMode, String passwordFromAuth) {
+    private void launchPinCreateScreen(LoginMode loginMode, String passwordFromAuth) {
         Intent i = new Intent(this, CreatePinActivity.class);
 
-        if (loginMode == LoginActivity.LoginMode.PASSWORD) {
+        if (loginMode == LoginMode.PASSWORD) {
             if (passwordFromAuth != null) {
                 // We just came from the PinAuthenticationActivity, so getting password from there
                 i.putExtra(LoginActivity.PASSWORD_FROM_LOGIN, passwordFromAuth);
@@ -535,7 +535,7 @@ public class CommCareHomeActivity
                 case AUTHENTICATION_FOR_PIN:
                     if (resultCode == RESULT_OK) {
                         String password = intent.getStringExtra(PinAuthenticationActivity.PASSWORD_FROM_AUTH);
-                        launchPinCreateScreen(LoginActivity.LoginMode.PASSWORD, password);
+                        launchPinCreateScreen(LoginMode.PASSWORD, password);
                     }
                     return;
                 case CREATE_PIN:

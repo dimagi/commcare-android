@@ -9,6 +9,7 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.UserSandboxUtils;
 import org.commcare.dalvik.activities.LoginActivity;
+import org.commcare.dalvik.activities.LoginMode;
 import org.javarosa.core.model.User;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -49,7 +50,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     private final String username;
     private String password;
     private String pin;
-    private final LoginActivity.LoginMode loginMode;
+    private final LoginMode loginMode;
     
     final CommCareApp app;
     
@@ -69,16 +70,16 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     User loggedIn = null;
     
     public ManageKeyRecordTask(Context c, int taskId, String username, String passwordOrPin,
-                               LoginActivity.LoginMode loginMode, CommCareApp app,
+                               LoginMode loginMode, CommCareApp app,
                                boolean restoreSession, ManageKeyRecordListener<R> listener) {
         super(c);
         this.username = username;
         this.loginMode = loginMode;
 
-        if (loginMode == LoginActivity.LoginMode.PIN) {
+        if (loginMode == LoginMode.PIN) {
             this.pin = passwordOrPin;
             this.password = null;
-        } else if (loginMode == LoginActivity.LoginMode.PASSWORD) {
+        } else if (loginMode == LoginMode.PASSWORD) {
             this.password = passwordOrPin;
             this.pin = null;
         }
@@ -174,7 +175,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
          * a) We're in normal password login mode (otherwise, should only be try matching to an existing record on the device)
          * b) We didn't find a matching record that is valid
          * c) There is a keyServerUrl to make the http callout to */
-        calloutNeeded = (loginMode == LoginActivity.LoginMode.PASSWORD)
+        calloutNeeded = (loginMode == LoginMode.PASSWORD)
                 && (!hasRecord || valid == null)
                 && keyServerUrl != null;
         
@@ -362,7 +363,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
         UserKeyRecord current = getCurrentValidRecord();
 
         if (current == null)  {
-            if (loginMode == LoginActivity.LoginMode.PIN) {
+            if (loginMode == LoginMode.PIN) {
                 // If we are in pin mode then we did not execute the callout task; just means there
                 // is no existing record matching the username/pin combo
                 return HttpCalloutOutcomes.IncorrectPin;
@@ -373,9 +374,9 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
 
         // If we successfully found a matching record in either PIN or Primed mode, we don't yet
         // have access to the un-hashed password, but are going to need it now to finish up
-        if (loginMode == LoginActivity.LoginMode.PIN) {
+        if (loginMode == LoginMode.PIN) {
             this.password = current.getUnhashedPasswordViaPin(this.pin);
-        } else if (loginMode == LoginActivity.LoginMode.PRIMED) {
+        } else if (loginMode == LoginMode.PRIMED) {
             this.password = current.getPrimedPassword();
         }
 
@@ -518,9 +519,9 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     // expire in the next few months. Otherwise, devices that haven't
     // accessed the internet in a while won't be able to perform logins.
     private UserKeyRecord getCurrentValidRecord() {
-        if (loginMode == LoginActivity.LoginMode.PIN) {
+        if (loginMode == LoginMode.PIN) {
             return UserKeyRecord.getCurrentValidRecordByPin(app, username, pin, true);
-        } else if (loginMode == LoginActivity.LoginMode.PASSWORD) {
+        } else if (loginMode == LoginMode.PASSWORD) {
             return UserKeyRecord.getCurrentValidRecordByPassword(app, username, password, true);
         } else {
             // primed mode

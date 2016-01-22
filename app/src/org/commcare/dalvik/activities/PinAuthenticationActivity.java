@@ -48,7 +48,7 @@ public class PinAuthenticationActivity extends
 
     public static final String PASSWORD_FROM_AUTH = "password-obtained-from-auth";
 
-    private LoginActivity.LoginMode authMode;
+    private LoginMode authMode;
     private UserKeyRecord currentRecord;
     private String passwordObtainedFromAuth;
 
@@ -80,16 +80,16 @@ public class PinAuthenticationActivity extends
         if (currentRecord.hasPinSet()) {
             // If a PIN is already set and the user is trying to change it, we can have them
             // enter that, and then use it to get the password
-            authMode = LoginActivity.LoginMode.PIN;
+            authMode = LoginMode.PIN;
         } else {
             // Otherwise, we're going to need them to enter their password
-            authMode = LoginActivity.LoginMode.PASSWORD;
+            authMode = LoginMode.PASSWORD;
         }
         return true;
     }
 
     private void setupUI() {
-        if (authMode == LoginActivity.LoginMode.PASSWORD) {
+        if (authMode == LoginMode.PASSWORD) {
             setPasswordAuthModeUI();
         } else {
             setPinAuthModeUI();
@@ -101,7 +101,7 @@ public class PinAuthenticationActivity extends
 
             @Override
             public void onClick(View v) {
-                if (authMode == LoginActivity.LoginMode.PASSWORD) {
+                if (authMode == LoginMode.PASSWORD) {
                     checkEnteredPassword();
                 } else {
                     checkEnteredPin();
@@ -154,7 +154,7 @@ public class PinAuthenticationActivity extends
     }
 
     private void onUnsuccessfulAuth() {
-        if (authMode == LoginActivity.LoginMode.PIN) {
+        if (authMode == LoginMode.PIN) {
             Toast.makeText(this, Localization.get("pin.auth.failed.pin"), Toast.LENGTH_LONG).show();
             pinEntry.setText("");
         } else {

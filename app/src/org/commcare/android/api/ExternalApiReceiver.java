@@ -24,7 +24,7 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.LoginActivity;
+import org.commcare.dalvik.activities.LoginMode;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
@@ -260,7 +260,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 
             CommCareApplication._().startUserSession(key, matchingRecord, false);
             ManageKeyRecordTask mKeyRecordTask = new ManageKeyRecordTask<Object>(context, 0,
-                    matchingRecord.getUsername(), password, LoginActivity.LoginMode.PASSWORD,
+                    matchingRecord.getUsername(), password, LoginMode.PASSWORD,
                     CommCareApplication._().getCurrentApp(), false,
                     new ManageKeyRecordListener() {
 

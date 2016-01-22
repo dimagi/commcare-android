@@ -79,7 +79,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     private final LoginActivity activity;
 
-    private LoginActivity.LoginMode loginMode;
+    private LoginMode loginMode;
 
     private boolean manuallySwitchedToPasswordMode;
 
@@ -112,7 +112,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     public LoginActivityUIController(LoginActivity activity) {
         this.activity = activity;
-        this.loginMode = LoginActivity.LoginMode.PASSWORD;
+        this.loginMode = LoginMode.PASSWORD;
     }
 
     @Override
@@ -306,7 +306,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     private void setPrimedLoginMode() {
-        loginMode = LoginActivity.LoginMode.PRIMED;
+        loginMode = LoginMode.PRIMED;
         loginPrimedMessage.setVisibility(View.VISIBLE);
         passwordOrPin.setVisibility(View.GONE);
         manuallySwitchedToPasswordMode = false;
@@ -317,7 +317,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     protected void setNormalPasswordMode() {
-        loginMode = LoginActivity.LoginMode.PASSWORD;
+        loginMode = LoginMode.PASSWORD;
         loginPrimedMessage.setVisibility(View.GONE);
         passwordOrPin.setVisibility(View.VISIBLE);
         passwordOrPin.setHint(Localization.get("login.password"));
@@ -326,7 +326,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     }
 
     private void setPinPasswordMode() {
-        loginMode = LoginActivity.LoginMode.PIN;
+        loginMode = LoginMode.PIN;
         loginPrimedMessage.setVisibility(View.GONE);
         passwordOrPin.setVisibility(View.VISIBLE);
         passwordOrPin.setHint(Localization.get("login.pin.password"));
@@ -345,7 +345,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         return manuallySwitchedToPasswordMode;
     }
 
-    protected LoginActivity.LoginMode getLoginMode() {
+    protected LoginMode getLoginMode() {
         return loginMode;
     }
 

@@ -48,7 +48,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     public static final String CHOSE_REMEMBER_PASSWORD = "chose-remember-password";
 
     private String unhashedUserPassword;
-    private LoginActivity.LoginMode loginMode;
+    private LoginMode loginMode;
     private UserKeyRecord userRecord;
 
     // Indicates whether the user is entering their PIN for the first time, or is confirming it
@@ -68,11 +68,11 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
             return;
         }
 
-        loginMode = LoginActivity.LoginMode.fromString(
+        loginMode = LoginMode.fromString(
                 getIntent().getStringExtra(LoginActivity.LOGIN_MODE));
-        if (loginMode == LoginActivity.LoginMode.PASSWORD) {
+        if (loginMode == LoginMode.PASSWORD) {
             unhashedUserPassword = getIntent().getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
-        } else if (loginMode == LoginActivity.LoginMode.PRIMED) {
+        } else if (loginMode == LoginMode.PRIMED) {
             // Make user unable to cancel this activity if they were brought here by primed login
             cancelButton.setEnabled(false);
 
