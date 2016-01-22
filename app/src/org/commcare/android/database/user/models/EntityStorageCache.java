@@ -6,12 +6,12 @@ import android.util.Log;
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.modern.database.DatabaseHelper;
 
 /**
  * @author ctsims
@@ -28,7 +28,7 @@ public class EntityStorageCache {
 
     public static String getTableDefinition() {
         return "CREATE TABLE " + TABLE_NAME + "(" +
-                DbUtil.ID_COL + " INTEGER PRIMARY KEY, " +
+                DatabaseHelper.ID_COL + " INTEGER PRIMARY KEY, " +
                 COL_CACHE_NAME + ", " +
                 COL_ENTITY_KEY + ", " +
                 COL_CACHE_KEY + ", " +

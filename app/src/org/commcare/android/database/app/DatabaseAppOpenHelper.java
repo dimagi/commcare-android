@@ -6,8 +6,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
-import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.AndroidTableBuilder;
+import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.resources.model.Resource;
@@ -69,9 +69,11 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
             
             builder = new AndroidTableBuilder("fixture");
-            builder.addData(new FormInstance());
+            builder.addFileBackedData(new FormInstance());
             database.execSQL(builder.getTableCreateString());
-            
+
+            DbUtil.createOrphanedFileTable(database);
+
             builder = new AndroidTableBuilder(UserKeyRecord.class);
             database.execSQL(builder.getTableCreateString());
 
@@ -122,5 +124,4 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         new AppDatabaseUpgrader(context).upgrade(db, oldVersion, newVersion);
     }
-
 }

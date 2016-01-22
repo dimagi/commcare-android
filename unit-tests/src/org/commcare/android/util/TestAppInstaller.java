@@ -9,6 +9,7 @@ import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.application.CommCareTestApp;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.javarosa.core.model.User;
 import org.javarosa.core.util.PropertyUtils;
@@ -50,7 +51,7 @@ public class TestAppInstaller {
                 new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
                         ApplicationRecord.STATUS_UNINITIALIZED);
 
-        CommCareApp app = new CommCareApp(newRecord);
+        CommCareApp app = new CommCareTestApp(new CommCareApp(newRecord));
         ResourceEngineTask<Object> task =
                 new ResourceEngineTask<Object>(app, -1, false) {
                     @Override

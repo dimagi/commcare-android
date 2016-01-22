@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
+import org.commcare.android.crypt.EncryptionIO;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.tasks.ExceptionReporting;
@@ -21,6 +22,7 @@ import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
+import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.jr.extensions.CalendaredDateFormatHandler;
@@ -40,6 +42,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -202,10 +205,22 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
     private boolean importData(String filePath, FormEntryController fec) {
         // convert files into a byte array
-        byte[] fileBytes = FileUtils.getFileAsBytes(new File(filePath), mSymetricKey);
+        InputStream is;
+        try {
+            is = EncryptionIO.getFileInputStream(filePath, mSymetricKey);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unable to open encrypted form instance file: " + filePath);
+        }
 
         // get the root of the saved and template instances
-        TreeElement savedRoot = XFormParser.restoreDataModel(fileBytes, null).getRoot();
+        TreeElement savedRoot;
+        try {
+            savedRoot = XFormParser.restoreDataModel(is, null).getRoot();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new XFormParseException("Bad parsing from byte array " + e.getMessage());
+        }
         TreeElement templateRoot = fec.getModel().getForm().getInstance().getRoot().deepCopy(true);
 
         // weak check for matching forms
