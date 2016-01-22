@@ -103,4 +103,31 @@ public class FixtureSerializationMigration {
             Log.d(TAG, "Serialized fixture update complete in " + elapse + "ms");
         }
     }
+
+    public static void stageFixtureTables(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            DbUtil.createOrphanedFileTable(db);
+            // rename old fixture db
+            db.execSQL("ALTER TABLE fixture RENAME TO oldfixture;");
+
+            // make new fixture db w/ filepath and encryption key columns
+            AndroidTableBuilder builder = new AndroidTableBuilder("fixture");
+            builder.addFileBackedData(new FormInstance());
+            db.execSQL(builder.getTableCreateString());
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    public static void dropTempFixtureTable(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL("DROP TABLE oldfixture;");
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
 }

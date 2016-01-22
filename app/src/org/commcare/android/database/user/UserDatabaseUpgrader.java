@@ -232,31 +232,13 @@ class UserDatabaseUpgrader {
      */
     private boolean upgradeEightNine(SQLiteDatabase db) {
         Log.d(TAG, "starting user fixture migration");
-        db.beginTransaction();
-        try {
-            DbUtil.createOrphanedFileTable(db);
-            // rename old fixture db
-            db.execSQL("ALTER TABLE fixture RENAME TO oldfixture;");
 
-            // make new fixture db w/ filepath and encryption key columns
-            AndroidTableBuilder builder = new AndroidTableBuilder("fixture");
-            builder.addFileBackedData(new FormInstance());
-            db.execSQL(builder.getTableCreateString());
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
+        FixtureSerializationMigration.stageFixtureTables(db);
 
         boolean didFixturesMigrate =
                 FixtureSerializationMigration.migrateFixtureDbBytes(db, c, userKeyRecordId, fileMigrationKey);
 
-        db.beginTransaction();
-        try {
-            db.execSQL("DROP TABLE oldfixture;");
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
+        FixtureSerializationMigration.dropTempFixtureTable(db);
         return didFixturesMigrate;
     }
 

@@ -141,32 +141,13 @@ public class AppDatabaseUpgrader {
      */
     private boolean upgradeSixSeven(SQLiteDatabase db) {
         Log.d("AppDatabaseUpgrader", "starting app fixture migration");
-        db.beginTransaction();
-        try {
 
-            DbUtil.createOrphanedFileTable(db);
-            // rename old fixture db
-            db.execSQL("ALTER TABLE fixture RENAME TO oldfixture;");
-
-            // make new fixture db w/ filepath and encryption key columns
-            AndroidTableBuilder builder = new AndroidTableBuilder("fixture");
-            builder.addFileBackedData(new FormInstance());
-            db.execSQL(builder.getTableCreateString());
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
+        FixtureSerializationMigration.stageFixtureTables(db);
 
         boolean didFixturesMigrate =
                 FixtureSerializationMigration.migrateUnencryptedFixtureDbBytes(db, context);
 
-        db.beginTransaction();
-        try {
-            db.execSQL("DROP TABLE oldfixture;");
-            db.setTransactionSuccessful();
-        } finally {
-            db.endTransaction();
-        }
+        FixtureSerializationMigration.dropTempFixtureTable(db);
         return didFixturesMigrate;
     }
 }
