@@ -211,9 +211,10 @@ public class AppDatabaseUpgrader {
         // Then determine which record for each username to mark as active
         for (String username : usernamesToRecords.keySet()) {
             List<UserKeyRecord> records = usernamesToRecords.get(username);
+            UserKeyRecord activeRecord;
             if (records.size() == 1) {
                 // If there is only 1 record for a username, mark it as active
-                records.get(0).setActive();
+                activeRecord = records.get(0);
             } else {
                 // Otherwise, sort the records in decreasing order of validTo date, and then mark
                 // the first one in the list as active
@@ -223,8 +224,10 @@ public class AppDatabaseUpgrader {
                         return lhs.getValidTo().compareTo(rhs.getValidTo());
                     }
                 });
-                records.get(0).setActive();
+                activeRecord = records.get(0);
             }
+            activeRecord.setActive();
+            newUKRStorage.write(activeRecord);
         }
     }
 }
