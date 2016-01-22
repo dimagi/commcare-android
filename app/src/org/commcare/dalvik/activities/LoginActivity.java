@@ -185,7 +185,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                  prefs.getString("ota-restore-url", LoginActivity.this.getString(R.string.ota_restore_url)),
                  LoginActivity.this) {
                     @Override
-                    protected void deliverResult( LoginActivity receiver, Integer result) {
+                    protected void deliverResult(LoginActivity receiver, PullTaskResult result) {
                         if (result == null) {
                             // The task crashed unexpectedly
                             receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
@@ -193,30 +193,30 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                         }
 
                         switch(result) {
-                        case DataPullTask.AUTH_FAILED:
+                        case AUTH_FAILED:
                             receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                             break;
-                        case DataPullTask.BAD_DATA:
+                        case BAD_DATA:
                             receiver.raiseLoginMessage(StockMessages.Remote_BadRestore, true);
                             break;
-                        case DataPullTask.STORAGE_FULL:
+                        case STORAGE_FULL:
                             receiver.raiseLoginMessage(StockMessages.Storage_Full, true);
                             break;
-                        case DataPullTask.DOWNLOAD_SUCCESS:
+                        case DOWNLOAD_SUCCESS:
                             if(!tryLocalLogin(true, uiController.isRestoreSessionChecked())) {
                                 receiver.raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
                             }
                             break;
-                        case DataPullTask.UNREACHABLE_HOST:
+                        case UNREACHABLE_HOST:
                             receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork, true);
                             break;
-                        case DataPullTask.CONNECTION_TIMEOUT:
+                        case CONNECTION_TIMEOUT:
                             receiver.raiseLoginMessage(StockMessages.Remote_Timeout, true);
                             break;
-                        case DataPullTask.SERVER_ERROR:
+                        case SERVER_ERROR:
                             receiver.raiseLoginMessage(StockMessages.Remote_ServerError, true);
                             break;
-                        case DataPullTask.UNKNOWN_FAILURE:
+                        case UNKNOWN_FAILURE:
                             receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                             break;
                         }

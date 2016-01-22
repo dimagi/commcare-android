@@ -93,6 +93,7 @@ home.menu.wifi.direct=Wifi Direct
 home.menu.connection.diagnostic=Connection Test
 home.menu.saved.forms=Saved Forms
 home.menu.about=About CommCare
+home.menu.disable.analytics=Opt Out of Analytics
 home.menu.pin.set=Set My PIN
 home.menu.pin.change=Change My PIN
 
@@ -367,6 +368,10 @@ no.file.browser=Your device does not have a file browser installed. Please downl
 
 callout.failure.dialer=Device is not currently configured to make telephone calls
 callout.failure.sms=SMS app not found
+
+analytics.opt.out.title=Opt out of Google Analytics?
+analytics.opt.out.message=This application uses Google Analytics to anonymously track usage data within the application. If you do not want your usage data to be tracked, you can disable it at any time.
+analytics.disable.button=DISABLE
 
 remember.password.for.next.login=Remember PW For Next Login
 remember.password.confirm.title=Log out and Remember Password?
