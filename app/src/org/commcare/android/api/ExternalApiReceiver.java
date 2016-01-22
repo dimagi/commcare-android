@@ -14,12 +14,10 @@ import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.tasks.DataPullTask;
-import org.commcare.android.tasks.ManageKeyRecordListener;
-import org.commcare.android.tasks.ManageKeyRecordTask;
+import org.commcare.android.tasks.ExternalManageKeyRecordTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
-import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
@@ -258,32 +256,9 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             //TODO: See if it worked first?
 
             CommCareApplication._().startUserSession(key, matchingRecord, false);
-            ManageKeyRecordTask mKeyRecordTask = new ManageKeyRecordTask<Object>(context, 0,
-                    matchingRecord.getUsername(), password, CommCareApplication._().getCurrentApp(),
-                    false, new ManageKeyRecordListener() {
-
-                @Override
-                public void keysLoginComplete(Object o) {
-
-                }
-
-                @Override
-                public void keysReadyForSync(Object o) {
-                    // TODO Auto-generated method stub
-
-                }
-
-                @Override
-                public void keysDoneOther(Object o, HttpCalloutOutcomes outcome) {
-                    // TODO Auto-generated method stub
-
-                }
-
-            }) {
-                @Override
-                protected void deliverUpdate(Object r, String... update) {
-                }
-            };
+            ExternalManageKeyRecordTask mKeyRecordTask =
+                    new ExternalManageKeyRecordTask(context, 0, matchingRecord.getUsername(),
+                            password, CommCareApplication._().getCurrentApp(), false);
             mKeyRecordTask.connect(dummyconnector);
             mKeyRecordTask.execute();
 
