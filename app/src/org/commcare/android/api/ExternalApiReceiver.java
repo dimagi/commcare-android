@@ -193,8 +193,8 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url", c.getString(R.string.ota_restore_url)), c) {
 
             @Override
-            protected void deliverResult(Object receiver, Integer result) {
-                if (result != DataPullTask.DOWNLOAD_SUCCESS) {
+            protected void deliverResult(Object receiver, PullTaskResult result) {
+                if (result != PullTaskResult.DOWNLOAD_SUCCESS) {
                     Toast.makeText(c, "CommCare couldn't sync. Please try to sync from CommCare directly for more information", Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(c, "CommCare synced!", Toast.LENGTH_LONG).show();
