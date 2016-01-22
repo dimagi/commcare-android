@@ -84,6 +84,7 @@ public class CommCareSessionService extends Service {
 
     private User user;
     private String userKeyRecordUUID;
+    private int userKeyRecordID;
 
     private SQLiteDatabase userDatabase;
 
@@ -265,7 +266,7 @@ public class CommCareSessionService extends Service {
      *
      * @param user attach this user to the session
      */
-    public void startSession(User user) {
+    public void startSession(User user, UserKeyRecord record) {
         synchronized (lock) {
             if (user != null) {
                 Logger.log(AndroidLogger.TYPE_USER, "login|" + user.getUsername() + "|" + user.getUniqueId());
@@ -276,6 +277,7 @@ public class CommCareSessionService extends Service {
             }
 
             this.user = user;
+            this.userKeyRecordID = record.getID();
 
             this.sessionExpireDate = new Date(new Date().getTime() + sessionLength);
 
@@ -430,13 +432,13 @@ public class CommCareSessionService extends Service {
         }
     }
 
-    public SecretKey createNewSymetricKey() throws SessionUnavailableException {
+    public SecretKey createNewSymmetricKey() throws SessionUnavailableException {
         synchronized (lock) {
             // Ensure we have a key to work with
             if (!isActive()) {
                 throw new SessionUnavailableException("Can't generate new key when the user session key is empty.");
             }
-            return CryptUtil.generateSymetricKey(CryptUtil.uniqueSeedFromSecureStatic(key));
+            return CryptUtil.generateSymmetricKey(CryptUtil.uniqueSeedFromSecureStatic(key));
         }
     }
 
@@ -454,6 +456,11 @@ public class CommCareSessionService extends Service {
             throw new SessionUnavailableException();
         }
         return user;
+    }
+
+    public UserKeyRecord getUserKeyRecord() {
+        return CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class)
+                .read(this.userKeyRecordID);
     }
 
     public DataSubmissionListener startDataSubmissionListener() {
