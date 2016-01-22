@@ -59,18 +59,17 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
 
     @Override
     protected void onCreateAware(Bundle savedInstanceState) throws SessionUnavailableException {
+
         userRecord = CommCareApplication._().getRecordForCurrentUser();
+        unhashedUserPassword = CommCareApplication._().getSession().getLoggedInUser().getCachedPwd();
         LoginMode loginMode = LoginMode.fromString(
                 getIntent().getStringExtra(LoginActivity.LOGIN_MODE));
 
-        if (loginMode == LoginMode.PASSWORD) {
-            unhashedUserPassword = getIntent().getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
-        } else if (loginMode == LoginMode.PRIMED) {
+        if (loginMode == LoginMode.PRIMED) {
             // Make user unable to cancel this activity if they were brought here by primed login
             cancelButton.setEnabled(false);
 
-            // Get the primed password and then clear it
-            unhashedUserPassword = userRecord.getPrimedPassword();
+            // Clear the primed password
             userRecord.clearPrimedPassword();
             CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
         }

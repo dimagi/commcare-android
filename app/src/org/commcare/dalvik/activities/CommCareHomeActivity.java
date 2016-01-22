@@ -310,25 +310,7 @@ public class CommCareHomeActivity
     }
 
     private void launchPinCreateScreen(LoginMode loginMode) {
-        launchPinCreateScreen(loginMode, null);
-    }
-
-    private void launchPinCreateScreen(LoginMode loginMode, String passwordFromAuth) {
         Intent i = new Intent(this, CreatePinActivity.class);
-
-        if (loginMode == LoginMode.PASSWORD) {
-            if (passwordFromAuth != null) {
-                // We just came from the PinAuthenticationActivity, so getting password from there
-                i.putExtra(LoginActivity.PASSWORD_FROM_LOGIN, passwordFromAuth);
-            } else {
-                // We just went through actual log in, so have received an intent with a
-                // password
-                String passwordFromLastLogin =
-                        getIntent().getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
-                i.putExtra(LoginActivity.PASSWORD_FROM_LOGIN, passwordFromLastLogin);
-            }
-        }
-
         i.putExtra(LoginActivity.LOGIN_MODE, loginMode.toString());
         startActivityForResult(i, CREATE_PIN);
     }
@@ -538,8 +520,7 @@ public class CommCareHomeActivity
                     break;
                 case AUTHENTICATION_FOR_PIN:
                     if (resultCode == RESULT_OK) {
-                        String password = intent.getStringExtra(PinAuthenticationActivity.PASSWORD_FROM_AUTH);
-                        launchPinCreateScreen(LoginMode.PASSWORD, password);
+                        launchPinCreateScreen(LoginMode.PASSWORD);
                     }
                     return;
                 case CREATE_PIN:

@@ -43,7 +43,6 @@ public class DispatchActivity extends FragmentActivity {
     public static final int MISSING_MEDIA_ACTIVITY = 4;
 
     private boolean startFromLogin;
-    private String passwordFromLastLogin;
     private String lastLoginMode;
     private boolean userManuallyEnteredPasswordMode;
 
@@ -203,7 +202,6 @@ public class DispatchActivity extends FragmentActivity {
     private void launchHomeScreen() {
         Intent i = new Intent(this, CommCareHomeActivity.class);
         i.putExtra(START_FROM_LOGIN, startFromLogin);
-        i.putExtra(LoginActivity.PASSWORD_FROM_LOGIN, passwordFromLastLogin);
         i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
         i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
         startFromLogin = false;
@@ -314,7 +312,6 @@ public class DispatchActivity extends FragmentActivity {
                     shouldFinish = true;
                     return;
                 }
-                passwordFromLastLogin = intent.getStringExtra(LoginActivity.PASSWORD_FROM_LOGIN);
                 lastLoginMode = intent.getStringExtra(LoginActivity.LOGIN_MODE);
                 userManuallyEnteredPasswordMode =
                         intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);

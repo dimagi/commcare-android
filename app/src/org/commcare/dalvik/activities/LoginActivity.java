@@ -75,7 +75,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public final static String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
 
     public final static String LOGIN_MODE = "login-mode";
-    public final static String PASSWORD_FROM_LOGIN = "password-used-on-login";
     public final static String MANUAL_SWITCH_TO_PW_MODE = "manually-swithced-to-password-mode";
     
     private static final int TASK_KEY_EXCHANGE = 1;
@@ -419,10 +418,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         Intent i = new Intent();
         i.putExtra(LOGIN_MODE, uiController.getLoginMode().toString());
-        if (uiController.getLoginMode() == LoginMode.PASSWORD) {
-            i.putExtra(PASSWORD_FROM_LOGIN, uiController.getEnteredPasswordOrPin());
-            i.putExtra(MANUAL_SWITCH_TO_PW_MODE, uiController.userManuallySwitchedToPasswordMode());
-        }
+        i.putExtra(MANUAL_SWITCH_TO_PW_MODE, uiController.userManuallySwitchedToPasswordMode());
         setResult(RESULT_OK, i);
         finish();
     }

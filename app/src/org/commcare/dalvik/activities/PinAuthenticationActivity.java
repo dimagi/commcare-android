@@ -45,13 +45,8 @@ public class PinAuthenticationActivity extends
     @UiElement(R.id.pin_cancel_button)
     private Button cancelButton;
 
-    private static final String TAG = PinAuthenticationActivity.class.getSimpleName();
-
-    public static final String PASSWORD_FROM_AUTH = "password-obtained-from-auth";
-
     private LoginMode authMode;
     private UserKeyRecord currentRecord;
-    private String passwordObtainedFromAuth;
 
     @Override
     protected void onCreateAware(Bundle savedInstanceState) throws SessionUnavailableException {
@@ -68,14 +63,6 @@ public class PinAuthenticationActivity extends
      */
     private boolean setRecordAndAuthMode() throws SessionUnavailableException {
         currentRecord = CommCareApplication._().getRecordForCurrentUser();
-        if (currentRecord == null) {
-            Log.i(TAG, "Something went wrong in PinAuthenticationActivity. Could not find the " +
-                    "current user record, so just finishing the activity");
-            setResult(RESULT_CANCELED);
-            this.finish();
-            return false;
-        }
-
         if (currentRecord.hasPinSet()) {
             // If a PIN is already set and the user is trying to change it, we can have them
             // enter that, and then use it to get the password
@@ -135,7 +122,6 @@ public class PinAuthenticationActivity extends
     private void checkEnteredPassword() {
         String enteredPassword = passwordEntry.getText().toString();
         if (currentRecord.isPasswordValid(enteredPassword)) {
-            passwordObtainedFromAuth = enteredPassword;
             onSuccessfulAuth();
         } else {
             onUnsuccessfulAuth();
@@ -145,7 +131,6 @@ public class PinAuthenticationActivity extends
     private void checkEnteredPin() {
         String enteredPin = pinEntry.getText().toString();
         if (currentRecord.isPinValid(enteredPin)) {
-            passwordObtainedFromAuth = currentRecord.getUnhashedPasswordViaPin(enteredPin);
             onSuccessfulAuth();
         } else {
             onUnsuccessfulAuth();
@@ -164,7 +149,6 @@ public class PinAuthenticationActivity extends
 
     private void onSuccessfulAuth() {
         Intent i = new Intent();
-        i.putExtra(PASSWORD_FROM_AUTH, passwordObtainedFromAuth);
         setResult(RESULT_OK, i);
         finish();
     }
