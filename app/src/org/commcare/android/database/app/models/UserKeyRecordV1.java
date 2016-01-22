@@ -1,5 +1,6 @@
 package org.commcare.android.database.app.models;
 
+import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.modern.models.MetaField;
@@ -14,7 +15,7 @@ import java.util.Date;
  * @author Aliza Stone (astone@dimagi.com)
  */
 @Table(UserKeyRecordV1.STORAGE_KEY)
-public class UserKeyRecordV1 extends UserKeyRecord {
+public class UserKeyRecordV1 extends Persisted {
 
     public static final String META_USERNAME = "username";
     public static final String META_SANDBOX_ID = "sandbox_id";

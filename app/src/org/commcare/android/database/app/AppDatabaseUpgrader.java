@@ -21,6 +21,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -169,14 +170,19 @@ public class AppDatabaseUpgrader {
                     UserKeyRecordV1.class,
                     new ConcreteAndroidDbHelper(context, db));
 
+            Vector<UserKeyRecord> migratedRecords = new Vector<>();
             for (Persisted record : storage) {
                 UserKeyRecordV1 oldUKR = (UserKeyRecordV1)record;
                 UserKeyRecord newUKR = UserKeyRecord.fromOldVersion(oldUKR);
                 newUKR.setID(oldUKR.getID());
-                storage.write(newUKR);
+                migratedRecords.add(newUKR);
             }
 
-            determineActiveRecords(storage);
+            assignActiveRecords(migratedRecords);
+
+            for (UserKeyRecord record : migratedRecords) {
+                storage.write(record);
+            }
 
             db.setTransactionSuccessful();
             return true;
@@ -193,12 +199,11 @@ public class AppDatabaseUpgrader {
      * -If there are multiple records for a username, mark the one with the latest validTo date as
      * active
      */
-    private void determineActiveRecords(SqlStorage<Persisted> newUKRStorage) {
+    private void assignActiveRecords(Vector<UserKeyRecord> migratedRecords) {
 
         // First, create a mapping from username --> list of UKRs
         Map<String, List<UserKeyRecord>> usernamesToRecords = new HashMap<>();
-        for (Persisted p : newUKRStorage) {
-            UserKeyRecord record = (UserKeyRecord)p;
+        for (UserKeyRecord record : migratedRecords) {
             String username = record.getUsername();
             List<UserKeyRecord> recordsForUsername = usernamesToRecords.get(username);
             if (recordsForUsername == null) {
@@ -227,7 +232,6 @@ public class AppDatabaseUpgrader {
                 activeRecord = records.get(0);
             }
             activeRecord.setActive();
-            //newUKRStorage.write(activeRecord);
         }
     }
 }
