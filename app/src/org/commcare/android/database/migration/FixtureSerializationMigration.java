@@ -38,13 +38,12 @@ public class FixtureSerializationMigration {
     private static final String TAG = FixtureSerializationMigration.class.getSimpleName();
 
     public static boolean migrateUnencryptedFixtureDbBytes(SQLiteDatabase db,
-                                                           Context c,
-                                                           String baseDir) {
-        return migrateFixtureDbBytes(db, c, baseDir, null);
+                                                           Context c) {
+        return migrateFixtureDbBytes(db, c, null, null);
     }
 
     public static boolean migrateFixtureDbBytes(SQLiteDatabase db, Context c,
-                                                String baseDir,
+                                                String directoryName,
                                                 byte[] fileMigrationKeySeed) {
         // Not sure how long this process should take, so tell the service to
         // wait longer to make sure this can finish.
@@ -57,10 +56,10 @@ public class FixtureSerializationMigration {
             HybridFileBackedSqlStorage<Persistable> fixtureStorage;
             if (fileMigrationKeySeed != null) {
                 fixtureStorage =
-                        new HybridFileBackedSqlStorageForMigration<Persistable>("fixture", FormInstance.class, helper, baseDir, fileMigrationKeySeed);
+                        new HybridFileBackedSqlStorageForMigration<Persistable>("fixture", FormInstance.class, helper, directoryName, fileMigrationKeySeed);
             } else {
                 fixtureStorage =
-                        new UnencryptedHybridFileBackedSqlStorage<Persistable>("fixture", FormInstance.class, helper, baseDir);
+                        new UnencryptedHybridFileBackedSqlStorage<Persistable>("fixture", FormInstance.class, helper);
             }
             SqlStorage<Persistable> oldUserFixtureStorage =
                     new SqlStorage<Persistable>("oldfixture", FormInstance.class, helper);

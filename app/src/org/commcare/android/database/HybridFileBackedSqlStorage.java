@@ -59,17 +59,18 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     /**
      * Sql object storage layer that stores serialized objects on the filesystem.
      *
-     * @param tableName name of database table
-     * @param classType type of object being stored in this database
-     * @param baseDir   all files for entries will be placed within this dir
+     * @param tableName     name of database table
+     * @param classType     type of object being stored in this database
+     * @param directoryName Name of storage root subdir where entry files are placed
      */
     public HybridFileBackedSqlStorage(String tableName,
                                       Class<? extends T> classType,
                                       AndroidDbHelper dbHelper,
-                                      String baseDir) {
+                                      String directoryName) {
         super(tableName, classType, dbHelper);
 
-        dbDir = new File(baseDir + GlobalConstants.FILE_CC_DB + tableName);
+        final String subPath = GlobalConstants.FILE_CC_DB + directoryName + "/" + tableName;
+        dbDir = new File(CommCareApplication._().getCurrentApp().fsPath(subPath));
         setupDir();
     }
 

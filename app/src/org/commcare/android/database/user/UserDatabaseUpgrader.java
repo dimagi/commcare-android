@@ -38,10 +38,12 @@ class UserDatabaseUpgrader {
     private boolean inSenseMode = false;
     private final Context c;
     private final byte[] fileMigrationKey;
+    private final String userKeyRecordId;
 
-    public UserDatabaseUpgrader(Context c, boolean inSenseMode, byte[] fileMigrationKey) {
-        this.inSenseMode = inSenseMode;
+    public UserDatabaseUpgrader(Context c, String userKeyRecordId, boolean inSenseMode, byte[] fileMigrationKey) {
         this.c = c;
+        this.userKeyRecordId = userKeyRecordId;
+        this.inSenseMode = inSenseMode;
         this.fileMigrationKey = fileMigrationKey;
     }
 
@@ -246,8 +248,7 @@ class UserDatabaseUpgrader {
         }
 
         boolean didFixturesMigrate =
-                FixtureSerializationMigration.migrateFixtureDbBytes(db, c,
-                        CommCareApplication._().getCurrentApp().fsPath("fixture_migration"), fileMigrationKey);
+                FixtureSerializationMigration.migrateFixtureDbBytes(db, c, userKeyRecordId, fileMigrationKey);
 
         db.beginTransaction();
         try {

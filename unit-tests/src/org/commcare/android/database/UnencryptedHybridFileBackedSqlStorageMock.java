@@ -15,9 +15,8 @@ public class UnencryptedHybridFileBackedSqlStorageMock<T extends Persistable>
 
     public UnencryptedHybridFileBackedSqlStorageMock(String table,
                                                      Class<? extends T> ctype,
-                                                     AndroidDbHelper helper,
-                                                     String baseDir) {
-        super(table, ctype, helper, baseDir);
+                                                     AndroidDbHelper helper) {
+        super(table, ctype, helper);
     }
 
     public static void alwaysPutInDatabase() {

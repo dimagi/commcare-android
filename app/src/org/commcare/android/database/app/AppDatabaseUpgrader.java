@@ -9,7 +9,6 @@ import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.migration.FixtureSerializationMigration;
 import org.commcare.android.resource.AndroidResourceManager;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.model.instance.FormInstance;
 
@@ -159,9 +158,7 @@ public class AppDatabaseUpgrader {
         }
 
         boolean didFixturesMigrate =
-                FixtureSerializationMigration.migrateUnencryptedFixtureDbBytes(db,
-                        context,
-                        CommCareApplication._().getCurrentApp().fsPath("fixture_migration"));
+                FixtureSerializationMigration.migrateUnencryptedFixtureDbBytes(db, context);
 
         db.beginTransaction();
         try {

@@ -23,9 +23,8 @@ public class UnencryptedHybridFileBackedSqlStorage<T extends Persistable>
         extends HybridFileBackedSqlStorage<T> {
     public UnencryptedHybridFileBackedSqlStorage(String table,
                                                  Class<? extends T> ctype,
-                                                 AndroidDbHelper helper,
-                                                 String baseDir) {
-        super(table, ctype, helper, baseDir);
+                                                 AndroidDbHelper helper) {
+        super(table, ctype, helper, "app_level");
     }
 
     @Override

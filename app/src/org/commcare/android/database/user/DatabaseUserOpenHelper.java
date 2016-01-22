@@ -52,10 +52,10 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
     private final String mUserId;
     private byte[] fileMigrationKeySeed = null;
 
-    public DatabaseUserOpenHelper(Context context, String userId) {
-        super(context, getDbName(userId), null, USER_DB_VERSION);
+    public DatabaseUserOpenHelper(Context context, String userKeyRecordId) {
+        super(context, getDbName(userKeyRecordId), null, USER_DB_VERSION);
         this.context = context;
-        this.mUserId = userId;
+        this.mUserId = userKeyRecordId;
     }
 
     public static String getDbName(String sandboxId) {
@@ -152,6 +152,6 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
         } catch (Exception e) {
 
         }
-        new UserDatabaseUpgrader(context, inSenseMode, fileMigrationKeySeed).upgrade(db, oldVersion, newVersion);
+        new UserDatabaseUpgrader(context, mUserId, inSenseMode, fileMigrationKeySeed).upgrade(db, oldVersion, newVersion);
     }
 }

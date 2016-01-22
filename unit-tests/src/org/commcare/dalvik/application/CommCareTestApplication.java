@@ -15,7 +15,7 @@ public class CommCareTestApplication extends CommCareApplication {
 
     @Override
     public <T extends Persistable> HybridFileBackedSqlStorage<T> getFileBackedUserStorage(String storage, Class<T> c) {
-        return new HybridFileBackedSqlStorageMock<>(storage, c, buildUserDbHandle(), getUserDbDir());
+        return new HybridFileBackedSqlStorageMock<>(storage, c, buildUserDbHandle(), getUserKeyRecordId());
     }
 
     @Override

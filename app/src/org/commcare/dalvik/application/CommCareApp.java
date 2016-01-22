@@ -286,7 +286,7 @@ public class CommCareApp {
     }
 
     public <T extends Persistable> UnencryptedHybridFileBackedSqlStorage<T> getFileBackedStorage(String name, Class<T> c) {
-        return new UnencryptedHybridFileBackedSqlStorage<>(name, c, buildAndroidDbHelper(), storageRoot());
+        return new UnencryptedHybridFileBackedSqlStorage<>(name, c, buildAndroidDbHelper());
     }
 
     protected AndroidDbHelper buildAndroidDbHelper() {

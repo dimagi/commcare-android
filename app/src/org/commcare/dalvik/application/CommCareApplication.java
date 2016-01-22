@@ -719,16 +719,12 @@ public class CommCareApplication extends Application {
     }
 
     public <T extends Persistable> HybridFileBackedSqlStorage<T> getFileBackedUserStorage(String storage, Class<T> c) {
-        return new HybridFileBackedSqlStorage<>(storage, c, buildUserDbHandle(), getUserDbDir());
+        return new HybridFileBackedSqlStorage<>(storage, c, buildUserDbHandle(), getUserKeyRecordId());
     }
 
-    /**
-     * Get root directory for user-level file-backed sql storage layer
-     * (currently used for storing fixtures).
-     */
-    public String getUserDbDir() {
+    public String getUserKeyRecordId() {
         try {
-            return currentApp.storageRoot() + "/" + getSession().getLoggedInUser().getUniqueId() + "/";
+            return "" + getSession().getUserKeyRecordID();
         } catch (SessionUnavailableException e) {
             throw new RuntimeException(e);
         }
