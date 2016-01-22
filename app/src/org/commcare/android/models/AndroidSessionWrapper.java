@@ -13,7 +13,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
-import org.commcare.suite.model.EntryBase;
+import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
@@ -298,9 +298,9 @@ public class AndroidSessionWrapper {
         AndroidSessionWrapper wrapper = null;
         int curPredicates = -1;
 
-        Hashtable<String, EntryBase> menuMap = platform.getMenuMap();
+        Hashtable<String, Entry> menuMap = platform.getMenuMap();
         for (String key : menuMap.keySet()) {
-            EntryBase e = menuMap.get(key);
+            Entry e = menuMap.get(key);
             if (!e.isView() && formNamespace.equals(((FormEntry)e).getXFormNamespace())) {
                 //We have an entry. Don't worry too much about how we're supposed to get there for now.
 
