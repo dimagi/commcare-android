@@ -90,7 +90,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
     public static final int PROGRESS_DOWNLOADING = 256;
     private DataPullRequester dataPullRequester;
 
-    public DataPullTask(String username, String password, String server, Context context, boolean restoreOldSession) {
+    private DataPullTask(String username, String password, String server, Context context, boolean restoreOldSession) {
         this.server = server;
         this.username = username;
         this.password = password;
@@ -176,21 +176,23 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
         UserKeyRecord ukr = null;
             
             try {
-                //This is a dangerous way to do this (the null settings), should revisit later
-                if(loginNeeded) {
-                    if(!useExternalKeys) {
-                        //Get the key 
+                // This is a dangerous way to do this (the null settings), should revisit later
+                if (loginNeeded) {
+                    if (!useExternalKeys) {
+                        // Get the key
                         SecretKey newKey = CryptUtil.generateSemiRandomKey();
                         
-                        if(newKey == null) {
+                        if (newKey == null) {
                             this.publishProgress(PROGRESS_DONE);
                             return PullTaskResult.UNKNOWN_FAILURE;
                         }
                         String sandboxId = PropertyUtils.genUUID().replace("-", "");
-                        ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password), CryptUtil.wrapKey(newKey.getEncoded(),password), new Date(), new Date(Long.MAX_VALUE), sandboxId);
+                        ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password),
+                                CryptUtil.wrapByteArrayWithString(newKey.getEncoded(),password),
+                                new Date(), new Date(Long.MAX_VALUE), sandboxId);
                         
                     } else {
-                        ukr = ManageKeyRecordTask.getCurrentValidRecord(app, username, password, true);
+                        ukr = UserKeyRecord.getCurrentValidRecordByPassword(app, username, password, true);
                         if(ukr == null) {
                             Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Shouldn't be able to not have a valid key record when OTA restoring with a key server");
                             this.publishProgress(PROGRESS_DONE);
@@ -199,7 +201,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                     }
                     
                     //add to transaction parser factory
-                    byte[] wrappedKey = CryptUtil.wrapKey(ukr.getEncryptedKey(),password);
+                    byte[] wrappedKey = CryptUtil.wrapByteArrayWithString(ukr.getEncryptedKey(),password);
                     factory.initUserParser(wrappedKey);
                 } else {
                     factory.initUserParser(CommCareApplication._().getSession().getLoggedInUser().getWrappedKey());
@@ -226,8 +228,9 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                     if(loginNeeded) {                        
                         //This is necessary (currently) to make sure that data
                         //is encoded. Probably a better way to do this.
-                        CommCareApplication._().startUserSession(CryptUtil.unWrapKey(
-                                ukr.getEncryptedKey(), password), ukr, restoreSession);
+                        CommCareApplication._().startUserSession(
+                                CryptUtil.unwrapByteArrayWithString(ukr.getEncryptedKey(), password),
+                                ukr, restoreSession);
                         wasKeyLoggedIn = true;
                     }
                     

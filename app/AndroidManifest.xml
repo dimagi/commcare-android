@@ -376,6 +376,14 @@
         <activity
             android:name=".activities.SeatAppActivity" >
         </activity>
+        <activity
+            android:name=".activities.CreatePinActivity"
+            android:windowSoftInputMode="stateVisible|adjustResize" >
+        </activity>
+        <activity
+            android:name=".activities.PinAuthenticationActivity"
+            android:windowSoftInputMode="stateVisible|adjustResize" >
+        </activity>
 
         <!-- Start Collect Manifest -->
 
