@@ -218,19 +218,22 @@ public class CommCareHomeActivity
                 showDemoModeWarning();
             }
 
-            pinModeDecisionLogic();
+            checkForPinLaunchConditions();
         }
     }
 
-    // See if we should launch the pin choice dialog
-    private void pinModeDecisionLogic() {
+    // See if we should launch either the pin choice dialog, or the create pin activity directly
+    private void checkForPinLaunchConditions() {
 
         LoginMode loginMode = LoginMode.fromString(
                 getIntent().getStringExtra(LoginActivity.LOGIN_MODE));
 
         if (loginMode == LoginMode.PRIMED) {
             launchPinCreateScreen(loginMode);
-        } else if (loginMode == LoginMode.PASSWORD) {
+            return;
+        }
+
+        if (loginMode == LoginMode.PASSWORD) {
             boolean pinCreationEnabledForApp = DeveloperPreferences.shouldOfferPinForLogin();
             if (!pinCreationEnabledForApp) {
                 return;
