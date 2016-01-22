@@ -314,7 +314,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
 
     protected byte[] generateKeyAndAdd(ContentValues contentValues) {
         try {
-            byte[] key = CommCareApplication._().createNewSymetricKey().getEncoded();
+            byte[] key = CommCareApplication._().createNewSymmetricKey().getEncoded();
             contentValues.put(DatabaseHelper.AES_COL, key);
             return key;
         } catch (SessionUnavailableException e) {

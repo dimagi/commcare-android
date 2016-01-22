@@ -30,7 +30,7 @@ public class HybridFileBackedSqlStorageForMigration<T extends Persistable> exten
 
     @Override
     protected byte[] generateKeyAndAdd(ContentValues contentValues) {
-        byte[] key = CryptUtil.generateSymetricKey(CryptUtil.uniqueSeedFromSecureStatic(fileKeySeed)).getEncoded();
+        byte[] key = CryptUtil.generateSymmetricKey(CryptUtil.uniqueSeedFromSecureStatic(fileKeySeed)).getEncoded();
         contentValues.put(DatabaseHelper.AES_COL, key);
         return key;
     }
