@@ -1,8 +1,6 @@
 package org.commcare.dalvik.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -49,7 +47,9 @@ public class PinAuthenticationActivity extends
     private UserKeyRecord currentRecord;
 
     @Override
-    protected void onCreateAware(Bundle savedInstanceState) throws SessionUnavailableException {
+    protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
+        super.onCreateSessionSafe(savedInstanceState);
+
         if (!setRecordAndAuthMode()) {
             return;
         }
@@ -148,9 +148,7 @@ public class PinAuthenticationActivity extends
     }
 
     private void onSuccessfulAuth() {
-        Intent i = new Intent();
-        setResult(RESULT_OK, i);
+        setResult(RESULT_OK);
         finish();
     }
-
 }

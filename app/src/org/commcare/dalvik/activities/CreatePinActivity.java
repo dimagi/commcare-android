@@ -58,7 +58,8 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     private String firstRoundPin;
 
     @Override
-    protected void onCreateAware(Bundle savedInstanceState) throws SessionUnavailableException {
+    protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
+        super.onCreateSessionSafe(savedInstanceState);
 
         userRecord = CommCareApplication._().getRecordForCurrentUser();
         unhashedUserPassword = CommCareApplication._().getSession().getLoggedInUser().getCachedPwd();

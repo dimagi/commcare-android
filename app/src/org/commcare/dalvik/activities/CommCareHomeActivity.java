@@ -157,7 +157,9 @@ public class CommCareHomeActivity
     private static final String EXTRA_CONSUMED_KEY = "login_extra_was_consumed";
 
     @Override
-    protected void onCreateAware(Bundle savedInstanceState) throws SessionUnavailableException {
+    protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
+        super.onCreateSessionSafe(savedInstanceState);
+
         if (savedInstanceState != null) {
             loginExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
         }

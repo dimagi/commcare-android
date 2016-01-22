@@ -15,13 +15,13 @@ public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
-            onCreateAware(savedInstanceState);
+            onCreateSessionSafe(savedInstanceState);
         } catch (SessionUnavailableException e) {
             SessionActivityRegistration.redirectToLogin(this);
         }
     }
 
-    protected void onCreateAware(Bundle savedInstanceState) throws SessionUnavailableException {
+    protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
 
     }
 
