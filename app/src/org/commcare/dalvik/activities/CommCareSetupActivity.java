@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.fragments.ContainerFragment;
 import org.commcare.android.fragments.InstallConfirmFragment;
@@ -664,14 +665,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     /* All methods for implementation of ResourceEngineListener */
 
     @Override
-    public void reportSuccess(boolean appChanged) {
+    public void reportSuccess(boolean newAppInstalled) {
         //If things worked, go ahead and clear out any warnings to the contrary
         CommCareApplication._().clearNotifications("install_update");
 
-        if (!appChanged) {
+        if (newAppInstalled) {
+            GoogleAnalyticsUtils.reportAppInstall();
+        } else {
             Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
         }
-        done(appChanged, false);
+
+        done(newAppInstalled, false);
     }
 
     @Override
