@@ -103,7 +103,7 @@ public class TestAppInstaller {
     public static void login(String username, String password) {
         CommCareApp ccApp = CommCareApplication._().getCurrentApp();
         UserKeyRecord keyRecord =
-                ManageKeyRecordTask.getCurrentValidRecord(ccApp, username, password, true);
+                UserKeyRecord.getCurrentValidRecordByPassword(ccApp, username, password, true);
         startSessionService(keyRecord, password);
     }
 
@@ -113,7 +113,7 @@ public class TestAppInstaller {
         CommCareSessionService ccService = new CommCareSessionService();
         ccService.createCipherPool();
         ccService.prepareStorage(keyRecord.unWrapKey(password), keyRecord);
-        ccService.startSession(getUserFromDb(ccService, keyRecord));
+        ccService.startSession(getUserFromDb(ccService, keyRecord), keyRecord);
 
         CommCareApplication._().setTestingService(ccService);
     }
