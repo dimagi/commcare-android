@@ -126,6 +126,8 @@ public class CommCarePreferences
 
     private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
 
+    public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
