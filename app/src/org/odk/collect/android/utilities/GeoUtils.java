@@ -59,6 +59,10 @@ public class GeoUtils {
         return set;
     }
 
+    /**
+     * Gets the same list of providers returned by evaluateProviders, but filtered out
+     * to include only providers with the appropriate permissions granted.
+     */
     public static Set<String> evaluateProvidersWithPermissions(LocationManager manager, Context context) {
         HashSet<String> set = new HashSet<>();
 
