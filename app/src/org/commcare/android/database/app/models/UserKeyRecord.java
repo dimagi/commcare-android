@@ -268,7 +268,7 @@ public class UserKeyRecord extends Persisted {
     }
 
     public void assignPinToRecord(String pin, String password) {
-        this.passwordWrappedByPin = wrapPasswordWithPin(password, pin);
+        this.passwordWrappedByPin = CryptUtil.wrapByteArrayWithString(password.getBytes(), pin);
     }
 
     public byte[] getWrappedPassword() {
@@ -289,7 +289,12 @@ public class UserKeyRecord extends Persisted {
      * is not valid to unwrap the wrapped password
      */
     public String getUnhashedPasswordViaPin(String pin) {
-        return unwrapPasswordWithPin(this.passwordWrappedByPin, pin);
+        byte[] unwrapped = CryptUtil.unwrapByteArrayWithString(this.passwordWrappedByPin, pin);
+        if (unwrapped == null) {
+            // If the pin could not unwrap the password, just return null
+            return null;
+        }
+        return new String(unwrapped);
     }
 
     /**
@@ -302,19 +307,6 @@ public class UserKeyRecord extends Persisted {
         } else {
             return isPasswordValid(password);
         }
-    }
-
-    public static byte[] wrapPasswordWithPin(String password, String pin) {
-        return CryptUtil.wrapByteArrayWithString(password.getBytes(), pin);
-    }
-
-    public static String unwrapPasswordWithPin(byte[] wrappedPassword, String pin) {
-        byte[] unwrapped = CryptUtil.unwrapByteArrayWithString(wrappedPassword, pin);
-        if (unwrapped == null) {
-            // If the pin could not unwrap the password, just return null
-            return null;
-        }
-        return new String(unwrapped);
     }
 
     public byte[] unWrapKey(String password) {
