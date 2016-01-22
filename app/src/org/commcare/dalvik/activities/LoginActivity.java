@@ -18,7 +18,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
-import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.DemoUserBuilder;
@@ -417,7 +416,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 
         Intent i = new Intent();
-        i.putExtra(LOGIN_MODE, uiController.getLoginMode().toString());
+        i.putExtra(LOGIN_MODE, uiController.getLoginMode());
         i.putExtra(MANUAL_SWITCH_TO_PW_MODE, uiController.userManuallySwitchedToPasswordMode());
         setResult(RESULT_OK, i);
         finish();

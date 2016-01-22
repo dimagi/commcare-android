@@ -227,8 +227,7 @@ public class CommCareHomeActivity
     // See if we should launch either the pin choice dialog, or the create pin activity directly
     private void checkForPinLaunchConditions() throws SessionUnavailableException {
 
-        LoginMode loginMode = LoginMode.fromString(
-                getIntent().getStringExtra(LoginActivity.LOGIN_MODE));
+        LoginMode loginMode = (LoginMode)getIntent().getSerializableExtra(LoginActivity.LOGIN_MODE);
 
         if (loginMode == LoginMode.PRIMED) {
             launchPinCreateScreen(loginMode);
@@ -313,7 +312,7 @@ public class CommCareHomeActivity
 
     private void launchPinCreateScreen(LoginMode loginMode) {
         Intent i = new Intent(this, CreatePinActivity.class);
-        i.putExtra(LoginActivity.LOGIN_MODE, loginMode.toString());
+        i.putExtra(LoginActivity.LOGIN_MODE, loginMode);
         startActivityForResult(i, CREATE_PIN);
     }
 
