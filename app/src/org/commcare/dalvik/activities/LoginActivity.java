@@ -18,7 +18,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.Toast;
 
-import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.DemoUserBuilder;
@@ -50,8 +49,6 @@ import org.commcare.dalvik.dialogs.DialogCreationHelpers;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
-import java.math.BigInteger;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 
 /**
@@ -65,23 +62,27 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private static final int MENU_DEMO = Menu.FIRST;
     private static final int MENU_ABOUT = Menu.FIRST + 1;
     private static final int MENU_PERMISSIONS = Menu.FIRST + 2;
+    private static final int MENU_PASSWORD_MODE = Menu.FIRST + 3;
+
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public final static String KEY_LAST_APP = "id_of_last_selected";
     public final static String KEY_ENTERED_USER = "entered-username";
-    public final static String KEY_ENTERED_PW = "entered-password";
+    public final static String KEY_ENTERED_PW_OR_PIN = "entered-password-or-pin";
 
     private static final int SEAT_APP_ACTIVITY = 0;
     public final static String KEY_APP_TO_SEAT = "app_to_seat";
     public final static String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
+
+    public final static String LOGIN_MODE = "login-mode";
+    public final static String MANUAL_SWITCH_TO_PW_MODE = "manually-swithced-to-password-mode";
     
     private static final int TASK_KEY_EXCHANGE = 1;
     private static final int TASK_UPGRADE_INSTALL = 2;
 
-    private SqlStorage<UserKeyRecord> storage;
     private final ArrayList<String> appIdDropdownList = new ArrayList<>();
 
     private String usernameBeforeRotation;
-    private String passwordBeforeRotation;
+    private String passwordOrPinBeforeRotation;
 
     private LoginActivityUIController uiController;
 
@@ -98,7 +99,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             // If the screen was rotated with entered text present, we will want to restore it
             // in onResume (can't do it here b/c will get overriden by logic in refreshForNewApp())
             usernameBeforeRotation = savedInstanceState.getString(KEY_ENTERED_USER);
-            passwordBeforeRotation = savedInstanceState.getString(KEY_ENTERED_PW);
+            passwordOrPinBeforeRotation = savedInstanceState.getString(KEY_ENTERED_PW_OR_PIN);
         }
 
         Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
@@ -139,9 +140,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (!"".equals(enteredUsername) && enteredUsername != null) {
             savedInstanceState.putString(KEY_ENTERED_USER, enteredUsername);
         }
-        String enteredPassword = uiController.getEnteredPassword();
-        if (!"".equals(enteredPassword) && enteredPassword != null) {
-            savedInstanceState.putString(KEY_ENTERED_PW, enteredPassword);
+        String enteredPasswordOrPin = uiController.getEnteredPasswordOrPin();
+        if (!"".equals(enteredPasswordOrPin) && enteredPasswordOrPin != null) {
+            savedInstanceState.putString(KEY_ENTERED_PW_OR_PIN, enteredPasswordOrPin);
         }
     }
 
@@ -152,7 +153,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected void initiateLoginAttempt(boolean restoreSession) {
         uiController.clearErrorMessage();
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
-        DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPassword());
+
+        if (uiController.getLoginMode() == LoginMode.PASSWORD) {
+            DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPasswordOrPin());
+        }
 
         if (ResourceInstallUtils.isUpdateReadyToInstall()) {
             // install update, which triggers login upon completion
@@ -177,7 +181,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         // submissions) more centrally.
 
         DataPullTask<LoginActivity> dataPuller = 
-            new DataPullTask<LoginActivity>(getUniformUsername(), uiController.getEnteredPassword(),
+            new DataPullTask<LoginActivity>(getUniformUsername(), uiController.getEnteredPasswordOrPin(),
                  prefs.getString("ota-restore-url", LoginActivity.this.getString(R.string.ota_restore_url)),
                  LoginActivity.this) {
                     @Override
@@ -280,7 +284,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 DevSessionRestorer.getAutoLoginCreds();
         if (userAndPass != null) {
             uiController.setUsername(userAndPass.first);
-            uiController.setPassword(userAndPass.second);
+            uiController.setPasswordOrPin(userAndPass.second);
+            // If we're doing auto-login, means we're using a password so switch UI to pw mode
+            uiController.setNormalPasswordMode();
 
             if (!getIntent().getBooleanExtra(USER_TRIGGERED_LOGOUT, false)) {
                 // If we are attempting auto-login, assume that we want to restore a saved session
@@ -295,70 +301,71 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     
     private boolean tryLocalLogin(final boolean warnMultipleAccounts, boolean restoreSession) {
         //TODO: check username/password for emptiness
-        return tryLocalLogin(
-                getUniformUsername(), uiController.getEnteredPassword(),
-                warnMultipleAccounts, restoreSession);
+        return tryLocalLogin(getUniformUsername(), uiController.getEnteredPasswordOrPin(),
+                warnMultipleAccounts, restoreSession, uiController.getLoginMode());
     }
         
-    private boolean tryLocalLogin(final String username, String password,
-                                  final boolean warnMultipleAccounts, final boolean restoreSession) {
-        try{
-            // TODO: We don't actually even use this anymore other than for hte
-            // local login count, which seems super silly.
-            UserKeyRecord matchingRecord = null;
-            int count = 0;
-            for(UserKeyRecord record : storage()) {
-                if(!record.getUsername().equals(username)) {
-                    continue;
-                }
-                count++;
-                String hash = record.getPasswordHash();
-                if(hash.contains("$")) {
-                    String alg = "sha1";
-                    String salt = hash.split("\\$")[1];
-                    String check = hash.split("\\$")[2];
-                    MessageDigest md = MessageDigest.getInstance("SHA-1");
-                    BigInteger number = new BigInteger(1, md.digest((salt+password).getBytes()));
-                    String hashed = number.toString(16);
-
-                    while (hashed.length() < check.length()) {
-                        hashed = "0" + hashed;
-                    }
-                    if (hash.equals(alg + "$" + salt + "$" + hashed)) {
-                        matchingRecord = record;
-                    }
-                }
-            }
-
-            final boolean triggerTooManyUsers = count > 1 && warnMultipleAccounts;
+    private boolean tryLocalLogin(final String username, String passwordOrPin,
+                                  final boolean warnMultipleAccounts, final boolean restoreSession,
+                                  LoginMode loginMode) {
+        try {
+            final boolean triggerMultipleUsersWarning = getMatchingUsersCount(username) > 1
+                    && warnMultipleAccounts;
 
             ManageKeyRecordTask<LoginActivity> task =
-                new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE,
-                        username, password,
-                        CommCareApplication._().getCurrentApp(), restoreSession,
-                        new ManageKeyRecordListener<LoginActivity>() {
+                    new ManageKeyRecordTask<LoginActivity>(this, TASK_KEY_EXCHANGE, username,
+                            passwordOrPin, loginMode,
+                            CommCareApplication._().getCurrentApp(), restoreSession,
+                            getLocalLoginListener(username, triggerMultipleUsersWarning)) {
 
                 @Override
-                public void keysLoginComplete(LoginActivity r) {
-                    if (triggerTooManyUsers) {
-                        // We've successfully pulled down new user data. Should see if the user
-                        // already has a sandbox and let them know that their old data doesn't transition
-                        r.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged), true);
-                        Logger.log(AndroidLogger.TYPE_USER, "User " + username + " has logged in for the first time with a new password. They may have unsent data in their other sandbox");
-                    }
-                    r.done();
+                protected void deliverUpdate(LoginActivity receiver, String... update) {
+                    receiver.updateProgress(update[0], TASK_KEY_EXCHANGE);
                 }
 
-                @Override
-                public void keysReadyForSync(LoginActivity r) {
-                    // TODO: we only wanna do this on the _first_ try. Not
-                    // subsequent ones (IE: On return from startOta)
-                    r.startOta();
-                }
+            };
 
-                @Override
-                public void keysDoneOther(LoginActivity r, HttpCalloutOutcomes outcome) {
-                    switch(outcome) {
+            task.connect(this);
+            task.execute();
+
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private ManageKeyRecordListener<LoginActivity> getLocalLoginListener(
+            final String username, final boolean triggerMultipleUsersWarning) {
+
+        return new ManageKeyRecordListener<LoginActivity>() {
+
+            @Override
+            public void keysLoginComplete(LoginActivity r) {
+                if (triggerMultipleUsersWarning) {
+                    Logger.log(AndroidLogger.SOFT_ASSERT,
+                            "Warning a user upon login that they already have another " +
+                                    "sandbox whose data will not transition over");
+                    // We've successfully pulled down new user data. Should see if the user
+                    // already has a sandbox and let them know that their old data doesn't transition
+                    r.raiseMessage(NotificationMessageFactory.message(StockMessages.Auth_RemoteCredentialsChanged), true);
+                    Logger.log(AndroidLogger.TYPE_USER,
+                            "User " + username + " has logged in for the first time with a new " +
+                                    "password. They may have unsent data in their other sandbox");
+                }
+                r.done();
+            }
+
+            @Override
+            public void keysReadyForSync(LoginActivity r) {
+                // TODO: we only wanna do this on the _first_ try. Not
+                // subsequent ones (IE: On return from startOta)
+                r.startOta();
+            }
+
+            @Override
+            public void keysDoneOther(LoginActivity r, HttpCalloutOutcomes outcome) {
+                switch(outcome) {
                     case AuthFailed:
                         Logger.log(AndroidLogger.TYPE_USER, "auth failed");
                         r.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
@@ -383,43 +390,36 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                         Logger.log(AndroidLogger.TYPE_USER, "unknown");
                         r.raiseLoginMessage(StockMessages.Restore_Unknown, true);
                         break;
+                    case IncorrectPin:
+                        Logger.log(AndroidLogger.TYPE_USER, "incorrect pin");
+                        r.raiseLoginMessage(StockMessages.Auth_InvalidPin, true);
+                        break;
                     default:
                         break;
-                    }
                 }
-            }) {
-                @Override
-                protected void deliverUpdate(LoginActivity receiver, String... update) {
-                    receiver.updateProgress(update[0], TASK_KEY_EXCHANGE);
-                }
-            };
+            }
+        };
+    }
 
-            task.connect(this);
-            task.execute();
-
-            return true;
-        }catch (Exception e) {
-            e.printStackTrace();
-            return false;
+    private int getMatchingUsersCount(String username) {
+        int count = 0;
+        for (UserKeyRecord record : CommCareApplication._().getAppStorage(UserKeyRecord.class)) {
+            if (record.getUsername().equals(username)) {
+                count++;
+            }
         }
+        return count;
     }
     
     private void done() {
         ACRAUtil.registerUserData();
-
         CommCareApplication._().clearNotifications(NOTIFICATION_MESSAGE_LOGIN);
 
         Intent i = new Intent();
+        i.putExtra(LOGIN_MODE, uiController.getLoginMode());
+        i.putExtra(MANUAL_SWITCH_TO_PW_MODE, uiController.userManuallySwitchedToPasswordMode());
         setResult(RESULT_OK, i);
-
         finish();
-    }
-    
-    private SqlStorage<UserKeyRecord> storage() {
-        if(storage == null) {
-            storage = CommCareApplication._().getAppStorage(UserKeyRecord.class);
-        }
-        return storage;
     }
 
     @Override
@@ -427,10 +427,16 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_DEMO, 0, Localization.get("login.menu.demo")).setIcon(android.R.drawable.ic_menu_preferences);
         menu.add(0, MENU_ABOUT, 1, Localization.get("home.menu.about")).setIcon(android.R.drawable.ic_menu_help);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            menu.add(0, MENU_PERMISSIONS, 1, Localization.get("login.menu.permission")).setIcon(android.R.drawable.ic_menu_manage);
-        }
+        menu.add(0, MENU_PERMISSIONS, 1, Localization.get("login.menu.permission")).setIcon(android.R.drawable.ic_menu_manage);
+        menu.add(0, MENU_PASSWORD_MODE, 1, Localization.get("login.menu.password.mode"));
+        return true;
+    }
 
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(MENU_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
+        menu.findItem(MENU_PASSWORD_MODE).setVisible(uiController.getLoginMode() == LoginMode.PIN);
         return true;
     }
 
@@ -438,16 +444,20 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean otherResult = super.onOptionsItemSelected(item);
         switch(item.getItemId()) {
-        case MENU_DEMO:
-            DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
-            tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false ,false);
-            return true;
-        case MENU_ABOUT:
-            DialogCreationHelpers.buildAboutCommCareDialog(this).show();
-            return true;
-        case MENU_PERMISSIONS:
-            Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
-            return true;
+            case MENU_DEMO:
+                DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
+                tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false ,
+                        false, LoginMode.PASSWORD);
+                return true;
+            case MENU_ABOUT:
+                DialogCreationHelpers.buildAboutCommCareDialog(this).show();
+                return true;
+            case MENU_PERMISSIONS:
+                Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
+                return true;
+            case MENU_PASSWORD_MODE:
+                uiController.manualSwitchToPasswordMode();
+                return true;
         default:
             return otherResult;
         }
@@ -507,9 +517,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             uiController.setUsername(usernameBeforeRotation);
             usernameBeforeRotation = null;
         }
-        if (passwordBeforeRotation != null) {
-            uiController.setPassword(passwordBeforeRotation);
-            passwordBeforeRotation = null;
+        if (passwordOrPinBeforeRotation != null) {
+            uiController.setPasswordOrPin(passwordOrPinBeforeRotation);
+            passwordOrPinBeforeRotation = null;
         }
     }
 
@@ -595,6 +605,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             return;
         }
 
+        // If local login was not successful
         startOta();
     }
 

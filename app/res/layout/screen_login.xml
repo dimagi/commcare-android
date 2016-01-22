@@ -86,21 +86,19 @@
                                 android:textSize="@dimen/text_medium"
                                 android:visibility="gone"/>
 
-                            <EditText
+                            <AutoCompleteTextView
                                 android:id="@+id/edit_username"
                                 style="@style/LoginEditTextV2"
                                 android:layout_width="fill_parent"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/login_edit_text"
-                                android:contentDescription="Username"
                                 android:drawableLeft="@drawable/icon_user_neutral50"
                                 android:hint="Username"
                                 android:inputType="text"
                                 android:nextFocusDown="@+id/edit_password"
                                 android:textSize="@dimen/text_medium">
-
                                 <requestFocus/>
-                            </EditText>
+                            </AutoCompleteTextView>
 
                             <EditText
                                 android:id="@+id/edit_password"
@@ -142,6 +140,14 @@
                                 android:textSize="16dp"
                                 android:visibility="gone" />
 
+                            <TextView
+                                android:id="@+id/primed_password_message"
+                                android:layout_width="fill_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_margin="@dimen/standard_spacer"
+                                android:textSize="@dimen/font_size_medium"
+                                android:visibility="gone" />
+
                             <Button
                                 android:id="@+id/login_button"
                                 android:layout_width="fill_parent"
@@ -152,6 +158,7 @@
                                 android:paddingBottom="@dimen/content_start"
                                 android:paddingTop="@dimen/content_start"
                                 android:textColor="@color/cc_neutral_bg"/>
+
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
@@ -160,4 +167,14 @@
 
         <include layout="@layout/component_drop_shadow"/>
     </FrameLayout>
+
+    <!-- Dummy item to give focus to when we want to prevent keyboard from showing -->
+    <LinearLayout
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="horizontal"
+        android:id="@+id/dummy_focusable_view"
+        android:layout_width="0px"
+        android:layout_height="0px"/>
+
 </LinearLayout>
