@@ -211,7 +211,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void persistCommCareAppState() {
         FragmentManager fm = this.getSupportFragmentManager();
 
-        containerFragment = (ContainerFragment) fm.findFragmentByTag("cc-app");
+        containerFragment = (ContainerFragment<CommCareApp>) fm.findFragmentByTag("cc-app");
 
         if (containerFragment == null) {
             containerFragment = new ContainerFragment<>();

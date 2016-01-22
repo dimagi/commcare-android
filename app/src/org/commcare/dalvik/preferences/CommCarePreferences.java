@@ -92,7 +92,9 @@ public class CommCarePreferences
     private static final int SUPERUSER_PREFS = Menu.FIRST + 3;
     private static final int MENU_CLEAR_SAVED_SESSION = Menu.FIRST + 4;
 
-    // Request code for file browser for print template
+    public static final int RESULT_DATA_RESET = RESULT_FIRST_USER + 1;
+
+    // Fields for setting print template
     private static final int REQUEST_TEMPLATE = 0;
 
     public final static String PREFS_APP_SERVER_KEY = "default_app_server";
@@ -109,6 +111,8 @@ public class CommCarePreferences
     public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
 
     private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
+
+    public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -219,6 +223,7 @@ public class CommCarePreferences
         switch (item.getItemId()) {
             case CLEAR_USER_DATA:
                 CommCareApplication._().clearUserData();
+                setResult(RESULT_DATA_RESET);
                 this.finish();
                 return true;
             case FORCE_LOG_SUBMIT:

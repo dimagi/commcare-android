@@ -144,7 +144,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion 9
         targetSdkVersion 23
         applicationId "org.commcare.dalvik"
         resValue "string", "application_name", "CommCare"
