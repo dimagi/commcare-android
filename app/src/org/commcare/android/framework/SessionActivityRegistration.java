@@ -82,7 +82,7 @@ public class SessionActivityRegistration {
      */
     private static void redirectToLogin(Context context) {
         Intent i = new Intent(context.getApplicationContext(), DispatchActivity.class);
-        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        i.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(i);
     }
 }

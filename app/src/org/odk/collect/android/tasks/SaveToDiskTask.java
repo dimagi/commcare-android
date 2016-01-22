@@ -331,7 +331,6 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         }
     }
 
-
     /**
      * This method actually writes the xml to disk.
      */
@@ -349,13 +348,16 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         }
     }
 
-
     @Override
-    protected void deliverResult(R receiver, Integer result) {
+    protected void onPostExecute(Integer result) {
         synchronized (this) {
             if (mSavedListener != null)
                 mSavedListener.savingComplete(result, headless);
         }
+    }
+
+    @Override
+    protected void deliverResult(R receiver, Integer result) {
     }
 
     @Override
