@@ -272,7 +272,12 @@ public class CommCareHomeActivity
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
             case PREFERENCES_ACTIVITY:
-                uiController.configUI();
+                if (resultCode != CommCarePreferences.RESULT_DATA_RESET) {
+                    // rebuild home buttons in case language changed;
+                    // but only if we didn't just clear user data
+                    uiController.setupUI();
+                }
+                rebuildOptionMenu();
                 return;
             case MEDIA_VALIDATOR_ACTIVITY:
                 if(resultCode == RESULT_CANCELED){
