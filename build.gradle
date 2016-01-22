@@ -13,17 +13,21 @@ import com.android.builder.core.DefaultManifestParser;
 buildscript {
     repositories {
         mavenCentral()
+        jcenter()
     }
 
     dependencies {
         classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.google.gms:google-services:1.4.0-beta3'
     }
 }
 
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
 
 repositories {
     mavenCentral()
+    jcenter()
     // for local aar inclusion
     flatDir {
         dirs 'app/libs'
@@ -48,6 +52,7 @@ dependencies {
     compile 'com.android.support:gridlayout-v7:23.1.1'
     compile 'com.madgag.spongycastle:core:1.52.0.0'
     compile 'com.madgag.spongycastle:prov:1.52.0.0'
+    compile 'com.google.android.gms:play-services-analytics:8.1.0'
     compile 'com.google.zxing:core:3.0.0'
     compile 'ch.acra:acra:4.6.2'
     compile 'joda-time:joda-time:2.3'
@@ -74,21 +79,23 @@ project(':libraries:mapballoons') {
 }
 
 ext {
-  // Obtained from ~/.gradle/gradle.properites on build server or load default
-  // empty strings.
-  ACRA_USER = project.properties['ACRA_USER'] ?: ""
-  ACRA_PASSWORD = project.properties['ACRA_PASSWORD'] ?: ""
-  ACRA_URL = project.properties['ACRA_URL'] ?: ""
-  MAPS_API_KEY = project.properties['MAPS_API_KEY'] ?: ""
-  RELEASE_STORE_FILE = project.properties['RELEASE_STORE_FILE'] ?: "."
-  RELEASE_STORE_PASSWORD = project.properties['RELEASE_STORE_PASSWORD'] ?: ""
-  RELEASE_KEY_ALIAS = project.properties['RELEASE_KEY_ALIAS'] ?: ""
-  RELEASE_KEY_PASSWORD = project.properties['RELEASE_KEY_PASSWORD'] ?: ""
-  TRUSTED_SOURCE_PUBLIC_KEY = project.properties['TRUSTED_SOURCE_PUBLIC_KEY'] ?:
-            "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDHiuy2ULV4pobkuQN2TEjmR1tn" +
-            "HJ+F335hm/lVdaFQzvBmeq64MUMbumheVLDJaSUiAVzqSHDKJWH01ZQRowqBYjwo" +
-            "ycVSQSeO2glc6XZZ+CJudAPXe8iFWLQp3kBBnBmVcBXCOQFO7aLgQMv4nqKZsLW0" +
-            "HaAJkjpnc165Os+aYwIDAQAB";
+    // Obtained from ~/.gradle/gradle.properties on build server or load default
+    // empty strings.
+    ACRA_USER = project.properties['ACRA_USER'] ?: ""
+    ACRA_PASSWORD = project.properties['ACRA_PASSWORD'] ?: ""
+    ACRA_URL = project.properties['ACRA_URL'] ?: ""
+    ANALYTICS_TRACKING_ID_DEV = project.properties['ANALYTICS_TRACKING_ID_DEV'] ?: ""
+    ANALYTICS_TRACKING_ID_LIVE = project.properties['ANALYTICS_TRACKING_ID_LIVE'] ?: ""
+    MAPS_API_KEY = project.properties['MAPS_API_KEY'] ?: ""
+    RELEASE_STORE_FILE = project.properties['RELEASE_STORE_FILE'] ?: "."
+    RELEASE_STORE_PASSWORD = project.properties['RELEASE_STORE_PASSWORD'] ?: ""
+    RELEASE_KEY_ALIAS = project.properties['RELEASE_KEY_ALIAS'] ?: ""
+    RELEASE_KEY_PASSWORD = project.properties['RELEASE_KEY_PASSWORD'] ?: ""
+    TRUSTED_SOURCE_PUBLIC_KEY = project.properties['TRUSTED_SOURCE_PUBLIC_KEY'] ?:
+                "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDHiuy2ULV4pobkuQN2TEjmR1tn" +
+                "HJ+F335hm/lVdaFQzvBmeq64MUMbumheVLDJaSUiAVzqSHDKJWH01ZQRowqBYjwo" +
+                "ycVSQSeO2glc6XZZ+CJudAPXe8iFWLQp3kBBnBmVcBXCOQFO7aLgQMv4nqKZsLW0" +
+                "HaAJkjpnc165Os+aYwIDAQAB";
 }
 
 def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : ""
@@ -137,7 +144,7 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 8
+        minSdkVersion 9
         targetSdkVersion 23
         applicationId "org.commcare.dalvik"
         resValue "string", "application_name", "CommCare"
@@ -160,6 +167,8 @@ android {
         buildConfigField "String", "BUILD_DATE", "\"" + getDate() + "\""
         buildConfigField "String", "BUILD_NUMBER", "\"" + computeVersionCode() + "\""
         buildConfigField "String", "TRUSTED_SOURCE_PUBLIC_KEY", "\"${project.ext.TRUSTED_SOURCE_PUBLIC_KEY}\""
+        buildConfigField "String", "ANALYTICS_TRACKING_ID_LIVE", "\"${project.ext.ANALYTICS_TRACKING_ID_LIVE}\""
+        buildConfigField "String", "ANALYTICS_TRACKING_ID_DEV", "\"${project.ext.ANALYTICS_TRACKING_ID_DEV}\""
     }
 
     compileOptions {
@@ -258,15 +267,17 @@ android {
     }
 
     buildTypes {
-      debug {
-        debuggable true
-        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
-      }
+        debug {
+            minifyEnabled true
+            debuggable true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
+        }
 
-      release {
-        signingConfig signingConfigs.release
-        proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
-      }
+        release {
+            minifyEnabled true
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
+        }
     }
 
     testOptions {

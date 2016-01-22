@@ -34,13 +34,12 @@ public class ArchivedFormRemoteRestore {
         }
 
 
-        //We should go digest auth this user on the server and see whether to pull them
-        //down.
+        // We should go digest auth this user on the server and see whether to pull them down.
         DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(), u.getCachedPwd(), remoteUrl, activity) {
             @Override
-            protected void deliverResult(FormRecordListActivity receiver, Integer status) {
+            protected void deliverResult(FormRecordListActivity receiver, PullTaskResult status) {
                 switch (status) {
-                    case DataPullTask.DOWNLOAD_SUCCESS:
+                    case DOWNLOAD_SUCCESS:
                         FormRecordCleanupTask<FormRecordListActivity> task = new FormRecordCleanupTask<FormRecordListActivity>(activity, platform, CLEANUP_ID) {
 
                             @Override
@@ -72,22 +71,22 @@ public class ArchivedFormRemoteRestore {
                         task.connect(activity);
                         task.execute();
                         break;
-                    case DataPullTask.UNKNOWN_FAILURE:
+                    case UNKNOWN_FAILURE:
                         Toast.makeText(receiver, "Failure retrieving or processing data, please try again later...", Toast.LENGTH_LONG).show();
                         break;
-                    case DataPullTask.AUTH_FAILED:
+                    case AUTH_FAILED:
                         Toast.makeText(receiver, "Authentication failure. Please logout and resync with the server and try again.", Toast.LENGTH_LONG).show();
                         break;
-                    case DataPullTask.BAD_DATA:
+                    case BAD_DATA:
                         Toast.makeText(receiver, "Bad data from server. Please talk with your supervisor.", Toast.LENGTH_LONG).show();
                         break;
-                    case DataPullTask.CONNECTION_TIMEOUT:
+                    case CONNECTION_TIMEOUT:
                         Toast.makeText(receiver, "The server took too long to generate a response. Please try again later, and ask your supervisor if the problem persists.", Toast.LENGTH_LONG).show();
                         break;
-                    case DataPullTask.SERVER_ERROR:
+                    case SERVER_ERROR:
                         Toast.makeText(receiver, "The server had an error processing your data. Please try again later, and contact technical support if the problem persists.", Toast.LENGTH_LONG).show();
                         break;
-                    case DataPullTask.UNREACHABLE_HOST:
+                    case UNREACHABLE_HOST:
                         Toast.makeText(receiver, "Couldn't contact server, please check your network connection and try again.", Toast.LENGTH_LONG).show();
                         break;
                 }
