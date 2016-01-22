@@ -55,8 +55,6 @@ public class PinAuthenticationActivity extends
 
     @Override
     public void onCreateAware(Bundle savedInstanceState) throws SessionUnavailableException {
-        super.onCreate(savedInstanceState);
-
         if (!setRecordAndAuthMode()) {
             return;
         }

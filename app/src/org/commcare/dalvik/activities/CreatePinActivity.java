@@ -58,8 +58,6 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
 
     @Override
     public void onCreateAware(Bundle savedInstanceState) throws SessionUnavailableException {
-        super.onCreate(savedInstanceState);
-
         userRecord = CommCareApplication._().getRecordForCurrentUser();
         loginMode = LoginMode.fromString(
                 getIntent().getStringExtra(LoginActivity.LOGIN_MODE));

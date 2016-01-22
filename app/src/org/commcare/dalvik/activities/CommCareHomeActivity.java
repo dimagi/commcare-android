@@ -158,8 +158,6 @@ public class CommCareHomeActivity
 
     @Override
     protected void onCreateAware(Bundle savedInstanceState) throws SessionUnavailableException {
-        super.onCreate(savedInstanceState);
-
         if (savedInstanceState != null) {
             loginExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
         }
