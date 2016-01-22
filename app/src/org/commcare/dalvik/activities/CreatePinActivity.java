@@ -216,6 +216,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         if (inConfirmMode) {
             outState.putBoolean(WAS_IN_CONFIRM_MODE, true);
             outState.putString(FIRST_ROUND_PIN, firstRoundPin);
