@@ -39,6 +39,7 @@
     <dimen name="font_size_xlarge">21sp</dimen>
     <dimen name="font_size_xlarger">23sp</dimen>
     <dimen name="font_size_xlargest">28sp</dimen>
+    <dimen name="font_size_40">40sp</dimen>
 
     <dimen name="font_size_dp_small">12dp</dimen>
     <dimen name="font_size_dp_medium">15dp</dimen>

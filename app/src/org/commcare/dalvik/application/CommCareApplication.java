@@ -338,8 +338,8 @@ public class CommCareApplication extends Application {
         TimedStatsTracker.registerEndSession(userBeingLoggedOut);
     }
 
-    public SecretKey createNewSymetricKey() throws SessionUnavailableException {
-        return getSession().createNewSymetricKey();
+    public SecretKey createNewSymmetricKey() throws SessionUnavailableException {
+        return getSession().createNewSymmetricKey();
     }
 
     synchronized public Tracker getDefaultTracker() {
@@ -929,7 +929,7 @@ public class CommCareApplication extends Application {
                     mIsBinding = false;
 
                     if (user != null) {
-                        mBoundService.startSession(user);
+                        mBoundService.startSession(user, record);
                         if (restoreSession) {
                             CommCareApplication.this.sessionWrapper = DevSessionRestorer.restoreSessionFromPrefs(getCommCarePlatform());
                         } else {
@@ -1142,6 +1142,11 @@ public class CommCareApplication extends Application {
         } else {
             throw new SessionUnavailableException();
         }
+    }
+
+
+    public UserKeyRecord getRecordForCurrentUser() throws SessionUnavailableException {
+        return getSession().getUserKeyRecord();
     }
 
     // Start - Error message Hooks

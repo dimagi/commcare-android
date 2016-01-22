@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:id="@+id/pin_prompt_text"
+    android:layout_centerHorizontal="true"
+    android:layout_margin="@dimen/standard_spacer_large"
+    android:textSize="@dimen/font_size_xlarge" />

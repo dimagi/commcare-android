@@ -49,6 +49,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public final static String FIRE_TRIGGERS_ON_SAVE = "cc-fire-triggers-on-save";
     public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
 
+    public final static String OFFER_PIN_FOR_LOGIN = "cc-offer-pin-for-login";
+
     private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
     
     @Override
@@ -220,6 +222,11 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 
     public static boolean isHomeReportEnabled() {
         return doesPropertyMatch(HOME_REPORT_ENABLED, CommCarePreferences.NO,
+                CommCarePreferences.YES);
+    }
+
+    public static boolean shouldOfferPinForLogin() {
+        return doesPropertyMatch(OFFER_PIN_FOR_LOGIN, CommCarePreferences.NO,
                 CommCarePreferences.YES);
     }
 

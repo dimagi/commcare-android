@@ -24,6 +24,7 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.LoginMode;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
@@ -251,7 +252,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 return false;
             }
             //TODO: Extract this
-            byte[] key = CryptUtil.unWrapKey(matchingRecord.getEncryptedKey(), password);
+            byte[] key = CryptUtil.unwrapByteArrayWithString(matchingRecord.getEncryptedKey(), password);
             if (matchingRecord.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
                 LegacyInstallUtils.transitionLegacyUserStorage(context, CommCareApplication._().getCurrentApp(), key, matchingRecord);
             }
@@ -259,34 +260,31 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 
             CommCareApplication._().startUserSession(key, matchingRecord, false);
             ManageKeyRecordTask mKeyRecordTask = new ManageKeyRecordTask<Object>(context, 0,
-                    matchingRecord.getUsername(), password, CommCareApplication._().getCurrentApp(),
-                    false, new ManageKeyRecordListener() {
+                    matchingRecord.getUsername(), password, LoginMode.PASSWORD,
+                    CommCareApplication._().getCurrentApp(), false,
+                    new ManageKeyRecordListener() {
 
-                @Override
-                public void keysLoginComplete(Object o) {
+                        @Override
+                        public void keysLoginComplete(Object o) {
+                        }
 
-                }
+                        @Override
+                        public void keysReadyForSync(Object o) {
+                        }
 
-                @Override
-                public void keysReadyForSync(Object o) {
-                    // TODO Auto-generated method stub
+                        @Override
+                        public void keysDoneOther(Object o, HttpCalloutOutcomes outcome) {
+                        }
 
-                }
+                    }) {
 
-                @Override
-                public void keysDoneOther(Object o, HttpCalloutOutcomes outcome) {
-                    // TODO Auto-generated method stub
-
-                }
-
-            }) {
-                @Override
-                protected void deliverUpdate(Object r, String... update) {
-                }
+                        @Override
+                        protected void deliverUpdate(Object r, String... update) {
+                        }
             };
+
             mKeyRecordTask.connect(dummyconnector);
             mKeyRecordTask.execute();
-
             return true;
         } catch (Exception e) {
             e.printStackTrace();

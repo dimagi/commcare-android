@@ -4,9 +4,11 @@
 package org.commcare.android.database.app.models;
 
 import org.commcare.android.crypt.CryptUtil;
+import org.commcare.android.database.SqlStorage;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.modern.models.MetaField;
 import org.javarosa.core.util.PropertyUtils;
 
@@ -20,8 +22,10 @@ import java.util.regex.Pattern;
 /**
  * @author ctsims
  */
-@Table("user_key_records")
+@Table(UserKeyRecord.STORAGE_KEY)
 public class UserKeyRecord extends Persisted {
+
+    public static final String STORAGE_KEY = "user_key_records";
 
     public static final String META_USERNAME = "username";
     public static final String META_SANDBOX_ID = "sandbox_id";
@@ -54,21 +58,43 @@ public class UserKeyRecord extends Persisted {
     @Persisting(1)
     @MetaField(META_USERNAME)
     private String username;
+
     @Persisting(2)
     private String passwordHash;
+
     @Persisting(3)
     private byte[] encryptedKey;
+
     @Persisting(4)
     private Date validFrom;
+
     @Persisting(5)
     private Date validTo;
-    @Persisting(6)
+
     /** The unique ID of the data sandbox covered by this key **/
+    @Persisting(6)
     @MetaField(META_SANDBOX_ID)
     private String uuid;
+
     @MetaField(META_KEY_STATUS)
     @Persisting(7)
     private int type;
+
+    /** The un-hashed password wrapped by a numeric PIN **/
+    @Persisting(8)
+    private byte[] passwordWrappedByPin;
+
+    /** When a user selects the 'Remember password for next login' option, their un-hashed password
+     * gets saved here and then used in the next login, so that the user does not need to enter it */
+    @Persisting(9)
+    private String rememberedPassword;
+
+    /**
+     * If there are multiple UKRs for a single username in app storage, we guarantee that only
+     * 1 will be marked as active
+     */
+    @Persisting(10)
+    private boolean isActive;
 
     /**
      * Serialization Only!
@@ -77,18 +103,37 @@ public class UserKeyRecord extends Persisted {
 
     }
 
-    public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey, Date validFrom, Date validTo, String uuid) {
+    public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey,
+                         Date validFrom, Date validTo, String uuid) {
         this(username, passwordHash, encryptedKey, validFrom, validTo, uuid, TYPE_NORMAL);
     }
 
-    public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey, Date validFrom, Date validTo, String uuid, int type) {
+    public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey,
+                         Date validFrom, Date validTo, String uuid, int type) {
+        this(username, passwordHash, encryptedKey, null, validFrom, validTo, uuid, type);
+    }
+
+    public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey,
+                         byte[] wrappedPassword, Date validFrom, Date validTo, String uuid,
+                         int type) {
         this.username = username;
         this.passwordHash = passwordHash;
         this.encryptedKey = encryptedKey;
+        if (wrappedPassword != null) {
+            this.passwordWrappedByPin = wrappedPassword;
+        } else {
+            // Means no PIN has been assigned yet, so just set a placeholder that is non-null
+            // (Persisting fields can't be null)
+            this.passwordWrappedByPin = new byte[0];
+        }
         this.validFrom = validFrom;
         this.validTo = validTo;
         this.uuid = uuid;
         this.type = type;
+        this.rememberedPassword = "";
+
+        // All new UKRs initialized to active
+        this.isActive = true;
     }
 
     /**
@@ -135,6 +180,18 @@ public class UserKeyRecord extends Persisted {
 
     public int getType() {
         return type;
+    }
+
+    public boolean isActive() {
+        return this.isActive;
+    }
+
+    public void setInactive() {
+        this.isActive = false;
+    }
+
+    public void setActive() {
+        this.isActive = true;
     }
 
     /**
@@ -200,6 +257,10 @@ public class UserKeyRecord extends Persisted {
     }
 
     public boolean isPasswordValid(String password) {
+        if (password == null) {
+            return false;
+        }
+
         String hash = this.getPasswordHash();
 
         // Is the local hash value a valid hash string pattern
@@ -208,9 +269,51 @@ public class UserKeyRecord extends Persisted {
                 hash.equals(UserKeyRecord.generatePwdHash(password, UserKeyRecord.extractSalt(hash))));
     }
 
+    public void assignPinToRecord(String pin, String password) {
+        this.passwordWrappedByPin = CryptUtil.wrapByteArrayWithString(password.getBytes(), pin);
+    }
+
+    public byte[] getWrappedPassword() {
+        return passwordWrappedByPin;
+    }
+
+    public boolean hasPinSet() {
+        return passwordWrappedByPin.length > 0;
+    }
+
+    public boolean isPinValid(String pin) {
+        // Unwrap wrapped password with the PIN, and then check if the resulting password is correct
+        return isPasswordValid(getUnhashedPasswordViaPin(pin));
+    }
+
+    /**
+     * Returns the un-hashed password that was wrapped by the given PIN, or null if the given PIN
+     * is not valid to unwrap the wrapped password
+     */
+    public String getUnhashedPasswordViaPin(String pin) {
+        byte[] unwrapped = CryptUtil.unwrapByteArrayWithString(this.passwordWrappedByPin, pin);
+        if (unwrapped == null) {
+            // If the pin could not unwrap the password, just return null
+            return null;
+        }
+        return new String(unwrapped);
+    }
+
+    /**
+     * Must be called with 1 of the 2 values set to null, which indicates that we should check
+     * based upon the other
+     */
+    public boolean isPasswordOrPinValid(String password, String pin) {
+        if (pin != null) {
+            return isPinValid(pin);
+        } else {
+            return isPasswordValid(password);
+        }
+    }
+
     public byte[] unWrapKey(String password) {
         if (isPasswordValid(password)) {
-            return CryptUtil.unWrapKey(getEncryptedKey(), password);
+            return CryptUtil.unwrapByteArrayWithString(getEncryptedKey(), password);
         } else {
             //throw exception?
             return null;
@@ -235,4 +338,86 @@ public class UserKeyRecord extends Persisted {
                 (validTo == null ||
                         (validTo.getTime() != Long.MAX_VALUE && validTo.after(today))));
     }
+
+    public static UserKeyRecord getCurrentValidRecordByPassword(CommCareApp app, String username,
+                                                                String pw, boolean acceptExpired) {
+        return getCurrentValidRecord(app, username, pw, null, acceptExpired);
+    }
+
+    public static UserKeyRecord getCurrentValidRecordByPin(CommCareApp app, String username,
+                                                           String pin, boolean acceptExpired) {
+        return getCurrentValidRecord(app, username, null, pin, acceptExpired);
+    }
+
+    public static UserKeyRecord getMatchingPrimedRecord(CommCareApp app, String username) {
+        SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
+        for (UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
+            if (ukr.isPrimedForNextLogin()) {
+                return ukr;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @return The user record that matches the given username/password or username/pin combo.
+     * Null if not found or user record validity date is expired.
+     */
+    private static UserKeyRecord getCurrentValidRecord(CommCareApp app, String username, String pw,
+                                                       String pin, boolean acceptExpired) {
+        UserKeyRecord invalidRecord = null;
+        SqlStorage<UserKeyRecord> storage = app.getStorage(UserKeyRecord.class);
+
+        for (UserKeyRecord ukr : storage.getRecordsForValue(UserKeyRecord.META_USERNAME, username)) {
+            if (ukr.isPasswordOrPinValid(pw, pin)) {
+                if (ukr.isCurrentlyValid()) {
+                    return ukr;
+                } else {
+                    invalidRecord = ukr;
+                }
+            }
+        }
+
+        if (acceptExpired) {
+            return invalidRecord;
+        }
+        return null;
+    }
+
+    public void setPrimedPassword(String unhashedPassword) {
+        this.rememberedPassword = unhashedPassword;
+    }
+
+    public boolean isPrimedForNextLogin() {
+        return !"".equals(rememberedPassword);
+    }
+
+    public String getPrimedPassword() {
+        return this.rememberedPassword;
+    }
+
+    public void clearPrimedPassword() {
+        this.rememberedPassword = "";
+    }
+
+    /**
+     * Used for app db migration only
+     */
+    public static UserKeyRecord fromOldVersion(UserKeyRecordV1 oldRecord) {
+        UserKeyRecord newRecord = new UserKeyRecord(
+                oldRecord.getUsername(),
+                oldRecord.getPasswordHash(),
+                oldRecord.getEncryptedKey(),
+                oldRecord.getValidFrom(),
+                oldRecord.getValidTo(),
+                oldRecord.getUuid(),
+                oldRecord.getType());
+
+        // Going to set all of these to inactive to start with, and then the migration code will
+        // take care of assigning the active flag back to the right ones
+        newRecord.setInactive();
+
+        return newRecord;
+    }
+
 }

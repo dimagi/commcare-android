@@ -94,6 +94,8 @@ home.menu.connection.diagnostic=Connection Test
 home.menu.saved.forms=Saved Forms
 home.menu.about=About CommCare
 home.menu.disable.analytics=Opt Out of Analytics
+home.menu.pin.set=Set My PIN
+home.menu.pin.change=Change My PIN
 
 home.developer.options.enabled=Developer Mode Enabled
 
@@ -139,6 +141,8 @@ login.attempt.badcred=Username or password are incorrect. Please try again.
 
 login.username=Username
 login.password=Password
+login.pin.password=PIN
+login.primed.prompt=Your password has been saved for you! Just press 'Log In'.
 login.button=Log In
 login.sync=Synchronize with server
 login.bad.password=We couldn't find a user with this password. Please try another!
@@ -271,6 +275,7 @@ mult.install.error=Unexpected Error installing the multimedia! Please try again.
 
 login.menu.demo=Enter as Demo User
 login.menu.permission=Acquire Required Permissions
+login.menu.password.mode=Switch to Password Login Mode
 main.sync.demo=You cannot sync data down from the server when logged in in demo mode
 
 main.sync.demo.has.forms=Your forms have been submitted to the server; however, you cannot retrieve forms from the server in Demo mode.
@@ -368,12 +373,40 @@ analytics.opt.out.title=Opt out of Google Analytics?
 analytics.opt.out.message=This application uses Google Analytics to anonymously track usage data within the application. If you do not want your usage data to be tracked, you can disable it at any time.
 analytics.disable.button=DISABLE
 
+remember.password.for.next.login=Remember PW For Next Login
+remember.password.confirm.title=Log out and Remember Password?
+remember.password.confirm.message=This action will log you out and allow the next login to be completed without any authentication required. Upon next login, the user will then be required to create a PIN. Do you wish to proceed?
+
+pin.dialog.prompt.set=Create a PIN?
+pin.dialog.prompt.reset=Reset your PIN?
+pin.dialog.yes=Yes, set my PIN now
+pin.dialog.not.now=No, but ask again on next login
+pin.dialog.never=No, and don't ask again
+pin.dialog.extra.info=After creating a PIN, you will be prompted to log in with that instead of your full password, on all future log-ins. If you ever forget your PIN, you can always revert to logging in with your normal password.
+pin.dialog.set.later.title=Setting A PIN Later
+pin.dialog.set.later.message=You access the PIN create screen at any time from the home screen options menu.
+pin.continue.button=CONTINUE
+pin.confirm.button=CONFIRM
+pin.directive.new=Enter a 4-digit PIN
+pin.directive.reset=Enter a new 4-digit PIN
+pin.directive.confirm=Re-Enter the PIN you chose
+pins.dont.match=Entered PINs don't match. Please try again.
+pin.set.success=PIN set successfully
+pin.not.set=No PIN was set
+pin.auth.failed.pin=Entered PIN was incorrect. Please try again.
+pin.auth.failed.password=Entered password was incorrect. Please try again.
+pin.auth.prompt.pin=Enter your current PIN
+pin.auth.prompt.password=Enter your password
+pin.auth.enter.button=ENTER
 
 
 #Put these into their own file
 
 login.attempt.fail.auth.title=Invalid Username or Password
 login.attempt.fail.auth.detail=Your username or password was not recognized, please type them again and retry.
+
+login.attempt.fail.pin.title=Invalid PIN
+login.attempt.fail.pin.detail=You entered an incorrect PIN for the given username.
 
 login.attempt.fail.changed.title=Password Changed since Last Login
 login.attempt.fail.changed.detail=You've logged in with a new password since you're last login. You may need to log in with your old credentials to ensure you have no unsent data.

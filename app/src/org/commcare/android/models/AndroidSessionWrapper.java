@@ -170,7 +170,7 @@ public class AndroidSessionWrapper {
 
         SecretKey key;
         try {
-            key = CommCareApplication._().createNewSymetricKey();
+            key = CommCareApplication._().createNewSymmetricKey();
         } catch (SessionUnavailableException e) {
             // the user db is closed
             throw new UserStorageClosedException(e.getMessage());
