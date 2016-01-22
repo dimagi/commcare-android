@@ -37,16 +37,15 @@ import java.util.Map;
 public class CommCarePreferences
         extends SessionAwarePreferenceActivity
         implements OnSharedPreferenceChangeListener {
-    //So these are stored in the R files, but I dont' seem to be able to figure out how to pull them
-    //out cleanly?
+
+    // So these are stored in the R files, but I don't seem to be able to figure out how to pull
+    // them out cleanly?
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
     public final static String AUTO_UPDATE_FREQUENCY = "cc-autoup-freq";
     public final static String FREQUENCY_NEVER = "freq-never";
     public final static String FREQUENCY_DAILY = "freq-daily";
-    public final static String FREQUENCY_WEEKLY = "freq-weekly";
 
     public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
-
     public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
 
     /**
@@ -57,20 +56,12 @@ public class CommCarePreferences
     public final static String LAST_UPDATE_ATTEMPT = "cc-last_up";
     public final static String LAST_SYNC_ATTEMPT = "last-ota-restore";
 
-    public final static String LOG_WEEKLY_SUBMIT = "log_prop_weekly";
-    public final static String LOG_DAILY_SUBMIT = "log_prop_daily";
-
     public final static String RESIZING_METHOD = "cc-resize-images";
 
     private static final String KEY_TARGET_DENSITY = "cc-inflation-target-density";
     private static final String DEFAULT_TARGET_DENSITY = "" + DisplayMetrics.DENSITY_DEFAULT;
 
-    public final static String NEVER = "log_never";
-    public final static String SHORT = "log_short";
-    public final static String FULL = "log_full";
-
-    // TODO PLM: these flags aren't provided by HQ built apps,
-    // should be replaced with LOG_WEEKLY_SUBMIT above!
+    // TODO PLM: these flags aren't provided by HQ built apps, should be replaced with LOG_WEEKLY_SUBMIT above!
     public final static String LOG_LAST_DAILY_SUBMIT = "log_prop_last_daily";
     public final static String LOG_NEXT_WEEKLY_SUBMIT = "log_prop_next_weekly";
 
@@ -88,15 +79,12 @@ public class CommCarePreferences
 
     public static final String DUMP_FOLDER_PATH = "dump-folder-path";
 
-    public final static String FUZZY_SEARCH = "cc-fuzzy-search-enabled";
     public final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
 
     public final static String LOGIN_DURATION = "cc-login-duration-seconds";
 
     public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
     public final static String BRAND_BANNER_HOME = "brand-banner-home";
-
-    public final static String ACTIONBAR_PREFS = "actionbar-prefs";
 
     private static final int CLEAR_USER_DATA = Menu.FIRST;
     private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 1;
@@ -108,17 +96,15 @@ public class CommCarePreferences
 
     // Fields for setting print template
     private static final int REQUEST_TEMPLATE = 0;
-    public final static String PRINT_DOC_LOCATION = "print_doc_location";
 
-    private final static String PREFS_APP_SERVER_KEY = "default_app_server";
-    private final static String PREFS_DATA_SERVER_KEY = "ota-restore-url";
-    private final static String PREFS_SUBMISSION_URL_KEY = "PostURL";
+    public final static String PREFS_APP_SERVER_KEY = "default_app_server";
+    public final static String PREFS_DATA_SERVER_KEY = "ota-restore-url";
+    public final static String PREFS_SUBMISSION_URL_KEY = "PostURL";
     private final static String PREFS_KEY_SERVER_KEY = "default_key_server";
-    private final static String PREFS_FORM_RECORD_KEY = "form-record-url";
-    private final static String PREFS_UPDATE_FREQUENCY_KEY = "cc-autoup-freq";
+    public final static String PREFS_FORM_RECORD_KEY = "form-record-url";
     private final static String PREFS_FUZZY_SEARCH_KEY = "cc-fuzzy-search-enabled";
-    private final static String PREFS_LOCALE_KEY = "cur_locale";
-    private final static String PREFS_PRINT_KEY = "print-doc-location";
+    public final static String PREFS_LOCALE_KEY = "cur_locale";
+    public final static String PREFS_PRINT_DOC_LOCATION = "print_doc_location";
 
     // Doesn't actually get shown in the CCPreferences activity, just storing the field here
     // The 'Opt Out of Analytics' option appears in the home activity options menu
@@ -160,14 +146,14 @@ public class CommCarePreferences
         prefKeyToAnalyticsEvent.put(PREFS_SUBMISSION_URL_KEY, GoogleAnalyticsFields.LABEL_SUBMISSION_SERVER);
         prefKeyToAnalyticsEvent.put(PREFS_KEY_SERVER_KEY, GoogleAnalyticsFields.LABEL_KEY_SERVER);
         prefKeyToAnalyticsEvent.put(PREFS_FORM_RECORD_KEY, GoogleAnalyticsFields.LABEL_FORM_RECORD_SERVER);
-        prefKeyToAnalyticsEvent.put(PREFS_UPDATE_FREQUENCY_KEY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
+        prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
         prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
         prefKeyToAnalyticsEvent.put(PREFS_LOCALE_KEY, GoogleAnalyticsFields.LABEL_LOCALE);
-        prefKeyToAnalyticsEvent.put(PREFS_PRINT_KEY, GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
+        prefKeyToAnalyticsEvent.put(PREFS_PRINT_DOC_LOCATION, GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
     }
 
     private void createPrintPrefOnClickListener(PreferenceManager prefManager) {
-        Preference pref = prefManager.findPreference(PREFS_PRINT_KEY);
+        Preference pref = prefManager.findPreference(PREFS_PRINT_DOC_LOCATION);
         pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -192,7 +178,7 @@ public class CommCarePreferences
                 if (extension.equalsIgnoreCase("html")) {
                     SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().
                             getAppPreferences().edit();
-                    editor.putString(PRINT_DOC_LOCATION, filePath);
+                    editor.putString(PREFS_PRINT_DOC_LOCATION, filePath);
                     editor.commit();
                     Toast.makeText(this, Localization.get("template.success"), Toast.LENGTH_SHORT).show();
                 } else {
@@ -346,7 +332,7 @@ public class CommCarePreferences
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         int editPrefValue = -1;
         switch(key) {
-            case PREFS_UPDATE_FREQUENCY_KEY:
+            case AUTO_UPDATE_FREQUENCY:
                 String freq = sharedPreferences.getString(key, CommCarePreferences.FREQUENCY_NEVER);
                 if (CommCarePreferences.FREQUENCY_NEVER.equals(freq)) {
                     editPrefValue = GoogleAnalyticsFields.VALUE_NEVER;

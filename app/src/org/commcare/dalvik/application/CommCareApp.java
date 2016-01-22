@@ -209,7 +209,8 @@ public class CommCareApp {
         if (profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
             platform.initialize(global);
             try {
-                Localization.setLocale(getAppPreferences().getString("cur_locale", "default"));
+                Localization.setLocale(
+                        getAppPreferences().getString(CommCarePreferences.PREFS_LOCALE_KEY, "default"));
             } catch (UnregisteredLocaleException urle) {
                 Localization.setLocale(Localization.getGlobalLocalizerAdvanced().getAvailableLocales()[0]);
             }

@@ -982,7 +982,7 @@ public class CommCareApplication extends Application {
         //Create a new submission task no matter what. If nothing is pending, it'll see if there are unsent reports
         //and try to send them. Otherwise, it'll create the report
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        String url = settings.getString("PostURL", null);
+        String url = settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, null);
 
         if (url == null) {
             Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "PostURL isn't set. This should never happen");
