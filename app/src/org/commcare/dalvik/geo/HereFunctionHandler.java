@@ -36,12 +36,12 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     public static final String HERE_NAME = "here";
     private GeoPointData location;
 
-    private LocationManager mLocationManager;
-
     private boolean requestingLocationUpdates;
     private boolean locationGoodEnough;
 
     private final Context context = CommCareApplication._().getApplicationContext();
+    private final LocationManager mLocationManager = (LocationManager) context.getSystemService(
+            Context.LOCATION_SERVICE);
 
     // If there are more general uses for HereFunctionHandler, the type of this field can be
     // generalized to a listener interface.
@@ -59,10 +59,8 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
 
     // The EntitySelectActivity must subscribe before this method is called if a fresh location is desired.
     public Object eval(Object[] args, EvaluationContext ec) {
-        if (entitySelectActivity != null && !entitySelectActivity.getContainsHereFunction()) {
-            refreshLocation();
-            allowGpsUse();
-            entitySelectActivity.setContainsHereFunction(true);
+        if (entitySelectActivity != null) {
+            entitySelectActivity.onHereFunctionEvaluated();
         }
         if (location == null) {
             return "";
@@ -101,27 +99,27 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         }
     }
 
+    public boolean locationProvidersFound() {
+        return GeoUtils.evaluateProvidersWithPermissions(mLocationManager, context).size() > 0;
+    }
+
     private void requestLocationUpdates() {
-        mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        Set<String> mProviders = GeoUtils.evaluateProviders(mLocationManager);
+        Set<String> mProviders = GeoUtils.evaluateProvidersWithPermissions(mLocationManager, context);
 
         for (String provider : mProviders) {
-            if ((provider.equals(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) ||
-                    (provider.equals(LocationManager.NETWORK_PROVIDER) && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
-                // This is non-null if the calling activity pauses.
-                if (location == null) {
-                    Location lastKnownLocation = mLocationManager.getLastKnownLocation(provider);
-                    if (lastKnownLocation != null) {
-                        this.location = toGeoPointData(lastKnownLocation);
-                        Log.i("HereFunctionHandler", "last known location: " + this.location.getDisplayText());
-                    }
+            // Ignore the inspector warnings; the permissions are already checked in evaluateProvidersWithPermissions.
+            if (location == null) {
+                Location lastKnownLocation = mLocationManager.getLastKnownLocation(provider);
+                if (lastKnownLocation != null) {
+                    this.location = toGeoPointData(lastKnownLocation);
+                    Log.i("HereFunctionHandler", "last known location: " + this.location.getDisplayText());
                 }
-
-                // Looper is necessary because requestLocationUpdates is called inside an AsyncTask (EntityLoaderTask).
-                // What values for minTime and minDistance?
-                mLocationManager.requestLocationUpdates(provider, 0, 0, this, Looper.getMainLooper());
-                requestingLocationUpdates = true;
             }
+
+            // Looper is necessary because requestLocationUpdates is called inside an AsyncTask (EntityLoaderTask).
+            // What values for minTime and minDistance?
+            mLocationManager.requestLocationUpdates(provider, 0, 0, this, Looper.getMainLooper());
+            requestingLocationUpdates = true;
         }
     }
 

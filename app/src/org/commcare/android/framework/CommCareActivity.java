@@ -100,13 +100,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private boolean isMainScreenBlocked;
 
     @Override
-    @TargetApi(14)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         FragmentManager fm = this.getSupportFragmentManager();
 
-        stateHolder = (TaskConnectorFragment) fm.findFragmentByTag("state");
+        stateHolder = (TaskConnectorFragment<R>) fm.findFragmentByTag("state");
 
         // stateHolder and its previous state aren't null if the activity is
         // being created due to an orientation change.
