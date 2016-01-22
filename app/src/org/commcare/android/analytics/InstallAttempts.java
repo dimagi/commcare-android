@@ -1,4 +1,4 @@
-package org.commcare.android.resource.analytics;
+package org.commcare.android.analytics;
 
 import java.io.Serializable;
 import java.util.Date;

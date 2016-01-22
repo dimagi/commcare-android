@@ -49,6 +49,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.analytics.GoogleAnalyticsFields;
+import org.commcare.android.analytics.GoogleAnalyticsUtils;
+import org.commcare.android.analytics.TimedStatsTracker;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.SaveSessionCommCareActivity;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -118,6 +121,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 
@@ -359,8 +363,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             @Override
             public void onClick(View v) {
                 if (!NAV_STATE_DONE.equals(v.getTag())) {
+                    GoogleAnalyticsUtils.reportFormNavForward(
+                            GoogleAnalyticsFields.LABEL_ARROW,
+                            GoogleAnalyticsFields.VALUE_FORM_NOT_DONE);
                     FormEntryActivity.this.showNextView();
                 } else {
+                    GoogleAnalyticsUtils.reportFormNavForward(
+                            GoogleAnalyticsFields.LABEL_ARROW,
+                            GoogleAnalyticsFields.VALUE_FORM_DONE);
                     triggerUserFormComplete();
                 }
             }
@@ -370,8 +380,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             @Override
             public void onClick(View v) {
                 if (!NAV_STATE_QUIT.equals(v.getTag())) {
+                    GoogleAnalyticsUtils.reportFormNavBackward(GoogleAnalyticsFields.LABEL_ARROW);
                     FormEntryActivity.this.showPreviousView(true);
                 } else {
+                    GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_PROGRESS_BAR_ARROW);
                     FormEntryActivity.this.triggerUserQuitInput();
                 }
             }
@@ -767,6 +779,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
+        GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_FORM_ENTRY);
+
         menu.removeItem(MENU_LANGUAGES);
         menu.removeItem(MENU_HIERARCHY_VIEW);
         menu.removeItem(MENU_SAVE);
@@ -793,6 +807,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Map<Integer, String> menuIdToAnalyticsEventLabel = createMenuItemToEventMapping();
+        GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
+                GoogleAnalyticsFields.CATEGORY_FORM_ENTRY,
+                menuIdToAnalyticsEventLabel.get(item.getItemId()));
         switch (item.getItemId()) {
             case MENU_LANGUAGES:
                 createLanguageDialog();
@@ -812,11 +830,21 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 startActivityForResult(pref, FORM_PREFERENCES_KEY);
                 return true;
             case android.R.id.home:
+                GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_NAV_BAR_ARROW);
                 triggerUserQuitInput();
                 return true;
 
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private static Map<Integer, String> createMenuItemToEventMapping() {
+        Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
+        menuIdToAnalyticsEvent.put(MENU_LANGUAGES, GoogleAnalyticsFields.LABEL_CHANGE_LANGUAGE);
+        menuIdToAnalyticsEvent.put(MENU_SAVE, GoogleAnalyticsFields.LABEL_SAVE_FORM);
+        menuIdToAnalyticsEvent.put(MENU_HIERARCHY_VIEW, GoogleAnalyticsFields.LABEL_FORM_HIERARCHY);
+        menuIdToAnalyticsEvent.put(MENU_PREFERENCES, GoogleAnalyticsFields.LABEL_CHANGE_SETTINGS);
+        return menuIdToAnalyticsEvent;
     }
 
     /**
@@ -1440,6 +1468,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         View.OnClickListener stayInFormListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_BACK_TO_FORM);
                 dialog.dismiss();
             }
         };
@@ -1451,6 +1480,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         View.OnClickListener exitFormListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_EXIT_NO_SAVE);
                 discardChangesAndExit();
             }
         };
@@ -1464,6 +1494,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             View.OnClickListener saveIncompleteListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_SAVE_AND_EXIT);
                     saveFormToDisk(EXIT);
                 }
             };
@@ -1475,7 +1506,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         } else {
             items = new DialogChoiceItem[] {stayInFormItem, quitFormItem};
         }
-
         dialog.setChoiceItems(items);
         dialog.show();
     }
@@ -1919,6 +1949,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return; // so we don't show the intro screen before jumping to the hierarchy
         }
 
+        reportFormEntry();
         refreshCurrentView();
         FormNavigationUI.updateNavigationCues(this, mFormController, mCurrentView);
     }
@@ -1937,7 +1968,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             finishReturnInstance(false);
         } else {
             createQuitDialog();
+            return;
         }
+        GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_NO_DIALOG);
     }
 
     /**
@@ -1981,6 +2014,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
+                GoogleAnalyticsUtils.reportFormQuitAttempt(GoogleAnalyticsFields.LABEL_DEVICE_BUTTON);
             	triggerUserQuitInput();
                 return true;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
@@ -2215,11 +2249,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         dismissProgressDialog();
+        reportFormExit();
         finish();
     }
 
     @Override
     protected boolean onBackwardSwipe() {
+        GoogleAnalyticsUtils.reportFormNavBackward(GoogleAnalyticsFields.LABEL_SWIPE);
         showPreviousView(true);
         return true;
     }
@@ -2231,9 +2267,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         //swipe forward.
         ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
         if(nextButton.getTag().equals(NAV_STATE_NEXT)) {
+            GoogleAnalyticsUtils.reportFormNavForward(
+                    GoogleAnalyticsFields.LABEL_SWIPE,
+                    GoogleAnalyticsFields.VALUE_FORM_NOT_DONE);
             next();
             return true;
         } else {
+            GoogleAnalyticsUtils.reportFormNavForward(
+                    GoogleAnalyticsFields.LABEL_SWIPE,
+                    GoogleAnalyticsFields.VALUE_FORM_DONE);
             FormNavigationUI.animateFinishArrow(this);
             return true;
         }
@@ -2326,8 +2368,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 ResizingImageView.resizeMethod = savedInstanceState.getString(KEY_RESIZING_ENABLED);
             }
             if (savedInstanceState.containsKey(KEY_AES_STORAGE_KEY)) {
-                 String base64Key = savedInstanceState.getString(KEY_AES_STORAGE_KEY);
-                 try {
+                String base64Key = savedInstanceState.getString(KEY_AES_STORAGE_KEY);
+                try {
                     byte[] storageKey = new Base64Wrapper().decode(base64Key);
                     symetricKey = new SecretKeySpec(storageKey, "AES");
                 } catch (ClassNotFoundException e) {
@@ -2549,6 +2591,18 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeInPx,
                 getResources().getDisplayMetrics());
+    }
+
+    private void reportFormEntry() {
+        TimedStatsTracker.registerEnterForm(getCurrentFormID());
+    }
+
+    private void reportFormExit() {
+        TimedStatsTracker.registerExitForm(getCurrentFormID());
+    }
+
+    private int getCurrentFormID() {
+        return mFormController.getFormID();
     }
 
     /**
