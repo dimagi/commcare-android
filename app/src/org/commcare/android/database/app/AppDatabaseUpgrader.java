@@ -1,6 +1,7 @@
 package org.commcare.android.database.app;
 
 import android.content.Context;
+import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -14,6 +15,7 @@ import org.commcare.android.database.migration.FixtureSerializationMigration;
 import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.resources.model.Resource;
+import org.javarosa.core.model.instance.FormInstance;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -156,7 +158,15 @@ class AppDatabaseUpgrader {
      * attributes.
      */
     private boolean upgradeSixSeven(SQLiteDatabase db) {
-        return FixtureSerializationMigration.migrateFixtureDbBytes(db, context);
+        Log.d("AppDatabaseUpgrader", "starting app fixture migration");
+
+        FixtureSerializationMigration.stageFixtureTables(db);
+
+        boolean didFixturesMigrate =
+                FixtureSerializationMigration.migrateUnencryptedFixtureDbBytes(db, context);
+
+        FixtureSerializationMigration.dropTempFixtureTable(db);
+        return didFixturesMigrate;
     }
 
     /**

@@ -21,6 +21,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -116,7 +117,7 @@ public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<C
             public void onClick(View v) {
                 SharedPreferences settings = 
                         CommCareApplication._().getCurrentApp().getAppPreferences();
-                String url = settings.getString("PostURL", null);
+                String url = settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, null);
                 
                 if(url != null) {
                     DataSubmissionListener dataListener;
