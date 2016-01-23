@@ -28,7 +28,7 @@ import java.util.Vector;
 /**
  * @author ctsims
  */
-public class AppDatabaseUpgrader {
+class AppDatabaseUpgrader {
 
     private final Context context;
 

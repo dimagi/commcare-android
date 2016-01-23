@@ -24,14 +24,14 @@ import java.util.List;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public abstract class SquareButtonAdapter
+abstract class SquareButtonAdapter
         extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    protected final Context context;
+    final Context context;
 
     private static final int TYPE_BUTTON = 0;
 
-    public SquareButtonAdapter(Context context) {
+    SquareButtonAdapter(Context context) {
         this.context = context;
     }
 

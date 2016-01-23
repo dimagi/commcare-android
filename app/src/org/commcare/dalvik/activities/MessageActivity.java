@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.dalvik.activities;
 
 import android.app.ListActivity;
@@ -24,10 +21,9 @@ import java.util.ArrayList;
  * happened which might not be easy to explain.
  * 
  * @author ctsims
- *
  */
 public class MessageActivity extends ListActivity {
-    ArrayList<NotificationMessage> messages;
+    private ArrayList<NotificationMessage> messages;
     
     private static final String KEY_MESSAGES = "ma_key_messages";
 

@@ -37,7 +37,7 @@ public class FileServerFragment extends Fragment {
     private static TextView mStatusText;
     private View mView;
 
-    public static String receiveZipDirectory;
+    private static String receiveZipDirectory;
 
     private FileServerAsyncTask mFileServer;
 

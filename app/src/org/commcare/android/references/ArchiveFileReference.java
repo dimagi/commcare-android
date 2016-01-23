@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.references;
 
 import org.javarosa.core.reference.Reference;
@@ -16,11 +13,11 @@ import java.io.OutputStream;
  *         this class associates a GUID and relative path with a corresponding
  *         real directory in the filesystem
  */
-public class ArchiveFileReference implements Reference {
+class ArchiveFileReference implements Reference {
 
-    final String GUID;
-    final String archiveURI;
-    final String localroot;
+    private final String GUID;
+    private final String archiveURI;
+    private final String localroot;
 
     public ArchiveFileReference(String localroot, String GUID, String archiveURI) {
         this.archiveURI = archiveURI;

@@ -16,7 +16,7 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
 
     public static final int WIPE_TASK_ID = 9213435;
 
-    final FormRecord[] records;
+    private final FormRecord[] records;
 
     public WipeTask(Context c, FormRecord[] records) {
         this.c = c;

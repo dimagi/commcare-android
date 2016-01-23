@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.util.bitcache;
 
 import android.content.Context;
@@ -29,9 +26,9 @@ import javax.crypto.SecretKey;
  * @author ctsims
  */
 public class FileBitCache implements BitCache {
-    Context context;
-    SecretKey key;
-    File temp;
+    private Context context;
+    private SecretKey key;
+    private File temp;
 
     protected FileBitCache(Context context) {
         this.context = context;

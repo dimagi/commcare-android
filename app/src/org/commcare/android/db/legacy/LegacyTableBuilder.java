@@ -52,7 +52,7 @@ public class LegacyTableBuilder {
         rawCols.add(DatabaseHelper.DATA_COL);
     }
 
-    final HashSet<String> unique = new HashSet<>();
+    private final HashSet<String> unique = new HashSet<>();
 
     public void setUnique(String columnName) {
         unique.add(scrubName(columnName));

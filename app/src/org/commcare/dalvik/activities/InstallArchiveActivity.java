@@ -51,9 +51,9 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     @UiElement(value = R.id.screen_multimedia_inflater_install, locale="archive.install.button")
     Button btnInstallArchive;
 
-    final boolean done = false;
+    private final boolean done = false;
 
-    public static final String TAG = InstallArchiveActivity.class.getSimpleName();
+    private static final String TAG = InstallArchiveActivity.class.getSimpleName();
     
     public static final String ARCHIVE_REFERENCE = "archive-ref";
 
@@ -126,7 +126,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
     }
 
-    protected void onUnzipSuccessful() {
+    private void onUnzipSuccessful() {
         ArchiveFileRoot afr = CommCareApplication._().getArchiveFileRoot();
         String mGUID = afr.addArchiveFile(getTargetFolder());
 
@@ -193,7 +193,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }
 
-    public String getTargetFolder(){
+    private String getTargetFolder(){
         if(targetDirectory != null){
             return targetDirectory;
         }

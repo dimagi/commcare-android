@@ -33,13 +33,13 @@ import java.util.Vector;
  */
 public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnCheckedChangeListener {
 
-    final Vector<SelectChoice> mItems;
+    private final Vector<SelectChoice> mItems;
 
-    final Vector<RadioButton> buttons;
-    final Vector<MediaLayout> mediaLayouts;
-    final Vector<RelativeLayout> parentLayout;
+    private final Vector<RadioButton> buttons;
+    private final Vector<MediaLayout> mediaLayouts;
+    private final Vector<RelativeLayout> parentLayout;
 
-    final AdvanceToNextListener listener;
+    private final AdvanceToNextListener listener;
     
     private final int buttonIdBase;
 

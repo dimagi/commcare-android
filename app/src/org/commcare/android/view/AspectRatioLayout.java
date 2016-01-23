@@ -9,8 +9,8 @@ import android.widget.FrameLayout;
  * @author jschweers
  */
 public class AspectRatioLayout extends FrameLayout {
-    float mRatioWidth;
-    float mRatioHeight;
+    private float mRatioWidth;
+    private float mRatioHeight;
 
     public AspectRatioLayout(Context context) {
         super(context);

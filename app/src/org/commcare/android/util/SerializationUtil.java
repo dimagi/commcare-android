@@ -18,7 +18,7 @@ import java.io.IOException;
  * @author ctsims
  */
 public class SerializationUtil {
-    public static byte[] serialize(Externalizable data) {
+    private static byte[] serialize(Externalizable data) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             data.writeExternal(new DataOutputStream(baos));
@@ -29,7 +29,7 @@ public class SerializationUtil {
         return baos.toByteArray();
     }
     
-    public static <T extends Externalizable> T deserialize(byte[] bytes, String name, Class<T> type) {
+    private static <T extends Externalizable> T deserialize(byte[] bytes, String name, Class<T> type) {
         T t;
         try {
             t = type.newInstance();

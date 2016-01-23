@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.dalvik.geo;
 
 import android.graphics.Bitmap;
@@ -23,13 +20,12 @@ import java.util.Map;
 
 /**
  * @author ctsims
- *
  */
 public class EntityOverlayItemFactory {
     
-    int imageIndex = -1;
-    int bigTextIndex = -1;
-    int smallTextIndex = -1;
+    private int imageIndex = -1;
+    private int bigTextIndex = -1;
+    private int smallTextIndex = -1;
     
     private final Map<String, Drawable> drawables;
     private final HashSet<String> missingImages;

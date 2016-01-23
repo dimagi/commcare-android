@@ -7,6 +7,6 @@ import java.io.IOException;
 /**
  * @author ctsims
  */
-public interface DeviceReportElement {
+interface DeviceReportElement {
     void writeToDeviceReport(XmlSerializer serializer) throws IOException;
 }
