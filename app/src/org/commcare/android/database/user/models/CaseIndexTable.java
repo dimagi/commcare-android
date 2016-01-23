@@ -13,6 +13,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.modern.database.DatabaseHelper;
 
 import java.util.Vector;
 
@@ -30,7 +31,7 @@ public class CaseIndexTable {
 
     public static String getTableDefinition() {
         return "CREATE TABLE " + TABLE_NAME + "(" +
-                DbUtil.ID_COL + " INTEGER PRIMARY KEY, " +
+                DatabaseHelper.ID_COL + " INTEGER PRIMARY KEY, " +
                 COL_CASE_RECORD_ID + ", " +
                 COL_INDEX_NAME + ", " +
                 COL_INDEX_TYPE + ", " +

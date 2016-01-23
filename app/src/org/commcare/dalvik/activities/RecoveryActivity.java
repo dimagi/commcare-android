@@ -23,6 +23,7 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -64,7 +65,9 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                 FormRecord[] records = StorageUtils.getUnsentRecords(CommCareApplication._().getUserStorage(FormRecord.class));
                 SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
                 
-                ProcessAndSendTask<RecoveryActivity> mProcess = new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this, settings.getString("PostURL", 
+                ProcessAndSendTask<RecoveryActivity> mProcess =
+                        new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this,
+                                settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
                         RecoveryActivity.this.getString(R.string.PostURL)), true){
 
                     @Override
