@@ -18,7 +18,7 @@ import android.os.Bundle;
  */
 public class SQLiteCursorNative implements net.sqlcipher.Cursor{
     
-    private android.database.sqlite.SQLiteCursor cursor;
+    private final android.database.sqlite.SQLiteCursor cursor;
 
     public SQLiteCursorNative(android.database.sqlite.SQLiteCursor cursor) {
         this.cursor = cursor;

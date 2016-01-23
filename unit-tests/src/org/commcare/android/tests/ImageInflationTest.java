@@ -22,10 +22,10 @@ public class ImageInflationTest {
     private DisplayMetrics mediumDensityDevice;
     private DisplayMetrics highDensityDevice;
     
-    private static int[] boundingDimens_RESTRICTIVE = {50, 50};
-    private static int[] boundingDimens_LESS_RESTRICTIVE = {80, 80};
-    private static int[] boundingDimens_UNRESTRICTIVE = {200, 200};
-    private static int[] boundingDimens_LESS_UNRESTRICTIVE = {150, 150};
+    private static final int[] boundingDimens_RESTRICTIVE = {50, 50};
+    private static final int[] boundingDimens_LESS_RESTRICTIVE = {80, 80};
+    private static final int[] boundingDimens_UNRESTRICTIVE = {200, 200};
+    private static final int[] boundingDimens_LESS_UNRESTRICTIVE = {150, 150};
 
     private DisplayMetrics createFakeDisplayMetrics(int screenDensity) {
         DisplayMetrics metrics = new DisplayMetrics();

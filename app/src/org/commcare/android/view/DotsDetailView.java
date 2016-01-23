@@ -33,7 +33,7 @@ public class DotsDetailView {
     private static final String DOSE_UNKNOWN = "Dose";
     
     
-    static String[] labelMap = new String [] {DOSE_MORNING, DOSE_NOON, DOSE_EVENING, DOSE_BEDTIME};
+    static final String[] labelMap = new String [] {DOSE_MORNING, DOSE_NOON, DOSE_EVENING, DOSE_BEDTIME};
     
     //For unnamed labels, these are the defaults.
     //TODO: 90% sure that only the last one here is relevant.

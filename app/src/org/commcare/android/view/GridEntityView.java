@@ -46,32 +46,32 @@ import java.util.Arrays;
 public class GridEntityView extends GridLayout {
 
     private String[] searchTerms;
-    Object[] mRowData;
-    View[] mRowViews;
-    boolean mFuzzySearchEnabled = false;
-    boolean mIsAsynchronous = false;
+    private Object[] mRowData;
+    private View[] mRowViews;
+    private boolean mFuzzySearchEnabled = false;
+    private boolean mIsAsynchronous = false;
 
     // load the screen-size dependent font sizes
-    public final float SMALL_FONT = getResources().getDimension(R.dimen.font_size_small);
-    public final float MEDIUM_FONT = getResources().getDimension(R.dimen.font_size_medium);
-    public final float LARGE_FONT = getResources().getDimension(R.dimen.font_size_large);
-    public final float XLARGE_FONT = getResources().getDimension(R.dimen.font_size_xlarge);
-    public final float DENSITY = getResources().getDisplayMetrics().density;
+    private final float SMALL_FONT = getResources().getDimension(R.dimen.font_size_small);
+    private final float MEDIUM_FONT = getResources().getDimension(R.dimen.font_size_medium);
+    private final float LARGE_FONT = getResources().getDimension(R.dimen.font_size_large);
+    private final float XLARGE_FONT = getResources().getDimension(R.dimen.font_size_xlarge);
+    private final float DENSITY = getResources().getDisplayMetrics().density;
 
-    public final int CELL_PADDING_HORIZONTAL = (int) getResources().getDimension(R.dimen.cell_padding_horizontal);
-    public final int CELL_PADDING_VERTICAL = (int) getResources().getDimension(R.dimen.cell_padding_vertical);
-    public final int ROW_PADDING_HORIZONTAL = (int) getResources().getDimension(R.dimen.row_padding_horizontal);
-    public final int ROW_PADDING_VERTICAL = (int) getResources().getDimension(R.dimen.row_padding_vertical);
+    private final int CELL_PADDING_HORIZONTAL = (int) getResources().getDimension(R.dimen.cell_padding_horizontal);
+    private final int CELL_PADDING_VERTICAL = (int) getResources().getDimension(R.dimen.cell_padding_vertical);
+    private final int ROW_PADDING_HORIZONTAL = (int) getResources().getDimension(R.dimen.row_padding_horizontal);
+    private final int ROW_PADDING_VERTICAL = (int) getResources().getDimension(R.dimen.row_padding_vertical);
 
-    public final int DEFAULT_NUMBER_ROWS_PER_GRID = 6;
-    public final double DEFAULT_NUM_GRIDS_PER_SCREEN_PORTRAIT = 7;
-    public final double LANDSCAPE_TO_PORTRAIT_RATIO = .75;
-    public final int NUMBER_COLUMNS_PER_GRID = 12;
+    private final int DEFAULT_NUMBER_ROWS_PER_GRID = 6;
+    private final double DEFAULT_NUM_GRIDS_PER_SCREEN_PORTRAIT = 7;
+    private final double LANDSCAPE_TO_PORTRAIT_RATIO = .75;
+    private final int NUMBER_COLUMNS_PER_GRID = 12;
 
-    public final int NUMBER_ROWS_PER_GRID;
+    private final int NUMBER_ROWS_PER_GRID;
 
-    public final double cellWidth;
-    public final double cellHeight;
+    private final double cellWidth;
+    private final double cellHeight;
 
     // image loader used for all asynchronous imageView loading
     private final CachingAsyncImageLoader mImageLoader;
@@ -160,7 +160,7 @@ public class GridEntityView extends GridLayout {
      * We just add a space of width cellWidth and height 1 to every column of the first row, and likewise a sapce of height
      * cellHeight and width 1 to every row of the first column. These are then written on top of if need be.
      */
-    public void addBuffers(Context context) {
+    private void addBuffers(Context context) {
 
         for (int i = 0; i < NUMBER_ROWS_PER_GRID; i++) {
 
@@ -193,7 +193,7 @@ public class GridEntityView extends GridLayout {
     }
 
     // Get the maximum height of this grid view
-    public int getMaxRows(Detail detail) {
+    private int getMaxRows(Detail detail) {
 
         GridCoordinate[] coordinates = detail.getGridCoordinates();
         int currentMaxHeight = 0;

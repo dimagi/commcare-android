@@ -46,7 +46,7 @@ public class HorizontalMediaView extends RelativeLayout {
         this(c, null);
     }
 
-    public HorizontalMediaView(Context c, EvaluationContext ec) {
+    private HorizontalMediaView(Context c, EvaluationContext ec) {
         super(c);
         mTextView = null;
         mAudioButton = null;
@@ -65,7 +65,7 @@ public class HorizontalMediaView extends RelativeLayout {
         this.setAVT(displayText, audioURI, imageURI, NAVIGATION_NONE);
     }
 
-    public void setAVT(String displayText, String audioURI, String imageURI, int navStyle) {
+    private void setAVT(String displayText, String audioURI, String imageURI, int navStyle) {
         this.removeAllViews();
 
         LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);

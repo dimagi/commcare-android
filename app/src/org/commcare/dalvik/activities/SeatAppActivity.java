@@ -64,7 +64,7 @@ public class SeatAppActivity extends Activity {
         // Make it impossible to quit in the middle of this activity
     }
 
-    public void setInProgress(boolean b) {
+    private void setInProgress(boolean b) {
         this.inProgress = b;
     }
 

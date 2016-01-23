@@ -37,9 +37,9 @@ import javax.crypto.spec.SecretKeySpec;
  */
 public abstract class DumpTask extends CommCareTask<String, String, Boolean, CommCareFormDumpActivity>{
 
-    Context c;
-    Long[] results;
-    File dumpFolder;
+    private Context c;
+    private Long[] results;
+    private File dumpFolder;
         
     public static final long SUBMISSION_BEGIN = 16;
     public static final long SUBMISSION_START = 32;

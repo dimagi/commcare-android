@@ -32,7 +32,7 @@ import java.util.List;
 public class DeviceListFragment extends ListFragment implements PeerListListener {
     private static final String TAG = DeviceListFragment.class.getSimpleName();
 
-    private List<WifiP2pDevice> peers = new ArrayList<>();
+    private final List<WifiP2pDevice> peers = new ArrayList<>();
     ProgressDialog progressDialog = null;
     View mContentView = null;
     private WifiP2pDevice device;

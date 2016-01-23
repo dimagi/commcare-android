@@ -8,13 +8,12 @@ import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.UserSandboxUtils;
-import org.commcare.dalvik.activities.LoginActivity;
-import org.commcare.dalvik.activities.LoginMode;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.tasks.templates.HttpCalloutTask;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.dalvik.activities.LoginMode;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
@@ -52,22 +51,22 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     private String pin;
     private final LoginMode loginMode;
     
-    final CommCareApp app;
+    private final CommCareApp app;
     
-    String keyServerUrl;
+    private String keyServerUrl;
     
-    ArrayList<UserKeyRecord> keyRecords;
+    private ArrayList<UserKeyRecord> keyRecords;
     
-    final ManageKeyRecordListener<R> listener;
+    private final ManageKeyRecordListener<R> listener;
     
-    boolean userRecordExists;
+    private boolean userRecordExists = false;
+    
+    private boolean calloutNeeded = false;
+    private final boolean restoreSession;
 
-    boolean calloutNeeded;
-    boolean calloutSuccessRequired;
+    private boolean calloutSuccessRequired;
 
-    final boolean restoreSession;
-    
-    User loggedIn = null;
+    private User loggedIn = null;
     
     public ManageKeyRecordTask(Context c, int taskId, String username, String passwordOrPin,
                                LoginMode loginMode, CommCareApp app,

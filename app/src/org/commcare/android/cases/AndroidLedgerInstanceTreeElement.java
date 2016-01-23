@@ -19,7 +19,7 @@ import java.util.Vector;
  */
 public class AndroidLedgerInstanceTreeElement extends LedgerInstanceTreeElement {
 
-    Hashtable<String, Integer> primaryIdMapping;
+    private Hashtable<String, Integer> primaryIdMapping;
 
     public AndroidLedgerInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<Ledger> storage) {
         super(instanceRoot, storage);

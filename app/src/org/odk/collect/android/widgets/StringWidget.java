@@ -32,7 +32,7 @@ import org.javarosa.form.api.FormEntryPrompt;
  */
 public class StringWidget extends QuestionWidget implements OnClickListener, TextWatcher {
 
-    boolean mReadOnly = false;
+    private boolean mReadOnly = false;
     protected final EditText mAnswer;
     protected boolean secret = false;
 

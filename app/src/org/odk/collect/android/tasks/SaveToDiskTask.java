@@ -54,7 +54,11 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
     // URI to the table we are saving to
     private final Uri instanceContentUri;
 
-    final SecretKeySpec symetricKey;
+    // Should this save task tell its save-complete callback to run without any
+    // GUI calls?
+    private final boolean headless;
+
+    private final SecretKeySpec symetricKey;
 
     public static final int SAVED = 500;
     public static final int SAVE_ERROR = 501;

@@ -281,7 +281,7 @@ public class EntityView extends LinearLayout {
     /**
      * Updates the ImageView layout that is passed in, based on the new id and source
      */
-    public void setupImageLayout(View layout, final String source) {
+    private void setupImageLayout(View layout, final String source) {
         ImageView iv = (ImageView) layout;
         if (source.equals("")) {
             iv.setImageDrawable(getResources().getDrawable(R.color.transparent));

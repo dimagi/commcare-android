@@ -41,7 +41,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class FormRecordProcessor {
     
     private final Context c;
-    final SqlStorage<FormRecord> storage;
+    private final SqlStorage<FormRecord> storage;
     
     public FormRecordProcessor(Context c) {
         this.c = c;
