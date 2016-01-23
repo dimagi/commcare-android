@@ -35,16 +35,16 @@ import java.util.Hashtable;
  */
 public class AsyncEntity extends Entity<TreeReference> {
 
-    final DetailField[] fields;
-    final Object[] data;
+    private final DetailField[] fields;
+    private final Object[] data;
     private final String[] sortData;
     private final boolean[] relevancyData;
     private final String[][] sortDataPieces;
-    final EvaluationContext context;
-    final Hashtable<String, XPathExpression> mVariableDeclarations;
-    boolean mVariableContextLoaded = false;
-    final String mCacheIndex;
-    final String mDetailId;
+    private final EvaluationContext context;
+    private final Hashtable<String, XPathExpression> mVariableDeclarations;
+    private boolean mVariableContextLoaded = false;
+    private final String mCacheIndex;
+    private final String mDetailId;
 
     private final EntityStorageCache mEntityStorageCache;
 
@@ -222,7 +222,7 @@ public class AsyncEntity extends Entity<TreeReference> {
         return sortDataPieces[i];
     }
 
-    public void setSortData(int i, String val) {
+    private void setSortData(int i, String val) {
         synchronized (mAsyncLock) {
             this.sortData[i] = val;
             this.sortDataPieces[i] = breakUpField(val);

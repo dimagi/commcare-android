@@ -45,7 +45,7 @@ import java.util.Vector;
  */
 public class ExternalApiReceiver extends BroadcastReceiver {
 
-    final CommCareTaskConnector dummyconnector = new CommCareTaskConnector() {
+    private final CommCareTaskConnector dummyconnector = new CommCareTaskConnector() {
 
         @Override
         public void connectTask(CommCareTask task) {
@@ -130,7 +130,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         }
     }
 
-    protected boolean checkAndStartUnsentTask(final Context context) {
+    private boolean checkAndStartUnsentTask(final Context context) {
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
 

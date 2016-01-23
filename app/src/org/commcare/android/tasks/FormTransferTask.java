@@ -18,9 +18,9 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
     
     public static final int BULK_TRANSFER_ID = 9575922;
 
-    String host;
-    String filepath;
-    int port;
+    final String host;
+    final String filepath;
+    final int port;
     
     public FormTransferTask(String host, String filepath, int port){
         this.taskId = BULK_TRANSFER_ID;

@@ -96,7 +96,7 @@ public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportPr
                 "\n Message: " + userInput;
     }
 
-    public void sendReportEmail(String report) {
+    private void sendReportEmail(String report) {
         Intent i = new Intent(Intent.ACTION_SEND);
         i.setType("message/rfc822");
         i.putExtra(Intent.EXTRA_EMAIL, new String[]{"commcarehq-support@dimagi.com"});

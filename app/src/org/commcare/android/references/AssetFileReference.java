@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.references;
 
 import android.content.Context;
@@ -16,10 +13,10 @@ import java.io.OutputStream;
  *
  * @author ctsims
  */
-public class AssetFileReference implements Reference {
+class AssetFileReference implements Reference {
 
-    final String assetURI;
-    final Context c;
+    private final String assetURI;
+    private final Context c;
 
     public AssetFileReference(Context c, String assetURI) {
         this.c = c;

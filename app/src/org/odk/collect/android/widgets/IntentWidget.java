@@ -45,7 +45,7 @@ import org.odk.collect.android.logic.PendingCalloutInterface;
 public class IntentWidget extends QuestionWidget {
 
     protected Button launchIntentButton;
-    protected TextView mStringAnswer;
+    private TextView mStringAnswer;
     private final Intent intent;
     protected final IntentCallout ic;
     private int calloutId = FormEntryActivity.INTENT_CALLOUT;
@@ -123,7 +123,7 @@ public class IntentWidget extends QuestionWidget {
         addView(launchIntentButton);
     }
 
-    public void performCallout() {
+    private void performCallout() {
         try {
             //Set Data
             String data = mStringAnswer.getText().toString();

@@ -20,12 +20,12 @@ import java.io.FileNotFoundException;
  * @author ctsims
  */
 public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>{
-    String url;
-    Long[] results;
+    private String url;
+    private Long[] results;
     
-    final File dumpDirectory;
+    private final File dumpDirectory;
     
-    public static final String MALFORMED_FILE_CATEGORY = "malformed-file";
+    private static final String MALFORMED_FILE_CATEGORY = "malformed-file";
     
     public static final int BULK_SEND_ID = 12335645;
     

@@ -13,9 +13,9 @@ import org.commcare.dalvik.BuildConfig;
  * @author wspride
  */
 public class FixtureDataAPI {
-    public static final String AUTHORITY = BuildConfig.CC_AUTHORITY + ".fixture";
+    private static final String AUTHORITY = BuildConfig.CC_AUTHORITY + ".fixture";
     
-    public static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+    private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     
     static {
         //Load the URI match patterns

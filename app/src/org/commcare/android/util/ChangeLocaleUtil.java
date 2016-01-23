@@ -6,7 +6,7 @@ import org.javarosa.core.util.NoLocalizedTextException;
 
 public class ChangeLocaleUtil{
     
-    public static String[] removeDefault(String[] raw){
+    private static String[] removeDefault(String[] raw){
         String[] output = new String[raw.length -1];
         int index = 0;
         for (String rawInput : raw) {
@@ -18,7 +18,7 @@ public class ChangeLocaleUtil{
         return output;
     }
     
-    public static String[] translateLocales(String[] raw){
+    private static String[] translateLocales(String[] raw){
         String[] translated = new String[raw.length];
         for(int i=0;i<raw.length;i++){
             try{

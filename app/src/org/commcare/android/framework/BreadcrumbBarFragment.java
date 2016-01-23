@@ -310,7 +310,7 @@ public class BreadcrumbBarFragment extends Fragment {
         }
     }
 
-    public static String getBestTitle(Activity activity) {
+    private static String getBestTitle(Activity activity) {
         String bestTitle = getBestTitleHelper();
         return defaultTitle(bestTitle, activity);
     }

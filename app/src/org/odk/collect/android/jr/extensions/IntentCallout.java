@@ -40,7 +40,7 @@ import java.util.Vector;
  *
  */
 public class IntentCallout implements Externalizable {
-    public static final String TAG = IntentCallout.class.getSimpleName();
+    private static final String TAG = IntentCallout.class.getSimpleName();
     private String className;
     private Hashtable<String, XPathExpression> refs;
     

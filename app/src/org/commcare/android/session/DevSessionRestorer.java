@@ -62,7 +62,7 @@ public class DevSessionRestorer {
         }
     }
 
-    public static boolean autoLoginEnabled() {
+    private static boolean autoLoginEnabled() {
         return BuildConfig.DEBUG && DeveloperPreferences.isAutoLoginEnabled();
     }
 
@@ -141,7 +141,7 @@ public class DevSessionRestorer {
         clearSession(CommCareApplication._().getCurrentApp().getAppPreferences());
     }
 
-    public static void clearSession(SharedPreferences prefs) {
+    private static void clearSession(SharedPreferences prefs) {
         prefs.edit().remove(CommCarePreferences.CURRENT_SESSION).commit();
     }
 }

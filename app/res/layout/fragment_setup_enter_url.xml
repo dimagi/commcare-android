@@ -44,23 +44,17 @@
             android:orientation="horizontal"
             android:layout_gravity="center"
             android:gravity="center"
+                android:weightSum="3"
             >
-
-            <Spinner
-                android:id="@+id/url_spinner"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/url_list"
-                android:prompt="@string/url_prompt"
-                android:layout_weight="1"
-                />
 
             <EditText
                 android:id="@+id/edit_profile_location"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:hint="Enter URL here"
+                android:hint="Enter code here"
+                android:ellipsize="start"
                 android:layout_weight="1"
+                android:gravity="center_horizontal"
                 android:singleLine="true"
                 >
             </EditText>

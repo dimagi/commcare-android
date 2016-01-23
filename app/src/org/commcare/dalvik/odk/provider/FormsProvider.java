@@ -94,7 +94,7 @@ public class FormsProvider extends ContentProvider {
         return true;
     }
     
-    public void init() {
+    private void init() {
         String appId = ProviderUtils.getSandboxedAppId();
         if (mDbHelper == null || mDbHelper.getAppId() != appId) {
             String dbName = ProviderUtils.getProviderDbName(ProviderUtils.ProviderType.FORMS, appId);

@@ -53,20 +53,20 @@ public class EntityListAdapter implements ListAdapter {
     public static final int SPECIAL_ACTION = -2;
 
     private int actionPosition = -1;
-    private boolean actionEnabled;
+    private final boolean actionEnabled;
 
     private boolean mFuzzySearchEnabled = true;
 
-    private Activity context;
-    private Detail detail;
+    private final Activity context;
+    private final Detail detail;
 
-    private List<DataSetObserver> observers;
+    private final List<DataSetObserver> observers;
 
-    private List<Entity<TreeReference>> full;
+    private final List<Entity<TreeReference>> full;
     private List<Entity<TreeReference>> current;
-    private List<TreeReference> references;
+    private final List<TreeReference> references;
 
-    private TextToSpeech tts;
+    private final TextToSpeech tts;
 
     private TreeReference selected;
 
@@ -75,7 +75,7 @@ public class EntityListAdapter implements ListAdapter {
     private int[] currentSort = {};
     private boolean reverseSort = false;
 
-    private NodeEntityFactory mNodeFactory;
+    private final NodeEntityFactory mNodeFactory;
     private boolean mAsyncMode = false;
 
     private String[] currentSearchTerms;
@@ -83,7 +83,7 @@ public class EntityListAdapter implements ListAdapter {
     private EntitySearcher mCurrentSortThread = null;
     private final Object mSyncLock = new Object();
 
-    private CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
+    private final CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
     private boolean usesGridView = false;  // false until we determine the Detail has at least one <grid> block
 
     public EntityListAdapter(Activity activity, Detail detail,
@@ -168,11 +168,11 @@ public class EntityListAdapter implements ListAdapter {
     }
 
     private class EntitySearcher {
-        private String filterRaw;
-        private String[] searchTerms;
-        List<Entity<TreeReference>> matchList;
+        private final String filterRaw;
+        private final String[] searchTerms;
+        final List<Entity<TreeReference>> matchList;
         //Ugh, annoying.
-        ArrayList<Pair<Integer, Integer>> matchScores;
+        final ArrayList<Pair<Integer, Integer>> matchScores;
         private boolean cancelled = false;
         Thread thread;
 
