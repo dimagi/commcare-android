@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.util.bitcache;
 
 import android.content.Context;
@@ -16,7 +13,7 @@ public class BitCacheFactory {
         return new MemoryBitCache();
     }
 
-    public static BitCache getCache(Context context) {
+    private static BitCache getCache(Context context) {
         //gotta be conservative if we don't have a guess
         return new FileBitCache(context);
     }

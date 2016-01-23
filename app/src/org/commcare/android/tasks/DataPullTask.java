@@ -106,7 +106,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
         this(username, password, server, context, false);
     }
 
-    public DataPullTask(String username, String password, String server, Context context, DataPullRequester dataPullRequester) {
+    private DataPullTask(String username, String password, String server, Context context, DataPullRequester dataPullRequester) {
         this(username, password, server, context);
         this.dataPullRequester = dataPullRequester;
     }

@@ -16,7 +16,7 @@ public class ListItemViewStriper implements ListItemViewModifier, Parcelable {
         mEvenColor = evenColor;
     }
 
-    protected ListItemViewStriper(Parcel in) {
+    private ListItemViewStriper(Parcel in) {
         mOddColor = in.readInt();
         mEvenColor = in.readInt();
     }

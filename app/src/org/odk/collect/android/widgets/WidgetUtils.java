@@ -5,7 +5,7 @@ import android.util.TypedValue;
 import android.widget.Button;
 import android.widget.TableLayout;
 
-public class WidgetUtils {
+class WidgetUtils {
     private static final TableLayout.LayoutParams params;
 
     static {

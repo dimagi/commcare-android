@@ -13,14 +13,14 @@ import org.commcare.dalvik.R;
 
 public class GeoProgressDialog extends Dialog {
     
-    final TextView mText;
-    final ImageView mImage;
-    final Button mAccept;
-    final Button mCancel;
-    final ProgressBar mProgress;
-    boolean locationFound;
-    final String mFoundMessage;
-    final String mSearchMessage;
+    private final TextView mText;
+    private final ImageView mImage;
+    private final Button mAccept;
+    private final Button mCancel;
+    private final ProgressBar mProgress;
+    private boolean locationFound;
+    private final String mFoundMessage;
+    private final String mSearchMessage;
 
     public GeoProgressDialog(Context context, String foundMessage, String searchMessage) {
         super(context);
@@ -56,7 +56,7 @@ public class GeoProgressDialog extends Dialog {
         refreshView();
     }
     
-    public void refreshView(){
+    private void refreshView(){
         if(locationFound){
             mImage.setVisibility(View.VISIBLE);
             mProgress.setVisibility(View.GONE);

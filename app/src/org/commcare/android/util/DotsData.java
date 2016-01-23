@@ -12,14 +12,14 @@ import java.util.Date;
  * @author ctsims
  */
 public class DotsData {
-    Date anchor;
+    private Date anchor;
     
-    int[] regimens;
+    private int[] regimens;
     
-    DotsDay[] days;
+    private DotsDay[] days;
     
     //Labels within each regimen for what kind of dose new days should be 
-    int[][] regLabels;
+    private int[][] regLabels;
     
     private static final int[][] equivM = new int[][] {
         new int[] {0,-1,-1,-1},
@@ -400,7 +400,7 @@ public class DotsData {
         return new DotsData(anchor, regType, days, null);
     }
     
-    public static DotsBox[][] emptyBoxes(int[] lengths, int[][] regLabels) {
+    private static DotsBox[][] emptyBoxes(int[] lengths, int[][] regLabels) {
         DotsBox[][] boxes = new DotsBox[lengths.length][];
         for(int i = 0 ; i < lengths.length; ++i ) {
             boxes[i] = new DotsBox[lengths[i]];

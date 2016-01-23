@@ -7,10 +7,10 @@ import org.commcare.android.util.StringUtils;
  */
 public class Entity<T> {
 
-    protected final T t;
-    Object[] data;
-    String[] sortData;
-    boolean[] relevancyData;
+    private final T t;
+    private Object[] data;
+    private String[] sortData;
+    private boolean[] relevancyData;
 
     protected Entity(T t) {
         this.t = t;

@@ -58,7 +58,7 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         this(c, descriptorStorage, null, platform);
     }
 
-    public FormRecordLoaderTask(Context c, SqlStorage<SessionStateDescriptor> descriptorStorage, Hashtable<String,String> descriptorCache, AndroidCommCarePlatform platform) {
+    private FormRecordLoaderTask(Context c, SqlStorage<SessionStateDescriptor> descriptorStorage, Hashtable<String, String> descriptorCache, AndroidCommCarePlatform platform) {
         this.context = c;
         this.descriptorStorage = descriptorStorage;
         this.descriptorCache = descriptorCache;
@@ -98,7 +98,7 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
      *
      * @param listeners a list of objects to call when data is done loading
      */
-    public void setListeners(ArrayList<FormRecordLoadListener> listeners) {
+    private void setListeners(ArrayList<FormRecordLoadListener> listeners) {
         this.listeners.addAll(listeners);
     }
 

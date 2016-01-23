@@ -69,8 +69,8 @@ public class DataConfiguration extends Configuration {
     // Bubble graph data:
     //  y-values id => array of radius values
     //  y-values id => max radius found in that data (or specified by max-radius param)
-    final JSONObject mRadii = new JSONObject();
-    final JSONObject mMaxRadii = new JSONObject();
+    private final JSONObject mRadii = new JSONObject();
+    private final JSONObject mMaxRadii = new JSONObject();
 
     public DataConfiguration(GraphData data) throws JSONException, InvalidStateException {
         super(data);

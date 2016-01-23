@@ -13,7 +13,7 @@ import java.util.Vector;
  */
 public class XFormExtensionUtils {
 
-    public static Vector<QuestionExtensionParser> getAllAndroidExtensionParsers() {
+    private static Vector<QuestionExtensionParser> getAllAndroidExtensionParsers() {
         Vector<QuestionExtensionParser> extensionParsers = new Vector<>();
         extensionParsers.add(new UploadQuestionExtensionParser());
         // Add any future extension parsers for CommCare Android here

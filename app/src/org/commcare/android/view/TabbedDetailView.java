@@ -33,8 +33,8 @@ public class TabbedDetailView extends RelativeLayout {
 
     private View mViewPageTabStrip;
 
-    int mEvenColor;
-    int mOddColor;
+    private int mEvenColor;
+    private int mOddColor;
 
     public TabbedDetailView(Context context) {
         super(context);
