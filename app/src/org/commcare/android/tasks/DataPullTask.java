@@ -11,11 +11,9 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.commcare.android.analytics.GoogleAnalyticsFields;
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
-import org.javarosa.core.model.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.storage.FormSaveUtil;
@@ -33,8 +31,10 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.xml.AndroidTransactionParserFactory;
+import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.DataInstance;
@@ -74,7 +74,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
     private long mSyncStartTime;
     
     private boolean wasKeyLoggedIn;
-    private boolean restoreSession;
+    private final boolean restoreSession;
     
     public static final int DATA_PULL_TASK_ID = 10;
     

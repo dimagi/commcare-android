@@ -28,10 +28,10 @@ import java.util.Vector;
  */
 public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeListener {
 
-    private Vector<SelectChoice> mItems;
-    private int buttonIdBase;
+    private final Vector<SelectChoice> mItems;
+    private final int buttonIdBase;
 
-    private Vector<RadioButton> buttons;
+    private final Vector<RadioButton> buttons;
 
     public SelectOneWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);

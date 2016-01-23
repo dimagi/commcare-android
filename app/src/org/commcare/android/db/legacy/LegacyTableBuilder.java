@@ -13,10 +13,10 @@ import java.util.Vector;
  */
 public class LegacyTableBuilder {
 
-    private String name;
+    private final String name;
 
-    private Vector<String> cols;
-    private Vector<String> rawCols;
+    private final Vector<String> cols;
+    private final Vector<String> rawCols;
 
     public LegacyTableBuilder(String name) {
         this.name = name;
@@ -52,7 +52,7 @@ public class LegacyTableBuilder {
         rawCols.add(DatabaseHelper.DATA_COL);
     }
 
-    private HashSet<String> unique = new HashSet<>();
+    private final HashSet<String> unique = new HashSet<>();
 
     public void setUnique(String columnName) {
         unique.add(scrubName(columnName));

@@ -19,7 +19,7 @@ public class DotsData {
     private DotsDay[] days;
     
     //Labels within each regimen for what kind of dose new days should be 
-    private int[][] regLabels;
+    private final int[][] regLabels;
     
     private static final int[][] equivM = new int[][] {
         new int[] {0,-1,-1,-1},
@@ -43,10 +43,10 @@ public class DotsData {
     
     public static final class DotsBox {
         
-        MedStatus status;
-        String missedMeds;
-        ReportType type;
-        int doseLabel;
+        final MedStatus status;
+        final String missedMeds;
+        final ReportType type;
+        final int doseLabel;
 
         public DotsBox(MedStatus status, ReportType type, String missedMeds, int doselabel) {
             this.status = status;
@@ -116,7 +116,7 @@ public class DotsData {
     
     public static final class DotsDay {
         
-        DotsBox[][] boxes;
+        final DotsBox[][] boxes;
         
         public DotsDay(DotsBox[][] boxes) {
             this.boxes = boxes;

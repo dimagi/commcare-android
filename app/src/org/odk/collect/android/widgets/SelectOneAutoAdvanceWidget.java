@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.widgets;
 
 import android.content.Context;
@@ -47,16 +33,15 @@ import java.util.Vector;
  */
 public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnCheckedChangeListener {
 
-    private Vector<SelectChoice> mItems;
+    private final Vector<SelectChoice> mItems;
 
-    private Vector<RadioButton> buttons;
-    private Vector<MediaLayout> mediaLayouts;
-    private Vector<RelativeLayout> parentLayout;
+    private final Vector<RadioButton> buttons;
+    private final Vector<MediaLayout> mediaLayouts;
+    private final Vector<RelativeLayout> parentLayout;
 
-    private AdvanceToNextListener listener;
+    private final AdvanceToNextListener listener;
     
-    private int buttonIdBase;
-
+    private final int buttonIdBase;
 
     public SelectOneAutoAdvanceWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);

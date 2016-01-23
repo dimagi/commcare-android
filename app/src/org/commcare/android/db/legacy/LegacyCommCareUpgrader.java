@@ -23,7 +23,7 @@ import org.javarosa.core.services.Logger;
  */
 public class LegacyCommCareUpgrader {
 
-    Context context;
+    final Context context;
 
     public LegacyCommCareUpgrader(Context c) {
         this.context = c;
