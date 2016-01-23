@@ -152,7 +152,7 @@ public class TestUtils {
     /**
      * @return The hook for the test user-db 
      */
-    public static SQLiteDatabase getTestDb() {
+    private static SQLiteDatabase getTestDb() {
         DatabaseUserOpenHelper helper = new DatabaseUserOpenHelper(RuntimeEnvironment.application, "Test");
         return helper.getWritableDatabase("Test");
     }
@@ -171,7 +171,7 @@ public class TestUtils {
     /**
      * @return The case storage object for the provided db
      */
-    public static SqlStorage<ACase> getCaseStorage(SQLiteDatabase db) {
+    private static SqlStorage<ACase> getCaseStorage(SQLiteDatabase db) {
 
             return new SqlStorage<>(ACase.STORAGE_KEY, ACase.class, new ConcreteAndroidDbHelper(RuntimeEnvironment.application, db) {
                 @Override

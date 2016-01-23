@@ -24,14 +24,14 @@ import java.util.Calendar;
  */
 public class DotsHomeView extends RelativeLayout {
 
-    final DotsData data;
-    final DotsEditListener listener;
+    private final DotsData data;
+    private final DotsEditListener listener;
     private static final String[] dayArray = new String[]{"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
-    TableRow[] tRows;
-    View[] dayViews;
+    private TableRow[] tRows;
+    private View[] dayViews;
 
 
-    public static final int TABLE_LENGTH = 7;
+    private static final int TABLE_LENGTH = 7;
 
     public DotsHomeView(Context context, DotsData data, DotsEditListener listener) {
         super(context);

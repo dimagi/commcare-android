@@ -16,10 +16,10 @@ import org.commcare.dalvik.activities.ReportProblemActivity;
  */
 public class ACRAUtil {
 
-    public static final String POST_URL = "post_url";
-    public static final String VERSION = "version";
-    public static final String DOMAIN = "domain";
-    public static final String USERNAME = "username";
+    private static final String POST_URL = "post_url";
+    private static final String VERSION = "version";
+    private static final String DOMAIN = "domain";
+    private static final String USERNAME = "username";
 
     private static boolean isAcraConfigured = false;
 
@@ -27,7 +27,7 @@ public class ACRAUtil {
      * Add debugging value to the ACRA report bundle. Only most recent value
      * stored for each key.
      */
-    public static void addCustomData(String key, String value) {
+    private static void addCustomData(String key, String value) {
         ErrorReporter mReporter = ACRA.getErrorReporter();
         mReporter.putCustomData(key, value);
     }

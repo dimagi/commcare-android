@@ -34,7 +34,7 @@ import javax.crypto.CipherOutputStream;
  */
 public class FileUtil {
     
-    public static final String LOG_TOKEN = "cc-file-util";
+    private static final String LOG_TOKEN = "cc-file-util";
 
     public static boolean createFolder(String path) {
             boolean made = true;

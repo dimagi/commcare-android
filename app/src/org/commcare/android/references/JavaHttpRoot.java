@@ -10,7 +10,7 @@ import org.javarosa.core.reference.ReferenceFactory;
  */
 public class JavaHttpRoot implements ReferenceFactory {
 
-    final HttpRequestGenerator generator = new HttpRequestGenerator();
+    private final HttpRequestGenerator generator = new HttpRequestGenerator();
 
     @Override
     public Reference derive(String URI) throws InvalidReferenceException {

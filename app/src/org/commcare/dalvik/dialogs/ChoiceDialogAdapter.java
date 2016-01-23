@@ -11,7 +11,7 @@ import org.commcare.dalvik.R;
 /**
  * Created by amstone326 on 10/30/15.
  */
-public class ChoiceDialogAdapter extends ArrayAdapter<DialogChoiceItem> {
+class ChoiceDialogAdapter extends ArrayAdapter<DialogChoiceItem> {
 
     private final Context context;
 

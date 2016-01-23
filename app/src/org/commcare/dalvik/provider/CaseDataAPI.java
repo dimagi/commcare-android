@@ -12,12 +12,11 @@ import org.commcare.dalvik.BuildConfig;
  * virtual tables used by the provider.
  * 
  * @author ctsims
- *
  */
-public class CaseDataAPI {
-    public static final String AUTHORITY = BuildConfig.CC_AUTHORITY + ".case";
+class CaseDataAPI {
+    private static final String AUTHORITY = BuildConfig.CC_AUTHORITY + ".case";
     
-    public static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+    private static final UriMatcher sURIMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     
     static {
         //Load the URI match patterns
