@@ -69,7 +69,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
 
             @Override
             public TransactionParser getParser(KXmlParser parser) {
-                if(created == null) {
+                if (created == null) {
                     created = new AndroidUserXmlParser(parser, sandbox.getUserStorage(), wrappedKey);
                 }
 
@@ -86,7 +86,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
 
             @Override
             public TransactionParser<Case> getParser(KXmlParser parser) {
-                if(created == null) {
+                if (created == null) {
                     created = new AndroidCaseXmlParser(parser, tallies, true, sandbox.getCaseStorage(), generator);
                 }
 

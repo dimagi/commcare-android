@@ -33,16 +33,16 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
 
     private static final int MENU_REMEMBER_PW_AND_LOGOUT = Menu.FIRST;
 
-    @UiElement(value=R.id.pin_entry)
+    @UiElement(value = R.id.pin_entry)
     private EditText enterPinBox;
 
-    @UiElement(value=R.id.pin_prompt_text)
+    @UiElement(value = R.id.pin_prompt_text)
     private TextView promptText;
 
-    @UiElement(value=R.id.pin_cancel_button)
+    @UiElement(value = R.id.pin_cancel_button)
     private Button cancelButton;
 
-    @UiElement(value=R.id.pin_confirm_button)
+    @UiElement(value = R.id.pin_confirm_button)
     private Button continueButton;
 
     public static final String CHOSE_REMEMBER_PASSWORD = "chose-remember-password";
@@ -200,9 +200,11 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
+
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
             }
+
             @Override
             public void afterTextChanged(Editable s) {
                 if (s.length() == 4) {

@@ -60,7 +60,7 @@ public class EncryptionIO {
     }
 
     public static InputStream getFileInputStream(String filepath,
-                                                 SecretKeySpec symetricKey) throws FileNotFoundException{
+                                                 SecretKeySpec symetricKey) throws FileNotFoundException {
         final File file = new File(filepath);
         InputStream is;
         try {

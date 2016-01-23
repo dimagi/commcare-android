@@ -33,7 +33,7 @@ import java.util.Vector;
  * icon and the background changes from black to orange. If text, audio or video are specified in
  * the select answers they are ignored. This is almost identical to GridWidget, except multiple
  * icons can be selected simultaneously.
- * 
+ *
  * @author Jeff Beorse (jeff@beorse.net)
  */
 public class GridMultiWidget extends QuestionWidget {
@@ -79,7 +79,7 @@ public class GridMultiWidget extends QuestionWidget {
             // Read the image sizes and set maxColumnWidth. This allows us to make sure all of our
             // columns are going to fit
             String imageURI =
-                prompt.getSpecialFormSelectChoiceText(sc, FormEntryCaption.TEXT_FORM_IMAGE);
+                    prompt.getSpecialFormSelectChoiceText(sc, FormEntryCaption.TEXT_FORM_IMAGE);
 
             if (imageURI != null) {
                 choices[i] = imageURI;
@@ -90,8 +90,8 @@ public class GridMultiWidget extends QuestionWidget {
                     final File imageFile = new File(imageFilename);
                     if (imageFile.exists()) {
                         Display display =
-                            ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
-                                    .getDefaultDisplay();
+                                ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
+                                        .getDefaultDisplay();
                         int screenWidth = display.getWidth();
                         int screenHeight = display.getHeight();
                         Bitmap b = MediaUtil
@@ -124,9 +124,9 @@ public class GridMultiWidget extends QuestionWidget {
                 } else {
                     selected[position] = true;
                     imageViews[position].setBackgroundColor(Color.rgb(orangeRedVal, orangeGreenVal,
-                        orangeBlueVal));
+                            orangeBlueVal));
                 }
-                
+
                 widgetEntryChanged();
             }
         });
@@ -135,8 +135,8 @@ public class GridMultiWidget extends QuestionWidget {
         // view
         // knows how far out it can stretch.
         Display display =
-            ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
-                    .getDefaultDisplay();
+                ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
+                        .getDefaultDisplay();
         int screenWidth = display.getWidth();
         int screenHeight = display.getHeight();
         GridView.LayoutParams params = new GridView.LayoutParams(screenWidth - 5, screenHeight - 5);
@@ -161,7 +161,7 @@ public class GridMultiWidget extends QuestionWidget {
         if ((answer == null) || (answer.getValue() == null)) {
             ve = new Vector<>();
         } else {
-            ve = (Vector<Selection>) answer.getValue();
+            ve = (Vector<Selection>)answer.getValue();
         }
 
         for (int i = 0; i < choices.length; ++i) {
@@ -178,7 +178,7 @@ public class GridMultiWidget extends QuestionWidget {
             selected[i] = found;
             if (selected[i]) {
                 imageViews[i].setBackgroundColor(Color.rgb(orangeRedVal, orangeGreenVal,
-                    orangeBlueVal));
+                        orangeBlueVal));
             } else {
                 imageViews[i].setBackgroundColor(Color.WHITE);
             }
@@ -219,7 +219,7 @@ public class GridMultiWidget extends QuestionWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
 
     }

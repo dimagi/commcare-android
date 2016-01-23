@@ -46,7 +46,7 @@ public class DotsHomeView extends RelativeLayout {
         TableLayout table = new TableLayout(this.getContext());
 
         int days = data.days().length;
-        int rows = (int) Math.ceil(days / TABLE_LENGTH);
+        int rows = (int)Math.ceil(days / TABLE_LENGTH);
 
         dayViews = new View[days];
 
@@ -119,13 +119,13 @@ public class DotsHomeView extends RelativeLayout {
     private View getDayView(Calendar c, DotsDay d, final int dayIndex) {
         View dayView = View.inflate(this.getContext(), R.layout.dotsday, null);
 
-        TextView date = (TextView) dayView.findViewById(R.id.text_date);
-        TextView dow = (TextView) dayView.findViewById(R.id.text_dow);
+        TextView date = (TextView)dayView.findViewById(R.id.text_date);
+        TextView dow = (TextView)dayView.findViewById(R.id.text_dow);
 
         dow.setText(dayArray[c.get(Calendar.DAY_OF_WEEK) - 1]);
         date.setText((c.get(Calendar.MONTH) + 1) + "/" + c.get(Calendar.DAY_OF_MONTH));
 
-        ImageView icon = (ImageView) dayView.findViewById(R.id.day_icon);
+        ImageView icon = (ImageView)dayView.findViewById(R.id.day_icon);
         MedStatus s = d.status();
         if (s == MedStatus.empty) {
             icon.setImageResource(R.drawable.checkmark);
@@ -141,7 +141,7 @@ public class DotsHomeView extends RelativeLayout {
                 Rect hitRect = new Rect();
                 if (v.getParent() instanceof View) {
                     v.getHitRect(hitRect);
-                    View parent = (View) v.getParent();
+                    View parent = (View)v.getParent();
                     DotsHomeView.this.offsetDescendantRectToMyCoords(parent, hitRect);
                     listener.editDotsDay(dayIndex, hitRect);
                 } else {

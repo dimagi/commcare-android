@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal" android:weightSum="1"
-    android:baselineAligned="false">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="horizontal"
+              android:weightSum="1"
+              android:baselineAligned="false">
 
 
     <FrameLayout
         android:id="@+id/screen_compound_select_left_pane"
         android:layout_width="0px"
-        android:layout_height="match_parent" android:layout_weight="0.5">
+        android:layout_height="match_parent"
+        android:layout_weight="0.5">
 
     </FrameLayout>
 
@@ -17,7 +19,9 @@
     <FrameLayout
         android:id="@+id/screen_compound_select_right_pane"
         android:layout_width="0px"
-        android:layout_height="match_parent" android:layout_weight="0.5" android:background="@drawable/background_compound_detail">
+        android:layout_height="match_parent"
+        android:layout_weight="0.5"
+        android:background="@drawable/background_compound_detail">
 
 
         <TextView
@@ -27,7 +31,13 @@
             android:layout_gravity="center_vertical|center_horizontal"
             android:gravity="center_vertical|center_horizontal"
             android:text="Please select a case"
-            android:textAppearance="?android:attr/textAppearanceMedium" android:background="@drawable/border_dashed_edges" android:layout_margin="60dp" android:paddingLeft="10dp" android:paddingRight="10dp" android:paddingTop="30dp" android:paddingBottom="30dp"/>
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:background="@drawable/border_dashed_edges"
+            android:layout_margin="60dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="30dp"
+            android:paddingBottom="30dp"/>
 
     </FrameLayout>
 

@@ -25,11 +25,13 @@ public final class FormsProviderAPI {
     public static final String AUTHORITY = BuildConfig.ODK_AUTHORITY + ".forms";
 
     // This class cannot be instantiated
-    private FormsProviderAPI() {}
-    
+    private FormsProviderAPI() {
+    }
+
     public static final class FormsColumns implements BaseColumns {
         // This class cannot be instantiated
-        private FormsColumns() {}
+        private FormsColumns() {
+        }
 
         public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/forms");
         public static final String CONTENT_TYPE = "vnd.android.cursor.dir/vnd.odk.form";
@@ -46,14 +48,14 @@ public final class FormsProviderAPI {
         // these are generated for you (but you can insert something else if you want)
         public static final String DISPLAY_SUBTEXT = "displaySubtext";
         public static final String MD5_HASH = "md5Hash";
-        public static final String DATE = "date";        
+        public static final String DATE = "date";
         public static final String JRCACHE_FILE_PATH = "jrcacheFilePath";
-        public static final String FORM_MEDIA_PATH = "formMediaPath";      
-        
+        public static final String FORM_MEDIA_PATH = "formMediaPath";
+
         // these are null unless you enter something and aren't currently used
         public static final String MODEL_VERSION = "modelVersion";
         public static final String UI_VERSION = "uiVersion";
-        
+
         // this is null on create, and can only be set on an update.
         public static final String LANGUAGE = "language";
     }

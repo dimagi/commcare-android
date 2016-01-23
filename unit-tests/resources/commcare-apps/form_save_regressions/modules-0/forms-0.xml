@@ -1,13 +1,15 @@
 <h:html xmlns="http://www.w3.org/2002/xforms" xmlns:h="http://www.w3.org/1999/xhtml"
         xmlns:jr="http://openrosa.org/javarosa" xmlns:orx="http://openrosa.org/jr/xforms"
-        xmlns:vellum="http://commcarehq.org/xforms/vellum" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <h:head>
         <h:title>1. Registration</h:title>
         <model>
             <instance>
                 <data name="1. Registration"
                       uiVersion="1"
-                      version="1" xmlns="http://openrosa.org/formdesigner/47B9C4D7-6034-4D0E-849B-9A727F9E58EA" xmlns:jrm="http://dev.commcarehq.org/jr/xforms">
+                      version="1"
+                      xmlns="http://openrosa.org/formdesigner/47B9C4D7-6034-4D0E-849B-9A727F9E58EA"
+                >
                     <Registration>
                         <cohort/>
                     </Registration>
@@ -77,7 +79,7 @@
             <bind calculate="/data/meta/userID" nodeset="/data/case/create/owner_id"/>
             <bind calculate="/data/now" nodeset="/data/case/update/now"
                   relevant="count(/data/now) &gt; 0"/>
-            <bind calculate="/data/name" nodeset="/data/case/update/name" />
+            <bind calculate="/data/name" nodeset="/data/case/update/name"/>
             <setvalue event="xforms-ready" ref="/data/meta/deviceID"
                       value="instance('commcaresession')/session/context/deviceid"/>
             <setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/>

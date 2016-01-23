@@ -11,6 +11,7 @@ package org.commcare.android.framework;
 public interface CommCareActivityUIController {
 
     void setupUI();
+
     void refreshView();
 
 }

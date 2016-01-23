@@ -32,7 +32,7 @@ import java.text.NumberFormat;
 
 /**
  * A widget that restricts values to floating point numbers.
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  */
 public class DecimalWidget extends StringWidget {
@@ -42,11 +42,11 @@ public class DecimalWidget extends StringWidget {
 
         // formatting
         mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_NEXT);
+        mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_NEXT);
 
         // needed to make long readonly text scroll
         mAnswer.setHorizontallyScrolling(false);
-        if(!secret) {
+        if (!secret) {
             mAnswer.setSingleLine(false);
         }
 
@@ -60,7 +60,7 @@ public class DecimalWidget extends StringWidget {
 
         Double d = null;
         if (getCurrentAnswer() != null) {
-            d = (Double) getCurrentAnswer().getValue();
+            d = (Double)getCurrentAnswer().getValue();
         }
 
         NumberFormat nf = NumberFormat.getNumberInstance();
@@ -68,7 +68,7 @@ public class DecimalWidget extends StringWidget {
         nf.setMaximumIntegerDigits(15);
         nf.setGroupingUsed(false);
         if (d != null) {
-            Double dAnswer = (Double) getCurrentAnswer().getValue();
+            Double dAnswer = (Double)getCurrentAnswer().getValue();
             String dString = nf.format(dAnswer);
             d = Double.parseDouble(dString.replace(',', '.'));
             mAnswer.setText(d.toString());
@@ -81,10 +81,10 @@ public class DecimalWidget extends StringWidget {
             setClickable(false);
         }
     }
-    
+
     @Override
     protected void setTextInputType(EditText mAnswer) {
-        if(secret) {
+        if (secret) {
             mAnswer.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
             mAnswer.setTransformationMethod(PasswordTransformationMethod.getInstance());
         }
@@ -108,11 +108,11 @@ public class DecimalWidget extends StringWidget {
      * If this is the last question, set the action button to close the keyboard
      */
     @Override
-    public void setLastQuestion(boolean isLast){
-        if(isLast){
-            mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_DONE);
-        } else{
-            mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_NEXT);
+    public void setLastQuestion(boolean isLast) {
+        if (isLast) {
+            mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_DONE);
+        } else {
+            mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_NEXT);
         }
     }
 

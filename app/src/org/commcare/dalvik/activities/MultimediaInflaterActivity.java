@@ -36,28 +36,28 @@ import java.util.ArrayList;
 @ManagedUi(R.layout.screen_multimedia_inflater)
 public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<MultimediaInflaterActivity> {
     private static final String TAG = MultimediaInflaterActivity.class.getSimpleName();
-    
+
     private static final String LOG_TAG = "CC-MultimediaInflator";
 
     private static final int REQUEST_FILE_LOCATION = 1;
-    
+
     public static final String EXTRA_FILE_DESTINATION = "ccodk_mia_filedest";
-    
-    @UiElement(value = R.id.screen_multimedia_inflater_prompt, locale="mult.install.prompt")
+
+    @UiElement(value = R.id.screen_multimedia_inflater_prompt, locale = "mult.install.prompt")
     TextView txtDisplayPrompt;
-    
-    @UiElement(value = R.id.screen_multimedia_install_messages, locale="mult.install.state.empty")
+
+    @UiElement(value = R.id.screen_multimedia_install_messages, locale = "mult.install.state.empty")
     TextView txtInteractiveMessages;
-    
+
     @UiElement(R.id.screen_multimedia_inflater_location)
     EditText editFileLocation;
-    
+
     @UiElement(R.id.screen_multimedia_inflater_filefetch)
     ImageButton btnFetchFiles;
-    
-    @UiElement(value = R.id.screen_multimedia_inflater_install, locale="mult.install.button")
+
+    @UiElement(value = R.id.screen_multimedia_inflater_install, locale = "mult.install.button")
     Button btnInstallMultimedia;
-    
+
     boolean done = false;
 
     @Override
@@ -76,7 +76,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
                 intent.setType("application/zip");
                 try {
                     startActivityForResult(intent, REQUEST_FILE_LOCATION);
-                } catch(ActivityNotFoundException e) {
+                } catch (ActivityNotFoundException e) {
                     Toast.makeText(MultimediaInflaterActivity.this, Localization.get("mult.install.no.browser"), Toast.LENGTH_LONG).show();
                 }
             }
@@ -88,8 +88,8 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
                 MultimediaInflaterTask<MultimediaInflaterActivity> task = new MultimediaInflaterTask<MultimediaInflaterActivity>() {
 
                     @Override
-                    protected void deliverResult( MultimediaInflaterActivity receiver, Boolean result) {
-                        if(result == Boolean.TRUE){
+                    protected void deliverResult(MultimediaInflaterActivity receiver, Boolean result) {
+                        if (result == Boolean.TRUE) {
                             receiver.done = true;
                             receiver.evalState();
                             receiver.setResult(Activity.RESULT_OK);
@@ -108,23 +108,23 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
 
                     @Override
                     protected void deliverError(MultimediaInflaterActivity receiver, Exception e) {
-                        receiver.txtInteractiveMessages.setText(Localization.get("mult.install.error", new String[] {e.getMessage()}));
+                        receiver.txtInteractiveMessages.setText(Localization.get("mult.install.error", new String[]{e.getMessage()}));
                         receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
                     }
                 };
-                
+
                 task.connect(MultimediaInflaterActivity.this);
                 task.execute(editFileLocation.getText().toString(), destination);
             }
-            
+
         });
-        
-        
+
+
         try {
             //Go populate the location by default if it exists. (Note: If we are recreating, this will get overridden
             //in the restore instance state)
             searchForDefault();
-        } catch(Exception e) {
+        } catch (Exception e) {
             //This is helper code and Android is suuuuuppppeerr touchy about file system stuff, so don't eat it if 
             //something changes
             e.printStackTrace();
@@ -134,8 +134,8 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if(requestCode == REQUEST_FILE_LOCATION) {
-            if(resultCode == Activity.RESULT_OK) {
+        if (requestCode == REQUEST_FILE_LOCATION) {
+            if (resultCode == Activity.RESULT_OK) {
                 // Android versions 4.4 and up sometimes don't return absolute
                 // filepaths from the file chooser. So resolve the URI into a
                 // valid file path.
@@ -155,7 +155,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
     }
 
     private void evalState() {
-        if(done) {
+        if (done) {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.done"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallMultimedia.setEnabled(false);
@@ -164,14 +164,14 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
 
         String location = editFileLocation.getText().toString();
 
-        if("".equals(location)) {
+        if ("".equals(location)) {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.empty"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallMultimedia.setEnabled(false);
             return;
         }
-        
-        if(!(new File(location)).exists()) {
+
+        if (!(new File(location)).exists()) {
             txtInteractiveMessages.setText(Localization.get("mult.install.state.invalid.path"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             btnInstallMultimedia.setEnabled(false);
@@ -181,92 +181,93 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
             btnInstallMultimedia.setEnabled(true);
         }
     }
-    
+
     @Override
     public void taskCancelled(int id) {
         txtInteractiveMessages.setText(Localization.get("mult.install.cancelled"));
         this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }
-    
+
 
     private static final long MAX_TIME_TO_TRY = 400;
+
     /**
      * Go through all of the obvious storage locations where the zip file might be and see if it's there.
      */
     private void searchForDefault() {
         //We're only gonna spend a certain amount of time trying to find a good match
         long start = System.currentTimeMillis();
-        
+
         //Get all of the "roots" where stuff might be
         ArrayList<File> roots = new ArrayList<>();
         //And stage a place to list folders we'll scan
         ArrayList<File> folders = new ArrayList<>();
-        
-        if(Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
+
+        if (Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) ||
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(Environment.getExternalStorageState())) {
             roots.add(Environment.getExternalStorageDirectory());
         }
-        
-        for(String s : FileUtil.getExternalMounts()) {
+
+        for (String s : FileUtil.getExternalMounts()) {
             roots.add(new File(s));
         }
 
         //Now add all of our folders from our roots. We're only going one level deep
-        for(File r : roots) {
+        for (File r : roots) {
             //Add the root too
             folders.add(r);
             //Now add all subfolders
-            for(File f : r.listFiles()) {
-                if(f.isDirectory()) {
+            for (File f : r.listFiles()) {
+                if (f.isDirectory()) {
                     folders.add(f);
                 }
             }
         }
-        
+
         File bestMatch = null;
         //Now scan for the actual file
-        for(File folder : folders) {
-            for(File f : folder.listFiles()) {
+        for (File folder : folders) {
+            for (File f : folder.listFiles()) {
                 String name = f.getName().toLowerCase();
-                
+
                 //This is just what we expect the file will be called
-                if(name.startsWith("commcare") && name.endsWith(".zip")) {
-                    
-                    if(bestMatch == null) {
+                if (name.startsWith("commcare") && name.endsWith(".zip")) {
+
+                    if (bestMatch == null) {
                         bestMatch = f;
                     } else {
                         //If we have one, take the newer one
-                        if(bestMatch.lastModified() < f.lastModified()) {
+                        if (bestMatch.lastModified() < f.lastModified()) {
                             bestMatch = f;
                         }
                     }
                 }
             }
             //For now, actually, if we have a good match, just bail without finding the "best" one
-            if(bestMatch != null) {
+            if (bestMatch != null) {
                 break;
             }
-            if(System.currentTimeMillis() - start > MAX_TIME_TO_TRY) {
+            if (System.currentTimeMillis() - start > MAX_TIME_TO_TRY) {
                 Log.i(LOG_TAG, "Had to bail on looking for a default file, was taking too long");
                 break;
             }
         }
-        
-        if(bestMatch != null) {
+
+        if (bestMatch != null) {
             //If we found a good match, awesome! 
             editFileLocation.setText(bestMatch.getAbsolutePath());
         }
     }
-    
+
     /**
      * Implementation of generateProgressDialog() for DialogController -- other methods
      * handled entirely in CommCareActivity
      */
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        if(taskId == CommCareTask.GENERIC_TASK_ID) {
+        if (taskId == CommCareTask.GENERIC_TASK_ID) {
             String title = Localization.get("mult.install.title");
-            String message = Localization.get("mult.install.progress", new String[] {"0"});
+            String message = Localization.get("mult.install.progress", new String[]{"0"});
             return CustomProgressDialog.newInstance(title, message, taskId);
         }
         Log.w(TAG, "taskId passed to generateProgressDialog does not match "

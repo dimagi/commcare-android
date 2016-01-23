@@ -16,7 +16,7 @@ import java.util.Vector;
 
 /**
  * Used to return device properties to JavaRosa
- * 
+ *
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 
@@ -40,13 +40,13 @@ public class PropertyManager implements IPropertyManager {
             return;
         }
 
-        TelephonyManager mTelephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager mTelephonyManager = (TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE);
 
         String deviceId = mTelephonyManager.getDeviceId();
         if (deviceId != null && (deviceId.contains("*") || deviceId.contains("000000000000000"))) {
             deviceId =
-                Settings.Secure
-                        .getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+                    Settings.Secure
+                            .getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         }
         mProperties.put(DEVICE_ID_PROPERTY, deviceId);
         mProperties.put(SUBSCRIBER_ID_PROPERTY, mTelephonyManager.getSubscriberId());

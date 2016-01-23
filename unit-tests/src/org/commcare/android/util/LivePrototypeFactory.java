@@ -54,7 +54,7 @@ public class LivePrototypeFactory extends PrototypeFactory {
         return PrototypeFactory.getInstance(getClass(hash));
     }
 
-    public LiveHasher getLiveHasher(){
+    public LiveHasher getLiveHasher() {
         return this.mLiveHasher;
     }
 

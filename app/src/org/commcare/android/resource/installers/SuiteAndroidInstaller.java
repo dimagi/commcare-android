@@ -15,12 +15,10 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.xml.SuiteParser;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathException;
@@ -114,7 +112,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             }).parse();
             Hashtable<String, Entry> mHashtable = mSuite.getEntries();
             for (Enumeration en = mHashtable.keys(); en.hasMoreElements(); ) {
-                String key = (String) en.nextElement();
+                String key = (String)en.nextElement();
                 Entry mEntry = mHashtable.get(key);
 
                 FileUtil.checkReferenceURI(r, mEntry.getAudioURI(), problems);
@@ -125,7 +123,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             Enumeration e = menus.elements();
 
             while (e.hasMoreElements()) {
-                Menu mMenu = (Menu) e.nextElement();
+                Menu mMenu = (Menu)e.nextElement();
 
                 FileUtil.checkReferenceURI(r, mMenu.getAudioURI(), problems);
                 FileUtil.checkReferenceURI(r, mMenu.getImageURI(), problems);

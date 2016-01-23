@@ -50,7 +50,7 @@ public abstract class LegacyDbHelper {
     public Pair<String, String[]> createWhere(String[] fieldNames, Object[] values, EncryptedModel em, Persistable p) throws IllegalArgumentException {
         Set<String> fields = null;
         if (p instanceof IMetaData) {
-            IMetaData m = (IMetaData) p;
+            IMetaData m = (IMetaData)p;
             String[] thefields = m.getMetaDataFields();
             fields = new HashSet<>();
             for (String s : thefields) {
@@ -59,7 +59,7 @@ public abstract class LegacyDbHelper {
         }
 
         if (em instanceof IMetaData) {
-            IMetaData m = (IMetaData) em;
+            IMetaData m = (IMetaData)em;
             String[] thefields = m.getMetaDataFields();
             fields = new HashSet<>();
             for (String s : thefields) {
@@ -104,7 +104,7 @@ public abstract class LegacyDbHelper {
         OutputStream out = bos;
 
 
-        if (encrypt && ((EncryptedModel) e).isBlobEncrypted()) {
+        if (encrypt && ((EncryptedModel)e).isBlobEncrypted()) {
             out = new CipherOutputStream(bos, encrypter);
         }
 
@@ -120,14 +120,14 @@ public abstract class LegacyDbHelper {
         ContentValues values = new ContentValues();
 
         if (e instanceof IMetaData) {
-            IMetaData m = (IMetaData) e;
+            IMetaData m = (IMetaData)e;
             for (String key : m.getMetaDataFields()) {
                 Object o = m.getMetaData(key);
                 if (o == null) {
                     continue;
                 }
                 String value = o.toString();
-                if(encrypt && ((EncryptedModel)e).isEncrypted(key)) {
+                if (encrypt && ((EncryptedModel)e).isEncrypted(key)) {
                     values.put(AndroidTableBuilder.scrubName(key), encrypt(value));
                 } else {
                     values.put(LegacyTableBuilder.scrubName(key), value);

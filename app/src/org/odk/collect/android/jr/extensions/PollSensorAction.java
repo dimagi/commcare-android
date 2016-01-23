@@ -38,6 +38,7 @@ import java.util.TimerTask;
 
 /**
  * XForms Action extension to periodically poll a sensor and optionally save its value.
+ *
  * @author jschweers
  */
 @SuppressWarnings("ResourceType")
@@ -79,6 +80,7 @@ public class PollSensorAction extends Action implements LocationListener {
 
     /**
      * Deal with a pollsensor action: start getting a GPS fix, and prepare to cancel after maximum amount of time.
+     *
      * @param model The FormDef that triggered the action
      */
     @Override
@@ -113,6 +115,7 @@ public class PollSensorAction extends Action implements LocationListener {
 
     /**
      * Start polling for location, based on whatever providers are given, and set up a timeout after MAXIMUM_WAIT is exceeded.
+     *
      * @param providers Set of String objects that may contain LocationManager.GPS_PROVDER and/or LocationManager.NETWORK_PROVIDER
      */
     private void requestLocationUpdates(Set<String> providers) {
@@ -153,7 +156,7 @@ public class PollSensorAction extends Action implements LocationListener {
                 TreeReference qualifiedReference = mContextRef == null ? target : target.contextualize(mContextRef);
                 EvaluationContext context = new EvaluationContext(mModel.getEvaluationContext(), qualifiedReference);
                 AbstractTreeElement node = context.resolveReference(qualifiedReference);
-                if(node == null) {
+                if (node == null) {
                     Context applicationContext = CommCareApplication._();
                     Intent xpathErrorIntent = new Intent(XPATH_ERROR_ACTION);
                     xpathErrorIntent.putExtra(KEY_UNRESOLVED_XPATH, qualifiedReference.toString(true));
@@ -161,7 +164,7 @@ public class PollSensorAction extends Action implements LocationListener {
                 } else {
                     int dataType = node.getDataType();
                     IAnswerData val = Recalculate.wrapData(result, dataType);
-                    mModel.setValue(val == null ? null: AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), qualifiedReference);
+                    mModel.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), qualifiedReference);
                 }
             }
 
@@ -179,11 +182,14 @@ public class PollSensorAction extends Action implements LocationListener {
     }
 
     @Override
-    public void onProviderDisabled(String provider) { }
+    public void onProviderDisabled(String provider) {
+    }
 
     @Override
-    public void onProviderEnabled(String provider) { }
+    public void onProviderEnabled(String provider) {
+    }
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) { }
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+    }
 }

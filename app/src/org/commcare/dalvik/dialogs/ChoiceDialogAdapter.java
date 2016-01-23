@@ -16,7 +16,7 @@ class ChoiceDialogAdapter extends ArrayAdapter<DialogChoiceItem> {
     private final Context context;
 
     public ChoiceDialogAdapter(Context context, int defaultLayout,
-                             DialogChoiceItem[] objects) {
+                               DialogChoiceItem[] objects) {
         super(context, defaultLayout, objects);
         this.context = context;
     }

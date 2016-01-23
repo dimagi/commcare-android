@@ -50,22 +50,22 @@ import java.util.Vector;
 @ManagedUi(R.layout.screen_login)
 public class LoginActivityUIController implements CommCareActivityUIController {
 
-    @UiElement(value= R.id.screen_login_bad_password)
+    @UiElement(value = R.id.screen_login_bad_password)
     private TextView errorBox;
 
-    @UiElement(value=R.id.edit_username, locale="login.username")
+    @UiElement(value = R.id.edit_username, locale = "login.username")
     private AutoCompleteTextView username;
 
-    @UiElement(value=R.id.edit_password)
+    @UiElement(value = R.id.edit_password)
     private EditText passwordOrPin;
 
     @UiElement(R.id.screen_login_banner_pane)
     private View banner;
 
-    @UiElement(value=R.id.login_button, locale="login.button")
+    @UiElement(value = R.id.login_button, locale = "login.button")
     private Button loginButton;
 
-    @UiElement(value=R.id.restore_session_checkbox)
+    @UiElement(value = R.id.restore_session_checkbox)
     private CheckBox restoreSessionCheckbox;
 
     @UiElement(R.id.app_selection_spinner)
@@ -74,7 +74,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     @UiElement(R.id.welcome_msg)
     private TextView welcomeMessage;
 
-    @UiElement(value=R.id.primed_password_message, locale="login.primed.prompt")
+    @UiElement(value = R.id.primed_password_message, locale = "login.primed.prompt")
     private TextView loginPrimedMessage;
 
     private final LoginActivity activity;
@@ -87,9 +87,11 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         }
+
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
         }
+
         @Override
         public void afterTextChanged(Editable s) {
             setStyleDefault();
@@ -101,9 +103,11 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         }
+
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
         }
+
         @Override
         public void afterTextChanged(Editable s) {
             setStyleDefault();
@@ -166,7 +170,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
                                 Bitmap bitmap = MediaUtil.inflateDisplayImage(activity, customBannerURI);
                                 if (bitmap != null) {
                                     ImageView bannerView =
-                                            (ImageView) banner.findViewById(R.id.main_top_banner);
+                                            (ImageView)banner.findViewById(R.id.main_top_banner);
                                     bannerView.setImageBitmap(bitmap);
                                 }
                             }

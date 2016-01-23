@@ -37,13 +37,13 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 
     /**
      * Updates the UI with device data
-     * 
-     * @param device the device to be displayed 
+     *
+     * @param device the device to be displayed
      */
     public void showDetails(WifiP2pDevice device) {
-        Log.d(TAG, "showing details in ddfragment with device: " +device.deviceAddress );
+        Log.d(TAG, "showing details in ddfragment with device: " + device.deviceAddress);
         this.getView().setVisibility(View.VISIBLE);
-        TextView view = (TextView) mContentView.findViewById(R.id.device_address);
+        TextView view = (TextView)mContentView.findViewById(R.id.device_address);
         view.setText(device.deviceAddress);
     }
 
@@ -52,9 +52,9 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
      */
     public void resetViews() {
         Log.d(TAG, "resetting views");
-        TextView view = (TextView) mContentView.findViewById(R.id.device_address);
+        TextView view = (TextView)mContentView.findViewById(R.id.device_address);
         view.setText("");
-        view = (TextView) mContentView.findViewById(R.id.status_text);
+        view = (TextView)mContentView.findViewById(R.id.status_text);
         view.setText("");
     }
 }

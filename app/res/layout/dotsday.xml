@@ -1,11 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content" android:clickable="true" android:layout_marginRight="15px" android:paddingLeft="5px" android:layout_marginLeft="0px" android:paddingBottom="10px" android:background="@drawable/dots_rect_back" android:paddingRight="1px">
-<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/text_dow" android:textColor="@color/bigday" android:textStyle="bold" android:textAppearance="?android:attr/textAppearanceMedium" android:text="Mo"></TextView><ImageView android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/day_icon" android:layout_toRightOf="@+id/text_dow" android:src="@drawable/blueq" android:scaleType="center" android:layout_alignBottom="@+id/text_dow" android:layout_alignTop="@+id/text_dow" android:layout_alignParentRight="true"></ImageView><TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="6/29" android:layout_below="@+id/text_dow" android:id="@+id/text_date" android:textColor="@color/dotsdate"></TextView>
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:layout_marginRight="15px"
+    android:paddingLeft="5px"
+    android:layout_marginLeft="0px"
+    android:paddingBottom="10px"
+    android:background="@drawable/dots_rect_back"
+    android:paddingRight="1px">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/text_dow"
+        android:textColor="@color/bigday"
+        android:textStyle="bold"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Mo"></TextView>
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/day_icon"
+        android:layout_toRightOf="@+id/text_dow"
+        android:src="@drawable/blueq"
+        android:scaleType="center"
+        android:layout_alignBottom="@+id/text_dow"
+        android:layout_alignTop="@+id/text_dow"
+        android:layout_alignParentRight="true"></ImageView>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="6/29"
+        android:layout_below="@+id/text_dow"
+        android:id="@+id/text_date"
+        android:textColor="@color/dotsdate"></TextView>
 
 
 </RelativeLayout>

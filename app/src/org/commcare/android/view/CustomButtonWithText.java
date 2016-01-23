@@ -58,7 +58,7 @@ public abstract class CustomButtonWithText extends RelativeLayout {
         typedArray.recycle();
 
         button = (ImageButton)findViewById(R.id.button);
-        textView = (TextView) findViewById(R.id.text_view);
+        textView = (TextView)findViewById(R.id.text_view);
 
         if (isInEditMode()) {
             setUI(R.color.cc_brand_color, getResources().getDrawable(R.drawable.barcode), "Your text goes here", colorButtonText);
@@ -96,7 +96,7 @@ public abstract class CustomButtonWithText extends RelativeLayout {
         float[] hsvOutput = new float[3];
         Color.colorToHSV(color, hsvOutput);
 
-        hsvOutput[2] = (float) (hsvOutput[2] / 1.5);
+        hsvOutput[2] = (float)(hsvOutput[2] / 1.5);
 
         int selectedColor = Color.HSVToColor(hsvOutput);
 

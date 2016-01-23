@@ -1,52 +1,54 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
- 
-	<LinearLayout 
-    	android:layout_width="fill_parent"
-    	android:layout_height="wrap_content"
-    	android:orientation="horizontal"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_weight="1"
         android:layout_marginBottom="5dp">
-    	
-	    <ProgressBar
-	        android:id="@+id/geoProgressBar"
-        	style="@style/GenericProgressIndicator"/>
-	    
-    	<ImageView
-        	android:id="@+id/geoImage"
-        	android:layout_width="wrap_content"
-        	android:layout_height="wrap_content"
-        	android:layout_marginRight="5dp" />
- 
-    	<TextView
-        	android:id="@+id/geoText"
-        	android:layout_width="fill_parent"
-        	android:layout_height="wrap_content"
+
+        <ProgressBar
+            android:id="@+id/geoProgressBar"
+            style="@style/GenericProgressIndicator"/>
+
+        <ImageView
+            android:id="@+id/geoImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"/>
+
+        <TextView
+            android:id="@+id/geoText"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
             android:textColor="@color/black"
-        	android:gravity="center" />
+            android:gravity="center"/>
     </LinearLayout>
- 	<LinearLayout 
-    	android:layout_width="fill_parent"
-   	 	android:layout_height="wrap_content"
-    	android:orientation="horizontal"
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_weight="1">
-     	<Button
-        	android:id="@+id/geoOK"
-        	android:layout_width="fill_parent"
-        	android:layout_height="wrap_content"
-        	android:layout_weight="1"
-        	android:text="Record Location"
-        	android:layout_marginRight="5dp"/>
-     
-     	<Button
-        	android:id="@+id/geoCancel"
-        	android:layout_width="fill_parent"
-        	android:layout_height="wrap_content"
-        	android:layout_weight="1.5"
-        	android:text="Cancel"
-        	android:layout_marginRight="5dp"/>
-     </LinearLayout>
+
+        <Button
+            android:id="@+id/geoOK"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Record Location"
+            android:layout_marginRight="5dp"/>
+
+        <Button
+            android:id="@+id/geoCancel"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.5"
+            android:text="Cancel"
+            android:layout_marginRight="5dp"/>
+    </LinearLayout>
 </LinearLayout>

@@ -53,7 +53,7 @@ public class WiFiDirectAdapter extends SquareButtonAdapter {
         };
     }
 
-    public void updateDisplayData(){
+    public void updateDisplayData() {
         ArrayList<HomeCardDisplayData> buttonData = new ArrayList<HomeCardDisplayData>();
         HomeCardDisplayData sendButton = HomeCardDisplayData.homeCardDataWithStaticText("Send",
                 R.color.white,
@@ -88,7 +88,7 @@ public class WiFiDirectAdapter extends SquareButtonAdapter {
                 break;
         }
         buttons = new HomeCardDisplayData[buttonData.size()];
-        for(int i = 0; i< buttonData.size(); i++) {
+        for (int i = 0; i < buttonData.size(); i++) {
             buttons[i] = buttonData.get(i);
         }
 

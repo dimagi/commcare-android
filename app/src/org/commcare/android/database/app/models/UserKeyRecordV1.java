@@ -39,7 +39,9 @@ public class UserKeyRecordV1 extends Persisted {
     @Persisting(5)
     private Date validTo;
 
-    /** The unique ID of the data sandbox covered by this key **/
+    /**
+     * The unique ID of the data sandbox covered by this key
+     **/
     @Persisting(6)
     @MetaField(META_SANDBOX_ID)
     private String uuid;

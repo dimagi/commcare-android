@@ -26,8 +26,7 @@
             android:layout_height="match_parent"
             android:layout_gravity="top|right"
             android:orientation="vertical"
-            android:weightSum="1" >
-
+            android:weightSum="1">
 
 
             <FrameLayout
@@ -53,6 +52,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="0.5"
                 android:visibility="invisible">
+
                 <ImageButton
                     android:id="@+id/imageButton2"
                     android:layout_width="wrap_content"
@@ -80,7 +80,7 @@
             android:layout_height="match_parent"
             android:layout_alignParentTop="true"
             android:layout_above="@+id/com_tile_holder_btn_close"
-            style="@style/DetailDrawerPulldown" />
+            style="@style/DetailDrawerPulldown"/>
 
         <ImageButton
             android:id="@id/com_tile_holder_btn_close"

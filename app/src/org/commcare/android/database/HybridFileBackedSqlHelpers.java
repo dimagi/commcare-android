@@ -121,7 +121,7 @@ public class HybridFileBackedSqlHelpers {
      * Order of operations expects filenames to be globally unique.
      */
     public static void removeOrphanedFiles(SQLiteDatabase db) {
-        Cursor cur = db.query(DbUtil.orphanFileTableName, new String[] {DatabaseHelper.FILE_COL}, null, null, null, null, null);
+        Cursor cur = db.query(DbUtil.orphanFileTableName, new String[]{DatabaseHelper.FILE_COL}, null, null, null, null, null);
         ArrayList<String> files = new ArrayList<>();
         try {
             if (cur.getCount() > 0) {
