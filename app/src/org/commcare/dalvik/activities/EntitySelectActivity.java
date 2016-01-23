@@ -659,7 +659,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     result = intent.getExtras().getString(key);
                     if (result != null) {
                         setSearchText(result);
-                        return;
+                        asw.getSession().putCustomSessionValue(key, result);
                     }
                 }
             }
