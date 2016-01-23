@@ -10,7 +10,6 @@ import org.javarosa.core.model.instance.TreeReference;
 
 /**
  * @author ctsims
- *
  */
 public abstract class EntityOverlay extends BalloonItemizedOverlay {
     private static final int maxNum = 200;
@@ -50,15 +49,15 @@ public abstract class EntityOverlay extends BalloonItemizedOverlay {
         index++;
         populate();
     }
-    
+
     @Override
     protected boolean onBalloonTap(int index, OverlayItem item) {
         selected(references[index]);
         return true;
     }
-    
+
     protected abstract void selected(TreeReference ref);
-    
+
     public static Drawable bcb(Drawable d) {
         return EntityOverlay.boundCenterBottom(d);
     }

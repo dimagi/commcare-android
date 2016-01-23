@@ -29,12 +29,12 @@ public class LegacyTableBuilder {
         rawCols.add(DatabaseHelper.ID_COL);
 
         if (p instanceof IMetaData) {
-            String[] keys = ((IMetaData) p).getMetaDataFields();
+            String[] keys = ((IMetaData)p).getMetaDataFields();
             for (String key : keys) {
                 String columnName = scrubName(key);
                 rawCols.add(columnName);
                 String columnDef;
-                if (p instanceof EncryptedModel && ((EncryptedModel) p).isEncrypted(key)) {
+                if (p instanceof EncryptedModel && ((EncryptedModel)p).isEncrypted(key)) {
                     columnDef = columnName + " BLOB";
                 } else {
                     columnDef = columnName;

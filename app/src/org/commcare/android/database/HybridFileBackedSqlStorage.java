@@ -329,13 +329,13 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
             fileOutputStream = getOutputFileStream(filename, key);
             bos.writeTo(fileOutputStream);
         } finally {
-                if (fileOutputStream != null) {
-                    try {
-                        fileOutputStream.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+            if (fileOutputStream != null) {
+                try {
+                    fileOutputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
+            }
         }
     }
 

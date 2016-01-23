@@ -63,6 +63,7 @@
     </style>
 
     <style name="TextAppearance.Custom.WindowTitle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title"/>
+
     <style name="TextAppearance.Custom.WindowTitle.Case" parent="style/TextAppearance.Custom.WindowTitle">
     </style>
 
@@ -84,7 +85,6 @@
         <item name="android:layout_marginLeft">@dimen/title_round_bleed</item>
         <item name="android:paddingLeft">@dimen/title_paddingLeft</item>
     </style>
-
 
 
 </resources>

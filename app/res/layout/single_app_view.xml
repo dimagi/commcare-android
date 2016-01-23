@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:gravity="center" >
-    
-    <TextView 
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:gravity="center">
+
+    <TextView
         android:id="@+id/app_name"
         android:textSize="@dimen/font_size_xlargest"
         android:layout_width="wrap_content"
@@ -13,7 +13,7 @@
         android:paddingTop="@dimen/standard_spacer"
         android:paddingBottom="@dimen/standard_spacer"
         android:textColor="@color/darkest_grey"
-        android:gravity="center" />
+        android:gravity="center"/>
 
     <TextView
         android:id="@+id/app_version"
@@ -21,8 +21,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/darkest_grey"
-        android:gravity="center" />
-    
+        android:gravity="center"/>
+
     <TextView
         android:id="@+id/profile_warning"
         android:textSize="@dimen/font_size_large"
@@ -31,31 +31,31 @@
         android:text="@string/pre_multiple_apps_warning"
         android:textColor="@color/cc_attention_negative_color"
         android:gravity="center"
-        android:visibility="visible" />
-                    
+        android:visibility="visible"/>
+
     <Button
-         android:id="@+id/uninstall_button"
-         android:text="@string/uninstall_app"
-         android:textSize="@dimen/font_size_xlargest"
-         android:layout_width="fill_parent"
-         android:layout_height="wrap_content"
-         android:onClick="rebootAlertDialog"
-         android:textColor="@color/blue" 
-         android:layout_marginTop="@dimen/standard_spacer"
-         android:paddingTop="@dimen/standard_spacer"
-         android:paddingBottom="@dimen/standard_spacer" />
-                
+        android:id="@+id/uninstall_button"
+        android:text="@string/uninstall_app"
+        android:textSize="@dimen/font_size_xlargest"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="rebootAlertDialog"
+        android:textColor="@color/blue"
+        android:layout_marginTop="@dimen/standard_spacer"
+        android:paddingTop="@dimen/standard_spacer"
+        android:paddingBottom="@dimen/standard_spacer"/>
+
     <Button
-         android:id="@+id/archive_button"
-         android:text="@string/archive_app"
-         android:textSize="@dimen/font_size_xlargest"           
-         android:layout_width="fill_parent"
-         android:layout_height="wrap_content"
-         android:onClick="toggleArchiveClicked"
-         android:textColor="@color/darkest_grey"
-         android:paddingBottom="@dimen/standard_spacer"
-         android:paddingTop="@dimen/standard_spacer" />
-    
+        android:id="@+id/archive_button"
+        android:text="@string/archive_app"
+        android:textSize="@dimen/font_size_xlargest"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="toggleArchiveClicked"
+        android:textColor="@color/darkest_grey"
+        android:paddingBottom="@dimen/standard_spacer"
+        android:paddingTop="@dimen/standard_spacer"/>
+
     <Button
         android:id="@+id/update_button"
         android:text="@string/update_app"
@@ -65,18 +65,18 @@
         android:onClick="updateClicked"
         android:textColor="@color/blue"
         android:paddingBottom="@dimen/standard_spacer"
-        android:paddingTop="@dimen/standard_spacer" />
-     
+        android:paddingTop="@dimen/standard_spacer"/>
+
     <Button
         android:id="@+id/verify_button"
         android:text="@string/verify_resources"
-        android:textSize="@dimen/font_size_xlargest"            
+        android:textSize="@dimen/font_size_xlargest"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:clickable="true" 
+        android:clickable="true"
         android:onClick="verifyResourcesClicked"
         android:textColor="@color/darkest_grey"
-      	android:paddingBottom="@dimen/standard_spacer"
-        android:paddingTop="@dimen/standard_spacer" />
+        android:paddingBottom="@dimen/standard_spacer"
+        android:paddingTop="@dimen/standard_spacer"/>
 
 </LinearLayout>

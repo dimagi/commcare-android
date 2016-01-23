@@ -41,11 +41,12 @@ public class Configuration {
 
     /**
      * Parse given time value into string acceptable to C3.
-     * @param value The value, which may be a YYYY-MM-DD string, a YYYY-MM-DD HH:MM:SS,
-     *              or a double representing days since the epoch.
+     *
+     * @param value       The value, which may be a YYYY-MM-DD string, a YYYY-MM-DD HH:MM:SS,
+     *                    or a double representing days since the epoch.
      * @param description Something to identify the kind of value, used to augment any error message.
      * @return String of format YYYY-MM-DD HH:MM:SS, which is what C3 expects.
-     *          This expected format is set in DataConfiguration as xFormat.
+     * This expected format is set in DataConfiguration as xFormat.
      * @throws InvalidStateException
      */
     String parseTime(String value, String description) throws InvalidStateException {

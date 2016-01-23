@@ -48,7 +48,7 @@ public class WiFiDirectManagementFragment extends Fragment
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mActivity = (CommCareWiFiDirectActivity) context;
+            mActivity = (CommCareWiFiDirectActivity)context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement fileServerListener");
         }
@@ -58,7 +58,7 @@ public class WiFiDirectManagementFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mContentView = inflater.inflate(R.layout.wifi_manager, null);
 
-        mStatusText = (TextView) mContentView.findViewById(R.id.wifi_manager_status_text);
+        mStatusText = (TextView)mContentView.findViewById(R.id.wifi_manager_status_text);
 
         return mContentView;
     }
@@ -68,7 +68,7 @@ public class WiFiDirectManagementFragment extends Fragment
     }
 
     public void resetData() {
-        ((WifiDirectManagerListener) this.getActivity()).resetData();
+        ((WifiDirectManagerListener)this.getActivity()).resetData();
     }
 
     public void onPeersChanged() {

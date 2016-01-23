@@ -31,9 +31,9 @@ public class AndroidInstanceInitializer extends CommCareInstanceInitializer {
 
     @Override
     protected AbstractTreeElement setupLedgerData(ExternalDataInstance instance) {
-        if(stockbase == null) {
+        if (stockbase == null) {
             SqlStorage<Ledger> storage = (SqlStorage<Ledger>)mSandbox.getLedgerStorage();
-            stockbase =  new AndroidLedgerInstanceTreeElement(instance.getBase(), storage);
+            stockbase = new AndroidLedgerInstanceTreeElement(instance.getBase(), storage);
         } else {
             //re-use the existing model if it exists.
             stockbase.rebase(instance.getBase());

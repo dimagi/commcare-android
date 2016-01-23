@@ -13,15 +13,15 @@ import org.javarosa.core.services.locale.Localization;
  * @author ctsims
  */
 public class UnrecoverableErrorActivity extends Activity {
-    
+
     public static final String EXTRA_ERROR_TITLE = "UnrecoverableErrorActivity_Title";
     public static final String EXTRA_ERROR_MESSAGE = "UnrecoverableErrorActivity_Message";
     public static final String EXTRA_USE_MESSAGE = "use_extra_message";
-    
+
     private String title;
     private String message;
     private boolean useExtraMessage;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,7 +39,7 @@ public class UnrecoverableErrorActivity extends Activity {
         AlertDialogFactory factory = new AlertDialogFactory(this, title, message);
         DialogInterface.OnClickListener buttonListener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
-               CommCareApplication.restartCommCare(UnrecoverableErrorActivity.this);
+                CommCareApplication.restartCommCare(UnrecoverableErrorActivity.this);
             }
         };
         factory.setPositiveButton(Localization.get("app.storage.missing.button"), buttonListener);

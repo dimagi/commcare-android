@@ -20,7 +20,7 @@
             <gradient
                 android:startColor="@color/cc_neutral_bg"
                 android:endColor="@color/cc_neutral_bg"
-            />
+                />
         </shape>
     </item>
     <item android:id="@android:id/progress">
@@ -29,7 +29,7 @@
                 <gradient
                     android:startColor="@color/cc_attention_positive_color"
                     android:endColor="@color/cc_attention_positive_color"
-                />
+                    />
             </shape>
         </clip>
     </item>

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 @Implements(Log.class)
 public class CommCareShadowLog extends ShadowLog {
     private static final ArrayList<String> tagsToIgnore;
+
     static {
         tagsToIgnore = new ArrayList<>();
         tagsToIgnore.add("CursorWindowStats");

@@ -48,7 +48,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
         int mult = 0;
 
-        for (IStorageIterator i = ((SqlStorage<ACase>) storage).iterate(false); i.hasMore(); ) {
+        for (IStorageIterator i = ((SqlStorage<ACase>)storage).iterate(false); i.hasMore(); ) {
             int id = i.nextID();
             cases.addElement(new CaseChildElement(this, id, null, mult));
             objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
@@ -81,7 +81,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             //TODO: This should likely be generalized for a number of other queries with bulk/nodeset
             //returns
             String indexName = firstKey.substring(Case.INDEX_CASE_INDEX_PRE.length());
-            String value = (String) values.elementAt(0);
+            String value = (String)values.elementAt(0);
 
             //TODO: Evaluate whether our indices could contain "|" but I don't imagine how they could.
             String indexCacheKey = firstKey + "|" + value;
@@ -130,12 +130,12 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             //otherwise, it's now in our queue
         }
 
-        SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>) storage);
+        SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
         String[] namesToMatch = new String[numKeys];
         String[] valuesToMatch = new String[numKeys];
         for (int i = numKeys - 1; i >= 0; i--) {
             namesToMatch[i] = keys.elementAt(i);
-            valuesToMatch[i] = (String) values.elementAt(i);
+            valuesToMatch[i] = (String)values.elementAt(i);
         }
         mMostRecentBatchFetch = new String[2][];
         mMostRecentBatchFetch[0] = namesToMatch;

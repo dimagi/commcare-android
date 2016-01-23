@@ -97,6 +97,7 @@
                                 android:inputType="text"
                                 android:nextFocusDown="@+id/edit_password"
                                 android:textSize="@dimen/text_medium">
+
                                 <requestFocus/>
                             </AutoCompleteTextView>
 
@@ -138,7 +139,7 @@
                                 android:layout_marginBottom="@dimen/standard_spacer"
                                 android:text="@string/restore_session_prompt"
                                 android:textSize="16dp"
-                                android:visibility="gone" />
+                                android:visibility="gone"/>
 
                             <TextView
                                 android:id="@+id/primed_password_message"
@@ -146,7 +147,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_margin="@dimen/standard_spacer"
                                 android:textSize="@dimen/font_size_medium"
-                                android:visibility="gone" />
+                                android:visibility="gone"/>
 
                             <Button
                                 android:id="@+id/login_button"

@@ -1,7 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <suite descriptor="Suite File" version="8">
     <xform>
-        <resource descriptor="Form: (Module Some Forms) - One" id="ccb392a6fcc0adf31e0b75c44ccf3444c1c0f1a7"
+        <resource descriptor="Form: (Module Some Forms) - One"
+                  id="ccb392a6fcc0adf31e0b75c44ccf3444c1c0f1a7"
                   version="8">
             <location authority="local">./modules-0/forms-0.xml</location>
             <location authority="remote">./modules-0/forms-0.xml</location>

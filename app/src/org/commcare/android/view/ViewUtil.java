@@ -48,7 +48,7 @@ public final class ViewUtil {
     }
 
     public static void hideVirtualKeyboard(Activity activity) {
-        InputMethodManager inputManager = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager inputManager = (InputMethodManager)activity.getSystemService(Context.INPUT_METHOD_SERVICE);
 
         View focus = activity.getCurrentFocus();
         if (focus != null) {
@@ -82,7 +82,7 @@ public final class ViewUtil {
      */
     public static void setClickListenersForEverything(Activity act) {
         if (BuildConfig.DEBUG) {
-            final ViewGroup layout = (ViewGroup) act.findViewById(android.R.id.content);
+            final ViewGroup layout = (ViewGroup)act.findViewById(android.R.id.content);
             final LinkedList<View> views = new LinkedList<>();
             views.add(layout);
             for (int i = 0; !views.isEmpty(); i++) {
@@ -102,7 +102,7 @@ public final class ViewUtil {
                     }
                 });
                 if (child instanceof ViewGroup) {
-                    final ViewGroup vg = (ViewGroup) child;
+                    final ViewGroup vg = (ViewGroup)child;
                     for (int j = 0; j < vg.getChildCount(); j++) {
                         final View gchild = vg.getChildAt(j);
                         if (!views.contains(gchild)) views.add(gchild);
@@ -114,9 +114,9 @@ public final class ViewUtil {
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static int getColorDrawableColor(ColorDrawable drawable) {
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            Bitmap bitmap= Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_4444);
-            Canvas canvas= new Canvas(bitmap);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            Bitmap bitmap = Bitmap.createBitmap(1, 1, Bitmap.Config.ARGB_4444);
+            Canvas canvas = new Canvas(bitmap);
             drawable.draw(canvas);
             int pix = bitmap.getPixel(0, 0);
             bitmap.recycle();

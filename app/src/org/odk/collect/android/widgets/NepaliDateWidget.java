@@ -10,11 +10,11 @@ import org.odk.collect.android.utilities.UniversalDate;
 
 /**
  * Nepali Date Widget.
- * 
+ *
  * @author Richard Lu
  */
 public class NepaliDateWidget extends AbstractUniversalDateWidget {
-    
+
     public NepaliDateWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
     }

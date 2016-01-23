@@ -99,7 +99,7 @@ public class ResourceInstallUtils {
     }
 
     public static void updateProfileRef(SharedPreferences prefs,
-                                         String authRef, String profileRef) {
+                                        String authRef, String profileRef) {
         SharedPreferences.Editor edit = prefs.edit();
         if (authRef != null) {
             edit.putString(DEFAULT_APP_SERVER_KEY, authRef);

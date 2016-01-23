@@ -16,12 +16,12 @@ public class AndroidResourceInstallerFactory extends InstallerFactory {
 
     public AndroidResourceInstallerFactory() {
     }
-    
+
     @Override
     public ResourceInstaller getXFormInstaller() {
         return new XFormAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF);
     }
-    
+
     @Override
     public ResourceInstaller getProfileInstaller(boolean forceInstall) {
         return new ProfileAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF);
@@ -31,12 +31,12 @@ public class AndroidResourceInstallerFactory extends InstallerFactory {
     public ResourceInstaller getSuiteInstaller() {
         return new SuiteAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF);
     }
-    
+
     @Override
     public ResourceInstaller getLocaleFileInstaller(String locale) {
         return new LocaleAndroidInstaller(GlobalConstants.INSTALL_REF, GlobalConstants.UPGRADE_REF, locale);
     }
-    
+
     @Override
     public ResourceInstaller getMediaInstaller(String path) {
         return new MediaFileAndroidInstaller(GlobalConstants.MEDIA_REF, GlobalConstants.UPGRADE_REF, path);

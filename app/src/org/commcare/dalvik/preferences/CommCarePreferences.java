@@ -331,7 +331,7 @@ public class CommCarePreferences
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         int editPrefValue = -1;
-        switch(key) {
+        switch (key) {
             case AUTO_UPDATE_FREQUENCY:
                 String freq = sharedPreferences.getString(key, CommCarePreferences.FREQUENCY_NEVER);
                 if (CommCarePreferences.FREQUENCY_NEVER.equals(freq)) {

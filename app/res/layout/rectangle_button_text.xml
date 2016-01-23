@@ -19,6 +19,7 @@
         android:textSize="@dimen/font_size_large"
         app:text_size_small="@dimen/font_size_medium"
         />
+
     <ImageButton
         android:id="@+id/button"
         android:layout_width="match_parent"

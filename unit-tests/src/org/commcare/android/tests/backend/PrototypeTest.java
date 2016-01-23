@@ -1,4 +1,5 @@
 package org.commcare.android.tests.backend;
+
 import org.commcare.cases.model.Case;
 import org.commcare.util.externalizable.AndroidClassHasher;
 import org.commcare.util.externalizable.AndroidPrototypeFactory;
@@ -10,7 +11,6 @@ import static junit.framework.Assert.assertEquals;
 
 /**
  * @author wspride
- *
  */
 public class PrototypeTest {
 

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:textAppearance="@style/EntityItemText"
-    android:orientation="vertical">
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:textAppearance="@style/EntityItemText"
+              android:orientation="vertical">
+
     <ImageView
         android:id="@+id/row_img"
         android:layout_gravity="center"
@@ -11,15 +12,16 @@
         android:layout_height="@dimen/menu_grid_icon_size"
         style="@style/ListContentV2"
         />
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_gravity="center"
-    android:gravity="center"
-    android:maxLines="2"
-    android:lines="2"
-    android:id="@+id/row_txt"
-    style="@style/GridEntityItemTextView"
-    android:textAppearance="@style/GridEntityItemText">
-</TextView>
-    </LinearLayout>
+
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:layout_gravity="center"
+              android:gravity="center"
+              android:maxLines="2"
+              android:lines="2"
+              android:id="@+id/row_txt"
+              style="@style/GridEntityItemTextView"
+              android:textAppearance="@style/GridEntityItemText">
+    </TextView>
+</LinearLayout>

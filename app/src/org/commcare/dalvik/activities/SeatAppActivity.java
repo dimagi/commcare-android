@@ -11,7 +11,6 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
-
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -28,7 +27,7 @@ public class SeatAppActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.screen_seat_app);
-        TextView tv = (TextView) findViewById(R.id.text);
+        TextView tv = (TextView)findViewById(R.id.text);
         tv.setText(Localization.get("seating.app"));
 
         inProgress = savedInstanceState != null &&

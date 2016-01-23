@@ -1,7 +1,12 @@
-<shape a:shape="rectangle" xmlns:a="http://schemas.android.com/apk/res/android">
+<shape a:shape="rectangle"
+       xmlns:a="http://schemas.android.com/apk/res/android">
     <corners a:radius="10dp"/>
-    <size a:width="50px" a:height="65px"/>
-    <stroke a:width="2px" a:color="@color/black"/>
+    <size
+        a:width="50px"
+        a:height="65px"/>
+    <stroke
+        a:width="2px"
+        a:color="@color/black"/>
     <padding a:top="2dp"/>
     <solid a:color="@color/white"/>
 </shape> 
