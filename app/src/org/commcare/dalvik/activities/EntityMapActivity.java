@@ -103,51 +103,18 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 location = new LatLng(data.getLatitude(), data.getLongitude());
             }
         } catch(Exception ex) {
-            //We might not have a geopoint at all. Don't even trip
         }
+
+        // Geocaching code removed
+
         return location;
-//
-//        boolean cached = false;
-//        try {
-//            GeocodeCacheModel record = geoCache.getRecordForValue(GeocodeCacheModel.META_LOCATION, address);
-//            cached = true;
-//            if(record.dataExists()){
-//                gp = record.getGeoPoint();
-//            }
-//        } catch(NoSuchElementException nsee) {
-//            //no record!
-//        }
-//
-//        //If we don't have a geopoint, let's try to find our address
-//        if (!cached && location != null) {
-//            try {
-//                List<Address> addresses = mGeoCoder.getFromLocationName(address, 3, boundHints[0], boundHints[1], boundHints[2], boundHints[3]);
-//                for(Address a : addresses) {
-//                    if(a.hasLatitude() && a.hasLongitude()) {
-//                        int lat = (int) (a.getLatitude() * 1E6);
-//                        int lng = (int) (a.getLongitude() * 1E6);
-//                        gp = new GeoPoint(lat, lng);
-//
-//                        geoCache.write(new GeocodeCacheModel(address, lat, lng));
-//                        legit++;
-//                        break;
-//                    }
-//                }
-//
-//                //We didn't find an address, make a miss record
-//                if(gp == null) {
-//                    geoCache.write(GeocodeCacheModel.NoHitRecord(address));
-//                }
-//            } catch (StorageFullException | IOException e1) {
-//                e1.printStackTrace();
-//            }
-//        }
     }
 
     @Override
     public void onMapReady(final GoogleMap map) {
         mMap = map;
 
+        // Find bounding region of markers
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         for (Pair<Entity<TreeReference>, LatLng> entityLocation: entityLocations) {
             Marker marker = map.addMarker(new MarkerOptions()
@@ -160,7 +127,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         final LatLngBounds bounds = builder.build();
 
         // Move camera to be include all markers
-        // TODO: does this work for only 1 marker?
+        // TODO: does this work for 0 or 1 marker?
         map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
             @Override
             public void onMapLoaded() {
