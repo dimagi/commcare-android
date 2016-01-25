@@ -18,7 +18,7 @@ import static junit.framework.Assert.assertEquals;
 /**
  * @author ctsims
  */
-@Config(application=org.commcare.dalvik.application.CommCareApplication.class,
+@Config(application = org.commcare.dalvik.application.CommCareApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class CaseDbQueryTest {
@@ -27,23 +27,23 @@ public class CaseDbQueryTest {
     public void setupTests() {
         TestUtils.initializeStaticTestStorage();
     }
-    
+
     /**
      * Tests for basic common case database queries
      */
     @Test
     public void testBasicCaseQueries() {
         TestUtils.processResourceTransaction("/inputs/case_create.xml");
-        
+
         EvaluationContext ec = TestUtils.getInstanceBackedEvaluationContext();
-        
+
         evaluate("count(instance('casedb')/casedb/case[@case_id = 'test_case_id'])", "1", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/case_name", "Test Case", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/case_name", "Test Case", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/test_value", "initial", ec);
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id']/missing_value", "", ec);
     }
-    
+
     /**
      * Tests for basic common case index related queries
      */
@@ -51,7 +51,7 @@ public class CaseDbQueryTest {
     public void testCaseIndexQueries() {
         TestUtils.processResourceTransaction("/inputs/case_create.xml");
         TestUtils.processResourceTransaction("/inputs/case_create_and_index.xml");
-        
+
         EvaluationContext ec = TestUtils.getInstanceBackedEvaluationContext();
 
         evaluate("instance('casedb')/casedb/case[@case_id = 'test_case_id_child']/index/parent", "test_case_id", ec);

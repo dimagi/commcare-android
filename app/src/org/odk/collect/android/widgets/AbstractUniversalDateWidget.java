@@ -30,11 +30,11 @@ import static org.odk.collect.android.utilities.UniversalDate.MILLIS_IN_DAY;
 
 /**
  * Universal Date Widget, extended to work with any calendar system.
- * 
+ *
  * @author Alex Little (alex@alexlittle.net), Richard Lu
  */
 public abstract class AbstractUniversalDateWidget extends QuestionWidget {
-    
+
     private long millisOfDayOffset;
 
     private final TextView txtMonth;
@@ -44,30 +44,30 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
 
     private final String[] monthsArray;
     private int monthArrayPointer;
-    
+
     private final Button btnDayUp;
     private final Button btnMonthUp;
     private final Button btnYearUp;
     private final Button btnDayDown;
     private final Button btnMonthDown;
     private final Button btnYearDown;
-    
+
     private ScheduledExecutorService mUpdater;
     private final Handler mDayHandler;
     private final Handler mMonthHandler;
     private final Handler mYearHandler;
     private static final int MSG_INC = 0;
     private static final int MSG_DEC = 1;
-    
+
     // Alter this to make the button more/less sensitive to an initial long press 
     private static final int INITIAL_DELAY = 500;
     // Alter this to vary how rapidly the date increases/decreases on long press 
     private static final int PERIOD = 200;
-    
+
     private class UpdateTask implements Runnable {
         private final boolean mInc;
         private final Handler mHandler;
-        
+
         public UpdateTask(boolean inc, Handler h) {
             mInc = inc;
             mHandler = h;
@@ -81,13 +81,13 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
             }
         }
     }
-    
+
     public AbstractUniversalDateWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
-        
+
         monthsArray = getMonthsArray();
-        
-        LayoutInflater vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        LayoutInflater vi = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View vv = vi.inflate(R.layout.universal_date_widget, null);
         addView(vv);
         
@@ -108,7 +108,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
                 super.handleMessage(msg);
             }
         };
-        
+
         mMonthHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
@@ -123,7 +123,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
                 super.handleMessage(msg);
             }
         };
-        
+
         mYearHandler = new Handler() {
             @Override
             public void handleMessage(Message msg) {
@@ -140,19 +140,19 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         };
 
         // Date fields
-        txtDay = (TextView) findViewById(R.id.daytxt);
-        txtMonth = (TextView) findViewById(R.id.monthtxt);
-        txtYear = (TextView) findViewById(R.id.yeartxt);
-        txtGregorian = (TextView) findViewById(R.id.dateGregorian);
-        
+        txtDay = (TextView)findViewById(R.id.daytxt);
+        txtMonth = (TextView)findViewById(R.id.monthtxt);
+        txtYear = (TextView)findViewById(R.id.yeartxt);
+        txtGregorian = (TextView)findViewById(R.id.dateGregorian);
+
         // action buttons
-        btnDayUp = (Button) findViewById(R.id.dayupbtn);
-        btnMonthUp = (Button) findViewById(R.id.monthupbtn);
-        btnYearUp = (Button) findViewById(R.id.yearupbtn);
-        btnDayDown = (Button) findViewById(R.id.daydownbtn);
-        btnMonthDown = (Button) findViewById(R.id.monthdownbtn);
-        btnYearDown = (Button) findViewById(R.id.yeardownbtn);
-        
+        btnDayUp = (Button)findViewById(R.id.dayupbtn);
+        btnMonthUp = (Button)findViewById(R.id.monthupbtn);
+        btnYearUp = (Button)findViewById(R.id.yearupbtn);
+        btnDayDown = (Button)findViewById(R.id.daydownbtn);
+        btnMonthDown = (Button)findViewById(R.id.monthdownbtn);
+        btnYearDown = (Button)findViewById(R.id.yeardownbtn);
+
         // button click listeners
         btnDayUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -162,7 +162,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
                 }
             }
         });
-        
+
         btnMonthUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -171,7 +171,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
                 }
             }
         });
-       
+
         btnYearUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -181,7 +181,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
             }
         });
 
-        btnDayDown.setOnClickListener(new View.OnClickListener() {    
+        btnDayDown.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (mUpdater == null) {
@@ -209,28 +209,28 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         });
 
         // button touch listeners
-        btnDayUp.setOnTouchListener(new EDWTouchListener(btnDayUp,mDayHandler));
-        btnDayDown.setOnTouchListener(new EDWTouchListener(btnDayUp,mDayHandler));
-        btnMonthUp.setOnTouchListener(new EDWTouchListener(btnMonthUp,mMonthHandler));
-        btnMonthDown.setOnTouchListener(new EDWTouchListener(btnMonthUp,mMonthHandler));
-        btnYearUp.setOnTouchListener(new EDWTouchListener(btnYearUp,mYearHandler));
-        btnYearDown.setOnTouchListener(new EDWTouchListener(btnYearUp,mYearHandler));
-        
+        btnDayUp.setOnTouchListener(new EDWTouchListener(btnDayUp, mDayHandler));
+        btnDayDown.setOnTouchListener(new EDWTouchListener(btnDayUp, mDayHandler));
+        btnMonthUp.setOnTouchListener(new EDWTouchListener(btnMonthUp, mMonthHandler));
+        btnMonthDown.setOnTouchListener(new EDWTouchListener(btnMonthUp, mMonthHandler));
+        btnYearUp.setOnTouchListener(new EDWTouchListener(btnYearUp, mYearHandler));
+        btnYearDown.setOnTouchListener(new EDWTouchListener(btnYearUp, mYearHandler));
+
         // button key listeners
-        btnDayUp.setOnKeyListener(new EDWKeyListener(btnDayUp,mDayHandler));
-        btnDayDown.setOnKeyListener(new EDWKeyListener(btnDayUp,mDayHandler));
-        btnMonthUp.setOnKeyListener(new EDWKeyListener(btnMonthUp,mMonthHandler));
-        btnMonthDown.setOnKeyListener(new EDWKeyListener(btnMonthUp,mMonthHandler));
-        btnYearUp.setOnKeyListener(new EDWKeyListener(btnYearUp,mYearHandler));
-        btnYearDown.setOnKeyListener(new EDWKeyListener(btnYearUp,mYearHandler));
-        
+        btnDayUp.setOnKeyListener(new EDWKeyListener(btnDayUp, mDayHandler));
+        btnDayDown.setOnKeyListener(new EDWKeyListener(btnDayUp, mDayHandler));
+        btnMonthUp.setOnKeyListener(new EDWKeyListener(btnMonthUp, mMonthHandler));
+        btnMonthDown.setOnKeyListener(new EDWKeyListener(btnMonthUp, mMonthHandler));
+        btnYearUp.setOnKeyListener(new EDWKeyListener(btnYearUp, mYearHandler));
+        btnYearDown.setOnKeyListener(new EDWKeyListener(btnYearUp, mYearHandler));
+
         // If there's an answer, use it.
         setAnswer();
     }
-    
+
     /**
      * Decrement 1 month in custom calendar system from the given millisecond instant.
-     * 
+     *
      * @param millisFromJavaEpoch Instant to decrement month from
      * @return UniversalDate representing the minus-1-month instant
      */
@@ -238,7 +238,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
 
     /**
      * Decrement 1 year in custom calendar system from the given millisecond instant.
-     * 
+     *
      * @param millisFromJavaEpoch Instant to decrement year from
      * @return UniversalDate representing the minus-1-year instant
      */
@@ -246,7 +246,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
 
     /**
      * Get date in custom calendar system from the given millisecond instant.
-     * 
+     *
      * @param millisFromJavaEpoch Instant to get date with
      * @return UniversalDate representing the given instant
      */
@@ -254,14 +254,14 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
 
     /**
      * Fetch the array of Strings representing month names in custom calendar system.
-     * 
+     *
      * @return Array of strings, length must match number of months in calendar system.
      */
     protected abstract String[] getMonthsArray();
 
     /**
      * Increment 1 month in custom calendar system from the given millisecond instant.
-     * 
+     *
      * @param millisFromJavaEpoch Instant to increment month from
      * @return UniversalDate representing the plus-1-month instant
      */
@@ -269,7 +269,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
 
     /**
      * Increment 1 year in custom calendar system from the given millisecond instant.
-     * 
+     *
      * @param millisFromJavaEpoch Instant to increment year from
      * @return UniversalDate representing the plus-1-year instant
      */
@@ -278,7 +278,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     /**
      * Translate the given date in the custom calendar system to
      * standard milliseconds from Java epoch.
-     * 
+     *
      * @return Milliseconds since Java epoch
      */
     protected abstract long toMillisFromJavaEpoch(int year, int month, int day, long millisOffset);
@@ -295,7 +295,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     }
 
     /**
-     * @return the date for storing in ODK 
+     * @return the date for storing in ODK
      */
     @Override
     public IAnswerData getAnswer() {
@@ -307,10 +307,10 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
-    
+
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
         //super.setOnLongClickListener(l);
@@ -325,7 +325,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
             return;
         }
         mUpdater = Executors.newSingleThreadScheduledExecutor();
-        mUpdater.scheduleAtFixedRate(new UpdateTask(inc,mHandler), INITIAL_DELAY, PERIOD,
+        mUpdater.scheduleAtFixedRate(new UpdateTask(inc, mHandler), INITIAL_DELAY, PERIOD,
                 TimeUnit.MILLISECONDS);
     }
 
@@ -336,60 +336,60 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
         mUpdater.shutdownNow();
         mUpdater = null;
     }
-    
+
     /**
      * Increase by 1 day
      */
-    private void incrementDay(){
+    private void incrementDay() {
         // get the current date into gregorian, add one and redisplay
         updateDateDisplay(getDateAsGregorian().getTime() + MILLIS_IN_DAY);
         updateGregorianDateHelperDisplay();
     }
-    
+
     /**
      * Increase by 1 month
      */
-    private void incrementMonth(){
+    private void incrementMonth() {
         UniversalDate dt = incrementMonth(getCurrentMillis());
         updateDateDisplay(dt.millisFromJavaEpoch);
         updateGregorianDateHelperDisplay();
     }
-    
+
     /**
      * Increase by 1 year
      */
-    private void incrementYear(){
+    private void incrementYear() {
         UniversalDate dt = incrementYear(getCurrentMillis());
         updateDateDisplay(dt.millisFromJavaEpoch);
         updateGregorianDateHelperDisplay();
     }
-    
+
     /**
      * Decrease by 1 day
      */
-    private void decrementDay(){
+    private void decrementDay() {
         updateDateDisplay(getDateAsGregorian().getTime() - MILLIS_IN_DAY);
         updateGregorianDateHelperDisplay();
     }
-    
+
     /**
      * Decrease by 1 month
      */
-    private void decrementMonth(){
+    private void decrementMonth() {
         UniversalDate dt = decrementMonth(getCurrentMillis());
         updateDateDisplay(dt.millisFromJavaEpoch);
         updateGregorianDateHelperDisplay();
     }
-    
+
     /**
      * Decrease by 1 year
      */
-    private void decrementYear(){
+    private void decrementYear() {
         UniversalDate dt = decrementYear(getCurrentMillis());
         updateDateDisplay(dt.millisFromJavaEpoch);
         updateGregorianDateHelperDisplay();
     }
-    
+
     /**
      * Initial date display
      */
@@ -397,73 +397,76 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
 
         if (mPrompt.getAnswerValue() != null) {
             // setup date object
-            Date date = (Date) mPrompt.getAnswerValue().getValue();
+            Date date = (Date)mPrompt.getAnswerValue().getValue();
 
             // find out what the same instant is using the other chronology
             long millisFromJavaEpoch = date.getTime();
             UniversalDate dateUniv = fromMillis(millisFromJavaEpoch);
-           
+
             txtDay.setText(Integer.toString(dateUniv.day));
-            txtMonth.setText(monthsArray[dateUniv.month-1]);
-            monthArrayPointer = dateUniv.month-1;
+            txtMonth.setText(monthsArray[dateUniv.month - 1]);
+            monthArrayPointer = dateUniv.month - 1;
             txtYear.setText(Integer.toString(dateUniv.year));
             updateGregorianDateHelperDisplay();
-            
+
         } else {
             // create date widget with current date
             clearAnswer();
         }
     }
-    
+
     /**
      * Get the current widget date in Gregorian chronology
      */
-    private Date getDateAsGregorian(){
+    private Date getDateAsGregorian() {
         return new Date(getCurrentMillis());
     }
-    
+
     /**
      * Get the current widget date in milliseconds since Java epoch
      */
-    private long getCurrentMillis(){
+    private long getCurrentMillis() {
         int day = Integer.parseInt(txtDay.getText().toString());
         int month = monthArrayPointer + 1;
         int year = Integer.parseInt(txtYear.getText().toString());
         return toMillisFromJavaEpoch(year, month, day, millisOfDayOffset);
     }
-    
+
     /**
      * Update the widget date to display the amended date
      */
-    private void updateDateDisplay(long millisFromJavaEpoch){
+    private void updateDateDisplay(long millisFromJavaEpoch) {
         UniversalDate dateUniv = fromMillis(millisFromJavaEpoch);
-        txtDay.setText(String.format("%02d",dateUniv.day));
-        txtMonth.setText(monthsArray[dateUniv.month-1]);
-        monthArrayPointer = dateUniv.month-1;
-        txtYear.setText(String.format("%04d",dateUniv.year));
+        txtDay.setText(String.format("%02d", dateUniv.day));
+        txtMonth.setText(monthsArray[dateUniv.month - 1]);
+        monthArrayPointer = dateUniv.month - 1;
+        txtYear.setText(String.format("%04d", dateUniv.year));
     }
-    
+
     /**
      * Update the widget helper date text (useful for those who don't know the other calendar)
      */
-    private void updateGregorianDateHelperDisplay(){
+    private void updateGregorianDateHelperDisplay() {
         DateTime dtLMDGreg = new DateTime(getCurrentMillis());
         DateTimeFormatter fmt = DateTimeFormat.forPattern("d MMMM yyyy");
         String str = fmt.print(dtLMDGreg);
-        txtGregorian.setText("("+str+")");
+        txtGregorian.setText("(" + str + ")");
     }
-   
+
     /**
      * Listens for button being pressed by touchscreen
+     *
      * @author alex
      */
-    private class EDWTouchListener implements OnTouchListener{
+    private class EDWTouchListener implements OnTouchListener {
         private final View mView;
         private final Handler mHandler;
-        public EDWTouchListener(View mV, Handler mH){
+
+        public EDWTouchListener(View mV, Handler mH) {
             mView = mV;
             mHandler = mH;
         }
+
         @Override
         public boolean onTouch(View v, MotionEvent event) {
             boolean isReleased = event.getAction() == MotionEvent.ACTION_UP || event.getAction() == MotionEvent.ACTION_CANCEL;
@@ -472,23 +475,26 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
             if (isReleased) {
                 stopUpdating();
             } else if (isPressed) {
-                startUpdating(v == mView,mHandler);
+                startUpdating(v == mView, mHandler);
             }
             return false;
         }
     }
-    
+
     /**
      * Listens for button being pressed by keypad/trackball
+     *
      * @author alex
      */
-    private class EDWKeyListener implements OnKeyListener{
+    private class EDWKeyListener implements OnKeyListener {
         private final View mView;
         private final Handler mHandler;
-        public EDWKeyListener(View mV, Handler mH){
+
+        public EDWKeyListener(View mV, Handler mH) {
             mView = mV;
             mHandler = mH;
         }
+
         @Override
         public boolean onKey(View v, int keyCode, KeyEvent event) {
             boolean isKeyOfInterest = keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER;
@@ -499,7 +505,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
             if (isKeyOfInterest && isReleased) {
                 stopUpdating();
             } else if (isKeyOfInterest && isPressed) {
-                startUpdating(v == mView,mHandler);
+                startUpdating(v == mView, mHandler);
             }
             return false;
         }

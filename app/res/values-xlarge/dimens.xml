@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="login_box_margins">120dp</dimen>
-    
+
     <dimen name="font_size_small">20sp</dimen>
     <dimen name="font_size_medium">24sp</dimen>
     <dimen name="font_size_large">28sp</dimen>
-	<dimen name="font_size_xlarge">32sp</dimen>
-	
-	<dimen name="cell_padding_vertical">8sp</dimen>
-	<dimen name="cell_padding_horizontal">8sp</dimen>
-	<dimen name="row_padding_vertical">8sp</dimen>
-	<dimen name="row_padding_horizontal">12sp</dimen>
-    
+    <dimen name="font_size_xlarge">32sp</dimen>
+
+    <dimen name="cell_padding_vertical">8sp</dimen>
+    <dimen name="cell_padding_horizontal">8sp</dimen>
+    <dimen name="row_padding_vertical">8sp</dimen>
+    <dimen name="row_padding_horizontal">12sp</dimen>
+
 </resources>

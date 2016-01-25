@@ -40,7 +40,8 @@ public class AxisConfiguration extends Configuration {
 
     /**
      * Add min and max bounds to given axis.
-     * @param axis Current axis configuration. Will be modified.
+     *
+     * @param axis   Current axis configuration. Will be modified.
      * @param prefix Prefix for commcare model's configuration: "x", "y", or "secondary-y"
      */
     private void addBounds(JSONObject axis, String prefix) throws InvalidStateException, JSONException {
@@ -50,7 +51,8 @@ public class AxisConfiguration extends Configuration {
 
     /**
      * Add min or max bound to given axis.
-     * @param axis Current axis configuratoin. Will be modified.
+     *
+     * @param axis   Current axis configuratoin. Will be modified.
      * @param prefix Prefix for commcare model's configuration: "x", "y", or "secondary-y"
      * @param suffix "min" or "max"
      */
@@ -69,8 +71,9 @@ public class AxisConfiguration extends Configuration {
 
     /**
      * Configure tick count, placement, and labels.
-     * @param axis Current axis configuration. Will be modified.
-     * @param key One of "x-labels", "y-labels", "secondary-y-labels"
+     *
+     * @param axis    Current axis configuration. Will be modified.
+     * @param key     One of "x-labels", "y-labels", "secondary-y-labels"
      * @param varName If the axis uses a hash of labels (position => label), a variable
      *                will be created with this name to store those labels.
      */
@@ -149,8 +152,9 @@ public class AxisConfiguration extends Configuration {
 
     /**
      * Add title to axis.
-     * @param axis Current axis configuration. Will be modified.
-     * @param key One of "x-title", "y-title", "secondary-y-title"
+     *
+     * @param axis     Current axis configuration. Will be modified.
+     * @param key      One of "x-title", "y-title", "secondary-y-title"
      * @param position For horizontal axis, (inner|outer)-(right|center|left)
      *                 For vertical axis, (inner|outer)-(top|middle|bottom)
      */
@@ -170,6 +174,7 @@ public class AxisConfiguration extends Configuration {
 
     /**
      * Generate axis configuration.
+     *
      * @param prefix Prefix for commcare model's configuration: "x", "y", or "secondary-y"
      * @return JSONObject representing the axis's configuration
      */
@@ -181,7 +186,7 @@ public class AxisConfiguration extends Configuration {
 
         JSONObject config = new JSONObject();
         boolean isX = prefix.equals("x");
-        
+
         // X and primary Y axis show by default, but not secondary y. Force them all to show.
         // Display secondary y axis, regardless of if it has data; this makes the
         // whitespace around the graph look more reasonable.

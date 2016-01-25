@@ -65,7 +65,6 @@ public class SingleAppManagerActivity extends Activity {
     }
 
     /**
-     *
      * @param position the position in AppManagerActivity's list view that was clicked to trigger
      *                 this activity
      * @return the ApplicationRecord corresponding to the app that should be displayed in this

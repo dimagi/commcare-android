@@ -40,14 +40,15 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     private boolean locationGoodEnough;
 
     private final Context context = CommCareApplication._().getApplicationContext();
-    private final LocationManager mLocationManager = (LocationManager) context.getSystemService(
+    private final LocationManager mLocationManager = (LocationManager)context.getSystemService(
             Context.LOCATION_SERVICE);
 
     // If there are more general uses for HereFunctionHandler, the type of this field can be
     // generalized to a listener interface.
     private EntitySelectActivity entitySelectActivity;
 
-    public HereFunctionHandler() {}
+    public HereFunctionHandler() {
+    }
 
     public void registerEvalLocationListener(EntitySelectActivity entitySelectActivity) {
         this.entitySelectActivity = entitySelectActivity;
@@ -138,20 +139,23 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
                 location.getLatitude(),
                 location.getLongitude(),
                 location.getAltitude(),
-                (double) location.getAccuracy()
+                (double)location.getAccuracy()
         });
     }
 
     @Override
-    public void onProviderDisabled(String provider) {}
+    public void onProviderDisabled(String provider) {
+    }
 
 
     @Override
-    public void onProviderEnabled(String provider) {}
+    public void onProviderEnabled(String provider) {
+    }
 
 
     @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {}
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+    }
 
     @Override
     public String getName() {

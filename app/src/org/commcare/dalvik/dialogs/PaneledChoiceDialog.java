@@ -44,13 +44,13 @@ public class PaneledChoiceDialog {
     }
 
     private void setTitle(String title) {
-        TextView tv = (TextView) view.findViewById(R.id.choice_dialog_title).
+        TextView tv = (TextView)view.findViewById(R.id.choice_dialog_title).
                 findViewById(R.id.dialog_title_text);
         tv.setText(title);
     }
 
     public static void populateChoicePanel(Context context, Button choicePanel,
-                                                 DialogChoiceItem item, boolean iconToLeft) {
+                                           DialogChoiceItem item, boolean iconToLeft) {
         choicePanel.setText(item.text);
         choicePanel.setOnClickListener(item.listener);
         if (item.iconResId != -1) {

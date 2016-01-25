@@ -17,17 +17,17 @@ import java.util.Hashtable;
  */
 public class AndroidXFormExtensions implements XFormExtension {
     private Hashtable<String, IntentCallout> intents = new Hashtable<>();
-    
+
     public AndroidXFormExtensions() {
     }
-    
+
     public void registerIntent(String id, IntentCallout callout) {
         intents.put(id, callout);
     }
-    
+
     public IntentCallout getIntent(String id, FormDef form) {
         IntentCallout callout = intents.get(id);
-        if(callout == null) {
+        if (callout == null) {
             throw new IllegalArgumentException("No registered intent callout for id : " + id);
         }
         callout.attachToForm(form);
@@ -41,6 +41,6 @@ public class AndroidXFormExtensions implements XFormExtension {
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.write(out,  new ExtWrapMap(intents));
+        ExtUtil.write(out, new ExtWrapMap(intents));
     }
 }

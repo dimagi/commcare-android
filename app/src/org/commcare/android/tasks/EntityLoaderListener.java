@@ -8,8 +8,10 @@ import java.util.List;
 
 public interface EntityLoaderListener {
     void attach(EntityLoaderTask task);
+
     void deliverResult(List<Entity<TreeReference>> entities,
                        List<TreeReference> references,
                        NodeEntityFactory factory);
+
     void deliverError(Exception e);
 }

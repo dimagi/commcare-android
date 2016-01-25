@@ -22,7 +22,7 @@ public class UrlUtils {
                     colString = c.getString(c.getColumnIndex("_data"));
                 }
             } finally {
-                if ( c != null ) {
+                if (c != null) {
                     c.close();
                 }
             }

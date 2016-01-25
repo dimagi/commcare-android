@@ -15,13 +15,13 @@ the License.
 -->
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/cc_attention_negative_color"
-    android:layout_marginLeft="@dimen/question_widget_side_inv"
-    android:layout_marginRight="@dimen/question_widget_side_inv"
-    android:layout_marginBottom="1dp"
-    android:id="@+id/toast_view_root"
+             android:layout_width="fill_parent"
+             android:layout_height="wrap_content"
+             android:background="@color/cc_attention_negative_color"
+             android:layout_marginLeft="@dimen/question_widget_side_inv"
+             android:layout_marginRight="@dimen/question_widget_side_inv"
+             android:layout_marginBottom="1dp"
+             android:id="@+id/toast_view_root"
     >
 
     <LinearLayout
@@ -30,15 +30,15 @@ the License.
         android:layout_height="wrap_content"
         style="@style/DefaultHorizontalPadding">
 
-            <TextView
-                android:id="@+id/message"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center"
-                android:textColor="@color/white"
-                style="@style/DefaultPadding"
-                />
+        <TextView
+            android:id="@+id/message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textColor="@color/white"
+            style="@style/DefaultPadding"
+            />
 
     </LinearLayout>
 </FrameLayout>

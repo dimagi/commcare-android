@@ -13,13 +13,13 @@ import java.util.Date;
 
 /**
  * Ethiopian Date Helper.
- * 
+ *
  * @author Alex Little (alex@alexlittle.net)
  */
 
 public class EthiopianDateHelper {
 
-    private static String ConvertToEthiopian(Context context, int gregorianYear, int gregorianMonth, int gregorianDay){
+    private static String ConvertToEthiopian(Context context, int gregorianYear, int gregorianMonth, int gregorianDay) {
         Chronology chron_eth = EthiopicChronology.getInstance();
         Chronology chron_greg = GregorianChronology.getInstance();
         DateTime jodaDateTime = new DateTime(gregorianYear, gregorianMonth, gregorianDay, 0, 0, 0, chron_greg);

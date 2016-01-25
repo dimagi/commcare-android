@@ -1,6 +1,6 @@
 /***
  * Copyright (c) 2010 readyState Software Ltd
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License. You may obtain
  * a copy of the License at
@@ -10,7 +10,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
  */
 
 package com.readystatesoftware.mapviewballoons;
@@ -29,7 +28,7 @@ import com.google.android.maps.OverlayItem;
 
 /**
  * A view representing a MapView marker information balloon.
- * 
+ *
  * @author Jeff Gilfelt
  *
  */
@@ -41,7 +40,7 @@ public class BalloonOverlayView<Item extends OverlayItem> extends FrameLayout {
 
     /**
      * Create a new BalloonOverlayView.
-     * 
+     *
      * @param context - The activity context.
      * @param balloonBottomOffset - The bottom padding (in pixels) to be applied
      * when rendering this view.
@@ -51,7 +50,7 @@ public class BalloonOverlayView<Item extends OverlayItem> extends FrameLayout {
         super(context);
 
         setPadding(10, 0, 10, balloonBottomOffset);
-        
+
         layout = new LimitLinearLayout(context);
         layout.setVisibility(VISIBLE);
 
@@ -68,34 +67,34 @@ public class BalloonOverlayView<Item extends OverlayItem> extends FrameLayout {
     /**
      * Inflate and initialize the BalloonOverlayView UI. Override this method
      * to provide a custom view/layout for the balloon. 
-     * 
+     *
      * @param context - The activity context.
      * @param parent - The root layout into which you must inflate your view.
      */
     protected void setupView(Context context, final ViewGroup parent) {
-        
-        LayoutInflater inflater = (LayoutInflater) context
+
+        LayoutInflater inflater = (LayoutInflater)context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View v = inflater.inflate(R.layout.balloon_overlay, parent);
-        title = (TextView) v.findViewById(R.id.balloon_item_title);
-        snippet = (TextView) v.findViewById(R.id.balloon_item_snippet);
-        
+        title = (TextView)v.findViewById(R.id.balloon_item_title);
+        snippet = (TextView)v.findViewById(R.id.balloon_item_snippet);
+
     }
-    
+
     /**
      * Sets the view data from a given overlay item.
-     * 
+     *
      * @param item - The overlay item containing the relevant view data. 
      */
     public void setData(Item item) {
         layout.setVisibility(VISIBLE);
         setBalloonData(item, layout);
     }
-    
+
     /**
      * Sets the view data from a given overlay item. Override this method to create
      * your own data/view mappings.
-     * 
+     *
      * @param item - The overlay item containing the relevant view data.
      * @param parent - The parent layout for this BalloonOverlayView.
      */
@@ -115,11 +114,11 @@ public class BalloonOverlayView<Item extends OverlayItem> extends FrameLayout {
             snippet.setVisibility(GONE);
         }
     }
-    
+
     private class LimitLinearLayout extends LinearLayout {
 
         private static final int MAX_WIDTH_DP = 280;
-        
+
         final float SCALE = getContext().getResources().getDisplayMetrics().density;
 
         public LimitLinearLayout(Context context) {

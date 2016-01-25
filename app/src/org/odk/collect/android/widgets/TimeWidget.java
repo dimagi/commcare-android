@@ -17,7 +17,7 @@ import java.util.Date;
 
 /**
  * Displays a TimePicker widget.
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  */
 public class TimeWidget extends QuestionWidget implements OnTimeChangedListener {
@@ -40,12 +40,12 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
         }
 
         String clockType =
-            android.provider.Settings.System.getString(context.getContentResolver(),
-                android.provider.Settings.System.TIME_12_24);
+                android.provider.Settings.System.getString(context.getContentResolver(),
+                        android.provider.Settings.System.TIME_12_24);
         if (clockType == null || clockType.equalsIgnoreCase("24")) {
             mTimePicker.setIs24HourView(true);
         }
-        
+
         // If there's an answer, use it.
         setAnswer();
 
@@ -53,20 +53,20 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
         addView(mTimePicker);
 
     }
-    
+
     public void setAnswer() {
         // If there's an answer, use it.
         if (mPrompt.getAnswerValue() != null) {
 
             // create a new date time from date object using default time zone
             DateTime ldt =
-                new DateTime(((Date) getCurrentAnswer().getValue()).getTime());
+                    new DateTime(((Date)getCurrentAnswer().getValue()).getTime());
             Log.d(TAG, "retrieving:" + ldt);
 
             int altVal = ldt.getHourOfDay() == 1 ? 2 : 1;
             mTimePicker.setCurrentHour(altVal);
             mTimePicker.setCurrentHour(ldt.getHourOfDay());
-            
+
             altVal = ldt.getMinuteOfHour() == 1 ? 2 : 1;
             mTimePicker.setCurrentMinute(altVal);
             mTimePicker.setCurrentMinute(ldt.getMinuteOfHour());
@@ -91,12 +91,12 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
     public IAnswerData getAnswer() {
         mTimePicker.clearFocus();
         // use picker time, convert to epoch date (for TZ clarity), store as utc
-        
+
         //CTS - 8/22/2021 : Adjusted this to store as the time past the Epoch, since the app otherwise can have conflicting
         //timezones with the JavaRosa Time storage, which is always stored against the epoch.
         DateTime ldt =
-            (new DateTime(0)).withTime(mTimePicker.getCurrentHour(), mTimePicker.getCurrentMinute(),
-                0, 0);
+                (new DateTime(0)).withTime(mTimePicker.getCurrentHour(), mTimePicker.getCurrentMinute(),
+                        0, 0);
         //DateTime utc = ldt.withZone(DateTimeZone.forID("UTC"));
         Log.d(TAG, "storing:" + ldt);
         return new TimeData(ldt.toDate());
@@ -107,7 +107,7 @@ public class TimeWidget extends QuestionWidget implements OnTimeChangedListener 
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 

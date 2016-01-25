@@ -73,18 +73,18 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         element.setName(parser.getName());
         element.setNamespace(parser.getNamespace());
         element.parse(this.parser);
-        
+
         //Consume the end tag.
         //this.parser.next();
-        
+
         //create an actual document out of it.
         Document document = new Document();
-        document.addChild(Node.ELEMENT, element);    
-        
+        document.addChild(Node.ELEMENT, element);
+
         KXmlSerializer serializer = new KXmlSerializer();
 
         String filePath = getInstanceDestination(namespaceToInstallPath.get(xmlns));
-        
+
         //Register this instance for inspection
         ContentValues values = new ContentValues();
         values.put(InstanceColumns.DISPLAY_NAME, "Historical Form");
@@ -100,13 +100,13 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         values.put(InstanceProviderAPI.UNINDEXED_SUBMISSION, true);
 
         Uri instanceRecord =
-            c.getContentResolver().insert(InstanceColumns.CONTENT_URI,values);
+                c.getContentResolver().insert(InstanceColumns.CONTENT_URI, values);
 
         // Find the form record attached to the form instance during insertion
         IStorageUtilityIndexed<FormRecord> storage = cachedStorage();
         FormRecord attachedRecord =
-            storage.getRecordForValue(FormRecord.META_INSTANCE_URI,
-                    instanceRecord.toString());
+                storage.getRecordForValue(FormRecord.META_INSTANCE_URI,
+                        instanceRecord.toString());
 
         if (attachedRecord == null) {
             throw new RuntimeException("No FormRecord was attached to the inserted form instance");
@@ -121,7 +121,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
             SecretKeySpec key = new SecretKeySpec(attachedRecord.getAesKey(), "AES");
             encrypter.init(Cipher.ENCRYPT_MODE, key);
             CipherOutputStream cos = new CipherOutputStream(o, encrypter);
-            bos = new BufferedOutputStream(cos,1024*256);
+            bos = new BufferedOutputStream(cos, 1024 * 256);
 
             serializer.setOutput(bos, "UTF-8");
 
@@ -136,7 +136,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
             throw new RuntimeException(e.getMessage());
         } finally {
             //since bos might not have even been created.
-            if(bos != null) {
+            if (bos != null) {
                 bos.close();
             } else {
                 o.close();
@@ -144,10 +144,11 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         }
         return attachedRecord;
     }
+
     private IStorageUtilityIndexed<FormRecord> cachedStorage() {
-        if(storage == null) {
-            storage =  CommCareApplication._().getUserStorage(FormRecord.class);
-        } 
+        if (storage == null) {
+            storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        }
         return storage;
     }
 
@@ -157,7 +158,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
      * a path pointing to an xml file of the same name inside that directory.
      *
      * Path should look something like:
-     *   /app/{app-id}/formdata/{form-id}_{time}/{form-id}_time.xml
+     * /app/{app-id}/formdata/{form-id}_{time}/{form-id}_time.xml
      *
      * @param formPath Path to xml file defining a form.
      * @return Absolute path to file where the instance of a given form should

@@ -1,7 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <suite descriptor="Suite File" version="1">
     <xform>
-        <resource descriptor="Form: (Module MCH Follow Up) - 1. Registration" id="8daa37b1f19b27d6d6d6289dda5b73dcea352d23"
+        <resource descriptor="Form: (Module MCH Follow Up) - 1. Registration"
+                  id="8daa37b1f19b27d6d6d6289dda5b73dcea352d23"
                   version="1">
             <location authority="local">./modules-0/forms-0.xml</location>
             <location authority="remote">./modules-0/forms-0.xml</location>

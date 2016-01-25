@@ -18,32 +18,31 @@ import org.javarosa.core.services.storage.StorageFullException;
 
 /**
  * @author ctsims
- *
  */
 @ManagedUi(R.layout.screen_permission_request)
 public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestActivity> {
-    
-    @UiElement(value = R.id.screen_permission_grant_text_message, locale="app.key.request.message")
+
+    @UiElement(value = R.id.screen_permission_grant_text_message, locale = "app.key.request.message")
     TextView message;
-    
-    @UiElement(value = R.id.screen_permission_request_button_grant, locale="app.key.request.grant")
+
+    @UiElement(value = R.id.screen_permission_request_button_grant, locale = "app.key.request.grant")
     Button grantButton;
-    
-    @UiElement(value = R.id.screen_permission_request_button_deny, locale="app.key.request.deny")
+
+    @UiElement(value = R.id.screen_permission_request_button_deny, locale = "app.key.request.deny")
     Button denyButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
+
         grantButton.setOnClickListener(new OnClickListener() {
 
             @Override
             public void onClick(View v) {
                 Intent response = new Intent(getIntent());
-                
+
                 AndroidSharedKeyRecord record = AndroidSharedKeyRecord.generateNewSharingKey();
-                
+
                 try {
                     CommCareApplication._().getGlobalStorage(AndroidSharedKeyRecord.class).write(record);
                 } catch (StorageFullException e) {
@@ -51,14 +50,14 @@ public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestA
                     finish();
                     return;
                 }
-                
+
                 record.writeResponseToIntent(response);
-                
+
                 setResult(Activity.RESULT_OK, response);
                 finish();
             }
         });
-        
+
         denyButton.setOnClickListener(new OnClickListener() {
 
             @Override
@@ -66,7 +65,7 @@ public class KeyAccessRequestActivity extends CommCareActivity<KeyAccessRequestA
                 setResult(Activity.RESULT_CANCELED);
                 finish();
             }
-            
+
         });
     }
 }

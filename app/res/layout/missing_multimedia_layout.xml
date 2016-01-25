@@ -1,29 +1,30 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent">
-    
-    <ImageView android:id="@+id/ImageView01" 
-        android:layout_height="wrap_content" 
-        android:layout_width="fill_parent" 
-        android:paddingLeft="20px" 
-        android:layout_marginRight="20px" 
-        android:paddingTop="20px" 
-        android:paddingBottom="0px" 
-        android:scaleType="fitStart" 
-        android:maxHeight="135px" 
-        android:maxWidth="663px" 
+
+    <ImageView
+        android:id="@+id/ImageView01"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:paddingLeft="20px"
+        android:layout_marginRight="20px"
+        android:paddingTop="20px"
+        android:paddingBottom="0px"
+        android:scaleType="fitStart"
+        android:maxHeight="135px"
+        android:maxWidth="663px"
         android:src="@drawable/ccbanner">
     </ImageView>
 
-	<Button
-	    android:id="@+id/skip_verification_button"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-	    android:text="@string/skip_button_text"
-	    android:layout_centerHorizontal="true"
-	    android:layout_above="@+id/screen_multimedia_retry"
-	    android:visibility="gone"/>
-    
+    <Button
+        android:id="@+id/skip_verification_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/skip_button_text"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@+id/screen_multimedia_retry"
+        android:visibility="gone"/>
+
     <Button
         android:id="@id/screen_multimedia_retry"
         android:layout_width="fill_parent"
@@ -33,21 +34,21 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"/>
 
-    
+
     <ScrollView
         android:id="@+id/scrollView1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" 
+        android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:layout_below="@+id/ImageView01" 
+        android:layout_below="@+id/ImageView01"
         android:layout_above="@id/skip_verification_button">
 
         <TextView
             android:id="@+id/MissingMediaPrompt"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"/>
 
     </ScrollView>
-    
+
 </RelativeLayout>

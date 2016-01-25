@@ -1,30 +1,60 @@
-<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
-	<h:head>
-		<h:title>Placeholder</h:title>
-		<model>
-			<instance>
-				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/0071BF4A-9C24-44E4-B830-BBD44CD5E828" uiVersion="1" version="486" name="Placeholder">
-					<placeholder/>
-				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/><cc:location/></orx:meta></data>
-			</instance><instance id="commcaresession" src="jr://instance/session"/>
-			<bind nodeset="/data/placeholder"/>
-			<itext>
-				<translation lang="en" default="">
-					<text id="placeholder-label">
-						<value>placeholder</value>
-					</text>
-				</translation>
-				<translation lang="hin">
-					<text id="placeholder-label">
-						<value>placeholder</value>
-					</text>
-				</translation>
-			</itext>
-		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/><orx:pollsensor event="xforms-ready" ref="/data/meta/location"/><bind nodeset="/data/meta/location" type="geopoint"/></model>
-	</h:head>
-	<h:body>
-		<trigger ref="/data/placeholder" appearance="minimal">
-			<label ref="jr:itext('placeholder-label')"/>
-		</trigger>
-	</h:body>
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms"
+        xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+        xmlns:jr="http://openrosa.org/javarosa">
+    <h:head>
+        <h:title>Placeholder</h:title>
+        <model>
+            <instance>
+                <data
+                    xmlns="http://openrosa.org/formdesigner/0071BF4A-9C24-44E4-B830-BBD44CD5E828"
+                    uiVersion="1" version="486" name="Placeholder">
+                    <placeholder/>
+                    <orx:meta xmlns:cc="http://commcarehq.org/xforms">
+                        <orx:deviceID/>
+                        <orx:timeStart/>
+                        <orx:timeEnd/>
+                        <orx:username/>
+                        <orx:userID/>
+                        <orx:instanceID/>
+                        <cc:appVersion/>
+                        <cc:location/>
+                    </orx:meta>
+                </data>
+            </instance>
+            <instance id="commcaresession" src="jr://instance/session"/>
+            <bind nodeset="/data/placeholder"/>
+            <itext>
+                <translation lang="en" default="">
+                    <text id="placeholder-label">
+                        <value>placeholder</value>
+                    </text>
+                </translation>
+                <translation lang="hin">
+                    <text id="placeholder-label">
+                        <value>placeholder</value>
+                    </text>
+                </translation>
+            </itext>
+            <setvalue event="xforms-ready" ref="/data/meta/deviceID"
+                      value="instance('commcaresession')/session/context/deviceid"/>
+            <setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/>
+            <bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/>
+            <setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/>
+            <bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/>
+            <setvalue event="xforms-ready" ref="/data/meta/username"
+                      value="instance('commcaresession')/session/context/username"/>
+            <setvalue event="xforms-ready" ref="/data/meta/userID"
+                      value="instance('commcaresession')/session/context/userid"/>
+            <setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/>
+            <setvalue event="xforms-ready" ref="/data/meta/appVersion"
+                      value="instance('commcaresession')/session/context/appversion"/>
+            <orx:pollsensor event="xforms-ready" ref="/data/meta/location"/>
+            <bind nodeset="/data/meta/location" type="geopoint"/>
+        </model>
+    </h:head>
+    <h:body>
+        <trigger ref="/data/placeholder" appearance="minimal">
+            <label ref="jr:itext('placeholder-label')"/>
+        </trigger>
+    </h:body>
 </h:html>

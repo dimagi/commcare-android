@@ -7,9 +7,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 /**
  * A Db Handler for direct DB Handle access, when
  * lazy handoff isn't necessary.
- * 
- * @author ctsims
  *
+ * @author ctsims
  */
 public class ConcreteAndroidDbHelper extends AndroidDbHelper {
     private final SQLiteDatabase handle;

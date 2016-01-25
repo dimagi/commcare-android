@@ -15,7 +15,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 
 /**
  * Widget that restricts values to integers.
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  */
 public class StringNumberWidget extends StringWidget {
@@ -24,11 +24,11 @@ public class StringNumberWidget extends StringWidget {
         super(context, prompt, secret);
 
         mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
-        mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_NEXT);
+        mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_NEXT);
 
         // needed to make long readonly text scroll
         mAnswer.setHorizontallyScrolling(false);
-        if(!secret) {
+        if (!secret) {
             mAnswer.setSingleLine(false);
         }
 
@@ -54,15 +54,15 @@ public class StringNumberWidget extends StringWidget {
             try {
                 mAnswer.setText(curAnswer);
             } catch (Exception NumberFormatException) {
-                
+
             }
         }
 
     }
-    
+
     @Override
     protected void setTextInputType(EditText mAnswer) {
-        if(secret) {
+        if (secret) {
             mAnswer.setInputType(InputType.TYPE_NUMBER_FLAG_SIGNED);
             mAnswer.setTransformationMethod(PasswordTransformationMethod.getInstance());
         }
@@ -86,11 +86,11 @@ public class StringNumberWidget extends StringWidget {
      * If this is the last question, set the action button to close the keyboard
      */
     @Override
-    public void setLastQuestion(boolean isLast){
-        if(isLast){
-            mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_DONE);
-        } else{
-            mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI|EditorInfo.IME_ACTION_NEXT);
+    public void setLastQuestion(boolean isLast) {
+        if (isLast) {
+            mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_DONE);
+        } else {
+            mAnswer.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI | EditorInfo.IME_ACTION_NEXT);
         }
     }
 

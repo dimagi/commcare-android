@@ -143,7 +143,7 @@ public abstract class ResourceEngineTask<R>
                     for (Resource r : resources) {
                         forceClosed = ResourceEngineTask.this.getStatus() == Status.FINISHED ||
                                 ResourceEngineTask.this.isCancelled();
-                        if(forceClosed) {
+                        if (forceClosed) {
                             break;
                         }
                         switch (r.getStatus()) {
@@ -160,7 +160,7 @@ public abstract class ResourceEngineTask<R>
                                 break;
                         }
                     }
-                    if(!forceClosed) {
+                    if (!forceClosed) {
                         incrementProgress(score, resources.size());
                     }
                     synchronized (statusLock) {

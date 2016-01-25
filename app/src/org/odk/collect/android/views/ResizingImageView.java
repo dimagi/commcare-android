@@ -24,10 +24,10 @@ import java.io.File;
 
 /**
  * @author wspride
- *    Class used by MediaLayout for form images. Can be set to resize the
- *    image using different algorithms based on the preference specified
- *    by PreferencesActivity.KEY_RESIZE. Overrides setMaxWidth, setMaxHeight,
- *  and onMeasure from the ImageView super class.
+ *         Class used by MediaLayout for form images. Can be set to resize the
+ *         image using different algorithms based on the preference specified
+ *         by PreferencesActivity.KEY_RESIZE. Overrides setMaxWidth, setMaxHeight,
+ *         and onMeasure from the ImageView super class.
  */
 
 @SuppressLint("NewApi")
@@ -51,7 +51,7 @@ public class ResizingImageView extends ImageView {
         this(context, null, null);
     }
 
-    public ResizingImageView(Context context, String imageURI, String bigImageURI){
+    public ResizingImageView(Context context, String imageURI, String bigImageURI) {
         super(context);
         gestureDetector = new GestureDetector(context, new GestureListener());
         scaleGestureDetector = new ScaleGestureDetector(context, new ScaleListener());
@@ -103,21 +103,21 @@ public class ResizingImageView extends ImageView {
             // don't let the object get too small or too large.
             scaleFactor = Math.max(0.1f, Math.min(scaleFactor, 5.0f));
 
-            if(scaleFactor > scaleFactorThreshhold){
+            if (scaleFactor > scaleFactorThreshhold) {
                 setFullScreen();
             }
             return true;
         }
     }
 
-    private void setFullScreen(){
+    private void setFullScreen() {
         String imageFileURI;
 
-        if(bigImageURI != null){
+        if (bigImageURI != null) {
             imageFileURI = bigImageURI;
-        } else if(imageURI != null){
+        } else if (imageURI != null) {
             imageFileURI = imageURI;
-        } else{
+        } else {
             return;
         }
 
@@ -139,7 +139,7 @@ public class ResizingImageView extends ImageView {
         }
     }
 
-    private Pair<Integer,Integer> getWidthHeight(int widthMeasureSpec, int heightMeasureSpec, double imageScaleFactor) {
+    private Pair<Integer, Integer> getWidthHeight(int widthMeasureSpec, int heightMeasureSpec, double imageScaleFactor) {
         int maxWidth = mMaxWidth;
         int maxHeight = mMaxHeight;
 
@@ -156,20 +156,21 @@ public class ResizingImageView extends ImageView {
         float dHeight = dipToPixels(getContext(), drawable.getIntrinsicHeight());
         float ratio = (dWidth) / dHeight;
 
-        int width = (int) Math.min(Math.max(dWidth, getSuggestedMinimumWidth()), maxWidth);
-        int height = (int) (width / ratio);
+        int width = (int)Math.min(Math.max(dWidth, getSuggestedMinimumWidth()), maxWidth);
+        int height = (int)(width / ratio);
 
         height = Math.min(Math.max(height, getSuggestedMinimumHeight()), maxHeight);
-        width = (int) (height * ratio);
+        width = (int)(height * ratio);
 
         if (width > maxWidth) {
             width = maxWidth;
-            height = (int) (width / ratio);
+            height = (int)(width / ratio);
         }
 
         return new Pair<>(new Double(width * imageScaleFactor).intValue(),
                 new Double(height * imageScaleFactor).intValue());
     }
+
     /*
      * The meat and potatoes of the class. Determines what algorithm to use
      * to resize the image based on the KEY_RESIZE preference. Currently can be
@@ -184,34 +185,34 @@ public class ResizingImageView extends ImageView {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        
-        if(resizeMethod.equals("full")){
+
+        if (resizeMethod.equals("full")) {
 
             Drawable drawable = getDrawable();
             if (drawable != null) {
-                Pair<Integer,Integer> mPair = this.getWidthHeight(widthMeasureSpec, heightMeasureSpec, 1);
+                Pair<Integer, Integer> mPair = this.getWidthHeight(widthMeasureSpec, heightMeasureSpec, 1);
                 setMeasuredDimension(mPair.first, mPair.second);
             }
         }
-        if(resizeMethod.equals("half")){
+        if (resizeMethod.equals("half")) {
 
             Drawable drawable = getDrawable();
             if (drawable != null) {
-                Pair<Integer,Integer> mPair = this.getWidthHeight(widthMeasureSpec, heightMeasureSpec, .5);
+                Pair<Integer, Integer> mPair = this.getWidthHeight(widthMeasureSpec, heightMeasureSpec, .5);
                 setMeasuredDimension(mPair.first, mPair.second);
             }
-        }
-        else if(resizeMethod.equals("width")){
+        } else if (resizeMethod.equals("width")) {
             Drawable d = getDrawable();
 
-            if(d!=null){
+            if (d != null) {
                 // ceil not round - avoid thin vertical gaps along the left/right edges
                 int width = MeasureSpec.getSize(widthMeasureSpec);
-                int height = (int) Math.ceil((float) width * (float) d.getIntrinsicHeight() / (float) d.getIntrinsicWidth());
+                int height = (int)Math.ceil((float)width * (float)d.getIntrinsicHeight() / (float)d.getIntrinsicWidth());
                 setMeasuredDimension(width, height);
             }
         }
     }
+
     // helper method for algorithm above
     private static float dipToPixels(Context context, float dipValue) {
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();

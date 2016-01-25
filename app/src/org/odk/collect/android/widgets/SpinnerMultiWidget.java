@@ -27,7 +27,7 @@ import java.util.Vector;
  * http://code.google.com/p/android/issues/detail?id=922 This bug causes text to be white in alert
  * boxes, which makes the select options invisible in this widget. For this reason, this widget
  * should not be used on phones with android versions lower than 2.0.
- * 
+ *
  * @author Jeff Beorse (jeff@beorse.net)
  */
 public class SpinnerMultiWidget extends QuestionWidget {
@@ -79,45 +79,45 @@ public class SpinnerMultiWidget extends QuestionWidget {
             public void onClick(View v) {
 
                 alert_builder.setTitle(mPrompt.getQuestionText()).setPositiveButton(R.string.ok,
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            boolean first = true;
-                            selectionText.setText("");
-                            for (int i = 0; i < selections.length; i++) {
-                                if (selections[i]) {
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                boolean first = true;
+                                selectionText.setText("");
+                                for (int i = 0; i < selections.length; i++) {
+                                    if (selections[i]) {
 
-                                    if (first) {
-                                        first = false;
-                                        selectionText.setText(StringUtils.getStringSpannableRobust(context, R.string.selected)
-                                                + answerItems[i].toString());
-                                        selectionText.setVisibility(View.VISIBLE);
-                                    } else {
-                                        selectionText.setText(selectionText.getText() + ", "
-                                                + answerItems[i].toString());
+                                        if (first) {
+                                            first = false;
+                                            selectionText.setText(StringUtils.getStringSpannableRobust(context, R.string.selected)
+                                                    + answerItems[i].toString());
+                                            selectionText.setVisibility(View.VISIBLE);
+                                        } else {
+                                            selectionText.setText(selectionText.getText() + ", "
+                                                    + answerItems[i].toString());
+                                        }
                                     }
                                 }
+
+                                if (hasListener) {
+                                    widgetChangedListener.widgetEntryChanged();
+                                }
                             }
-                            
-                            if(hasListener){
-                                widgetChangedListener.widgetEntryChanged();
-                            }
-                        }
-                    });
+                        });
 
                 alert_builder.setMultiChoiceItems(answerItems, selections,
-                    new DialogInterface.OnMultiChoiceClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                            selections[which] = isChecked;
-                            
-                            if(hasListener){
-                                widgetChangedListener.widgetEntryChanged();
+                        new DialogInterface.OnMultiChoiceClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                                selections[which] = isChecked;
+
+                                if (hasListener) {
+                                    widgetChangedListener.widgetEntryChanged();
+                                }
                             }
-                        }
-                    });
+                        });
                 AlertDialog alert = alert_builder.create();
                 alert.show();
-                
+
                 widgetEntryChanged();
             }
         });
@@ -125,7 +125,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
         // Fill in previous answers
         Vector<Selection> ve = new Vector<>();
         if (mPrompt.getAnswerValue() != null) {
-            ve = (Vector<Selection>) mPrompt.getAnswerValue().getValue();
+            ve = (Vector<Selection>)mPrompt.getAnswerValue().getValue();
         }
 
         if (ve != null) {
@@ -160,7 +160,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
         addView(button);
         addView(selectionText);
     }
-    
+
     @Override
     public IAnswerData getAnswer() {
         Vector<Selection> vc = new Vector<>();
@@ -190,7 +190,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
