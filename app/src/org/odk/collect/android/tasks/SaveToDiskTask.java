@@ -318,6 +318,8 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
 
     @Override
     protected void onPostExecute(Integer result) {
+        super.onPostExecute(result);
+
         synchronized (this) {
             if (mSavedListener != null)
                 mSavedListener.savingComplete(result, headless);
