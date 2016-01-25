@@ -72,9 +72,9 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
                 if (responseCode >= 200 && responseCode < 300) {
                     outcome = doResponseSuccess(response);
                 } else if (responseCode == 401) {
-                    outcome = doResponseAuthFailed();
+                    outcome = doResponseAuthFailed(response);
                 } else {
-                    outcome = doResponseOther();
+                    outcome = doResponseOther(response);
                 }
             } catch (ClientProtocolException | UnknownHostException e) {
                 outcome = HttpCalloutOutcomes.NetworkFailure;
@@ -103,7 +103,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
 
         // So either we didn't need our our HTTP callout or we succeeded. Either way, move on
         // to the next step
-        return doPostCalloutTask();
+        return doPostCalloutTask(calloutFailed);
     }
 
     protected boolean processSuccessfulRequest() {
@@ -117,6 +117,8 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
     protected abstract HttpResponse doHttpRequest() throws ClientProtocolException, IOException;
 
     protected HttpCalloutOutcomes doResponseSuccess(HttpResponse response) throws IOException {
+        beginResponseHandling(response);
+
         InputStream input = cacheResponseOpenHandle(response);
 
         TransactionParserFactory factory = getTransactionParserFactory();
@@ -166,11 +168,15 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
         return cache.retrieveCache();
     }
 
-    protected HttpCalloutOutcomes doResponseAuthFailed() {
+    protected void beginResponseHandling(HttpResponse response) {
+        //Nothing unless required
+    }
+
+    protected HttpCalloutOutcomes doResponseAuthFailed(HttpResponse response) {
         return HttpCalloutOutcomes.AuthFailed;
     }
 
-    protected abstract HttpCalloutOutcomes doResponseOther();
+    protected abstract HttpCalloutOutcomes doResponseOther(HttpResponse response);
 
     /** Indicates whether, after doSetupTaskBeforeRequest() is executed, we actually need to
      *  execute the http callout. If this is false, doSetupTaskBeforeRequest() will just be
@@ -182,5 +188,6 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, or
      */
     protected abstract boolean calloutSuccessRequired();
 
-    protected abstract HttpCalloutOutcomes doPostCalloutTask();
+    protected abstract HttpCalloutOutcomes doPostCalloutTask(boolean httpFailed);
+
 }

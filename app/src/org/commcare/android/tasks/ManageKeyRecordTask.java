@@ -355,7 +355,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     }
     
     @Override
-    protected HttpCalloutTask.HttpCalloutOutcomes doPostCalloutTask() {
+    protected HttpCalloutTask.HttpCalloutOutcomes doPostCalloutTask(boolean calloutFailed) {
         // First, check for consistency in our key records
         cleanupUserKeyRecords();
 
@@ -509,7 +509,7 @@ public abstract class ManageKeyRecordTask<R> extends HttpCalloutTask<R> {
     }
 
     @Override
-    protected HttpCalloutOutcomes doResponseOther() {
+    protected HttpCalloutOutcomes doResponseOther(HttpResponse response) {
         return HttpCalloutOutcomes.BadResponse;
     }
 
