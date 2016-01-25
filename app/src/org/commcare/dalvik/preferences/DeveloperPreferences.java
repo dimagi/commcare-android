@@ -4,8 +4,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
-import com.google.android.gms.analytics.GoogleAnalytics;
-
 import org.commcare.android.analytics.GoogleAnalyticsFields;
 import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
@@ -19,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DeveloperPreferences extends SessionAwarePreferenceActivity
-    implements SharedPreferences.OnSharedPreferenceChangeListener {
+        implements SharedPreferences.OnSharedPreferenceChangeListener {
     public final static String SUPERUSER_ENABLED = "cc-superuser-enabled";
     public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
     public final static String NAV_UI_ENABLED = "cc-nav-ui-enabled";
@@ -52,7 +50,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public final static String OFFER_PIN_FOR_LOGIN = "cc-offer-pin-for-login";
 
     private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,7 +88,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_DEV_PREFS,
                 getEditPrefLabel(key), getEditPrefValue(key));
-        switch(key) {
+        switch (key) {
             case ENABLE_AUTO_LOGIN:
                 if (!isAutoLoginEnabled()) {
                     DevSessionRestorer.clearPassword(sharedPreferences);
@@ -138,8 +136,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      * matchingValue.  If either the app or preference key don't exist, just
      * compare defaultValue to matchingValue
      *
-     * @param key is a potential entry in the app preferences
-     * @param defaultValue use this value if key not found
+     * @param key           is a potential entry in the app preferences
+     * @param defaultValue  use this value if key not found
      * @param matchingValue compare this to key lookup or defaultValue
      * @return boolean
      */
@@ -175,8 +173,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(NAV_UI_ENABLED, CommCarePreferences.YES).equals(CommCarePreferences.YES);
     }
-    
-    public static boolean isCssEnabled(){
+
+    public static boolean isCssEnabled() {
         return doesPropertyMatch(CSS_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
@@ -211,7 +209,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 equals(CommCarePreferences.YES);
     }
 
-    public static boolean isMarkdownEnabled(){
+    public static boolean isMarkdownEnabled() {
         return doesPropertyMatch(MARKDOWN_ENABLED, CommCarePreferences.NO, CommCarePreferences.YES);
     }
 
@@ -219,7 +217,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         return doesPropertyMatch(ALTERNATE_QUESTION_LAYOUT_ENABLED, CommCarePreferences.NO,
                 CommCarePreferences.YES);
     }
-                
+
     public static boolean isHomeReportEnabled() {
         return doesPropertyMatch(HOME_REPORT_ENABLED, CommCarePreferences.NO,
                 CommCarePreferences.YES);

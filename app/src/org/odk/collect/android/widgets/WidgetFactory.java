@@ -16,14 +16,14 @@ import org.odk.collect.android.logic.PendingCalloutInterface;
 
 /**
  * Convenience class that handles creation of widgets.
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  */
 public class WidgetFactory {
-    
+
     private final FormDef form;
     private final PendingCalloutInterface pendingCalloutInterface;
-    
+
     public WidgetFactory(FormDef form, PendingCalloutInterface pendingCalloutInterface) {
         this.form = form;
         this.pendingCalloutInterface = pendingCalloutInterface;
@@ -31,8 +31,8 @@ public class WidgetFactory {
 
     /**
      * Returns the appropriate QuestionWidget for the given FormEntryPrompt.
-     * 
-     * @param fep prompt element to be rendered
+     *
+     * @param fep     prompt element to be rendered
      * @param context Android context
      */
     public QuestionWidget createWidgetFromPrompt(FormEntryPrompt fep, Context context) {
@@ -40,11 +40,11 @@ public class WidgetFactory {
         String appearance = fep.getAppearanceHint();
         switch (fep.getControlType()) {
             case Constants.CONTROL_INPUT:
-                if(appearance != null && appearance.startsWith("intent:")) {
+                if (appearance != null && appearance.startsWith("intent:")) {
                     String intentId = appearance.substring("intent:".length());
                     IntentCallout ic = form.getExtension(AndroidXFormExtensions.class).getIntent(intentId, form);
                     //Hm, so what do we do if no callout is found? Error? For now, fail fast
-                    if(ic == null) {
+                    if (ic == null) {
                         throw new RuntimeException("No intent callout could be found for requested id " + intentId + "!");
                     }
                     //NOTE: No path specific stuff for now
@@ -58,10 +58,10 @@ public class WidgetFactory {
                         questionWidget = new DateTimeWidget(context, fep);
                         break;
                     case Constants.DATATYPE_DATE:
-                        if(appearance != null && appearance.toLowerCase().equals("ethiopian")){
+                        if (appearance != null && appearance.toLowerCase().equals("ethiopian")) {
                             questionWidget = new EthiopianDateWidget(context, fep);
                         } else if (appearance != null && appearance.toLowerCase().equals("nepali")) {
-                        	questionWidget = new NepaliDateWidget(context, fep);
+                            questionWidget = new NepaliDateWidget(context, fep);
                         } else {
                             questionWidget = new DateWidget(context, fep);
                         }
@@ -76,7 +76,7 @@ public class WidgetFactory {
                         questionWidget = new DecimalWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
                         break;
                     case Constants.DATATYPE_INTEGER:
-                        questionWidget = new IntegerWidget(context, fep,  fep.getControlType() == Constants.CONTROL_SECRET, 1);
+                        questionWidget = new IntegerWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, 1);
                         break;
                     case Constants.DATATYPE_GEOPOINT:
                         questionWidget = new GeoPointWidget(context, fep, pendingCalloutInterface);
@@ -84,19 +84,19 @@ public class WidgetFactory {
                     case Constants.DATATYPE_BARCODE:
 
                         IntentCallout mIntentCallout = new IntentCallout("com.google.zxing.client.android.SCAN", null, null,
-                                null, null , null, StringUtils.getStringRobust(context, R.string.get_barcode), appearance);
+                                null, null, null, StringUtils.getStringRobust(context, R.string.get_barcode), appearance);
                         Intent mIntent = mIntentCallout.generate(form.getEvaluationContext());
                         questionWidget = new BarcodeWidget(context, fep, mIntent, mIntentCallout, pendingCalloutInterface);
                         break;
                     case Constants.DATATYPE_TEXT:
                         if (appearance != null && (appearance.equalsIgnoreCase("numbers") || appearance.equalsIgnoreCase("numeric"))) {
-                            questionWidget = new StringNumberWidget(context, fep,  fep.getControlType() == Constants.CONTROL_SECRET);
+                            questionWidget = new StringNumberWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
                         } else {
-                            questionWidget = new StringWidget(context, fep,  fep.getControlType() == Constants.CONTROL_SECRET);
+                            questionWidget = new StringWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
                         }
                         break;
                     default:
-                        questionWidget = new StringWidget(context, fep,  fep.getControlType() == Constants.CONTROL_SECRET);
+                        questionWidget = new StringWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
                         break;
                 }
                 break;
@@ -118,7 +118,7 @@ public class WidgetFactory {
                     int numColumns = -1;
                     try {
                         numColumns =
-                            Integer.parseInt(appearance.substring(appearance.indexOf('-') + 1));
+                                Integer.parseInt(appearance.substring(appearance.indexOf('-') + 1));
                     } catch (Exception e) {
                         // Do nothing, leave numColumns as -1
                         Log.e("WidgetFactory", "Exception parsing numColumns");
@@ -160,7 +160,7 @@ public class WidgetFactory {
                     int numColumns = -1;
                     try {
                         numColumns =
-                            Integer.parseInt(appearance.substring(appearance.indexOf('-') + 1));
+                                Integer.parseInt(appearance.substring(appearance.indexOf('-') + 1));
                     } catch (Exception e) {
                         // Do nothing, leave numColumns as -1
                         Log.e("WidgetFactory", "Exception parsing numColumns");

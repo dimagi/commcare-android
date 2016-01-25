@@ -35,7 +35,7 @@ import java.io.File;
 
 /**
  * Widget that allows user to take pictures, sounds or video and add them to the form.
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
@@ -200,14 +200,14 @@ public class ImageWidget extends QuestionWidget {
                                     Uri.withAppendedPath(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id));
 
                             i.setDataAndType(Uri.withAppendedPath(
-                                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id),
+                                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id),
                                     "image/*");
                             try {
                                 getContext().startActivity(i);
                             } catch (ActivityNotFoundException e) {
                                 Toast.makeText(getContext(),
                                         StringUtils.getStringSpannableRobust(getContext(),
-                                            R.string.activity_not_found, "view image"),
+                                                R.string.activity_not_found, "view image"),
                                         Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -231,7 +231,7 @@ public class ImageWidget extends QuestionWidget {
         }
         // clean up variables
         mBinaryName = null;
-        
+
         //TODO: possibly switch back to this implementation, but causes NullPointerException right now
         /*
         int del = MediaUtils.deleteImageFileFromMediaProvider(mInstanceFolder + File.separator + mBinaryName);
@@ -266,7 +266,7 @@ public class ImageWidget extends QuestionWidget {
         if (mBinaryName != null) {
             deleteMedia();
         }
-        String binaryPath = UrlUtils.getPathFromUri((Uri) binaryuri,getContext());
+        String binaryPath = UrlUtils.getPathFromUri((Uri)binaryuri, getContext());
 
         File f = new File(binaryPath);
         mBinaryName = f.getName();
@@ -277,7 +277,7 @@ public class ImageWidget extends QuestionWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
@@ -314,7 +314,7 @@ public class ImageWidget extends QuestionWidget {
     @Override
     public void applyExtension(QuestionDataExtension extension) {
         if (extension instanceof UploadQuestionExtension) {
-            this.mMaxDimen = ((UploadQuestionExtension) extension).getMaxDimen();
+            this.mMaxDimen = ((UploadQuestionExtension)extension).getMaxDimen();
         }
     }
 

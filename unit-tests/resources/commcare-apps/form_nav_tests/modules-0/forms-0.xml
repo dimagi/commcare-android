@@ -1,13 +1,15 @@
 <h:html xmlns="http://www.w3.org/2002/xforms" xmlns:h="http://www.w3.org/1999/xhtml"
         xmlns:jr="http://openrosa.org/javarosa" xmlns:orx="http://openrosa.org/jr/xforms"
-        xmlns:vellum="http://commcarehq.org/xforms/vellum" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        xmlns:xsd="http://www.w3.org/2001/XMLSchema">
     <h:head>
         <h:title>Hidden Group</h:title>
         <model>
             <instance>
                 <data name="Hidden Group"
                       uiVersion="1"
-                      version="95" xmlns="http://openrosa.org/formdesigner/616F4108-566E-4E32-85C5-6153E3351D46" xmlns:jrm="http://dev.commcarehq.org/jr/xforms">
+                      version="95"
+                      xmlns="http://openrosa.org/formdesigner/616F4108-566E-4E32-85C5-6153E3351D46"
+                >
                     <fav_num/>
                     <question1 jr:template="">
                         <random_value/>

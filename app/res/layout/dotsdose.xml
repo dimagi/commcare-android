@@ -1,14 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content" android:clickable="true" android:layout_marginRight="15px" android:layout_marginLeft="0px" android:paddingBottom="10px" android:background="@drawable/dots_rect_back" android:paddingLeft="8px" android:paddingRight="8px">
-<TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/bigday" android:textStyle="bold" android:textAppearance="?android:attr/textAppearanceMedium" android:id="@+id/text_dosename" android:text="Morning"></TextView>
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:layout_marginRight="15px"
+    android:layout_marginLeft="0px"
+    android:paddingBottom="10px"
+    android:background="@drawable/dots_rect_back"
+    android:paddingLeft="8px"
+    android:paddingRight="8px">
 
-<TableLayout android:layout_height="wrap_content" android:orientation="horizontal" android:id="@+id/dose_table" android:layout_width="wrap_content" android:paddingTop="8px" android:layout_below="@+id/text_dosename" android:gravity="center_horizontal"><TableRow android:layout_height="wrap_content" android:id="@+id/dose_status" android:layout_width="fill_parent"><TextView android:id="@+id/TextView01" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="right" android:text="X" android:textStyle="bold" android:textColor="@color/red"></TextView><ImageView android:id="@+id/ImageView01" android:layout_width="wrap_content" android:layout_height="wrap_content"></ImageView></TableRow>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/bigday"
+        android:textStyle="bold"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:id="@+id/text_dosename"
+        android:text="Morning"></TextView>
+
+    <TableLayout
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/dose_table"
+        android:layout_width="wrap_content"
+        android:paddingTop="8px"
+        android:layout_below="@+id/text_dosename"
+        android:gravity="center_horizontal">
+
+        <TableRow
+            android:layout_height="wrap_content"
+            android:id="@+id/dose_status"
+            android:layout_width="fill_parent">
+
+            <TextView
+                android:id="@+id/TextView01"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:text="X"
+                android:textStyle="bold"
+                android:textColor="@color/red"></TextView>
+
+            <ImageView
+                android:id="@+id/ImageView01"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"></ImageView>
+        </TableRow>
 
 
-<TableRow android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/self_report_row"></TableRow>
-</TableLayout>
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/self_report_row"></TableRow>
+    </TableLayout>
 
 </RelativeLayout>

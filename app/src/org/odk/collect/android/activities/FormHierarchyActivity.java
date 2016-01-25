@@ -95,7 +95,7 @@ public class FormHierarchyActivity extends ListActivity {
     private void addActionBarBackArrow() {
         if (android.os.Build.VERSION.SDK_INT >= 11) {
             ActionBar bar = getActionBar();
-            if (bar != null){
+            if (bar != null) {
                 bar.setDisplayShowHomeEnabled(true);
                 bar.setDisplayHomeAsUpEnabled(true);
             }

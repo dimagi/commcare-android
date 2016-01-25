@@ -40,7 +40,7 @@ import java.util.Vector;
  * easy to navigate quickly. Optionally, you can turn off the labels. This would be done if a label
  * widget was at the top of your field list to provide the labels. If audio or video are specified
  * in the select answers they are ignored.
- * 
+ *
  * @author Jeff Beorse (jeff@beorse.net)
  */
 public class ListWidget extends QuestionWidget implements OnCheckedChangeListener {
@@ -69,9 +69,9 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
 
         String s = null;
         if (getCurrentAnswer() != null) {
-            s = ((Selection) getCurrentAnswer().getValue()).getValue();
+            s = ((Selection)getCurrentAnswer().getValue()).getValue();
         }
-        
+
         //Is this safe enough from collisions?
         buttonIdBase = Math.abs(mPrompt.getIndex().toString().hashCode());
 
@@ -103,18 +103,18 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
                 if (imageURI != null) {
                     try {
                         String imageFilename =
-                            ReferenceManager._().DeriveReference(imageURI).getLocalURI();
+                                ReferenceManager._().DeriveReference(imageURI).getLocalURI();
                         final File imageFile = new File(imageFilename);
                         if (imageFile.exists()) {
                             Bitmap b = null;
                             try {
                                 Display display =
-                                    ((WindowManager) getContext().getSystemService(
-                                        Context.WINDOW_SERVICE)).getDefaultDisplay();
+                                        ((WindowManager)getContext().getSystemService(
+                                                Context.WINDOW_SERVICE)).getDefaultDisplay();
                                 int screenWidth = display.getWidth();
                                 int screenHeight = display.getHeight();
                                 b = MediaUtil.getBitmapScaledToContainer(imageFile, screenHeight,
-                                            screenWidth);
+                                        screenWidth);
                             } catch (OutOfMemoryError e) {
                                 errorMsg = "ERROR: " + e.getMessage();
                             }
@@ -164,8 +164,8 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
                 LinearLayout answer = new LinearLayout(getContext());
                 answer.setOrientation(LinearLayout.VERTICAL);
                 LinearLayout.LayoutParams params =
-                    new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
-                            LayoutParams.WRAP_CONTENT);
+                        new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT,
+                                LayoutParams.WRAP_CONTENT);
                 params.gravity = Gravity.TOP;
                 answer.setLayoutParams(params);
 
@@ -187,8 +187,8 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
 
                 // Each button gets equal weight
                 LinearLayout.LayoutParams answerParams =
-                    new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,
-                            LayoutParams.WRAP_CONTENT);
+                        new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT,
+                                LayoutParams.WRAP_CONTENT);
                 answerParams.weight = 1;
 
                 buttonLayout.addView(answer, answerParams);
@@ -205,7 +205,7 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
 
         // The buttons take up the right half of the screen
         LinearLayout.LayoutParams buttonParams =
-            new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+                new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
         buttonParams.weight = 1;
 
         questionLayout.addView(buttonLayout, buttonParams);
@@ -237,7 +237,7 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
@@ -262,7 +262,7 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
                 button.setChecked(false);
             }
         }
-        
+
         widgetEntryChanged();
     }
 
@@ -285,7 +285,7 @@ public class ListWidget extends QuestionWidget implements OnCheckedChangeListene
 
         // Put the question text on the left half of the screen
         LinearLayout.LayoutParams labelParams =
-            new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
+                new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
         labelParams.weight = 1;
 
         questionLayout = new LinearLayout(getContext());

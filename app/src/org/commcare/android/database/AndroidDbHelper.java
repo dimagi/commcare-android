@@ -27,16 +27,16 @@ import java.util.Map;
  */
 public abstract class AndroidDbHelper extends DatabaseHelper {
     private final static String TAG = AndroidDbHelper.class.getSimpleName();
-    
+
     protected final Context c;
-    
+
     public AndroidDbHelper(Context c) {
         this.c = c;
     }
-    
+
     public abstract SQLiteDatabase getHandle() throws SessionUnavailableException;
 
-    public ContentValues getContentValues(Externalizable e){
+    public ContentValues getContentValues(Externalizable e) {
         ContentValues contentValues = new ContentValues();
         HashMap<String, Object> metaFieldsAndValues = DatabaseHelper.getMetaFieldsAndValues(e);
 
@@ -45,7 +45,7 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
         return contentValues;
     }
 
-    public ContentValues getContentValuesWithCustomData(Externalizable e, byte[] customData){
+    public ContentValues getContentValuesWithCustomData(Externalizable e, byte[] customData) {
         ContentValues contentValues = new ContentValues();
         HashMap<String, Object> metaFieldsAndValues = DatabaseHelper.getNonDataMetaEntries(e);
 
@@ -55,7 +55,7 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
         return contentValues;
     }
 
-    public ContentValues getNonDataContentValues(Externalizable e){
+    public ContentValues getNonDataContentValues(Externalizable e) {
         ContentValues contentValues = new ContentValues();
         HashMap<String, Object> metaFieldsAndValues = DatabaseHelper.getNonDataMetaEntries(e);
 
@@ -66,16 +66,16 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
 
     private void copyMetadataIntoContentValues(HashMap<String, Object> metaFieldsAndValues,
                                                ContentValues contentValues) {
-        for(Map.Entry<String, Object> entry:  metaFieldsAndValues.entrySet()){
+        for (Map.Entry<String, Object> entry : metaFieldsAndValues.entrySet()) {
             String key = entry.getKey();
             Object obj = entry.getValue();
-            if(obj instanceof String){
-                contentValues.put(key,(String)obj);
-            } else if(obj instanceof Integer){
-                contentValues.put(key, (Integer) obj);
-            } else if(obj instanceof byte[]){
-                contentValues.put(key, (byte[]) obj);
-            } else{
+            if (obj instanceof String) {
+                contentValues.put(key, (String)obj);
+            } else if (obj instanceof Integer) {
+                contentValues.put(key, (Integer)obj);
+            } else if (obj instanceof byte[]) {
+                contentValues.put(key, (byte[])obj);
+            } else {
                 Log.w(TAG, "Couldn't determine type of object: " + obj);
             }
         }
@@ -84,12 +84,12 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
     public Pair<String, String[]> createWhereAndroid(String[] fieldNames,
                                                      Object[] values,
                                                      EncryptedModel em,
-                                                     Persistable p){
+                                                     Persistable p) {
         org.commcare.modern.util.Pair<String, String[]> mPair =
                 DatabaseHelper.createWhere(fieldNames, values, em, p);
         return new Pair<>(mPair.first, mPair.second);
     }
-    
+
     public PrototypeFactory getPrototypeFactory() {
         return DbUtil.getPrototypeFactory(c);
     }

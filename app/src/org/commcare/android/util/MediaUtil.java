@@ -31,9 +31,9 @@ public class MediaUtil {
     /**
      * Attempts to inflate an image from a CommCare UI definition source.
      *
-     * @param jrUri The image to inflate
-     * @param boundingWidth the width of the container this image is being inflated into, to serve
-     *                      as a max width. If passed in as -1, gets set to screen width
+     * @param jrUri          The image to inflate
+     * @param boundingWidth  the width of the container this image is being inflated into, to serve
+     *                       as a max width. If passed in as -1, gets set to screen width
      * @param boundingHeight the height fo the container this image is being inflated into, to
      *                       serve as a max height. If passed in as -1, gets set to screen height
      * @return A bitmap if one could be created. Null if error occurs or the image is unavailable.
@@ -188,17 +188,16 @@ public class MediaUtil {
     }
 
     /**
-     * @return A bitmap representation of the given image file, scaled down such that the new
-     * dimensions of the image are the SMALLER of the following 2 options:
-     * 1) targetHeight and targetWidth
-     * 2) the largest dimensions for which the original aspect ratio is maintained, without
-     * exceeding either boundingWidth or boundingHeight
-     *
      * @param scaleByContainerOnly If true, means that we're just trying to ensure that our bitmap
      *                             isn't way bigger than necessary, rather than creating a bitmap
      *                             of an exact size based on a target width and height. In this
      *                             case, targetWidth and targetHeight are ignored and the 2nd case
      *                             above is used.
+     * @return A bitmap representation of the given image file, scaled down such that the new
+     * dimensions of the image are the SMALLER of the following 2 options:
+     * 1) targetHeight and targetWidth
+     * 2) the largest dimensions for which the original aspect ratio is maintained, without
+     * exceeding either boundingWidth or boundingHeight
      */
     private static Bitmap getBitmapScaledByTargetOrContainer(String imageFilepath,
                                                              int originalHeight, int originalWidth,
@@ -264,8 +263,7 @@ public class MediaUtil {
             } catch (OutOfMemoryError e) {
                 return originalBitmap;
             }
-        }
-        catch (OutOfMemoryError e) {
+        } catch (OutOfMemoryError e) {
             // Just inflating the image at its original size caused an OOM error, don't have a
             // choice but to scale down
             return performSafeScaleDown(imageFilepath, 2, 1);
@@ -300,7 +298,7 @@ public class MediaUtil {
                                                                             int boundingHeight,
                                                                             int boundingWidth) {
         double heightScaleFactor = (double)boundingHeight / originalHeight;
-        double widthScaleFactor =  (double)boundingWidth / originalWidth;
+        double widthScaleFactor = (double)boundingWidth / originalWidth;
         double dominantScaleFactor = Math.min(heightScaleFactor, widthScaleFactor);
 
         int widthImposedByContainer = (int)Math.round(originalWidth * dominantScaleFactor);

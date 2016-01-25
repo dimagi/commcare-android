@@ -160,17 +160,17 @@ public abstract class TemplatePrinterUtils {
                                              final boolean printInitiated) {
         AlertDialogFactory.getBasicAlertFactory(activity, title, msg,
                 new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                Intent intent = new Intent();
-                Bundle responses = new Bundle();
-                responses.putString("print_initiated", "" + printInitiated);
-                intent.putExtra("odk_intent_bundle", responses);
-                activity.setResult(Activity.RESULT_OK, intent);
-                activity.finish();
-            }
-        }).showDialog();
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        Intent intent = new Intent();
+                        Bundle responses = new Bundle();
+                        responses.putString("print_initiated", "" + printInitiated);
+                        intent.putExtra("odk_intent_bundle", responses);
+                        activity.setResult(Activity.RESULT_OK, intent);
+                        activity.finish();
+                    }
+                }).showDialog();
 
     }
 

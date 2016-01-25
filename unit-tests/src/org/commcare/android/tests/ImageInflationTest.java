@@ -21,7 +21,7 @@ public class ImageInflationTest {
     private DisplayMetrics lowDensityDevice;
     private DisplayMetrics mediumDensityDevice;
     private DisplayMetrics highDensityDevice;
-    
+
     private static final int[] boundingDimens_RESTRICTIVE = {50, 50};
     private static final int[] boundingDimens_LESS_RESTRICTIVE = {80, 80};
     private static final int[] boundingDimens_UNRESTRICTIVE = {200, 200};
@@ -37,7 +37,7 @@ public class ImageInflationTest {
     private void testCorrectInflation(int targetDensity, DisplayMetrics mockDevice,
                                       int[] boundingDimens, int expectedNewDimen) {
         Bitmap b = MediaUtil.getBitmapScaledForNativeDensity(mockDevice, imageFilepath,
-               boundingDimens[0], boundingDimens[1], targetDensity);
+                boundingDimens[0], boundingDimens[1], targetDensity);
         Assert.assertNotNull(b);
         Assert.assertEquals(expectedNewDimen, b.getWidth());
         Assert.assertEquals(expectedNewDimen, b.getHeight());
@@ -73,7 +73,7 @@ public class ImageInflationTest {
     public void testScaleFactorComputationComplex2() {
         // the expected value of density for 120dpi device is 120/160 = .75, so this is 33% smaller
         lowDensityDevice.density = (float)0.5;
-        Assert.assertEquals((double)120 / 280 * ((double)2/3),
+        Assert.assertEquals((double)120 / 280 * ((double)2 / 3),
                 MediaUtil.computeInflationScaleFactor(lowDensityDevice, DisplayMetrics.DENSITY_280), .1);
     }
 

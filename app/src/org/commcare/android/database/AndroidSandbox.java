@@ -20,7 +20,7 @@ public class AndroidSandbox extends UserSandbox {
 
     private final CommCareApplication app;
 
-    public AndroidSandbox(CommCareApplication app){
+    public AndroidSandbox(CommCareApplication app) {
         this.app = app;
     }
 

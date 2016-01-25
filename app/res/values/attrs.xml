@@ -1,7 +1,7 @@
 <resources>
     <declare-styleable name="AspectRatioLayout">
-        <attr name="ratio_width" format="float" />
-        <attr name="ratio_height" format="float" />
+        <attr name="ratio_width" format="float"/>
+        <attr name="ratio_height" format="float"/>
     </declare-styleable>
     <attr name="detail_even_row_color" format="reference"/>
     <attr name="detail_odd_row_color" format="reference"/>
@@ -14,10 +14,10 @@
     <attr name="menu_tile_title_text_color" format="reference"/>
     <attr name="entity_select_title_text_color" format="reference"/>
 
-    <attr name="backgroundColor" format="reference|color" />
-    <attr name="subtitle" format="string" />
-    <attr name="img" format="reference" />
-    <attr name="textColor" format="reference|color" />
+    <attr name="backgroundColor" format="reference|color"/>
+    <attr name="subtitle" format="string"/>
+    <attr name="img" format="reference"/>
+    <attr name="textColor" format="reference|color"/>
 
     <declare-styleable name="CustomButtonWithText">
         <attr name="backgroundColor"/>

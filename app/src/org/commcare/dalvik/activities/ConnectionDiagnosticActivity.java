@@ -36,16 +36,16 @@ public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<C
 
     public static final String logUnsetPostURLMessage = "CCHQ ping test: post URL not set.";
 
-    @UiElement(value = R.id.run_connection_test, locale="connection.test.run")
+    @UiElement(value = R.id.run_connection_test, locale = "connection.test.run")
     Button btnRunTest;
-    
-    @UiElement(value = R.id.output_message, locale="connection.test.messages")
+
+    @UiElement(value = R.id.output_message, locale = "connection.test.messages")
     TextView txtInteractiveMessages;
-    
-    @UiElement(value = R.id.settings_button, locale="connection.test.access.settings")
+
+    @UiElement(value = R.id.settings_button, locale = "connection.test.access.settings")
     Button settingsButton;
-    
-    @UiElement(value = R.id.report_button, locale="connection.test.report.button.message")
+
+    @UiElement(value = R.id.report_button, locale = "connection.test.report.button.message")
     Button reportButton;
 
     @Override
@@ -54,77 +54,77 @@ public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<C
         btnRunTest.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                ConnectionDiagnosticTask<ConnectionDiagnosticActivity> mConnectionDiagnosticTask = 
-                new ConnectionDiagnosticTask<ConnectionDiagnosticActivity>(getApplicationContext()) {
-                @Override
-                    //<R> receiver, <C> result. 
-                    //<C> is the return from DoTaskBackground, of type ArrayList<Boolean>
-                    protected void deliverResult(ConnectionDiagnosticActivity receiver, ConnectionDiagnosticTask.Test failedTest) {
-                        //user-caused connection issues
-                        if(failedTest == ConnectionDiagnosticTask.Test.isOnline ||
-                            failedTest == ConnectionDiagnosticTask.Test.googlePing) {
-                            //get the appropriate display message based on what the problem is
-                            String displayMessage = failedTest == ConnectionDiagnosticTask.Test.isOnline ? 
-                                    Localization.get("connection.task.internet.fail") 
-                                    : Localization.get("connection.task.remote.ping.fail");
-                            
-                            receiver.txtInteractiveMessages.setText(displayMessage);
-                            receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
-                            
-                            receiver.settingsButton.setVisibility(View.VISIBLE);
-                        } else if(failedTest == ConnectionDiagnosticTask.Test.commCarePing) {
-                            //unable to ping commcare -- report this to cchq
-                            receiver.txtInteractiveMessages.setText(
-                                    Localization.get("connection.task.commcare.html.fail"));
-                            receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
-                            
-                            receiver.reportButton.setVisibility(View.VISIBLE);
-                        } else if(failedTest == null) {
-                            receiver.txtInteractiveMessages.setText(Localization.get("connection.task.success"));
-                            receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
-                            receiver.settingsButton.setVisibility(View.INVISIBLE);
-                            receiver.reportButton.setVisibility(View.INVISIBLE);
-                        }
-                    }
+                ConnectionDiagnosticTask<ConnectionDiagnosticActivity> mConnectionDiagnosticTask =
+                        new ConnectionDiagnosticTask<ConnectionDiagnosticActivity>(getApplicationContext()) {
+                            @Override
+                            //<R> receiver, <C> result.
+                            //<C> is the return from DoTaskBackground, of type ArrayList<Boolean>
+                            protected void deliverResult(ConnectionDiagnosticActivity receiver, ConnectionDiagnosticTask.Test failedTest) {
+                                //user-caused connection issues
+                                if (failedTest == ConnectionDiagnosticTask.Test.isOnline ||
+                                        failedTest == ConnectionDiagnosticTask.Test.googlePing) {
+                                    //get the appropriate display message based on what the problem is
+                                    String displayMessage = failedTest == ConnectionDiagnosticTask.Test.isOnline ?
+                                            Localization.get("connection.task.internet.fail")
+                                            : Localization.get("connection.task.remote.ping.fail");
 
-                    @Override
-                    protected void deliverUpdate(ConnectionDiagnosticActivity receiver, String... update) {
-                        receiver.txtInteractiveMessages.setText((Localization.get("connection.test.update.message")));
-                    }
-                    
-                    @Override
-                    protected void deliverError(ConnectionDiagnosticActivity receiver, Exception e) {
-                        receiver.txtInteractiveMessages.setText(Localization.get("connection.test.error.message"));
-                        receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
-                    }
-                };
-                
+                                    receiver.txtInteractiveMessages.setText(displayMessage);
+                                    receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
+
+                                    receiver.settingsButton.setVisibility(View.VISIBLE);
+                                } else if (failedTest == ConnectionDiagnosticTask.Test.commCarePing) {
+                                    //unable to ping commcare -- report this to cchq
+                                    receiver.txtInteractiveMessages.setText(
+                                            Localization.get("connection.task.commcare.html.fail"));
+                                    receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
+
+                                    receiver.reportButton.setVisibility(View.VISIBLE);
+                                } else if (failedTest == null) {
+                                    receiver.txtInteractiveMessages.setText(Localization.get("connection.task.success"));
+                                    receiver.txtInteractiveMessages.setVisibility(View.VISIBLE);
+                                    receiver.settingsButton.setVisibility(View.INVISIBLE);
+                                    receiver.reportButton.setVisibility(View.INVISIBLE);
+                                }
+                            }
+
+                            @Override
+                            protected void deliverUpdate(ConnectionDiagnosticActivity receiver, String... update) {
+                                receiver.txtInteractiveMessages.setText((Localization.get("connection.test.update.message")));
+                            }
+
+                            @Override
+                            protected void deliverError(ConnectionDiagnosticActivity receiver, Exception e) {
+                                receiver.txtInteractiveMessages.setText(Localization.get("connection.test.error.message"));
+                                receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
+                            }
+                        };
+
                 mConnectionDiagnosticTask.connect(ConnectionDiagnosticActivity.this);
-                mConnectionDiagnosticTask.execute();                
+                mConnectionDiagnosticTask.execute();
             }
         });
-        
+
         //Set a button that allows you to change your airplane mode settings
-        this.settingsButton.setOnClickListener( new OnClickListener() {
+        this.settingsButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
             }
         });
-        
-        this.reportButton.setOnClickListener( new OnClickListener() {
+
+        this.reportButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                SharedPreferences settings = 
+                SharedPreferences settings =
                         CommCareApplication._().getCurrentApp().getAppPreferences();
                 String url = settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, null);
-                
-                if(url != null) {
+
+                if (url != null) {
                     DataSubmissionListener dataListener;
 
                     try {
                         dataListener =
-                            CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title);
+                                CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title);
                     } catch (SessionUnavailableException sue) {
                         // abort since it looks like the session expired
                         return;
@@ -136,8 +136,8 @@ public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<C
                     reportSubmitter.execute();
                     ConnectionDiagnosticActivity.this.finish();
                     Toast.makeText(
-                            CommCareApplication._(), 
-                            Localization.get("connection.task.report.commcare.popup"), 
+                            CommCareApplication._(),
+                            Localization.get("connection.task.report.commcare.popup"),
                             Toast.LENGTH_LONG).show();
                 } else {
                     Logger.log(ConnectionDiagnosticTask.CONNECTION_DIAGNOSTIC_REPORT, logUnsetPostURLMessage);
@@ -160,8 +160,7 @@ public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<C
             CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
             dialog.setCancelable();
             return dialog;
-        }
-        else {
+        } else {
             Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in ConnectionDiagnosticActivity");
             return null;

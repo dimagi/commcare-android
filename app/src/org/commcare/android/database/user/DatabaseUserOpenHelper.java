@@ -66,35 +66,35 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
         try {
             database.beginTransaction();
-            
+
             AndroidTableBuilder builder = new AndroidTableBuilder(ACase.STORAGE_KEY);
             builder.addData(new ACase());
             builder.setUnique(ACase.INDEX_CASE_ID);
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new AndroidTableBuilder("USER");
             builder.addData(new User());
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new AndroidTableBuilder(FormRecord.class);
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new AndroidTableBuilder(SessionStateDescriptor.class);
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new AndroidTableBuilder(GeocodeCacheModel.STORAGE_KEY);
             builder.addData(new GeocodeCacheModel());
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new AndroidTableBuilder(DeviceReportRecord.class);
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new AndroidTableBuilder("fixture");
             builder.addFileBackedData(new FormInstance());
             database.execSQL(builder.getTableCreateString());
 
             DbUtil.createOrphanedFileTable(database);
-            
+
             builder = new AndroidTableBuilder(Ledger.STORAGE_KEY);
             builder.addData(new Ledger());
             builder.setUnique(Ledger.INDEX_ENTITY_ID);

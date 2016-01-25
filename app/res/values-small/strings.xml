@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="app_version_string">version.id.short</string>
-	<item name="detail_size_cutoff" format="integer" type="integer">200</item>
+    <string name="app_version_string">version.id.short</string>
+    <item name="detail_size_cutoff" format="integer" type="integer">200</item>
 </resources>

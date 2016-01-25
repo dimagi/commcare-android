@@ -6,29 +6,28 @@ import java.io.OutputStream;
 
 /**
  * @author ctsims
- *
  */
 public class AndroidStreamUtil {
-    
+
     /**
      * Write is to os and close both
      */
     public static void writeFromInputToOutput(InputStream is, OutputStream os) throws IOException {
         writeFromInputToOutput(is, os, null);
     }
-    
+
     /**
      * Write is to os and close both
      */
     public static void writeFromInputToOutput(InputStream is, OutputStream os, StreamReadObserver observer) throws IOException {
         byte[] buffer = new byte[8192];
         long counter = 0;
-        
+
         try {
             int count = is.read(buffer);
-            while(count != -1) {
+            while (count != -1) {
                 counter += count;
-                if(observer != null) {
+                if (observer != null) {
                     observer.notifyCurrentCount(counter);
                 }
                 os.write(buffer, 0, count);
@@ -49,7 +48,7 @@ public class AndroidStreamUtil {
             }
         }
     }
-    
+
     public interface StreamReadObserver {
         void notifyCurrentCount(long bytesRead);
     }

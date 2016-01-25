@@ -3,11 +3,11 @@
     <dimen name="font_size_small">8sp</dimen>
     <dimen name="font_size_medium">10sp</dimen>
     <dimen name="font_size_large">12sp</dimen>
-	<dimen name="font_size_xlarge">14sp</dimen>
-	
-	<dimen name="cell_padding_vertical">8sp</dimen>
-	<dimen name="cell_padding_horizontal">8sp</dimen>
-	<dimen name="row_padding_vertical">8sp</dimen>
-	<dimen name="row_padding_horizontal">8sp</dimen>
-    
+    <dimen name="font_size_xlarge">14sp</dimen>
+
+    <dimen name="cell_padding_vertical">8sp</dimen>
+    <dimen name="cell_padding_horizontal">8sp</dimen>
+    <dimen name="row_padding_vertical">8sp</dimen>
+    <dimen name="row_padding_horizontal">8sp</dimen>
+
 </resources>

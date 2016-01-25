@@ -166,9 +166,9 @@ public class GoogleAnalyticsUtils {
      * Report an event of an attempted sync
      *
      * @param action - Communicates whether the sync was user-triggered or auto-triggered
-     * @param label - Communicates if the sync was successful
-     * @param value - Communicates the nature of the sync if it was successful,
-     *              OR the reason for failure if the sync was unsuccessful
+     * @param label  - Communicates if the sync was successful
+     * @param value  - Communicates the nature of the sync if it was successful,
+     *               OR the reason for failure if the sync was unsuccessful
      */
     public static void reportSyncAttempt(String action, String label, int value) {
         reportEvent(GoogleAnalyticsFields.CATEGORY_SERVER_COMMUNICATION, action, label, value);
@@ -204,7 +204,7 @@ public class GoogleAnalyticsUtils {
      * Report the length of a certain user event/action/concept
      *
      * @param action - Communicates the event/action/concept whose length is being measured
-     * @param value - Communicates the duration, in seconds
+     * @param value  - Communicates the duration, in seconds
      */
     public static void reportTimedEvent(String action, int value) {
         if (analyticsDisabled() || versionIncompatible()) {
@@ -218,7 +218,7 @@ public class GoogleAnalyticsUtils {
     }
 
     public static void createPreferenceOnClickListeners(PreferenceManager prefManager,
-            Map<String, String> menuIdToAnalyticsEvent, String category ) {
+                                                        Map<String, String> menuIdToAnalyticsEvent, String category) {
 
         for (String prefKey : menuIdToAnalyticsEvent.keySet()) {
             createPreferenceOnClickListener(prefManager, prefKey, category,

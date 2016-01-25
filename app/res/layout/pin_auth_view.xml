@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-    <include layout="@layout/pin_prompt_text" />
+    <include layout="@layout/pin_prompt_text"/>
 
     <include layout="@layout/pin_text_entry"/>
 
@@ -17,7 +17,7 @@
         android:layout_centerVertical="true"
         android:gravity="center_horizontal"
         android:inputType="textPassword"
-        android:visibility="gone" >
+        android:visibility="gone">
     </EditText>
 
     <include layout="@layout/pin_screen_buttons"/>

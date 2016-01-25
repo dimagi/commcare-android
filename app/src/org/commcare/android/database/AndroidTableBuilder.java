@@ -20,7 +20,7 @@ public class AndroidTableBuilder extends TableBuilder {
     private static final int MAX_SQL_ARGS = 950;
 
     public AndroidTableBuilder(Class c) {
-        super(c, ((Table) c.getAnnotation(Table.class)).value());
+        super(c, ((Table)c.getAnnotation(Table.class)).value());
     }
 
     public AndroidTableBuilder(String name) {
@@ -43,23 +43,23 @@ public class AndroidTableBuilder extends TableBuilder {
         //figure out how many iterations we'll need
         int numIterations = (int)Math.ceil(((double)input.size()) / maxArgs);
 
-        for(int currentRound = 0 ; currentRound < numIterations ; ++currentRound) {
+        for (int currentRound = 0; currentRound < numIterations; ++currentRound) {
 
             int startPoint = currentRound * maxArgs;
             int lastIndex = Math.min((currentRound + 1) * maxArgs, input.size());
             StringBuilder stringBuilder = new StringBuilder("(");
-            for(int i = startPoint ; i < lastIndex ; ++i) {
+            for (int i = startPoint; i < lastIndex; ++i) {
                 stringBuilder.append("?,");
             }
 
             String[] array = new String[lastIndex - startPoint];
-            int count = 0 ;
-            for(int i = startPoint ; i < lastIndex ; ++i) {
+            int count = 0;
+            for (int i = startPoint; i < lastIndex; ++i) {
                 array[count++] = String.valueOf(input.get(i));
             }
 
             ops.add(new Pair<>(stringBuilder.toString().substring(0,
-                    stringBuilder.toString().length()-1) + ")", array));
+                    stringBuilder.toString().length() - 1) + ")", array));
 
         }
         return ops;

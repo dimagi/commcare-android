@@ -30,7 +30,7 @@ import java.io.File;
 
 /**
  * Widget that allows user to take pictures, sounds or video and add them to the form.
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
@@ -207,7 +207,7 @@ public class VideoWidget extends QuestionWidget {
         File source = new File(binaryPath);
         File newVideo = new File(destVideoPath);
         FileUtils.copyFile(source, newVideo);
-        
+
         checkFileSize(newVideo);
 
         if (newVideo.exists()) {
@@ -219,7 +219,7 @@ public class VideoWidget extends QuestionWidget {
             values.put(Video.Media.DATA, newVideo.getAbsolutePath());
 
             Uri VideoURI =
-                getContext().getContentResolver().insert(Video.Media.EXTERNAL_CONTENT_URI, values);
+                    getContext().getContentResolver().insert(Video.Media.EXTERNAL_CONTENT_URI, values);
             Log.i(t, "Inserting VIDEO returned uri = " + VideoURI.toString());
         } else {
             Log.e(t, "Inserting Video file FAILED");
@@ -232,7 +232,7 @@ public class VideoWidget extends QuestionWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 

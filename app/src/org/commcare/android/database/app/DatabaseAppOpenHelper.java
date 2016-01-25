@@ -55,7 +55,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             AndroidTableBuilder builder = new AndroidTableBuilder("GLOBAL_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new AndroidTableBuilder("UPGRADE_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
@@ -67,7 +67,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             builder = new AndroidTableBuilder("RECOVERY_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new AndroidTableBuilder("fixture");
             builder.addFileBackedData(new FormInstance());
             database.execSQL(builder.getTableCreateString());
@@ -107,7 +107,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     }
 
     public static String indexOnTableWithPGUIDCommand(String indexName,
-                                             String tableName) {
+                                                      String tableName) {
         return indexOnTableCommand(indexName, tableName, Resource.META_INDEX_PARENT_GUID);
     }
 

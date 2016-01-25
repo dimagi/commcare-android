@@ -1,14 +1,16 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <suite descriptor="Suite File" version="14">
     <xform>
-        <resource descriptor="Form: (Module Some Forms) - One" id="ccb392a6fcc0adf31e0b75c44ccf3444c1c0f1a7"
+        <resource descriptor="Form: (Module Some Forms) - One"
+                  id="ccb392a6fcc0adf31e0b75c44ccf3444c1c0f1a7"
                   version="6">
             <location authority="local">./modules-0/forms-0.xml</location>
             <location authority="remote">./modules-0/forms-0.xml</location>
         </resource>
     </xform>
     <xform>
-        <resource descriptor="Form: (Module Some Forms) - Two" id="5f0324a9350d45e60eca34d26f8a82e8f2f44764"
+        <resource descriptor="Form: (Module Some Forms) - Two"
+                  id="5f0324a9350d45e60eca34d26f8a82e8f2f44764"
                   version="14">
             <location authority="local">./modules-0/forms-1.xml</location>
             <location authority="remote">./modules-0/forms-1.xml</location>

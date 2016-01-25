@@ -9,8 +9,6 @@ import org.commcare.android.adapters.HomeCardDisplayData;
 import org.commcare.android.adapters.SquareButtonViewHolder;
 import org.commcare.android.analytics.GoogleAnalyticsFields;
 import org.commcare.android.analytics.GoogleAnalyticsUtils;
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -159,8 +157,8 @@ public class HomeButtons {
                 if (numIncompleteForms > 0) {
                     Spannable incompleteIndicator =
                             (activity.localize("home.forms.incomplete.indicator",
-                            new String[]{String.valueOf(numIncompleteForms),
-                                    Localization.get("home.forms.incomplete")}));
+                                    new String[]{String.valueOf(numIncompleteForms),
+                                            Localization.get("home.forms.incomplete")}));
                     squareButtonViewHolder.textView.setText(incompleteIndicator);
                 } else {
                     squareButtonViewHolder.textView.setText(activity.localize("home.forms.incomplete"));

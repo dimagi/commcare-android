@@ -287,9 +287,9 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 
                     }) {
 
-                        @Override
-                        protected void deliverUpdate(Object r, String... update) {
-                        }
+                @Override
+                protected void deliverUpdate(Object r, String... update) {
+                }
             };
 
             mKeyRecordTask.connect(dummyconnector);

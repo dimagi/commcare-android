@@ -25,11 +25,11 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     private final WiFiDirectManagementFragment activity;
 
     /**
-     * @param manager WifiP2pManager system service
+     * @param manager  WifiP2pManager system service
      * @param activity activity associated with the receiver
      */
     public WiFiDirectBroadcastReceiver(WifiP2pManager manager,
-            WiFiDirectManagementFragment activity) {
+                                       WiFiDirectManagementFragment activity) {
         super();
         this.manager = manager;
         this.activity = activity;
@@ -40,9 +40,9 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "in on receive ");
         String action = intent.getAction();
-        
+
         Logger.log(TAG, "onReceive of BroadCastReceiver with action: " + action);
-        
+
         if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
 
             // UI update to indicate wifi p2p status.
@@ -64,9 +64,9 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             // asynchronous call and the calling activity is notified with a
             // callback on PeerListListener.onPeersAvailable()
             if (manager != null) {
-                
+
                 activity.onPeersChanged();
-                
+
             }
             Log.d(TAG, "P2P peers changed2");
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
@@ -77,16 +77,16 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 
             NetworkInfo networkInfo = intent
                     .getParcelableExtra(WifiP2pManager.EXTRA_NETWORK_INFO);
-            
+
             activity.onP2PConnectionChanged(networkInfo.isConnected());
 
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
             Log.d(TAG, "in last else with device: " + intent.getParcelableExtra(
                     WifiP2pManager.EXTRA_WIFI_P2P_DEVICE).toString());
-            
-            
+
+
             activity.onThisDeviceChanged(intent);
-            
+
 
         }
     }

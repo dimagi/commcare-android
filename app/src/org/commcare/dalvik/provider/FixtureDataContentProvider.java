@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 
 import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
@@ -23,14 +22,14 @@ import java.io.IOException;
  * to gain read only access to the current user's sandbox. External applications require
  * explicit permissions to access the content provider, and only data in the currently
  * logged in user's sandbox is provided.
- * 
+ *
  * The FixtureDataAPI class is responsible for defining the data models and structures that
  * can be queried with the content provider.
- * 
+ *
  * Note that this content provider requires a permission to be granted for read access.
- * 
+ *
  * No write access is currently supported.
- * 
+ *
  * @author wspride
  */
 public class FixtureDataContentProvider extends ContentProvider {
@@ -53,56 +52,56 @@ public class FixtureDataContentProvider extends ContentProvider {
             case FixtureDataAPI.MetadataColumns.MATCH_INSTANCE_ID:
                 return getFixtureForId(uri.getLastPathSegment());
         }
-        throw new IllegalArgumentException("URI: " + uri.toString() +" is not a valid content path for CommCare Case Data");
+        throw new IllegalArgumentException("URI: " + uri.toString() + " is not a valid content path for CommCare Case Data");
     }
 
     @Override
     public String getType(@NonNull Uri uri) {
         int match = FixtureDataAPI.UriMatch(uri);
 
-        switch(match) {
-        case FixtureDataAPI.MetadataColumns.MATCH_ID:
-            return FixtureDataAPI.MetadataColumns.FIXTURE_ID;
-        case FixtureDataAPI.MetadataColumns.MATCH_INSTANCE_ID:
-            return FixtureDataAPI.MetadataColumns.USER_ID;
+        switch (match) {
+            case FixtureDataAPI.MetadataColumns.MATCH_ID:
+                return FixtureDataAPI.MetadataColumns.FIXTURE_ID;
+            case FixtureDataAPI.MetadataColumns.MATCH_INSTANCE_ID:
+                return FixtureDataAPI.MetadataColumns.USER_ID;
         }
 
         return null;
     }
-    
+
     /**
      * Return a cursor over the list of all fixture IDs and names
      */
     private Cursor getFixtureNames() {
-        MatrixCursor retCursor = new MatrixCursor(new String[] {FixtureDataAPI.MetadataColumns._ID, FixtureDataAPI.MetadataColumns.FIXTURE_ID});
+        MatrixCursor retCursor = new MatrixCursor(new String[]{FixtureDataAPI.MetadataColumns._ID, FixtureDataAPI.MetadataColumns.FIXTURE_ID});
 
         IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication._().getUserStorage("fixture", FormInstance.class);
 
-        for(IStorageIterator<FormInstance> userFixtures = userFixtureStorage.iterate(); userFixtures.hasMore(); ) {
+        for (IStorageIterator<FormInstance> userFixtures = userFixtureStorage.iterate(); userFixtures.hasMore(); ) {
             FormInstance fi = userFixtures.nextRecord();
             String instanceId = fi.getInstanceId();
-            retCursor.addRow(new Object[] {fi.getID(), instanceId});
+            retCursor.addRow(new Object[]{fi.getID(), instanceId});
         }
 
         return retCursor;
     }
-    
+
     /**
      * Return a cursor to the fixture associated with this id
      */
-    private Cursor getFixtureForId(String instanceId){
-        MatrixCursor retCursor = new MatrixCursor(new String[] {FixtureDataAPI.MetadataColumns._ID, FixtureDataAPI.MetadataColumns.FIXTURE_ID, "content"});
+    private Cursor getFixtureForId(String instanceId) {
+        MatrixCursor retCursor = new MatrixCursor(new String[]{FixtureDataAPI.MetadataColumns._ID, FixtureDataAPI.MetadataColumns.FIXTURE_ID, "content"});
 
         IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication._().getUserStorage("fixture", FormInstance.class);
 
-        for(IStorageIterator<FormInstance> userFixtures = userFixtureStorage.iterate(); userFixtures.hasMore(); ) {
+        for (IStorageIterator<FormInstance> userFixtures = userFixtureStorage.iterate(); userFixtures.hasMore(); ) {
 
-            try { 
+            try {
                 FormInstance fi = userFixtures.nextRecord();
 
                 String currentInstanceId = fi.getInstanceId();
-                
-                if(instanceId.equals(currentInstanceId)){
+
+                if (instanceId.equals(currentInstanceId)) {
                     ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
                     DataModelSerializer s = new DataModelSerializer(bos, new AndroidInstanceInitializer(null));
@@ -111,10 +110,9 @@ public class FixtureDataContentProvider extends ContentProvider {
 
                     String dump = new String(bos.toByteArray());
 
-                    retCursor.addRow(new Object[]{ fi.getID(), fi.getInstanceId(), dump});   
+                    retCursor.addRow(new Object[]{fi.getID(), fi.getInstanceId(), dump});
                 }
-            } 
-            catch(IOException e){
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }

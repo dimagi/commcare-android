@@ -1,39 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- "shadow" -->
     <item>
-        <shape android:shape="rectangle" >
-           <solid android:color="@color/translucent_grey_dark"/>
-           
-           <corners 
-               android:radius="12dp"
-               android:bottomRightRadius="0dp" 
-               android:bottomLeftRadius="0dp"
-               android:topLeftRadius="0dp"
-               android:topRightRadius="0dp"
-           	   />
+        <shape android:shape="rectangle">
+            <solid android:color="@color/translucent_grey_dark"/>
+
+            <corners
+                android:radius="12dp"
+                android:bottomRightRadius="0dp"
+                android:bottomLeftRadius="0dp"
+                android:topLeftRadius="0dp"
+                android:topRightRadius="0dp"
+                />
         </shape>
     </item>
 
 
-    <item android:top="2dp" android:bottom="2dp" android:right="2dp">
-        <shape android:shape="rectangle"> 
+    <item
+        android:top="2dp"
+        android:bottom="2dp"
+        android:right="2dp">
+        <shape android:shape="rectangle">
             <gradient
                 android:startColor="@color/translucent_blue_grey"
-		        android:endColor="@color/translucent_blue"
-		        android:gradientRadius="300"
-		        android:centerX="25%"
-            	android:centerY="50%"
-		        android:type="radial"/>
-            <corners 
-               android:radius="12dp"
-               android:bottomRightRadius="0dp"
-               android:bottomLeftRadius="0dp"
-               android:topLeftRadius="0dp"
-               android:topRightRadius="0dp"
-           	   />
-         </shape>
+                android:endColor="@color/translucent_blue"
+                android:gradientRadius="300"
+                android:centerX="25%"
+                android:centerY="50%"
+                android:type="radial"/>
+            <corners
+                android:radius="12dp"
+                android:bottomRightRadius="0dp"
+                android:bottomLeftRadius="0dp"
+                android:topLeftRadius="0dp"
+                android:topRightRadius="0dp"
+                />
+        </shape>
     </item>
 
 </layer-list>

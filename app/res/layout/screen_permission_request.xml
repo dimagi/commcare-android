@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
     <RelativeLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content" android:layout_above="@+id/screen_permission_frame_bottom" android:layout_alignParentTop="true">
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/screen_permission_frame_bottom"
+        android:layout_alignParentTop="true">
 
         <TextView
             android:id="@+id/screen_permission_grant_text_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Permission grant? Message" android:layout_centerInParent="true"/>
+            android:text="Permission grant? Message"
+            android:layout_centerInParent="true"/>
 
     </RelativeLayout>
 
@@ -19,7 +22,11 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:orientation="vertical" android:layout_alignParentBottom="true" android:layout_marginLeft="30dp" android:layout_marginRight="30dp" android:id="@+id/screen_permission_frame_bottom">
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        android:id="@+id/screen_permission_frame_bottom">
 
         <Button
             android:id="@+id/screen_permission_request_button_grant"
@@ -31,7 +38,7 @@
             android:id="@+id/screen_permission_request_button_deny"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Deny Access" />
+            android:text="Deny Access"/>
 
     </LinearLayout>
 

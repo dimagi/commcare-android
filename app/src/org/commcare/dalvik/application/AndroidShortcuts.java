@@ -25,7 +25,7 @@ public class AndroidShortcuts extends Activity {
 
     private String[] commands;
     private String[] names;
-    
+
     @Override
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
@@ -51,7 +51,7 @@ public class AndroidShortcuts extends Activity {
         });
         dialog.show();
     }
-    
+
     private DialogChoiceItem[] getChoiceItemList(final PaneledChoiceDialog dialog) {
         ArrayList<String> names = new ArrayList<>();
         ArrayList<String> commands = new ArrayList<>();
@@ -80,22 +80,22 @@ public class AndroidShortcuts extends Activity {
             DialogChoiceItem item = new DialogChoiceItem(names.get(i), -1, listener);
             choiceItems[i] = item;
         }
-        
+
         return choiceItems;
     }
-    
+
     private void returnShortcut(String name, String command) {
         Intent shortcutIntent = new Intent(Intent.ACTION_MAIN);
         shortcutIntent.setClassName(this, DispatchActivity.class.getName());
         shortcutIntent.putExtra(EXTRA_KEY_SHORTCUT, command);
-        
+
         //Home here makes the intent new every time you call it
         shortcutIntent.addCategory(Intent.CATEGORY_HOME);
 
         Intent intent = new Intent();
         intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
         intent.putExtra(Intent.EXTRA_SHORTCUT_NAME, name);
-        Parcelable iconResource = Intent.ShortcutIconResource.fromContext(this,  R.mipmap.ic_launcher);
+        Parcelable iconResource = Intent.ShortcutIconResource.fromContext(this, R.mipmap.ic_launcher);
         intent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, iconResource);
 
         // Now, return the result to the launcher

@@ -26,7 +26,7 @@ import java.security.NoSuchAlgorithmException;
 
 /**
  * Static methods used for common file operations.
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  */
 public class FileUtils {
@@ -60,7 +60,7 @@ public class FileUtils {
                 return null;
             }
 
-            int length = (int) lLength;
+            int length = (int)lLength;
 
             InputStream is;
             is = new FileInputStream(file);
@@ -158,7 +158,6 @@ public class FileUtils {
      *
      * @param maxDimen - the largest dimension that we want either side of the image to have
      * @return A scaled down bitmap, or null if no scale-down is needed
-     *
      */
     private static Bitmap getBitmapScaledByMaxDimen(Bitmap originalBitmap, int maxDimen) {
         if (originalBitmap == null) {
@@ -171,9 +170,9 @@ public class FileUtils {
 
         if (sideToScale > maxDimen) {
             // If the larger side exceeds our max dimension, scale down accordingly
-            double aspectRatio = ((double) otherSide) / sideToScale;
+            double aspectRatio = ((double)otherSide) / sideToScale;
             sideToScale = maxDimen;
-            otherSide = (int) Math.floor(maxDimen * aspectRatio);
+            otherSide = (int)Math.floor(maxDimen * aspectRatio);
             if (width > height) {
                 // if width was the side that got scaled
                 return Bitmap.createScaledBitmap(originalBitmap, sideToScale, otherSide, false);
@@ -187,18 +186,18 @@ public class FileUtils {
 
     /**
      * Copies from sourceFile to destFile (either a directory, or a path
-     * to the new file) 
-     * 
+     * to the new file)
+     *
      * @param sourceFile A file pointer to a file on the file system
-     * @param destFile Either a file or directory. If a directory, the
-     * file name will be taken from the source file 
+     * @param destFile   Either a file or directory. If a directory, the
+     *                   file name will be taken from the source file
      */
     public static void copyFile(File sourceFile, File destFile) {
         if (sourceFile.exists()) {
-            if(destFile.isDirectory()) {
+            if (destFile.isDirectory()) {
                 destFile = new File(destFile, sourceFile.getName());
             }
-            
+
             FileChannel src;
             try {
                 src = new FileInputStream(sourceFile).getChannel();
@@ -219,13 +218,13 @@ public class FileUtils {
 
     }
 
-    public static boolean isFileOversized(File mf){
+    public static boolean isFileOversized(File mf) {
         double length = getFileSize(mf);
         return length > WARNING_SIZE;
     }
-    
-    public static double getFileSize(File mf){
-        return mf.length()/(1024);
+
+    public static double getFileSize(File mf) {
+        return mf.length() / (1024);
     }
 
     /**
@@ -274,7 +273,7 @@ public class FileUtils {
                 }
 
                 final String selection = "_id=?";
-                final String[] selectionArgs = new String[] {
+                final String[] selectionArgs = new String[]{
                         split[1]
                 };
 
@@ -302,9 +301,9 @@ public class FileUtils {
      * Get the value of the data column for this Uri. This is useful for
      * MediaStore Uris, and other file-based ContentProviders.
      *
-     * @param context The context.
-     * @param uri The Uri to query.
-     * @param selection (Optional) Filter used in the query.
+     * @param context       The context.
+     * @param uri           The Uri to query.
+     * @param selection     (Optional) Filter used in the query.
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      */

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/entity_detail"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:focusable="false"
-    android:orientation="vertical" >
+                android:id="@+id/entity_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:orientation="vertical">
 
     <Button
         android:id="@+id/entity_select_button"
@@ -18,28 +18,30 @@
         android:paddingLeft="@dimen/content_min_margin"
         android:paddingRight="@dimen/content_min_margin"
         android:layout_below="@+id/universal_frame_tile"
-        android:textSize="@dimen/text_large" />
+        android:textSize="@dimen/text_large"/>
 
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/entity_select_button">
-   <org.commcare.android.view.TabbedDetailView
-       android:id="@+id/entity_detail_tabs"
-       android:layout_width="fill_parent"
-       android:layout_height="wrap_content"
-       android:orientation="vertical"
-	   />
-    <include layout="@layout/component_drop_shadow"/>
+
+        <org.commcare.android.view.TabbedDetailView
+            android:id="@+id/entity_detail_tabs"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            />
+
+        <include layout="@layout/component_drop_shadow"/>
     </FrameLayout>
 
-	<FrameLayout
-	    android:id="@+id/universal_frame_tile"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content"
-	    android:layout_alignParentTop="true">
+    <FrameLayout
+        android:id="@+id/universal_frame_tile"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
 
-	</FrameLayout>
+    </FrameLayout>
 
 </RelativeLayout>
