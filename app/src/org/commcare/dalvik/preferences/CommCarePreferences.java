@@ -104,7 +104,7 @@ public class CommCarePreferences
     public final static String PREFS_FORM_RECORD_KEY = "form-record-url";
     private final static String PREFS_FUZZY_SEARCH_KEY = "cc-fuzzy-search-enabled";
     public final static String PREFS_LOCALE_KEY = "cur_locale";
-    public final static String PREFS_PRINT_DOC_LOCATION = "print_doc_location";
+    public final static String PREFS_PRINT_DOC_LOCATION = "print-doc-location";
 
     // Doesn't actually get shown in the CCPreferences activity, just storing the field here
     // The 'Opt Out of Analytics' option appears in the home activity options menu
