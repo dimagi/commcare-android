@@ -37,13 +37,13 @@ import java.util.HashMap;
 import java.util.Vector;
 
 /**
- * @author Forest Tong, Phillip Mates
+ * @author ctsims
  */
 @TargetApi(11)
 public class EntityMapActivity extends CommCareActivity implements OnMapReadyCallback,
         GoogleMap.OnInfoWindowClickListener {
     private static final String TAG = EntityMapActivity.class.getSimpleName();
-    private static final int MAP_PADDING = 50;
+    private static final int MAP_PADDING = 50;  // Number of pixels to pad bounding region of markers
 
     private EvaluationContext entityEvaluationContext;
     private CommCareSession session;
