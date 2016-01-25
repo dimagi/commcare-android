@@ -50,13 +50,13 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     private final Class<? extends T> ctype;
     protected final EncryptedModel em;
     protected final AndroidDbHelper helper;
-    
+
     protected SqlStorage() {
         em = null;
         helper = null;
         ctype = null;
     }
-    
+
     public SqlStorage(String table, Class<? extends T> ctype, AndroidDbHelper helper) {
         this.table = table;
         this.ctype = ctype;
@@ -72,7 +72,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
 
         if (e != null && e instanceof EncryptedModel) {
-            em = (EncryptedModel) e;
+            em = (EncryptedModel)e;
         } else {
             em = null;
         }
@@ -92,8 +92,8 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
 
         Pair<String, String[]> whereClause = helper.createWhereAndroid(fieldNames, values, em, null);
-        
-        if(STORAGE_OUTPUT_DEBUG) {
+
+        if (STORAGE_OUTPUT_DEBUG) {
             String sql = SQLiteQueryBuilder.buildQueryString(false, table, new String[]{DatabaseHelper.ID_COL}, whereClause.first, null, null, null, null);
             DbUtil.explainSql(db, sql, whereClause.second);
         }
@@ -197,7 +197,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         c = appDb.query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, whereClause.first, whereClause.second, null, null, null);
         try {
             int queryCount = c.getCount();
-            if (queryCount  == 0) {
+            if (queryCount == 0) {
                 throw new NoSuchElementException("No element in table " + table + " with names " + Arrays.toString(rawFieldNames) + " and values " + Arrays.toString(values));
             } else if (queryCount > 1) {
                 throw new InvalidIndexException("Invalid unique column set" + Arrays.toString(rawFieldNames) + ". Multiple records found with value " + Arrays.toString(values), Arrays.toString(rawFieldNames));
@@ -272,7 +272,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                 throw new RuntimeException("Waaaaaaaaaay too many values");
             }
 
-            i = (int) ret;
+            i = (int)ret;
 
             db.setTransactionSuccessful();
         } finally {
@@ -444,7 +444,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
      * @param primaryId   a metadata index that
      */
     public SqlStorageIterator<T> iterate(boolean includeData, String primaryId) {
-        String[] projection = includeData ? new String[] {DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL, AndroidTableBuilder.scrubName(primaryId)} : new String[] {DatabaseHelper.ID_COL,  AndroidTableBuilder.scrubName(primaryId)};
+        String[] projection = includeData ? new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL, AndroidTableBuilder.scrubName(primaryId)} : new String[]{DatabaseHelper.ID_COL, AndroidTableBuilder.scrubName(primaryId)};
         Cursor c;
         try {
             c = helper.getHandle().query(table, projection, null, null, null, null, DatabaseHelper.ID_COL);
@@ -513,8 +513,8 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         db.beginTransaction();
         try {
             List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(ids);
-            for(Pair<String, String[]> whereParams : whereParamList) {
-                int rowsRemoved = db.delete(table, DatabaseHelper.ID_COL +" IN " + whereParams.first, whereParams.second);
+            for (Pair<String, String[]> whereParams : whereParamList) {
+                int rowsRemoved = db.delete(table, DatabaseHelper.ID_COL + " IN " + whereParams.first, whereParams.second);
             }
             db.setTransactionSuccessful();
         } finally {
@@ -565,7 +565,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         if (removed.size() == 0) {
             return removed;
         }
-        
+
         List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(removed);
 
         SQLiteDatabase db;
@@ -635,7 +635,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             }
             // won't effect already stored obj id, which is set when reading out of db.
             // rather, needed in case persistable object is used after being written to storage.
-            p.setID((int) ret);
+            p.setID((int)ret);
 
             db.setTransactionSuccessful();
         } finally {
@@ -656,7 +656,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to) throws SessionUnavailableException {
         return cleanCopy(from, to, null);
     }
-    
+
     public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to, LegacyInstallUtils.CopyMapper<T> mapper) throws SessionUnavailableException {
         to.removeAll();
         SQLiteDatabase toDb = to.helper.getHandle();

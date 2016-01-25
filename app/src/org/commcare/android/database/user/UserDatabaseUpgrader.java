@@ -24,7 +24,6 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.User;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.util.Vector;
@@ -212,7 +211,7 @@ class UserDatabaseUpgrader {
         try {
             SqlStorage<Persistable> userStorage = new SqlStorage<Persistable>(AUser.STORAGE_KEY, AUser.class, new ConcreteAndroidDbHelper(c, db));
             SqlStorageIterator<Persistable> iterator = userStorage.iterate();
-            while(iterator.hasMore()){
+            while (iterator.hasMore()) {
                 AUser oldUser = (AUser)iterator.next();
                 User newUser = oldUser.toNewUser();
                 userStorage.write(newUser);
@@ -367,7 +366,7 @@ class UserDatabaseUpgrader {
         SqlStorage<ApplicationRecord> storage =
                 CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
         for (Persistable p : storage) {
-            ApplicationRecord r = (ApplicationRecord) p;
+            ApplicationRecord r = (ApplicationRecord)p;
             if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED && r.resourcesValidated()) {
                 return r;
             }

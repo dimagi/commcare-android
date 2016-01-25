@@ -19,7 +19,7 @@ import java.util.Date;
  * @author ctsims
  */
 public abstract class KeyRecordParser extends TransactionParser<ArrayList<UserKeyRecord>> {
-    
+
     private final String username;
     private final String currentpwd;
     private final ArrayList<UserKeyRecord> keyRecords;
@@ -34,27 +34,29 @@ public abstract class KeyRecordParser extends TransactionParser<ArrayList<UserKe
     @Override
     public ArrayList<UserKeyRecord> parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         this.checkNode("auth_keys");
-            
-            //TODO: Domain checking and such
-            
-        while(this.nextTagInBlock("auth_keys")) {
+
+        //TODO: Domain checking and such
+
+        while (this.nextTagInBlock("auth_keys")) {
             this.checkNode("key_record");
-            
+
             Date valid = getDateAttribute("valid", false);
-            
+
             Date expires = getDateAttribute("expires", true);
-            
+
             this.nextTag("uuid");
-            
+
             parser.getAttributeValue(null, "title");
             String uuid = parser.nextText();
-            if(uuid == null) { throw new InvalidStructureException("No <uuid> value found for incoming key record", parser); } 
-            
+            if (uuid == null) {
+                throw new InvalidStructureException("No <uuid> value found for incoming key record", parser);
+            }
+
             this.nextTag("key");
-            
+
             //We don't really use this for now
             parser.getAttributeValue(null, "type");
-    
+
             //Base64 Encoded AES key
             String encodedKey = parser.nextText();
             byte[] theKey;
@@ -65,10 +67,10 @@ public abstract class KeyRecordParser extends TransactionParser<ArrayList<UserKe
                 e.printStackTrace();
                 throw new InvalidStructureException("Invalid AES key in key record", parser);
             }
-            
+
             byte[] wrappedKey = CryptUtil.wrapByteArrayWithString(theKey, currentpwd);
             UserKeyRecord record = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(currentpwd), wrappedKey, valid, expires, uuid, UserKeyRecord.TYPE_NEW);
-            
+
             keyRecords.add(record);
         }
 

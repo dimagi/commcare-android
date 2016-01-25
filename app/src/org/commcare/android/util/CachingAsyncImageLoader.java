@@ -11,22 +11,21 @@ import android.util.LruCache;
 import android.widget.ImageView;
 
 /**
- * Class used for managing the LoadImageTasks that load images into a list. 
+ * Class used for managing the LoadImageTasks that load images into a list.
  * Ensures that proper caching occurs and attempts to limit overflows
- * 
- * @author wspride
  *
+ * @author wspride
  */
 @SuppressLint("NewApi")
 public class CachingAsyncImageLoader implements ComponentCallbacks2 {
     private final TCLruCache cache;
-    private static final int CACHE_DIVISOR =2;
+    private static final int CACHE_DIVISOR = 2;
     private final Context context;
 
     public CachingAsyncImageLoader(Context context) {
-        ActivityManager am = (ActivityManager) context.getSystemService(
+        ActivityManager am = (ActivityManager)context.getSystemService(
                 Context.ACTIVITY_SERVICE);
-        int memoryClass = (am.getMemoryClass() * 1024 * 1024)/CACHE_DIVISOR;        //basically, set the heap to be everything we can get
+        int memoryClass = (am.getMemoryClass() * 1024 * 1024) / CACHE_DIVISOR;        //basically, set the heap to be everything we can get
         this.context = context;
         this.cache = new TCLruCache(memoryClass);
     }
@@ -35,13 +34,12 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
                         int boundingWidth, int boundingHeight) {
         imageView.setImageResource(defaultResource);
         Bitmap image;
-        synchronized(cache) {
+        synchronized (cache) {
             image = cache.get(url);
         }
         if (image != null) {
             imageView.setImageBitmap(image);
-        }
-        else {
+        } else {
             new SetImageTask(imageView, this.context, boundingWidth, boundingHeight).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, url);
         }
     }
@@ -56,8 +54,8 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
 
     /**
      * Simple member class used for asyncronously loading and setting ImageView bitmaps
-     * @author wspride
      *
+     * @author wspride
      */
     private class SetImageTask extends AsyncTask<String, Void, Bitmap> {
         private final ImageView mImageView;
@@ -72,7 +70,7 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
             mBoundingHeight = maxHeight;
         }
 
-        protected Bitmap doInBackground(String... file) { 
+        protected Bitmap doInBackground(String... file) {
             return getImageBitmap(file[0]);
         }
 
@@ -87,10 +85,10 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
             Bitmap bitmap = MediaUtil.inflateDisplayImage(mContext, filePath, mBoundingWidth, mBoundingHeight);
 
             if (bitmap != null) {
-                synchronized(cache) {
-                      cache.put(filePath, bitmap);
-                  }
-              }
+                synchronized (cache) {
+                    cache.put(filePath, bitmap);
+                }
+            }
 
             return bitmap;
         }
@@ -101,7 +99,7 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
      * Override these methods to ensure that our overriding behavior is maintained
      * through these calls. come from ComponentCallsback2
      */
-    
+
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
     }

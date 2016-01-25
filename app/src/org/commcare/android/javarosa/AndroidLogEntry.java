@@ -17,25 +17,25 @@ import java.util.Date;
  * @author ctsims
  */
 public class AndroidLogEntry extends LogEntry implements Persistable, IMetaData {
-    
+
     public static final String STORAGE_KEY = "commcarelogs";
-    
+
     private static final String META_TYPE = "type";
     private static final String META_DATE = "date";
-    
+
     private Date date;
     private String message;
     private String type;
-    
+
     private int recordId = -1;
 
     /**
      * Serialization only
      */
     public AndroidLogEntry() {
-        
+
     }
-    
+
     public AndroidLogEntry(String type, String message, Date date) {
         this.type = type;
         this.message = message;
@@ -55,8 +55,8 @@ public class AndroidLogEntry extends LogEntry implements Persistable, IMetaData 
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, recordId);
         ExtUtil.writeDate(out, date);
-        ExtUtil.writeString(out,type);
-        ExtUtil.writeString(out,message);
+        ExtUtil.writeString(out, type);
+        ExtUtil.writeString(out, message);
     }
 
     public Date getTime() {
@@ -73,17 +73,17 @@ public class AndroidLogEntry extends LogEntry implements Persistable, IMetaData 
 
     @Override
     public String[] getMetaDataFields() {
-        return new String[] {META_TYPE, META_DATE};
+        return new String[]{META_TYPE, META_DATE};
     }
 
     @Override
     public Object getMetaData(String fieldName) {
-        if(META_DATE.equals(fieldName)) {
+        if (META_DATE.equals(fieldName)) {
             return DateUtils.formatDate(date, DateUtils.FORMAT_ISO8601);
-        } else if(META_TYPE.equals(fieldName)) {
+        } else if (META_TYPE.equals(fieldName)) {
             return type;
-        } 
-        throw new IllegalArgumentException("No metadata field " + fieldName  + " for Log Entry Cache models");
+        }
+        throw new IllegalArgumentException("No metadata field " + fieldName + " for Log Entry Cache models");
     }
 
     @Override

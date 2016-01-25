@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
+
     <style name="AppBaseTheme" parent="android:Theme.Light">
         <!-- API 11 theme customizations can go here. -->
         <item name="android:colorBackground">@color/cc_neutral_bg</item>
@@ -27,35 +28,36 @@
     <style name="radio_button_modern" parent="@android:style/Widget.CompoundButton.RadioButton">
         <item name="android:button">@drawable/radio_button_modern</item>
     </style>
-    
-	<style name="Theme.LightSliding" parent="@android:style/Theme.Light">
-	    <item name="android:windowAnimationStyle">@style/Animation.ScreenAnimations</item>
-	</style>
-	<style name="Theme.Transparent" parent="android:Theme">
-	    <item name="android:windowIsTranslucent">true</item>
-	    <item name="android:windowBackground">@android:color/transparent</item>
-	    <item name="android:windowContentOverlay">@null</item>
-	    <item name="android:windowNoTitle">true</item>
-	    <item name="android:windowIsFloating">true</item>
-	    <item name="android:backgroundDimEnabled">false</item>
-  	</style>
-  	
-	<style name="WindowTitle.Custom.Menu" parent="android:Widget.TextView">
-	     <item name="android:textAppearance">@style/TextAppearance.Custom.WindowTitle</item>
-	</style>
-	
-	<style name="WindowTitle.Custom.Case" parent="android:Widget.TextView">
-	     <item name="android:textAppearance">@style/TextAppearance.Custom.WindowTitle</item>
-	</style>
-  	
-	<style name="ProgressDialog.MessageText" parent="@android:style/TextAppearance">
-	    <item name="android:textAppearance">@android:style/TextAppearance.DialogWindowTitle</item>
-	</style>
-	
-	<style name="TextAppearance.Custom.WindowTitle" parent="@android:style/TextAppearance.WindowTitle"/>
-    
+
+    <style name="Theme.LightSliding" parent="@android:style/Theme.Light">
+        <item name="android:windowAnimationStyle">@style/Animation.ScreenAnimations</item>
+    </style>
+
+    <style name="Theme.Transparent" parent="android:Theme">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <style name="WindowTitle.Custom.Menu" parent="android:Widget.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.Custom.WindowTitle</item>
+    </style>
+
+    <style name="WindowTitle.Custom.Case" parent="android:Widget.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.Custom.WindowTitle</item>
+    </style>
+
+    <style name="ProgressDialog.MessageText" parent="@android:style/TextAppearance">
+        <item name="android:textAppearance">@android:style/TextAppearance.DialogWindowTitle</item>
+    </style>
+
+    <style name="TextAppearance.Custom.WindowTitle" parent="@android:style/TextAppearance.WindowTitle"/>
+
     <style name="Theme.Dialog.NoTitle" parent="@android:style/Theme.Dialog">
         <item name="android:windowNoTitle">true</item>
     </style>
-    
+
 </resources>

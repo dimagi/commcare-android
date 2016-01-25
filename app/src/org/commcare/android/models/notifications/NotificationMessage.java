@@ -74,7 +74,7 @@ public class NotificationMessage implements Parcelable {
         if (!(o instanceof NotificationMessage)) {
             return false;
         }
-        NotificationMessage nm = (NotificationMessage) o;
+        NotificationMessage nm = (NotificationMessage)o;
         if (!nm.category.equals(category) && nm.title.equals(title) && nm.details.equals(details)) {
             return false;
         }

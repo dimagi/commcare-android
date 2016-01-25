@@ -10,21 +10,22 @@ import org.kxml2.kdom.Element;
 
 /**
  * Handler for <pollsensor> tags, which get processed by PollSensorActions.
+ *
  * @author jschweers
  */
 public class PollSensorExtensionParser implements IElementHandler {
     /**
      * Handle pollsensor node, creating a new PollSensor action with the node that sensor data will be written to.
      *
-     * @param e pollsensor Element
+     * @param e      pollsensor Element
      * @param parent FormDef for the form being parsed
      */
     @Override
     public void handle(XFormParser p, Element e, Object parent) {
         String event = e.getAttributeValue(null, "event");
-        FormDef form = (FormDef) parent;
+        FormDef form = (FormDef)parent;
         PollSensorAction action;
-        
+
         String ref = e.getAttributeValue(null, "ref");
         if (ref != null) {
             XPathReference dataRef = new XPathReference(ref);
@@ -32,8 +33,7 @@ public class PollSensorExtensionParser implements IElementHandler {
             TreeReference treeRef = FormInstance.unpackReference(dataRef);
             p.registerActionTarget(treeRef);
             action = new PollSensorAction(treeRef);
-        }
-        else {
+        } else {
             action = new PollSensorAction();
         }
 

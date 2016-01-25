@@ -52,14 +52,14 @@ public class DateWidget extends QuestionWidget {
     @SuppressLint("NewApi")
     public DateWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
-        
+
         mDatePicker = new DatePicker(getContext());
         mDatePicker.setFocusable(!prompt.isReadOnly());
         mDatePicker.setEnabled(!prompt.isReadOnly());
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             mDatePicker.setCalendarViewShown(false);
         }
-        
+
         mDateListener = new DatePicker.OnDateChangedListener() {
             @Override
             public void onDateChanged(DatePicker view, int year, int month, int day) {
@@ -71,24 +71,24 @@ public class DateWidget extends QuestionWidget {
                     // http://code.google.com/p/android/issues/detail?id=2081
                     Calendar c = Calendar.getInstance();
                     c.set(year, month, 1);
-                    int max = c.getActualMaximum(Calendar.DAY_OF_MONTH);                        
+                    int max = c.getActualMaximum(Calendar.DAY_OF_MONTH);
                     if (day > max) {
                         //If the day has fallen out of spec, set it to the correct max
                         mDatePicker.updateDate(year, month, max);
                     } else {
-                        if(!(mDatePicker.getDayOfMonth() == day && mDatePicker.getMonth() == month && mDatePicker.getYear() == year)) {
+                        if (!(mDatePicker.getDayOfMonth() == day && mDatePicker.getMonth() == month && mDatePicker.getYear() == year)) {
                             //CTS: No reason to change the day if it's already correct
                             mDatePicker.updateDate(year, month, day);
-                            
-                        } else{
+
+                        } else {
                             return;
                         }
                     }
                 }
-                
+
                 //TODO: Not here, the change isn't processed yet.
                 widgetEntryChanged();
-                
+
             }
         };
 
@@ -104,7 +104,7 @@ public class DateWidget extends QuestionWidget {
 
             //The incoming date is in Java Format, parsed from an ISO-8601 date.
             DateTime isoAnchoredDate =
-                new DateTime(((Date) getCurrentAnswer().getValue()).getTime());
+                    new DateTime(((Date)getCurrentAnswer().getValue()).getTime());
 
 
             //The java date we loaded doesn't know how to communicate its timezone offsets to
@@ -134,7 +134,7 @@ public class DateWidget extends QuestionWidget {
     public void clearAnswer() {
         DateTime ldt = new DateTime();
         mDatePicker.init(ldt.getYear(), ldt.getMonthOfYear() - 1, ldt.getDayOfMonth(),
-            mDateListener);
+                mDateListener);
     }
 
 
@@ -152,7 +152,7 @@ public class DateWidget extends QuestionWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 

@@ -160,7 +160,7 @@ public class CryptUtil {
             NoSuchPaddingException, InvalidKeySpecException {
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         KeySpec ks = new PKCS8EncodedKeySpec(privateKey);
-        RSAPrivateKey privKey = (RSAPrivateKey) keyFactory.generatePrivate(ks);
+        RSAPrivateKey privKey = (RSAPrivateKey)keyFactory.generatePrivate(ks);
 
         Cipher c = Cipher.getInstance("RSA");
         c.init(Cipher.DECRYPT_MODE, privKey);

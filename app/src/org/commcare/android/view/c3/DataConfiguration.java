@@ -199,8 +199,9 @@ public class DataConfiguration extends Configuration {
     /**
      * Helper for addBoundaries: possibly add a series for either the primary or secondary y axis,
      * depending on whether or not that axis has a min and max specified.
-     * @param xID ID of x column to associate with the new series
-     * @param yID ID of y column for new series
+     *
+     * @param xID    ID of x column to associate with the new series
+     * @param yID    ID of y column for new series
      * @param prefix "y" or "secondary-y"
      * @return True iff a series was actually created
      */
@@ -225,6 +226,7 @@ public class DataConfiguration extends Configuration {
     /**
      * Set up stacked bar graph, if needed. Expects series data to have
      * already been processed (specifically, expects mTypes to be populated).
+     *
      * @return JSONArray of configuration for groups, C3's version of stacking
      */
     private JSONArray getGroups() throws JSONException {
@@ -232,14 +234,14 @@ public class DataConfiguration extends Configuration {
         JSONArray inner = new JSONArray();
         if (mData.getType().equals(Graph.TYPE_BAR)
                 && Boolean.valueOf(mData.getConfiguration("stack", "false"))) {
-            for (Iterator<String> i = mTypes.keys(); i.hasNext();) {
+            for (Iterator<String> i = mTypes.keys(); i.hasNext(); ) {
                 String key = i.next();
                 if (mTypes.get(key).equals("bar")) {
                     inner.put(key);
                 }
             }
         } else {
-            for (Iterator<String> i = mTypes.keys(); i.hasNext();) {
+            for (Iterator<String> i = mTypes.keys(); i.hasNext(); ) {
                 String yID = i.next();
                 if (mTypes.getString(yID).equals("area")) {
                     inner.put(yID);
@@ -274,8 +276,9 @@ public class DataConfiguration extends Configuration {
 
     /**
      * Set color for a given series.
+     *
      * @param yID ID of y-values array to set color
-     * @param s SeriesData from which to pull color
+     * @param s   SeriesData from which to pull color
      */
     private void setColor(String yID, SeriesData s) throws JSONException {
         String barColorJSON = s.getConfiguration("bar-color");
@@ -309,6 +312,7 @@ public class DataConfiguration extends Configuration {
 
     /**
      * Convert color string to expected format.
+     *
      * @param color String of format #?(AA)?RRGGBB
      * @return String of format "#AARRGGBB"
      */
@@ -324,18 +328,20 @@ public class DataConfiguration extends Configuration {
 
     /**
      * Calculate opacity of given color.
+     *
      * @param color Color in format "#AARRGGBB"
      * @return Opacity, which will be between 0 and 1, inclusive
      */
     private double getOpacity(String color) {
-        return Color.alpha(Color.parseColor(color)) / (double) 255;
+        return Color.alpha(Color.parseColor(color)) / (double)255;
     }
 
     /**
      * Set up data: x, y, and radius values
+     *
      * @param xID ID of the x-values array
      * @param yID ID of the y-values array
-     * @param s The SeriesData providing the data
+     * @param s   The SeriesData providing the data
      */
     private void setColumns(String xID, String yID, SeriesData s) throws InvalidStateException, JSONException {
         JSONArray xValues = new JSONArray();
@@ -389,8 +395,9 @@ public class DataConfiguration extends Configuration {
 
     /**
      * Set whether or not point should appear in legend and tooltip.
+     *
      * @param yID ID of y-values array that is or isn't data
-     * @param s SeriesData from which to pull flag
+     * @param s   SeriesData from which to pull flag
      */
     private void setIsData(String yID, SeriesData s) throws JSONException {
         boolean isData = Boolean.valueOf(s.getConfiguration("is-data", "true"));
@@ -401,8 +408,9 @@ public class DataConfiguration extends Configuration {
 
     /**
      * Set series name to display in legend.
+     *
      * @param yID ID of y-values array that name applies to
-     * @param s SeriesData from which to pull name
+     * @param s   SeriesData from which to pull name
      */
     private void setName(String yID, SeriesData s) throws JSONException {
         String name = s.getConfiguration("name", "");
@@ -414,8 +422,9 @@ public class DataConfiguration extends Configuration {
 
     /**
      * Set shape of points to be drawn for series.
+     *
      * @param yID ID of y-values that style applies to
-     * @param s SeriesData from which to pull style
+     * @param s   SeriesData from which to pull style
      */
     private void setPointStyle(String yID, SeriesData s) throws JSONException {
         String symbol;
@@ -437,8 +446,9 @@ public class DataConfiguration extends Configuration {
 
     /**
      * Set series type: line, bar, area, etc.
+     *
      * @param yID ID of y-values array corresponding with series
-     * @param s SeriesData determining what the type will be
+     * @param s   SeriesData determining what the type will be
      */
     private void setType(String yID, SeriesData s) throws JSONException {
         String type = "line";
@@ -454,8 +464,9 @@ public class DataConfiguration extends Configuration {
 
     /**
      * Set which y axis a series is associated with (primary or secondary).
+     *
      * @param yID IS of y-values to associate with the axis
-     * @param s SeriesData to pull y axis from
+     * @param s   SeriesData to pull y axis from
      * @throws JSONException
      */
     private void setYAxis(String yID, SeriesData s) throws JSONException {

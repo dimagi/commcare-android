@@ -274,15 +274,15 @@ public class LegacyInstallUtils {
         for (String k : oldPrefs.keySet()) {
             Object o = oldPrefs.get(k);
             if (o instanceof String) {
-                e.putString(k, (String) o);
+                e.putString(k, (String)o);
             } else if (o instanceof Integer) {
-                e.putInt(k, (Integer) o);
+                e.putInt(k, (Integer)o);
             } else if (o instanceof Long) {
-                e.putLong(k, (Long) o);
+                e.putLong(k, (Long)o);
             } else if (o instanceof Boolean) {
-                e.putBoolean(k, (Boolean) o);
+                e.putBoolean(k, (Boolean)o);
             } else if (o instanceof Float) {
-                e.putFloat(k, (Float) o);
+                e.putFloat(k, (Float)o);
             }
         }
         e.commit();
@@ -619,7 +619,7 @@ public class LegacyInstallUtils {
     }
 
     private static String getPhoneIdOld(Context c) {
-        TelephonyManager manager = (TelephonyManager) c.getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager manager = (TelephonyManager)c.getSystemService(Context.TELEPHONY_SERVICE);
         String imei = manager.getDeviceId();
         if (imei == null) {
             imei = Secure.ANDROID_ID;

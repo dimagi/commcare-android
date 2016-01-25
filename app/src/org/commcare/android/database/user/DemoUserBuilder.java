@@ -41,7 +41,7 @@ public class DemoUserBuilder {
         this.password = password;
         if (isDemo) {
             userType = User.TYPE_DEMO;
-        } else{
+        } else {
             userType = User.STANDARD;
         }
     }

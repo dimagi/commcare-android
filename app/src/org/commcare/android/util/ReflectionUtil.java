@@ -19,7 +19,7 @@ public class ReflectionUtil {
     private static void initCompatibility() {
         try {
             mExternalStorageEmulated =
-                Environment.class.getMethod("isExternalStorageEmulated");
+                    Environment.class.getMethod("isExternalStorageEmulated");
            /* success, this is a newer device */
         } catch (NoSuchMethodException nsme) {
            /* failure, must be older device */

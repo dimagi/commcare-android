@@ -49,9 +49,8 @@ import java.io.File;
 
 /**
  * Signature widget.
- * 
- * @author BehrAtherton@gmail.com
  *
+ * @author BehrAtherton@gmail.com
  */
 public class SignatureWidget extends QuestionWidget {
     private final static String t = "SignatureWidget";
@@ -90,7 +89,7 @@ public class SignatureWidget extends QuestionWidget {
         mSignButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                launchSignatureActivity(questionIndex );
+                launchSignatureActivity(questionIndex);
             }
         });
 
@@ -148,12 +147,12 @@ public class SignatureWidget extends QuestionWidget {
         i.putExtra(DrawActivity.OPTION, DrawActivity.OPTION_SIGNATURE);
         // copy...
         //mBinaryName would be a preexisting signature that is getting displayed when the activity starts
-        if ( mBinaryName != null ) {
+        if (mBinaryName != null) {
             File f = new File(mInstanceFolder + File.separator + mBinaryName);
             i.putExtra(DrawActivity.REF_IMAGE, Uri.fromFile(f));
         }
         //path to output the signature file to
-        i.putExtra(DrawActivity.EXTRA_OUTPUT, 
+        i.putExtra(DrawActivity.EXTRA_OUTPUT,
                 Uri.fromFile(new File(ODKStorage.TMPFILE_PATH)));
 
         try {
@@ -161,8 +160,7 @@ public class SignatureWidget extends QuestionWidget {
             //finishes, the requestCode is SIGNATURE_CAPTURE
             ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.SIGNATURE_CAPTURE);
             pendingCalloutInterface.setPendingCalloutFormIndex(questionIndex);
-        }
-        catch (ActivityNotFoundException e) {
+        } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),
                     getContext().getString(R.string.activity_not_found, "signature capture"),
                     Toast.LENGTH_SHORT).show();
@@ -177,7 +175,7 @@ public class SignatureWidget extends QuestionWidget {
         }
         // clean up variables
         mBinaryName = null;
-        
+
         //TODO: Possibly switch back to this implementation, but causes NullPointerException right now 
         /*int del = MediaUtils.deleteImageFileFromMediaProvider(mInstanceFolder + File.separator + mBinaryName);
         Log.i(t, "Deleted " + del + " rows from media content provider");
@@ -215,7 +213,7 @@ public class SignatureWidget extends QuestionWidget {
             deleteMedia();
         }
 
-        String binaryPath = UrlUtils.getPathFromUri((Uri) binaryURI,getContext());
+        String binaryPath = UrlUtils.getPathFromUri((Uri)binaryURI, getContext());
         File f = new File(binaryPath);
         mBinaryName = f.getName();
         Log.i(t, "Setting current answer to " + f.getName());
@@ -225,7 +223,7 @@ public class SignatureWidget extends QuestionWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-                (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 

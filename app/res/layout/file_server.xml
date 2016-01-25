@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/file_server_view"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="bottom"
-    android:layout_marginBottom="3dp"
-    android:orientation="vertical"
-    android:visibility="gone" >
+              android:id="@+id/file_server_view"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_gravity="bottom"
+              android:layout_marginBottom="3dp"
+              android:orientation="vertical"
+              android:visibility="gone">
 
     <View
         android:layout_width="fill_parent"
         android:layout_height="1dp"
         android:background="@android:color/holo_blue_light"
-        android:gravity="center_vertical" />
+        android:gravity="center_vertical"/>
 
     <TextView
         android:id="@+id/file_server_title"
@@ -21,7 +21,7 @@
         android:layout_gravity="left"
         android:layout_margin="5dp"
         android:text="File Server Manager"
-        android:textStyle="bold" >
+        android:textStyle="bold">
     </TextView>
 
     <TextView
@@ -30,12 +30,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="5dp"
-        android:text="File Server Status" >
-	</TextView>
-        <View
-            android:layout_width="fill_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/holo_blue_light"
-            android:gravity="center_vertical" />
+        android:text="File Server Status">
+    </TextView>
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/holo_blue_light"
+        android:gravity="center_vertical"/>
 
 </LinearLayout>

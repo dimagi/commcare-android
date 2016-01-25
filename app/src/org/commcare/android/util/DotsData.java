@@ -13,36 +13,36 @@ import java.util.Date;
  */
 public class DotsData {
     private Date anchor;
-    
+
     private int[] regimens;
-    
+
     private DotsDay[] days;
-    
+
     //Labels within each regimen for what kind of dose new days should be 
     private final int[][] regLabels;
-    
-    private static final int[][] equivM = new int[][] {
-        new int[] {0,-1,-1,-1},
-        new int[] {0,-1,1,-1},
-        new int[] {0,1, 2,-1},
-        new int[] {0,1,2, 3}
+
+    private static final int[][] equivM = new int[][]{
+            new int[]{0, -1, -1, -1},
+            new int[]{0, -1, 1, -1},
+            new int[]{0, 1, 2, -1},
+            new int[]{0, 1, 2, 3}
     };
-    
+
     public enum MedStatus {
         unchecked,
         full,
         empty,
         partial
     }
-    
+
     public enum ReportType {
         direct,
         pillbox,
         self
     }
-    
+
     public static final class DotsBox {
-        
+
         final MedStatus status;
         final String missedMeds;
         final ReportType type;
@@ -54,51 +54,51 @@ public class DotsData {
             this.type = type;
             this.doseLabel = doselabel;
         }
-        
+
         public MedStatus status() {
             return status;
         }
-        
+
         public String missedMeds() {
             return missedMeds;
         }
-        
+
         public ReportType reportType() {
             return type;
         }
-        
+
         public int getDoseLabel() {
             return doseLabel;
         }
-                
-        public static DotsBox deserialize(String box){
+
+        public static DotsBox deserialize(String box) {
             try {
                 return DotsBox.deserialize(new JSONArray(new JSONTokener(box)));
-            }catch (JSONException e) {
+            } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
         }
-        
+
         public static DotsBox deserialize(JSONArray box) throws JSONException {
             String missed = null;
-            if(box.length() > 2) {
-                missed= box.getString(2);
+            if (box.length() > 2) {
+                missed = box.getString(2);
             }
             int label = -1;
-            if(box.length() > 3) {
-                label= box.getInt(3);
+            if (box.length() > 3) {
+                label = box.getInt(3);
             }
-            
+
             String status = box.getString(0);
             String type = box.getString(1);
-            return new DotsBox(MedStatus.valueOf(status), ReportType.valueOf(type), missed, label); 
+            return new DotsBox(MedStatus.valueOf(status), ReportType.valueOf(type), missed, label);
         }
-        
+
         public JSONArray serialize() {
             JSONArray ser = new JSONArray();
             ser.put(status.toString());
             ser.put(type.toString());
-            if(missedMeds != null){
+            if (missedMeds != null) {
                 ser.put(missedMeds);
             } else {
                 ser.put("");
@@ -108,28 +108,28 @@ public class DotsData {
         }
 
         public DotsBox update(DotsBox deserialize) {
-            return new DotsBox(deserialize.status,deserialize.type, 
-                    deserialize.missedMeds == null? this.missedMeds : deserialize.missedMeds,
+            return new DotsBox(deserialize.status, deserialize.type,
+                    deserialize.missedMeds == null ? this.missedMeds : deserialize.missedMeds,
                     deserialize.doseLabel == -1 ? this.doseLabel : deserialize.doseLabel);
         }
     }
-    
+
     public static final class DotsDay {
-        
+
         final DotsBox[][] boxes;
-        
+
         public DotsDay(DotsBox[][] boxes) {
             this.boxes = boxes;
         }
-        
+
         public DotsBox[][] boxes() {
             return boxes;
         }
-        
+
         /**
-         * Whether this box contains the default observations for a 
-         * new day object. 
-         * 
+         * Whether this box contains the default observations for a
+         * new day object.
+         *
          * @return True if the day is indistinguishable from a default day,
          * false otherwise
          */
@@ -143,7 +143,7 @@ public class DotsData {
             }
             return true;
         }
-        
+
         public JSONArray serialize() {
             JSONArray day = new JSONArray();
             for (DotsBox[] dotBoxes : boxes) {
@@ -155,21 +155,21 @@ public class DotsData {
             }
             return day;
         }
-        
+
         public static DotsDay deserialize(String day) {
-            try { 
+            try {
                 return deserialize(new JSONArray(new JSONTokener(day)));
-            } catch(JSONException e) {
+            } catch (JSONException e) {
                 throw new RuntimeException(e);
             }
         }
-        
+
         public static DotsDay deserialize(JSONArray day) throws JSONException {
             DotsBox[][] fullDay = new DotsBox[day.length()][];
-            for(int i = 0 ; i < day.length() ; ++i) {
+            for (int i = 0; i < day.length(); ++i) {
                 JSONArray regimen = day.getJSONArray(i);
                 DotsBox[] boxes = new DotsBox[regimen.length()];
-                for(int j = 0 ; j < regimen.length() ; ++j) {
+                for (int j = 0; j < regimen.length(); ++j) {
                     boxes[j] = DotsBox.deserialize(regimen.getJSONArray(j));
                 }
                 fullDay[i] = boxes;
@@ -188,39 +188,39 @@ public class DotsData {
 //            }
 //            return max;
         }
-        
+
         /**
          * Takes in a index between 0 and 3 representing a potential dose, and
          * returns either an index between 0 and 3 representing the actual dose
-         * window (AM, Noon, etc) represented by the box at that index. 
-         * 
+         * window (AM, Noon, etc) represented by the box at that index.
+         *
          * @param regimenIndex the index of a potential dose (AM,noon,pm, etc)
-         * which may be occurring. 
+         *                     which may be occurring.
          */
         public int[] getRegIndexes(int regimenIndex) {
             int max = this.getMaxReg();
             int[] retVal = new int[boxes.length];
             //ART v. non-ART
             regimen:
-            for(int i = 0 ; i < boxes.length ; ++i) {
-                if(boxes[i].length == 0) {
+            for (int i = 0; i < boxes.length; ++i) {
+                if (boxes[i].length == 0) {
                     retVal[i] = -1;
                 } else {
                     //See if there's an explicitly labeled index for
                     //this regimen
-                    for(int j = 0 ; j < boxes[i].length; ++j) {
-                        if(boxes[i][j].doseLabel == regimenIndex) {
+                    for (int j = 0; j < boxes[i].length; ++j) {
+                        if (boxes[i][j].doseLabel == regimenIndex) {
                             retVal[i] = j;
                             continue regimen;
                         }
                     }
-                    
+
                     //otherwise, grab what the default one should be
-                    int defaultIndex = equivM[boxes[i].length -1 ][regimenIndex];
-                    
+                    int defaultIndex = equivM[boxes[i].length - 1][regimenIndex];
+
                     //Make sure the default index is either unused (-1), or if not, isn't
                     //actually pointing to something already 
-                    if(defaultIndex == -1 || boxes[i][defaultIndex].doseLabel == -1) {
+                    if (defaultIndex == -1 || boxes[i][defaultIndex].doseLabel == -1) {
                         retVal[i] = defaultIndex;
                     } else {
                         retVal[i] = -1;
@@ -232,8 +232,8 @@ public class DotsData {
 
         public DotsDay updateDose(int dose, DotsBox[] newboxes) {
             int[] indices = getRegIndexes(dose);
-            for(int i = 0 ; i < boxes.length; ++i) {
-                if(indices[i] == -1) {
+            for (int i = 0; i < boxes.length; ++i) {
+                if (indices[i] == -1) {
                     //Nothing to do
                 } else {
                     this.boxes[i][indices[i]] = newboxes[i];
@@ -266,22 +266,22 @@ public class DotsData {
                     }
                 }
             }
-            if(ret == null) {
+            if (ret == null) {
                 return MedStatus.unchecked;
             } else {
                 return ret;
             }
         }
     }
-    
+
     public DotsDay[] days() {
         return days;
     }
-    
+
     public Date anchor() {
         return anchor;
     }
-    
+
 
     private DotsData(Date anchor, int[] regimens, DotsDay[] days, int[][] regLabels) {
         this.anchor = anchor;
@@ -289,17 +289,17 @@ public class DotsData {
         this.days = days;
         this.regLabels = regLabels;
     }
-    
-    
+
+
     public int recenter(int[] regimens, Date newAnchor) {
         this.regimens = regimens;
         int difference = DateUtils.dateDiff(anchor, newAnchor);
-        if(difference == 0) {
+        if (difference == 0) {
             return 0;
         }
         DotsDay[] newDays = new DotsDay[this.days.length];
-        for(int i = 0; i < newDays.length; ++i) {
-            if(difference + i >= 0 && difference + i < this.days.length) {
+        for (int i = 0; i < newDays.length; ++i) {
+            if (difference + i >= 0 && difference + i < this.days.length) {
                 newDays[i] = this.days[difference + i];
             } else {
                 newDays[i] = new DotsDay(emptyBoxes(this.regimens, this.regLabels));
@@ -309,23 +309,23 @@ public class DotsData {
         this.days = newDays;
         return difference;
     }
-    
+
     public String SerializeDotsData() {
-        
-        try{
+
+        try {
             JSONObject object = new JSONObject();
             object.put("anchor", anchor.toGMTString());
             JSONArray jRegs = new JSONArray();
-            for(int i : regimens) {
+            for (int i : regimens) {
                 jRegs.put(i);
             }
             object.put("regimens", jRegs);
-            
+
             JSONArray jDays = new JSONArray();
-            for(DotsDay day : days) {
+            for (DotsDay day : days) {
                 jDays.put(day.serialize());
             }
-            if(this.regLabels != null) {
+            if (this.regLabels != null) {
                 JSONArray regLabelJson = new JSONArray();
                 for (int[] labels : regLabels) {
                     JSONArray regLabelSub = new JSONArray();
@@ -336,77 +336,77 @@ public class DotsData {
                 }
                 object.put("regimen_labels", regLabelJson);
             }
-            
+
             object.put("days", jDays);
-            
+
             return object.toString();
-        } catch(JSONException e) {
+        } catch (JSONException e) {
             throw new RuntimeException(e);
         }
     }
-    
+
     public static DotsData DeserializeDotsData(String dots) {
-        
+
         try {
             JSONObject data = new JSONObject(new JSONTokener(dots));
-            
+
             Date anchor = new Date(Date.parse(data.getString("anchor")));
-            
+
             JSONArray jRegs = data.getJSONArray("regimens");
-            int[] regs =  new int[jRegs.length()];
-            for(int i = 0 ; i < regs.length ; ++i) {
+            int[] regs = new int[jRegs.length()];
+            for (int i = 0; i < regs.length; ++i) {
                 regs[i] = jRegs.getInt(i);
             }
-            
+
             int[][] regLabels = new int[regs.length][];
-            if(data.has("regimen_labels")) {
+            if (data.has("regimen_labels")) {
                 JSONArray jRegLabels = data.getJSONArray("regimen_labels");
-                if(jRegLabels.length() != regs.length) {
+                if (jRegLabels.length() != regs.length) {
                     //TODO: specific exception type here
                     throw new RuntimeException("Invalid DOTS model! Regimens and Labels are incompatible lengths");
                 }
-                for(int i = 0 ; i < jRegLabels.length() ; ++i) {
+                for (int i = 0; i < jRegLabels.length(); ++i) {
                     JSONArray jLabels = jRegLabels.getJSONArray(i);
                     regLabels[i] = new int[jLabels.length()];
-                    for(int j = 0 ; j < jLabels.length() ; ++j) {
-                        regLabels[i][j] = jLabels.getInt(j); 
+                    for (int j = 0; j < jLabels.length(); ++j) {
+                        regLabels[i][j] = jLabels.getInt(j);
                     }
                 }
             } else {
                 //No default regimen labels
                 regLabels = null;
             }
-            
+
             JSONArray jDays = data.getJSONArray("days");
-            DotsDay[] days =  new DotsDay[jDays.length()];
-            for(int i = 0 ; i < days.length ; ++i) {
+            DotsDay[] days = new DotsDay[jDays.length()];
+            for (int i = 0; i < days.length; ++i) {
                 days[i] = DotsDay.deserialize(jDays.getJSONArray(i));
             }
-            
+
             return new DotsData(anchor, regs, days, regLabels);
-        } catch(JSONException e) {
+        } catch (JSONException e) {
             throw new RuntimeException(e);
         }
-        
+
 
     }
-    
+
     public static DotsData CreateDotsData(int[] regType, Date anchor) {
         DotsDay[] days = new DotsDay[21];
-        for(int j = 0 ; j <  days.length ; ++j ) {
+        for (int j = 0; j < days.length; ++j) {
             days[j] = new DotsDay(emptyBoxes(regType, null));
         }
 
         return new DotsData(anchor, regType, days, null);
     }
-    
+
     private static DotsBox[][] emptyBoxes(int[] lengths, int[][] regLabels) {
         DotsBox[][] boxes = new DotsBox[lengths.length][];
-        for(int i = 0 ; i < lengths.length; ++i ) {
+        for (int i = 0; i < lengths.length; ++i) {
             boxes[i] = new DotsBox[lengths[i]];
-            for(int j = 0 ; j <  boxes[i].length ; ++j ) {
+            for (int j = 0; j < boxes[i].length; ++j) {
                 int label = -1;
-                if(regLabels != null) {
+                if (regLabels != null) {
                     label = regLabels[i][j];
                 }
                 boxes[i][j] = new DotsBox(MedStatus.unchecked, ReportType.pillbox, null, label);

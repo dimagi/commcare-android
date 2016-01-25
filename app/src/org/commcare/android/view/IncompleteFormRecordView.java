@@ -35,13 +35,13 @@ public class IncompleteFormRecordView extends LinearLayout {
     public IncompleteFormRecordView(Context context, Hashtable<String, Text> names) {
         super(context);
 
-        ViewGroup vg = (ViewGroup) View.inflate(context, R.layout.formrecordview, null);
+        ViewGroup vg = (ViewGroup)View.inflate(context, R.layout.formrecordview, null);
         this.names = names;
 
-        mPrimaryTextView = (TextView) vg.findViewById(R.id.formrecord_txt_main);
-        mLowerTextView = (TextView) vg.findViewById(R.id.formrecord_txt_btm);
-        mRightTextView = (TextView) vg.findViewById(R.id.formrecord_txt_right);
-        mUpperRight = (TextView) vg.findViewById(R.id.formrecord_txt_upp_right);
+        mPrimaryTextView = (TextView)vg.findViewById(R.id.formrecord_txt_main);
+        mLowerTextView = (TextView)vg.findViewById(R.id.formrecord_txt_btm);
+        mRightTextView = (TextView)vg.findViewById(R.id.formrecord_txt_right);
+        mUpperRight = (TextView)vg.findViewById(R.id.formrecord_txt_upp_right);
 
         mPrimaryTextView.setTextAppearance(context, android.R.style.TextAppearance_Large);
         mUpperRight.setTextAppearance(context, android.R.style.TextAppearance_Large);

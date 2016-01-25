@@ -28,12 +28,10 @@ import java.util.EnumMap;
 import java.util.Map;
 
 /**
- * 
  * @author ZXing authors
  * @author csims@dimagi.com
- * 
- * Pulled from the ZXing libraries and modified slightly (mostly just pulled out code we don't need)   
  *
+ *         Pulled from the ZXing libraries and modified slightly (mostly just pulled out code we don't need)
  */
 public final class QRCodeEncoder {
     private static final int WHITE = 0xFFFFFFFF;
@@ -48,7 +46,7 @@ public final class QRCodeEncoder {
         contents = data;
     }
 
-    
+
     public Bitmap encodeAsBitmap() throws WriterException {
         Map<EncodeHintType, Object> hints = null;
         String encoding = guessAppropriateEncoding(contents);
@@ -77,7 +75,9 @@ public final class QRCodeEncoder {
     private static String guessAppropriateEncoding(CharSequence contents) {
         // Very crude at the moment
         for (int i = 0; i < contents.length(); i++) {
-            if (contents.charAt(i) > 0xFF) { return "UTF-8"; }
+            if (contents.charAt(i) > 0xFF) {
+                return "UTF-8";
+            }
         }
         return null;
     }

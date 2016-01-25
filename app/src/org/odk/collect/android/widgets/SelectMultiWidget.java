@@ -22,7 +22,7 @@ import java.util.Vector;
 
 /**
  * SelctMultiWidget handles multiple selection fields using checkboxes.
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
@@ -30,7 +30,7 @@ public class SelectMultiWidget extends QuestionWidget {
     private boolean mCheckboxInit = true;
     private final Vector<SelectChoice> mItems;
     private final int buttonIdBase;
-    
+
     private final Vector<CheckBox> mCheckboxes;
 
     @SuppressWarnings("unchecked")
@@ -43,9 +43,9 @@ public class SelectMultiWidget extends QuestionWidget {
 
         Vector<Selection> ve = new Vector<>();
         if (mPrompt.getAnswerValue() != null) {
-            ve = (Vector<Selection>) getCurrentAnswer().getValue();
+            ve = (Vector<Selection>)getCurrentAnswer().getValue();
         }
-        
+
         //Is this safe enough from collisions?
         buttonIdBase = Math.abs(mPrompt.getIndex().toString().hashCode());
 
@@ -56,17 +56,17 @@ public class SelectMultiWidget extends QuestionWidget {
 
                 c.setId(buttonIdBase + i);
                 String markdownText = prompt.getSelectItemMarkdownText(mItems.get(i));
-                if(markdownText != null){
+                if (markdownText != null) {
                     c.setText(forceMarkdown(markdownText));
-                } else{
+                } else {
                     c.setText(prompt.getSelectChoiceText(mItems.get(i)));
                 }
                 c.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
                 c.setFocusable(!mPrompt.isReadOnly());
                 c.setEnabled(!mPrompt.isReadOnly());
-                
+
                 int padding = (int)Math.floor(context.getResources().getDimension(R.dimen.select_padding));
-                
+
                 c.setPadding(c.getPaddingLeft(), 0, padding, 0);
                 for (int vi = 0; vi < ve.size(); vi++) {
                     // match based on value, not key
@@ -75,10 +75,10 @@ public class SelectMultiWidget extends QuestionWidget {
                         break;
                     }
                 }
-                
+
                 //Note: This gets fired during setup as well, so this listener should only
                 //be added after everything about the checkbox is set up
-                
+
                 // when clicked, check for readonly before toggling
                 c.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                     @Override
@@ -111,9 +111,9 @@ public class SelectMultiWidget extends QuestionWidget {
                 MediaLayout mediaLayout = new MediaLayout(getContext());
                 mediaLayout.setAVT(c, audioURI, imageURI, videoURI, bigImageURI);
                 addView(mediaLayout);
-                
+
                 mediaLayout.setPadding(0, padding, 0, padding);
-                
+
                 mediaLayout.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -139,7 +139,7 @@ public class SelectMultiWidget extends QuestionWidget {
         for (int i = 0; i < j; i++) {
 
             // no checkbox group so find by id + offset
-            CheckBox c = ((CheckBox) findViewById(buttonIdBase + i));
+            CheckBox c = ((CheckBox)findViewById(buttonIdBase + i));
             if (c.isChecked()) {
                 c.setChecked(false);
             }
@@ -150,7 +150,7 @@ public class SelectMultiWidget extends QuestionWidget {
     public IAnswerData getAnswer() {
         Vector<Selection> vc = new Vector<>();
         for (int i = 0; i < mItems.size(); i++) {
-            CheckBox c = ((CheckBox) findViewById(buttonIdBase + i));
+            CheckBox c = ((CheckBox)findViewById(buttonIdBase + i));
             if (c.isChecked()) {
                 vc.add(new Selection(mItems.get(i)));
             }
@@ -167,7 +167,7 @@ public class SelectMultiWidget extends QuestionWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 

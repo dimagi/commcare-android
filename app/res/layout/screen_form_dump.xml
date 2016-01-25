@@ -2,19 +2,31 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                   android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:orientation="vertical" >
+                  android:orientation="vertical">
 
-        <ImageView android:id="@+id/screen_bulk_image1" android:layout_height="wrap_content" android:layout_width="fill_parent" android:paddingLeft="20px" android:layout_marginRight="20px" android:paddingTop="20px" android:paddingBottom="0px" android:scaleType="fitStart" android:maxHeight="135px" android:maxWidth="663px" android:src="@drawable/ccbanner"></ImageView>
+        <ImageView
+            android:id="@+id/screen_bulk_image1"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:paddingLeft="20px"
+            android:layout_marginRight="20px"
+            android:paddingTop="20px"
+            android:paddingBottom="0px"
+            android:scaleType="fitStart"
+            android:maxHeight="135px"
+            android:maxWidth="663px"
+            android:src="@drawable/ccbanner"></ImageView>
 
         <RelativeLayout
             android:id="@+id/screen_bulk_form_frame_location"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingLeft="5dp"
-            android:paddingRight="5dp" >
+            android:paddingRight="5dp">
 
             <TextView
                 android:id="@+id/screen_bulk_form_prompt"
@@ -25,7 +37,7 @@
                 android:layout_margin="10dp"
                 android:gravity="center"
                 android:layout_below="@+id/screen_multimedia_inflater_filefetch"
-                android:text="From here you can dump your forms to an SD card or submit the forms on your SD card" />
+                android:text="From here you can dump your forms to an SD card or submit the forms on your SD card"/>
 
             <Button
                 android:id="@+id/screen_bulk_form_dump"
@@ -33,14 +45,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/screen_bulk_form_prompt"
-                android:text="Dump Forms" />
+                android:text="Dump Forms"/>
+
             <Button
                 android:id="@+id/screen_bulk_form_submit"
                 style="@style/ButtonBottom"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/screen_bulk_form_dump"
-                android:text="Submit Forms" />
+                android:text="Submit Forms"/>
 
         </RelativeLayout>
 
@@ -51,7 +64,7 @@
             android:layout_gravity="center"
             android:layout_margin="10dp"
             android:gravity="center"
-            android:text="Output Message" />
+            android:text="Output Message"/>
 
     </LinearLayout>
 </ScrollView>

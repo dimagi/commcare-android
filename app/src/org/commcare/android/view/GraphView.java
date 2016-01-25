@@ -25,6 +25,7 @@ import java.util.Enumeration;
 
 /**
  * View containing a graph. Note that this does not derive from View; call renderView to get a view for adding to other views, etc.
+ *
  * @author jschweers
  */
 public class GraphView {
@@ -80,6 +81,7 @@ public class GraphView {
 
     /**
      * Get the HTML that will comprise this graph.
+     *
      * @param graphData The data to render.
      * @return Full HTML page, including head, body, and all script and style tags
      */
@@ -140,6 +142,7 @@ public class GraphView {
 
     /**
      * Generate HTML to declare given variables in WebView.
+     *
      * @param variables OrderedHashTable where keys are variable names and values are JSON
      *                  representations of values.
      * @param namespace Optional. If provided, instead of declaring a separate variable for each

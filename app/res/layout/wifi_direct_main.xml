@@ -1,102 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                  android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:orientation="vertical" >
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
-        <LinearLayout
-            android:id="@+id/linearLayout1"
-            android:layout_width="fill_parent"
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <fragment
+            android:id="@+id/frag_list"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" >
+            class="org.commcare.android.framework.DeviceListFragment">
+        </fragment>
 
-            <fragment
-                android:id="@+id/frag_list"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                class="org.commcare.android.framework.DeviceListFragment" >
-            </fragment>
+        <fragment
+            android:id="@+id/frag_detail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            class="org.commcare.android.framework.DeviceDetailFragment">
+        </fragment>
 
-            <fragment
-                android:id="@+id/frag_detail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                class="org.commcare.android.framework.DeviceDetailFragment" >
-            </fragment>
+        <fragment
+            android:id="@+id/wifi_manager_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            class="org.commcare.android.framework.WiFiDirectManagementFragment">
+        </fragment>
 
-            <fragment
-                android:id="@+id/wifi_manager_fragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                class="org.commcare.android.framework.WiFiDirectManagementFragment" >
-            </fragment>
+        <fragment
+            android:id="@+id/file_server_fragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            class="org.commcare.android.framework.FileServerFragment">
 
-            <fragment
-                android:id="@+id/file_server_fragment"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                class="org.commcare.android.framework.FileServerFragment" >
+            <!-- Preview: layout=@layout/file_server -->
+        </fragment>
 
-                <!-- Preview: layout=@layout/file_server -->
-            </fragment>
+        <TextView
+            android:id="@+id/my_status_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:text=" ">
+        </TextView>
 
-            <TextView
-                android:id="@+id/my_status_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="5dp"
-                android:text=" " >
-            </TextView>
+        <TextView
+            android:id="@+id/form_count_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="5dp"
+            android:text=" ">
+        </TextView>
+    </LinearLayout>
 
-            <TextView
-                android:id="@+id/form_count_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="5dp"
-                android:text=" " >
-            </TextView>
-        </LinearLayout>
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/wifi_state_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="2dp"
+            android:gravity="center"
+            android:text=""
+            android:textStyle="bold"
+            android:textSize="@dimen/text_large">
+        </TextView>
+
+        <TextView
+            android:id="@+id/wifi_state_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="2dp"
+            android:gravity="center"
+            android:text="">
+        </TextView>
 
         <LinearLayout
-            android:id="@+id/linearLayout2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical" >
+            android:orientation="vertical"
+            android:padding="4dp">
 
-            <TextView
-                android:id="@+id/wifi_state_header"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="2dp"
-                android:gravity="center"
-                android:text=""
-                android:textStyle="bold"
-                android:textSize="@dimen/text_large" >
-            </TextView>
-
-            <TextView
-                android:id="@+id/wifi_state_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_margin="2dp"
-                android:gravity="center"
-                android:text="">
-            </TextView>
-            <LinearLayout
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/wifi_direct_gridview_buttons"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:padding="4dp">
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/wifi_direct_gridview_buttons"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scrollbars="vertical"/>
-                </LinearLayout>
+                android:scrollbars="vertical"/>
         </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

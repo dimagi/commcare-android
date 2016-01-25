@@ -25,7 +25,7 @@ import java.util.Vector;
  * SpinnerWidget handles select-one fields. Instead of a list of buttons it uses a spinner, wherein
  * the user clicks a button and the choices pop up in a dialogue box. The goal is to be more
  * compact. If images, audio, or video are specified in the select answers they are ignored.
- * 
+ *
  * @author Jeff Beorse (jeff@beorse.net)
  */
 public class SpinnerWidget extends QuestionWidget {
@@ -47,8 +47,8 @@ public class SpinnerWidget extends QuestionWidget {
 
         // The spinner requires a custom adapter. It is defined below
         SpinnerAdapter adapter =
-            new SpinnerAdapter(getContext(), android.R.layout.simple_spinner_item, choices,
-                    TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+                new SpinnerAdapter(getContext(), android.R.layout.simple_spinner_item, choices,
+                        TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
 
         spinner.setAdapter(adapter);
         spinner.setPrompt(prompt.getQuestionText());
@@ -58,7 +58,7 @@ public class SpinnerWidget extends QuestionWidget {
         // Fill in previous answer
         String s = null;
         if (prompt.getAnswerValue() != null) {
-            s = ((Selection) prompt.getAnswerValue().getValue()).getValue();
+            s = ((Selection)prompt.getAnswerValue().getValue()).getValue();
         }
 
         if (s != null) {
@@ -70,11 +70,11 @@ public class SpinnerWidget extends QuestionWidget {
 
             }
         }
-        
+
         spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if(hasListener){
+                if (hasListener) {
                     widgetChangedListener.widgetEntryChanged();
                 }
             }
@@ -116,7 +116,7 @@ public class SpinnerWidget extends QuestionWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
 
     }
@@ -124,13 +124,13 @@ public class SpinnerWidget extends QuestionWidget {
     // Defines how to display the select answers
     private class SpinnerAdapter extends ArrayAdapter<String> {
         final Context context;
-        String[] items = new String[] {};
+        String[] items = new String[]{};
         final int textUnit;
         final float textSize;
 
 
         public SpinnerAdapter(final Context context, final int textViewResourceId,
-                final String[] objects, int textUnit, float textSize) {
+                              final String[] objects, int textUnit, float textSize) {
             super(context, textViewResourceId, objects);
             this.items = objects;
             this.context = context;
@@ -148,7 +148,7 @@ public class SpinnerWidget extends QuestionWidget {
                 convertView = inflater.inflate(R.layout.custom_spinner_item, parent, false);
             }
 
-            TextView tv = (TextView) convertView.findViewById(android.R.id.text1);
+            TextView tv = (TextView)convertView.findViewById(android.R.id.text1);
             tv.setText(items[position]);
             tv.setTextSize(textUnit, textSize);
             tv.setPadding(10, 10, 10, 10); // Are these values OK?
@@ -163,7 +163,7 @@ public class SpinnerWidget extends QuestionWidget {
                 convertView = inflater.inflate(android.R.layout.simple_spinner_item, parent, false);
             }
 
-            TextView tv = (TextView) convertView.findViewById(android.R.id.text1);
+            TextView tv = (TextView)convertView.findViewById(android.R.id.text1);
             tv.setText(items[position]);
             tv.setTextSize(textUnit, textSize);
             return convertView;

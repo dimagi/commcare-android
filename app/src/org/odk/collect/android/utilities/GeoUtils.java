@@ -28,24 +28,26 @@ public class GeoUtils {
     public static final double GOOD_ACCURACY = 5;             // Good enough accuracy to stop pinging the GPS altogether
     public static final double ACCEPTABLE_ACCURACY = 1600;    // Good enough accuracy to ask user if they want to record
     public static final int MAXIMUM_WAIT = 300 * 1000;        // For passive collection, milliseconds to wait for GPS before giving up
-    
+
     public static final String ACTION_CHECK_GPS_ENABLED = "org.odk.collect.android.utilities.GeoUtils.check";
 
     /**
      * Format location in a string for user display.
+     *
      * @return String in format "<latitude> <longitude> <altitude> <accuracy>"
      */
     public static String locationToString(Location location) {
         return String.format("%s %s %s %s", location.getLatitude(), location.getLongitude(), location.getAltitude(), location.getAccuracy());
     }
-    
+
     /**
      * Get a LocationManager's providers, and trim the list down to providers we care about: GPS and network.
+     *
      * @return Set of String objects that may contain LocationManager.GPS_PROVDER and/or LocationManager.NETWORK_PROVIDER
      */
     public static Set<String> evaluateProviders(LocationManager manager) {
         HashSet<String> set = new HashSet<>();
-        
+
         List<String> providers = manager.getProviders(true);
         for (String provider : providers) {
             if (provider.equalsIgnoreCase(LocationManager.GPS_PROVIDER)) {
@@ -55,7 +57,7 @@ public class GeoUtils {
                 set.add(LocationManager.NETWORK_PROVIDER);
             }
         }
-                
+
         return set;
     }
 
@@ -69,11 +71,11 @@ public class GeoUtils {
         List<String> providers = manager.getProviders(true);
         for (String provider : providers) {
             if (provider.equalsIgnoreCase(LocationManager.GPS_PROVIDER) && ContextCompat.checkSelfPermission(
-                            context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 set.add(LocationManager.GPS_PROVIDER);
             }
             if (provider.equalsIgnoreCase(LocationManager.NETWORK_PROVIDER) && ContextCompat.checkSelfPermission(
-                            context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 set.add(LocationManager.NETWORK_PROVIDER);
             }
         }
@@ -127,14 +129,14 @@ public class GeoUtils {
      * Pass in a string representing either a GeoPoint or an address and get back a valid
      * GeoURI that can be passed as an intent argument
      */
-    public static String getGeoIntentURI(String rawInput){
+    public static String getGeoIntentURI(String rawInput) {
         try {
             GeoPointData mGeoPointData = new GeoPointData().cast(new UncastData(rawInput));
             String latitude = Double.toString(mGeoPointData.getValue()[0]);
-            String longitude= Double.toString(mGeoPointData.getValue()[1]);
+            String longitude = Double.toString(mGeoPointData.getValue()[1]);
             return "geo:" + latitude + "," + longitude + "?q=" + latitude + "," + longitude;
 
-        } catch(IllegalArgumentException iae){
+        } catch (IllegalArgumentException iae) {
             return "geo:0,0?q=" + rawInput;
         }
     }

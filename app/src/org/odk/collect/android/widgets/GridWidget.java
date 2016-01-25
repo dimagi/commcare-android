@@ -34,7 +34,7 @@ import java.util.Vector;
  * GridWidget handles select-one fields using a grid of icons. The user clicks the desired icon and
  * the background changes from black to orange. If text, audio, or video are specified in the select
  * answers they are ignored.
- * 
+ *
  * @author Jeff Beorse (jeff@beorse.net)
  */
 public class GridWidget extends QuestionWidget {
@@ -61,14 +61,14 @@ public class GridWidget extends QuestionWidget {
 
 
     /**
-     * @param numColumns The number of columns in the grid, can be user defined
+     * @param numColumns   The number of columns in the grid, can be user defined
      * @param quickAdvance Whether to advance immediately after the image is clicked
      */
     public GridWidget(Context context, FormEntryPrompt prompt,
                       int numColumns, final boolean quickAdvance) {
         super(context, prompt);
         mItems = mPrompt.getSelectChoices();
-        listener = (AdvanceToNextListener) context;
+        listener = (AdvanceToNextListener)context;
 
         selected = new boolean[mItems.size()];
         choices = new String[mItems.size()];
@@ -90,7 +90,7 @@ public class GridWidget extends QuestionWidget {
             // Read the image sizes and set maxColumnWidth. This allows us to make sure all of our
             // columns are going to fit
             String imageURI =
-                mPrompt.getSpecialFormSelectChoiceText(sc, FormEntryCaption.TEXT_FORM_IMAGE);
+                    mPrompt.getSpecialFormSelectChoiceText(sc, FormEntryCaption.TEXT_FORM_IMAGE);
 
             if (imageURI != null) {
                 choices[i] = imageURI;
@@ -101,13 +101,13 @@ public class GridWidget extends QuestionWidget {
                     final File imageFile = new File(imageFilename);
                     if (imageFile.exists()) {
                         Display display =
-                            ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
-                                    .getDefaultDisplay();
+                                ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
+                                        .getDefaultDisplay();
                         int screenWidth = display.getWidth();
                         int screenHeight = display.getHeight();
                         Bitmap b =
                                 MediaUtil
-                                    .getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
+                                        .getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
                         if (b != null) {
 
                             if (b.getWidth() > maxColumnWidth) {
@@ -151,8 +151,8 @@ public class GridWidget extends QuestionWidget {
         // view
         // knows how far out it can stretch.
         Display display =
-            ((WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE))
-                    .getDefaultDisplay();
+                ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
+                        .getDefaultDisplay();
         int screenWidth = display.getWidth();
         int screenHeight = display.getHeight();
         GridView.LayoutParams params = new GridView.LayoutParams(screenWidth - 5, screenHeight - 5);
@@ -174,7 +174,7 @@ public class GridWidget extends QuestionWidget {
         // Fill in answer
         String s = null;
         if (mPrompt.getAnswerValue() != null) {
-            s = ((Selection) mPrompt.getAnswerValue().getValue()).getValue();
+            s = ((Selection)mPrompt.getAnswerValue().getValue()).getValue();
         }
 
         for (int i = 0; i < mItems.size(); ++i) {
@@ -183,7 +183,7 @@ public class GridWidget extends QuestionWidget {
             selected[i] = sMatch.equals(s);
             if (selected[i]) {
                 imageViews[i].setBackgroundColor(Color.rgb(orangeRedVal, orangeGreenVal,
-                    orangeBlueVal));
+                        orangeBlueVal));
             } else {
                 imageViews[i].setBackgroundColor(Color.WHITE);
             }
@@ -191,7 +191,7 @@ public class GridWidget extends QuestionWidget {
 
         addView(gridview);
     }
-    
+
     @Override
     public IAnswerData getAnswer() {
         for (int i = 0; i < choices.length; ++i) {
@@ -215,7 +215,7 @@ public class GridWidget extends QuestionWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 

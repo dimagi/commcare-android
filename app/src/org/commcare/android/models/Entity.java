@@ -34,7 +34,7 @@ public class Entity<T> {
     public String getFieldString(int i) {
         Object field = getField(i);
         if (field instanceof String) {
-            return (String) field;
+            return (String)field;
         }
         return "";
     }

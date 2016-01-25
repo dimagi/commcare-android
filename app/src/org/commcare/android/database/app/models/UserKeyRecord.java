@@ -71,7 +71,9 @@ public class UserKeyRecord extends Persisted {
     @Persisting(5)
     private Date validTo;
 
-    /** The unique ID of the data sandbox covered by this key **/
+    /**
+     * The unique ID of the data sandbox covered by this key
+     **/
     @Persisting(6)
     @MetaField(META_SANDBOX_ID)
     private String uuid;
@@ -80,12 +82,16 @@ public class UserKeyRecord extends Persisted {
     @Persisting(7)
     private int type;
 
-    /** The un-hashed password wrapped by a numeric PIN **/
+    /**
+     * The un-hashed password wrapped by a numeric PIN
+     **/
     @Persisting(8)
     private byte[] passwordWrappedByPin;
 
-    /** When a user selects the 'Remember password for next login' option, their un-hashed password
-     * gets saved here and then used in the next login, so that the user does not need to enter it */
+    /**
+     * When a user selects the 'Remember password for next login' option, their un-hashed password
+     * gets saved here and then used in the next login, so that the user does not need to enter it
+     */
     @Persisting(9)
     private String rememberedPassword;
 

@@ -18,7 +18,6 @@ import java.util.Vector;
 
 /**
  * @author ctsims
- *
  */
 public class IntentExtensionParser implements IElementHandler {
 
@@ -28,48 +27,47 @@ public class IntentExtensionParser implements IElementHandler {
 
     @Override
     public void handle(XFormParser p, Element e, Object parent) {
-        if(!(parent instanceof FormDef)) {
+        if (!(parent instanceof FormDef)) {
             throw new RuntimeException("Intent extension improperly registered.");
         }
         FormDef form = (FormDef)parent;
 
         String id = e.getAttributeValue(null, "id");
         String className = e.getAttributeValue(null, "class");
-        
+
         String component = e.getAttributeValue(null, "component");
         String type = e.getAttributeValue(null, "type");
         String data = e.getAttributeValue(null, "data");
         String appearance = e.getAttributeValue(null, "appearance");
-        
+
         Log.d(TAG, "0123 extention parser appearance is: " + appearance);
-        
+
         String label = e.getAttributeValue(null, "button-label");
 
         Hashtable<String, XPathExpression> extras = new Hashtable<>();
         Hashtable<String, Vector<TreeReference>> response = new Hashtable<>();
 
-        for(int i = 0; i < e.getChildCount(); ++i) {
-            if(e.getType(i) == Element.ELEMENT) {
+        for (int i = 0; i < e.getChildCount(); ++i) {
+            if (e.getType(i) == Element.ELEMENT) {
                 Element child = (Element)e.getChild(i);
-                try{
-                    if(child.getName().equals(EXTRA)) {
+                try {
+                    if (child.getName().equals(EXTRA)) {
                         String key = child.getAttributeValue(null, "key");
                         String ref = child.getAttributeValue(null, "ref");
                         XPathExpression expr = XPathParseTool.parseXPath(ref);
 
                         extras.put(key, expr);
 
-                    } else if(child.getName().equals(RESPONSE)) {
+                    } else if (child.getName().equals(RESPONSE)) {
                         String key = child.getAttributeValue(null, "key");
                         String ref = child.getAttributeValue(null, "ref");
                         if (response.get(key) == null) {
                             response.put(key, new Vector<TreeReference>());
                         }
-                        response.get(key).add((TreeReference) new XPathReference(ref).getReference());
+                        response.get(key).add((TreeReference)new XPathReference(ref).getReference());
 
                     }
-                }
-                catch(XPathSyntaxException xptm){
+                } catch (XPathSyntaxException xptm) {
                     throw new XFormParseException("Error parsing Intent Extra: " + xptm.getMessage(), e);
                 }
             }

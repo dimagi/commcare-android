@@ -9,8 +9,8 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.ContextCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -27,7 +27,6 @@ import java.util.Date;
 
 /**
  * @author ctsims
- *
  */
 public class CallOutActivity extends FragmentActivity
         implements RuntimePermissionRequester {
@@ -37,9 +36,9 @@ public class CallOutActivity extends FragmentActivity
     public static final String INCOMING_ACTION = "cos_inac";
 
     private static final String CALLOUT_ACTION_KEY = "callout-action-key";
-    
+
     private static final int DIALOG_NUMBER_ACTION = 0;
-    
+
     private static final int SMS_RESULT = 0;
     private static final int CALL_RESULT = 1;
 
@@ -54,9 +53,9 @@ public class CallOutActivity extends FragmentActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        tManager = (TelephonyManager) this.getSystemService(TELEPHONY_SERVICE);
-        listener = new CallListener(); 
-                
+        tManager = (TelephonyManager)this.getSystemService(TELEPHONY_SERVICE);
+        listener = new CallListener();
+
         number = getIntent().getStringExtra(PHONE_NUMBER);
         loadStateFromInstance(savedInstanceState);
 
@@ -77,25 +76,25 @@ public class CallOutActivity extends FragmentActivity
     @Override
     protected void onResume() {
         super.onResume();
-        if(listener.isFinished()) {
+        if (listener.isFinished()) {
             long duration = listener.getCallDuration();
-            if(duration > 0) {
+            if (duration > 0) {
                 Intent i = new Intent(getIntent());
                 i.putExtra(CALL_DURATION, duration);
-                
+
                 setResult(RESULT_OK, i);
                 finish();
             } else {
                 //TODO: We could also pop up a thing here that said "Phone call in progress"
                 //or something
                 Intent i = new Intent(getIntent());
-                
+
                 setResult(RESULT_CANCELED, i);
                 finish();
             }
-        } 
+        }
     }
-    
+
     private void showChoiceDialog() {
         PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, "Select Action");
 
@@ -192,12 +191,12 @@ public class CallOutActivity extends FragmentActivity
 
     private void dispatchAction() {
         // using createChooser to handle any errors gracefully
-        if(Intent.ACTION_CALL.equals(calloutAction) ) {
+        if (Intent.ACTION_CALL.equals(calloutAction)) {
             tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
 
             Intent call = new Intent(Intent.ACTION_CALL);
             call.setData(Uri.parse("tel:" + number));
-            if(call.resolveActivity(getPackageManager()) != null){
+            if (call.resolveActivity(getPackageManager()) != null) {
                 startActivityForResult(call, CALL_RESULT);
             } else {
                 Toast.makeText(this, Localization.get("callout.failure.dialer"), Toast.LENGTH_SHORT).show();
@@ -206,7 +205,7 @@ public class CallOutActivity extends FragmentActivity
         } else {
             Intent sms = new Intent(Intent.ACTION_SENDTO);
             sms.setData(Uri.parse("smsto:" + number));
-            if(sms.resolveActivity(getPackageManager()) != null){
+            if (sms.resolveActivity(getPackageManager()) != null) {
                 startActivityForResult(sms, SMS_RESULT);
             } else {
                 Toast.makeText(this, Localization.get("callout.failure.sms"), Toast.LENGTH_SHORT).show();
@@ -218,10 +217,10 @@ public class CallOutActivity extends FragmentActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
-        if(requestCode == SMS_RESULT || requestCode == CALL_RESULT) {
+        if (requestCode == SMS_RESULT || requestCode == CALL_RESULT) {
             //we're done here
             Intent i = new Intent(getIntent());
-            
+
             setResult(RESULT_CANCELED, i);
             finish();
         }
@@ -247,16 +246,16 @@ public class CallOutActivity extends FragmentActivity
             if (called && state == TelephonyManager.CALL_STATE_IDLE) {
                 called = false;
                 tManager.listen(this, PhoneStateListener.LISTEN_NONE);
-                
+
                 duration = new Date().getTime() - started;
                 finished = true;
-                
+
                 //TODO: Any way to skip the stupid Call Log?
-                
-                if(duration > 0) {
+
+                if (duration > 0) {
                     Intent i = new Intent(getIntent());
                     i.putExtra(CALL_DURATION, duration);
-                     
+
                     setResult(RESULT_OK, i);
                     finish();
                 } else {
@@ -264,14 +263,14 @@ public class CallOutActivity extends FragmentActivity
                     setResult(RESULT_CANCELED, i);
                     finish();
                 }
-                
+
             }
         }
-        
+
         public long getCallDuration() {
             return duration;
         }
-        
+
         public boolean isFinished() {
             return finished;
         }

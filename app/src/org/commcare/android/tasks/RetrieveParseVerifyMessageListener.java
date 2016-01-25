@@ -5,6 +5,8 @@ package org.commcare.android.tasks;
  */
 public interface RetrieveParseVerifyMessageListener {
     void downloadLinkReceived(String url);
+
     void downloadLinkReceivedAutoInstall(String url);
+
     void exceptionReceived(Exception e);
 }

@@ -25,11 +25,10 @@ import java.util.Queue;
  * date
  *
  * @author ctsims
- *
  */
 public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<FormRecord, ArrayList<String>>, Integer> {
 
-    private Hashtable<String,String> descriptorCache;
+    private Hashtable<String, String> descriptorCache;
     private final SqlStorage<SessionStateDescriptor> descriptorStorage;
     private final AndroidCommCarePlatform platform;
     private Hashtable<Integer, String[]> searchCache;
@@ -78,7 +77,7 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
      * Pass in hashtables that will be used to store data that is loaded.
      *
      * @param searchCache maps FormRecord ID to an array of query-able form descriptor text
-     * @param formNames map from form namespaces to their titles
+     * @param formNames   map from form namespaces to their titles
      */
     public void init(Hashtable<Integer, String[]> searchCache, Hashtable<String, Text> formNames) {
         this.searchCache = searchCache;
@@ -119,7 +118,7 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         // cancelled before that.
         while (loadedFormCount < params.length && !isCancelled()) {
             FormRecord current = null;
-            synchronized(priorityQueue) {
+            synchronized (priorityQueue) {
                 //If we have one to do immediately, grab it
                 if (!priorityQueue.isEmpty()) {
                     current = priorityQueue.poll();
@@ -155,19 +154,19 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
             // Grab our record hash
             SessionStateDescriptor ssd = null;
             try {
-             ssd = descriptorStorage.getRecordForValue(SessionStateDescriptor.META_FORM_RECORD_ID, current.getID());
+                ssd = descriptorStorage.getRecordForValue(SessionStateDescriptor.META_FORM_RECORD_ID, current.getID());
             } catch (NoSuchElementException nsee) {
                 //s'all good
             }
             String dataTitle = "";
-            if(ssd != null) {
+            if (ssd != null) {
                 String descriptor = ssd.getSessionDescriptor();
                 if (!descriptorCache.containsKey(descriptor)) {
                     AndroidSessionWrapper asw = new AndroidSessionWrapper(platform);
                     asw.loadFromStateDescription(ssd);
                     try {
                         dataTitle = asw.getTitle();
-                    } catch (RuntimeException e){
+                    } catch (RuntimeException e) {
                         dataTitle = "[Unavailable]";
                     }
 
@@ -252,12 +251,12 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
     }
 
     public boolean registerPriority(FormRecord record) {
-        synchronized(priorityQueue) {
-            if(loaded.contains(record.getID())) {
+        synchronized (priorityQueue) {
+            if (loaded.contains(record.getID())) {
                 return false;
             }
             //Otherwise, if we already have it in the queue, just move along
-            else if(priorityQueue.contains(record)) {
+            else if (priorityQueue.contains(record)) {
                 return true;
             } else {
                 priorityQueue.add(record);

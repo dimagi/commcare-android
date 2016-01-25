@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
-    
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
     <item>
-        <shape android:shape="rectangle"> 
+        <shape android:shape="rectangle">
             <solid android:color="@color/cc_attention_positive_text"/>
-         </shape>
+        </shape>
     </item>
-    <item android:left="@dimen/form_label_padding" android:right="@dimen/form_label_padding">
+    <item
+        android:left="@dimen/form_label_padding"
+        android:right="@dimen/form_label_padding">
         <shape android:shape="rectangle">
             <solid android:color="@color/cc_attention_positive_color"/>
         </shape>

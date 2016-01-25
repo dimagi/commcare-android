@@ -10,13 +10,15 @@ import com.google.android.maps.OverlayItem;
  */
 public class EntityOverlayItem extends OverlayItem {
     private Drawable custom = null;
+
     public EntityOverlayItem(GeoPoint gp, String big, String small, Drawable custom) {
         super(gp, big, small);
         this.custom = custom;
     }
+
     @Override
     public Drawable getMarker(int stateBitset) {
-        if(custom == null) {
+        if (custom == null) {
             return super.getMarker(stateBitset);
         } else {
             return custom;

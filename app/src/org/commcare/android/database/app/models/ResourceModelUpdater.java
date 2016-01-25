@@ -47,8 +47,8 @@ public class ResourceModelUpdater extends Resource {
         this.status = ExtUtil.readInt(in);
         this.parent = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
 
-        locations = (Vector<ResourceLocation>) ExtUtil.read(in, new ExtWrapList(ResourceLocation.class), pf);
-        this.initializer = (ResourceInstaller) ExtUtil.read(in, new ExtWrapTagged(), pf);
+        locations = (Vector<ResourceLocation>)ExtUtil.read(in, new ExtWrapList(ResourceLocation.class), pf);
+        this.initializer = (ResourceInstaller)ExtUtil.read(in, new ExtWrapTagged(), pf);
     }
 
     @Override
@@ -62,7 +62,7 @@ public class ResourceModelUpdater extends Resource {
 
         ExtUtil.write(out, new ExtWrapList(locations));
         ExtUtil.write(out, new ExtWrapTagged(initializer));
-        ExtUtil.writeString(out, ExtUtil.emptyIfNull((String) null));
+        ExtUtil.writeString(out, ExtUtil.emptyIfNull((String)null));
     }
 
 }

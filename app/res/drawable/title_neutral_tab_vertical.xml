@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
-<!-- Neutral-colored box with top corners rounded to look like a tab. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Neutral-colored box with top corners rounded to look like a tab. -->
 
     <!-- "shadow" -->
     <item>
-        <shape android:shape="rectangle" >
-           <solid android:color="@color/grey_dark"/>
-           
-           <corners 
-               android:radius="@dimen/title_round_depth"
-               android:bottomRightRadius="0dp"
-               android:bottomLeftRadius="0dp"
-               android:topLeftRadius="@dimen/title_round_depth"
-               android:topRightRadius="@dimen/title_round_depth" 
-           	   />
+        <shape android:shape="rectangle">
+            <solid android:color="@color/grey_dark"/>
+
+            <corners
+                android:radius="@dimen/title_round_depth"
+                android:bottomRightRadius="0dp"
+                android:bottomLeftRadius="0dp"
+                android:topLeftRadius="@dimen/title_round_depth"
+                android:topRightRadius="@dimen/title_round_depth"
+                />
         </shape>
     </item>
 
 
     <item
-        android:top="@dimen/title_round_border_width" 
-        android:bottom="@dimen/title_round_border_width" 
-        android:right="@dimen/title_round_border_width" 
+        android:top="@dimen/title_round_border_width"
+        android:bottom="@dimen/title_round_border_width"
+        android:right="@dimen/title_round_border_width"
         android:left="@dimen/title_round_border_width">
 
-        <shape android:shape="rectangle"> 
+        <shape android:shape="rectangle">
             <gradient
                 android:startColor="@color/grey_lighter"
-		        android:endColor="@color/grey"
-		        android:gradientRadius="@dimen/tab_gradient_radius"
-		        android:centerX="25%"
-            	android:centerY="50%"
-		        android:type="radial"/>
-            <corners 
-               android:radius="@dimen/title_round_depth"
-               android:bottomRightRadius="0dp"
-               android:bottomLeftRadius="0dp"
-               android:topLeftRadius="@dimen/title_round_depth"
-               android:topRightRadius="@dimen/title_round_depth" 
-           	   />
-         </shape>
+                android:endColor="@color/grey"
+                android:gradientRadius="@dimen/tab_gradient_radius"
+                android:centerX="25%"
+                android:centerY="50%"
+                android:type="radial"/>
+            <corners
+                android:radius="@dimen/title_round_depth"
+                android:bottomRightRadius="0dp"
+                android:bottomLeftRadius="0dp"
+                android:topLeftRadius="@dimen/title_round_depth"
+                android:topRightRadius="@dimen/title_round_depth"
+                />
+        </shape>
     </item>
 
 </layer-list>

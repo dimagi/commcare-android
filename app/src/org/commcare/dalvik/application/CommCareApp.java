@@ -55,8 +55,8 @@ public class CommCareApp implements AppFilePathBuilder {
     public static CommCareApp currentSandbox;
 
     private final Object appDbHandleLock = new Object();
-    private SQLiteDatabase appDatabase; 
-    
+    private SQLiteDatabase appDatabase;
+
     private static Stylizer mStylizer;
 
     private int resourceState;
@@ -69,11 +69,11 @@ public class CommCareApp implements AppFilePathBuilder {
         // TODO: Badly coupled
         platform = new AndroidCommCarePlatform(version[0], version[1], this);
     }
-    
-    public Stylizer getStylizer(){
+
+    public Stylizer getStylizer() {
         return mStylizer;
     }
-    
+
     public String storageRoot() {
         // This External Storage Directory will always destroy your data when you upgrade, which is stupid. Unfortunately
         // it's also largely unavoidable until Froyo's fix for this problem makes it to the phones. For now we're going
@@ -182,7 +182,7 @@ public class CommCareApp implements AppFilePathBuilder {
         }
         return appReady;
     }
-    
+
     private boolean initializeApplicationHelper() {
         setupSandbox();
 
@@ -205,7 +205,7 @@ public class CommCareApp implements AppFilePathBuilder {
         }
 
         // See if we got left in the middle of an update
-        if(global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
+        if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
             // If so, repair the global table. (Always takes priority over maintaining the update)
             global.repairTable(upgrade);
         }
@@ -219,7 +219,7 @@ public class CommCareApp implements AppFilePathBuilder {
             } catch (UnregisteredLocaleException urle) {
                 Localization.setLocale(Localization.getGlobalLocalizerAdvanced().getAvailableLocales()[0]);
             }
-            
+
             initializeStylizer();
 
             try {
@@ -319,7 +319,7 @@ public class CommCareApp implements AppFilePathBuilder {
     public String getUniqueId() {
         return this.record.getUniqueId();
     }
-    
+
     public String getPreferencesFilename() {
         return record.getApplicationId();
     }
