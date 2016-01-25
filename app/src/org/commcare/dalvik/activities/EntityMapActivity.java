@@ -115,25 +115,27 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         mMap = map;
 
         // Find bounding region of markers
-        LatLngBounds.Builder builder = new LatLngBounds.Builder();
-        for (Pair<Entity<TreeReference>, LatLng> entityLocation: entityLocations) {
-            Marker marker = map.addMarker(new MarkerOptions()
-                    .position(entityLocation.second)
-                    .title(entityLocation.first.getFieldString(0))
-                    .snippet(entityLocation.first.getFieldString(1)));
-            markerReferences.put(marker, entityLocation.first.getElement());
-            builder.include(entityLocation.second);
-        }
-        final LatLngBounds bounds = builder.build();
-
-        // Move camera to be include all markers
-        // TODO: does this work for 0 or 1 marker?
-        map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
-            @Override
-            public void onMapLoaded() {
-                map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING));
+        if (entityLocations.size() > 0) {
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            for (Pair<Entity<TreeReference>, LatLng> entityLocation : entityLocations) {
+                Marker marker = map.addMarker(new MarkerOptions()
+                        .position(entityLocation.second)
+                        .title(entityLocation.first.getFieldString(0))
+                        .snippet(entityLocation.first.getFieldString(1)));
+                markerReferences.put(marker, entityLocation.first.getElement());
+                builder.include(entityLocation.second);
             }
-        });
+            final LatLngBounds bounds = builder.build();
+
+            // Move camera to be include all markers
+            // TODO: does this work for 1 marker?
+            map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+                @Override
+                public void onMapLoaded() {
+                    map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING));
+                }
+            });
+        }
 
         map.setOnInfoWindowClickListener(this);
 
