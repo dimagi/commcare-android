@@ -231,13 +231,15 @@ public class GoogleAnalyticsUtils {
                                                        final String category,
                                                        final String analyticsLabel) {
         Preference pref = manager.findPreference(prefKey);
-        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportPrefItemClick(category, analyticsLabel);
-                return true;
-            }
-        });
+        if (pref != null) {
+            pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    GoogleAnalyticsUtils.reportPrefItemClick(category, analyticsLabel);
+                    return true;
+                }
+            });
+        }
     }
 
     private static Tracker getTracker() {

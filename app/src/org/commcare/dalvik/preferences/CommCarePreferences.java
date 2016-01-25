@@ -154,16 +154,18 @@ public class CommCarePreferences
 
     private void createPrintPrefOnClickListener(PreferenceManager prefManager) {
         Preference pref = prefManager.findPreference(PREFS_PRINT_DOC_LOCATION);
-        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportPrefItemClick(
-                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                        GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
-                startFileBrowser();
-                return true;
-            }
-        });
+        if (pref != null) {
+            pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    GoogleAnalyticsUtils.reportPrefItemClick(
+                            GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                            GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
+                    startFileBrowser();
+                    return true;
+                }
+            });
+        }
     }
 
 
