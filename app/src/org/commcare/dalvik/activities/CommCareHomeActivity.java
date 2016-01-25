@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -15,9 +16,13 @@ import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
+import org.commcare.android.analytics.GoogleAnalyticsFields;
+import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.framework.BreadcrumbBarFragment;
@@ -49,7 +54,9 @@ import org.commcare.dalvik.activities.utils.EntityDetailUtils;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
+import org.commcare.dalvik.dialogs.DialogChoiceItem;
 import org.commcare.dalvik.dialogs.DialogCreationHelpers;
+import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -72,6 +79,8 @@ import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.tasks.FormLoaderTask;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 public class CommCareHomeActivity
@@ -112,6 +121,9 @@ public class CommCareHomeActivity
      */
     private static final int MEDIA_VALIDATOR_ACTIVITY=8192;
 
+    private static final int CREATE_PIN = 16384;
+    private static final int AUTHENTICATION_FOR_PIN = 32768;
+
     private static final int MENU_PREFERENCES = Menu.FIRST;
     private static final int MENU_UPDATE = Menu.FIRST + 1;
     private static final int MENU_REPORT_PROBLEM = Menu.FIRST + 2;
@@ -121,6 +133,8 @@ public class CommCareHomeActivity
     private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 6;
     private static final int MENU_SAVED_FORMS = Menu.FIRST + 7;
     private static final int MENU_ABOUT = Menu.FIRST + 8;
+    private static final int MENU_PIN = Menu.FIRST + 9;
+    private static final int MENU_DISABLE_ANALYTICS = Menu.FIRST + 10;
 
     /**
      * Restart is a special CommCare return code which means that the session was invalidated in the
@@ -149,8 +163,8 @@ public class CommCareHomeActivity
     private static final String EXTRA_CONSUMED_KEY = "login_extra_was_consumed";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
+        super.onCreateSessionSafe(savedInstanceState);
 
         if (savedInstanceState != null) {
             loginExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
@@ -186,9 +200,10 @@ public class CommCareHomeActivity
         }
     }
 
-    private void processFromLoginLaunch() {
+    private void processFromLoginLaunch() throws SessionUnavailableException {
         if (getIntent().getBooleanExtra(DispatchActivity.START_FROM_LOGIN, false) &&
                 !loginExtraWasConsumed) {
+
             getIntent().removeExtra(DispatchActivity.START_FROM_LOGIN);
             loginExtraWasConsumed = true;
 
@@ -201,9 +216,8 @@ public class CommCareHomeActivity
                 return;
             }
 
-            //Unless we're about to sync (which will hanjdle this
-            //in a blocking fashion), trigger off a regular unsent
-            //task processor
+            // Trigger off a regular unsent task processor, unless we're about to sync (which will
+            // then handle this in a blocking fashion)
             if (!CommCareApplication._().isSyncPending(false)) {
                 checkAndStartUnsentFormsTask(false, false);
             }
@@ -211,7 +225,101 @@ public class CommCareHomeActivity
             if (CommCareHomeActivity.isDemoUser()) {
                 showDemoModeWarning();
             }
+
+            checkForPinLaunchConditions();
         }
+    }
+
+    // See if we should launch either the pin choice dialog, or the create pin activity directly
+    private void checkForPinLaunchConditions() throws SessionUnavailableException {
+
+        LoginMode loginMode = (LoginMode)getIntent().getSerializableExtra(LoginActivity.LOGIN_MODE);
+
+        if (loginMode == LoginMode.PRIMED) {
+            launchPinCreateScreen(loginMode);
+            return;
+        }
+
+        if (loginMode == LoginMode.PASSWORD) {
+            boolean pinCreationEnabledForApp = DeveloperPreferences.shouldOfferPinForLogin();
+            if (!pinCreationEnabledForApp) {
+                return;
+            }
+
+            boolean userManuallyEnteredPasswordMode = getIntent()
+                    .getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
+            boolean alreadyDismissedPinCreation =
+                    CommCareApplication._().getCurrentApp().getAppPreferences()
+                            .getBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, false);
+            if (!alreadyDismissedPinCreation || userManuallyEnteredPasswordMode) {
+                showPinChoiceDialog(loginMode);
+            }
+        }
+    }
+
+    private void showPinChoiceDialog(final LoginMode loginMode) throws SessionUnavailableException {
+        String promptMessage;
+        UserKeyRecord currentUserRecord = CommCareApplication._().getRecordForCurrentUser();
+        if (currentUserRecord.hasPinSet()) {
+            promptMessage = Localization.get("pin.dialog.prompt.reset");
+        } else {
+            promptMessage = Localization.get("pin.dialog.prompt.set");
+        }
+
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, promptMessage);
+
+        DialogChoiceItem createPinChoice = new DialogChoiceItem(
+                Localization.get("pin.dialog.yes"), -1, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                        launchPinCreateScreen(loginMode);
+                    }
+                });
+
+        DialogChoiceItem nextTimeChoice = new DialogChoiceItem(
+                Localization.get("pin.dialog.not.now"), -1, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                    }
+                });
+
+        DialogChoiceItem notAgainChoice = new DialogChoiceItem(
+                Localization.get("pin.dialog.never"), -1, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        dialog.dismiss();
+                        CommCareApplication._().getCurrentApp().getAppPreferences()
+                                .edit()
+                                .putBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, true)
+                                .commit();
+                        showPinFutureAccessDialog();
+                    }
+                });
+
+
+        dialog.setChoiceItems(new DialogChoiceItem[]{createPinChoice, nextTimeChoice, notAgainChoice});
+        dialog.addCollapsibleInfoPane(Localization.get("pin.dialog.extra.info"));
+        dialog.show();
+    }
+
+    private void showPinFutureAccessDialog() {
+        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactory(this,
+                Localization.get("pin.dialog.set.later.title"),
+                Localization.get("pin.dialog.set.later.message"), null);
+        f.showDialog();
+    }
+
+    private void launchPinAuthentication() {
+        Intent i = new Intent(this, PinAuthenticationActivity.class);
+        startActivityForResult(i, AUTHENTICATION_FOR_PIN);
+    }
+
+    private void launchPinCreateScreen(LoginMode loginMode) {
+        Intent i = new Intent(this, CreatePinActivity.class);
+        i.putExtra(LoginActivity.LOGIN_MODE, loginMode);
+        startActivityForResult(i, CREATE_PIN);
     }
 
     protected void goToFormArchive(boolean incomplete) {
@@ -219,6 +327,11 @@ public class CommCareHomeActivity
     }
 
     private void goToFormArchive(boolean incomplete, FormRecord record) {
+        if (incomplete) {
+            GoogleAnalyticsUtils.reportViewArchivedFormsList(GoogleAnalyticsFields.LABEL_INCOMPLETE);
+        } else {
+            GoogleAnalyticsUtils.reportViewArchivedFormsList(GoogleAnalyticsFields.LABEL_COMPLETE);
+        }
         Intent i = new Intent(getApplicationContext(), FormRecordListActivity.class);
         if (incomplete) {
             i.putExtra(FormRecord.META_STATUS, FormRecord.STATUS_INCOMPLETE);
@@ -229,7 +342,7 @@ public class CommCareHomeActivity
         startActivityForResult(i, GET_INCOMPLETE_FORM);
     }
 
-    protected void enterRootModule() {
+    void enterRootModule() {
         Intent i;
         if (useGridMenu(org.commcare.suite.model.Menu.ROOT_MENU_ID)) {
             i = new Intent(getApplicationContext(), MenuGrid.class);
@@ -252,7 +365,7 @@ public class CommCareHomeActivity
         return MENU_STYLE_GRID.equals(commonDisplayStyle);
     }
 
-    protected void userTriggeredLogout() {
+    void userTriggeredLogout() {
         setResult(RESULT_OK);
         finish();
     }
@@ -271,152 +384,168 @@ public class CommCareHomeActivity
         } else {
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
-            case PREFERENCES_ACTIVITY:
-                if (resultCode != CommCarePreferences.RESULT_DATA_RESET) {
-                    // rebuild home buttons in case language changed;
-                    // but only if we didn't just clear user data
-                    uiController.setupUI();
-                }
-                rebuildOptionMenu();
-                return;
-            case MEDIA_VALIDATOR_ACTIVITY:
-                if(resultCode == RESULT_CANCELED){
-                    return;
-                } else if (resultCode == RESULT_OK){
-                    Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
-                    return;
-                }
-            case DUMP_FORMS_ACTIVITY:
-                if(resultCode == RESULT_CANCELED){
-                    return;
-                }
-                else if(resultCode == DumpTask.BULK_DUMP_ID){
-                    int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
-                    
-                    displayMessage(Localization.get("bulk.form.dump.success",new String[] {""+dumpedCount}), false, false);
-                    
-                    uiController.refreshView();
-                    return;
-                }
-                else if(resultCode == SendTask.BULK_SEND_ID){
-                    int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
-                    
-                    displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
-                    
-                    Toast.makeText(this, Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
-                    uiController.refreshView();
-                    return;
-                }
-            case CONNECTION_DIAGNOSTIC_ACTIVITY:
-                return;
-            case WIFI_DIRECT_ACTIVITY:
-                if(resultCode == RESULT_CANCELED){
-                    return;
-                }
-                else if(resultCode == SendTask.BULK_SEND_ID){
-                    int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
-                    
-                    displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
-                    
-                    Toast.makeText(this, "Forms successfully submitted.", Toast.LENGTH_LONG).show();
-                    uiController.refreshView();
-                    return;
-                } else if(resultCode == WipeTask.WIPE_TASK_ID){
-                    int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
-                    
-                    displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
-                    
-                    Toast.makeText(this, "Forms successfully submitted.", Toast.LENGTH_LONG).show();
-                    uiController.refreshView();
-                    return;
-                }
-            case REPORT_PROBLEM_ACTIVITY:
-                if(resultCode == RESULT_CANCELED) {
-                    return;
-                }
-                else if(resultCode == RESULT_OK){
-                    CommCareApplication._().notifyLogsPending();
-                    uiController.refreshView();
-                    return;    
-                }
-            case GET_INCOMPLETE_FORM:
-                //TODO: We might need to load this from serialized state?
-                if(resultCode == RESULT_CANCELED) {
-                    uiController.refreshView();
-                    return;
-                } else if(resultCode == RESULT_OK) {
-                    int record = intent.getIntExtra("FORMRECORDS", -1);
-                    if(record == -1) {
-                        //Hm, what to do here?
-                        break;
+                case PREFERENCES_ACTIVITY:
+                    if (resultCode != CommCarePreferences.RESULT_DATA_RESET) {
+                        // rebuild home buttons in case language changed;
+                        // but only if we didn't just clear user data
+                        uiController.setupUI();
                     }
-                    FormRecord r = CommCareApplication._().getUserStorage(FormRecord.class).read(record);
-                    
-                    //Retrieve and load the appropriate ssd
-                    SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
-                    Vector<Integer> ssds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
-                    AndroidSessionWrapper currentState =
-                            CommCareApplication._().getCurrentSessionWrapper();
-                    if(ssds.size() == 1) {
-                        currentState.loadFromStateDescription(ssdStorage.read(ssds.firstElement()));
-                    } else {
-                        currentState.setFormRecordId(r.getID());
+                    rebuildOptionMenu();
+                    return;
+                case MEDIA_VALIDATOR_ACTIVITY:
+                    if(resultCode == RESULT_CANCELED){
+                        return;
+                    } else if (resultCode == RESULT_OK){
+                        Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
+                        return;
                     }
+                case DUMP_FORMS_ACTIVITY:
+                    if(resultCode == RESULT_CANCELED){
+                        return;
+                    }
+                    else if(resultCode == DumpTask.BULK_DUMP_ID){
+                        int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
 
-                    AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
-                    formEntry(platform.getFormContentUri(r.getFormNamespace()), r);
-                    return;
-                }
-                break;
-            case GET_COMMAND:
-                //TODO: We might need to load this from serialized state?
-                AndroidSessionWrapper currentState =
-                        CommCareApplication._().getCurrentSessionWrapper();
-                if (resultCode == RESULT_CANCELED) {
-                    if (currentState.getSession().getCommand() == null) {
-                        //Needed a command, and didn't already have one. Stepping back from
-                        //an empty state, Go home!
-                        currentState.reset();
+                        displayMessage(Localization.get("bulk.form.dump.success",new String[] {""+dumpedCount}), false, false);
+
                         uiController.refreshView();
                         return;
-                    } else {
-                        currentState.getSession().stepBack();
                     }
-                } else if (resultCode == RESULT_OK) {
-                    CommCareSession session = currentState.getSession();
-                    if (sessionStateUnchangedSinceCallout(session, intent)) {
-                        //Get our command, set it, and continue forward
-                        String command = intent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
-                        session.setCommand(command);
-                    } else {
-                        clearSessionAndExit(currentState, true);
+                    else if(resultCode == SendTask.BULK_SEND_ID){
+                        int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
+
+                        displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
+
+                        Toast.makeText(this, Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
+                        uiController.refreshView();
                         return;
                     }
-                }
-                break;
-            case GET_CASE:
-                //TODO: We might need to load this from serialized state?
-                AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
-                CommCareSession currentSession = asw.getSession();
-                if (resultCode == RESULT_CANCELED) {
-                    currentSession.stepBack();
-                } else if (resultCode == RESULT_OK) {
-                    if (sessionStateUnchangedSinceCallout(currentSession, intent)) {
-                        String sessionDatumId = currentSession.getNeededDatum().getDataId();
-                        String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
-                        currentSession.setDatum(sessionDatumId, chosenCaseId);
-                    } else {
-                        clearSessionAndExit(asw, true);
-                        return;
-                    }
-                }
-                break;
-            case MODEL_RESULT:
-                boolean fetchNext = processReturnFromFormEntry(resultCode, intent);
-                if (!fetchNext) {
+                case CONNECTION_DIAGNOSTIC_ACTIVITY:
                     return;
-                }
-                break;
+                case WIFI_DIRECT_ACTIVITY:
+                    if(resultCode == RESULT_CANCELED){
+                        return;
+                    }
+                    else if(resultCode == SendTask.BULK_SEND_ID){
+                        int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
+
+                        displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
+
+                        Toast.makeText(this, "Forms successfully submitted.", Toast.LENGTH_LONG).show();
+                        uiController.refreshView();
+                        return;
+                    } else if(resultCode == WipeTask.WIPE_TASK_ID){
+                        int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
+
+                        displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
+
+                        Toast.makeText(this, "Forms successfully submitted.", Toast.LENGTH_LONG).show();
+                        uiController.refreshView();
+                        return;
+                    }
+                case REPORT_PROBLEM_ACTIVITY:
+                    if(resultCode == RESULT_CANCELED) {
+                        return;
+                    }
+                    else if(resultCode == RESULT_OK){
+                        CommCareApplication._().notifyLogsPending();
+                        uiController.refreshView();
+                        return;
+                    }
+                case GET_INCOMPLETE_FORM:
+                    //TODO: We might need to load this from serialized state?
+                    if(resultCode == RESULT_CANCELED) {
+                        uiController.refreshView();
+                        return;
+                    } else if(resultCode == RESULT_OK) {
+                        int record = intent.getIntExtra("FORMRECORDS", -1);
+                        if(record == -1) {
+                            //Hm, what to do here?
+                            break;
+                        }
+                        FormRecord r = CommCareApplication._().getUserStorage(FormRecord.class).read(record);
+
+                        //Retrieve and load the appropriate ssd
+                        SqlStorage<SessionStateDescriptor> ssdStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+                        Vector<Integer> ssds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, r.getID());
+                        AndroidSessionWrapper currentState =
+                                CommCareApplication._().getCurrentSessionWrapper();
+                        if(ssds.size() == 1) {
+                            currentState.loadFromStateDescription(ssdStorage.read(ssds.firstElement()));
+                        } else {
+                            currentState.setFormRecordId(r.getID());
+                        }
+
+                        AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
+                        formEntry(platform.getFormContentUri(r.getFormNamespace()), r);
+                        return;
+                    }
+                    break;
+                case GET_COMMAND:
+                    //TODO: We might need to load this from serialized state?
+                    AndroidSessionWrapper currentState =
+                            CommCareApplication._().getCurrentSessionWrapper();
+                    if (resultCode == RESULT_CANCELED) {
+                        if (currentState.getSession().getCommand() == null) {
+                            //Needed a command, and didn't already have one. Stepping back from
+                            //an empty state, Go home!
+                            currentState.reset();
+                            uiController.refreshView();
+                            return;
+                        } else {
+                            currentState.getSession().stepBack();
+                        }
+                    } else if (resultCode == RESULT_OK) {
+                        CommCareSession session = currentState.getSession();
+                        if (sessionStateUnchangedSinceCallout(session, intent)) {
+                            //Get our command, set it, and continue forward
+                            String command = intent.getStringExtra(SessionFrame.STATE_COMMAND_ID);
+                            session.setCommand(command);
+                        } else {
+                            clearSessionAndExit(currentState, true);
+                            return;
+                        }
+                    }
+                    break;
+                case GET_CASE:
+                    //TODO: We might need to load this from serialized state?
+                    AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+                    CommCareSession currentSession = asw.getSession();
+                    if (resultCode == RESULT_CANCELED) {
+                        currentSession.stepBack();
+                    } else if (resultCode == RESULT_OK) {
+                        if (sessionStateUnchangedSinceCallout(currentSession, intent)) {
+                            String sessionDatumId = currentSession.getNeededDatum().getDataId();
+                            String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
+                            currentSession.setDatum(sessionDatumId, chosenCaseId);
+                        } else {
+                            clearSessionAndExit(asw, true);
+                            return;
+                        }
+                    }
+                    break;
+                case MODEL_RESULT:
+                    boolean fetchNext = processReturnFromFormEntry(resultCode, intent);
+                    if (!fetchNext) {
+                        return;
+                    }
+                    break;
+                case AUTHENTICATION_FOR_PIN:
+                    if (resultCode == RESULT_OK) {
+                        launchPinCreateScreen(LoginMode.PASSWORD);
+                    }
+                    return;
+                case CREATE_PIN:
+                    boolean choseRememberPassword = (intent == null) ? false :
+                            intent.getBooleanExtra(CreatePinActivity.CHOSE_REMEMBER_PASSWORD, false);
+                    if (choseRememberPassword) {
+                        CommCareApplication._().closeUserSession();
+                    } else if (resultCode == RESULT_OK) {
+                        Toast.makeText(this, Localization.get("pin.set.success"), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, Localization.get("pin.not.set"), Toast.LENGTH_SHORT).show();
+                    }
+                    return;
             }
             startNextSessionStepSafe();
         }
@@ -867,7 +996,7 @@ public class CommCareHomeActivity
     /**
      * Triggered by a user manually clicking the sync button
      */
-    protected void syncButtonPressed() {
+    void syncButtonPressed() {
         if (!ConnectivityStatus.isNetworkAvailable(CommCareHomeActivity.this)) {
             if (ConnectivityStatus.isAirplaneModeOn(CommCareHomeActivity.this)) {
                 displayMessage(Localization.get("notification.sync.airplane.action"), true, true);
@@ -876,6 +1005,10 @@ public class CommCareHomeActivity
                 displayMessage(Localization.get("notification.sync.connections.action"), true, true);
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_NoConnections, AIRPLANE_MODE_CATEGORY));
             }
+            GoogleAnalyticsUtils.reportSyncAttempt(
+                    GoogleAnalyticsFields.ACTION_USER_SYNC_ATTEMPT,
+                    GoogleAnalyticsFields.LABEL_SYNC_FAILURE,
+                    GoogleAnalyticsFields.VALUE_NO_CONNECTION);
             return;
         }
         CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
@@ -985,15 +1118,15 @@ public class CommCareHomeActivity
         showAlertDialog(factory);
     }
 
-    protected void displayMessage(String message) {
+    void displayMessage(String message) {
         displayMessage(message, false);
     }
 
-    protected void displayMessage(String message, boolean bad) {
+    void displayMessage(String message, boolean bad) {
         displayMessage(message, bad, false);
     }
 
-    protected void displayMessage(String message, boolean bad, boolean suppressToast) {
+    void displayMessage(String message, boolean bad, boolean suppressToast) {
         uiController.displayMessage(message, bad, suppressToast);
     }
 
@@ -1009,6 +1142,7 @@ public class CommCareHomeActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
+
         menu.add(0, MENU_PREFERENCES, 0, Localization.get("home.menu.settings")).setIcon(
                 android.R.drawable.ic_menu_preferences);
         menu.add(0, MENU_UPDATE, 0, Localization.get("home.menu.update")).setIcon(
@@ -1027,6 +1161,8 @@ public class CommCareHomeActivity
                 android.R.drawable.ic_menu_save);
         menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
                 android.R.drawable.ic_menu_help);
+        menu.add(0, MENU_PIN, 0, Localization.get("home.menu.pin.set"));
+        menu.add(0, MENU_DISABLE_ANALYTICS, 0, Localization.get("home.menu.disable.analytics"));
         return true;
     }
 
@@ -1034,6 +1170,7 @@ public class CommCareHomeActivity
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         super.onPrepareOptionsMenu(menu);
+        GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN);
         //In Holo theme this gets called on startup
         try {
             User u = CommCareApplication._().getSession().getLoggedInUser();
@@ -1046,14 +1183,25 @@ public class CommCareHomeActivity
             menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
             menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
             menu.findItem(MENU_ABOUT).setVisible(enableMenus);
+            menu.findItem(MENU_DISABLE_ANALYTICS).setVisible(CommCarePreferences.isAnalyticsEnabled());
+            if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
+                menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
+            } else {
+                menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.set"));
+            }
+            menu.findItem(MENU_PIN).setVisible(enableMenus
+                    && DeveloperPreferences.shouldOfferPinForLogin());
         } catch (SessionUnavailableException sue) {
-            //Nothing
         }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Map<Integer, String> menuIdToAnalyticsEventLabel = createMenuItemToEventMapping();
+        GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
+                GoogleAnalyticsFields.CATEGORY_HOME_SCREEN,
+                menuIdToAnalyticsEventLabel.get(item.getItemId()));
         switch (item.getItemId()) {
             case MENU_PREFERENCES:
                 createPreferencesMenu(this);
@@ -1083,8 +1231,54 @@ public class CommCareHomeActivity
             case MENU_ABOUT:
                 showAboutCommCareDialog();
                 return true;
+            case MENU_PIN:
+                launchPinAuthentication();
+            case MENU_DISABLE_ANALYTICS:
+                showAnalyticsOptOutDialog();
+                return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private static Map<Integer, String> createMenuItemToEventMapping() {
+        Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
+        menuIdToAnalyticsEvent.put(MENU_PREFERENCES, GoogleAnalyticsFields.LABEL_SETTINGS);
+        menuIdToAnalyticsEvent.put(MENU_UPDATE, GoogleAnalyticsFields.LABEL_UPDATE_CC);
+        menuIdToAnalyticsEvent.put(MENU_REPORT_PROBLEM, GoogleAnalyticsFields.LABEL_REPORT_PROBLEM);
+        menuIdToAnalyticsEvent.put(MENU_VALIDATE_MEDIA, GoogleAnalyticsFields.LABEL_VALIDATE_MM);
+        menuIdToAnalyticsEvent.put(MENU_DUMP_FORMS, GoogleAnalyticsFields.LABEL_MANAGE_SD);
+        menuIdToAnalyticsEvent.put(MENU_WIFI_DIRECT, GoogleAnalyticsFields.LABEL_WIFI_DIRECT);
+        menuIdToAnalyticsEvent.put(MENU_CONNECTION_DIAGNOSTIC, GoogleAnalyticsFields.LABEL_CONNECTION_TEST);
+        menuIdToAnalyticsEvent.put(MENU_SAVED_FORMS, GoogleAnalyticsFields.LABEL_SAVED_FORMS);
+        menuIdToAnalyticsEvent.put(MENU_ABOUT, GoogleAnalyticsFields.LABEL_ABOUT_CC);
+        return menuIdToAnalyticsEvent;
+    }
+
+    private void showAnalyticsOptOutDialog() {
+        AlertDialogFactory f = new AlertDialogFactory(this,
+                Localization.get("analytics.opt.out.title"),
+                Localization.get("analytics.opt.out.message"));
+
+        f.setPositiveButton(Localization.get("analytics.disable.button"),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        CommCarePreferences.disableAnalytics();
+                    }
+                });
+
+        f.setNegativeButton(Localization.get("option.cancel"),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        f.showDialog();
     }
 
     public static void createPreferencesMenu(Activity activity) {

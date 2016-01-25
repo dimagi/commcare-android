@@ -64,7 +64,7 @@ public class Persisted implements Persistable, IMetaData {
         }
     }
 
-    public static final Comparator<Field> orderedComparator = new Comparator<Field>() {
+    private static final Comparator<Field> orderedComparator = new Comparator<Field>() {
 
         @Override
         public int compare(Field f1, Field f2) {
@@ -72,7 +72,6 @@ public class Persisted implements Persistable, IMetaData {
             int i2 = f2.getAnnotation(Persisting.class).value();
             return (i1 < i2 ? -1 : (i1 == i2 ? 0 : 1));
         }
-
     };
 
     @Override
@@ -96,7 +95,6 @@ public class Persisted implements Persistable, IMetaData {
     public int getID() {
         return recordId;
     }
-
 
     private void readVal(Field f, Object o, DataInputStream in, PrototypeFactory pf) throws DeserializationException, IOException, IllegalAccessException {
         Persisting p = f.getAnnotation(Persisting.class);
@@ -141,19 +139,19 @@ public class Persisted implements Persistable, IMetaData {
             f.setAccessible(true);
 
             if (type.equals(String.class)) {
-                String s = (String) f.get(o);
+                String s = (String)f.get(o);
                 ExtUtil.writeString(out, p.nullable() ? ExtUtil.emptyIfNull(s) : s);
                 return;
             } else if (type.equals(Integer.TYPE)) {
                 ExtUtil.writeNumeric(out, f.getInt(o));
                 return;
             } else if (type.equals(Date.class)) {
-                ExtUtil.writeDate(out, (Date) f.get(o));
+                ExtUtil.writeDate(out, (Date)f.get(o));
                 return;
             } else if (type.isArray()) {
                 //We only support byte arrays for now
                 if (type.getComponentType().equals(Byte.TYPE)) {
-                    ExtUtil.writeBytes(out, (byte[]) f.get(o));
+                    ExtUtil.writeBytes(out, (byte[])f.get(o));
                     return;
                 }
             } else if (type.equals(Boolean.TYPE)) {
@@ -186,7 +184,6 @@ public class Persisted implements Persistable, IMetaData {
 
         }
 
-
         for (Method m : this.getClass().getDeclaredMethods()) {
             try {
                 m.setAccessible(true);
@@ -202,7 +199,6 @@ public class Persisted implements Persistable, IMetaData {
         }
         return fields.toArray(new String[fields.size()]);
     }
-
 
     //TODO: This looks like it's gonna be sllllooowwwww
     @Override
@@ -230,7 +226,7 @@ public class Persisted implements Persistable, IMetaData {
                     if (m.isAnnotationPresent(MetaField.class)) {
                         MetaField mf = m.getAnnotation(MetaField.class);
                         if (mf.value().equals(fieldName)) {
-                            return m.invoke(this, (Object[]) null);
+                            return m.invoke(this, (Object[])null);
                         }
                     }
                 } finally {
@@ -239,13 +235,7 @@ public class Persisted implements Persistable, IMetaData {
 
             }
 
-
-        } catch (IllegalAccessException iae) {
-            throw new RuntimeException(iae.getMessage());
-        } catch (IllegalArgumentException e) {
-            // TODO Auto-generated catch block
-            throw new RuntimeException(e.getMessage());
-        } catch (InvocationTargetException e) {
+        } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
             throw new RuntimeException(e.getMessage());
         }
         //If we didn't find the field

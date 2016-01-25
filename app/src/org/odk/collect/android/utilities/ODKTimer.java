@@ -6,12 +6,11 @@ import org.odk.collect.android.listeners.TimerListener;
 
 /**
  * simple class that calls back to a TimerListener after a set amount of time
- * 
- * @author wspride
  *
+ * @author wspride
  */
 
-public class ODKTimer extends CountDownTimer{
+public class ODKTimer extends CountDownTimer {
     private final TimerListener mTimerListener;
     private long mUntilFinished;
 
@@ -30,8 +29,8 @@ public class ODKTimer extends CountDownTimer{
     public void onTick(long millisUntilFinished) {
         mUntilFinished = millisUntilFinished;
     }
-    
-    public long getMillisUntilFinished(){
+
+    public long getMillisUntilFinished() {
         return mUntilFinished;
     }
 }

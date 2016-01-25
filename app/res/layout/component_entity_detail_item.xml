@@ -16,7 +16,9 @@
         android:gravity="left|center_vertical"
         android:text="Text"
         android:textStyle="bold"
-        android:typeface="normal" android:layout_weight="4" android:visibility="visible"/>
+        android:typeface="normal"
+        android:layout_weight="4"
+        android:visibility="visible"/>
 
     <FrameLayout
         android:id="@+id/detail_value_pane"
@@ -33,7 +35,7 @@
             android:padding="@dimen/content_min_margin"
             android:text="Value really big here so it must fit in more than one line"
             android:scrollHorizontally="false"
-            android:visibility="visible" />
+            android:visibility="visible"/>
 
         <Button
             android:id="@+id/detail_value_phone"
@@ -47,7 +49,7 @@
             android:inputType="phone"
             android:text="555-555-5555"
             android:typeface="monospace"
-            android:visibility="gone" />
+            android:visibility="gone"/>
 
         <ImageButton
             android:id="@+id/detail_video_button"
@@ -55,7 +57,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="left|center_vertical"
             android:src="@android:drawable/ic_media_play"
-        	android:layout_marginLeft="11dp"
+            android:layout_marginLeft="11dp"
             android:layout_marginRight="4dp"
             android:visibility="gone"/>
 
@@ -67,7 +69,7 @@
             android:gravity="left|center_vertical"
             android:padding="@dimen/content_min_margin"
             android:scaleType="fitCenter"
-            android:visibility="visible" />
+            android:visibility="visible"/>
 
         <LinearLayout
             android:id="@+id/callout_view"
@@ -79,7 +81,7 @@
             android:paddingLeft="11dp"
             android:paddingRight="4dp"
             android:paddingTop="4dp"
-            android:visibility="gone" >
+            android:visibility="gone">
 
             <ImageButton
                 android:id="@+id/callout_image_button"
@@ -87,7 +89,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:drawablePadding="@dimen/content_min_margin"
-                android:text="Callout" />
+                android:text="Callout"/>
 
             <Button
                 android:id="@+id/callout_button"
@@ -95,7 +97,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:drawablePadding="@dimen/content_min_margin"
-                android:text="Callout" />
+                android:text="Callout"/>
 
             <TextView
                 android:id="@+id/callout_text"
@@ -110,8 +112,8 @@
             android:id="@+id/graph"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:orientation="vertical" 
-            android:visibility="gone" />
+            android:orientation="vertical"
+            android:visibility="gone"/>
 
         <LinearLayout
             android:id="@+id/detail_address_view"
@@ -123,7 +125,7 @@
             android:paddingLeft="11dp"
             android:paddingRight="4dp"
             android:paddingTop="4dp"
-            android:visibility="gone" >
+            android:visibility="gone">
 
             <Button
                 android:id="@+id/detail_address_button"
@@ -132,7 +134,7 @@
                 android:layout_gravity="left"
                 android:drawableLeft="@drawable/sym_action_lookup"
                 android:drawablePadding="@dimen/content_min_margin"
-                android:text="Show Address" />
+                android:text="Show Address"/>
 
             <TextView
                 android:id="@+id/detail_address_text"
@@ -141,26 +143,27 @@
                 android:gravity="left"
                 android:inputType="textMultiLine|textPostalAddress"
                 android:paddingLeft="10dp"
-                android:text="Sample Address" />
+                android:text="Sample Address"/>
         </LinearLayout>
-        
-        
+
+
         <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:weightSum="6">
-        
-        <TextView
-        android:id="@+id/entity_detail_spacer"
-        style="@style/EntityItemTextView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="@drawable/blue_tabbed_box"
-        android:gravity="top|left|center_vertical"
-        android:textAppearance="@style/EntityItemText"
-        android:typeface="normal"
-        android:visibility="invisible" android:layout_weight="4"/>
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="6">
+
+            <TextView
+                android:id="@+id/entity_detail_spacer"
+                style="@style/EntityItemTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:background="@drawable/blue_tabbed_box"
+                android:gravity="top|left|center_vertical"
+                android:textAppearance="@style/EntityItemText"
+                android:typeface="normal"
+                android:visibility="invisible"
+                android:layout_weight="4"/>
         </LinearLayout>
-        
+
     </FrameLayout>
 </LinearLayout>

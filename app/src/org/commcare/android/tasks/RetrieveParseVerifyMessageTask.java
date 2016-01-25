@@ -12,7 +12,7 @@ public abstract class RetrieveParseVerifyMessageTask<R> extends CommCareTask<Str
     private final boolean installTriggeredManually;
 
     public RetrieveParseVerifyMessageTask(RetrieveParseVerifyMessageListener listener,
-                                          boolean installTriggeredManually){
+                                          boolean installTriggeredManually) {
         this.listener = listener;
         this.installTriggeredManually = installTriggeredManually;
     }
@@ -31,13 +31,13 @@ public abstract class RetrieveParseVerifyMessageTask<R> extends CommCareTask<Str
         }
     }
 
-    protected void onPostExecute(String url){
-        if(exception != null){
+    protected void onPostExecute(String url) {
+        if (exception != null) {
             listener.exceptionReceived(exception);
         }
-        if(installTriggeredManually) {
+        if (installTriggeredManually) {
             listener.downloadLinkReceivedAutoInstall(url);
-        } else{
+        } else {
             listener.downloadLinkReceived(url);
         }
     }

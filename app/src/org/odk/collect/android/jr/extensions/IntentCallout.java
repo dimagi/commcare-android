@@ -37,17 +37,16 @@ import java.util.Vector;
 
 /**
  * @author ctsims
- *
  */
 public class IntentCallout implements Externalizable {
-    public static final String TAG = IntentCallout.class.getSimpleName();
+    private static final String TAG = IntentCallout.class.getSimpleName();
     private String className;
     private Hashtable<String, XPathExpression> refs;
-    
+
     private Hashtable<String, Vector<TreeReference>> responses;
-    
+
     private FormDef form;
-    
+
     private String type;
     private String component;
     private String data;
@@ -55,10 +54,10 @@ public class IntentCallout implements Externalizable {
     private String appearance;
     private boolean isCancelled;
 
-    
+
     // Generic Extra from intent callout extensions
     public static final String INTENT_RESULT_VALUE = "odk_intent_data";
-    
+
     // Bundle of extra values
     public static final String INTENT_RESULT_BUNDLE = "odk_intent_bundle";
 
@@ -80,28 +79,31 @@ public class IntentCallout implements Externalizable {
         this.appearance = appearance;
 
     }
-    
+
     protected void attachToForm(FormDef form) {
         this.form = form;
     }
-    
+
     public Intent generate(EvaluationContext ec) {
         Intent i = new Intent();
-        if(className != null){
+        if (className != null) {
             i.setAction(className);
-        } if(type != null){
+        }
+        if (type != null) {
             i.setType(type);
-        } if(data != null){
+        }
+        if (data != null) {
             i.setData(Uri.parse(data));
-        } if(component != null){
+        }
+        if (component != null) {
             i.setComponent(new ComponentName(component, className));
         }
-        if(refs != null) {
+        if (refs != null) {
             for (Enumeration<String> en = refs.keys(); en.hasMoreElements(); ) {
                 String key = en.nextElement();
 
                 String extraVal = XPathFuncExpr.toString(refs.get(key).eval(ec));
-                if(extraVal != null && !"".equals(extraVal)) {
+                if (extraVal != null && !"".equals(extraVal)) {
                     i.putExtra(key, extraVal);
                 }
             }
@@ -124,18 +126,18 @@ public class IntentCallout implements Externalizable {
 
     public boolean processResponse(Intent intent, TreeReference context, File destination) {
 
-        if(intent == null){
+        if (intent == null) {
             return false;
         }
-        
+
         String result = intent.getStringExtra(INTENT_RESULT_VALUE);
         setNodeValue(context, result);
 
         //see if we have a return bundle
         Bundle response = intent.getBundleExtra(INTENT_RESULT_BUNDLE);
-        
+
         //Load all of the data from the incoming bundle
-        if(responses != null && response != null) {
+        if (responses != null && response != null) {
             for (String key : responses.keySet()) {
                 //See if the value exists at all, if not, skip it
                 if (!response.containsKey(key)) {
@@ -157,7 +159,7 @@ public class IntentCallout implements Externalizable {
     }
 
     private void processResponseItem(TreeReference ref, String responseValue,
-                                     TreeReference contextRef,  File destinationFile) {
+                                     TreeReference contextRef, File destinationFile) {
         EvaluationContext context = new EvaluationContext(form.getEvaluationContext(), contextRef);
         TreeReference fullRef = ref.contextualize(contextRef);
         AbstractTreeElement node = context.resolveReference(fullRef);
@@ -229,19 +231,21 @@ public class IntentCallout implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(component));
         ExtUtil.write(out, new ExtWrapNullable(buttonLabel));
     }
-    
-    public String getButtonLabel(){
+
+    public String getButtonLabel() {
         return buttonLabel;
     }
 
-    public String getAppearance(){return appearance;}
+    public String getAppearance() {
+        return appearance;
+    }
 
-    public void setCancelled(boolean cancelled){
+    public void setCancelled(boolean cancelled) {
         this.isCancelled = cancelled;
     }
-    
-    public boolean getCancelled(){
+
+    public boolean getCancelled() {
         return isCancelled;
     }
-    
+
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<EditText xmlns:android="http://schemas.android.com/apk/res/android"
+          android:id="@+id/pin_entry"
+          android:layout_height="wrap_content"
+          android:layout_width="match_parent"
+          android:textSize="@dimen/font_size_40"
+          android:layout_margin="@dimen/standard_spacer_large"
+          android:layout_centerVertical="true"
+          android:gravity="center_horizontal"
+          android:inputType="numberPassword"
+          android:maxLength="4">
+</EditText>

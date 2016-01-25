@@ -37,8 +37,7 @@ import java.util.Hashtable;
  */
 
 @Table(AUser.STORAGE_KEY)
-public class AUser implements Persistable, IMetaData
-{
+public class AUser implements Persistable, IMetaData {
     public static final String STORAGE_KEY = "USER";
     private static final String TYPE_STANDARD = "standard";
     public static final String TYPE_DEMO = "demo";
@@ -72,6 +71,7 @@ public class AUser implements Persistable, IMetaData
     public AUser(String name, String passw, String uniqueID) {
         this(name, passw, uniqueID, TYPE_STANDARD);
     }
+
     public AUser(String name, String passw, String uniqueID, String userType) {
         username = name.toLowerCase();
         password = passw;
@@ -89,7 +89,7 @@ public class AUser implements Persistable, IMetaData
         this.rememberMe = ExtUtil.readBool(in);
         this.wrappedKey = ExtUtil.nullIfEmpty(ExtUtil.readBytes(in));
         this.syncToken = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
-        this.properties = (Hashtable) ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
+        this.properties = (Hashtable)ExtUtil.read(in, new ExtWrapMap(String.class, String.class), pf);
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {
@@ -212,7 +212,7 @@ public class AUser implements Persistable, IMetaData
 
     public User toNewUser() {
         User user = new User(username, password, uniqueId, getUserType());
-        user.setRecordId(recordId);
+        user.setID(recordId);
         user.setWrappedKey(getWrappedKey());
         user.properties = getProperties();
         user.setLastSyncToken(syncToken);

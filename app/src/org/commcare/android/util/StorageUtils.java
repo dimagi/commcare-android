@@ -29,11 +29,11 @@ public class StorageUtils {
                 CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
 
         Vector<Integer> ids = storage.getIDsForValues(
-                new String[] {FormRecord.META_STATUS, FormRecord.META_APP_ID},
-                new Object[] {FormRecord.STATUS_UNSENT, currentAppId});
+                new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[]{FormRecord.STATUS_UNSENT, currentAppId});
         ids.addAll(storage.getIDsForValues(
-                new String[] {FormRecord.META_STATUS, FormRecord.META_APP_ID},
-                new Object[] {FormRecord.STATUS_COMPLETE, currentAppId}));
+                new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new Object[]{FormRecord.STATUS_COMPLETE, currentAppId}));
 
         return ids;
     }
@@ -86,7 +86,7 @@ public class StorageUtils {
                     //If it still doesn't work, fallback to using ids
                     Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Invalid date in last modified value: " + dateValue);
                     //For some reason this seems to be crashing on some devices... go with the next best ordering for now
-                    idToDateIndex.put(id, (long) id);
+                    idToDateIndex.put(id, (long)id);
                 }
             }
         }

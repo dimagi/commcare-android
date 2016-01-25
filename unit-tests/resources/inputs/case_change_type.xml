@@ -1,8 +1,8 @@
 <OpenRosaResponse>
-	<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="test_case_id"
-		date_modified="2015-02-18T21:06:25Z" user_id="test_user_id">
-		<update>
-			<case_type>changed_unit_test</case_type>
-		</update>
-	</case>
+    <case xmlns="http://commcarehq.org/case/transaction/v2" case_id="test_case_id"
+          date_modified="2015-02-18T21:06:25Z" user_id="test_user_id">
+        <update>
+            <case_type>changed_unit_test</case_type>
+        </update>
+    </case>
 </OpenRosaResponse>

@@ -26,7 +26,7 @@ public class DialogCreationHelpers {
         //View view = li.inflate(R.layout.scrolling_info_dialog, null);
         View view = li.inflate(R.layout.scrolling_info_dialog, null);
 
-        TextView titleView = (TextView) view.findViewById(R.id.dialog_title).findViewById(R.id.dialog_title_text);
+        TextView titleView = (TextView)view.findViewById(R.id.dialog_title).findViewById(R.id.dialog_title_text);
         titleView.setText(activity.getString(R.string.about_cc));
 
         TextView aboutText = (TextView)view.findViewById(R.id.dialog_text);
@@ -49,7 +49,7 @@ public class DialogCreationHelpers {
      * request dialgo
      *
      * @param permRequester interface for launching system permission request
-     * dialog
+     *                      dialog
      */
     public static AlertDialog buildPermissionRequestDialog(Activity activity,
                                                            final RuntimePermissionRequester permRequester,

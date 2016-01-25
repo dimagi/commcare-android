@@ -1,8 +1,8 @@
 package org.commcare.android.mime;
 
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.content.AbstractContentBody;
-import org.apache.http.entity.ContentType;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.io.StreamsUtil.OutputIOException;
@@ -15,13 +15,12 @@ import java.io.OutputStream;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 
-
 /**
  * @author ctsims
  */
 public class EncryptedFileBody extends AbstractContentBody {
-    File file;
-    Cipher cipher;
+    final File file;
+    final Cipher cipher;
 
     public EncryptedFileBody(File file, Cipher cipher, ContentType contentType) {
         super(contentType);

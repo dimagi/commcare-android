@@ -46,14 +46,14 @@ public class HorizontalMediaView extends RelativeLayout {
         this(c, null);
     }
 
-    public HorizontalMediaView(Context c, EvaluationContext ec) {
+    private HorizontalMediaView(Context c, EvaluationContext ec) {
         super(c);
         mTextView = null;
         mAudioButton = null;
         mImageView = null;
         mMissingImage = null;
         this.ec = ec;
-        this.iconDimension = (int) getResources().getDimension(R.dimen.menu_icon_size);
+        this.iconDimension = (int)getResources().getDimension(R.dimen.menu_icon_size);
     }
 
     public void setDisplay(DisplayUnit display) {
@@ -65,11 +65,11 @@ public class HorizontalMediaView extends RelativeLayout {
         this.setAVT(displayText, audioURI, imageURI, NAVIGATION_NONE);
     }
 
-    public void setAVT(String displayText, String audioURI, String imageURI, int navStyle) {
+    private void setAVT(String displayText, String audioURI, String imageURI, int navStyle) {
         this.removeAllViews();
 
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mTextView = (TextView) inflater.inflate(R.layout.menu_list_item, null);
+        LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        mTextView = (TextView)inflater.inflate(R.layout.menu_list_item, null);
         mTextView.setText(displayText);
 
         // Layout configurations for our elements in the relative layout

@@ -36,10 +36,14 @@ class UserDatabaseUpgrader {
 
     private boolean inSenseMode = false;
     private final Context c;
+    private final byte[] fileMigrationKey;
+    private final String userKeyRecordId;
 
-    public UserDatabaseUpgrader(Context c, boolean inSenseMode) {
-        this.inSenseMode = inSenseMode;
+    public UserDatabaseUpgrader(Context c, String userKeyRecordId, boolean inSenseMode, byte[] fileMigrationKey) {
         this.c = c;
+        this.userKeyRecordId = userKeyRecordId;
+        this.inSenseMode = inSenseMode;
+        this.fileMigrationKey = fileMigrationKey;
     }
 
     public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -207,7 +211,7 @@ class UserDatabaseUpgrader {
         try {
             SqlStorage<Persistable> userStorage = new SqlStorage<Persistable>(AUser.STORAGE_KEY, AUser.class, new ConcreteAndroidDbHelper(c, db));
             SqlStorageIterator<Persistable> iterator = userStorage.iterate();
-            while(iterator.hasMore()){
+            while (iterator.hasMore()) {
                 AUser oldUser = (AUser)iterator.next();
                 User newUser = oldUser.toNewUser();
                 userStorage.write(newUser);
@@ -226,7 +230,15 @@ class UserDatabaseUpgrader {
      * attributes.
      */
     private boolean upgradeEightNine(SQLiteDatabase db) {
-        return FixtureSerializationMigration.migrateFixtureDbBytes(db, c);
+        Log.d(TAG, "starting user fixture migration");
+
+        FixtureSerializationMigration.stageFixtureTables(db);
+
+        boolean didFixturesMigrate =
+                FixtureSerializationMigration.migrateFixtureDbBytes(db, c, userKeyRecordId, fileMigrationKey);
+
+        FixtureSerializationMigration.dropTempFixtureTable(db);
+        return didFixturesMigrate;
     }
 
     /**
@@ -354,7 +366,7 @@ class UserDatabaseUpgrader {
         SqlStorage<ApplicationRecord> storage =
                 CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
         for (Persistable p : storage) {
-            ApplicationRecord r = (ApplicationRecord) p;
+            ApplicationRecord r = (ApplicationRecord)p;
             if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED && r.resourcesValidated()) {
                 return r;
             }

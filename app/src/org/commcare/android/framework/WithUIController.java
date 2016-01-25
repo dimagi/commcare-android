@@ -8,6 +8,7 @@ package org.commcare.android.framework;
 public interface WithUIController {
 
     CommCareActivityUIController getUIController();
+
     void initUIController();
 
 }

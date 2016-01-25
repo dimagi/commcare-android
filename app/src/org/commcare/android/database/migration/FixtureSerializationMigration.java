@@ -6,20 +6,21 @@ import android.util.Log;
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.DbUtil;
+import org.commcare.android.database.HybridFileBackedSqlStorage;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
+import org.commcare.android.database.UnencryptedHybridFileBackedSqlStorage;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
-import java.util.Vector;
 
 /**
  * Deserialize all fixtures in a db using old form instance serialization
@@ -39,7 +40,14 @@ import java.util.Vector;
 public class FixtureSerializationMigration {
     private static final String TAG = FixtureSerializationMigration.class.getSimpleName();
 
-    public static boolean migrateFixtureDbBytes(SQLiteDatabase db, Context c) {
+    public static boolean migrateUnencryptedFixtureDbBytes(SQLiteDatabase db,
+                                                           Context c) {
+        return migrateFixtureDbBytes(db, c, null, null);
+    }
+
+    public static boolean migrateFixtureDbBytes(SQLiteDatabase db, Context c,
+                                                String directoryName,
+                                                byte[] fileMigrationKeySeed) {
         // Not sure how long this process should take, so tell the service to
         // wait longer to make sure this can finish.
         CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
@@ -48,16 +56,29 @@ public class FixtureSerializationMigration {
         ConcreteAndroidDbHelper helper = new ConcreteAndroidDbHelper(c, db);
         DataInputStream fixtureByteStream = null;
         try {
-            SqlStorage<Persistable> userFixtureStorage =
-                    new SqlStorage<Persistable>("fixture", FormInstance.class, helper);
-            for (SqlStorageIterator i = userFixtureStorage.iterate(false); i.hasMore(); ) {
+            HybridFileBackedSqlStorage<Persistable> fixtureStorage;
+            if (fileMigrationKeySeed != null) {
+                fixtureStorage =
+                        new HybridFileBackedSqlStorageForMigration<Persistable>("fixture", FormInstance.class, helper, directoryName, fileMigrationKeySeed);
+            } else {
+                fixtureStorage =
+                        new UnencryptedHybridFileBackedSqlStorage<Persistable>("fixture",
+                                FormInstance.class, helper, CommCareApplication._().getCurrentApp());
+            }
+            SqlStorage<Persistable> oldUserFixtureStorage =
+                    new SqlStorage<Persistable>("oldfixture", FormInstance.class, helper);
+            int migratedFixtureCount = 0;
+            for (SqlStorageIterator i = oldUserFixtureStorage.iterate(false); i.hasMore(); ) {
                 int id = i.nextID();
+                migratedFixtureCount++;
+                Log.d(TAG, "migrating fixture " + migratedFixtureCount);
                 FormInstance fixture = new FormInstance();
 
                 fixtureByteStream =
-                        new DataInputStream(new ByteArrayInputStream(userFixtureStorage.readBytes(id)));
+                        new DataInputStream(new ByteArrayInputStream(oldUserFixtureStorage.readBytes(id)));
                 fixture.migrateSerialization(fixtureByteStream, helper.getPrototypeFactory());
-                userFixtureStorage.update(id, fixture);
+                fixture.setID(-1);
+                fixtureStorage.write(fixture);
             }
             db.setTransactionSuccessful();
             return true;
@@ -83,6 +104,57 @@ public class FixtureSerializationMigration {
             db.endTransaction();
             long elapse = System.currentTimeMillis() - start;
             Log.d(TAG, "Serialized fixture update complete in " + elapse + "ms");
+        }
+    }
+
+    public static void stageFixtureTables(SQLiteDatabase db) {
+        db.beginTransaction();
+        boolean resumingMigration = doesTempFixtureTableExist(db);
+
+        try {
+            DbUtil.createOrphanedFileTable(db);
+            if (resumingMigration) {
+                db.execSQL("DROP TABLE IF EXISTS fixture;");
+            } else {
+                db.execSQL("ALTER TABLE fixture RENAME TO oldfixture;");
+            }
+
+            // make new fixture db w/ filepath and encryption key columns
+            AndroidTableBuilder builder = new AndroidTableBuilder("fixture");
+            builder.addFileBackedData(new FormInstance());
+            db.execSQL(builder.getTableCreateString());
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private static boolean doesTempFixtureTableExist(SQLiteDatabase db) {
+        // "SELECT name FROM sqlite_master WHERE type='table' AND name='oldfixture';";
+        String whereClause = "type =? AND name =?";
+        String[] whereArgs = new String[]{
+                "table",
+                "oldfixture"
+        };
+        Cursor cursor = null;
+        try {
+            cursor = db.query("sqlite_master", new String[]{"name"},
+                    whereClause, whereArgs, null, null, null);
+            return cursor.getCount() > 0;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    public static void dropTempFixtureTable(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL("DROP TABLE oldfixture;");
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
         }
     }
 }

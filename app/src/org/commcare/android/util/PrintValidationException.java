@@ -7,7 +7,7 @@ import org.commcare.android.tasks.TemplatePrinterTask;
  */
 public class PrintValidationException extends Exception {
 
-    private TemplatePrinterTask.PrintTaskResult errorType;
+    private final TemplatePrinterTask.PrintTaskResult errorType;
 
     public PrintValidationException(String msg, TemplatePrinterTask.PrintTaskResult errorType) {
         super(msg);

@@ -24,7 +24,9 @@ import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.LoginMode;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
 
@@ -43,7 +45,7 @@ import java.util.Vector;
  */
 public class ExternalApiReceiver extends BroadcastReceiver {
 
-    final CommCareTaskConnector dummyconnector = new CommCareTaskConnector() {
+    private final CommCareTaskConnector dummyconnector = new CommCareTaskConnector() {
 
         @Override
         public void connectTask(CommCareTask task) {
@@ -128,7 +130,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         }
     }
 
-    protected boolean checkAndStartUnsentTask(final Context context) {
+    private boolean checkAndStartUnsentTask(final Context context) {
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
 
@@ -138,7 +140,10 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 records[i] = storage.read(ids.elementAt(i).intValue());
             }
             SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-            ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(context, settings.getString("PostURL", context.getString(R.string.PostURL))) {
+            ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(
+                    context,
+                    settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
+                            context.getString(R.string.PostURL))) {
                 @Override
                 protected void deliverResult(Object receiver, Integer result) {
                     if (result == FormUploadUtil.FULL_SUCCESS) {
@@ -181,7 +186,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         }
     }
 
-    private void syncData(final Context c) {
+    private void syncData(final Context context) {
         User u;
         try {
             u = CommCareApplication._().getSession().getLoggedInUser();
@@ -192,14 +197,19 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
-        DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(u.getUsername(), u.getCachedPwd(), prefs.getString("ota-restore-url", c.getString(R.string.ota_restore_url)), c) {
+        DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(
+                u.getUsername(),
+                u.getCachedPwd(),
+                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY,
+                        context.getString(R.string.ota_restore_url)),
+                context) {
 
             @Override
-            protected void deliverResult(Object receiver, Integer result) {
-                if (result != DataPullTask.DOWNLOAD_SUCCESS) {
-                    Toast.makeText(c, "CommCare couldn't sync. Please try to sync from CommCare directly for more information", Toast.LENGTH_LONG).show();
+            protected void deliverResult(Object receiver, PullTaskResult result) {
+                if (result != PullTaskResult.DOWNLOAD_SUCCESS) {
+                    Toast.makeText(context, "CommCare couldn't sync. Please try to sync from CommCare directly for more information", Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(c, "CommCare synced!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(context, "CommCare synced!", Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -251,7 +261,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 return false;
             }
             //TODO: Extract this
-            byte[] key = CryptUtil.unWrapKey(matchingRecord.getEncryptedKey(), password);
+            byte[] key = CryptUtil.unwrapByteArrayWithString(matchingRecord.getEncryptedKey(), password);
             if (matchingRecord.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
                 LegacyInstallUtils.transitionLegacyUserStorage(context, CommCareApplication._().getCurrentApp(), key, matchingRecord);
             }
@@ -259,34 +269,31 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 
             CommCareApplication._().startUserSession(key, matchingRecord, false);
             ManageKeyRecordTask mKeyRecordTask = new ManageKeyRecordTask<Object>(context, 0,
-                    matchingRecord.getUsername(), password, CommCareApplication._().getCurrentApp(),
-                    false, new ManageKeyRecordListener() {
+                    matchingRecord.getUsername(), password, LoginMode.PASSWORD,
+                    CommCareApplication._().getCurrentApp(), false,
+                    new ManageKeyRecordListener() {
 
-                @Override
-                public void keysLoginComplete(Object o) {
+                        @Override
+                        public void keysLoginComplete(Object o) {
+                        }
 
-                }
+                        @Override
+                        public void keysReadyForSync(Object o) {
+                        }
 
-                @Override
-                public void keysReadyForSync(Object o) {
-                    // TODO Auto-generated method stub
+                        @Override
+                        public void keysDoneOther(Object o, HttpCalloutOutcomes outcome) {
+                        }
 
-                }
+                    }) {
 
-                @Override
-                public void keysDoneOther(Object o, HttpCalloutOutcomes outcome) {
-                    // TODO Auto-generated method stub
-
-                }
-
-            }) {
                 @Override
                 protected void deliverUpdate(Object r, String... update) {
                 }
             };
+
             mKeyRecordTask.connect(dummyconnector);
             mKeyRecordTask.execute();
-
             return true;
         } catch (Exception e) {
             e.printStackTrace();

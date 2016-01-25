@@ -48,7 +48,7 @@ public abstract class UnzipTask<R> extends CommCareTask<String, String, Integer,
         for (Enumeration e = zipfile.entries(); e.hasMoreElements(); ) {
             Localization.get("mult.install.progress", new String[]{String.valueOf(count)});
             count++;
-            ZipEntry entry = (ZipEntry) e.nextElement();
+            ZipEntry entry = (ZipEntry)e.nextElement();
 
             if (entry.isDirectory()) {
                 FileUtil.createFolder(new File(destination, entry.getName()).toString());

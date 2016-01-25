@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:orientation="horizontal" android:layout_width="fill_parent"
-        android:layout_height="fill_parent" android:id="@+id/quick_select">
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:id="@+id/quick_select">
 
-        <LinearLayout android:layout_width="wrap_content"
-                android:layout_height="fill_parent" android:layout_alignParentLeft="true"
-                android:id="@+id/quick_select_question"
-            android:orientation="horizontal"
-            android:layout_toLeftOf="@+id/quick_select_right_arrow" />
-        <ImageView android:layout_height="wrap_content"
-                android:layout_width="wrap_content" android:layout_alignParentRight="true"
-                android:id="@+id/quick_select_right_arrow" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="fill_parent"
+        android:layout_alignParentLeft="true"
+        android:id="@+id/quick_select_question"
+        android:orientation="horizontal"
+        android:layout_toLeftOf="@+id/quick_select_right_arrow"/>
+
+    <ImageView
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_alignParentRight="true"
+        android:id="@+id/quick_select_right_arrow"/>
 </RelativeLayout>

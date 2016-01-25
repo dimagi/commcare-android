@@ -39,11 +39,11 @@ public class GridMenuAdapter extends MenuAdapter {
 
         MenuDisplayable mObject = displayableData[i];
 
-        TextView rowText = (TextView) menuListItem.findViewById(R.id.row_txt);
+        TextView rowText = (TextView)menuListItem.findViewById(R.id.row_txt);
         setupTextView(rowText, mObject);
 
         // set up the image, if available
-        ImageView mIconView = (ImageView) menuListItem.findViewById(R.id.row_img);
+        ImageView mIconView = (ImageView)menuListItem.findViewById(R.id.row_img);
         setupImageView(mIconView, mObject);
 
         return menuListItem;

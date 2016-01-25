@@ -41,7 +41,7 @@ import javax.crypto.SecretKey;
 public class AndroidSessionWrapper {
     private static final String TAG = AndroidSessionWrapper.class.getSimpleName();
     //The state descriptor will need these 
-    protected CommCareSession session;
+    private final CommCareSession session;
     protected int formRecordId = -1;
     protected int sessionStateRecordId = -1;
 
@@ -170,7 +170,7 @@ public class AndroidSessionWrapper {
 
         SecretKey key;
         try {
-            key = CommCareApplication._().createNewSymetricKey();
+            key = CommCareApplication._().createNewSymmetricKey();
         } catch (SessionUnavailableException e) {
             // the user db is closed
             throw new UserStorageClosedException(e.getMessage());

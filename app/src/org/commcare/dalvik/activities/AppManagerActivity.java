@@ -119,14 +119,14 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                         this.startActivityForResult(i, DispatchActivity.MISSING_MEDIA_ACTIVITY);
                     }
                 } else {
-                        Toast.makeText(this, R.string.no_installation,
-                                Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.no_installation,
+                            Toast.LENGTH_LONG).show();
                 }
                 break;
             case DispatchActivity.MISSING_MEDIA_ACTIVITY:
                 if (resultCode == RESULT_CANCELED) {
                     String title = getString(R.string.media_not_verified);
-                    String msg  = getString(R.string.skipped_verification_warning);
+                    String msg = getString(R.string.skipped_verification_warning);
                     AlertDialogFactory.getBasicAlertFactory(this, title, msg, new DialogInterface.OnClickListener() {
 
                         @Override

@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.widgets;
 
 import android.content.Context;
@@ -39,13 +25,13 @@ import java.util.Vector;
  * SpinnerWidget handles select-one fields. Instead of a list of buttons it uses a spinner, wherein
  * the user clicks a button and the choices pop up in a dialogue box. The goal is to be more
  * compact. If images, audio, or video are specified in the select answers they are ignored.
- * 
+ *
  * @author Jeff Beorse (jeff@beorse.net)
  */
 public class SpinnerWidget extends QuestionWidget {
-    final Vector<SelectChoice> mItems;
-    final Spinner spinner;
-    final String[] choices;
+    private final Vector<SelectChoice> mItems;
+    private final Spinner spinner;
+    private final String[] choices;
 
 
     public SpinnerWidget(Context context, FormEntryPrompt prompt) {
@@ -61,8 +47,8 @@ public class SpinnerWidget extends QuestionWidget {
 
         // The spinner requires a custom adapter. It is defined below
         SpinnerAdapter adapter =
-            new SpinnerAdapter(getContext(), android.R.layout.simple_spinner_item, choices,
-                    TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
+                new SpinnerAdapter(getContext(), android.R.layout.simple_spinner_item, choices,
+                        TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
 
         spinner.setAdapter(adapter);
         spinner.setPrompt(prompt.getQuestionText());
@@ -72,7 +58,7 @@ public class SpinnerWidget extends QuestionWidget {
         // Fill in previous answer
         String s = null;
         if (prompt.getAnswerValue() != null) {
-            s = ((Selection) prompt.getAnswerValue().getValue()).getValue();
+            s = ((Selection)prompt.getAnswerValue().getValue()).getValue();
         }
 
         if (s != null) {
@@ -84,11 +70,11 @@ public class SpinnerWidget extends QuestionWidget {
 
             }
         }
-        
+
         spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if(hasListener){
+                if (hasListener) {
                     widgetChangedListener.widgetEntryChanged();
                 }
             }
@@ -130,7 +116,7 @@ public class SpinnerWidget extends QuestionWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
 
     }
@@ -138,13 +124,13 @@ public class SpinnerWidget extends QuestionWidget {
     // Defines how to display the select answers
     private class SpinnerAdapter extends ArrayAdapter<String> {
         final Context context;
-        String[] items = new String[] {};
+        String[] items = new String[]{};
         final int textUnit;
         final float textSize;
 
 
         public SpinnerAdapter(final Context context, final int textViewResourceId,
-                final String[] objects, int textUnit, float textSize) {
+                              final String[] objects, int textUnit, float textSize) {
             super(context, textViewResourceId, objects);
             this.items = objects;
             this.context = context;
@@ -162,7 +148,7 @@ public class SpinnerWidget extends QuestionWidget {
                 convertView = inflater.inflate(R.layout.custom_spinner_item, parent, false);
             }
 
-            TextView tv = (TextView) convertView.findViewById(android.R.id.text1);
+            TextView tv = (TextView)convertView.findViewById(android.R.id.text1);
             tv.setText(items[position]);
             tv.setTextSize(textUnit, textSize);
             tv.setPadding(10, 10, 10, 10); // Are these values OK?
@@ -177,7 +163,7 @@ public class SpinnerWidget extends QuestionWidget {
                 convertView = inflater.inflate(android.R.layout.simple_spinner_item, parent, false);
             }
 
-            TextView tv = (TextView) convertView.findViewById(android.R.id.text1);
+            TextView tv = (TextView)convertView.findViewById(android.R.id.text1);
             tv.setText(items[position]);
             tv.setTextSize(textUnit, textSize);
             return convertView;

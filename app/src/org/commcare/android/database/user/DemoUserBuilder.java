@@ -41,7 +41,7 @@ public class DemoUserBuilder {
         this.password = password;
         if (isDemo) {
             userType = User.TYPE_DEMO;
-        } else{
+        } else {
             userType = User.STANDARD;
         }
     }
@@ -77,7 +77,7 @@ public class DemoUserBuilder {
     }
 
     private UserKeyRecord writeNewKeyRecord() {
-        byte[] encryptedKey = CryptUtil.wrapKey(randomKey, password);
+        byte[] encryptedKey = CryptUtil.wrapByteArrayWithString(randomKey, password);
 
         UserKeyRecord keyRecord =
                 new UserKeyRecord(username, passwordHash, encryptedKey,

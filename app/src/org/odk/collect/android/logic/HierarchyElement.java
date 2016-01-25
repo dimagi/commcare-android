@@ -16,7 +16,7 @@ public class HierarchyElement {
     private final FormIndex mFormIndex;
     private final ArrayList<HierarchyElement> mChildren;
 
-    private static final int ERROR_BG_COLOR_ID= R.color.cc_error_bg_color;
+    private static final int ERROR_BG_COLOR_ID = R.color.cc_error_bg_color;
     private static final int ERROR_TEXT_COLOR_ID = R.color.cc_error_text_color;
     private static final int DEFAULT_BG_COLOR_ID = R.color.white;
     private static final int DEFAULT_TEXT_COLOR_ID = R.color.cc_dark_warm_accent_text;

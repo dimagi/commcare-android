@@ -15,12 +15,10 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
 import org.commcare.xml.SuiteParser;
-import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.javarosa.xpath.XPathException;
@@ -47,19 +45,14 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 
     @Override
     public boolean initialize(final AndroidCommCarePlatform instance) throws ResourceInitializationException {
-
         try {
             if (localLocation == null) {
                 throw new ResourceInitializationException("The suite file's location is null!");
             }
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
-            SuiteParser parser = new SuiteParser(local.getStream(), instance.getGlobalResourceTable(), null) {
-                @Override
-                protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
-                    return instance.getFixtureStorage();
-                }
-            };
+            SuiteParser parser = new SuiteParser(local.getStream(),
+                    instance.getGlobalResourceTable(), null, instance.getFixtureStorage());
             parser.setSkipResources(true);
 
             Suite s = parser.parse();
@@ -82,12 +75,8 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
-            SuiteParser parser = new SuiteParser(local.getStream(), table, r.getRecordGuid()) {
-                @Override
-                protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
-                    return instance.getFixtureStorage();
-                }
-            };
+            SuiteParser parser = new SuiteParser(local.getStream(), table,
+                    r.getRecordGuid(), instance.getFixtureStorage());
 
             Suite s = parser.parse();
 
@@ -115,22 +104,15 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
-            Suite mSuite = (new SuiteParser(local.getStream(), new DummyResourceTable(), null) {
-                @Override
-                protected IStorageUtilityIndexed<FormInstance> getFixtureStorage() {
-                    //shouldn't be necessary
-                    return null;
-                }
-
+            Suite mSuite = (new SuiteParser(local.getStream(), new DummyResourceTable(), null, null) {
                 @Override
                 protected boolean inValidationMode() {
                     return true;
                 }
-
             }).parse();
             Hashtable<String, Entry> mHashtable = mSuite.getEntries();
             for (Enumeration en = mHashtable.keys(); en.hasMoreElements(); ) {
-                String key = (String) en.nextElement();
+                String key = (String)en.nextElement();
                 Entry mEntry = mHashtable.get(key);
 
                 FileUtil.checkReferenceURI(r, mEntry.getAudioURI(), problems);
@@ -141,7 +123,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             Enumeration e = menus.elements();
 
             while (e.hasMoreElements()) {
-                Menu mMenu = (Menu) e.nextElement();
+                Menu mMenu = (Menu)e.nextElement();
 
                 FileUtil.checkReferenceURI(r, mMenu.getAudioURI(), problems);
                 FileUtil.checkReferenceURI(r, mMenu.getImageURI(), problems);

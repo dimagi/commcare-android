@@ -6,8 +6,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
-import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.AndroidTableBuilder;
+import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.resources.model.Resource;
@@ -28,8 +28,9 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
      * V.5 - Added numbers table
      * V.6 - Added temporary upgrade table for ease of checking for new updates
      * V.7 - Update serialized fixtures in db to use new schema
+     * V.8 - Add fields to UserKeyRecord to support PIN auth
      */
-    private static final int DB_VERSION_APP = 7;
+    private static final int DB_VERSION_APP = 8;
 
     private static final String DB_LOCATOR_PREF_APP = "database_app_";
 
@@ -54,7 +55,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             AndroidTableBuilder builder = new AndroidTableBuilder("GLOBAL_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new AndroidTableBuilder("UPGRADE_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
@@ -66,11 +67,13 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
             builder = new AndroidTableBuilder("RECOVERY_RESOURCE_TABLE");
             builder.addData(new Resource());
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new AndroidTableBuilder("fixture");
-            builder.addData(new FormInstance());
+            builder.addFileBackedData(new FormInstance());
             database.execSQL(builder.getTableCreateString());
-            
+
+            DbUtil.createOrphanedFileTable(database);
+
             builder = new AndroidTableBuilder(UserKeyRecord.class);
             database.execSQL(builder.getTableCreateString());
 
@@ -104,7 +107,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     }
 
     public static String indexOnTableWithPGUIDCommand(String indexName,
-                                             String tableName) {
+                                                      String tableName) {
         return indexOnTableCommand(indexName, tableName, Resource.META_INDEX_PARENT_GUID);
     }
 
@@ -121,5 +124,4 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         new AppDatabaseUpgrader(context).upgrade(db, oldVersion, newVersion);
     }
-
 }

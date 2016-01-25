@@ -1,6 +1,3 @@
-/**
- * 
- */
 package org.commcare.dalvik.activities;
 
 import android.app.ListActivity;
@@ -22,19 +19,18 @@ import java.util.ArrayList;
 /**
  * An activity to display messages for the user about something that
  * happened which might not be easy to explain.
- * 
- * @author ctsims
  *
+ * @author ctsims
  */
 public class MessageActivity extends ListActivity {
-    ArrayList<NotificationMessage> messages;
-    
+    private ArrayList<NotificationMessage> messages;
+
     private static final String KEY_MESSAGES = "ma_key_messages";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if(savedInstanceState != null && savedInstanceState.containsKey(KEY_MESSAGES)) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_MESSAGES)) {
             messages = savedInstanceState.getParcelableArrayList(KEY_MESSAGES);
         } else {
             messages = CommCareApplication._().purgeNotifications();
@@ -56,7 +52,7 @@ public class MessageActivity extends ListActivity {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View messageView = convertView;
-                if(convertView == null) {
+                if (convertView == null) {
                     messageView = LayoutInflater.from(MessageActivity.this).inflate(R.layout.layout_note_msg, parent, false);
                 }
                 NotificationMessage msg = this.getItem(position);
@@ -67,11 +63,14 @@ public class MessageActivity extends ListActivity {
                 title.setText(msg.getTitle());
                 body.setText(msg.getDetails());
                 date.setText(DateUtils.formatSameDayTime(msg.getDate().getTime(), System.currentTimeMillis(), DateFormat.DEFAULT, DateFormat.DEFAULT));
-                
+
                 String actionText = msg.getAction();
-                if(actionText == null) { action.setVisibility(View.GONE); }
-                else { action.setText(actionText); }
-                
+                if (actionText == null) {
+                    action.setVisibility(View.GONE);
+                } else {
+                    action.setText(actionText);
+                }
+
                 return messageView;
             }
 
@@ -79,9 +78,9 @@ public class MessageActivity extends ListActivity {
             public boolean isEnabled(int position) {
                 return false;
             }
-            
+
         });
     }
-    
-    
+
+
 }

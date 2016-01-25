@@ -1,128 +1,133 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project>
-    	
-	<property file="${file.key.properties}" />
-	<property file="${file.remote.properties}" />
+
+    <property file="${file.key.properties}"/>
+    <property file="${file.remote.properties}"/>
 
 
     <!-- quick check on sdk.dir -->
     <fail
-            message="sdk.dir is missing. Make sure to generate local.properties using 'android update project' or to inject it through an env var"
-            unless="sdk.dir"
+        message="sdk.dir is missing. Make sure to generate local.properties using 'android update project' or to inject it through an env var"
+        unless="sdk.dir"
     />
 
     <target name="cc-setup" depends="build-from-source, addversionnumber">
-    	<!-- update resources -->
-		<tstamp>
-		  <format property="TODAY_TIMESTAMP"
-		          pattern="MMMM-dd-yyyy"/>
-		</tstamp>
-		<mkdir dir="${custom.dir.resource}"/>
-		
-		<copy todir="${custom.dir.resource}">
-			<fileset dir="res"/>
-		</copy>
-		<echo>Today: ${TODAY_TIMESTAMP}</echo>
-		<echo>Version: ${version.code}</echo>
-		<replace file="${custom.dir.resource}/values/external_strings.xml" token="UNKNOWN_DATE" value="${TODAY_TIMESTAMP}"/>
-		<replace file="${custom.dir.resource}/values/external_strings.xml" token="CUSTOM_BUILD" value="${version.code}"/>
-    </target>
-	
-	<target name="build-from-source" if="build.source">
-		<!-- todo: that -->
-		<copy todir="${jar.libs.dir}">
-			<fileset dir="${javarosa.libs}" includes="*.jar"/>
-			<fileset dir="${commcare.libs}" includes="*.jar"/>
-		</copy>
-	</target>
-	
-	<target name="addversionnumber" if="build.server">
-		<property name="android.version.code" value="android:versionCode="/>
-		<replaceregexp file="AndroidManifest.xml"
-			match='android:versionCode="(.*)"'
-			replace='${android.version.code}"${version.code}"'/>
-	</target>
-	
-	<target name="prepare" depends="cc-setup"/>
-	
-	<target name="cc-release" depends="prepare, release"/>
-	
-	<target name="test-and-release" depends="prepare, unit-test, generate-report, cc-release"/>
-	
-	
-	<!-- Begin unit testing code -->
+        <!-- update resources -->
+        <tstamp>
+            <format property="TODAY_TIMESTAMP"
+                    pattern="MMMM-dd-yyyy"/>
+        </tstamp>
+        <mkdir dir="${custom.dir.resource}"/>
 
-    <property name="test.dir" value="test" />
-    <property name="test.source.dir" location="${test.dir}/src" />
-    <property name="test.jar.libs.dir" location="${test.dir}/lib" />
-    <property name="test.out.dir" location="${test.dir}/bin" />
-    <property name="test.out.classes.dir" location="${test.out.dir}/classes" />
-    <property name="test.out.reports.dir" location="${test.out.dir}/reports" />
+        <copy todir="${custom.dir.resource}">
+            <fileset dir="res"/>
+        </copy>
+        <echo>Today: ${TODAY_TIMESTAMP}</echo>
+        <echo>Version: ${version.code}</echo>
+        <replace file="${custom.dir.resource}/values/external_strings.xml" token="UNKNOWN_DATE"
+                 value="${TODAY_TIMESTAMP}"/>
+        <replace file="${custom.dir.resource}/values/external_strings.xml" token="CUSTOM_BUILD"
+                 value="${version.code}"/>
+    </target>
+
+    <target name="build-from-source" if="build.source">
+        <!-- todo: that -->
+        <copy todir="${jar.libs.dir}">
+            <fileset dir="${javarosa.libs}" includes="*.jar"/>
+            <fileset dir="${commcare.libs}" includes="*.jar"/>
+        </copy>
+    </target>
+
+    <target name="addversionnumber" if="build.server">
+        <property name="android.version.code" value="android:versionCode="/>
+        <replaceregexp file="AndroidManifest.xml"
+                       match='android:versionCode="(.*)"'
+                       replace='${android.version.code}"${version.code}"'/>
+    </target>
+
+    <target name="prepare" depends="cc-setup"/>
+
+    <target name="cc-release" depends="prepare, release"/>
+
+    <target name="test-and-release" depends="prepare, unit-test, generate-report, cc-release"/>
+
+
+    <!-- Begin unit testing code -->
+
+    <property name="test.dir" value="test"/>
+    <property name="test.source.dir" location="${test.dir}/src"/>
+    <property name="test.jar.libs.dir" location="${test.dir}/lib"/>
+    <property name="test.out.dir" location="${test.dir}/bin"/>
+    <property name="test.out.classes.dir" location="${test.out.dir}/classes"/>
+    <property name="test.out.reports.dir" location="${test.out.dir}/reports"/>
 
     <target name="-pre-clean">
-        <delete dir="${test.out.dir}" verbose="${verbose}" />
+        <delete dir="${test.out.dir}" verbose="${verbose}"/>
     </target>
 
     <target name="-pre-compile-tests">
-        <mkdir dir="${test.out.dir}" />
-        <mkdir dir="${test.out.classes.dir}" />
+        <mkdir dir="${test.out.dir}"/>
+        <mkdir dir="${test.out.classes.dir}"/>
     </target>
 
-    <target name="-compile-tests" depends="-pre-compile-tests, -set-debug-files, -set-debug-mode, -compile">
+    <target name="-compile-tests"
+            depends="-pre-compile-tests, -set-debug-files, -set-debug-mode, -compile">
         <copy todir="${test.out.classes.dir}">
-            <fileset dir="${test.source.dir}" includes="org.robolectric.Config.properties" />
+            <fileset dir="${test.source.dir}" includes="org.robolectric.Config.properties"/>
         </copy>
-        
+
         <!-- Move resources used by the tests -->
         <copy todir="${test.out.classes.dir}" verbose="true">
             <fileset dir="${test.source.dir}" includes="resources/**"/>
         </copy>
         <path id="test.project.javac.classpath">
-            <path refid="project.all.jars.path" />
-            <path refid="tested.project.classpath" />
-            <path path="${java.compiler.classpath}" />
-            <path path="${out.classes.absolute.dir}" />
-            <fileset dir="${jar.libs.dir}" includes="**/*.jar" />
-            <fileset dir="${test.jar.libs.dir}" includes="**/*.jar" />
+            <path refid="project.all.jars.path"/>
+            <path refid="tested.project.classpath"/>
+            <path path="${java.compiler.classpath}"/>
+            <path path="${out.classes.absolute.dir}"/>
+            <fileset dir="${jar.libs.dir}" includes="**/*.jar"/>
+            <fileset dir="${test.jar.libs.dir}" includes="**/*.jar"/>
         </path>
         <javac encoding="${java.encoding}"
-                source="${java.source}" target="${java.target}"
-                debug="true" extdirs="" includeantruntime="false"
-                destdir="${test.out.classes.dir}"
-                bootclasspathref="project.target.class.path"
-                verbose="${verbose}"
-                classpathref="test.project.javac.classpath"
-                fork="${need.javac.fork}">
-            <src path="${source.absolute.dir}" />
-            <src path="${gen.absolute.dir}" />
-            <src path="${test.source.dir}" />
+               source="${java.source}" target="${java.target}"
+               debug="true" extdirs="" includeantruntime="false"
+               destdir="${test.out.classes.dir}"
+               bootclasspathref="project.target.class.path"
+               verbose="${verbose}"
+               classpathref="test.project.javac.classpath"
+               fork="${need.javac.fork}">
+            <src path="${source.absolute.dir}"/>
+            <src path="${gen.absolute.dir}"/>
+            <src path="${test.source.dir}"/>
         </javac>
     </target>
 
-    <target name="unit-test" depends="prepare, -compile-tests" description="Runs all Robolectric unit tests.">
-        <mkdir dir="${test.out.reports.dir}" />
+    <target name="unit-test" depends="prepare, -compile-tests"
+            description="Runs all Robolectric unit tests.">
+        <mkdir dir="${test.out.reports.dir}"/>
         <path id="junit.classpath">
             <!-- have to start the classpath with the test outputs, otherwise we'll miss resource files -->
-            <path path="${test.out.classes.dir}" />
-            <path refid="test.project.javac.classpath" />            
-            <path refid="project.target.class.path" />
+            <path path="${test.out.classes.dir}"/>
+            <path refid="test.project.javac.classpath"/>
+            <path refid="project.target.class.path"/>
         </path>
         <junit showoutput="true" failureproperty="junit.failure" printsummary="yes">
-            <classpath refid="junit.classpath" />
-            <formatter type="plain" />
-            <formatter type="xml" />
+            <classpath refid="junit.classpath"/>
+            <formatter type="plain"/>
+            <formatter type="xml"/>
             <batchtest todir="${test.out.reports.dir}">
-                <fileset dir="${test.source.dir}" includes="**/*Test.java" />
+                <fileset dir="${test.source.dir}" includes="**/*Test.java"/>
             </batchtest>
         </junit>
-        <fail if="junit.failure" message="Unit test(s) failed.  See reports!" />
+        <fail if="junit.failure" message="Unit test(s) failed.  See reports!"/>
     </target>
 
-    <target name="generate-report" description="Generates an HTML report from existing test results.">
-        <mkdir dir="${test.out.reports.dir}/html" />
+    <target name="generate-report"
+            description="Generates an HTML report from existing test results.">
+        <mkdir dir="${test.out.reports.dir}/html"/>
         <junitreport todir="${test.out.reports.dir}/html">
-            <fileset dir="${test.out.reports.dir}" includes="TEST-*.xml" />
-            <report todir="${test.out.reports.dir}/html" />
+            <fileset dir="${test.out.reports.dir}" includes="TEST-*.xml"/>
+            <report todir="${test.out.reports.dir}/html"/>
         </junitreport>
     </target>
 

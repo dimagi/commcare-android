@@ -26,40 +26,40 @@ import org.javarosa.form.api.FormEntryPrompt;
 
 /**
  * The most basic widget that allows for entry of any text.
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 public class StringWidget extends QuestionWidget implements OnClickListener, TextWatcher {
 
-    boolean mReadOnly = false;
+    private boolean mReadOnly = false;
     protected final EditText mAnswer;
     protected boolean secret = false;
 
     public StringWidget(Context context, FormEntryPrompt prompt, boolean secret) {
         super(context, prompt);
-        mAnswer = (EditText) LayoutInflater.from(getContext()).inflate(R.layout.edit_text_question_widget, this, false);
+        mAnswer = (EditText)LayoutInflater.from(getContext()).inflate(R.layout.edit_text_question_widget, this, false);
         mAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mAnswer.setOnClickListener(this);
 
         mAnswer.addTextChangedListener(this);
-        
+
         //Let's see if we can figure out a constraint for this string
         try {
             addAnswerFilter(new InputFilter.LengthFilter(guessMaxStringLength(prompt)));
         } catch (UnpivotableExpressionException e) {
             //expected if there isn't a constraint that does this
         }
-        
+
         this.secret = secret;
-        
-        if(!secret) {
+
+        if (!secret) {
             // capitalize the first letter of the sentence
             mAnswer.setKeyListener(new TextKeyListener(Capitalize.SENTENCES, false));
         }
         setTextInputType(mAnswer);
 
-        if(!secret) {
+        if (!secret) {
             mAnswer.setSingleLine(false);
         }
 
@@ -82,41 +82,41 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
 
         addView(mAnswer);
     }
-    
+
     /**
      * Guess the max string length based on the datatypes.
      */
-    protected int guessMaxStringLength(FormEntryPrompt prompt) throws UnpivotableExpressionException{
+    protected int guessMaxStringLength(FormEntryPrompt prompt) throws UnpivotableExpressionException {
         StringLengthRangeHint hint = new StringLengthRangeHint();
         prompt.requestConstraintHint(hint);
-        if(hint.getMax() != null) {
+        if (hint.getMax() != null) {
             //We can!
-            int length  = ((String)hint.getMax().getValue()).length();
-            if(!hint.isMaxInclusive()) {
+            int length = ((String)hint.getMax().getValue()).length();
+            if (!hint.isMaxInclusive()) {
                 length -= 1;
             }
-            
+
             return length;
         }
         throw new UnpivotableExpressionException();
     }
-    
-    
+
+
     protected void addAnswerFilter(InputFilter filter) {
         //Let's add a filter
         InputFilter[] currentFilters = mAnswer.getFilters();
         InputFilter[] newFilters = new InputFilter[currentFilters.length + 1];
         System.arraycopy(currentFilters, 0, newFilters, 0, currentFilters.length);
         newFilters[currentFilters.length] = filter;
-        
+
         mAnswer.setFilters(newFilters);
     }
 
     protected void setTextInputType(EditText mAnswer) {
-        if(secret) {
+        if (secret) {
             mAnswer.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             mAnswer.setTransformationMethod(PasswordTransformationMethod.getInstance());
-        } else{
+        } else {
             mAnswer.setInputType(InputType.TYPE_TEXT_VARIATION_FILTER);
         }
     }
@@ -140,11 +140,11 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
 
     @Override
     public void setFocus(Context context) {
-        
+
         // Put focus on text input field and display soft keyboard if appropriate.
         mAnswer.requestFocus();
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         if (!mReadOnly) {
             inputManager.showSoftInput(mAnswer, 0);
             /*
@@ -195,7 +195,7 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
         setFocus(getContext());
         mAnswer.setImeOptions(EditorInfo.IME_ACTION_UNSPECIFIED);
     }
-    
+
     @Override
     public void acceptFocus() {
         mAnswer.performClick();
@@ -208,19 +208,19 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
 
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count,
-            int after) {
+                                  int after) {
         // TODO Auto-generated method stub
-        
+
     }
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         // TODO Auto-generated method stub
-        
+
     }
-    
-    public void setLastQuestion(boolean isLast){
-           // nothing changes for Strings
+
+    public void setLastQuestion(boolean isLast) {
+        // nothing changes for Strings
     }
 
     /**

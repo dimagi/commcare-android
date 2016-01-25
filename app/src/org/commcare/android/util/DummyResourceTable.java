@@ -20,7 +20,6 @@ import java.util.Vector;
 
 /**
  * @author ctsims
- *
  */
 public class DummyResourceTable extends ResourceTable {
 
@@ -35,41 +34,41 @@ public class DummyResourceTable extends ResourceTable {
             public ResourceInstaller getProfileInstaller(boolean forceInstall) {
                 return getDummyInstaller();
             }
-            
+
             public ResourceInstaller getXFormInstaller() {
                 return getDummyInstaller();
             }
-            
+
             public ResourceInstaller getSuiteInstaller() {
                 return getDummyInstaller();
             }
-            
+
             public ResourceInstaller getLocaleFileInstaller(String locale) {
                 return getDummyInstaller();
             }
-            
+
             public ResourceInstaller getLoginImageInstaller() {
                 return getDummyInstaller();
             }
-            
+
             public ResourceInstaller getMediaInstaller(String path) {
                 return getDummyInstaller();
             }
-            
+
             private ResourceInstaller getDummyInstaller() {
                 return new ResourceInstaller() {
 
                     public void readExternal(DataInputStream in,
-                            PrototypeFactory pf) throws IOException,
+                                             PrototypeFactory pf) throws IOException,
                             DeserializationException {
                         // TODO Auto-generated method stub
-                        
+
                     }
 
                     public void writeExternal(DataOutputStream out)
                             throws IOException {
                         // TODO Auto-generated method stub
-                        
+
                     }
 
                     public boolean requiresRuntimeInitialization() {
@@ -84,15 +83,15 @@ public class DummyResourceTable extends ResourceTable {
                     }
 
                     public boolean install(Resource r,
-                            ResourceLocation location, Reference ref,
-                            ResourceTable table, CommCareInstance instance,
-                            boolean upgrade)
+                                           ResourceLocation location, Reference ref,
+                                           ResourceTable table, CommCareInstance instance,
+                                           boolean upgrade)
                             throws UnresolvedResourceException,
                             UnfullfilledRequirementsException {
                         // TODO Auto-generated method stub
                         return true;
                     }
-                    
+
                     public int rollback(Resource r) {
                         throw new RuntimeException("Basic Installer resources can't rolled back");
                     }
@@ -126,13 +125,13 @@ public class DummyResourceTable extends ResourceTable {
 
                     public void cleanup() {
                         // TODO Auto-generated method stub
-                        
+
                     }
 
                     public boolean verifyInstallation(Resource r, Vector problems) {
                         return false;
                     }
-                    
+
                 };
             }
 
@@ -149,7 +148,7 @@ public class DummyResourceTable extends ResourceTable {
 
     @Override
     public void addResource(Resource resource, ResourceInstaller initializer,
-            String parentId) {
+                            String parentId) {
     }
 
     @Override

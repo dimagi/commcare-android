@@ -37,7 +37,7 @@ public class FileServerFragment extends Fragment {
     private static TextView mStatusText;
     private View mView;
 
-    public static String receiveZipDirectory;
+    private static String receiveZipDirectory;
 
     private FileServerAsyncTask mFileServer;
 
@@ -56,7 +56,7 @@ public class FileServerFragment extends Fragment {
         View contentView;
         contentView = inflater.inflate(R.layout.file_server, null);
 
-        mStatusText = (TextView) contentView.findViewById(R.id.file_server_status_text);
+        mStatusText = (TextView)contentView.findViewById(R.id.file_server_status_text);
 
         mView = contentView.findViewById(R.id.file_server_view);
 

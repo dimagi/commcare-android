@@ -21,11 +21,11 @@ import java.util.Date;
 public class Configuration {
     private final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-    protected final GraphData mData;
-    protected final JSONObject mConfiguration;
-    protected final OrderedHashtable<String, String> mVariables;
+    final GraphData mData;
+    final JSONObject mConfiguration;
+    final OrderedHashtable<String, String> mVariables;
 
-    public Configuration(GraphData data) {
+    Configuration(GraphData data) {
         mData = data;
         mConfiguration = new JSONObject();
         mVariables = new OrderedHashtable<>();
@@ -41,14 +41,15 @@ public class Configuration {
 
     /**
      * Parse given time value into string acceptable to C3.
-     * @param value The value, which may be a YYYY-MM-DD string, a YYYY-MM-DD HH:MM:SS,
-     *              or a double representing days since the epoch.
+     *
+     * @param value       The value, which may be a YYYY-MM-DD string, a YYYY-MM-DD HH:MM:SS,
+     *                    or a double representing days since the epoch.
      * @param description Something to identify the kind of value, used to augment any error message.
      * @return String of format YYYY-MM-DD HH:MM:SS, which is what C3 expects.
-     *          This expected format is set in DataConfiguration as xFormat.
+     * This expected format is set in DataConfiguration as xFormat.
      * @throws InvalidStateException
      */
-    protected String parseTime(String value, String description) throws InvalidStateException {
+    String parseTime(String value, String description) throws InvalidStateException {
         if (value.matches(".*[^0-9.].*")) {
             if (!value.matches(".*:.*")) {
                 value += " 00:00:00";
@@ -66,7 +67,7 @@ public class Configuration {
      *
      * @param description Something to identify the kind of value, used to augment any error message.
      */
-    protected double parseDouble(String value, String description) throws InvalidStateException {
+    double parseDouble(String value, String description) throws InvalidStateException {
         try {
             Double numeric = Double.valueOf(value);
             if (numeric.isNaN()) {

@@ -23,9 +23,9 @@ import java.util.Vector;
  */
 public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement implements CacheHost {
     private static final String TAG = AndroidCaseInstanceTreeElement.class.getSimpleName();
-    final CaseIndexTable mCaseIndexTable;
+    private final CaseIndexTable mCaseIndexTable;
 
-    protected final Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<>();
+    private final Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<>();
 
     public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage, boolean reportMode) {
         this(instanceRoot, storage, reportMode, new CaseIndexTable());
@@ -48,7 +48,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
         int mult = 0;
 
-        for (IStorageIterator i = ((SqlStorage<ACase>) storage).iterate(false); i.hasMore(); ) {
+        for (IStorageIterator i = ((SqlStorage<ACase>)storage).iterate(false); i.hasMore(); ) {
             int id = i.nextID();
             cases.addElement(new CaseChildElement(this, id, null, mult));
             objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
@@ -66,7 +66,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     //We're storing this here for now because this is a safe lifecycle object that must represent
     //a single snapshot of the case database, but it could be generalized later.
-    final Hashtable<String, Vector<Integer>> mIndexCache = new Hashtable<>();
+    private final Hashtable<String, Vector<Integer>> mIndexCache = new Hashtable<>();
 
     @Override
     protected Vector<Integer> getNextIndexMatch(Vector<String> keys, Vector<Object> values, IStorageUtilityIndexed<?> storage) {
@@ -81,7 +81,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             //TODO: This should likely be generalized for a number of other queries with bulk/nodeset
             //returns
             String indexName = firstKey.substring(Case.INDEX_CASE_INDEX_PRE.length());
-            String value = (String) values.elementAt(0);
+            String value = (String)values.elementAt(0);
 
             //TODO: Evaluate whether our indices could contain "|" but I don't imagine how they could.
             String indexCacheKey = firstKey + "|" + value;
@@ -130,12 +130,12 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
             //otherwise, it's now in our queue
         }
 
-        SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>) storage);
+        SqlStorage<ACase> sqlStorage = ((SqlStorage<ACase>)storage);
         String[] namesToMatch = new String[numKeys];
         String[] valuesToMatch = new String[numKeys];
         for (int i = numKeys - 1; i >= 0; i--) {
             namesToMatch[i] = keys.elementAt(i);
-            valuesToMatch[i] = (String) values.elementAt(i);
+            valuesToMatch[i] = (String)values.elementAt(i);
         }
         mMostRecentBatchFetch = new String[2][];
         mMostRecentBatchFetch[0] = namesToMatch;
@@ -197,7 +197,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     }
 
-    String[][] mMostRecentBatchFetch = null;
+    private String[][] mMostRecentBatchFetch = null;
 
     @Override
     public String[][] getCachePrimeGuess() {

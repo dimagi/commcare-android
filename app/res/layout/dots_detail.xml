@@ -1,16 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_height="fill_parent" android:layout_width="fill_parent">
-<TextView android:text="@+id/TextView01" android:layout_height="wrap_content" android:layout_gravity="top" android:layout_width="fill_parent" android:layout_alignParentTop="true" android:id="@+id/dots_detail_title" android:textAppearance="?android:attr/textAppearanceMedium" android:visibility="gone"></TextView>
-<ScrollView android:id="@+id/ScrollView01" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_below="@+id/dots_detail_title" android:layout_above="@+id/dotsbuttonframe"><LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:orientation="vertical" android:id="@+id/dots_content_frame">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="fill_parent"
+    android:layout_width="fill_parent">
+
+    <TextView
+        android:text="@+id/TextView01"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:layout_width="fill_parent"
+        android:layout_alignParentTop="true"
+        android:id="@+id/dots_detail_title"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:visibility="gone"></TextView>
+
+    <ScrollView
+        android:id="@+id/ScrollView01"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_below="@+id/dots_detail_title"
+        android:layout_above="@+id/dotsbuttonframe">
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:orientation="vertical"
+            android:id="@+id/dots_content_frame">
 
 
+        </LinearLayout>
+    </ScrollView>
 
-</LinearLayout>
-</ScrollView>
-<LinearLayout android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_alignParentBottom="true" android:id="@+id/dotsbuttonframe" android:weightSum="1">
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/dotsbuttonframe"
+        android:weightSum="1">
 
-<Button android:layout_height="wrap_content" android:layout_width="wrap_content" android:text="Save Details" android:id="@+id/btn_dots_detail_ok" android:layout_weight="0.5"></Button><Button android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/btn_dots_detail_cancel" android:text="Cancel" android:layout_weight="0.5"></Button>
-</LinearLayout>
+        <Button
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:text="Save Details"
+            android:id="@+id/btn_dots_detail_ok"
+            android:layout_weight="0.5"></Button>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_dots_detail_cancel"
+            android:text="Cancel"
+            android:layout_weight="0.5"></Button>
+    </LinearLayout>
 </RelativeLayout>

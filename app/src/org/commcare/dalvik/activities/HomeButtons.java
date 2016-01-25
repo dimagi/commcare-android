@@ -7,8 +7,8 @@ import android.view.View;
 
 import org.commcare.android.adapters.HomeCardDisplayData;
 import org.commcare.android.adapters.SquareButtonViewHolder;
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.analytics.GoogleAnalyticsFields;
+import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -23,7 +23,7 @@ import java.util.Vector;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class HomeButtons {
-    public final static String[] buttonNames =
+    private final static String[] buttonNames =
             new String[]{"start", "saved", "incomplete", "sync", "report", "logout"};
 
     public static HomeCardDisplayData[] buildButtonData(CommCareHomeActivity activity,
@@ -93,6 +93,7 @@ public class HomeButtons {
     private static View.OnClickListener getViewOldFormsListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
             public void onClick(View v) {
+                reportButtonClick(GoogleAnalyticsFields.LABEL_SAVED_FORMS_BUTTON);
                 activity.goToFormArchive(false);
             }
         };
@@ -101,6 +102,7 @@ public class HomeButtons {
     private static View.OnClickListener getSyncButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
             public void onClick(View v) {
+                reportButtonClick(GoogleAnalyticsFields.LABEL_SYNC_BUTTON);
                 activity.syncButtonPressed();
             }
         };
@@ -129,6 +131,7 @@ public class HomeButtons {
     private static View.OnClickListener getStartButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
             public void onClick(View v) {
+                reportButtonClick(GoogleAnalyticsFields.LABEL_START_BUTTON);
                 activity.enterRootModule();
             }
         };
@@ -137,6 +140,7 @@ public class HomeButtons {
     private static View.OnClickListener getIncompleteButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
             public void onClick(View v) {
+                reportButtonClick(GoogleAnalyticsFields.LABEL_INCOMPLETE_FORMS_BUTTON);
                 activity.goToFormArchive(true);
             }
         };
@@ -153,8 +157,8 @@ public class HomeButtons {
                 if (numIncompleteForms > 0) {
                     Spannable incompleteIndicator =
                             (activity.localize("home.forms.incomplete.indicator",
-                            new String[]{String.valueOf(numIncompleteForms),
-                                    Localization.get("home.forms.incomplete")}));
+                                    new String[]{String.valueOf(numIncompleteForms),
+                                            Localization.get("home.forms.incomplete")}));
                     squareButtonViewHolder.textView.setText(incompleteIndicator);
                 } else {
                     squareButtonViewHolder.textView.setText(activity.localize("home.forms.incomplete"));
@@ -169,6 +173,7 @@ public class HomeButtons {
     private static View.OnClickListener getLogoutButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
             public void onClick(View v) {
+                reportButtonClick(GoogleAnalyticsFields.LABEL_LOGOUT_BUTTON);
                 CommCareApplication._().closeUserSession();
                 activity.userTriggeredLogout();
             }
@@ -194,10 +199,15 @@ public class HomeButtons {
     private static View.OnClickListener getReportButtonListener(final CommCareHomeActivity activity) {
         return new View.OnClickListener() {
             public void onClick(View v) {
+                reportButtonClick(GoogleAnalyticsFields.LABEL_REPORT_BUTTON);
                 Intent i = new Intent(activity, ReportProblemActivity.class);
                 activity.startActivityForResult(i, CommCareHomeActivity.REPORT_PROBLEM_ACTIVITY);
             }
         };
+    }
+
+    public static void reportButtonClick(String buttonLabel) {
+        GoogleAnalyticsUtils.reportHomeButtonClick(buttonLabel);
     }
 
     public interface TextSetter {

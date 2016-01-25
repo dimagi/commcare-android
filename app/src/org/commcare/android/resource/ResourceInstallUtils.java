@@ -29,7 +29,7 @@ import javax.net.ssl.SSLHandshakeException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ResourceInstallUtils {
-    private static final String DEFAULT_APP_SERVER_KEY = "default_app_server";
+    private static final String DEFAULT_APP_SERVER_KEY = CommCarePreferences.PREFS_APP_SERVER_KEY;
 
     /**
      * @return Is the current app's designated upgrade table staged and ready
@@ -99,7 +99,7 @@ public class ResourceInstallUtils {
     }
 
     public static void updateProfileRef(SharedPreferences prefs,
-                                         String authRef, String profileRef) {
+                                        String authRef, String profileRef) {
         SharedPreferences.Editor edit = prefs.edit();
         if (authRef != null) {
             edit.putString(DEFAULT_APP_SERVER_KEY, authRef);

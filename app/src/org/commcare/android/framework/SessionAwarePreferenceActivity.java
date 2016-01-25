@@ -8,6 +8,7 @@ import android.preference.PreferenceActivity;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public abstract class SessionAwarePreferenceActivity extends PreferenceActivity {
+
     @Override
     protected void onResume() {
         super.onResume();

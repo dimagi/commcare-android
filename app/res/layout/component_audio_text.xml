@@ -1,19 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
     <ImageButton
         android:id="@+id/component_audio_text_btn_audio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:src="@android:drawable/ic_lock_silent_mode_off" android:layout_centerVertical="true"/>
+        android:src="@android:drawable/ic_lock_silent_mode_off"
+        android:layout_centerVertical="true"/>
 
     <TextView
         style="@style/EntityItemTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/EntityItemText" android:layout_alignParentRight="true" android:layout_toRightOf="@id/component_audio_text_btn_audio" android:layout_centerVertical="true" android:id="@+id/component_audio_text_txt"/>
+        android:textAppearance="@style/EntityItemText"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@id/component_audio_text_btn_audio"
+        android:layout_centerVertical="true"
+        android:id="@+id/component_audio_text_txt"/>
 
 </RelativeLayout>

@@ -4,7 +4,7 @@
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-superuser-enabled"
-        android:title="Developer Mode Enabled" />
+        android:title="Developer Mode Enabled"/>
     <ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
@@ -18,7 +18,7 @@
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-grid-menus"
-        android:title="Grid Menus Enabled" />
+        android:title="Grid Menus Enabled"/>
     <ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
@@ -32,54 +32,60 @@
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-list-refresh"
-        android:title="Entity List Screen Auto-Refresh" />
+        android:title="Entity List Screen Auto-Refresh"/>
     <ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-newest-version-from-hq"
-        android:title="Use Newest App Version From HQ" />
+        android:title="Use Newest App Version From HQ"/>
     <ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-enable-auto-login"
-        android:title="Auto-login While Debugging" />
+        android:title="Auto-login While Debugging"/>
     <ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-enable-session-saving"
-        android:title="Enable Session Saving" />
+        android:title="Enable Session Saving"/>
     <ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-css-enabled"
-        android:title="CSS Enabled" />
+        android:title="CSS Enabled"/>
     <ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-markdown-enabled"
-        android:title="Markdown Enabled" />
+        android:title="Markdown Enabled"/>
     <ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-alternate-question-text-format"
-        android:title="Image Above Question Text Enabled" />
+        android:title="Image Above Question Text Enabled"/>
     <ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:defaultValue="yes"
         android:key="cc-fire-triggers-on-save"
-        android:title="Fire triggers on form save" />
+        android:title="Fire triggers on form save"/>
     <ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-home-report"
-        android:title="Home Report Button enabled" />
+        android:title="Home Report Button enabled"/>
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-offer-pin-for-login"
+        android:title="Give option to use PIN for login"/>
 </PreferenceScreen>

@@ -11,7 +11,7 @@ import com.google.android.maps.MapView;
 
 public class TapControlledMapView extends MapView implements OnGestureListener {
 
-    private GestureDetector gd;    
+    private GestureDetector gd;
     private OnSingleTapListener singleTapListener;
 
     public TapControlledMapView(Context context, AttributeSet attrs) {
@@ -28,10 +28,10 @@ public class TapControlledMapView extends MapView implements OnGestureListener {
         super(context, apiKey);
         setupGestures();
     }
-    
+
     private void setupGestures() {
-        gd = new GestureDetector(this);  
-        
+        gd = new GestureDetector(this);
+
         //set the on Double tap listener  
         gd.setOnDoubleTapListener(new OnDoubleTapListener() {
 
@@ -44,17 +44,17 @@ public class TapControlledMapView extends MapView implements OnGestureListener {
             }
 
             public boolean onDoubleTap(MotionEvent e) {
-                TapControlledMapView.this.getController().zoomInFixing((int) e.getX(), (int) e.getY());
+                TapControlledMapView.this.getController().zoomInFixing((int)e.getX(), (int)e.getY());
                 return false;
             }
 
             public boolean onDoubleTapEvent(MotionEvent e) {
                 return false;
             }
-            
+
         });
     }
-    
+
     /*
      * (non-Javadoc)
      * @see com.google.android.maps.MapView#onTouchEvent(android.view.MotionEvent)
@@ -67,7 +67,7 @@ public class TapControlledMapView extends MapView implements OnGestureListener {
             return super.onTouchEvent(ev);
         }
     }
-    
+
     public void setOnSingleTapListener(OnSingleTapListener singleTapListener) {
         this.singleTapListener = singleTapListener;
     }
@@ -76,24 +76,26 @@ public class TapControlledMapView extends MapView implements OnGestureListener {
         return false;
     }
 
-    public void onShowPress(MotionEvent e) {}
+    public void onShowPress(MotionEvent e) {
+    }
 
     public boolean onSingleTapUp(MotionEvent e) {
         return false;
     }
 
     public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
-            float distanceY) {
+                            float distanceY) {
         return false;
     }
 
-    public void onLongPress(MotionEvent e) {}
+    public void onLongPress(MotionEvent e) {
+    }
 
     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
-            float velocityY) {
+                           float velocityY) {
         return false;
     }
-    
+
 }
 
 

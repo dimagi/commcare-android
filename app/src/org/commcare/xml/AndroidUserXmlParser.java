@@ -8,15 +8,15 @@ import org.kxml2.io.KXmlParser;
 class AndroidUserXmlParser extends UserXmlParser {
 
     private final byte[] wrappedKey;
-    
+
     public AndroidUserXmlParser(KXmlParser parser, IStorageUtilityIndexed<User> storage, byte[] wrappedKey) {
         super(parser, storage);
         this.wrappedKey = wrappedKey;
     }
 
     @Override
-    public void addCustomData(User u){
-        if(wrappedKey != null){
+    public void addCustomData(User u) {
+        if (wrappedKey != null) {
             u.setWrappedKey(wrappedKey);
         }
     }

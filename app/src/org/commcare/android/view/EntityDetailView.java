@@ -85,9 +85,9 @@ public class EntityDetailView extends FrameLayout {
     private static final int GRAPH = 6;
     private static final int CALLOUT = 7;
 
-    int current = TEXT;
+    private int current = TEXT;
 
-    DetailCalloutListener listener;
+    private DetailCalloutListener listener;
 
     public EntityDetailView(Context context, Detail d, Entity e,
                             int index, int detailNumber) {
@@ -250,7 +250,7 @@ public class EntityDetailView extends FrameLayout {
             if (graphView == null) {
                 GraphView g = new GraphView(context, labelText, false);
                 try {
-                    graphHTML = g.getHTML((GraphData) field);
+                    graphHTML = g.getHTML((GraphData)field);
                     graphView = g.getView(graphHTML);
                     // Graphs are drawn with aspect ratio 2:1, which is mostly arbitrary
                     // and happened to look nice for partographs. Expect to revisit
@@ -272,7 +272,7 @@ public class EntityDetailView extends FrameLayout {
                 GraphView g = new GraphView(context, labelText, true);
                 try {
                     if (graphHTML.equals("")) {
-                        graphHTML = g.getHTML((GraphData) field);
+                        graphHTML = g.getHTML((GraphData)field);
                     }
                     graphIntent = g.getIntent(graphHTML);
                     graphIntentsCache.put(index, graphIntent);
