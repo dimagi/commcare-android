@@ -1,7 +1,7 @@
 package org.commcare.dalvik.activities;
 
-import android.content.Intent;
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.Vector;
 
 /**
- * @author ctsims
+ * @author Forest Tong (ftong@dimagi.com)
  */
 public class EntityMapActivity extends CommCareActivity implements OnMapReadyCallback,
         GoogleMap.OnInfoWindowClickListener {
@@ -57,13 +57,13 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entity_map_view);
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+        SupportMapFragment mapFragment = (SupportMapFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
         Detail detail = session.getDetail(selectDatum.getShortDetail());
         addEntityLocations(detail);
-        Log.d(TAG, "Loaded. " + entityLocations.size() +" addresses discovered, " + (
+        Log.d(TAG, "Loaded. " + entityLocations.size() + " addresses discovered, " + (
                 detail.getHeaderForms().length - entityLocations.size()) + " could not be located");
     }
 
@@ -71,7 +71,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
      * Gets entity locations, and adds corresponding pairs to the vector entityLocations.
      */
     private void addEntityLocations(Detail detail) {
-        for(Entity<TreeReference> entity : getEntities(detail)) {
+        for (Entity<TreeReference> entity : getEntities(detail)) {
             for (int i = 0; i < detail.getHeaderForms().length; ++i) {
                 if ("address".equals(detail.getTemplateForms()[i])) {
                     String address = entity.getFieldString(i).trim();
@@ -96,7 +96,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 selectDatum.getNodeset());
 
         Vector<Entity<TreeReference>> entities = new Vector<>();
-        for(TreeReference ref : references) {
+        for (TreeReference ref : references) {
             entities.add(factory.getEntity(ref));
         }
         return entities;
@@ -106,10 +106,10 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         LatLng location = null;
         try {
             GeoPointData data = new GeoPointData().cast(new UncastData(address));
-            if(data != null) {
+            if (data != null) {
                 location = new LatLng(data.getLatitude(), data.getLongitude());
             }
-        } catch(IllegalArgumentException ignored) {
+        } catch (IllegalArgumentException ignored) {
         }
         return location;
     }
@@ -132,7 +132,6 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
             final LatLngBounds bounds = builder.build();
 
             // Move camera to be include all markers
-            // TODO: does this work for 1 marker?
             mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                 @Override
                 public void onMapLoaded() {
@@ -166,7 +165,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         if (mMap != null) {
             mMap.setOnMapLoadedCallback(null);  // Avoid memory leak in callback
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 mMap.setMyLocationEnabled(false);
             }
         }
