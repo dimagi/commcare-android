@@ -71,7 +71,6 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
     /**
      * Gets entity locations, and adds corresponding pairs to the vector entityLocations.
-     * @param detail
      */
     private void addEntityLocations(Detail detail) {
         for(Entity<TreeReference> entity : getEntities(detail)) {
@@ -166,10 +165,12 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     protected void onPause() {
         super.onPause();
 
-        mMap.setOnMapLoadedCallback(null);  // Avoid memory leak in callback
-        if (mMap != null && (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
-            mMap.setMyLocationEnabled(false);
+        if (mMap != null) {
+            mMap.setOnMapLoadedCallback(null);  // Avoid memory leak in callback
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                mMap.setMyLocationEnabled(false);
+            }
         }
     }
 
