@@ -1,6 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import android.annotation.TargetApi;
 import android.content.Intent;
 import android.Manifest;
 import android.content.pm.PackageManager;
@@ -12,8 +11,8 @@ import android.util.Pair;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -54,12 +53,11 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     private GoogleMap mMap;
 
     @Override
-    @TargetApi(11)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entity_map_view);
 
-        MapFragment mapFragment = (MapFragment) getFragmentManager()
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
