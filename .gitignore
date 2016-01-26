@@ -5,10 +5,7 @@ app/local.properties
 app/bin/*
 app/buildtmp/*
 app/dist/*
-libraries/mapballoons/android-mapviewballoons/bin/*
-libraries/mapballoons/android-mapviewballoons/gen/*
 app/gen/*
-libraries/mapballoons/android-mapviewballoons/local.properties
 app/assets/testing*
 test-app/bin/*
 test-app/gen/*
@@ -29,7 +26,6 @@ commcare-odk-test/gen/*
 .idea/*
 app/.settings/*
 app/app.iml
-libraries/mapballoons/android-mapviewballoons/android-mapviewballoons.iml
 out/
 test-app/test-app.iml
 **/.settings/
@@ -38,6 +34,5 @@ app/libs/javarosa-libraries.jar
 **/local.properties
 .gradle/
 build/
-libraries/mapballoons/build/
 **/*~
 gradle/
