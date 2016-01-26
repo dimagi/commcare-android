@@ -497,6 +497,10 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
             Logger.log(AndroidLogger.SOFT_ASSERT, "An invalid edge was created in the internal " +
                     "case DAG of a case purge filter, meaning that at least 1 case on the " +
                     "device had an index into another case that no longer exists on the device");
+            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Case lists on the server and device" +
+                    " were out of sync. The following cases were expected to be on the device, " +
+                    "but were missing: " + filter.getMissingCasesString() + ". As a result, the " +
+                    "following cases were also removed from the device: " + filter.getRemovedCasesString());
         }
         int removedCases = storage.removeAll(filter).size();
         
