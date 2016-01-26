@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.util.Pair;
@@ -39,22 +40,21 @@ import java.util.Vector;
 /**
  * @author ctsims
  */
-@TargetApi(11)
 public class EntityMapActivity extends CommCareActivity implements OnMapReadyCallback,
         GoogleMap.OnInfoWindowClickListener {
     private static final String TAG = EntityMapActivity.class.getSimpleName();
     private static final int MAP_PADDING = 50;  // Number of pixels to pad bounding region of markers
 
-    private EvaluationContext entityEvaluationContext;
-    private CommCareSession session;
-    Vector<Entity<TreeReference>> entities;
+    private final CommCareSession session = CommCareApplication._().getCurrentSession();
+    private final SessionDatum selectDatum = session.getNeededDatum();
 
-    Vector<Pair<Entity<TreeReference>, LatLng>> entityLocations;
-    HashMap<Marker, TreeReference> markerReferences = new HashMap<>();
+    private final Vector<Pair<Entity<TreeReference>, LatLng>> entityLocations = new Vector<>();
+    private final HashMap<Marker, TreeReference> markerReferences = new HashMap<>();
 
-    GoogleMap mMap;
+    private GoogleMap mMap;
 
     @Override
+    @TargetApi(11)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.entity_map_view);
@@ -63,50 +63,57 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        session = CommCareApplication._().getCurrentSession();
-        SessionDatum selectDatum = session.getNeededDatum();
         Detail detail = session.getDetail(selectDatum.getShortDetail());
-        NodeEntityFactory factory = new NodeEntityFactory(detail, this.getEvaluationContext());
+        addEntityLocations(detail);
+        Log.d(TAG, "Loaded. " + entityLocations.size() +" addresses discovered, " + (
+                detail.getHeaderForms().length - entityLocations.size()) + " could not be located");
+    }
 
-        Vector<TreeReference> references = getEvaluationContext().expandReference(
-                selectDatum.getNodeset());
-        entities = new Vector<>();
-        for(TreeReference ref : references) {
-            entities.add(factory.getEntity(ref));
-        }
-
-        int bogusAddresses = 0;
-        entityLocations = new Vector<>();
-        for(Entity<TreeReference> entity : entities) {
-            for(int i = 0 ; i < detail.getHeaderForms().length; ++i ){
-                if("address".equals(detail.getTemplateForms()[i])) {
+    /**
+     * Gets entity locations, and adds corresponding pairs to the vector entityLocations.
+     * @param detail
+     */
+    private void addEntityLocations(Detail detail) {
+        for(Entity<TreeReference> entity : getEntities(detail)) {
+            for (int i = 0; i < detail.getHeaderForms().length; ++i) {
+                if ("address".equals(detail.getTemplateForms()[i])) {
                     String address = entity.getFieldString(i).trim();
-                    if(address != null && !"".equals(address)) {
+                    if (!"".equals(address)) {
                         LatLng location = getLatLngFromAddress(address);
-                        if (location == null) {
-                            bogusAddresses++;
-                        } else {
+                        if (location != null) {
                             entityLocations.add(new Pair<>(entity, location));
                         }
                     }
                 }
             }
         }
-        Log.d(TAG, "Loaded. " + entityLocations.size() +" addresses discovered, " + bogusAddresses + " could not be located");
     }
 
-    private LatLng getLatLngFromAddress(String address) {
+    private Vector<Entity<TreeReference>> getEntities(Detail detail) {
+        EvaluationContext evaluationContext = session.getEvaluationContext(
+                new AndroidInstanceInitializer(session));
+        evaluationContext.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler());
+
+        NodeEntityFactory factory = new NodeEntityFactory(detail, evaluationContext);
+        Vector<TreeReference> references = evaluationContext.expandReference(
+                selectDatum.getNodeset());
+
+        Vector<Entity<TreeReference>> entities = new Vector<>();
+        for(TreeReference ref : references) {
+            entities.add(factory.getEntity(ref));
+        }
+        return entities;
+    }
+
+    private LatLng getLatLngFromAddress(@NonNull String address) {
         LatLng location = null;
         try {
             GeoPointData data = new GeoPointData().cast(new UncastData(address));
             if(data != null) {
                 location = new LatLng(data.getLatitude(), data.getLongitude());
             }
-        } catch(Exception ex) {
+        } catch(IllegalArgumentException ignored) {
         }
-
-        // Geocaching code removed
-
         return location;
     }
 
@@ -114,11 +121,11 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     public void onMapReady(final GoogleMap map) {
         mMap = map;
 
-        // Find bounding region of markers
         if (entityLocations.size() > 0) {
             LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            // Add markers to map and find bounding region
             for (Pair<Entity<TreeReference>, LatLng> entityLocation : entityLocations) {
-                Marker marker = map.addMarker(new MarkerOptions()
+                Marker marker = mMap.addMarker(new MarkerOptions()
                         .position(entityLocation.second)
                         .title(entityLocation.first.getFieldString(0))
                         .snippet(entityLocation.first.getFieldString(1)));
@@ -129,19 +136,19 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
             // Move camera to be include all markers
             // TODO: does this work for 1 marker?
-            map.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
                 @Override
                 public void onMapLoaded() {
-                    map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, MAP_PADDING));
                 }
             });
         }
 
-        map.setOnInfoWindowClickListener(this);
+        mMap.setOnInfoWindowClickListener(this);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            map.setMyLocationEnabled(true);
+            mMap.setMyLocationEnabled(true);
         }
     }
 
@@ -159,6 +166,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     protected void onPause() {
         super.onPause();
 
+        mMap.setOnMapLoadedCallback(null);  // Avoid memory leak in callback
         if (mMap != null && (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 || ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED)) {
             mMap.setMyLocationEnabled(false);
@@ -167,23 +175,11 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
 
     @Override
     public void onInfoWindowClick(Marker marker) {
-        Intent i = new Intent(EntityMapActivity.this.getIntent());
+        Intent i = new Intent(getIntent());
         TreeReference ref = markerReferences.get(marker);
         SerializationUtil.serializeToIntent(i, EntityDetailActivity.CONTEXT_REFERENCE, ref);
 
         setResult(RESULT_OK, i);
-        EntityMapActivity.this.finish();
-    }
-
-    private EvaluationContext getEvaluationContext() {
-        if(entityEvaluationContext == null) {
-            entityEvaluationContext = session.getEvaluationContext(getInstanceInit());
-            entityEvaluationContext.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler());
-        }
-        return entityEvaluationContext;
-    }
-
-    private AndroidInstanceInitializer getInstanceInit() {
-        return new AndroidInstanceInitializer(session);
+        finish();
     }
 }
