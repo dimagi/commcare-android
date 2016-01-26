@@ -44,7 +44,6 @@ dependencies {
     debugCompile project(':commcare')
     compile project(':javarosa')
     compile project(':commcare')
-    compile project(':libraries:mapballoons')
     compile fileTree(dir: 'app/libs', include: '*.jar')
     compile(name: 'htmlspanner-custom', ext: 'aar')
     compile 'com.android.support:cardview-v7:23.1.1'
@@ -71,13 +70,6 @@ dependencies {
 project.ext {
     compileSdkVersion = "Google Inc.:Google APIs:23"
     buildToolsVersion = "23.0.2"
-}
-
-project(':libraries:mapballoons') {
-    android {
-        compileSdkVersion rootProject.ext.compileSdkVersion
-        buildToolsVersion rootProject.ext.buildToolsVersion
-    }
 }
 
 ext {
