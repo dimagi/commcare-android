@@ -178,6 +178,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     private EvaluationContext getEvaluationContext() {
         if(entityEvaluationContext == null) {
             entityEvaluationContext = session.getEvaluationContext(getInstanceInit());
+            entityEvaluationContext.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler());
         }
         return entityEvaluationContext;
     }
