@@ -9,14 +9,12 @@ import android.widget.Toast;
 
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -43,7 +41,7 @@ public class DispatchActivity extends FragmentActivity {
     public static final int MISSING_MEDIA_ACTIVITY = 4;
 
     private boolean startFromLogin;
-    private String lastLoginMode;
+    private LoginMode lastLoginMode;
     private boolean userManuallyEnteredPasswordMode;
 
     private boolean shouldFinish;
@@ -312,7 +310,7 @@ public class DispatchActivity extends FragmentActivity {
                     shouldFinish = true;
                     return;
                 }
-                lastLoginMode = intent.getStringExtra(LoginActivity.LOGIN_MODE);
+                lastLoginMode = (LoginMode)intent.getSerializableExtra(LoginActivity.LOGIN_MODE);
                 userManuallyEnteredPasswordMode =
                         intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
                 startFromLogin = true;

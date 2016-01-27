@@ -644,21 +644,21 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    private void updateFormRelevancies(){
-        saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
-
+    private void updateFormRelevancies() {
         ArrayList<QuestionWidget> oldWidgets = mCurrentView.getWidgets();
         // These 2 calls need to be made here, rather than in the for loop below, because at that
         // point the widgets will have already started being updated to the values for the new view
         ArrayList<Vector<SelectChoice>> oldSelectChoices = getOldSelectChoicesForEachWidget(oldWidgets);
         ArrayList<String> oldQuestionTexts = getOldQuestionTextsForEachWidget(oldWidgets);
 
+        saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
+
         FormEntryPrompt[] newValidPrompts = mFormController.getQuestionPrompts();
         Set<FormEntryPrompt> promptsLeftInView = new HashSet<>();
 
         ArrayList<Integer> shouldRemoveFromView = new ArrayList<>();
         // Loop through all of the old widgets to determine which ones should stay in the new view
-        for (int i = 0; i < oldWidgets.size(); i++){
+        for (int i = 0; i < oldWidgets.size(); i++) {
             FormEntryPrompt oldPrompt = oldWidgets.get(i).getPrompt();
             String priorQuestionTextForThisWidget = oldQuestionTexts.get(i);
             Vector<SelectChoice> priorSelectChoicesForThisWidget = oldSelectChoices.get(i);
