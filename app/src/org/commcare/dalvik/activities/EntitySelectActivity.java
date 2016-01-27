@@ -461,16 +461,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    protected boolean isTopNavEnabled() {
-        return true;
-    }
-
-    @Override
-    public String getActivityTitle() {
-        return null;
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
 
@@ -557,6 +547,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+        savedInstanceState.putBoolean(CONTAINS_HERE_FUNCTION, containsHereFunction);
+        savedInstanceState.putBoolean(LOCATION_CHANGED_WHILE_LOADING, locationChangedWhileLoading);
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
 
@@ -575,6 +573,22 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         super.onStop();
         refreshTimer.stop();
         saveLastQueryString();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (loader != null) {
+            if (isFinishing()) {
+                loader.cancel(false);
+            } else {
+                loader.detachActivity();
+            }
+        }
+
+        if (adapter != null) {
+            adapter.signalKilled();
+        }
     }
 
     @Override
@@ -712,7 +726,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         setResult(RESULT_OK, i);
         finish();
     }
-
 
     @Override
     public void afterTextChanged(Editable incomingEditable) {
@@ -926,30 +939,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-
-        savedInstanceState.putBoolean(CONTAINS_HERE_FUNCTION, containsHereFunction);
-        savedInstanceState.putBoolean(LOCATION_CHANGED_WHILE_LOADING, locationChangedWhileLoading);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (loader != null) {
-            if (isFinishing()) {
-                loader.cancel(false);
-            } else {
-                loader.detachActivity();
-            }
-        }
-
-        if (adapter != null) {
-            adapter.signalKilled();
-        }
-    }
-
-    @Override
     public void deliverResult(List<Entity<TreeReference>> entities,
                               List<TreeReference> references,
                               NodeEntityFactory factory) {
@@ -1033,14 +1022,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         this.loader = task;
     }
 
-    private void select() {
-        // create intent for return and store path
-        Intent i = new Intent(EntitySelectActivity.this.getIntent());
-        i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
-        setResult(RESULT_OK, i);
-        finish();
-    }
-
     @Override
     public void callRequested(String phoneNumber) {
         DetailCalloutListenerDefaultImpl.callRequested(this, phoneNumber);
@@ -1108,6 +1089,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         detailView.refresh(factory.getDetail(), selection, detailIndex);
     }
 
+    private void select() {
+        // create intent for return and store path
+        Intent i = new Intent(EntitySelectActivity.this.getIntent());
+        i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
+        setResult(RESULT_OK, i);
+        finish();
+    }
+
     @Override
     public void deliverError(Exception e) {
         displayException(e);
@@ -1141,7 +1130,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     public boolean loadEntities() {
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
-            Log.i("HereFunctionHandler", "entities reloading");
+            Log.i(TAG, "entities reloading");
             EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
             entityLoader.attachListener(this);
             entityLoader.execute(selectDatum.getNodeset());
@@ -1210,5 +1199,15 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 GeoUtils.showNoGpsDialog(activity, onChangeListener);
             }  // else handler has outlived activity, do nothing
         }
+    }
+
+    @Override
+    protected boolean isTopNavEnabled() {
+        return true;
+    }
+
+    @Override
+    public String getActivityTitle() {
+        return null;
     }
 }
