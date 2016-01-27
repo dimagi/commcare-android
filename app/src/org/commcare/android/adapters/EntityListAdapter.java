@@ -138,10 +138,6 @@ public class EntityListAdapter implements ListAdapter {
     }
 
     private void filterValues(String filterRaw) {
-        this.filterValues(filterRaw, false);
-    }
-
-    private void filterValues(String filterRaw, boolean synchronous) {
         synchronized (mSyncLock) {
             if (mCurrentSortThread != null) {
                 mCurrentSortThread.finish();
@@ -152,17 +148,6 @@ public class EntityListAdapter implements ListAdapter {
             }
             mCurrentSortThread = new EntitySearcher(filterRaw, searchTerms);
             mCurrentSortThread.startThread();
-
-            //In certain circumstances we actually want to wait for that filter
-            //to finish
-            if (synchronous) {
-                try {
-                    mCurrentSortThread.thread.join();
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
         }
     }
 
@@ -264,9 +249,6 @@ public class EntityListAdapter implements ListAdapter {
                                 }
                             }
                         }
-                    }
-                    if (!add) {
-                        break;
                     }
                 }
                 if (add) {
