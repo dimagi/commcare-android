@@ -196,6 +196,28 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
+    private void createDataSetObserver() {
+        mListStateObserver = new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                //update the search results box
+                String query = getSearchText().toString();
+                if (!"".equals(query)) {
+                    searchResultStatus.setText(Localization.get("select.search.status", new String[]{
+                            "" + adapter.getCount(true, false),
+                            "" + adapter.getCount(true, true),
+                            query
+                    }));
+                    searchResultStatus.setVisibility(View.VISIBLE);
+                } else {
+                    searchResultStatus.setVisibility(View.GONE);
+                }
+            }
+        };
+    }
+
+
     private void restoreSavedState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             this.mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
@@ -261,6 +283,32 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 startActivityForResult(detailIntent, CONFIRM_SELECT);
             }
         }
+    }
+
+    private void setupDivider(ListView view) {
+        boolean useNewDivider = shortSelect.usesGridView();
+
+        if (useNewDivider) {
+            int viewWidth = view.getWidth();
+            float density = getResources().getDisplayMetrics().density;
+            int viewWidthDP = (int)(viewWidth / density);
+            // sometimes viewWidth is 0, and in this case we default to a reasonable value taken from dimens.xml
+            int dividerWidth = viewWidth == 0 ? (int)getResources().getDimension(R.dimen.entity_select_divider_left_inset) : (int)(viewWidth / 6.0);
+
+            Drawable divider = getResources().getDrawable(R.drawable.divider_case_list_modern);
+
+            LayerDrawable layerDrawable = (LayerDrawable)divider;
+
+            dividerWidth += (int)getResources().getDimension(R.dimen.row_padding_horizontal);
+
+            layerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
+
+            view.setDivider(layerDrawable);
+        } else {
+            view.setDivider(null);
+        }
+
+        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
     }
 
     private void setupToolbar(ListView view) {
@@ -410,27 +458,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             // no image passed in, draw a white background
             iv.setImageDrawable(getResources().getDrawable(R.color.white));
         }
-    }
-
-    private void createDataSetObserver() {
-        mListStateObserver = new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                //update the search results box
-                String query = getSearchText().toString();
-                if (!"".equals(query)) {
-                    searchResultStatus.setText(Localization.get("select.search.status", new String[]{
-                            "" + adapter.getCount(true, false),
-                            "" + adapter.getCount(true, true),
-                            query
-                    }));
-                    searchResultStatus.setVisibility(View.VISIBLE);
-                } else {
-                    searchResultStatus.setVisibility(View.GONE);
-                }
-            }
-        };
     }
 
     @Override
@@ -977,32 +1004,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             locationChangedWhileLoading = false;
             loadEntities();
         }
-    }
-
-    private void setupDivider(ListView view) {
-        boolean useNewDivider = shortSelect.usesGridView();
-
-        if (useNewDivider) {
-            int viewWidth = view.getWidth();
-            float density = getResources().getDisplayMetrics().density;
-            int viewWidthDP = (int)(viewWidth / density);
-            // sometimes viewWidth is 0, and in this case we default to a reasonable value taken from dimens.xml
-            int dividerWidth = viewWidth == 0 ? (int)getResources().getDimension(R.dimen.entity_select_divider_left_inset) : (int)(viewWidth / 6.0);
-
-            Drawable divider = getResources().getDrawable(R.drawable.divider_case_list_modern);
-
-            LayerDrawable layerDrawable = (LayerDrawable)divider;
-
-            dividerWidth += (int)getResources().getDimension(R.dimen.row_padding_horizontal);
-
-            layerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
-
-            view.setDivider(layerDrawable);
-        } else {
-            view.setDivider(null);
-        }
-
-        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
     }
 
     private void updateSelectedItem(boolean forceMove) {
