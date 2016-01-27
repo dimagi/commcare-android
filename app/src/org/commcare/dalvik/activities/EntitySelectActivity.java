@@ -446,48 +446,53 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     protected void onResume() {
         super.onResume();
-        //Don't go through making the whole thing if we're finishing anyway.
-        if (this.isFinishing() || isStartingDetailActivity) {
-            return;
-        }
 
-        if (adapter != null) {
-            adapter.registerDataSetObserver(mListStateObserver);
-        }
+        if (!(isFinishing() || isStartingDetailActivity)) {
+            if (adapter != null) {
+                adapter.registerDataSetObserver(mListStateObserver);
+            }
 
-        if (!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
-            TreeReference entity =
-                    selectDatum.getEntityFromID(asw.getEvaluationContext(),
-                            this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
-
-            if (entity != null) {
-                if (inAwesomeMode) {
-                    if (adapter != null) {
-                        displayReferenceAwesome(entity, adapter.getPosition(entity));
-                        updateSelectedItem(entity, true);
-                    }
-                } else {
-                    //Once we've done the initial dispatch, we don't want to end up triggering it later.
-                    this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
-
-                    Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(), entity, null, selectDatum, asw);
-                    if (adapter != null) {
-                        i.putExtra("entity_detail_index", adapter.getPosition(entity));
-                        i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID,
-                                selectDatum.getShortDetail());
-                    }
-                    startActivityForResult(i, CONFIRM_SELECT);
+            if (!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
+                if (resumeSelectedEntity()) {
                     return;
                 }
             }
-        }
 
-        hereFunctionHandler.registerEvalLocationListener(this);
-        if (this.containsHereFunction) {
-            hereFunctionHandler.allowGpsUse();
-        }
+            hereFunctionHandler.registerEvalLocationListener(this);
+            if (containsHereFunction) {
+                hereFunctionHandler.allowGpsUse();
+            }
 
-        refreshView();
+            refreshView();
+        }
+    }
+
+    private boolean resumeSelectedEntity() {
+        TreeReference selectedEntity =
+                selectDatum.getEntityFromID(asw.getEvaluationContext(),
+                        this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
+
+        if (selectedEntity != null) {
+            if (inAwesomeMode) {
+                if (adapter != null) {
+                    displayReferenceAwesome(selectedEntity, adapter.getPosition(selectedEntity));
+                    updateSelectedItem(selectedEntity, true);
+                }
+            } else {
+                //Once we've done the initial dispatch, we don't want to end up triggering it later.
+                this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
+
+                Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(), selectedEntity, null, selectDatum, asw);
+                if (adapter != null) {
+                    i.putExtra("entity_detail_index", adapter.getPosition(selectedEntity));
+                    i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID,
+                            selectDatum.getShortDetail());
+                }
+                startActivityForResult(i, CONFIRM_SELECT);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
