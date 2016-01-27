@@ -174,32 +174,38 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.createDataSetObserver();
+        createDataSetObserver();
+        restoreSavedState(savedInstanceState);
+
+        if (savedInstanceState == null) {
+            hereFunctionHandler.refreshLocation();
+        }
 
         refreshTimer = new EntitySelectRefreshTimer();
+        asw = CommCareApplication._().getCurrentSessionWrapper();
+        session = asw.getSession();
 
+        // avoid session dependent when there is no command
+        if (session.getCommand() != null) {
+            selectDatum = session.getNeededDatum();
+            shortSelect = session.getDetail(selectDatum.getShortDetail());
+            mNoDetailMode = selectDatum.getLongDetail() == null;
+
+            boolean isOrientationChange = savedInstanceState != null;
+            setupUI(isOrientationChange);
+        }
+    }
+
+    private void restoreSavedState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             this.mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
             this.containsHereFunction = savedInstanceState.getBoolean(CONTAINS_HERE_FUNCTION);
             this.locationChangedWhileLoading = savedInstanceState.getBoolean(
                     LOCATION_CHANGED_WHILE_LOADING);
-        } else {
-            hereFunctionHandler.refreshLocation();
         }
+    }
 
-        asw = CommCareApplication._().getCurrentSessionWrapper();
-        session = asw.getSession();
-
-        if (session.getCommand() == null) {
-            // session ended, avoid (session dependent) setup because session
-            // management will exit the activity in onResume
-            return;
-        }
-
-        selectDatum = session.getNeededDatum();
-        shortSelect = session.getDetail(selectDatum.getShortDetail());
-        mNoDetailMode = selectDatum.getLongDetail() == null;
-
+    private void setupUI(boolean isOrientationChange) {
         if (this.getString(R.string.panes).equals("two") && !mNoDetailMode) {
             //See if we're on a big 'ol screen.
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -207,7 +213,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             } else {
                 setContentView(R.layout.entity_select_layout);
 
-                boolean isOrientationChange = savedInstanceState != null;
                 restoreExistingSelection(isOrientationChange);
             }
         } else {
