@@ -290,20 +290,19 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         if (useNewDivider) {
             int viewWidth = view.getWidth();
-            float density = getResources().getDisplayMetrics().density;
-            int viewWidthDP = (int)(viewWidth / density);
             // sometimes viewWidth is 0, and in this case we default to a reasonable value taken from dimens.xml
-            int dividerWidth = viewWidth == 0 ? (int)getResources().getDimension(R.dimen.entity_select_divider_left_inset) : (int)(viewWidth / 6.0);
-
-            Drawable divider = getResources().getDrawable(R.drawable.divider_case_list_modern);
-
-            LayerDrawable layerDrawable = (LayerDrawable)divider;
-
+            int dividerWidth;
+            if (viewWidth == 0) {
+                dividerWidth = (int)getResources().getDimension(R.dimen.entity_select_divider_left_inset);
+            } else {
+                dividerWidth = (int)(viewWidth / 6.0);
+            }
             dividerWidth += (int)getResources().getDimension(R.dimen.row_padding_horizontal);
 
-            layerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
+            LayerDrawable dividerDrawable = (LayerDrawable)getResources().getDrawable(R.drawable.divider_case_list_modern);
+            dividerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
 
-            view.setDivider(layerDrawable);
+            view.setDivider(dividerDrawable);
         } else {
             view.setDivider(null);
         }
