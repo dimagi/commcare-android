@@ -10,7 +10,6 @@ import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -543,6 +542,17 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         } catch (RuntimeException re) {
             createErrorDialog(re.getMessage(), true);
         }
+    }
+
+    public boolean loadEntities() {
+        if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
+            Log.i(TAG, "entities reloading");
+            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
+            entityLoader.attachListener(this);
+            entityLoader.execute(selectDatum.getNodeset());
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -1125,17 +1135,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
         finish();
         return true;
-    }
-
-    public boolean loadEntities() {
-        if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
-            Log.i(TAG, "entities reloading");
-            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
-            entityLoader.attachListener(this);
-            entityLoader.execute(selectDatum.getNodeset());
-            return true;
-        }
-        return false;
     }
 
     public void onEvalLocationChanged() {
