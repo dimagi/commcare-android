@@ -3,12 +3,12 @@ package org.commcare.android.view.c3;
 import android.graphics.Color;
 
 import org.commcare.android.util.InvalidStateException;
-import org.commcare.suite.model.graph.AnnotationData;
-import org.commcare.suite.model.graph.BubblePointData;
+import org.commcare.android.models.graph.AnnotationData;
+import org.commcare.android.models.graph.BubblePointData;
+import org.commcare.android.models.graph.GraphData;
+import org.commcare.android.models.graph.SeriesData;
+import org.commcare.android.models.graph.XYPointData;
 import org.commcare.suite.model.graph.Graph;
-import org.commcare.suite.model.graph.GraphData;
-import org.commcare.suite.model.graph.SeriesData;
-import org.commcare.suite.model.graph.XYPointData;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

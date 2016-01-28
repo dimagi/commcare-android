@@ -1,5 +1,11 @@
 package org.commcare.suite.model.graph;
 
+import org.commcare.android.models.graph.AnnotationData;
+import org.commcare.android.models.graph.BubblePointData;
+import org.commcare.android.models.graph.ConfigurableData;
+import org.commcare.android.models.graph.GraphData;
+import org.commcare.android.models.graph.SeriesData;
+import org.commcare.android.models.graph.XYPointData;
 import org.commcare.suite.model.DetailTemplate;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;

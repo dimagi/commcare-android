@@ -18,6 +18,7 @@ import android.widget.TextView;
 
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
+import org.commcare.android.models.graph.GraphData;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.InvalidStateException;
@@ -25,7 +26,6 @@ import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.graph.GraphData;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
