@@ -1,7 +1,5 @@
 package org.commcare.graph.model;
 
-import org.commcare.graph.model.XYPointData;
-
 import java.util.Hashtable;
 import java.util.Vector;
 
