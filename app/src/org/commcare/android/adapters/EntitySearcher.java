@@ -54,7 +54,7 @@ public class EntitySearcher {
         this.searchTerms = searchTerms;
     }
 
-    public void startThread() {
+    public void start() {
         thread = new Thread(new Runnable() {
             @Override
             public void run() {

@@ -10,8 +10,6 @@ import android.widget.ListAdapter;
 import org.commcare.android.models.AsyncNodeEntityFactory;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.models.notifications.NotificationMessageFactory;
-import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.CachingAsyncImageLoader;
 import org.commcare.android.util.StringUtils;
@@ -19,17 +17,11 @@ import org.commcare.android.view.EntityView;
 import org.commcare.android.view.GridEntityView;
 import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.DetailField;
-import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.xpath.XPathTypeMismatchException;
-import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -62,8 +54,6 @@ public class EntityListAdapter implements ListAdapter {
 
     private TreeReference selected;
 
-    private boolean hasWarned;
-
     private int[] currentSort = {};
     private boolean reverseSort = false;
 
@@ -72,7 +62,7 @@ public class EntityListAdapter implements ListAdapter {
 
     private String[] currentSearchTerms;
 
-    private EntitySearcher mCurrentSortThread = null;
+    private EntitySearcher entitySearcher = null;
     private final Object mSyncLock = new Object();
 
     private final CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
@@ -136,15 +126,15 @@ public class EntityListAdapter implements ListAdapter {
 
     private void filterValues(String filterRaw) {
         synchronized (mSyncLock) {
-            if (mCurrentSortThread != null) {
-                mCurrentSortThread.finish();
+            if (entitySearcher != null) {
+                entitySearcher.finish();
             }
             String[] searchTerms = filterRaw.split("\\s+");
             for (int i = 0; i < searchTerms.length; ++i) {
                 searchTerms[i] = StringUtils.normalize(searchTerms[i]);
             }
-            mCurrentSortThread = new EntitySearcher(this, filterRaw, searchTerms, mAsyncMode, mFuzzySearchEnabled, mNodeFactory, full, context);
-            mCurrentSortThread.startThread();
+            entitySearcher = new EntitySearcher(this, filterRaw, searchTerms, mAsyncMode, mFuzzySearchEnabled, mNodeFactory, full, context);
+            entitySearcher.start();
         }
     }
 
@@ -155,104 +145,9 @@ public class EntityListAdapter implements ListAdapter {
 
     private void sort(int[] fields, boolean reverse) {
         this.reverseSort = reverse;
-
-        hasWarned = false;
-
         currentSort = fields;
 
-        java.util.Collections.sort(full, new Comparator<Entity<TreeReference>>() {
-
-            @Override
-            public int compare(Entity<TreeReference> object1, Entity<TreeReference> object2) {
-                for (int aCurrentSort : currentSort) {
-                    boolean reverseLocal = (detail.getFields()[aCurrentSort].getSortDirection() == DetailField.DIRECTION_DESCENDING) ^ reverseSort;
-                    int cmp = (reverseLocal ? -1 : 1) * getCmp(object1, object2, aCurrentSort);
-                    if (cmp != 0) {
-                        return cmp;
-                    }
-                }
-                return 0;
-            }
-
-            private int getCmp(Entity<TreeReference> object1, Entity<TreeReference> object2, int index) {
-
-                int sortType = detail.getFields()[index].getSortType();
-
-                String a1 = object1.getSortField(index);
-                String a2 = object2.getSortField(index);
-
-                // COMMCARE-161205: Problem with search functionality
-                // If one of these is null, we need to get the field in the same index, not the field in SortType
-                if (a1 == null) {
-                    a1 = object1.getFieldString(index);
-                }
-                if (a2 == null) {
-                    a2 = object2.getFieldString(index);
-                }
-
-                //TODO: We might want to make this behavior configurable (Blanks go first, blanks go last, etc);
-                //For now, regardless of typing, blanks are always smaller than non-blanks
-                if (a1.equals("")) {
-                    if (a2.equals("")) {
-                        return 0;
-                    } else {
-                        return -1;
-                    }
-                } else if (a2.equals("")) {
-                    return 1;
-                }
-
-                Comparable c1 = applyType(sortType, a1);
-                Comparable c2 = applyType(sortType, a2);
-
-                if (c1 == null || c2 == null) {
-                    //Don't do something smart here, just bail.
-                    return -1;
-                }
-
-                return c1.compareTo(c2);
-            }
-
-            private Comparable applyType(int sortType, String value) {
-                try {
-                    if (sortType == Constants.DATATYPE_TEXT) {
-                        return value.toLowerCase();
-                    } else if (sortType == Constants.DATATYPE_INTEGER) {
-                        //Double int compares just fine here and also
-                        //deals with NaN's appropriately
-
-                        double ret = XPathFuncExpr.toInt(value);
-                        if (Double.isNaN(ret)) {
-                            String[] stringArgs = new String[3];
-                            stringArgs[2] = value;
-                            if (!hasWarned) {
-                                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Bad_Case_Filter, stringArgs));
-                                hasWarned = true;
-                            }
-                        }
-                        return ret;
-                    } else if (sortType == Constants.DATATYPE_DECIMAL) {
-                        double ret = XPathFuncExpr.toDouble(value);
-                        if (Double.isNaN(ret)) {
-
-                            String[] stringArgs = new String[3];
-                            stringArgs[2] = value;
-                            if (!hasWarned) {
-                                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Bad_Case_Filter, stringArgs));
-                                hasWarned = true;
-                            }
-                        }
-                        return ret;
-                    } else {
-                        //Hrmmmm :/ Handle better?
-                        return value;
-                    }
-                } catch (XPathTypeMismatchException e) {
-                    //So right now this will fail 100% silently, which is bad.
-                    return null;
-                }
-            }
-        });
+        java.util.Collections.sort(full, new EntitySorter(detail.getFields(), reverseSort, currentSort));
     }
 
     @Override
@@ -427,8 +322,8 @@ public class EntityListAdapter implements ListAdapter {
      */
     public void signalKilled() {
         synchronized (mSyncLock) {
-            if (mCurrentSortThread != null) {
-                mCurrentSortThread.finish();
+            if (entitySearcher != null) {
+                entitySearcher.finish();
             }
         }
     }
