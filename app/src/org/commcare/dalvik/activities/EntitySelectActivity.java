@@ -948,9 +948,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    public void deliverResult(List<Entity<TreeReference>> entities,
-                              List<TreeReference> references,
-                              NodeEntityFactory factory) {
+    public void deliverLoadResult(List<Entity<TreeReference>> entities,
+                                  List<TreeReference> references,
+                                  NodeEntityFactory factory) {
         loader = null;
         Detail detail = session.getDetail(selectDatum.getShortDetail());
         int[] order = detail.getSortOrder();
@@ -1026,7 +1026,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    public void attach(EntityLoaderTask task) {
+    public void attachLoader(EntityLoaderTask task) {
         findViewById(R.id.entity_select_loading).setVisibility(View.VISIBLE);
         this.loader = task;
     }
@@ -1107,7 +1107,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    public void deliverError(Exception e) {
+    public void deliverLoadError(Exception e) {
         displayException(e);
     }
 
