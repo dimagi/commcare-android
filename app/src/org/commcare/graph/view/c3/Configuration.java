@@ -1,7 +1,7 @@
 package org.commcare.graph.view.c3;
 
-import org.commcare.android.util.InvalidStateException;
 import org.commcare.graph.model.GraphData;
+import org.commcare.graph.util.GraphException;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.util.OrderedHashtable;
 import org.json.JSONObject;
@@ -47,9 +47,9 @@ public class Configuration {
      * @param description Something to identify the kind of value, used to augment any error message.
      * @return String of format YYYY-MM-DD HH:MM:SS, which is what C3 expects.
      * This expected format is set in DataConfiguration as xFormat.
-     * @throws InvalidStateException
+     * @throws GraphException
      */
-    String parseTime(String value, String description) throws InvalidStateException {
+    String parseTime(String value, String description) throws GraphException {
         if (value.matches(".*[^0-9.].*")) {
             if (!value.matches(".*:.*")) {
                 value += " 00:00:00";
@@ -67,15 +67,15 @@ public class Configuration {
      *
      * @param description Something to identify the kind of value, used to augment any error message.
      */
-    double parseDouble(String value, String description) throws InvalidStateException {
+    double parseDouble(String value, String description) throws GraphException {
         try {
             Double numeric = Double.valueOf(value);
             if (numeric.isNaN()) {
-                throw new InvalidStateException("Could not understand '" + value + "' in " + description);
+                throw new GraphException("Could not understand '" + value + "' in " + description);
             }
             return numeric;
         } catch (NumberFormatException nfe) {
-            throw new InvalidStateException("Could not understand '" + value + "' in " + description);
+            throw new GraphException("Could not understand '" + value + "' in " + description);
         }
     }
 }

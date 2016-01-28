@@ -11,7 +11,7 @@ import android.widget.LinearLayout;
 
 import org.commcare.dalvik.activities.CommCareGraphActivity;
 import org.commcare.graph.model.GraphData;
-import org.commcare.android.util.InvalidStateException;
+import org.commcare.graph.util.GraphException;
 import org.commcare.graph.view.c3.AxisConfiguration;
 import org.commcare.graph.view.c3.DataConfiguration;
 import org.commcare.graph.view.c3.GridConfiguration;
@@ -85,7 +85,7 @@ public class GraphView {
      * @param graphData The data to render.
      * @return Full HTML page, including head, body, and all script and style tags
      */
-    public String getHTML(GraphData graphData) throws InvalidStateException {
+    public String getHTML(GraphData graphData) throws GraphException {
         mData = graphData;
         OrderedHashtable<String, String> variables = new OrderedHashtable<>();
         JSONObject config = new JSONObject();

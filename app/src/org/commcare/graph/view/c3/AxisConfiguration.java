@@ -1,9 +1,10 @@
 package org.commcare.graph.view.c3;
 
-import org.commcare.android.util.InvalidStateException;
-import org.commcare.suite.model.graph.Graph;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.model.SeriesData;
+import org.commcare.graph.util.GraphException;
+import org.commcare.graph.util.GraphUtil;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,14 +17,14 @@ import java.util.Iterator;
  * Created by jschweers on 11/16/2015.
  */
 public class AxisConfiguration extends Configuration {
-    public AxisConfiguration(GraphData data) throws JSONException, InvalidStateException {
+    public AxisConfiguration(GraphData data) throws GraphException, JSONException {
         super(data);
 
         JSONObject x = getAxis("x");
         JSONObject y = getAxis("y");
         JSONObject y2 = getAxis("secondary-y");
 
-        if (mData.getType().equals(Graph.TYPE_TIME)) {
+        if (mData.getType().equals(GraphUtil.TYPE_TIME)) {
             x.put("type", "timeseries");
         }
 
@@ -32,7 +33,7 @@ public class AxisConfiguration extends Configuration {
         mConfiguration.put("y2", y2);
 
         // Bar graphs may be rotated. C3 defaults to vertical bars.
-        if (mData.getType().equals(Graph.TYPE_BAR)
+        if (mData.getType().equals(GraphUtil.TYPE_BAR)
                 && !mData.getConfiguration("bar-orientation", "horizontal").equalsIgnoreCase("vertical")) {
             mConfiguration.put("rotated", true);
         }
@@ -44,7 +45,7 @@ public class AxisConfiguration extends Configuration {
      * @param axis   Current axis configuration. Will be modified.
      * @param prefix Prefix for commcare model's configuration: "x", "y", or "secondary-y"
      */
-    private void addBounds(JSONObject axis, String prefix) throws InvalidStateException, JSONException {
+    private void addBounds(JSONObject axis, String prefix) throws GraphException, JSONException {
         addBound(axis, prefix, "min");
         addBound(axis, prefix, "max");
     }
@@ -56,11 +57,11 @@ public class AxisConfiguration extends Configuration {
      * @param prefix Prefix for commcare model's configuration: "x", "y", or "secondary-y"
      * @param suffix "min" or "max"
      */
-    private void addBound(JSONObject axis, String prefix, String suffix) throws JSONException, InvalidStateException {
+    private void addBound(JSONObject axis, String prefix, String suffix) throws GraphException, JSONException {
         String key = prefix + "-" + suffix;
         String value = mData.getConfiguration(key);
         if (value != null) {
-            if (prefix.equals("x") && mData.getType().equals(Graph.TYPE_TIME)) {
+            if (prefix.equals("x") && mData.getType().equals(GraphUtil.TYPE_TIME)) {
                 axis.put(suffix, parseTime(value, key));
             } else {
                 axis.put(suffix, parseDouble(value, key));
@@ -77,7 +78,7 @@ public class AxisConfiguration extends Configuration {
      * @param varName If the axis uses a hash of labels (position => label), a variable
      *                will be created with this name to store those labels.
      */
-    private void addTickConfig(JSONObject axis, String key, String varName) throws InvalidStateException, JSONException {
+    private void addTickConfig(JSONObject axis, String key, String varName) throws GraphException, JSONException {
         // The labels configuration might be a JSON array of numbers,
         // a JSON object of number => string, or a single number
         String labelString = mData.getConfiguration(key);
@@ -92,7 +93,7 @@ public class AxisConfiguration extends Configuration {
                 JSONArray values = new JSONArray();
                 for (int i = 0; i < labels.length(); i++) {
                     String xValue = labels.getString(i);
-                    if (mData.getType().equals(Graph.TYPE_TIME)) {
+                    if (mData.getType().equals(GraphUtil.TYPE_TIME)) {
                         values.put(parseTime(xValue, key));
                     } else {
                         values.put(parseDouble(xValue, key));
@@ -110,7 +111,7 @@ public class AxisConfiguration extends Configuration {
                     Iterator i = labels.keys();
                     while (i.hasNext()) {
                         String location = (String)i.next();
-                        if (mData.getType().equals(Graph.TYPE_TIME)) {
+                        if (mData.getType().equals(GraphUtil.TYPE_TIME)) {
                             values.put(parseTime(location, key));
                         } else {
                             values.put(parseDouble(location, key));
@@ -127,7 +128,7 @@ public class AxisConfiguration extends Configuration {
             }
         }
 
-        if (key.startsWith("x") && !usingCustomText && mData.getType().equals(Graph.TYPE_TIME)) {
+        if (key.startsWith("x") && !usingCustomText && mData.getType().equals(GraphUtil.TYPE_TIME)) {
             tick.put("format", mData.getConfiguration("x-labels-time-format", "%Y-%m-%d"));
         }
 
@@ -178,7 +179,7 @@ public class AxisConfiguration extends Configuration {
      * @param prefix Prefix for commcare model's configuration: "x", "y", or "secondary-y"
      * @return JSONObject representing the axis's configuration
      */
-    private JSONObject getAxis(String prefix) throws JSONException, InvalidStateException {
+    private JSONObject getAxis(String prefix) throws GraphException, JSONException {
         final boolean showAxes = Boolean.valueOf(mData.getConfiguration("show-axes", "true"));
         if (!showAxes) {
             return new JSONObject("{ show: false }");

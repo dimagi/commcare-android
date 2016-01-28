@@ -6,6 +6,7 @@ import org.commcare.graph.model.ConfigurableData;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.model.SeriesData;
 import org.commcare.graph.model.XYPointData;
+import org.commcare.graph.util.GraphUtil;
 import org.commcare.suite.model.DetailTemplate;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -32,11 +33,6 @@ import java.util.Vector;
  * @author jschweers
  */
 public class Graph implements Externalizable, DetailTemplate, Configurable {
-    public static final String TYPE_XY = "xy";
-    public static final String TYPE_BAR = "bar";
-    public static final String TYPE_BUBBLE = "bubble";
-    public static final String TYPE_TIME = "time";
-
     private String mType;
     private Vector<XYSeries> mSeries;
     private Hashtable<String, Text> mConfiguration;
@@ -180,7 +176,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                     String x = s.evaluateX(refContext);
                     String y = s.evaluateY(refContext);
                     if (x != null && y != null) {
-                        if (graphData.getType().equals(Graph.TYPE_BUBBLE)) {
+                        if (graphData.getType().equals(GraphUtil.TYPE_BUBBLE)) {
                             String radius = ((BubbleSeries)s).evaluateRadius(refContext);
                             seriesData.addPoint(new BubblePointData(x, y, radius));
                         } else {

@@ -20,10 +20,10 @@ import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.Entity;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.graph.model.GraphData;
+import org.commcare.graph.util.GraphException;
 import org.commcare.graph.view.GraphView;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
@@ -257,11 +257,11 @@ public class EntityDetailView extends FrameLayout {
                     // and happened to look nice for partographs. Expect to revisit
                     // this eventually (make all graphs square? user-configured aspect ratio?).
                     graphLayout.setRatio(2, 1);
-                } catch (InvalidStateException ise) {
+                } catch (GraphException ex) {
                     graphView = new TextView(context);
                     int padding = (int)context.getResources().getDimension(R.dimen.spacer_small);
                     graphView.setPadding(padding, padding, padding, padding);
-                    ((TextView)graphView).setText(ise.getMessage());
+                    ((TextView)graphView).setText(ex.getMessage());
                     graphsWithErrors.add(index);
                 }
                 graphViewsCache.get(index).put(orientation, graphView);
@@ -277,7 +277,7 @@ public class EntityDetailView extends FrameLayout {
                     }
                     graphIntent = g.getIntent(graphHTML);
                     graphIntentsCache.put(index, graphIntent);
-                } catch (InvalidStateException ise) {
+                } catch (GraphException ex) {
                     // This shouldn't happen, since any error should have been caught during getView above
                     graphsWithErrors.add(index);
                 }

@@ -1,5 +1,6 @@
 package org.commcare.xml;
 
+import org.commcare.graph.util.GraphUtil;
 import org.commcare.suite.model.Text;
 import org.commcare.suite.model.graph.Annotation;
 import org.commcare.suite.model.graph.BubbleSeries;
@@ -108,7 +109,7 @@ public class AndroidGraphParser extends GraphParser {
     private XYSeries parseSeries(String type) throws InvalidStructureException, IOException, XmlPullParserException {
         checkNode("series");
         String nodeSet = parser.getAttributeValue(null, "nodeset");
-        XYSeries series = type.equals(Graph.TYPE_BUBBLE) ? new BubbleSeries(nodeSet) : new XYSeries(nodeSet);
+        XYSeries series = type.equals(GraphUtil.TYPE_BUBBLE) ? new BubbleSeries(nodeSet) : new XYSeries(nodeSet);
 
         nextStartTag();
         if (parser.getName().equals("configuration")) {
@@ -122,7 +123,7 @@ public class AndroidGraphParser extends GraphParser {
         nextStartTag();
         series.setY(parseFunction("y"));
 
-        if (type.equals(Graph.TYPE_BUBBLE)) {
+        if (type.equals(GraphUtil.TYPE_BUBBLE)) {
             nextStartTag();
             checkNode("radius");
             ((BubbleSeries)series).setRadius(parseFunction("radius"));
