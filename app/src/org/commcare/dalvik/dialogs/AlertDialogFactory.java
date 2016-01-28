@@ -26,9 +26,9 @@ public class AlertDialogFactory {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         view = LayoutInflater.from(context).inflate(R.layout.custom_alert_dialog, null);
 
-        TextView titleView = (TextView) view.findViewById(R.id.dialog_title).findViewById(R.id.dialog_title_text);
+        TextView titleView = (TextView)view.findViewById(R.id.dialog_title).findViewById(R.id.dialog_title_text);
         titleView.setText(title);
-        TextView messageView = (TextView) view.findViewById(R.id.dialog_message);
+        TextView messageView = (TextView)view.findViewById(R.id.dialog_message);
         messageView.setText(msg);
 
         this.dialog = builder.create();
@@ -36,14 +36,14 @@ public class AlertDialogFactory {
     }
 
     /**
-     * A shortcut method that will generate and show an alert dialog in one method call; to be
-     * used for dialogs that have a title, message, and one button with display text "OK"
+     * A shortcut method that will generate an alert dialog in one method call; to be used for
+     * dialogs that have a title, message, and one button with display text "OK"
      *
      * @param positiveButtonListener - the onClickListener to apply to the positive button. If
-     *                          null, applies a default listener of just dismissing the dialog
+     *                               null, applies a default listener of just dismissing the dialog
      */
     public static AlertDialogFactory getBasicAlertFactory(Context context, String title, String msg,
-                                            DialogInterface.OnClickListener positiveButtonListener) {
+                                                          DialogInterface.OnClickListener positiveButtonListener) {
         AlertDialogFactory factory = new AlertDialogFactory(context, title, msg);
         if (positiveButtonListener == null) {
             positiveButtonListener = new DialogInterface.OnClickListener() {
@@ -62,12 +62,12 @@ public class AlertDialogFactory {
      * used for dialogs that have a title, message, an icon to be displayed to the left of the
      * title, and one button with display text "OK"
      *
-     * @param iconResId - the id of the icon to be displayed
+     * @param iconResId              - the id of the icon to be displayed
      * @param positiveButtonListener - the onClickListener to apply to the positive button. If
-     *                          null, applies a default listener of just dismissing the dialog
+     *                               null, applies a default listener of just dismissing the dialog
      */
     public static AlertDialogFactory getBasicAlertFactoryWithIcon(Context context, String title, String msg, int iconResId,
-                                              DialogInterface.OnClickListener positiveButtonListener) {
+                                                                  DialogInterface.OnClickListener positiveButtonListener) {
         AlertDialogFactory factory = new AlertDialogFactory(context, title, msg);
         if (positiveButtonListener == null) {
             positiveButtonListener = new DialogInterface.OnClickListener() {
@@ -92,11 +92,11 @@ public class AlertDialogFactory {
         dialog.show();
     }
 
-    public void finalizeView() {
+    private void finalizeView() {
         dialog.setView(this.view);
     }
 
-    public void makeCancelable() {
+    private void makeCancelable() {
         isCancelable = true;
         dialog.setCancelable(true);
     }
@@ -114,13 +114,13 @@ public class AlertDialogFactory {
     }
 
     public void setIcon(int resId) {
-        ImageView icon = (ImageView) view.findViewById(R.id.dialog_title).findViewById(R.id.dialog_title_icon);
+        ImageView icon = (ImageView)view.findViewById(R.id.dialog_title).findViewById(R.id.dialog_title_icon);
         icon.setImageResource(resId);
         icon.setVisibility(View.VISIBLE);
     }
 
     public void setPositiveButton(CharSequence displayText, final DialogInterface.OnClickListener buttonListener) {
-        Button positiveButton = (Button) this.view.findViewById(R.id.positive_button);
+        Button positiveButton = (Button)this.view.findViewById(R.id.positive_button);
         positiveButton.setText(displayText);
         positiveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -132,7 +132,7 @@ public class AlertDialogFactory {
     }
 
     public void setNegativeButton(CharSequence displayText, final DialogInterface.OnClickListener buttonListener) {
-        Button negativeButton = (Button) this.view.findViewById(R.id.negative_button);
+        Button negativeButton = (Button)this.view.findViewById(R.id.negative_button);
         negativeButton.setText(displayText);
         negativeButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -144,7 +144,7 @@ public class AlertDialogFactory {
     }
 
     public void setNeutralButton(CharSequence displayText, final DialogInterface.OnClickListener buttonListener) {
-        Button neutralButton = (Button) this.view.findViewById(R.id.neutral_button);
+        Button neutralButton = (Button)this.view.findViewById(R.id.neutral_button);
         neutralButton.setText(displayText);
         neutralButton.setOnClickListener(new View.OnClickListener() {
             @Override

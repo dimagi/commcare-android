@@ -1,25 +1,8 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.commcare.android.util;
-
 
 /**
  * Calculates the direction of a gesture/fling. Used by {@link GestureDetector}
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  */
 public class GestureDirection {
@@ -30,8 +13,8 @@ public class GestureDirection {
 
     private final static int MAX_DISTANCE = 40;
 
-    private float mStartX;
-    private float mStartY;
+    private final float mStartX;
+    private final float mStartY;
 
     private float mEndX;
     private float mEndY;

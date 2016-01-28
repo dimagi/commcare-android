@@ -14,6 +14,7 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.ReflectionUtil;
 import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
@@ -42,9 +43,9 @@ import javax.crypto.spec.SecretKeySpec;
 public abstract class ZipTask extends CommCareTask<String, String, FormRecord[], CommCareWiFiDirectActivity> {
     private static final String TAG = ZipTask.class.getSimpleName();
 
-    Context c;
-    Long[] results;
-    File dumpFolder;
+    private Context c;
+    private Long[] results;
+    private File dumpFolder;
 
     public static final int ZIP_TASK_ID = 72135;
 
@@ -212,10 +213,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
         sourceDirectory.mkdirs();
 
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
-
-        //Get all forms which are either unsent or unprocessed
-        Vector<Integer> ids = storage.getIDsForValues(new String[]{FormRecord.META_STATUS}, new Object[]{FormRecord.STATUS_UNSENT});
-        ids.addAll(storage.getIDsForValues(new String[]{FormRecord.META_STATUS}, new Object[]{FormRecord.STATUS_COMPLETE}));
+        Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
 
         if (ids.size() > 0) {
             FormRecord[] records = new FormRecord[ids.size()];

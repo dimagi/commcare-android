@@ -1,27 +1,158 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content" android:orientation="vertical">
-<TextView android:layout_height="wrap_content" android:textAppearance="?android:attr/textAppearanceMedium" android:text="AM Doses" android:layout_width="fill_parent" android:layout_marginLeft="10px" android:id="@+id/text_time"></TextView><View android:id="@+id/View01" android:background="@drawable/dots_dose_border" android:layout_width="fill_parent" android:layout_marginLeft="10px" android:layout_height="2px"></View><TextView android:id="@+id/TextView02" android:layout_height="wrap_content" android:text="Doses Taken" android:layout_width="fill_parent" android:gravity="center_horizontal"></TextView><TableLayout android:id="@+id/TableLayout01" android:layout_height="wrap_content" android:layout_width="fill_parent" android:stretchColumns="0,1" android:shrinkColumns="0,1" android:layout_marginBottom="4px" android:layout_marginLeft="4px" android:layout_marginRight="4px" android:layout_marginTop="4px"><TableRow android:id="@+id/TableRow02" android:layout_height="wrap_content" android:layout_width="fill_parent"><ToggleButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/radio_all" android:textOn="All" android:textOff="All" android:layout_marginRight="2px" android:layout_marginBottom="2px"></ToggleButton>
-<ToggleButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/radio_some" android:textOff="Some" android:textOn="Some" android:layout_marginBottom="2px" android:layout_marginLeft="2px"></ToggleButton>
-</TableRow><TableRow android:id="@+id/TableRow01" android:layout_height="wrap_content" android:layout_width="fill_parent">
-<ToggleButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:id="@+id/radio_none" android:textOff="None" android:textOn="None" android:layout_marginRight="2px" android:layout_marginTop="2px"></ToggleButton>
-<ToggleButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:textOff="Unknown" android:textOn="Unknown" android:layout_marginTop="2px" android:layout_marginLeft="2px" android:id="@+id/radio_unchecked"></ToggleButton>
-</TableRow>
-</TableLayout><LinearLayout android:layout_height="wrap_content" android:orientation="vertical" android:id="@+id/missed_details" android:layout_width="fill_parent" android:visibility="gone"><TextView android:id="@+id/TextView01" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Medicines w/Missed Doses"></TextView><EditText android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/text_missed"></EditText></LinearLayout>
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="AM Doses"
+        android:layout_width="fill_parent"
+        android:layout_marginLeft="10px"
+        android:id="@+id/text_time"></TextView>
+
+    <View
+        android:id="@+id/View01"
+        android:background="@drawable/dots_dose_border"
+        android:layout_width="fill_parent"
+        android:layout_marginLeft="10px"
+        android:layout_height="2px"></View>
+
+    <TextView
+        android:id="@+id/TextView02"
+        android:layout_height="wrap_content"
+        android:text="Doses Taken"
+        android:layout_width="fill_parent"
+        android:gravity="center_horizontal"></TextView>
+
+    <TableLayout
+        android:id="@+id/TableLayout01"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:stretchColumns="0,1"
+        android:shrinkColumns="0,1"
+        android:layout_marginBottom="4px"
+        android:layout_marginLeft="4px"
+        android:layout_marginRight="4px"
+        android:layout_marginTop="4px">
+
+        <TableRow
+            android:id="@+id/TableRow02"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent">
+
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/radio_all"
+                android:textOn="All"
+                android:textOff="All"
+                android:layout_marginRight="2px"
+                android:layout_marginBottom="2px"></ToggleButton>
+
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/radio_some"
+                android:textOff="Some"
+                android:textOn="Some"
+                android:layout_marginBottom="2px"
+                android:layout_marginLeft="2px"></ToggleButton>
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/TableRow01"
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent">
+
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/radio_none"
+                android:textOff="None"
+                android:textOn="None"
+                android:layout_marginRight="2px"
+                android:layout_marginTop="2px"></ToggleButton>
+
+            <ToggleButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOff="Unknown"
+                android:textOn="Unknown"
+                android:layout_marginTop="2px"
+                android:layout_marginLeft="2px"
+                android:id="@+id/radio_unchecked"></ToggleButton>
+        </TableRow>
+    </TableLayout>
+
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/missed_details"
+        android:layout_width="fill_parent"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/TextView01"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Medicines w/Missed Doses"></TextView>
+
+        <EditText
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:id="@+id/text_missed"></EditText>
+    </LinearLayout>
 
 
+    <TextView
+        android:id="@+id/TextView03"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:gravity="center_horizontal"
+        android:text="Observation Type"></TextView>
 
+    <LinearLayout
+        android:id="@+id/LinearLayout01"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent">
 
+        <ToggleButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Self"
+            android:textOff="Direct"
+            android:layout_weight="1"
+            android:id="@+id/tbt_direct"
+            android:textOn="Directly Observed"></ToggleButton>
 
+        <ToggleButton
+            android:text="@+id/ToggleButton02"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textOff="Pillbox"
+            android:textOn="Pillbox Check"
+            android:id="@+id/tbt_pillbox"></ToggleButton>
 
-<TextView android:id="@+id/TextView03" android:layout_height="wrap_content" android:layout_width="fill_parent" android:gravity="center_horizontal" android:text="Observation Type"></TextView><LinearLayout android:id="@+id/LinearLayout01" android:layout_height="wrap_content" android:layout_width="fill_parent">
-<ToggleButton android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Self" android:textOff="Direct" android:layout_weight="1" android:id="@+id/tbt_direct" android:textOn="Directly Observed"></ToggleButton>
-<ToggleButton android:text="@+id/ToggleButton02" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_weight="1" android:textOff="Pillbox" android:textOn="Pillbox Check" android:id="@+id/tbt_pillbox"></ToggleButton>
-<ToggleButton android:text="@+id/ToggleButton03" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textOff="Self" android:layout_weight="1" android:id="@+id/tbt_self" android:textOn="Self Report"></ToggleButton>
-</LinearLayout><CheckBox android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Dose was Self Reported" android:id="@+id/cbx_self_reported" android:visibility="gone"></CheckBox>
+        <ToggleButton
+            android:text="@+id/ToggleButton03"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="Self"
+            android:layout_weight="1"
+            android:id="@+id/tbt_self"
+            android:textOn="Self Report"></ToggleButton>
+    </LinearLayout>
 
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dose was Self Reported"
+        android:id="@+id/cbx_self_reported"
+        android:visibility="gone"></CheckBox>
 
 
 </LinearLayout>

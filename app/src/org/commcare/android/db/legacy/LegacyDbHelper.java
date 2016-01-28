@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.db.legacy;
 
 import android.content.ContentValues;
@@ -12,6 +9,7 @@ import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.util.Base64;
+import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
@@ -33,7 +31,7 @@ import javax.crypto.CipherOutputStream;
  */
 public abstract class LegacyDbHelper {
 
-    protected final Context c;
+    private final Context c;
     private Cipher encrypter;
     //private Hashtable<String, EncryptedModel> encryptedModels;
 
@@ -52,7 +50,7 @@ public abstract class LegacyDbHelper {
     public Pair<String, String[]> createWhere(String[] fieldNames, Object[] values, EncryptedModel em, Persistable p) throws IllegalArgumentException {
         Set<String> fields = null;
         if (p instanceof IMetaData) {
-            IMetaData m = (IMetaData) p;
+            IMetaData m = (IMetaData)p;
             String[] thefields = m.getMetaDataFields();
             fields = new HashSet<>();
             for (String s : thefields) {
@@ -61,7 +59,7 @@ public abstract class LegacyDbHelper {
         }
 
         if (em instanceof IMetaData) {
-            IMetaData m = (IMetaData) em;
+            IMetaData m = (IMetaData)em;
             String[] thefields = m.getMetaDataFields();
             fields = new HashSet<>();
             for (String s : thefields) {
@@ -106,7 +104,7 @@ public abstract class LegacyDbHelper {
         OutputStream out = bos;
 
 
-        if (encrypt && ((EncryptedModel) e).isBlobEncrypted()) {
+        if (encrypt && ((EncryptedModel)e).isBlobEncrypted()) {
             out = new CipherOutputStream(bos, encrypter);
         }
 
@@ -122,14 +120,14 @@ public abstract class LegacyDbHelper {
         ContentValues values = new ContentValues();
 
         if (e instanceof IMetaData) {
-            IMetaData m = (IMetaData) e;
+            IMetaData m = (IMetaData)e;
             for (String key : m.getMetaDataFields()) {
                 Object o = m.getMetaData(key);
                 if (o == null) {
                     continue;
                 }
                 String value = o.toString();
-                if(encrypt && ((EncryptedModel)e).isEncrypted(key)) {
+                if (encrypt && ((EncryptedModel)e).isEncrypted(key)) {
                     values.put(AndroidTableBuilder.scrubName(key), encrypt(value));
                 } else {
                     values.put(LegacyTableBuilder.scrubName(key), value);
@@ -137,7 +135,7 @@ public abstract class LegacyDbHelper {
             }
         }
 
-        values.put(DbUtil.DATA_COL, blob);
+        values.put(DatabaseHelper.DATA_COL, blob);
 
         return values;
     }

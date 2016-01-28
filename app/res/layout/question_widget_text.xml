@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:scrollHorizontally="false"
-    android:text="QuestionWidget placeholder text: there should be a really big question text here, greater than the screen&apos;s size" >
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:scrollHorizontally="false"
+          android:text="QuestionWidget placeholder text: there should be a really big question text here, greater than the screen&apos;s size">
 
 </TextView>

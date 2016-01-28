@@ -1,7 +1,6 @@
 package org.commcare.android.framework;
 
 import android.annotation.SuppressLint;
-import android.app.ProgressDialog;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
@@ -23,8 +22,7 @@ import org.commcare.dalvik.R;
 public class DeviceDetailFragment extends Fragment implements ConnectionInfoListener {
     private static final String TAG = DeviceDetailFragment.class.getSimpleName();
     private View mContentView = null;
-    ProgressDialog progressDialog = null;
-    
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mContentView = inflater.inflate(R.layout.device_detail, container);
@@ -34,21 +32,18 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
     @Override
     public void onConnectionInfoAvailable(final WifiP2pInfo info) {
         Log.d(TAG, "onConnectionInfoAvailable");
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
-        }
         this.getView().setVisibility(View.VISIBLE);
     }
 
     /**
      * Updates the UI with device data
-     * 
-     * @param device the device to be displayed 
+     *
+     * @param device the device to be displayed
      */
     public void showDetails(WifiP2pDevice device) {
-        Log.d(TAG, "showing details in ddfragment with device: " +device.deviceAddress );
+        Log.d(TAG, "showing details in ddfragment with device: " + device.deviceAddress);
         this.getView().setVisibility(View.VISIBLE);
-        TextView view = (TextView) mContentView.findViewById(R.id.device_address);
+        TextView view = (TextView)mContentView.findViewById(R.id.device_address);
         view.setText(device.deviceAddress);
     }
 
@@ -57,9 +52,9 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
      */
     public void resetViews() {
         Log.d(TAG, "resetting views");
-        TextView view = (TextView) mContentView.findViewById(R.id.device_address);
+        TextView view = (TextView)mContentView.findViewById(R.id.device_address);
         view.setText("");
-        view = (TextView) mContentView.findViewById(R.id.status_text);
+        view = (TextView)mContentView.findViewById(R.id.status_text);
         view.setText("");
     }
 }

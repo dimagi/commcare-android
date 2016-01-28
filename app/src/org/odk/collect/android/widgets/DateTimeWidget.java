@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.widgets;
 
 import android.content.Context;
@@ -33,16 +19,15 @@ import java.util.Date;
 /**
  * Displays a DatePicker widget. DateWidget handles leap years and does not allow dates that do not
  * exist.
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListener {
 
-    private DatePicker mDatePicker;
-    private TimePicker mTimePicker;
-    private DatePicker.OnDateChangedListener mDateListener;
-
+    private final DatePicker mDatePicker;
+    private final TimePicker mTimePicker;
+    private final DatePicker.OnDateChangedListener mDateListener;
 
     public DateTimeWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
@@ -62,8 +47,8 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
         }
 
         String clockType =
-            android.provider.Settings.System.getString(context.getContentResolver(),
-                android.provider.Settings.System.TIME_12_24);
+                android.provider.Settings.System.getString(context.getContentResolver(),
+                        android.provider.Settings.System.TIME_12_24);
         if (clockType == null || clockType.equalsIgnoreCase("24")) {
             mTimePicker.setIs24HourView(true);
         }
@@ -84,7 +69,7 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
                         //If the day has fallen out of spec, set it to the correct max
                         mDatePicker.updateDate(year, month, max);
                     } else {
-                        if(!(mDatePicker.getDayOfMonth() == day && mDatePicker.getMonth() == month && mDatePicker.getYear() == year)) {
+                        if (!(mDatePicker.getDayOfMonth() == day && mDatePicker.getMonth() == month && mDatePicker.getYear() == year)) {
                             //CTS: No reason to change the day if it's already correct?
                             mDatePicker.updateDate(year, month, day);
                         }
@@ -102,21 +87,21 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
         addView(mTimePicker);
 
     }
-    
+
     public void setAnswer() {
 
         if (mPrompt.getAnswerValue() != null) {
 
             DateTime ldt =
-                new DateTime(
-                        ((Date) getCurrentAnswer().getValue()).getTime());
+                    new DateTime(
+                            ((Date)getCurrentAnswer().getValue()).getTime());
             mDatePicker.init(ldt.getYear(), ldt.getMonthOfYear() - 1, ldt.getDayOfMonth(),
-                mDateListener);
-            
+                    mDateListener);
+
             int altVal = ldt.getHourOfDay() == 1 ? 2 : 1;
             mTimePicker.setCurrentHour(altVal);
             mTimePicker.setCurrentHour(ldt.getHourOfDay());
-            
+
             altVal = ldt.getMinuteOfHour() == 1 ? 2 : 1;
             mTimePicker.setCurrentMinute(altVal);
             mTimePicker.setCurrentMinute(ldt.getMinuteOfHour());
@@ -126,8 +111,8 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
             // create time widget with current time as of right now
             clearAnswer();
         }
-        
-        if(hasListener){
+
+        if (hasListener) {
             widgetChangedListener.widgetEntryChanged();
         }
     }
@@ -140,7 +125,7 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
     public void clearAnswer() {
         DateTime ldt = new DateTime();
         mDatePicker.init(ldt.getYear(), ldt.getMonthOfYear() - 1, ldt.getDayOfMonth(),
-            mDateListener);
+                mDateListener);
         mTimePicker.setCurrentHour(ldt.getHourOfDay());
         mTimePicker.setCurrentMinute(ldt.getMinuteOfHour());
     }
@@ -151,9 +136,9 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
         mDatePicker.clearFocus();
         mTimePicker.clearFocus();
         DateTime ldt =
-            new DateTime(mDatePicker.getYear(), mDatePicker.getMonth() + 1,
-                    mDatePicker.getDayOfMonth(), mTimePicker.getCurrentHour(),
-                    mTimePicker.getCurrentMinute(), 0);
+                new DateTime(mDatePicker.getYear(), mDatePicker.getMonth() + 1,
+                        mDatePicker.getDayOfMonth(), mTimePicker.getCurrentHour(),
+                        mTimePicker.getCurrentMinute(), 0);
         //DateTime utc = ldt.withZone(DateTimeZone.forID("UTC"));
         return new DateTimeData(ldt.toDate());
     }
@@ -163,7 +148,7 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
@@ -192,7 +177,7 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
     @Override
     public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
         widgetEntryChanged();
-        
+
     }
 
 }

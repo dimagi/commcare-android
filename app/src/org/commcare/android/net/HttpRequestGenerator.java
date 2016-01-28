@@ -27,11 +27,11 @@ import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
-import org.javarosa.core.model.User;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 
@@ -238,8 +238,8 @@ public class HttpRequestGenerator {
         HttpContext context = new BasicHttpContext();
         HttpResponse response = client.execute(request, context);
 
-        HttpUriRequest currentReq = (HttpUriRequest) context.getAttribute(ExecutionContext.HTTP_REQUEST);
-        HttpHost currentHost = (HttpHost) context.getAttribute(ExecutionContext.HTTP_TARGET_HOST);
+        HttpUriRequest currentReq = (HttpUriRequest)context.getAttribute(ExecutionContext.HTTP_REQUEST);
+        HttpHost currentHost = (HttpHost)context.getAttribute(ExecutionContext.HTTP_TARGET_HOST);
         String currentUrl = currentHost.toURI() + currentReq.getURI();
 
         //Don't allow redirects _from_ https _to_ https unless they are redirecting to the same server.

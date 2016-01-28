@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical" android:padding="3dp">
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:padding="3dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,7 +18,7 @@
             android:text="Message Title"
             android:gravity="left"
             android:layout_weight="4"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
 
         <TextView
             android:id="@+id/layout_note_msg_date"
@@ -26,7 +27,7 @@
             android:text="Small Text"
             android:gravity="right"
             android:layout_weight="1"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
+            android:textAppearance="?android:attr/textAppearanceSmall"/>
 
     </LinearLayout>
 
@@ -35,13 +36,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Explanation of error message"
-        android:textAppearance="?android:attr/textAppearanceSmall" android:layout_marginTop="3dp"/>
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_marginTop="3dp"/>
 
     <TextView
         android:id="@+id/layout_note_msg_action"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="What to do about it"
-        android:textAppearance="?android:attr/textAppearanceSmall" android:textStyle="bold" android:layout_marginTop="3dp"/>
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textStyle="bold"
+        android:layout_marginTop="3dp"/>
 
 </LinearLayout>

@@ -11,6 +11,7 @@ import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.migration.FixtureSerializationMigration;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.ACasePreV6Model;
@@ -18,10 +19,14 @@ import org.commcare.android.database.user.models.AUser;
 import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecordV1;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
+
+import java.util.Vector;
 
 /**
  * @author ctsims
@@ -31,62 +36,73 @@ class UserDatabaseUpgrader {
 
     private boolean inSenseMode = false;
     private final Context c;
+    private final byte[] fileMigrationKey;
+    private final String userKeyRecordId;
 
-    public UserDatabaseUpgrader(Context c, boolean inSenseMode) {
-        this.inSenseMode = inSenseMode;
+    public UserDatabaseUpgrader(Context c, String userKeyRecordId, boolean inSenseMode, byte[] fileMigrationKey) {
         this.c = c;
+        this.userKeyRecordId = userKeyRecordId;
+        this.inSenseMode = inSenseMode;
+        this.fileMigrationKey = fileMigrationKey;
     }
 
     public void upgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         if (oldVersion == 1) {
-            if (upgradeOneTwo(db, oldVersion, newVersion)) {
+            if (upgradeOneTwo(db)) {
                 oldVersion = 2;
             }
         }
 
         if (oldVersion == 2) {
-            if (upgradeTwoThree(db, oldVersion, newVersion)) {
+            if (upgradeTwoThree(db)) {
                 oldVersion = 3;
             }
         }
 
         if (oldVersion == 3) {
-            if (upgradeThreeFour(db, oldVersion, newVersion)) {
+            if (upgradeThreeFour(db)) {
                 oldVersion = 4;
             }
         }
 
         if (oldVersion == 4) {
-            if (upgradeFourFive(db, oldVersion, newVersion)) {
+            if (upgradeFourFive(db)) {
                 oldVersion = 5;
             }
         }
 
         if (oldVersion == 5) {
-            if (upgradeFiveSix(db, oldVersion, newVersion)) {
+            if (upgradeFiveSix(db)) {
                 oldVersion = 6;
             }
         }
 
         if (oldVersion == 6) {
-            if (upgradeSixSeven(db, oldVersion, newVersion)) {
+            if (upgradeSixSeven(db)) {
                 oldVersion = 7;
             }
         }
 
-        if(oldVersion == 7) {
-            if(upgradeSevenEight(db, oldVersion, newVersion)) {
+        if (oldVersion == 7) {
+            if (upgradeSevenEight(db)) {
                 oldVersion = 8;
             }
         }
+
         if (oldVersion == 8) {
-            if (upgradeEightNine(db, oldVersion, newVersion)) {
+            if (upgradeEightNine(db)) {
                 oldVersion = 9;
+            }
+        }
+
+        if (oldVersion == 9) {
+            if (upgradeNineTen(db)) {
+                oldVersion = 10;
             }
         }
     }
 
-    private boolean upgradeOneTwo(final SQLiteDatabase db, int oldVersion, int newVersion) {
+    private boolean upgradeOneTwo(final SQLiteDatabase db) {
         db.beginTransaction();
         try {
             markSenseIncompleteUnsent(db);
@@ -97,7 +113,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeTwoThree(final SQLiteDatabase db, int oldVersion, int newVersion) {
+    private boolean upgradeTwoThree(final SQLiteDatabase db) {
         db.beginTransaction();
         try {
             markSenseIncompleteUnsent(db);
@@ -108,7 +124,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeThreeFour(SQLiteDatabase db, int oldVersion, int newVersion) {
+    private boolean upgradeThreeFour(SQLiteDatabase db) {
         db.beginTransaction();
         try {
             addStockTable(db);
@@ -120,7 +136,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeFourFive(SQLiteDatabase db, int oldVersion, int newVersion) {
+    private boolean upgradeFourFive(SQLiteDatabase db) {
         db.beginTransaction();
         try {
             db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("ledger_entity_id", "ledger", "entity_id"));
@@ -131,7 +147,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeFiveSix(SQLiteDatabase db, int oldVersion, int newVersion) {
+    private boolean upgradeFiveSix(SQLiteDatabase db) {
         //On some devices this process takes a significant amount of time (sorry!) we should
         //tell the service to wait longer to make sure this can finish.
         CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
@@ -164,7 +180,7 @@ class UserDatabaseUpgrader {
         }
     }
 
-    private boolean upgradeSixSeven(SQLiteDatabase db, int oldVersion, int newVersion) {
+    private boolean upgradeSixSeven(SQLiteDatabase db) {
         //On some devices this process takes a significant amount of time (sorry!) we should
         //tell the service to wait longer to make sure this can finish.
         CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
@@ -186,7 +202,7 @@ class UserDatabaseUpgrader {
      * Depcrecate the old AUser object so that both platforms are using the User object
      * to represents users
      */
-    private boolean upgradeSevenEight(SQLiteDatabase db, int oldVersion, int newVersion) {
+    private boolean upgradeSevenEight(SQLiteDatabase db) {
         //On some devices this process takes a significant amount of time (sorry!) we should
         //tell the service to wait longer to make sure this can finish.
         CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
@@ -195,7 +211,7 @@ class UserDatabaseUpgrader {
         try {
             SqlStorage<Persistable> userStorage = new SqlStorage<Persistable>(AUser.STORAGE_KEY, AUser.class, new ConcreteAndroidDbHelper(c, db));
             SqlStorageIterator<Persistable> iterator = userStorage.iterate();
-            while(iterator.hasMore()){
+            while (iterator.hasMore()) {
                 AUser oldUser = (AUser)iterator.next();
                 User newUser = oldUser.toNewUser();
                 userStorage.write(newUser);
@@ -208,13 +224,89 @@ class UserDatabaseUpgrader {
         }
     }
 
-    /**
+    /*
      * Deserialize user fixtures in db using old form instance serialization
      * scheme, and re-serialize them using the new scheme that preserves
      * attributes.
      */
-    private boolean upgradeEightNine(SQLiteDatabase db, int oldVersion, int newVersion) {
-        return FixtureSerializationMigration.migrateFixtureDbBytes(db, c);
+    private boolean upgradeEightNine(SQLiteDatabase db) {
+        Log.d(TAG, "starting user fixture migration");
+
+        FixtureSerializationMigration.stageFixtureTables(db);
+
+        boolean didFixturesMigrate =
+                FixtureSerializationMigration.migrateFixtureDbBytes(db, c, userKeyRecordId, fileMigrationKey);
+
+        FixtureSerializationMigration.dropTempFixtureTable(db);
+        return didFixturesMigrate;
+    }
+
+    /**
+     * Adding an appId field to FormRecords, for compatibility with multiple apps functionality
+     */
+    private boolean upgradeNineTen(SQLiteDatabase db) {
+        // This process could take a while, so tell the service to wait longer to make sure
+        // it can finish
+        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+
+        db.beginTransaction();
+        try {
+
+            if (multipleInstalledAppRecords()) {
+                // Cannot migrate FormRecords once this device has already started installing
+                // multiple applications, because there is no way to know which of those apps the
+                // existing FormRecords belong to
+                deleteExistingFormRecordsAndWarnUser(c, db);
+                addAppIdColumnToTable(db);
+                db.setTransactionSuccessful();
+                return true;
+            }
+
+            SqlStorage<FormRecordV1> oldStorage = new SqlStorage<>(
+                    FormRecord.STORAGE_KEY,
+                    FormRecordV1.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            String appId = getInstalledAppRecord().getApplicationId();
+            Vector<FormRecord> upgradedRecords = new Vector<>();
+            // Create all of the updated records, based upon the existing ones
+            for (FormRecordV1 oldRecord : oldStorage) {
+                FormRecord newRecord = new FormRecord(
+                        oldRecord.getInstanceURIString(),
+                        oldRecord.getStatus(),
+                        oldRecord.getFormNamespace(),
+                        oldRecord.getAesKey(),
+                        oldRecord.getInstanceID(),
+                        oldRecord.lastModified(),
+                        appId);
+                newRecord.setID(oldRecord.getID());
+                upgradedRecords.add(newRecord);
+            }
+
+            addAppIdColumnToTable(db);
+
+            // Write all of the new records to the updated table
+            SqlStorage<FormRecord> newStorage = new SqlStorage<>(
+                    FormRecord.STORAGE_KEY,
+                    FormRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+            for (FormRecord r : upgradedRecords) {
+                newStorage.write(r);
+            }
+
+            db.setTransactionSuccessful();
+            return true;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private static void addAppIdColumnToTable(SQLiteDatabase db) {
+        // Alter the FormRecord table to include an app id column
+        db.execSQL(DbUtil.addColumnToTable(
+                FormRecord.STORAGE_KEY,
+                FormRecord.META_APP_ID,
+                "TEXT"));
     }
 
     private void updateIndexes(SQLiteDatabase db) {
@@ -256,5 +348,50 @@ class UserDatabaseUpgrader {
         for (T t : storage) {
             storage.write(t);
         }
+    }
+
+    private static boolean multipleInstalledAppRecords() {
+        SqlStorage<ApplicationRecord> storage =
+                CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
+        int count = 0;
+        for (ApplicationRecord r : storage) {
+            if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED && r.resourcesValidated()) {
+                count++;
+            }
+        }
+        return (count > 1);
+    }
+
+    public static ApplicationRecord getInstalledAppRecord() {
+        SqlStorage<ApplicationRecord> storage =
+                CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
+        for (Persistable p : storage) {
+            ApplicationRecord r = (ApplicationRecord)p;
+            if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED && r.resourcesValidated()) {
+                return r;
+            }
+        }
+        return null;
+    }
+
+    private static void deleteExistingFormRecordsAndWarnUser(Context c, SQLiteDatabase db) {
+        SqlStorage<FormRecordV1> formRecordStorage = new SqlStorage<>(
+                FormRecord.STORAGE_KEY,
+                FormRecordV1.class,
+                new ConcreteAndroidDbHelper(c, db));
+
+        SqlStorage<SessionStateDescriptor> ssdStorage = new SqlStorage<>(
+                SessionStateDescriptor.STORAGE_KEY,
+                SessionStateDescriptor.class,
+                new ConcreteAndroidDbHelper(c, db));
+
+        formRecordStorage.removeAll();
+        ssdStorage.removeAll();
+
+        String warningTitle = "Minor data loss during upgrade";
+        String warningMessage = "Due to the experimental state of" +
+                " multiple application seating, we were not able to migrate all of your app data" +
+                " during upgrade. Any saved, incomplete, and unsent forms on the device were deleted.";
+        CommCareApplication._().storeMessageForUserOnDispatch(warningTitle, warningMessage);
     }
 }

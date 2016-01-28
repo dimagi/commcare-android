@@ -76,7 +76,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     private GestureDetector mGestureDetector;
 
-    public static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
+    private static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
     protected String lastQueryString;
 
     /**
@@ -101,13 +101,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private boolean isMainScreenBlocked;
 
     @Override
-    @TargetApi(14)
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         FragmentManager fm = this.getSupportFragmentManager();
 
-        stateHolder = (TaskConnectorFragment) fm.findFragmentByTag("state");
+        stateHolder = (TaskConnectorFragment<R>) fm.findFragmentByTag("state");
 
         // stateHolder and its previous state aren't null if the activity is
         // being created due to an orientation change.
@@ -246,6 +245,18 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     protected boolean isTopNavEnabled() {
         return false;
+    }
+
+    /**
+     * If a message for the user has been set in CommCareApplication, show it and then clear it
+     */
+    private void showPendingUserMessage() {
+        String[] messageAndTitle = CommCareApplication._().getPendingUserMessage();
+        if (messageAndTitle != null) {
+            showAlertDialog(AlertDialogFactory.getBasicAlertFactory(
+                    this, messageAndTitle[1], messageAndTitle[0], null));
+            CommCareApplication._().clearPendingUserMessage();
+        }
     }
 
     @Override
@@ -425,7 +436,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     //Graphical stuff below, needs to get modularized
 
-    public void transplantStyle(TextView target, int resource) {
+    protected void transplantStyle(TextView target, int resource) {
         //get styles from here
         TextView tv = (TextView) View.inflate(this, resource, null);
         int[] padding = {target.getPaddingLeft(), target.getPaddingTop(), target.getPaddingRight(), target.getPaddingBottom()};
@@ -443,7 +454,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * it will ever have a value it must return a blank string when one
      * isn't available.
      */
-    public String getActivityTitle() {
+    protected String getActivityTitle() {
         return null;
     }
 
@@ -455,7 +466,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    public static String getTitle(Context c, String local) {
+    protected static String getTitle(Context c, String local) {
         String topLevel = getTopLevelTitleName(c);
 
         String[] stepTitles = new String[0];
@@ -495,7 +506,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         return titleBuf.toString();
     }
 
-    public boolean isNetworkNotConnected() {
+    protected boolean isNetworkNotConnected() {
         return !ConnectivityStatus.isNetworkAvailable(this);
     }
 
@@ -618,6 +629,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         if (alertDialogToShowOnResume != null && getCurrentAlertDialog() == null) {
             alertDialogToShowOnResume.show(getSupportFragmentManager(), KEY_ALERT_DIALOG_FRAG);
             alertDialogToShowOnResume = null;
+        } else {
+            showPendingUserMessage();
         }
     }
 
@@ -663,8 +676,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * @param instantiator Optional ActionBarInstantiator for additional setup
      *                     code.
      */
-    public void tryToAddActionSearchBar(Activity act, Menu menu,
-                                        ActionBarInstantiator instantiator) {
+    protected void tryToAddActionSearchBar(Activity act, Menu menu,
+                                           ActionBarInstantiator instantiator) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             MenuInflater inflater = act.getMenuInflater();
             inflater.inflate(org.commcare.dalvik.R.menu.activity_report_problem, menu);
@@ -770,7 +783,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      *
      * @return True iff the movement is a definitive horizontal swipe.
      */
-    public static boolean isHorizontalSwipe(Activity activity, MotionEvent e1, MotionEvent e2) {
+    private static boolean isHorizontalSwipe(Activity activity, MotionEvent e1, MotionEvent e2) {
         DisplayMetrics dm = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(dm);
 
@@ -792,12 +805,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * Rebuild the activity's menu options based on the current state of the activity.
      */
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    public void rebuildMenus() {
-        // CommCare-159047: this method call rebuilds the options menu
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            invalidateOptionsMenu();
-        } else {
-            supportInvalidateOptionsMenu();
+    public void rebuildOptionMenu() {
+        if (CommCareApplication._().getCurrentApp() != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                invalidateOptionsMenu();
+            } else {
+                supportInvalidateOptionsMenu();
+            }
         }
     }
 
@@ -833,7 +847,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         isMainScreenBlocked = isBlocked;
     }
 
-    public boolean usesUIController() {
+    private boolean usesUIController() {
         return this instanceof WithUIController;
     }
 

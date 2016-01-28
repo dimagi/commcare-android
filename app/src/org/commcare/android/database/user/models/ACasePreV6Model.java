@@ -45,10 +45,10 @@ public class ACasePreV6Model extends ACase {
         id = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         name = ExtUtil.nullIfEmpty(ExtUtil.readString(in));
         closed = ExtUtil.readBool(in);
-        dateOpened = (Date) ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
+        dateOpened = (Date)ExtUtil.read(in, new ExtWrapNullable(Date.class), pf);
         recordId = ExtUtil.readInt(in);
-        indices = (Vector<CaseIndex>) ExtUtil.read(in, new ExtWrapList(CaseIndexUpdater.class));
-        data = (Hashtable) ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
+        indices = (Vector<CaseIndex>)ExtUtil.read(in, new ExtWrapList(CaseIndexUpdater.class));
+        data = (Hashtable)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
     }
 
     public void writeExternal(DataOutputStream out) throws IOException {

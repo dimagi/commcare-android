@@ -59,19 +59,19 @@ public class FormsProvider extends ContentProvider {
 
         @Override
         public void onCreate(SQLiteDatabase db) {
-            db.execSQL("CREATE TABLE " + FORMS_TABLE_NAME + " (" 
-                    + FormsColumns._ID + " integer primary key, " 
+            db.execSQL("CREATE TABLE " + FORMS_TABLE_NAME + " ("
+                    + FormsColumns._ID + " integer primary key, "
                     + FormsColumns.DISPLAY_NAME + " text not null, "
-                    + FormsColumns.DISPLAY_SUBTEXT + " text not null, " 
-                    + FormsColumns.DESCRIPTION + " text, " 
+                    + FormsColumns.DISPLAY_SUBTEXT + " text not null, "
+                    + FormsColumns.DESCRIPTION + " text, "
                     + FormsColumns.JR_FORM_ID + " text not null, "
-                    + FormsColumns.MODEL_VERSION + " integer, " 
+                    + FormsColumns.MODEL_VERSION + " integer, "
                     + FormsColumns.UI_VERSION + " integer, "
                     + FormsColumns.MD5_HASH + " text not null, "
                     + FormsColumns.DATE + " integer not null, " // milliseconds
                     + FormsColumns.FORM_MEDIA_PATH + " text not null, "
-                    + FormsColumns.FORM_FILE_PATH + " text not null, " 
-                    + FormsColumns.LANGUAGE + " text, " 
+                    + FormsColumns.FORM_FILE_PATH + " text not null, "
+                    + FormsColumns.LANGUAGE + " text, "
                     + FormsColumns.SUBMISSION_URI + " text, "
                     + FormsColumns.BASE64_RSA_PUBLIC_KEY + " text, "
                     + FormsColumns.JRCACHE_FILE_PATH + " text not null );");
@@ -93,8 +93,8 @@ public class FormsProvider extends ContentProvider {
         //This is so stupid.
         return true;
     }
-    
-    public void init() {
+
+    private void init() {
         String appId = ProviderUtils.getSandboxedAppId();
         if (mDbHelper == null || mDbHelper.getAppId() != appId) {
             String dbName = ProviderUtils.getProviderDbName(ProviderUtils.ProviderType.FORMS, appId);
@@ -241,7 +241,7 @@ public class FormsProvider extends ContentProvider {
                         FileUtil.deleteFileOrDir(del.getString(del.getColumnIndex(FormsColumns.FORM_MEDIA_PATH)));
                     }
                 } finally {
-                    if ( del != null ) {
+                    if (del != null) {
                         del.close();
                     }
                 }
@@ -262,16 +262,16 @@ public class FormsProvider extends ContentProvider {
                         FileUtil.deleteFileOrDir(c.getString(c.getColumnIndex(FormsColumns.FORM_MEDIA_PATH)));
                     }
                 } finally {
-                    if ( c != null ) {
+                    if (c != null) {
                         c.close();
                     }
                 }
 
                 count =
-                    db.delete(FORMS_TABLE_NAME,
-                        FormsColumns._ID + "=" + formId
-                                + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""),
-                        whereArgs);
+                        db.delete(FORMS_TABLE_NAME,
+                                FormsColumns._ID + "=" + formId
+                                        + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""),
+                                whereArgs);
                 break;
 
             default:
@@ -302,7 +302,7 @@ public class FormsProvider extends ContentProvider {
                     String formFile = values.getAsString(FormsColumns.FORM_FILE_PATH);
                     values.put(FormsColumns.MD5_HASH, FileUtil.getMd5Hash(new File(formFile)));
                 }
-                
+
                 //We used to delete the old files here, but we don't do that in CCODK. the
                 //app is responsible for those resources;
 
@@ -323,28 +323,28 @@ public class FormsProvider extends ContentProvider {
                 Cursor update = null;
                 try {
                     update = this.query(uri, null, where, whereArgs, null);
-    
+
                     // This should only ever return 1 record.
                     if (update.getCount() > 0) {
                         update.moveToFirst();
-    
+
                         // don't let users manually update md5
                         if (values.containsKey(FormsColumns.MD5_HASH)) {
                             values.remove(FormsColumns.MD5_HASH);
                         }
-    
+
                         // the order here is important (jrcache needs to be before form file)
                         // because we update the jrcache file if there's a new form file
                         if (values.containsKey(FormsColumns.JRCACHE_FILE_PATH)) {
                             FileUtil.deleteFileOrDir(update.getString(update
                                     .getColumnIndex(FormsColumns.JRCACHE_FILE_PATH)));
                         }
-    
+
                         if (values.containsKey(FormsColumns.FORM_FILE_PATH)) {
                             String formFile = values.getAsString(FormsColumns.FORM_FILE_PATH);
                             String oldFile =
-                                update.getString(update.getColumnIndex(FormsColumns.FORM_FILE_PATH));
-    
+                                    update.getString(update.getColumnIndex(FormsColumns.FORM_FILE_PATH));
+
                             try {
                                 if (new File(oldFile).getCanonicalPath().equals(new File(formFile).getCanonicalPath())) {
                                     // Files are the same, so we may have just copied over something we had
@@ -353,11 +353,11 @@ public class FormsProvider extends ContentProvider {
                                     // New file name. This probably won't ever happen, though.
                                     FileUtil.deleteFileOrDir(oldFile);
                                 }
-                            } catch(IOException ioe) {
+                            } catch (IOException ioe) {
                                 //we only get here if we couldn't canonicalize, in which case we can't risk deleting the old file
                                 //so don't do anything.
                             }
-    
+
                             // we're updating our file, so update the md5
                             // and get rid of the cache (doesn't harm anything)
                             FileUtil.deleteFileOrDir(update.getString(update
@@ -367,24 +367,24 @@ public class FormsProvider extends ContentProvider {
                             values.put(FormsColumns.JRCACHE_FILE_PATH, Environment.getExternalStorageDirectory().getPath() + "odk/.cache" + newMd5
                                     + ".formdef");
                         }
-    
+
                         // Make sure that the necessary fields are all set
                         if (values.containsKey(FormsColumns.DATE)) {
                             Date today = new Date();
                             String ts =
-                                new SimpleDateFormat("EEE, MMM dd, yyyy 'at' HH:mm").format(today);
+                                    new SimpleDateFormat("EEE, MMM dd, yyyy 'at' HH:mm").format(today);
                             values.put(FormsColumns.DISPLAY_SUBTEXT, "Added on " + ts);
                         }
-    
+
                         count =
-                            db.update(FORMS_TABLE_NAME, values, FormsColumns._ID + "=" + formId
-                                    + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""),
-                                whereArgs);
+                                db.update(FORMS_TABLE_NAME, values, FormsColumns._ID + "=" + formId
+                                                + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""),
+                                        whereArgs);
                     } else {
                         Log.e(t, "Attempting to update row that does not exist");
                     }
                 } finally {
-                    if ( update != null ) {
+                    if (update != null) {
                         update.close();
                     }
                 }

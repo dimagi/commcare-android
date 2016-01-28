@@ -33,16 +33,16 @@ import javax.crypto.CipherOutputStream;
  * @author ctsims
  */
 public class FileUtil {
-    
-    public static final String LOG_TOKEN = "cc-file-util";
+
+    private static final String LOG_TOKEN = "cc-file-util";
 
     public static boolean createFolder(String path) {
-            boolean made = true;
-            File dir = new File(path);
-            if (!dir.exists()) {
-                made = dir.mkdirs();
-            }
-            return made;
+        boolean made = true;
+        File dir = new File(path);
+        if (!dir.exists()) {
+            made = dir.mkdirs();
+        }
+        return made;
     }
 
     public static boolean deleteFileOrDir(String path) {
@@ -66,24 +66,28 @@ public class FileUtil {
 
     public static boolean cleanFilePath(String fullPath, String extendedPath) {
         //There are actually a few things that can go wrong here, should be careful
-        
+
         //No extended path, life is good.
-        if(extendedPath == null) { return true;}
-        
+        if (extendedPath == null) {
+            return true;
+        }
+
         //Something's weird, bail!
-        if(!fullPath.contains(extendedPath)) { return true;}
-        
+        if (!fullPath.contains(extendedPath)) {
+            return true;
+        }
+
         //Get the root that we should stop at
         File terminal = new File(fullPath.replace(extendedPath, ""));
-        
+
         File walker = new File(fullPath);
-        
+
         //technically we shouldn't ever hit the first case here, but also don't wanna get stuck by a weird equality bug. 
-        while(walker != null && !terminal.equals(walker)) {
-            if(walker.isDirectory()) {
+        while (walker != null && !terminal.equals(walker)) {
+            if (walker.isDirectory()) {
                 //only wipe out empty directories.
-                if(walker.list().length == 0) {
-                    if(!walker.delete()) {
+                if (walker.list().length == 0) {
+                    if (!walker.delete()) {
                         //I don't think we actually want to fail here, it's not a showstopper.
                         Log.w("cleanup", "couldn't delete directory " + walker.getAbsolutePath() + " while cleaning up file paths");
                         //throw an exception/false here if we care.
@@ -94,7 +98,7 @@ public class FileUtil {
         }
         return true;
     }
-     
+
     public static String getMd5Hash(File file) {
         try {
             // CTS (6/15/2010) : stream file through digest instead of handing it the byte[]
@@ -111,7 +115,7 @@ public class FileUtil {
                 return null;
             }
 
-            int length = (int) lLength;
+            int length = (int)lLength;
 
             InputStream is = null;
             is = new FileInputStream(file);
@@ -151,8 +155,9 @@ public class FileUtil {
     }
 
     private static final String illegalChars = "'*','+'~|<> !?:./\\";
+
     public static String SanitizeFileName(String input) {
-        for(char c : illegalChars.toCharArray()) {
+        for (char c : illegalChars.toCharArray()) {
             input = input.replace(c, '_');
         }
         return input;
@@ -164,60 +169,61 @@ public class FileUtil {
 
     public static void copyFile(File oldPath, File newPath, Cipher oldRead, Cipher newWrite) throws IOException {
 
-        if(!newPath.createNewFile()) { throw new IOException("Couldn't create new file @ " + newPath.toString()); }
+        if (!newPath.createNewFile()) {
+            throw new IOException("Couldn't create new file @ " + newPath.toString());
+        }
 
         InputStream is = null;
         OutputStream os = null;
         try {
 
             is = new FileInputStream(oldPath);
-            if(oldRead != null) {
+            if (oldRead != null) {
                 is = new CipherInputStream(is, oldRead);
             }
 
             os = new FileOutputStream(newPath);
-            if(newWrite != null) {
+            if (newWrite != null) {
                 os = new CipherOutputStream(os, newWrite);
             }
 
             AndroidStreamUtil.writeFromInputToOutput(is, os);
         } finally {
-            try{
-                if(is != null) {
+            try {
+                if (is != null) {
                     is.close();
                 }
-            } catch(IOException e) {
+            } catch (IOException e) {
 
             }
 
-            try{
-                if(os != null) {
+            try {
+                if (os != null) {
                     os.close();
                 }
-            } catch(IOException e) {
+            } catch (IOException e) {
 
             }
         }
     }
-        
+
     /**
      * Get a new, clean location to put a file in the same path as the incoming file
      *
-     * @param f The existing file
-     * @param slug A new chunk to append to the file name
+     * @param f              The existing file
+     * @param slug           A new chunk to append to the file name
      * @param removeExisting Whether to remove any files which already appear in this location.
-     * If false, the method will continue trying to generate new paths until there is no conflict
-     *
+     *                       If false, the method will continue trying to generate new paths until there is no conflict
      * @return A new file location which does not reference an existing file.
      */
     public static File getNewFileLocation(File f, String slug, boolean removeExisting) {
-        if(slug == null) {
+        if (slug == null) {
             slug = PropertyUtils.genGUID(5);
         }
         String name = f.getName();
 
         int lastDot = name.lastIndexOf(".");
-        if(lastDot != -1) {
+        if (lastDot != -1) {
             String prefix = name.substring(0, lastDot);
             String postfix = name.substring(lastDot);
 
@@ -227,8 +233,8 @@ public class FileUtil {
         }
 
         File newLocation = new File(f.getParent() + File.separator + name);
-        if(newLocation.exists()) {
-            if(removeExisting) {
+        if (newLocation.exists()) {
+            if (removeExisting) {
                 deleteFileOrDir(newLocation);
             } else {
                 return getNewFileLocation(newLocation, null, removeExisting);
@@ -241,11 +247,11 @@ public class FileUtil {
         //Create the new folder
         newFolder.mkdir();
 
-        if(oldFolder.listFiles() != null) {
+        if (oldFolder.listFiles() != null) {
             //Start copying over files
-            for(File oldFile : oldFolder.listFiles()) {
+            for (File oldFile : oldFolder.listFiles()) {
                 File newFile = new File(newFolder.getPath() + File.separator + oldFile.getName());
-                if(oldFile.isDirectory()) {
+                if (oldFile.isDirectory()) {
                     copyFileDeep(oldFile, newFile);
                 } else {
                     FileUtil.copyFile(oldFile, newFile);
@@ -304,16 +310,16 @@ public class FileUtil {
         return "file://" + fileLocation;
     }
 
-    public static void checkReferenceURI(Resource r, String URI, Vector<MissingMediaException> problems) throws IOException{
-        try{
+    public static void checkReferenceURI(Resource r, String URI, Vector<MissingMediaException> problems) throws IOException {
+        try {
             Reference mRef = ReferenceManager._().DeriveReference(URI);
 
-            if(!mRef.doesBinaryExist()){
+            if (!mRef.doesBinaryExist()) {
                 String mLocalReference = mRef.getLocalURI();
-                problems.addElement(new MissingMediaException(r,"Missing external media: " + mLocalReference, mLocalReference));
+                problems.addElement(new MissingMediaException(r, "Missing external media: " + mLocalReference, mLocalReference));
             }
 
-        } catch(InvalidReferenceException ire){
+        } catch (InvalidReferenceException ire) {
             //do nothing for now
         }
     }
@@ -324,7 +330,7 @@ public class FileUtil {
      */
     public static void ensureFilePathExists(File f) {
         File folder = f.getParentFile();
-        if(folder != null) {
+        if (folder != null) {
             //Don't worry about return value
             folder.mkdirs();
         }
@@ -336,11 +342,11 @@ public class FileUtil {
      * specific path that we're allowed to write to
      */
     @SuppressLint("NewApi")
-    private static String getExternalDirectoryKitKat(Context c){
+    private static String getExternalDirectoryKitKat(Context c) {
         File[] extMounts = c.getExternalFilesDirs(null);
         // first entry is emualted storage. Second if it exists is secondary (real) SD.
 
-        if(extMounts.length <2){
+        if (extMounts.length < 2) {
             return null;
         }
 
@@ -355,21 +361,22 @@ public class FileUtil {
         File sdRoot = extMounts[1];
 
         // because apparently getExternalFilesDirs entries can be null
-        if(sdRoot == null){
+        if (sdRoot == null) {
             return null;
         }
 
         return sdRoot.getAbsolutePath() + "/Android/data/org.commcare.dalvik";
     }
+
     /*
      * If we're on KitKat use the new OS path
      */
-    public static String getDumpDirectory(Context c){
-        if (android.os.Build.VERSION.SDK_INT>=19){
+    public static String getDumpDirectory(Context c) {
+        if (android.os.Build.VERSION.SDK_INT >= 19) {
             return getExternalDirectoryKitKat(c);
-        } else{
+        } else {
             ArrayList<String> mArrayList = getExternalMounts();
-            if (mArrayList.size() > 0){
+            if (mArrayList.size() > 0) {
                 return getExternalMounts().get(0);
             }
             return null;

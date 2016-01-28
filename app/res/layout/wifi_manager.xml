@@ -7,11 +7,13 @@
     android:layout_gravity="bottom"
     android:layout_height="wrap_content"
     android:layout_marginBottom="3dp">
-        <View
+
+    <View
         android:layout_width="fill_parent"
         android:layout_height="1dp"
         android:gravity="center_vertical"
-        android:background="@android:color/holo_blue_light" />
+        android:background="@android:color/holo_blue_light"/>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -19,7 +21,8 @@
         android:layout_margin="5dp"
         android:id="@+id/wifi_manager_title"
         android:text="Wi-Fi Direct Manager"
-        android:textStyle="bold"/>    
+        android:textStyle="bold"/>
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

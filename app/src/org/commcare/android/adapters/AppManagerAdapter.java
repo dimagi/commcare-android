@@ -23,7 +23,7 @@ public class AppManagerAdapter extends ArrayAdapter<ApplicationRecord> {
     public AppManagerAdapter(Context context, int resource,
                              ApplicationRecord[] objects) {
         super(context, resource, objects);
-        this.context = (AppManagerActivity) context;
+        this.context = (AppManagerActivity)context;
     }
 
     @Override
@@ -33,7 +33,7 @@ public class AppManagerAdapter extends ArrayAdapter<ApplicationRecord> {
             v = View.inflate(context, R.layout.app_title_view, null);
         }
         ApplicationRecord toDisplay = this.getItem(position);
-        TextView appName = (TextView) v.findViewById(R.id.app_name);
+        TextView appName = (TextView)v.findViewById(R.id.app_name);
         appName.setText(toDisplay.getDisplayName());
         v.setContentDescription(toDisplay.getUniqueId());
         return v;

@@ -49,7 +49,7 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
 
     private boolean mGPSOn = false;
     private boolean mNetworkOn = false;
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,11 +60,11 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
         Intent intent = getIntent();
         if (intent != null && intent.getExtras() != null) {
             double[] location = intent.getDoubleArrayExtra(GeoPointWidget.LOCATION);
-            mGeoPoint = new GeoPoint((int) (location[0] * 1E6), (int) (location[1] * 1E6));
+            mGeoPoint = new GeoPoint((int)(location[0] * 1E6), (int)(location[1] * 1E6));
             mCaptureLocation = false;
         }
 
-        mMapView = (MapView) findViewById(R.id.mapview);
+        mMapView = (MapView)findViewById(R.id.mapview);
         Button mCancelLocation = (Button)findViewById(R.id.cancel_location);
         mCancelLocation.setOnClickListener(new OnClickListener() {
 
@@ -75,14 +75,14 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
         });
 
         mMapController = mMapView.getController();
-        mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        mLocationManager = (LocationManager)getSystemService(Context.LOCATION_SERVICE);
 
         mMapView.setBuiltInZoomControls(true);
         mMapView.setSatellite(false);
         mMapController.setZoom(16);
 
         // make sure we have a good location provider before continuing
-        List<String> providers = mLocationManager.getProviders(true);        
+        List<String> providers = mLocationManager.getProviders(true);
         for (String provider : providers) {
             if (provider.equalsIgnoreCase(LocationManager.GPS_PROVIDER)) {
                 mGPSOn = true;
@@ -93,7 +93,7 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
         }
         if (!mGPSOn && !mNetworkOn) {
             Toast.makeText(getBaseContext(), getString(R.string.provider_disabled_error),
-                Toast.LENGTH_SHORT).show();
+                    Toast.LENGTH_SHORT).show();
             finish();
         }
 
@@ -101,7 +101,7 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
         mMapView.getOverlays().add(mLocationOverlay);
 
         if (mCaptureLocation) {
-            mLocationStatus = (TextView) findViewById(R.id.location_status);
+            mLocationStatus = (TextView)findViewById(R.id.location_status);
             Button mAcceptLocation = (Button)findViewById(R.id.accept_location);
             mAcceptLocation.setOnClickListener(new OnClickListener() {
 
@@ -154,7 +154,7 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
                 ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mLocationManager.removeUpdates(this);
         }
-        ((MyLocationOverlay) mLocationOverlay).disableMyLocation();
+        ((MyLocationOverlay)mLocationOverlay).disableMyLocation();
 
     }
 
@@ -163,7 +163,7 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
     protected void onResume() {
         super.onResume();
 
-        ((MyLocationOverlay) mLocationOverlay).enableMyLocation();
+        ((MyLocationOverlay)mLocationOverlay).enableMyLocation();
         if (mGPSOn && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
         }
@@ -186,10 +186,10 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
             mLocation = location;
             if (mLocation != null) {
                 mLocationStatus.setText(getString(R.string.location_provider_accuracy,
-                    mLocation.getProvider(), truncateFloat(mLocation.getAccuracy())));
+                        mLocation.getProvider(), truncateFloat(mLocation.getAccuracy())));
                 mGeoPoint =
-                    new GeoPoint((int) (mLocation.getLatitude() * 1E6),
-                            (int) (mLocation.getLongitude() * 1E6));
+                        new GeoPoint((int)(mLocation.getLatitude() * 1E6),
+                                (int)(mLocation.getLongitude() * 1E6));
 
                 mMapController.animateTo(mGeoPoint);
 
@@ -231,8 +231,8 @@ public class GeoPointMapActivity extends MapActivity implements LocationListener
             Point screenPoint = new Point();
             mMapView.getProjection().toPixels(gp, screenPoint);
             canvas.drawBitmap(BitmapFactory.decodeResource(getResources(),
-                R.drawable.ic_maps_indicator_current_position), screenPoint.x, screenPoint.y - 8,
-                null); // -8 as image is 16px high
+                    R.drawable.ic_maps_indicator_current_position), screenPoint.x, screenPoint.y - 8,
+                    null); // -8 as image is 16px high
         }
     }
 

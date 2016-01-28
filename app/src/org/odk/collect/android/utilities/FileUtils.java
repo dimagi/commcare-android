@@ -13,9 +13,6 @@ import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import org.javarosa.core.io.StreamsUtil;
-
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,18 +21,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
 import java.nio.channels.FileChannel;
-import java.security.InvalidKeyException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import javax.crypto.Cipher;
-import javax.crypto.CipherInputStream;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.SecretKeySpec;
-
 /**
  * Static methods used for common file operations.
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  */
 public class FileUtils {
@@ -51,60 +42,6 @@ public class FileUtils {
             made = dir.mkdirs();
         }
         return made;
-    }
-
-    public static byte[] getFileAsBytes(File file, SecretKeySpec symetricKey) {
-        byte[] bytes;
-        InputStream is = null;
-        try {
-            is = new FileInputStream(file);
-            if(symetricKey != null) {
-                Cipher cipher = Cipher.getInstance("AES");
-                cipher.init(Cipher.DECRYPT_MODE, symetricKey);
-                is = new CipherInputStream(is, cipher);
-            }
-            
-            //CTS - Removed a lot of weird checks  here. file size < max int? We're shoving this 
-            //form into a _Byte array_, I don't think there's a lot of concern than 2GB of data
-            //are gonna sneak by.
-            
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            
-            try {
-                StreamsUtil.writeFromInputToOutput(is, baos);
-                bytes = baos.toByteArray();
-            } catch (IOException e) {
-                Log.e(TAG, "Cannot read " + file.getName());
-                e.printStackTrace();
-                return null;
-            }
-
-            //CTS - Removed the byte array length check here. Plenty of
-            //files are smaller than their contents (padded encryption data, etc),
-            //so you can't actually know that's correct. We should be relying on the
-            //methods we use to read data to make sure it's all coming out.
-
-            return bytes;
-
-        } catch (FileNotFoundException e) {
-            Log.e(TAG, "Cannot find " + file.getName());
-            e.printStackTrace();
-            return null;
-        } catch (InvalidKeyException | NoSuchPaddingException
-                | NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            throw new RuntimeException(e);
-        } finally {
-            // Close the input stream
-            try {
-                if (is != null) {
-                    is.close();
-                }
-            } catch (IOException e) {
-                Log.e(TAG, "Cannot close input stream for " + file.getName());
-                e.printStackTrace();
-            }
-        }
     }
 
     public static String getMd5Hash(File file) {
@@ -123,7 +60,7 @@ public class FileUtils {
                 return null;
             }
 
-            int length = (int) lLength;
+            int length = (int)lLength;
 
             InputStream is;
             is = new FileInputStream(file);
@@ -221,7 +158,6 @@ public class FileUtils {
      *
      * @param maxDimen - the largest dimension that we want either side of the image to have
      * @return A scaled down bitmap, or null if no scale-down is needed
-     *
      */
     private static Bitmap getBitmapScaledByMaxDimen(Bitmap originalBitmap, int maxDimen) {
         if (originalBitmap == null) {
@@ -234,9 +170,9 @@ public class FileUtils {
 
         if (sideToScale > maxDimen) {
             // If the larger side exceeds our max dimension, scale down accordingly
-            double aspectRatio = ((double) otherSide) / sideToScale;
+            double aspectRatio = ((double)otherSide) / sideToScale;
             sideToScale = maxDimen;
-            otherSide = (int) Math.floor(maxDimen * aspectRatio);
+            otherSide = (int)Math.floor(maxDimen * aspectRatio);
             if (width > height) {
                 // if width was the side that got scaled
                 return Bitmap.createScaledBitmap(originalBitmap, sideToScale, otherSide, false);
@@ -250,18 +186,18 @@ public class FileUtils {
 
     /**
      * Copies from sourceFile to destFile (either a directory, or a path
-     * to the new file) 
-     * 
+     * to the new file)
+     *
      * @param sourceFile A file pointer to a file on the file system
-     * @param destFile Either a file or directory. If a directory, the
-     * file name will be taken from the source file 
+     * @param destFile   Either a file or directory. If a directory, the
+     *                   file name will be taken from the source file
      */
     public static void copyFile(File sourceFile, File destFile) {
         if (sourceFile.exists()) {
-            if(destFile.isDirectory()) {
+            if (destFile.isDirectory()) {
                 destFile = new File(destFile, sourceFile.getName());
             }
-            
+
             FileChannel src;
             try {
                 src = new FileInputStream(sourceFile).getChannel();
@@ -282,13 +218,13 @@ public class FileUtils {
 
     }
 
-    public static boolean isFileOversized(File mf){
+    public static boolean isFileOversized(File mf) {
         double length = getFileSize(mf);
         return length > WARNING_SIZE;
     }
-    
-    public static double getFileSize(File mf){
-        return mf.length()/(1024);
+
+    public static double getFileSize(File mf) {
+        return mf.length() / (1024);
     }
 
     /**
@@ -337,7 +273,7 @@ public class FileUtils {
                 }
 
                 final String selection = "_id=?";
-                final String[] selectionArgs = new String[] {
+                final String[] selectionArgs = new String[]{
                         split[1]
                 };
 
@@ -365,9 +301,9 @@ public class FileUtils {
      * Get the value of the data column for this Uri. This is useful for
      * MediaStore Uris, and other file-based ContentProviders.
      *
-     * @param context The context.
-     * @param uri The Uri to query.
-     * @param selection (Optional) Filter used in the query.
+     * @param context       The context.
+     * @param uri           The Uri to query.
+     * @param selection     (Optional) Filter used in the query.
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      */

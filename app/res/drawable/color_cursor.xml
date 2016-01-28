@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android" >
-    <size android:width="3dp" />
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <size android:width="3dp"/>
     <!--<solid android:color="@color/cc_core_bg"  />-->
-    <solid android:color="@color/edit_text_color"  />
+    <solid android:color="@color/edit_text_color"/>
 </shape>

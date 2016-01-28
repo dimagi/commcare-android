@@ -36,10 +36,10 @@ import java.io.File;
 public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActivity> {
     private static final int REQUEST_FILE_LOCATION = 1;
 
-    @UiElement(value = R.id.screen_multimedia_inflater_prompt, locale="archive.install.prompt")
+    @UiElement(value = R.id.screen_multimedia_inflater_prompt, locale = "archive.install.prompt")
     TextView txtDisplayPrompt;
 
-    @UiElement(value = R.id.screen_multimedia_install_messages, locale="archive.install.state.empty")
+    @UiElement(value = R.id.screen_multimedia_install_messages, locale = "archive.install.state.empty")
     TextView txtInteractiveMessages;
 
     @UiElement(R.id.screen_multimedia_inflater_location)
@@ -48,13 +48,13 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     @UiElement(R.id.screen_multimedia_inflater_filefetch)
     ImageButton btnFetchFiles;
 
-    @UiElement(value = R.id.screen_multimedia_inflater_install, locale="archive.install.button")
+    @UiElement(value = R.id.screen_multimedia_inflater_install, locale = "archive.install.button")
     Button btnInstallArchive;
 
-    final boolean done = false;
+    private final boolean done = false;
 
-    public static final String TAG = InstallArchiveActivity.class.getSimpleName();
-    
+    private static final String TAG = InstallArchiveActivity.class.getSimpleName();
+
     public static final String ARCHIVE_REFERENCE = "archive-ref";
 
     private String targetDirectory;
@@ -71,7 +71,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
                 intent.setType("*/*");
                 try {
                     startActivityForResult(intent, REQUEST_FILE_LOCATION);
-                } catch(ActivityNotFoundException e) {
+                } catch (ActivityNotFoundException e) {
                     Toast.makeText(InstallArchiveActivity.this, Localization.get("archive.install.no.browser"), Toast.LENGTH_LONG).show();
                     txtDisplayPrompt.setText(Localization.get("archive.install.no.browser"));
                 }
@@ -85,14 +85,14 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             }
         });
     }
-    
-    private void createArchive(String filepath){
+
+    private void createArchive(String filepath) {
 
         UnzipTask<InstallArchiveActivity> mUnzipTask = new UnzipTask<InstallArchiveActivity>() {
             @Override
-            protected void deliverResult( InstallArchiveActivity receiver, Integer result) {
+            protected void deliverResult(InstallArchiveActivity receiver, Integer result) {
                 Log.d(TAG, "delivering unzip result");
-                if(result > 0){
+                if (result > 0) {
                     receiver.onUnzipSuccessful();
                 } else {
                     //assume that we've already set the error message, but make it look scary
@@ -111,7 +111,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             @Override
             protected void deliverError(InstallArchiveActivity receiver, Exception e) {
                 Log.d(TAG, "unzip deliver error: " + e.getMessage());
-                receiver.txtInteractiveMessages.setText(Localization.get("archive.install.error", new String[] {e.getMessage()}));
+                receiver.txtInteractiveMessages.setText(Localization.get("archive.install.error", new String[]{e.getMessage()}));
                 receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             }
         };
@@ -126,7 +126,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
     }
 
-    protected void onUnzipSuccessful() {
+    private void onUnzipSuccessful() {
         ArchiveFileRoot afr = CommCareApplication._().getArchiveFileRoot();
         String mGUID = afr.addArchiveFile(getTargetFolder());
 
@@ -140,8 +140,8 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if(requestCode == REQUEST_FILE_LOCATION) {
-            if(resultCode == Activity.RESULT_OK) {
+        if (requestCode == REQUEST_FILE_LOCATION) {
+            if (resultCode == Activity.RESULT_OK) {
                 // Android versions 4.4 and up sometimes don't return absolute
                 // filepaths from the file chooser. So resolve the URI into a
                 // valid file path.
@@ -161,7 +161,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     }
 
     private void evalState() {
-        if(done) {
+        if (done) {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.done"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallArchive.setEnabled(false);
@@ -169,14 +169,14 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         }
 
         String location = editFileLocation.getText().toString();
-        if("".equals(location)) {
+        if ("".equals(location)) {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.empty"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
             btnInstallArchive.setEnabled(false);
             return;
         }
 
-        if(!(new File(location)).exists()) {
+        if (!(new File(location)).exists()) {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.invalid.path"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             btnInstallArchive.setEnabled(false);
@@ -193,15 +193,15 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }
 
-    public String getTargetFolder(){
-        if(targetDirectory != null){
+    private String getTargetFolder() {
+        if (targetDirectory != null) {
             return targetDirectory;
         }
-        
+
         targetDirectory = CommCareApplication._().getAndroidFsTemp() + PropertyUtils.genUUID();
         return targetDirectory;
     }
-    
+
     /**
      * Implementation of generateProgressDialog() for DialogController -- other methods
      * handled entirely in CommCareActivity
@@ -212,8 +212,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             String title = Localization.get("archive.install.title");
             String message = Localization.get("archive.install.unzip");
             return CustomProgressDialog.newInstance(title, message, taskId);
-        }
-        else {
+        } else {
             Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in InstallArchiveActivity");
             return null;

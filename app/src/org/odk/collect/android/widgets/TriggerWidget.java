@@ -48,9 +48,9 @@ public class TriggerWidget extends QuestionWidget {
      * @param appearance Hint from form builder, when set to:
      *                   - 'minimal' show text label
      *                   - 'selectable' show a selectable text label useful for
-     *                     copy/pasting output
+     *                   copy/pasting output
      *                   - otherwise display interactively, showing a checkbox
-     *                     with text
+     *                   with text
      */
     public TriggerWidget(Context context, FormEntryPrompt prompt,
                          String appearance) {

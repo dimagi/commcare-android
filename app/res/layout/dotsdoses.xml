@@ -1,15 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:layout_width="wrap_content"
-  android:layout_height="wrap_content">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
 
-<ImageView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentTop="true" android:layout_alignParentRight="true" android:src="@drawable/next_arrow" android:id="@+id/btn_doses_next" android:clickable="true"></ImageView>
-<ImageView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_alignParentLeft="true" android:layout_alignParentTop="true" android:src="@drawable/prev_arrow" android:id="@+id/btn_doses_prev"></ImageView>
-<TableLayout android:id="@+id/TableLayout01" android:layout_below="@id/ImageView01" android:layout_height="wrap_content" android:layout_width="fill_parent" android:layout_centerVertical="true"><TableRow android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_horizontal" android:id="@+id/dots_dose_one">
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/next_arrow"
+        android:id="@+id/btn_doses_next"
+        android:clickable="true"></ImageView>
 
-</TableRow><TableRow android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_horizontal" android:id="@+id/dots_dose_two"></TableRow><TableRow android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_horizontal" android:id="@+id/dots_dose_three"></TableRow><TableRow android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="center_horizontal" android:id="@+id/dots_dose_four"></TableRow>
-</TableLayout>
-<Button android:layout_height="wrap_content" android:layout_width="fill_parent" android:id="@+id/btn_dots_doses_done" android:text="Done" android:layout_alignParentBottom="true"></Button>
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:src="@drawable/prev_arrow"
+        android:id="@+id/btn_doses_prev"></ImageView>
+
+    <TableLayout
+        android:id="@+id/TableLayout01"
+        android:layout_below="@id/ImageView01"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_centerVertical="true">
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:id="@+id/dots_dose_one">
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:id="@+id/dots_dose_two"></TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:id="@+id/dots_dose_three"></TableRow>
+
+        <TableRow
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:id="@+id/dots_dose_four"></TableRow>
+    </TableLayout>
+
+    <Button
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:id="@+id/btn_dots_doses_done"
+        android:text="Done"
+        android:layout_alignParentBottom="true"></Button>
 </RelativeLayout>

@@ -73,17 +73,17 @@ public class InstanceProvider extends ContentProvider {
         }
 
         @Override
-        public void onCreate(SQLiteDatabase db) {            
-           db.execSQL("CREATE TABLE " + INSTANCES_TABLE_NAME + " (" 
-               + InstanceColumns._ID + " integer primary key, " 
-               + InstanceColumns.DISPLAY_NAME + " text not null, "
-               + InstanceColumns.SUBMISSION_URI + " text, "
-               + InstanceColumns.CAN_EDIT_WHEN_COMPLETE + " text, "
-               + InstanceColumns.INSTANCE_FILE_PATH + " text not null, "
-               + InstanceColumns.JR_FORM_ID + " text not null, "
-               + InstanceColumns.STATUS + " text not null, "
-               + InstanceColumns.LAST_STATUS_CHANGE_DATE + " date not null, "
-               + InstanceColumns.DISPLAY_SUBTEXT + " text not null );");   
+        public void onCreate(SQLiteDatabase db) {
+            db.execSQL("CREATE TABLE " + INSTANCES_TABLE_NAME + " ("
+                    + InstanceColumns._ID + " integer primary key, "
+                    + InstanceColumns.DISPLAY_NAME + " text not null, "
+                    + InstanceColumns.SUBMISSION_URI + " text, "
+                    + InstanceColumns.CAN_EDIT_WHEN_COMPLETE + " text, "
+                    + InstanceColumns.INSTANCE_FILE_PATH + " text not null, "
+                    + InstanceColumns.JR_FORM_ID + " text not null, "
+                    + InstanceColumns.STATUS + " text not null, "
+                    + InstanceColumns.LAST_STATUS_CHANGE_DATE + " date not null, "
+                    + InstanceColumns.DISPLAY_SUBTEXT + " text not null );");
         }
 
 
@@ -104,7 +104,7 @@ public class InstanceProvider extends ContentProvider {
         return true;
     }
 
-    void init() {
+    private void init() {
         String appId = ProviderUtils.getSandboxedAppId();
         if (mDbHelper == null || mDbHelper.getAppId() != appId) {
             String dbName = ProviderUtils.getProviderDbName(ProviderUtils.ProviderType.INSTANCES, appId);
@@ -225,12 +225,12 @@ public class InstanceProvider extends ContentProvider {
 
                 SecretKey key;
                 try {
-                    key = CommCareApplication._().createNewSymetricKey();
+                    key = CommCareApplication._().createNewSymmetricKey();
                 } catch (SessionUnavailableException e) {
                     throw new UserStorageClosedException(e.getMessage());
                 }
                 FormRecord r = new FormRecord(instanceUri.toString(), FormRecord.STATUS_UNINDEXED,
-                        xmlns, key.getEncoded(), null, new Date(0));
+                        xmlns, key.getEncoded(), null, new Date(0), mDbHelper.getAppId());
                 IStorageUtilityIndexed<FormRecord> storage =
                         CommCareApplication._().getUserStorage(FormRecord.class);
                 storage.write(r);
@@ -265,7 +265,7 @@ public class InstanceProvider extends ContentProvider {
         }
     }
 
-    private void deleteFileOrDir(String fileName ) {
+    private void deleteFileOrDir(String fileName) {
         File file = new File(fileName);
         if (file.exists()) {
             if (file.isDirectory()) {
@@ -292,9 +292,9 @@ public class InstanceProvider extends ContentProvider {
         init();
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         int count;
-        
+
         switch (sUriMatcher.match(uri)) {
-            case INSTANCES:                
+            case INSTANCES:
                 Cursor del = null;
                 try {
                     del = this.query(uri, null, where, whereArgs, null);
@@ -305,7 +305,7 @@ public class InstanceProvider extends ContentProvider {
                         deleteFileOrDir(instanceDir);
                     }
                 } finally {
-                    if ( del != null ) {
+                    if (del != null) {
                         del.close();
                     }
                 }
@@ -323,19 +323,19 @@ public class InstanceProvider extends ContentProvider {
                     while (c.moveToNext()) {
                         String instanceFile = c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
                         String instanceDir = (new File(instanceFile)).getParent();
-                        deleteFileOrDir(instanceDir);           
+                        deleteFileOrDir(instanceDir);
                     }
                 } finally {
-                    if ( c != null ) {
+                    if (c != null) {
                         c.close();
                     }
                 }
-                
+
                 count =
-                    db.delete(INSTANCES_TABLE_NAME,
-                        InstanceColumns._ID + "=" + instanceId
-                                + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""),
-                        whereArgs);
+                        db.delete(INSTANCES_TABLE_NAME,
+                                InstanceColumns._ID + "=" + instanceId
+                                        + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""),
+                                whereArgs);
                 break;
 
             default:
@@ -380,8 +380,8 @@ public class InstanceProvider extends ContentProvider {
                 String instanceId = uri.getPathSegments().get(1);
 
                 count =
-                    db.update(INSTANCES_TABLE_NAME, values, InstanceColumns._ID + "=" + instanceId
-                            + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
+                        db.update(INSTANCES_TABLE_NAME, values, InstanceColumns._ID + "=" + instanceId
+                                + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
                 break;
 
             default:
@@ -413,13 +413,13 @@ public class InstanceProvider extends ContentProvider {
      * then rebuild the uri from the result of a query using the where
      * arguments.
      *
-     * @param potentialUri URI pointing to the instance table or a particular
-     * entry in that table
-     * @param selection A selection criteria to apply when filtering rows. If
-     * null then all rows are included.
+     * @param potentialUri  URI pointing to the instance table or a particular
+     *                      entry in that table
+     * @param selection     A selection criteria to apply when filtering rows. If
+     *                      null then all rows are included.
      * @param selectionArgs You may include ?s in selection, which will be
-     * replaced by the values from selectionArgs, in order that they appear in
-     * the selection. The values will be bound as Strings.
+     *                      replaced by the values from selectionArgs, in order that they appear in
+     *                      the selection. The values will be bound as Strings.
      * @return URI pointing to a row in the instance table, either the one passed
      * in or built from a query using the method arguments.
      */
@@ -438,7 +438,7 @@ public class InstanceProvider extends ContentProvider {
                         return InstanceColumns.CONTENT_URI.buildUpon().appendPath(instanceId).build();
                     }
                 } finally {
-                    if (c != null ) {
+                    if (c != null) {
                         c.close();
                     }
                 }
@@ -593,7 +593,7 @@ public class InstanceProvider extends ContentProvider {
     /**
      * Throw and Log FormEntry-related errors
      *
-     * @param loggerText String sent to javarosa logger
+     * @param loggerText   String sent to javarosa logger
      * @param currentState session to be cleared
      */
     private void raiseFormEntryError(String loggerText, AndroidSessionWrapper currentState) {

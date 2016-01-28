@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 
+import org.commcare.android.crypt.EncryptionIO;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.tasks.ExceptionReporting;
@@ -21,6 +22,7 @@ import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
+import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.jr.extensions.CalendaredDateFormatHandler;
@@ -40,13 +42,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 
 import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Background task for loading a form.
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
@@ -87,10 +90,10 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         String formMediaPath = null;
         try {
             //TODO: Selection=? helper
-            c = ((Context)activity).getContentResolver().query(theForm, new String[] {FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
+            c = ((Context)activity).getContentResolver().query(theForm, new String[]{FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
 
             if (!c.moveToFirst()) {
-                throw new IllegalArgumentException("Invalid Form URI Provided! No form content found at URI: " + theForm.toString()); 
+                throw new IllegalArgumentException("Invalid Form URI Provided! No form content found at URI: " + theForm.toString());
             }
 
             formPath = c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
@@ -134,11 +137,11 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
                 throw new RuntimeException("Error reading XForm file");
             }
         }
-        
+
         // Try to write the form definition to a cached location
         try {
             serializeFormDef(fd, formPath);
-        } catch(Exception e) {
+        } catch (Exception e) {
             // The cache is a bonus, so if we can't write it, don't crash, but log 
             // it so we can clean up whatever is preventing the cached version from
             // working
@@ -159,7 +162,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         } else {
             fd.initialize(true, iif);
         }
-        if(mReadOnly) {
+        if (mReadOnly) {
             fd.getInstance().getRoot().setEnabled(false);
         }
 
@@ -172,9 +175,9 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         if (formMediaPath != null) {
             ReferenceManager._().addSessionRootTranslator(
                     new RootTranslator("jr://images/", formMediaPath));
-                ReferenceManager._().addSessionRootTranslator(
+            ReferenceManager._().addSessionRootTranslator(
                     new RootTranslator("jr://audio/", formMediaPath));
-                ReferenceManager._().addSessionRootTranslator(
+            ReferenceManager._().addSessionRootTranslator(
                     new RootTranslator("jr://video/", formMediaPath));
 
         } else {
@@ -182,16 +185,16 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             if (ReferenceManager._().getFactories().length == 0) {
                 // this is /sdcard/odk
                 ReferenceManager._().addReferenceFactory(
-                    new FileReferenceFactory(Environment.getExternalStorageDirectory() + "/odk"));
+                        new FileReferenceFactory(Environment.getExternalStorageDirectory() + "/odk"));
             }
 
             // Set jr://... to point to /sdcard/odk/forms/filename-media/
             ReferenceManager._().addSessionRootTranslator(
-                new RootTranslator("jr://images/", "jr://file/forms/" + formFileName + "-media/"));
+                    new RootTranslator("jr://images/", "jr://file/forms/" + formFileName + "-media/"));
             ReferenceManager._().addSessionRootTranslator(
-                new RootTranslator("jr://audio/", "jr://file/forms/" + formFileName + "-media/"));
+                    new RootTranslator("jr://audio/", "jr://file/forms/" + formFileName + "-media/"));
             ReferenceManager._().addSessionRootTranslator(
-                new RootTranslator("jr://video/", "jr://file/forms/" + formFileName + "-media/"));
+                    new RootTranslator("jr://video/", "jr://file/forms/" + formFileName + "-media/"));
         }
 
         FormController fc = new FormController(fec, mReadOnly);
@@ -202,10 +205,22 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
     private boolean importData(String filePath, FormEntryController fec) {
         // convert files into a byte array
-        byte[] fileBytes = FileUtils.getFileAsBytes(new File(filePath), mSymetricKey);
+        InputStream is;
+        try {
+            is = EncryptionIO.getFileInputStream(filePath, mSymetricKey);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unable to open encrypted form instance file: " + filePath);
+        }
 
         // get the root of the saved and template instances
-        TreeElement savedRoot = XFormParser.restoreDataModel(fileBytes, null).getRoot();
+        TreeElement savedRoot;
+        try {
+            savedRoot = XFormParser.restoreDataModel(is, null).getRoot();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new XFormParseException("Bad parsing from byte array " + e.getMessage());
+        }
         TreeElement templateRoot = fec.getModel().getForm().getInstance().getRoot().deepCopy(true);
 
         // weak check for matching forms
@@ -227,7 +242,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
                 fec.getModel()
                         .getForm()
                         .localeChanged(fec.getModel().getLanguage(),
-                            fec.getModel().getForm().getLocalizer());
+                                fec.getModel().getForm().getLocalizer());
             }
             return true;
         }
@@ -236,7 +251,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
     /**
      * Read serialized {@link FormDef} from file and recreate as object.
-     * 
+     *
      * @param formDef serialized FormDef file
      * @return {@link FormDef} object
      */
@@ -262,9 +277,9 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
     /**
      * Write the FormDef to the file system as a binary blob.
-     * 
+     *
      * @param filepath path to the form file
-     * @throws IOException 
+     * @throws IOException
      */
     @SuppressWarnings("resource")
     public void serializeFormDef(FormDef fd, String filepath) throws IOException {
@@ -283,10 +298,10 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
                 dos.flush();
             } finally {
                 //make sure we clean up the stream
-                if(outputStream != null) {
+                if (outputStream != null) {
                     try {
                         outputStream.close();
-                    } catch (IOException e){
+                    } catch (IOException e) {
                         // Swallow this. If we threw an exception from inside the 
                         // try, this close exception will trump it on the return 
                         // path, and we care a lot more about that exception

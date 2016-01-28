@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
-    
-	<LinearLayout
-	    android:id="@+id/tabbed_detail_menu"
-	    android:orientation="horizontal"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content">
-	</LinearLayout>
-	    
-	<LinearLayout
-	    android:id="@+id/tabbed_detail_pager_wrapper"
-	    android:layout_below="@id/tabbed_detail_menu"
-	    android:layout_width="match_parent"
-	    android:layout_height="wrap_content">
-	    <!--  NOTE: In order to deal with annoying issues of multiplicity,
-	    this ID shouldn't be considered static for layouts, etc. DO NOT REFER
-	    to the tabbed_detail_pager ID in any xml, and only within the pager
-	    class in android until its ID changes. -->
-		<android.support.v4.view.ViewPager
-		    android:id="@+id/tabbed_detail_pager"
-		    android:layout_width="match_parent"
-		    android:layout_height="wrap_content" >
+
+    <LinearLayout
+        android:id="@+id/tabbed_detail_menu"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/tabbed_detail_pager_wrapper"
+        android:layout_below="@id/tabbed_detail_menu"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <!--  NOTE: In order to deal with annoying issues of multiplicity,
+        this ID shouldn't be considered static for layouts, etc. DO NOT REFER
+        to the tabbed_detail_pager ID in any xml, and only within the pager
+        class in android until its ID changes. -->
+        <android.support.v4.view.ViewPager
+            android:id="@+id/tabbed_detail_pager"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
             <android.support.v4.view.PagerTabStrip
-				android:id="@+id/pager_tab_strip"
+                android:id="@+id/pager_tab_strip"
                 android:layout_gravity="top"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -31,8 +32,8 @@
                 android:textColor="@color/cc_brand_text"
                 android:background="@color/cc_brand_bg"
                 />
-			</android.support.v4.view.ViewPager>
+        </android.support.v4.view.ViewPager>
 
-	</LinearLayout>
-	
+    </LinearLayout>
+
 </merge>

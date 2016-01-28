@@ -25,8 +25,8 @@
         <!-- disable drop shadows, we'll make out own per screen (yay!) -->
         <item name="android:windowContentOverlay">@null</item>
     </style>
-    
-        <style name="radio_button_modern" parent="@android:style/Widget.CompoundButton.RadioButton">
+
+    <style name="radio_button_modern" parent="@android:style/Widget.CompoundButton.RadioButton">
         <item name="android:button">@drawable/radio_button_modern</item>
     </style>
 
@@ -65,28 +65,29 @@
     </style>
 
     <style name="TextAppearance.Custom.WindowTitle" parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Title"/>
+
     <style name="TextAppearance.Custom.WindowTitle.Case" parent="style/TextAppearance.Custom.WindowTitle">
     </style>
-    
+
     <style name="TextAppearance.Custom.WindowTitle.Menu" parent="style/TextAppearance.Custom.WindowTitle">
     </style>
-    
+
     <style name="WindowTitle.Custom.Menu" parent="android:Widget.TextView">
         <item name="android:textAppearance">@style/TextAppearance.Custom.WindowTitle.Menu</item>
         <item name="android:background">@drawable/title_neutral_tab</item>
         <item name="android:paddingRight">@dimen/title_padding</item>
         <item name="android:layout_marginLeft">@dimen/title_round_bleed</item>
         <item name="android:paddingLeft">@dimen/title_paddingLeft</item>
-	</style>
-	
-	<style name="WindowTitle.Custom.Case" parent="android:Widget.TextView">
+    </style>
+
+    <style name="WindowTitle.Custom.Case" parent="android:Widget.TextView">
         <item name="android:textAppearance">@style/TextAppearance.Custom.WindowTitle.Case</item>
         <item name="android:background">@drawable/title_case_tab</item>
         <item name="android:paddingRight">@dimen/title_padding</item>
         <item name="android:layout_marginLeft">@dimen/title_round_bleed</item>
         <item name="android:paddingLeft">@dimen/title_paddingLeft</item>
-	</style>
-    
+    </style>
+
     <style name="Theme.Dialog.NoTitle" parent="@android:style/Theme.Holo.Light.Dialog">
         <item name="android:windowNoTitle">true</item>
     </style>

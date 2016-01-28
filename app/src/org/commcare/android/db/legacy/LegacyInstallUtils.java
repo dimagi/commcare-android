@@ -274,15 +274,15 @@ public class LegacyInstallUtils {
         for (String k : oldPrefs.keySet()) {
             Object o = oldPrefs.get(k);
             if (o instanceof String) {
-                e.putString(k, (String) o);
+                e.putString(k, (String)o);
             } else if (o instanceof Integer) {
-                e.putInt(k, (Integer) o);
+                e.putInt(k, (Integer)o);
             } else if (o instanceof Long) {
-                e.putLong(k, (Long) o);
+                e.putLong(k, (Long)o);
             } else if (o instanceof Boolean) {
-                e.putBoolean(k, (Boolean) o);
+                e.putBoolean(k, (Boolean)o);
             } else if (o instanceof Float) {
-                e.putFloat(k, (Float) o);
+                e.putFloat(k, (Float)o);
             }
         }
         e.commit();
@@ -323,7 +323,9 @@ public class LegacyInstallUtils {
             //There's not specific reason to thing this might happen, but might be valuable to double check
             if (newUserKeyRecords.getIDsForValue(UserKeyRecord.META_USERNAME, u.getUsername()).size() == 0) {
                 String sandboxId = PropertyUtils.genUUID().replace("-", "");
-                UserKeyRecord ukr = new UserKeyRecord(u.getUsername(), u.getPassword(), u.getWrappedKey(), new Date(), new Date(), sandboxId, UserKeyRecord.TYPE_LEGACY_TRANSITION);
+                UserKeyRecord ukr = new UserKeyRecord(u.getUsername(), u.getPasswordHash(),
+                        u.getWrappedKey(), new Date(), new Date(), sandboxId,
+                        UserKeyRecord.TYPE_LEGACY_TRANSITION);
                 newUserKeyRecords.write(ukr);
             }
         }
@@ -565,7 +567,7 @@ public class LegacyInstallUtils {
         //Now, if we've copied everything over to this user with no problems, we want to actually go back and wipe out all of the
         //data that is linked to specific files, since individual users might delete them out of their sandboxes.
         new LegacySqlIndexedStorageUtility<>("log_records", DeviceReportRecord.class, ldbh).removeAll();
-        new LegacySqlIndexedStorageUtility<>("FORMRECORDS", FormRecord.class, ldbh).removeAll();
+        new LegacySqlIndexedStorageUtility<>(FormRecord.STORAGE_KEY, FormRecord.class, ldbh).removeAll();
         new LegacySqlIndexedStorageUtility<>("android_cc_session", SessionStateDescriptor.class, ldbh).removeAll();
 
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "LegacyUser| User transitioned! Closing db handles.");
@@ -617,7 +619,7 @@ public class LegacyInstallUtils {
     }
 
     private static String getPhoneIdOld(Context c) {
-        TelephonyManager manager = (TelephonyManager) c.getSystemService(Context.TELEPHONY_SERVICE);
+        TelephonyManager manager = (TelephonyManager)c.getSystemService(Context.TELEPHONY_SERVICE);
         String imei = manager.getDeviceId();
         if (imei == null) {
             imei = Secure.ANDROID_ID;

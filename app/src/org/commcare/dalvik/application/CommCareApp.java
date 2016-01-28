@@ -6,7 +6,9 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.AndroidDbHelper;
+import org.commcare.android.database.HybridFileBackedSqlHelpers;
 import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UnencryptedHybridFileBackedSqlStorage;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.javarosa.AndroidLogger;
@@ -14,7 +16,9 @@ import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.util.AndroidCommCarePlatform;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.Stylizer;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.odk.provider.ProviderUtils;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.resources.model.Resource;
@@ -36,10 +40,10 @@ import java.io.File;
  *
  * @author ctsims
  */
-public class CommCareApp {
+public class CommCareApp implements AppFilePathBuilder {
     private ApplicationRecord record;
 
-    private JavaFileRoot fileRoot;
+    protected JavaFileRoot fileRoot;
     private final AndroidCommCarePlatform platform;
 
     private static final String TAG = CommCareApp.class.getSimpleName();
@@ -51,26 +55,25 @@ public class CommCareApp {
     public static CommCareApp currentSandbox;
 
     private final Object appDbHandleLock = new Object();
-    private SQLiteDatabase appDatabase; 
-    
+    private SQLiteDatabase appDatabase;
+
     private static Stylizer mStylizer;
 
     private int resourceState;
-    
+
     public CommCareApp(ApplicationRecord record) {
         this.record = record;
-
         // Now, we need to identify the state of the application resources
         int[] version = CommCareApplication._().getCommCareVersion();
 
         // TODO: Badly coupled
         platform = new AndroidCommCarePlatform(version[0], version[1], this);
     }
-    
-    public Stylizer getStylizer(){
+
+    public Stylizer getStylizer() {
         return mStylizer;
     }
-    
+
     public String storageRoot() {
         // This External Storage Directory will always destroy your data when you upgrade, which is stupid. Unfortunately
         // it's also largely unavoidable until Froyo's fix for this problem makes it to the phones. For now we're going
@@ -80,9 +83,10 @@ public class CommCareApp {
 
     private void createPaths() {
         String[] paths = new String[]{"", GlobalConstants.FILE_CC_INSTALL,
-            GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE,
-            GlobalConstants.FILE_CC_FORMS, GlobalConstants.FILE_CC_MEDIA,
-            GlobalConstants.FILE_CC_LOGS, GlobalConstants.FILE_CC_ATTACHMENTS};
+                GlobalConstants.FILE_CC_UPGRADE, GlobalConstants.FILE_CC_CACHE,
+                GlobalConstants.FILE_CC_FORMS, GlobalConstants.FILE_CC_MEDIA,
+                GlobalConstants.FILE_CC_LOGS, GlobalConstants.FILE_CC_ATTACHMENTS,
+                GlobalConstants.FILE_CC_DB};
 
         for (String path : paths) {
             File f = new File(fsPath(path));
@@ -92,8 +96,9 @@ public class CommCareApp {
         }
     }
 
-    public String fsPath(String relative) {
-        return storageRoot() + relative;
+    @Override
+    public String fsPath(String relativeSubDir) {
+        return storageRoot() + relativeSubDir;
     }
 
     private void initializeFileRoots() {
@@ -177,7 +182,7 @@ public class CommCareApp {
         }
         return appReady;
     }
-    
+
     private boolean initializeApplicationHelper() {
         setupSandbox();
 
@@ -200,7 +205,7 @@ public class CommCareApp {
         }
 
         // See if we got left in the middle of an update
-        if(global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
+        if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNSTAGED) {
             // If so, repair the global table. (Always takes priority over maintaining the update)
             global.repairTable(upgrade);
         }
@@ -209,13 +214,20 @@ public class CommCareApp {
         if (profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
             platform.initialize(global);
             try {
-                Localization.setLocale(getAppPreferences().getString("cur_locale", "default"));
+                Localization.setLocale(
+                        getAppPreferences().getString(CommCarePreferences.PREFS_LOCALE_KEY, "default"));
             } catch (UnregisteredLocaleException urle) {
                 Localization.setLocale(Localization.getGlobalLocalizerAdvanced().getAvailableLocales()[0]);
             }
-            
+
             initializeStylizer();
-            
+
+            try {
+                HybridFileBackedSqlHelpers.removeOrphanedFiles(buildAndroidDbHelper().getHandle());
+            } catch (SessionUnavailableException e) {
+                Logger.log(AndroidLogger.SOFT_ASSERT,
+                        "Unable to get app db handle to clear orphaned files");
+            }
             return true;
         }
         return false;
@@ -272,7 +284,15 @@ public class CommCareApp {
     }
 
     public <T extends Persistable> SqlStorage<T> getStorage(String name, Class<T> c) {
-        return new SqlStorage<>(name, c, new AndroidDbHelper(CommCareApplication._().getApplicationContext()) {
+        return new SqlStorage<>(name, c, buildAndroidDbHelper());
+    }
+
+    public <T extends Persistable> UnencryptedHybridFileBackedSqlStorage<T> getFileBackedStorage(String name, Class<T> c) {
+        return new UnencryptedHybridFileBackedSqlStorage<>(name, c, buildAndroidDbHelper(), this);
+    }
+
+    protected AndroidDbHelper buildAndroidDbHelper() {
+        return new AndroidDbHelper(CommCareApplication._().getApplicationContext()) {
             @Override
             public SQLiteDatabase getHandle() {
                 synchronized (appDbHandleLock) {
@@ -282,7 +302,7 @@ public class CommCareApp {
                     return appDatabase;
                 }
             }
-        });
+        };
     }
 
     /**
@@ -299,7 +319,7 @@ public class CommCareApp {
     public String getUniqueId() {
         return this.record.getUniqueId();
     }
-    
+
     public String getPreferencesFilename() {
         return record.getApplicationId();
     }
@@ -315,5 +335,16 @@ public class CommCareApp {
      */
     public void refreshAppRecord() {
         this.record = CommCareApplication._().getAppById(this.record.getUniqueId());
+    }
+
+    /**
+     * For testing purposes only
+     */
+    public static SQLiteDatabase getAppDatabaseForTesting() throws SessionUnavailableException {
+        if (BuildConfig.DEBUG) {
+            return CommCareApplication._().getCurrentApp().buildAndroidDbHelper().getHandle();
+        } else {
+            throw new RuntimeException("For testing purposes only!");
+        }
     }
 }

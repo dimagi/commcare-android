@@ -39,16 +39,16 @@ public class WiFiDirectManagementFragment extends Fragment
     private boolean isHost;
     private boolean isConnected;
 
-    WifiP2pInfo info;
+    private WifiP2pInfo info;
 
-    public WifiP2pManager mManager;
-    public Channel mChannel;
+    private WifiP2pManager mManager;
+    private Channel mChannel;
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mActivity = (CommCareWiFiDirectActivity) context;
+            mActivity = (CommCareWiFiDirectActivity)context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString() + " must implement fileServerListener");
         }
@@ -58,7 +58,7 @@ public class WiFiDirectManagementFragment extends Fragment
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View mContentView = inflater.inflate(R.layout.wifi_manager, null);
 
-        mStatusText = (TextView) mContentView.findViewById(R.id.wifi_manager_status_text);
+        mStatusText = (TextView)mContentView.findViewById(R.id.wifi_manager_status_text);
 
         return mContentView;
     }
@@ -68,7 +68,7 @@ public class WiFiDirectManagementFragment extends Fragment
     }
 
     public void resetData() {
-        ((WifiDirectManagerListener) this.getActivity()).resetData();
+        ((WifiDirectManagerListener)this.getActivity()).resetData();
     }
 
     public void onPeersChanged() {
@@ -150,7 +150,7 @@ public class WiFiDirectManagementFragment extends Fragment
 
     }
 
-    public void refreshStatusText() {
+    private void refreshStatusText() {
 
         if (info == null) {
             return;
@@ -179,7 +179,7 @@ public class WiFiDirectManagementFragment extends Fragment
         }
     }
 
-    public void setDeviceConnected(boolean connected) {
+    private void setDeviceConnected(boolean connected) {
         isConnected = connected;
     }
 
@@ -187,7 +187,7 @@ public class WiFiDirectManagementFragment extends Fragment
         return isConnected;
     }
 
-    public void setStatusText(String text) {
+    private void setStatusText(String text) {
         Log.d(TAG, text);
         mStatusText.setText(text);
     }
@@ -196,7 +196,7 @@ public class WiFiDirectManagementFragment extends Fragment
         return isWifiP2pEnabled;
     }
 
-    public void setWifiP2pEnabled(boolean isWifiP2pEnabled) {
+    private void setWifiP2pEnabled(boolean isWifiP2pEnabled) {
         this.isWifiP2pEnabled = isWifiP2pEnabled;
     }
 

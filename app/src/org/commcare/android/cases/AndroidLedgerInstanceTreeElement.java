@@ -19,7 +19,7 @@ import java.util.Vector;
  */
 public class AndroidLedgerInstanceTreeElement extends LedgerInstanceTreeElement {
 
-    Hashtable<String, Integer> primaryIdMapping;
+    private Hashtable<String, Integer> primaryIdMapping;
 
     public AndroidLedgerInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<Ledger> storage) {
         super(instanceRoot, storage);
@@ -44,11 +44,11 @@ public class AndroidLedgerInstanceTreeElement extends LedgerInstanceTreeElement 
         ledgers = new Vector<>();
         primaryIdMapping = new Hashtable<>();
         int mult = 0;
-        for (IStorageIterator i = ((SqlStorage<ACase>) getStorage()).iterate(false, Ledger.INDEX_ENTITY_ID); i.hasMore(); ) {
+        for (IStorageIterator i = ((SqlStorage<ACase>)getStorage()).iterate(false, Ledger.INDEX_ENTITY_ID); i.hasMore(); ) {
             int id = i.peekID();
             ledgers.addElement(new LedgerChildElement(this, id, null, mult));
             objectIdMapping.put(DataUtil.integer(id), DataUtil.integer(mult));
-            primaryIdMapping.put(((SqlStorageIterator) i).getPrimaryId(), DataUtil.integer(id));
+            primaryIdMapping.put(((SqlStorageIterator)i).getPrimaryId(), DataUtil.integer(id));
             mult++;
             i.nextID();
         }

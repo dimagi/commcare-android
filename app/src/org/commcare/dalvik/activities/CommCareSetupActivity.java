@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.fragments.ContainerFragment;
 import org.commcare.android.fragments.InstallConfirmFragment;
@@ -76,7 +77,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
 
     private static final String KEY_UI_STATE = "current_install_ui_state";
-    private static final String KEY_OFFLINE =  "offline_install";
+    private static final String KEY_OFFLINE = "offline_install";
     private static final String KEY_FROM_EXTERNAL = "from_external";
     private static final String KEY_FROM_MANAGER = "from_manager";
     private static final String KEY_MANUAL_SMS_INSTALL = "sms-install-triggered-manually";
@@ -182,9 +183,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         persistCommCareAppState();
 
         Log.v("UiState", "Current vars: " +
-                        "UIState is: " + this.uiState + " " +
-                        "incomingRef is: " + incomingRef + " " +
-                        "startAllowed is: " + startAllowed + " "
+                "UIState is: " + this.uiState + " " +
+                "incomingRef is: " + incomingRef + " " +
+                "startAllowed is: " + startAllowed + " "
         );
 
         Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
@@ -210,7 +211,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private void persistCommCareAppState() {
         FragmentManager fm = this.getSupportFragmentManager();
 
-        containerFragment = (ContainerFragment) fm.findFragmentByTag("cc-app");
+        containerFragment = (ContainerFragment<CommCareApp>)fm.findFragmentByTag("cc-app");
 
         if (containerFragment == null) {
             containerFragment = new ContainerFragment<>();
@@ -480,7 +481,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      * @param installTriggeredManually if scan was triggered manually, then
      *                                 install automatically if reference is found
      */
-    private void performSMSInstall(boolean installTriggeredManually){
+    private void performSMSInstall(boolean installTriggeredManually) {
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.READ_SMS)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -523,14 +524,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      *
      * @param installTriggeredManually don't install the found app link
      */
-    private void scanSMSLinks(final boolean installTriggeredManually){
+    private void scanSMSLinks(final boolean installTriggeredManually) {
         // http://stackoverflow.com/questions/11301046/search-sms-inbox
         final Uri SMS_INBOX = Uri.parse("content://sms/inbox");
 
         DateTime oneDayAgo = (new DateTime()).minusDays(1);
         Cursor cursor = getContentResolver().query(SMS_INBOX,
                 null, "date >? ",
-                new String[] {"" + oneDayAgo.getMillis() },
+                new String[]{"" + oneDayAgo.getMillis()},
                 "date DESC");
 
         if (cursor == null) {
@@ -598,11 +599,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             }
             // attemptedInstall will only be true if we found no texts with the SMS_INSTALL_KEY_STRING tag
             // if we found one, notification will be handle by the task receiver
-            if(!attemptedInstall && installTriggeredManually) {
+            if (!attemptedInstall && installTriggeredManually) {
                 Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
             }
-        }
-        finally {
+        } finally {
             cursor.close();
         }
     }
@@ -664,14 +664,17 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     /* All methods for implementation of ResourceEngineListener */
 
     @Override
-    public void reportSuccess(boolean appChanged) {
+    public void reportSuccess(boolean newAppInstalled) {
         //If things worked, go ahead and clear out any warnings to the contrary
         CommCareApplication._().clearNotifications("install_update");
 
-        if (!appChanged) {
+        if (newAppInstalled) {
+            GoogleAnalyticsUtils.reportAppInstall();
+        } else {
             Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
         }
-        done(appChanged, false);
+
+        done(newAppInstalled, false);
     }
 
     @Override
@@ -763,12 +766,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void downloadLinkReceivedAutoInstall(String url) {
-        if(url != null){
+        if (url != null) {
             incomingRef = url;
             uiState = UiState.READY_TO_INSTALL;
             uiStateScreenTransition();
             startResourceInstall();
-        } else{
+        } else {
             // only notify if this was manually triggered, since most people won't use this
             Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
         }
@@ -776,13 +779,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void exceptionReceived(Exception e) {
-        if(e instanceof  SignatureException){
+        if (e instanceof SignatureException) {
             e.printStackTrace();
             Toast.makeText(this, Localization.get("menu.sms.not.verified"), Toast.LENGTH_LONG).show();
-        } else if(e instanceof IOException){
+        } else if (e instanceof IOException) {
             e.printStackTrace();
             Toast.makeText(this, Localization.get("menu.sms.not.retrieved"), Toast.LENGTH_LONG).show();
-        } else{
+        } else {
             e.printStackTrace();
             Toast.makeText(this, Localization.get("notification.install.unknown.title"), Toast.LENGTH_LONG).show();
         }

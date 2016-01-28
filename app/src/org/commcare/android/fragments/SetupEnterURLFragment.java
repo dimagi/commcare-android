@@ -49,22 +49,6 @@ public class SetupEnterURLFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_setup_enter_url, container, false);
         Button installButton = (Button)view.findViewById(R.id.start_install);
         installButton.setText(Localization.get("install.button.start"));
-        prefixURLSpinner = (Spinner)view.findViewById(R.id.url_spinner);
-        prefixURLSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selectedText = profileLocation.getText().toString();
-                if ((position == prefixURLSpinner.getCount() - 1) &&
-                        (selectedText == null || selectedText.length() == 0)) {
-                    // automatically sets text to the default location for offline installs
-                    profileLocation.setText(R.string.default_app_server);
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
         profileLocation = (EditText)view.findViewById(R.id.edit_profile_location);
         TextView appProfile = (TextView)view.findViewById(R.id.app_profile_txt_view);
         appProfile.setText(Localization.get("install.appprofile"));
@@ -87,15 +71,11 @@ public class SetupEnterURLFragment extends Fragment {
      * @return The current URL
      */
     private String getURL() {
-        int selectedPrefix = prefixURLSpinner.getSelectedItemPosition();
         String url = profileLocation.getText().toString();
         if (url == null || url.length() == 0) {
             return url;
         }
         // if it's not the last (which should be "Raw") choice, we'll use the prefix
-        if (selectedPrefix < prefixURLSpinner.getCount() - 1) {
-            url = prefixURLSpinner.getSelectedItem() + "/" + url;
-        }
         if (!url.contains("://")) { // if there is no (http|jr):// prefix, we'll assume it's a http:// URL
             url = "http://" + url;
         }

@@ -1,5 +1,6 @@
 package org.commcare.android.javarosa;
 
+import org.commcare.android.crypt.EncryptionIO;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
@@ -12,6 +13,7 @@ import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -55,7 +57,7 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
     public static DeviceReportRecord generateNewRecordStub() throws SessionUnavailableException {
         DeviceReportRecord slr = new DeviceReportRecord();
         slr.fileName = new File(CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_LOGS)) + FileUtil.SanitizeFileName(File.separator + DateUtils.formatDateTime(new Date(), DateUtils.FORMAT_ISO8601)) + ".xml").getAbsolutePath();
-        slr.aesKey = CommCareApplication._().createNewSymetricKey().getEncoded();
+        slr.aesKey = CommCareApplication._().createNewSymmetricKey().getEncoded();
         return slr;
     }
 
@@ -77,30 +79,8 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
         return fileName;
     }
 
-    public final OutputStream openOutputStream() throws IOException {
-        try {
-            String path = getFilePath();
-            File f = new File(path);
-
-            FileOutputStream os = new FileOutputStream(f);
-
-            SecretKeySpec spec = new SecretKeySpec(getKey(), "AES");
-            Cipher encrypter = Cipher.getInstance("AES");
-            encrypter.init(Cipher.ENCRYPT_MODE, spec);
-
-            return new CipherOutputStream(os, encrypter);
-        } catch (InvalidKeyException ike) {
-            ike.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_ERROR_CRYPTO, "Invalid key: " + ike.getMessage());
-            throw new IOException("Bad key while trying to generate output stream for device report");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_ERROR_CRYPTO, "Unavailable Crypto algorithm: " + e.getMessage());
-            throw new IOException("Bad key while trying to generate output stream for device report");
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_ERROR_CRYPTO, "Bad Padding: " + e.getMessage());
-            throw new IOException("Bad key while trying to generate output stream for device report");
-        }
+    public final OutputStream openOutputStream() throws FileNotFoundException {
+        return EncryptionIO.createFileOutputStream(getFilePath(),
+                new SecretKeySpec(getKey(), "AES"));
     }
 }

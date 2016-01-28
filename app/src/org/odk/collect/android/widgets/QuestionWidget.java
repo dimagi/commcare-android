@@ -86,7 +86,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         this(context, p, null);
     }
 
-    public QuestionWidget(Context context, FormEntryPrompt p, WidgetChangedListener w){
+    private QuestionWidget(Context context, FormEntryPrompt p, WidgetChangedListener w){
         super(context);
         mPrompt = p;
 

@@ -52,7 +52,7 @@ import javax.crypto.spec.SecretKeySpec;
 /**
  * @author ctsims
  */
-public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Integer, Integer,R> {
+public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Integer, Integer, R> {
     private static final String TAG = FormRecordCleanupTask.class.getSimpleName();
 
     private final Context context;
@@ -70,13 +70,16 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
     @Override
     protected Integer doTaskBackground(Void... params) {
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
+        String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
 
-        Vector<Integer> recordsToRemove = storage.getIDsForValues(new String[] { FormRecord.META_STATUS}, new String[] { FormRecord.STATUS_SAVED });
-        int oldrecords = recordsToRemove.size();
+        Vector<Integer> recordsToRemove = storage.getIDsForValues(
+                new String[]{FormRecord.META_STATUS, FormRecord.META_APP_ID},
+                new String[]{FormRecord.STATUS_SAVED, currentAppId});
+        int numOldRecordsRemoved = recordsToRemove.size();
 
-        Vector<Integer> unindexedRecords = storage.getIDsForValues(new String[] { FormRecord.META_STATUS}, new String[] { FormRecord.STATUS_UNINDEXED });
+        Vector<Integer> unindexedRecords = storage.getIDsForValues(new String[]{FormRecord.META_STATUS}, new String[]{FormRecord.STATUS_UNINDEXED});
         int count = 0;
-        for(int recordID : unindexedRecords) {
+        for (int recordID : unindexedRecords) {
             FormRecord r = storage.read(recordID);
 
             try {
@@ -84,7 +87,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             } catch (FileNotFoundException | InvalidStructureException e) {
                 // No form or bad form data, mark for deletion
                 recordsToRemove.add(recordID);
-            } catch(XmlPullParserException | IOException |
+            } catch (XmlPullParserException | IOException |
                     UnfullfilledRequirementsException e) {
                 // Not really sure what happened; just skip
             }
@@ -96,16 +99,17 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         this.publishProgress(STATUS_CLEANUP);
 
         SqlStorage<SessionStateDescriptor> ssdStorage =
-            CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+                CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 
-        for(int recordID : recordsToRemove) {
+        for (int recordID : recordsToRemove) {
             //We don't know anything about the session yet, so give it -1 to flag that
             wipeRecord(context, -1, recordID, storage, ssdStorage);
         }
 
+        int totalRecordsRemoved = recordsToRemove.size();
         Log.d(TAG, "Synced: " + unindexedRecords.size() +
-                ". Removed: " + oldrecords + " old records, and " +
-                (recordsToRemove.size() - oldrecords) + " busted new ones");
+                ". Removed: " + numOldRecordsRemoved + " old records, and " +
+                (totalRecordsRemoved - numOldRecordsRemoved) + " busted new ones");
         return SUCCESS;
     }
 
@@ -190,12 +194,12 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             // Should only occur when we are loading forms manually onto the
             // phone using DataPullTask.
             AndroidSessionWrapper asw
-                = AndroidSessionWrapper.mockEasiestRoute(platform,
-                        oldRecord.getFormNamespace(), caseId);
+                    = AndroidSessionWrapper.mockEasiestRoute(platform,
+                    oldRecord.getFormNamespace(), caseId);
             asw.setFormRecordId(updated.getID());
 
             SqlStorage<SessionStateDescriptor> ssdStorage =
-                CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
+                    CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 
             try {
                 ssdStorage.write(asw.getSessionStateDescriptor());
@@ -212,9 +216,9 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      * apply any updates found to the form record, such as UUID and date
      * modified, returning an updated copy with status set to saved.
      *
-     * @param context   Used to get the filepath of the form instance
-     *                  associated with the record.
-     * @param r         Reparse this record and return an updated copy of it
+     * @param context Used to get the filepath of the form instance
+     *                associated with the record.
+     * @param r       Reparse this record and return an updated copy of it
      * @return The reparsed form record and the associated case id, if present
      * @throws IOException                       Problem opening the saved form
      *                                           attached to the record.
@@ -225,7 +229,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      *                                           versioning problem
      */
     private static Pair<FormRecord, String> reparseRecord(Context context,
-                                                         FormRecord r)
+                                                          FormRecord r)
             throws IOException, InvalidStructureException,
             XmlPullParserException, UnfullfilledRequirementsException {
         final String[] caseIDs = new String[1];
@@ -276,11 +280,11 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             }
         }
 
-        // TODO: We should be committing all changes to form record models via
-        // the ASW objects, not manually.
+        // TODO: We should be committing all changes to form record models via the ASW objects,
+        // not manually.
         FormRecord parsed = new FormRecord(r.getInstanceURI().toString(),
                 r.getStatus(), r.getFormNamespace(), r.getAesKey(),
-                uuid[0], modified[0]);
+                uuid[0], modified[0], r.getAppId());
         parsed.setID(r.getID());
 
         // Make sure that the instance is no longer editable
@@ -291,7 +295,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         return new Pair<>(parsed, caseIDs[0]);
     }
 
-    public static void wipeRecord(Context c,SessionStateDescriptor existing) {
+    public static void wipeRecord(Context c, SessionStateDescriptor existing) {
         int ssid = existing.getID();
         int formRecordId = existing.getFormRecordId();
         wipeRecord(c, ssid, formRecordId);
@@ -311,7 +315,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         wipeRecord(c, -1, formRecordId);
     }
 
-    public static void wipeRecord(Context c, int sessionId, int formRecordId) {
+    private static void wipeRecord(Context c, int sessionId, int formRecordId) {
         wipeRecord(c, sessionId, formRecordId,
                 CommCareApplication._().getUserStorage(FormRecord.class),
                 CommCareApplication._().getUserStorage(SessionStateDescriptor.class));
@@ -321,64 +325,65 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      * Remove form record and associated session state descriptor from storage
      * and delete form instance files linked to the form record.
      */
-    private static void wipeRecord(Context context, int sessionId,
-                                   int formRecordId,
-                                   SqlStorage<FormRecord> frStorage,
-                                   SqlStorage<SessionStateDescriptor> ssdStorage) {
-        if(sessionId != -1) {
+    public static void wipeRecord(Context context, int sessionId,
+                                  int formRecordId,
+                                  SqlStorage<FormRecord> frStorage,
+                                  SqlStorage<SessionStateDescriptor> ssdStorage) {
+        if (sessionId != -1) {
             try {
                 SessionStateDescriptor ssd = ssdStorage.read(sessionId);
 
                 int ssdFrid = ssd.getFormRecordId();
-                if(formRecordId == -1) {
+                if (formRecordId == -1) {
                     formRecordId = ssdFrid;
-                } else if(formRecordId != ssdFrid) {
+                } else if (formRecordId != ssdFrid) {
                     //Not good.
                     Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                             "Inconsistent formRecordId's in session storage");
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                         "Session ID exists, but with no record (or broken record)");
             }
         }
         String dataPath = null;
 
-        if(formRecordId != -1 ) {
+        if (formRecordId != -1) {
             try {
                 FormRecord r = frStorage.read(formRecordId);
                 dataPath = r.getPath(context);
 
                 //See if there is a hanging session ID for this
-                if(sessionId == -1) {
+                if (sessionId == -1) {
                     Vector<Integer> sessionIds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, formRecordId);
                     // We really shouldn't be able to end up with sessionId's
                     // that point to more than one thing.
-                    if(sessionIds.size() == 1) {
+                    if (sessionIds.size() == 1) {
                         sessionId = sessionIds.firstElement();
-                    } else if(sessionIds.size() > 1) {
+                    } else if (sessionIds.size() > 1) {
                         sessionId = sessionIds.firstElement();
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                                 "Multiple session ID's pointing to the same form record");
                     }
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
+                e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                         "Session ID exists, but with no record (or broken record)");
             }
         }
 
         //Delete 'em if you got 'em
-        if(sessionId != -1) {
+        if (sessionId != -1) {
             ssdStorage.remove(sessionId);
         }
-        if(formRecordId != -1) {
+        if (formRecordId != -1) {
             frStorage.remove(formRecordId);
         }
 
-        if(dataPath != null) {
-            String selection = InstanceColumns.INSTANCE_FILE_PATH +"=?";
-            Cursor c = context.getContentResolver().query(InstanceColumns.CONTENT_URI, new String[] {InstanceColumns._ID}, selection, new String[] {dataPath}, null);
+        if (dataPath != null) {
+            String selection = InstanceColumns.INSTANCE_FILE_PATH + "=?";
+            Cursor c = context.getContentResolver().query(InstanceColumns.CONTENT_URI, new String[]{InstanceColumns._ID}, selection, new String[]{dataPath}, null);
             try {
                 if (c.moveToFirst()) {
                     //There's a cursor for this file, good.

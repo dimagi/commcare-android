@@ -1,60 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:orientation="vertical" >
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:orientation="vertical">
 
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="@string/hello" />
+        android:text="@string/hello"/>
 
     <Button
         android:id="@+id/btn_start_cc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Start CommCare" />
+        android:text="Start CommCare"/>
 
     <Button
         android:id="@+id/acquire_key"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Acquire CommCare Key" />
+        android:text="Acquire CommCare Key"/>
 
     <Button
         android:id="@+id/log_in_local"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Log Into CommCare" />
+        android:text="Log Into CommCare"/>
 
     <Button
         android:id="@+id/sync"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Sync CommCare" />
+        android:text="Sync CommCare"/>
 
     <Button
         android:id="@+id/button_content"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="View Case Data" />
+        android:text="View Case Data"/>
 
     <Button
         android:id="@+id/button_media"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="View Case Multimedia" />
-    
+        android:text="View Case Multimedia"/>
+
     <Button
         android:id="@+id/button_fixture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="View Fixture Data" />
+        android:text="View Fixture Data"/>
 
     <Button
         android:id="@+id/button_receiver"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Test Broadcast Receiver" />
+        android:text="Test Broadcast Receiver"/>
 
 </LinearLayout>

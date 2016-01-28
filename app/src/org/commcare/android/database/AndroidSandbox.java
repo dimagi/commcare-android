@@ -20,7 +20,7 @@ public class AndroidSandbox extends UserSandbox {
 
     private final CommCareApplication app;
 
-    public AndroidSandbox(CommCareApplication app){
+    public AndroidSandbox(CommCareApplication app) {
         this.app = app;
     }
 
@@ -41,12 +41,12 @@ public class AndroidSandbox extends UserSandbox {
 
     @Override
     public IStorageUtilityIndexed<FormInstance> getUserFixtureStorage() {
-        return app.getUserStorage("fixture", FormInstance.class);
+        return app.getFileBackedUserStorage("fixture", FormInstance.class);
     }
 
     @Override
     public IStorageUtilityIndexed<FormInstance> getAppFixtureStorage() {
-        return app.getAppStorage("fixture", FormInstance.class);
+        return app.getFileBackedAppStorage("fixture", FormInstance.class);
     }
 
     @Override

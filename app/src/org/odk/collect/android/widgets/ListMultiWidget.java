@@ -75,7 +75,7 @@ public class ListMultiWidget extends QuestionWidget {
 
         Vector<Selection> ve = new Vector<>();
         if (mPrompt.getAnswerValue() != null) {
-            ve = (Vector<Selection>) getCurrentAnswer().getValue();
+            ve = (Vector<Selection>)getCurrentAnswer().getValue();
         }
 
         //Is this safe enough from collisions?
@@ -133,12 +133,12 @@ public class ListMultiWidget extends QuestionWidget {
                             Bitmap b = null;
                             try {
                                 Display display =
-                                        ((WindowManager) getContext().getSystemService(
+                                        ((WindowManager)getContext().getSystemService(
                                                 Context.WINDOW_SERVICE)).getDefaultDisplay();
                                 int screenWidth = display.getWidth();
                                 int screenHeight = display.getHeight();
                                 b = MediaUtil.getBitmapScaledToContainer(imageFile, screenHeight,
-                                                screenWidth);
+                                        screenWidth);
                             } catch (OutOfMemoryError e) {
                                 errorMsg = "ERROR: " + e.getMessage();
                             }
@@ -243,7 +243,7 @@ public class ListMultiWidget extends QuestionWidget {
         for (int i = 0; i < j; i++) {
 
             // no checkbox group so find by id + offset
-            CheckBox c = ((CheckBox) findViewById(CHECKBOX_ID + i));
+            CheckBox c = ((CheckBox)findViewById(CHECKBOX_ID + i));
             if (c.isChecked()) {
                 c.setChecked(false);
             }
@@ -255,7 +255,7 @@ public class ListMultiWidget extends QuestionWidget {
     public IAnswerData getAnswer() {
         Vector<Selection> vc = new Vector<>();
         for (int i = 0; i < mItems.size(); i++) {
-            CheckBox c = ((CheckBox) findViewById(CHECKBOX_ID + i));
+            CheckBox c = ((CheckBox)findViewById(CHECKBOX_ID + i));
             if (c.isChecked()) {
                 vc.add(new Selection(mItems.get(i)));
             }
@@ -274,7 +274,7 @@ public class ListMultiWidget extends QuestionWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-                (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 

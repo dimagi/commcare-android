@@ -1,9 +1,6 @@
-/**
- *
- */
 package org.commcare.android.db.legacy;
 
-import org.commcare.android.database.DbUtil;
+import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
@@ -16,10 +13,10 @@ import java.util.Vector;
  */
 public class LegacyTableBuilder {
 
-    private String name;
+    private final String name;
 
-    private Vector<String> cols;
-    private Vector<String> rawCols;
+    private final Vector<String> cols;
+    private final Vector<String> rawCols;
 
     public LegacyTableBuilder(String name) {
         this.name = name;
@@ -28,16 +25,16 @@ public class LegacyTableBuilder {
     }
 
     public void addData(Persistable p) {
-        cols.add(DbUtil.ID_COL + " INTEGER PRIMARY KEY");
-        rawCols.add(DbUtil.ID_COL);
+        cols.add(DatabaseHelper.ID_COL + " INTEGER PRIMARY KEY");
+        rawCols.add(DatabaseHelper.ID_COL);
 
         if (p instanceof IMetaData) {
-            String[] keys = ((IMetaData) p).getMetaDataFields();
+            String[] keys = ((IMetaData)p).getMetaDataFields();
             for (String key : keys) {
                 String columnName = scrubName(key);
                 rawCols.add(columnName);
                 String columnDef;
-                if (p instanceof EncryptedModel && ((EncryptedModel) p).isEncrypted(key)) {
+                if (p instanceof EncryptedModel && ((EncryptedModel)p).isEncrypted(key)) {
                     columnDef = columnName + " BLOB";
                 } else {
                     columnDef = columnName;
@@ -51,11 +48,11 @@ public class LegacyTableBuilder {
             }
         }
 
-        cols.add(DbUtil.DATA_COL + " BLOB");
-        rawCols.add(DbUtil.DATA_COL);
+        cols.add(DatabaseHelper.DATA_COL + " BLOB");
+        rawCols.add(DatabaseHelper.DATA_COL);
     }
 
-    HashSet<String> unique = new HashSet<>();
+    private final HashSet<String> unique = new HashSet<>();
 
     public void setUnique(String columnName) {
         unique.add(scrubName(columnName));

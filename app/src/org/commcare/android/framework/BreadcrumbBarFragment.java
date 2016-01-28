@@ -59,13 +59,13 @@ public class BreadcrumbBarFragment extends Fragment {
      * This method will only be called once when the retained
      * Fragment is first created.
      */
-      @Override
-      public void onCreate(Bundle savedInstanceState) {
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         // Retain this fragment across configuration changes.
         setRetainInstance(true);
-      }
+    }
 
     /**
      * Hold a reference to the parent Activity so we can report the task's
@@ -87,7 +87,7 @@ public class BreadcrumbBarFragment extends Fragment {
 
         ActionBar actionBar = activity.getActionBar();
 
-        if(!breadCrumbsEnabled) {
+        if (!breadCrumbsEnabled) {
             configureSimpleNav(activity, actionBar);
         } else {
             attachBreadcrumbBar(activity, actionBar);
@@ -110,7 +110,7 @@ public class BreadcrumbBarFragment extends Fragment {
         actionBar.setDisplayShowTitleEnabled(true);
         String title = getBestTitle(activity);
         actionBar.setTitle(title);
-  }
+    }
 
     private void attachBreadcrumbBar(Activity activity, ActionBar actionBar) {
         //make sure we're in the right mode
@@ -148,11 +148,11 @@ public class BreadcrumbBarFragment extends Fragment {
             protected void applyTransformation(float interpolatedTime, Transformation t) {
                 RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
 
-                if(interpolatedTime == 1) {
+                if (interpolatedTime == 1) {
                     lp.height = 0;
                     lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 1);
                 } else {
-                        lp.height = (int)(targetHeight * interpolatedTime);
+                    lp.height = (int)(targetHeight * interpolatedTime);
                 }
 
                 v.requestLayout();
@@ -182,12 +182,12 @@ public class BreadcrumbBarFragment extends Fragment {
         Animation a = new Animation() {
             @Override
             protected void applyTransformation(float interpolatedTime, Transformation t) {
-                if(interpolatedTime == 1){
+                if (interpolatedTime == 1) {
                     v.setVisibility(View.GONE);
                     RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams)v.getLayoutParams();
                     lp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, 1);
                     lp.height = 0;
-                }else{
+                } else {
                     v.getLayoutParams().height = initialHeight - (int)(initialHeight * interpolatedTime);
                     v.requestLayout();
                 }
@@ -208,7 +208,9 @@ public class BreadcrumbBarFragment extends Fragment {
         final View holder = LayoutInflater.from(activity).inflate(R.layout.com_tile_holder, null);
         final Pair<View, TreeReference> tileData = this.loadTile(activity);
         View tile = tileData == null ? null : tileData.first;
-        if(tile == null) { return null;}
+        if (tile == null) {
+            return null;
+        }
 
         final String inlineDetail = (String)tile.getTag();
 
@@ -216,7 +218,7 @@ public class BreadcrumbBarFragment extends Fragment {
 
         final ImageButton infoButton = ((ImageButton)holder.findViewById(R.id.com_tile_holder_btn_open));
 
-        if(inlineDetail == null) {
+        if (inlineDetail == null) {
             infoButton.setVisibility(View.GONE);
         }
 
@@ -226,8 +228,8 @@ public class BreadcrumbBarFragment extends Fragment {
 
             @Override
             public void onClick(View v) {
-                if(isClosed){
-                    if(mInternalDetailView == null ) {
+                if (isClosed) {
+                    if (mInternalDetailView == null) {
                         mInternalDetailView = (TabbedDetailView)holder.findViewById(R.id.com_tile_holder_detail_frame);
                         mInternalDetailView.setRoot(mInternalDetailView);
 
@@ -236,7 +238,7 @@ public class BreadcrumbBarFragment extends Fragment {
 
                         Detail detail = session.getDetail(inlineDetail);
                         mInternalDetailView.showMenu();
-                        mInternalDetailView.refresh(detail, tileData.second,0);
+                        mInternalDetailView.refresh(detail, tileData.second, 0);
                     }
                     expand(activity, holder.findViewById(R.id.com_tile_holder_detail_master));
                     infoButton.setImageResource(R.drawable.icon_info_fill_brandbg);
@@ -270,13 +272,13 @@ public class BreadcrumbBarFragment extends Fragment {
 
         //So we need to work our way backwards through each "step" we've taken, since our RelativeLayout
         //displays the Z-Order b insertion (so items added later are always "on top" of items added earlier
-        for(int i = v.size() -1 ; i >= 0; i--){
+        for (int i = v.size() - 1; i >= 0; i--) {
             StackFrameStep step = v.elementAt(i);
 
-            if(SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
+            if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                 //Only add steps which have a tile.
                 SessionDatum d = asw.getSession().findDatumDefinition(step.getId());
-                if(d != null && d.getPersistentDetail() != null) {
+                if (d != null && d.getPersistentDetail() != null) {
                     stepToFrame = step;
                 }
             }
@@ -284,9 +286,9 @@ public class BreadcrumbBarFragment extends Fragment {
 
         Pair<View, TreeReference> tile = buildContextTile(stepToFrame, asw);
         //some contexts may provide a tile that isn't really part of the current session's stack
-        if(tile == null && activity instanceof CommCareActivity) {
+        if (tile == null && activity instanceof CommCareActivity) {
             Pair<Detail, TreeReference> entityContext = ((CommCareActivity)activity).requestEntityContext();
-            if(entityContext != null) {
+            if (entityContext != null) {
                 tile = buildContextTile(entityContext.first, entityContext.second, asw);
             }
         }
@@ -296,12 +298,12 @@ public class BreadcrumbBarFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if(tile != null) {
+        if (tile != null) {
             ViewGroup vg = (ViewGroup)this.getActivity().findViewById(R.id.universal_frame_tile);
             //Check whether the view group is available. If so, this activity is a frame tile host 
-            if(vg != null) {
-                if(tile.getParent() != null) {
-                    ((ViewGroup) tile.getParent()).removeView(tile);
+            if (vg != null) {
+                if (tile.getParent() != null) {
+                    ((ViewGroup)tile.getParent()).removeView(tile);
                 }
                 vg.addView(tile, LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
                 //this doesn't really make it over well
@@ -310,7 +312,7 @@ public class BreadcrumbBarFragment extends Fragment {
         }
     }
 
-    public static String getBestTitle(Activity activity) {
+    private static String getBestTitle(Activity activity) {
         String bestTitle = getBestTitleHelper();
         return defaultTitle(bestTitle, activity);
     }
@@ -364,10 +366,10 @@ public class BreadcrumbBarFragment extends Fragment {
         if (activity instanceof CommCareSetupActivity) {
             return "CommCare";
         }
-        if(currentTitle == null || "".equals(currentTitle)) {
+        if (currentTitle == null || "".equals(currentTitle)) {
             currentTitle = CommCareActivity.getTopLevelTitleName(activity);
         }
-        if(currentTitle == null || "".equals(currentTitle)) {
+        if (currentTitle == null || "".equals(currentTitle)) {
             currentTitle = "CommCare";
         }
         if (activity instanceof FormRecordListActivity) {
@@ -376,36 +378,42 @@ public class BreadcrumbBarFragment extends Fragment {
         return currentTitle;
     }
 
-        private Pair<View, TreeReference> buildContextTile(StackFrameStep stepToFrame, AndroidSessionWrapper asw) {
-            if(stepToFrame == null) { return null; }
-
-            //check to make sure we can look up this child
-            SessionDatum d = asw.getSession().findDatumDefinition(stepToFrame.getId());
-            if(d == null || d.getPersistentDetail() == null) { return null; }
-
-            //Make sure there is a valid reference to the entity we can build
-            Detail detail = asw.getSession().getDetail(d.getPersistentDetail());
-
-            EvaluationContext ec = asw.getEvaluationContext();
-
-            TreeReference ref = d.getEntityFromID(ec, stepToFrame.getValue());
-            if(ref == null) { return null; }
-
-            Pair<View, TreeReference> r = buildContextTile(detail, ref, asw);
-            r.first.setTag(d.getInlineDetail());
-            return r;
+    private Pair<View, TreeReference> buildContextTile(StackFrameStep stepToFrame, AndroidSessionWrapper asw) {
+        if (stepToFrame == null) {
+            return null;
         }
 
-        private Pair<View, TreeReference> buildContextTile(Detail detail, TreeReference ref, AndroidSessionWrapper asw) {
-            NodeEntityFactory nef = new NodeEntityFactory(detail, asw.getEvaluationContext());
-
-            Entity entity = nef.getEntity(ref);
-
-            Log.v("DEBUG-v", "Creating new GridEntityView for text header text");
-            GridEntityView tile = new GridEntityView(this.getActivity(), detail, entity);
-            int[] textColor = AndroidUtil.getThemeColorIDs(getActivity(), new int[]{R.attr.drawer_pulldown_text_color, R.attr.menu_tile_title_text_color});
-            tile.setTextColor(textColor[0]);
-            tile.setTitleTextColor(textColor[1]);
-            return Pair.create(((View)tile), ref);
+        //check to make sure we can look up this child
+        SessionDatum d = asw.getSession().findDatumDefinition(stepToFrame.getId());
+        if (d == null || d.getPersistentDetail() == null) {
+            return null;
         }
+
+        //Make sure there is a valid reference to the entity we can build
+        Detail detail = asw.getSession().getDetail(d.getPersistentDetail());
+
+        EvaluationContext ec = asw.getEvaluationContext();
+
+        TreeReference ref = d.getEntityFromID(ec, stepToFrame.getValue());
+        if (ref == null) {
+            return null;
+        }
+
+        Pair<View, TreeReference> r = buildContextTile(detail, ref, asw);
+        r.first.setTag(d.getInlineDetail());
+        return r;
+    }
+
+    private Pair<View, TreeReference> buildContextTile(Detail detail, TreeReference ref, AndroidSessionWrapper asw) {
+        NodeEntityFactory nef = new NodeEntityFactory(detail, asw.getEvaluationContext());
+
+        Entity entity = nef.getEntity(ref);
+
+        Log.v("DEBUG-v", "Creating new GridEntityView for text header text");
+        GridEntityView tile = new GridEntityView(this.getActivity(), detail, entity);
+        int[] textColor = AndroidUtil.getThemeColorIDs(getActivity(), new int[]{R.attr.drawer_pulldown_text_color, R.attr.menu_tile_title_text_color});
+        tile.setTextColor(textColor[0]);
+        tile.setTitleTextColor(textColor[1]);
+        return Pair.create(((View)tile), ref);
+    }
 }

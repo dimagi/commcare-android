@@ -19,9 +19,9 @@ import java.util.regex.Pattern;
 public class StringUtils {
 
     //TODO: Bro you can't just cache every fucking string ever.
-    static LruCache<String, String> normalizationCache;
+    private static LruCache<String, String> normalizationCache;
 
-    static Pattern diacritics;
+    private static Pattern diacritics;
 
     //TODO: Really not sure about this size. Also, the LRU probably isn't really the best model here
     //since we'd _like_ for these caches to get cleaned up at _some_ point.
@@ -76,7 +76,7 @@ public class StringUtils {
      * <p/>
      * TODO: re-implement for efficiency/licensing possibly.
      */
-    public static int LevenshteinDistance(String s0, String s1) {
+    private static int LevenshteinDistance(String s0, String s1) {
         int len0 = s0.length() + 1;
         int len1 = s1.length() + 1;
 

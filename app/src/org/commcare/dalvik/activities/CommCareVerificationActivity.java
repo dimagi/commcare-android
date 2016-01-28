@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.tasks.VerificationTask;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -69,7 +68,7 @@ public class CommCareVerificationActivity
     private boolean isFirstLaunch;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState){
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.missing_multimedia_layout);
@@ -81,7 +80,7 @@ public class CommCareVerificationActivity
         this.fromSettings = this.getIntent().
                 getBooleanExtra(KEY_LAUNCH_FROM_SETTINGS, false);
         this.fromManager = this.getIntent().
-        		getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
+                getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
         if (fromManager) {
             Button skipButton = (Button)findViewById(R.id.skip_verification_button);
             skipButton.setVisibility(View.VISIBLE);
@@ -232,7 +231,7 @@ public class CommCareVerificationActivity
 
     private void handleVerificationSuccess() {
         CommCareApplication._().getCurrentApp().setMMResourcesValidated();
-        if(Intent.ACTION_VIEW.equals(CommCareVerificationActivity.this.getIntent().getAction())) {
+        if (Intent.ACTION_VIEW.equals(CommCareVerificationActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
             Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
             i.putExtra(KEY_REQUIRE_REFRESH, true);
@@ -297,9 +296,12 @@ public class CommCareVerificationActivity
 
     }
 
-    private String prettyString(String rawString){
+    private String prettyString(String rawString) {
         int marker = rawString.indexOf(Environment.getExternalStorageDirectory().getPath());
-        if(marker<0){return rawString;}
-        else{return rawString.substring(marker);}
+        if (marker < 0) {
+            return rawString;
+        } else {
+            return rawString.substring(marker);
+        }
     }
 }

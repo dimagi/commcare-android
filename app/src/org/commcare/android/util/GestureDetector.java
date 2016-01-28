@@ -23,7 +23,7 @@ import org.commcare.android.util.GestureDirection.UserGesture;
 
 /**
  * Detects when a gesture/fling has occurred and in what direction.
- * 
+ *
  * @author Carl Hartung (carlhartung@gmail.com)
  */
 public class GestureDetector {

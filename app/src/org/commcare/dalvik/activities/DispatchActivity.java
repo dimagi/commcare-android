@@ -43,6 +43,9 @@ public class DispatchActivity extends FragmentActivity {
     public static final int MISSING_MEDIA_ACTIVITY = 4;
 
     private boolean startFromLogin;
+    private String lastLoginMode;
+    private boolean userManuallyEnteredPasswordMode;
+
     private boolean shouldFinish;
     private boolean userTriggeredLogout;
     private boolean shortcutExtraWasConsumed;
@@ -150,7 +153,7 @@ public class DispatchActivity extends FragmentActivity {
         }
     }
 
-    public boolean isDbInBadState() {
+    private boolean isDbInBadState() {
         int dbState = CommCareApplication._().getDatabaseState();
         if (dbState == CommCareApplication.STATE_MIGRATION_FAILED) {
             CommCareApplication._().triggerHandledAppExit(this,
@@ -169,7 +172,7 @@ public class DispatchActivity extends FragmentActivity {
         return false;
     }
 
-    public void handleDamagedApp() {
+    private void handleDamagedApp() {
         if (!CommCareApplication._().isStorageAvailable()) {
             createNoStorageDialog();
         } else {
@@ -199,6 +202,8 @@ public class DispatchActivity extends FragmentActivity {
     private void launchHomeScreen() {
         Intent i = new Intent(this, CommCareHomeActivity.class);
         i.putExtra(START_FROM_LOGIN, startFromLogin);
+        i.putExtra(LoginActivity.LOGIN_MODE, lastLoginMode);
+        i.putExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, userManuallyEnteredPasswordMode);
         startFromLogin = false;
         startActivityForResult(i, HOME_SCREEN);
     }
@@ -307,6 +312,9 @@ public class DispatchActivity extends FragmentActivity {
                     shouldFinish = true;
                     return;
                 }
+                lastLoginMode = intent.getStringExtra(LoginActivity.LOGIN_MODE);
+                userManuallyEnteredPasswordMode =
+                        intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
                 startFromLogin = true;
                 break;
             case HOME_SCREEN:

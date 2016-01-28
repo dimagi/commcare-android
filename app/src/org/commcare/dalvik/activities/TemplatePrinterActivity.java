@@ -36,7 +36,7 @@ import java.util.Date;
 
 /**
  * Intermediate activity which populates an HTML template with data and then prints it
- * 
+ *
  * @author Richard Lu
  * @author amstone
  */
@@ -88,7 +88,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         } else {
             //Try to use the document location that was set in Settings menu
             SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-            path = prefs.getString(CommCarePreferences.PRINT_DOC_LOCATION, "");
+            path = prefs.getString(CommCarePreferences.PREFS_PRINT_DOC_LOCATION, "");
             if ("".equals(path)) {
                 showErrorDialog(Localization.get("missing.template.file"));
             } else {
@@ -133,7 +133,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      */
     @Override
     public void onPopulationFinished(TemplatePrinterTask.PrintTaskResult result, String problemString) {
-        switch(result) {
+        switch (result) {
             case SUCCESS:
                 doHtmlPrint();
                 break;
@@ -192,7 +192,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     private void createWebPrintJob(WebView v) {
 
         // Get a PrintManager instance
-        PrintManager printManager = (PrintManager) getSystemService(Context.PRINT_SERVICE);
+        PrintManager printManager = (PrintManager)getSystemService(Context.PRINT_SERVICE);
 
         // Get a print adapter instance
         PrintDocumentAdapter printAdapter = new PrintDocumentAdapterWrapper(this, v.createPrintDocumentAdapter());

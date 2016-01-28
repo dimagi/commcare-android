@@ -40,20 +40,22 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * used to update DB
      * V.8 - Merge commcare-odk and commcare User, make AUser legacy type.
      * V.9 - Update serialized fixtures in db to use new schema
+     * V.10 - Migration of FormRecord to add appId field
      */
 
-    private static final int USER_DB_VERSION = 9;
+    private static final int USER_DB_VERSION = 10;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 
     private final Context context;
 
     private final String mUserId;
+    private byte[] fileMigrationKeySeed = null;
 
-    public DatabaseUserOpenHelper(Context context, String userId) {
-        super(context, getDbName(userId), null, USER_DB_VERSION);
+    public DatabaseUserOpenHelper(Context context, String userKeyRecordId) {
+        super(context, getDbName(userKeyRecordId), null, USER_DB_VERSION);
         this.context = context;
-        this.mUserId = userId;
+        this.mUserId = userKeyRecordId;
     }
 
     public static String getDbName(String sandboxId) {
@@ -64,33 +66,35 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase database) {
         try {
             database.beginTransaction();
-            
+
             AndroidTableBuilder builder = new AndroidTableBuilder(ACase.STORAGE_KEY);
             builder.addData(new ACase());
             builder.setUnique(ACase.INDEX_CASE_ID);
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new AndroidTableBuilder("USER");
             builder.addData(new User());
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new AndroidTableBuilder(FormRecord.class);
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new AndroidTableBuilder(SessionStateDescriptor.class);
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new AndroidTableBuilder(GeocodeCacheModel.STORAGE_KEY);
             builder.addData(new GeocodeCacheModel());
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new AndroidTableBuilder(DeviceReportRecord.class);
             database.execSQL(builder.getTableCreateString());
-            
+
             builder = new AndroidTableBuilder("fixture");
-            builder.addData(new FormInstance());
+            builder.addFileBackedData(new FormInstance());
             database.execSQL(builder.getTableCreateString());
-            
+
+            DbUtil.createOrphanedFileTable(database);
+
             builder = new AndroidTableBuilder(Ledger.STORAGE_KEY);
             builder.addData(new Ledger());
             builder.setUnique(Ledger.INDEX_ENTITY_ID);
@@ -121,7 +125,10 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
         }
     }
 
+    @Override
     public SQLiteDatabase getWritableDatabase(String key) {
+        fileMigrationKeySeed = key.getBytes();
+
         try {
             return super.getWritableDatabase(key);
         } catch (SQLiteException sqle) {
@@ -132,7 +139,6 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
         boolean inSenseMode = false;
         //TODO: Not a great way to get the current app! Pass this in to the constructor.
         //I am preeeeeety sure that we can't get here without _having_ an app/platform, but not 100%
@@ -146,6 +152,6 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
         } catch (Exception e) {
 
         }
-        new UserDatabaseUpgrader(context, inSenseMode).upgrade(db, oldVersion, newVersion);
+        new UserDatabaseUpgrader(context, mUserId, inSenseMode, fileMigrationKeySeed).upgrade(db, oldVersion, newVersion);
     }
 }

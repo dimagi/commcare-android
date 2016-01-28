@@ -22,26 +22,26 @@ import java.util.Hashtable;
  */
 public class IncompleteFormRecordView extends LinearLayout {
 
-    public TextView mPrimaryTextView;
-    public TextView mLowerTextView;
-    public TextView mRightTextView;
-    public TextView mUpperRight;
+    public final TextView mPrimaryTextView;
+    public final TextView mLowerTextView;
+    public final TextView mRightTextView;
+    public final TextView mUpperRight;
 
-    Hashtable<String, Text> names;
-    Date start;
+    final Hashtable<String, Text> names;
+    final Date start;
 
-    Drawable rightHandSync;
+    final Drawable rightHandSync;
 
     public IncompleteFormRecordView(Context context, Hashtable<String, Text> names) {
         super(context);
 
-        ViewGroup vg = (ViewGroup) View.inflate(context, R.layout.formrecordview, null);
+        ViewGroup vg = (ViewGroup)View.inflate(context, R.layout.formrecordview, null);
         this.names = names;
 
-        mPrimaryTextView = (TextView) vg.findViewById(R.id.formrecord_txt_main);
-        mLowerTextView = (TextView) vg.findViewById(R.id.formrecord_txt_btm);
-        mRightTextView = (TextView) vg.findViewById(R.id.formrecord_txt_right);
-        mUpperRight = (TextView) vg.findViewById(R.id.formrecord_txt_upp_right);
+        mPrimaryTextView = (TextView)vg.findViewById(R.id.formrecord_txt_main);
+        mLowerTextView = (TextView)vg.findViewById(R.id.formrecord_txt_btm);
+        mRightTextView = (TextView)vg.findViewById(R.id.formrecord_txt_right);
+        mUpperRight = (TextView)vg.findViewById(R.id.formrecord_txt_upp_right);
 
         mPrimaryTextView.setTextAppearance(context, android.R.style.TextAppearance_Large);
         mUpperRight.setTextAppearance(context, android.R.style.TextAppearance_Large);

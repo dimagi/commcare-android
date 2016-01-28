@@ -18,6 +18,7 @@ import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.EntitySelectActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -110,16 +111,20 @@ public class EntityDetailFragment extends Fragment {
     }
 
     protected EvaluationContext getFactoryContext(TreeReference childReference) {
+        EvaluationContext factoryContext;
         if (getArguments().getInt(CHILD_DETAIL_INDEX, -1) != -1) {
-            return prepareEvaluationContext(childReference);
+            factoryContext = prepareEvaluationContext(childReference);
+        } else {
+            factoryContext = asw.getEvaluationContext();
         }
-        return asw.getEvaluationContext();
+        factoryContext.addFunctionHandler(EntitySelectActivity.getHereFunctionHandler());
+        return factoryContext;
     }
 
     /**
      * @return Reference to this fragment's parent detail, which may be the same as this fragment's detail.
      */
-    public Detail getParentDetail() {
+    private Detail getParentDetail() {
         return asw.getSession().getDetail(getArguments().getString(DETAIL_ID));
     }
 
@@ -131,7 +136,7 @@ public class EntityDetailFragment extends Fragment {
      * @return An evaluation context ready to be used as the base of the subnode detail, including
      * any variable definitions included by the parent.
      */
-    protected EvaluationContext prepareEvaluationContext(TreeReference childReference) {
+    private EvaluationContext prepareEvaluationContext(TreeReference childReference) {
         EvaluationContext sessionContext = asw.getEvaluationContext();
         EvaluationContext parentDetailContext = new EvaluationContext(sessionContext, childReference);
         getParentDetail().populateEvaluationContextVariables(parentDetailContext);

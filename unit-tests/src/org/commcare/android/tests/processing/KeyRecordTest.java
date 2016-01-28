@@ -10,11 +10,10 @@ import org.robolectric.annotation.Config;
 
 /**
  * Tests for the processing of Key Record files coming from the server.
- * 
- * @author ctsims
  *
+ * @author ctsims
  */
-@Config(application=org.commcare.dalvik.application.CommCareApplication.class,
+@Config(application = org.commcare.dalvik.application.CommCareApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class KeyRecordTest {
@@ -23,15 +22,15 @@ public class KeyRecordTest {
     public void setupTests() {
         TestUtils.initializeStaticTestStorage();
     }
-    
+
     /**
-     *  Test basic parsing of key record format as it is defined in the spec. 
+     * Test basic parsing of key record format as it is defined in the spec.
      */
     @Test
     public void testKeyRecordParse() {
         TestUtils.processResourceTransaction("/inputs/key_record_create.xml");
         //TODO: Check for existing key record in storage post-parse.
-        
+
         //TODO: Tests to write - establish key record expiration processing
     }
 }

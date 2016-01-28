@@ -1,42 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <style name="NotificationText">
-      <item name="android:textColor">@color/white</item>
+        <item name="android:textColor">@color/white</item>
     </style>
+
     <style name="NotificationTitle">
-      <item name="android:textColor">@color/white</item>
-      <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textStyle">bold</item>
     </style>
+
     <style name="TopPane">
         <item name="android:layout_marginBottom">0dp</item>
     </style>
-    
+
     <style name="MiddlePane">
         <item name="android:layout_marginBottom">2dp</item>
     </style>
-    
+
     <style name="MainSidePaneLeft">
         <item name="android:paddingRight">0dp</item>
         <item name="android:paddingLeft">5dp</item>
     </style>
-    
+
     <style name="MainSidePaneRight">
         <item name="android:paddingLeft">0dp</item>
     </style>
-    
+
     <style name="MainPane">
         <item name="android:paddingRight">5dp</item>
     </style>
-    
-   <style name="EntityItemTextView">
+
+    <style name="EntityItemTextView">
         <item name="android:paddingLeft">2dp</item>
         <item name="android:paddingTop">10dp</item>
         <item name="android:paddingBottom">10dp</item>
         <item name="android:paddingRight">2dp</item>
     </style>
-    
-   <style name="EntityItemText" parent="@android:style/TextAppearance.Large">
-       
-   </style>
-    
+
+    <style name="EntityItemText" parent="@android:style/TextAppearance.Large">
+
+    </style>
+
 </resources>

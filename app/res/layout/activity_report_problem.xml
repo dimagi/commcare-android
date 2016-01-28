@@ -29,7 +29,7 @@
             android:layout_centerVertical="true"
             android:padding="@dimen/content_min_margin"
             android:text="@string/hello_world"
-            tools:context=".ReportProblemActivity" />
+            tools:context=".ReportProblemActivity"/>
 
         <EditText
             android:id="@+id/ReportText01"
@@ -40,7 +40,7 @@
             android:hint="@string/your_comment"
             android:inputType="textMultiLine"
             android:lines="5"
-            android:textColor="@color/black" />
+            android:textColor="@color/black"/>
 
         <Button
             android:id="@+id/ReportButton01"
@@ -48,7 +48,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/ReportText01"
             android:layout_centerHorizontal="true"
-            android:text="Submit Report" />
+            android:text="Submit Report"/>
 
     </RelativeLayout>
 </ScrollView>

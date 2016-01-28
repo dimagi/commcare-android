@@ -39,13 +39,13 @@ import org.odk.collect.android.logic.PendingCalloutInterface;
 
 /**
  * Widget that allows user to scan barcodes and add them to the form.
- * 
+ *
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 public class IntentWidget extends QuestionWidget {
 
     protected Button launchIntentButton;
-    protected TextView mStringAnswer;
+    private TextView mStringAnswer;
     private final Intent intent;
     protected final IntentCallout ic;
     private int calloutId = FormEntryActivity.INTENT_CALLOUT;
@@ -87,7 +87,7 @@ public class IntentWidget extends QuestionWidget {
 
 
         //only auto advance if 1) we have no data 2) its quick 3) we weren't just cancelled
-        if(s == null && "quick".equals(ic.getAppearance()) && !ic.getCancelled()){
+        if (s == null && "quick".equals(ic.getAppearance()) && !ic.getCancelled()) {
             performCallout();
         } else if (ic.getCancelled()) {
             // reset the cancelled flag
@@ -95,7 +95,7 @@ public class IntentWidget extends QuestionWidget {
         }
     }
 
-    public void makeButton(){
+    public void makeButton() {
         setOrientation(LinearLayout.VERTICAL);
 
         launchIntentButton = new Button(getContext());
@@ -104,7 +104,7 @@ public class IntentWidget extends QuestionWidget {
         Spannable label;
         if (s != null) {
             label = StringUtils.getStringSpannableRobust(getContext(), R.string.intent_callout_button_update);
-        } else{
+        } else {
             label = StringUtils.getStringSpannableRobust(getContext(), R.string.intent_callout_button);
         }
 
@@ -123,14 +123,14 @@ public class IntentWidget extends QuestionWidget {
         addView(launchIntentButton);
     }
 
-    public void performCallout() {
+    private void performCallout() {
         try {
             //Set Data
             String data = mStringAnswer.getText().toString();
             if (data != null && !"".equals(data)) {
                 intent.putExtra(IntentCallout.INTENT_RESULT_VALUE, data);
             }
-            ((Activity) getContext()).startActivityForResult(intent, calloutId);
+            ((Activity)getContext()).startActivityForResult(intent, calloutId);
             pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),
@@ -138,12 +138,12 @@ public class IntentWidget extends QuestionWidget {
         }
     }
 
-    private void setButtonLabel(){
-        if(ic.getButtonLabel() != null){
+    private void setButtonLabel() {
+        if (ic.getButtonLabel() != null) {
             launchIntentButton.setText(ic.getButtonLabel());
-        } else{
+        } else {
             launchIntentButton.setText(StringUtils.getStringSpannableRobust(getContext(),
-                        R.string.intent_callout_button));
+                    R.string.intent_callout_button));
         }
     }
 
@@ -177,7 +177,7 @@ public class IntentWidget extends QuestionWidget {
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
         InputMethodManager inputManager =
-            (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+                (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
 
@@ -201,7 +201,7 @@ public class IntentWidget extends QuestionWidget {
         launchIntentButton.cancelLongPress();
         mStringAnswer.cancelLongPress();
     }
-    
+
     public IntentCallout getIntentCallout() {
         //TODO: This is really not great, but the alternative
         //is doubling up all of this code in the ODKView, which

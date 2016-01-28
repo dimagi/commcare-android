@@ -4,9 +4,13 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
 import android.preference.ListPreference;
+import android.preference.PreferenceManager;
 
+import org.commcare.android.analytics.GoogleAnalyticsFields;
+import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 
 /**
  * @author yanokwa
@@ -21,10 +25,20 @@ public class FormEntryPreferences extends SessionAwarePreferenceActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
-
+        GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_FORM_PREFS);
         setTitle(getString(R.string.application_name) + " > " + getString(R.string.form_entry_settings));
-
         updateFontSize();
+        createPreferenceOnClickListeners();
+    }
+
+    private void createPreferenceOnClickListeners() {
+        PreferenceManager prefMgr = getPreferenceManager();
+        GoogleAnalyticsUtils.createPreferenceOnClickListener(prefMgr, KEY_FONT_SIZE,
+                GoogleAnalyticsFields.CATEGORY_FORM_PREFS,
+                GoogleAnalyticsFields.LABEL_FONT_SIZE);
+        GoogleAnalyticsUtils.createPreferenceOnClickListener(prefMgr, KEY_HELP_MODE_TRAY,
+                GoogleAnalyticsFields.CATEGORY_FORM_PREFS,
+                GoogleAnalyticsFields.LABEL_INLINE_HELP);
     }
 
     @Override
@@ -38,7 +52,6 @@ public class FormEntryPreferences extends SessionAwarePreferenceActivity
     protected void onResume() {
         super.onResume();
         getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-
         updateFontSize();
     }
 
@@ -46,9 +59,16 @@ public class FormEntryPreferences extends SessionAwarePreferenceActivity
     public void onSharedPreferenceChanged(final SharedPreferences sharedPreferences, final String key) {
         switch (key) {
             case KEY_FONT_SIZE:
+                reportEditPreference(GoogleAnalyticsFields.LABEL_FONT_SIZE);
                 updateFontSize();
                 break;
+            case KEY_HELP_MODE_TRAY:
+                reportEditPreference(GoogleAnalyticsFields.LABEL_INLINE_HELP);
         }
+    }
+
+    private static void reportEditPreference(String label) {
+        GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_FORM_PREFS, label);
     }
 
     private void updateFontSize() {
