@@ -19,11 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * @author Phillip Mates (pmates@dimagi.com).
- */
 public class EntitySearcher {
-
     private final String filterRaw;
     private final String[] searchTerms;
     private final List<Entity<TreeReference>> matchList = new ArrayList<>();

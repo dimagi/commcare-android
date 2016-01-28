@@ -11,9 +11,6 @@ import org.javarosa.xpath.expr.XPathFuncExpr;
 
 import java.util.Comparator;
 
-/**
- * @author Phillip Mates (pmates@dimagi.com).
- */
 public class EntitySorter implements Comparator<Entity<TreeReference>> {
     private final DetailField[] detailFields;
     private final boolean reverseSort;
@@ -39,13 +36,11 @@ public class EntitySorter implements Comparator<Entity<TreeReference>> {
     }
 
     private int getCmp(Entity<TreeReference> object1, Entity<TreeReference> object2, int index) {
-
         int sortType = detailFields[index].getSortType();
 
         String a1 = object1.getSortField(index);
         String a2 = object2.getSortField(index);
 
-        // COMMCARE-161205: Problem with search functionality
         // If one of these is null, we need to get the field in the same index, not the field in SortType
         if (a1 == null) {
             a1 = object1.getFieldString(index);
