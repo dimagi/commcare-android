@@ -26,9 +26,9 @@ public class EntitySearcher {
 
     private final String filterRaw;
     private final String[] searchTerms;
-    final List<Entity<TreeReference>> matchList;
+    private final List<Entity<TreeReference>> matchList;
     //Ugh, annoying.
-    final ArrayList<Pair<Integer, Integer>> matchScores;
+    private final ArrayList<Pair<Integer, Integer>> matchScores;
     private boolean cancelled = false;
     private final boolean mAsyncMode;
     private final boolean mFuzzySearchEnabled;
@@ -36,7 +36,7 @@ public class EntitySearcher {
     private final List<Entity<TreeReference>> full;
     private final Activity context;
     private final EntityListAdapter adapter;
-    Thread thread;
+    private Thread thread;
 
 
     public EntitySearcher(EntityListAdapter adapter,
@@ -67,7 +67,6 @@ public class EntitySearcher {
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                     }
                 }
@@ -82,7 +81,6 @@ public class EntitySearcher {
         try {
             thread.join();
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
     }
