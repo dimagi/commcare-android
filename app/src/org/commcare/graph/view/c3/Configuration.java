@@ -2,12 +2,13 @@ package org.commcare.graph.view.c3;
 
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
-import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.util.OrderedHashtable;
+
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Base class for helper classes that build C3 graph configuration.
@@ -23,19 +24,19 @@ public class Configuration {
 
     final GraphData mData;
     final JSONObject mConfiguration;
-    final OrderedHashtable<String, String> mVariables;
+    final SortedMap<String, String> mVariables;
 
     Configuration(GraphData data) {
         mData = data;
         mConfiguration = new JSONObject();
-        mVariables = new OrderedHashtable<>();
+        mVariables = new TreeMap<>();
     }
 
     public JSONObject getConfiguration() {
         return mConfiguration;
     }
 
-    public OrderedHashtable<String, String> getVariables() {
+    public SortedMap<String, String> getVariables() {
         return mVariables;
     }
 
@@ -56,7 +57,7 @@ public class Configuration {
             }
         } else {
             double daysSinceEpoch = parseDouble(value, description);
-            Date d = new Date((long)(daysSinceEpoch * DateUtils.DAY_IN_MS));
+            Date d = new Date((long)(daysSinceEpoch * 86400000l));
             value = mDateFormat.format(d);
         }
         return value;
