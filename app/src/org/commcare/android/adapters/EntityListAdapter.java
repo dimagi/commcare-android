@@ -2,7 +2,6 @@ package org.commcare.android.adapters;
 
 import android.app.Activity;
 import android.database.DataSetObserver;
-import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
@@ -50,8 +49,6 @@ public class EntityListAdapter implements ListAdapter {
     private List<Entity<TreeReference>> current;
     private final List<TreeReference> references;
 
-    private final TextToSpeech tts;
-
     private TreeReference selected;
 
     private int[] currentSort = {};
@@ -71,7 +68,7 @@ public class EntityListAdapter implements ListAdapter {
     public EntityListAdapter(Activity activity, Detail detail,
                              List<TreeReference> references,
                              List<Entity<TreeReference>> full,
-                             int[] sort, TextToSpeech tts,
+                             int[] sort,
                              NodeEntityFactory factory) {
         this.detail = detail;
         actionEnabled = detail.getCustomAction() != null;
@@ -99,7 +96,6 @@ public class EntityListAdapter implements ListAdapter {
             setCurrent(new ArrayList<>(full));
         }
 
-        this.tts = tts;
         if (android.os.Build.VERSION.SDK_INT >= 14) {
             mImageLoader = new CachingAsyncImageLoader(context);
         } else {
@@ -242,7 +238,7 @@ public class EntityListAdapter implements ListAdapter {
             EntityView emv = (EntityView)convertView;
 
             if (emv == null) {
-                emv = EntityView.buildEntryEntityView(context, detail, entity, tts, currentSearchTerms, position, mFuzzySearchEnabled);
+                emv = EntityView.buildEntryEntityView(context, detail, entity, null, currentSearchTerms, position, mFuzzySearchEnabled);
             } else {
                 emv.setSearchTerms(currentSearchTerms);
                 emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);

@@ -966,7 +966,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         setupDivider(view);
 
-        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, null, factory);
+        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, factory);
 
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
