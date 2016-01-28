@@ -14,12 +14,10 @@ import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.tasks.DataPullTask;
-import org.commcare.android.tasks.ManageKeyRecordListener;
-import org.commcare.android.tasks.ManageKeyRecordTask;
+import org.commcare.android.tasks.ExternalManageKeyRecordTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
-import org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
@@ -49,46 +47,32 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 
         @Override
         public void connectTask(CommCareTask task) {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         public void startBlockingForTask(int id) {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         public void stopBlockingForTask(int id) {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         public void taskCancelled(int id) {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         public Object getReceiver() {
-            // TODO Auto-generated method stub
             return null;
         }
 
         @Override
         public void startTaskTransition() {
-            // TODO Auto-generated method stub
-
         }
 
         @Override
         public void stopTaskTransition() {
-            // TODO Auto-generated method stub
-
         }
-
     };
 
     @Override
@@ -118,15 +102,12 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             String password = b.getString("password");
             tryLocalLogin(context, username, password);
         } else if (b.getString("commcareaction").equals("sync")) {
-
             boolean formsToSend = checkAndStartUnsentTask(context);
 
             if (!formsToSend) {
                 //No unsent forms, just sync
                 syncData(context);
             }
-
-
         }
     }
 
@@ -159,16 +140,11 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 
                 @Override
                 protected void deliverUpdate(Object receiver, Long... update) {
-                    // TODO Auto-generated method stub
-
                 }
 
                 @Override
                 protected void deliverError(Object receiver, Exception e) {
-                    // TODO Auto-generated method stub
-
                 }
-
             };
 
             try {
@@ -215,21 +191,16 @@ public class ExternalApiReceiver extends BroadcastReceiver {
 
             @Override
             protected void deliverUpdate(Object receiver, Integer... update) {
-                // TODO Auto-generated method stub
-
             }
 
             @Override
             protected void deliverError(Object receiver, Exception e) {
-                // TODO Auto-generated method stub
-
             }
 
         };
         mDataPullTask.connect(dummyconnector);
         mDataPullTask.execute();
     }
-
 
     private boolean tryLocalLogin(Context context, String uname, String password) {
         try {
@@ -268,29 +239,9 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             //TODO: See if it worked first?
 
             CommCareApplication._().startUserSession(key, matchingRecord, false);
-            ManageKeyRecordTask mKeyRecordTask = new ManageKeyRecordTask<Object>(context, 0,
+            ExternalManageKeyRecordTask mKeyRecordTask = new ExternalManageKeyRecordTask(context, 0,
                     matchingRecord.getUsername(), password, LoginMode.PASSWORD,
-                    CommCareApplication._().getCurrentApp(), false,
-                    new ManageKeyRecordListener() {
-
-                        @Override
-                        public void keysLoginComplete(Object o) {
-                        }
-
-                        @Override
-                        public void keysReadyForSync(Object o) {
-                        }
-
-                        @Override
-                        public void keysDoneOther(Object o, HttpCalloutOutcomes outcome) {
-                        }
-
-                    }) {
-
-                @Override
-                protected void deliverUpdate(Object r, String... update) {
-                }
-            };
+                    CommCareApplication._().getCurrentApp(), false);
 
             mKeyRecordTask.connect(dummyconnector);
             mKeyRecordTask.execute();
