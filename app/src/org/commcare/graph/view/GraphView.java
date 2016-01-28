@@ -9,14 +9,14 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 
-import org.commcare.dalvik.activities.CommCareGraphActivity;    //TODO
+import org.commcare.graph.activities.GraphActivity;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
 import org.commcare.graph.view.c3.AxisConfiguration;
 import org.commcare.graph.view.c3.DataConfiguration;
 import org.commcare.graph.view.c3.GridConfiguration;
 import org.commcare.graph.view.c3.LegendConfiguration;
-import org.commcare.dalvik.BuildConfig; //TODO
+import org.commcare.dalvik.BuildConfig;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,7 +44,11 @@ public class GraphView {
     }
 
     public Intent getIntent(String html) {
-        Intent intent = new Intent(mContext, CommCareGraphActivity.class);
+        return getIntent(html, GraphActivity.class);
+    }
+
+    public Intent getIntent(String html, Class className) {
+        Intent intent = new Intent(mContext, className);
         intent.putExtra(HTML, html);
         intent.putExtra(TITLE, mTitle);
         return intent;

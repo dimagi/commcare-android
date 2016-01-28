@@ -22,6 +22,7 @@ import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.activities.CommCareGraphActivity;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
 import org.commcare.graph.view.GraphView;
@@ -275,7 +276,7 @@ public class EntityDetailView extends FrameLayout {
                     if (graphHTML.equals("")) {
                         graphHTML = g.getHTML((GraphData)field);
                     }
-                    graphIntent = g.getIntent(graphHTML);
+                    graphIntent = g.getIntent(graphHTML, CommCareGraphActivity.class);
                     graphIntentsCache.put(index, graphIntent);
                 } catch (GraphException ex) {
                     // This shouldn't happen, since any error should have been caught during getView above
