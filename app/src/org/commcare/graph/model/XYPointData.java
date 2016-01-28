@@ -1,4 +1,4 @@
-package org.commcare.android.models.graph;
+package org.commcare.graph.model;
 
 /**
  * Representation of a point on an x, y plane.

@@ -1,4 +1,4 @@
-package org.commcare.android.view;
+package org.commcare.graph.view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -9,12 +9,12 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 
-import org.commcare.android.models.graph.GraphData;
+import org.commcare.graph.model.GraphData;
 import org.commcare.android.util.InvalidStateException;
-import org.commcare.android.view.c3.AxisConfiguration;
-import org.commcare.android.view.c3.DataConfiguration;
-import org.commcare.android.view.c3.GridConfiguration;
-import org.commcare.android.view.c3.LegendConfiguration;
+import org.commcare.graph.view.c3.AxisConfiguration;
+import org.commcare.graph.view.c3.DataConfiguration;
+import org.commcare.graph.view.c3.GridConfiguration;
+import org.commcare.graph.view.c3.LegendConfiguration;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.activities.GraphActivity;
 import org.javarosa.core.util.OrderedHashtable;

@@ -1,4 +1,6 @@
-package org.commcare.android.models.graph;
+package org.commcare.graph.model;
+
+import org.commcare.graph.model.XYPointData;
 
 import java.util.Hashtable;
 import java.util.Vector;
@@ -33,7 +35,7 @@ public class SeriesData implements ConfigurableData {
 
     /*
      * (non-Javadoc)
-     * @see org.commcare.android.models.graph.ConfigurableData#setConfiguration(java.lang.String, java.lang.String)
+     * @see org.commcare.graph.model.ConfigurableData#setConfiguration(java.lang.String, java.lang.String)
      */
 
     public void setConfiguration(String key, String value) {
@@ -42,7 +44,7 @@ public class SeriesData implements ConfigurableData {
 
     /*
      * (non-Javadoc)
-     * @see org.commcare.android.models.graph.ConfigurableData#getConfiguration(java.lang.String)
+     * @see org.commcare.graph.model.ConfigurableData#getConfiguration(java.lang.String)
      */
     public String getConfiguration(String key) {
         return mConfiguration.get(key);
@@ -50,7 +52,7 @@ public class SeriesData implements ConfigurableData {
 
     /*
      * (non-Javadoc)
-     * @see org.commcare.android.models.graph.ConfigurableData#getConfiguration(java.lang.String, java.lang.String)
+     * @see org.commcare.graph.model.ConfigurableData#getConfiguration(java.lang.String, java.lang.String)
      */
     public String getConfiguration(String key, String defaultValue) {
         String value = getConfiguration(key);

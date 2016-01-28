@@ -1,4 +1,4 @@
-package org.commcare.android.models.graph;
+package org.commcare.graph.model;
 
 /**
  * Interface to be implemented by any classes in this package that store configuration data using a String => String mapping.

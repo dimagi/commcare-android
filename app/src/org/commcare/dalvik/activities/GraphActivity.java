@@ -7,7 +7,7 @@ import android.view.Window;
 import android.webkit.WebView;
 
 import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.view.GraphView;
+import org.commcare.graph.view.GraphView;
 
 /**
  * Full-screen view of a graph.
