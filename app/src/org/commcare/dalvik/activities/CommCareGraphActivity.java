@@ -12,7 +12,7 @@ import org.commcare.graph.activities.GraphActivityStateHandler;
  *
  * Created by jschweers on 11/20/2015.
  */
-public class GraphActivity extends CommCareActivity {
+public class CommCareGraphActivity extends CommCareActivity {
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
