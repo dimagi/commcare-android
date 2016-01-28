@@ -26,13 +26,12 @@ public class EntitySearcher {
 
     private final String filterRaw;
     private final String[] searchTerms;
-    private final List<Entity<TreeReference>> matchList;
-    //Ugh, annoying.
-    private final ArrayList<Pair<Integer, Integer>> matchScores;
+    private final List<Entity<TreeReference>> matchList = new ArrayList<>();
+    private final ArrayList<Pair<Integer, Integer>> matchScores = new ArrayList<>();
     private boolean cancelled = false;
-    private final boolean mAsyncMode;
-    private final boolean mFuzzySearchEnabled;
-    private final NodeEntityFactory mNodeFactory;
+    private final boolean isAsyncMode;
+    private final boolean isFuzzySearchEnabled;
+    private final NodeEntityFactory nodeFactory;
     private final List<Entity<TreeReference>> full;
     private final Activity context;
     private final EntityListAdapter adapter;
@@ -41,20 +40,18 @@ public class EntitySearcher {
 
     public EntitySearcher(EntityListAdapter adapter,
                           String filterRaw, String[] searchTerms,
-                          boolean asyncMode, boolean fuzzySearch,
+                          boolean isAsyncMode, boolean isFuzzySearchEnabled,
                           NodeEntityFactory nodeFactory,
                           List<Entity<TreeReference>> full,
                           Activity context) {
         this.adapter = adapter;
         this.full = full;
         this.context = context;
-        this.mAsyncMode = asyncMode;
-        this.mFuzzySearchEnabled = fuzzySearch;
-        this.mNodeFactory = nodeFactory;
+        this.isAsyncMode = isAsyncMode;
+        this.isFuzzySearchEnabled = isFuzzySearchEnabled;
+        this.nodeFactory = nodeFactory;
         this.filterRaw = filterRaw;
         this.searchTerms = searchTerms;
-        matchList = new ArrayList<>();
-        matchScores = new ArrayList<>();
     }
 
     public void startThread() {
@@ -63,7 +60,7 @@ public class EntitySearcher {
             public void run() {
                 //Make sure that we have loaded the necessary cached data
                 //before we attempt to search over it
-                while (!mNodeFactory.isEntitySetReady()) {
+                while (!nodeFactory.isEntitySetReady()) {
                     try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
@@ -126,7 +123,7 @@ public class EntitySearcher {
                     } else {
                         // We possibly now want to test for edit distance for
                         // fuzzy matching
-                        if (mFuzzySearchEnabled) {
+                        if (isFuzzySearchEnabled) {
                             for (String fieldChunk : e.getSortFieldPieces(i)) {
                                 Pair<Boolean, Integer> match = StringUtils.fuzzyMatch(filter, fieldChunk);
                                 if (match.first) {
@@ -144,7 +141,7 @@ public class EntitySearcher {
                 matchScores.add(Pair.create(index, score));
             }
         }
-        if (mAsyncMode) {
+        if (isAsyncMode) {
             Collections.sort(matchScores, new Comparator<Pair<Integer, Integer>>() {
                 @Override
                 public int compare(Pair<Integer, Integer> lhs, Pair<Integer, Integer> rhs) {
