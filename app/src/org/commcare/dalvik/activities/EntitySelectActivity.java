@@ -20,6 +20,7 @@ import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -290,12 +291,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             barcodeScanOnClickListener = makeBarcodeClickListener();
         } else {
             barcodeScanOnClickListener = makeCalloutClickListener(callout);
+            if(callout.getImage() != null){
+                setupImageLayout(barcodeButton, callout.getImage());
+            }
         }
 
         barcodeButton.setOnClickListener(barcodeScanOnClickListener);
-        if(callout.getImage() != null){
-            setupImageLayout(barcodeButton, callout.getImage());
-        }
 
         searchbox.addTextChangedListener(this);
         searchbox.requestFocus();
@@ -770,7 +771,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION,
                         action.getDisplay().evaluate());
             }
-            if(shortSelect.getCallout().getImage() != null){
+            if(shortSelect.getCallout() != null && shortSelect.getCallout().getImage() != null){
                 setupImageLayout(barcodeItem, shortSelect.getCallout().getImage());
             }
         }
