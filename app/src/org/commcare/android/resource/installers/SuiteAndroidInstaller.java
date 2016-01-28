@@ -14,6 +14,7 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
+import org.commcare.xml.AndroidSuiteParser;
 import org.commcare.xml.SuiteParser;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -51,7 +52,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             }
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
-            SuiteParser parser = new SuiteParser(local.getStream(),
+            SuiteParser parser = new AndroidSuiteParser(local.getStream(),
                     instance.getGlobalResourceTable(), null, instance.getFixtureStorage());
             parser.setSkipResources(true);
 
@@ -75,7 +76,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
-            SuiteParser parser = new SuiteParser(local.getStream(), table,
+            SuiteParser parser = new AndroidSuiteParser(local.getStream(), table,
                     r.getRecordGuid(), instance.getFixtureStorage());
 
             Suite s = parser.parse();
@@ -104,7 +105,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
-            Suite mSuite = (new SuiteParser(local.getStream(), new DummyResourceTable(), null, null) {
+            Suite mSuite = (new AndroidSuiteParser(local.getStream(), new DummyResourceTable(), null, null) {
                 @Override
                 protected boolean inValidationMode() {
                     return true;

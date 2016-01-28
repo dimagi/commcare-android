@@ -11,8 +11,8 @@ import android.widget.TextView;
 
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
+import org.commcare.suite.model.DisplayData;
 import org.commcare.suite.model.DisplayUnit;
-import org.commcare.suite.model.graph.DisplayData;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;

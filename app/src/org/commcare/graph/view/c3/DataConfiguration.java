@@ -1,14 +1,15 @@
-package org.commcare.android.view.c3;
+package org.commcare.graph.view.c3;
 
 import android.graphics.Color;
 
-import org.commcare.android.util.InvalidStateException;
-import org.commcare.suite.model.graph.AnnotationData;
-import org.commcare.suite.model.graph.BubblePointData;
-import org.commcare.suite.model.graph.Graph;
-import org.commcare.suite.model.graph.GraphData;
-import org.commcare.suite.model.graph.SeriesData;
-import org.commcare.suite.model.graph.XYPointData;
+import org.commcare.graph.model.AnnotationData;
+import org.commcare.graph.model.BubblePointData;
+import org.commcare.graph.model.GraphData;
+import org.commcare.graph.model.SeriesData;
+import org.commcare.graph.model.XYPointData;
+import org.commcare.graph.util.GraphException;
+import org.commcare.graph.util.GraphUtil;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -72,7 +73,7 @@ public class DataConfiguration extends Configuration {
     private final JSONObject mRadii = new JSONObject();
     private final JSONObject mMaxRadii = new JSONObject();
 
-    public DataConfiguration(GraphData data) throws JSONException, InvalidStateException {
+    public DataConfiguration(GraphData data) throws GraphException, JSONException {
         super(data);
 
         // Process data for each series
@@ -111,7 +112,7 @@ public class DataConfiguration extends Configuration {
         addBoundaries();
 
         // Type-specific logic
-        if (mData.getType().equals(Graph.TYPE_TIME)) {
+        if (mData.getType().equals(GraphUtil.TYPE_TIME)) {
             mConfiguration.put("xFormat", "%Y-%m-%d %H:%M:%S");
         }
 
@@ -128,7 +129,7 @@ public class DataConfiguration extends Configuration {
     /**
      * Add annotations, by creating a fake series with data labels turned on.
      */
-    private void addAnnotations() throws JSONException, InvalidStateException {
+    private void addAnnotations() throws GraphException, JSONException {
         JSONObject text = new JSONObject();
 
         int index = 0;
@@ -141,7 +142,7 @@ public class DataConfiguration extends Configuration {
             // Add x value
             JSONArray xValues = new JSONArray();
             xValues.put(xID);
-            if (mData.getType().equals(Graph.TYPE_TIME)) {
+            if (mData.getType().equals(GraphUtil.TYPE_TIME)) {
                 xValues.put(parseTime(a.getX(), description));
             } else {
                 xValues.put(parseDouble(a.getX(), description));
@@ -170,7 +171,7 @@ public class DataConfiguration extends Configuration {
      * min and max. C3 does tick placement in part based on data, so this will force
      * it to place ticks based on the user's desired min/max range.
      */
-    private void addBoundaries() throws JSONException, InvalidStateException {
+    private void addBoundaries() throws GraphException, JSONException {
         String xMin = mData.getConfiguration("x-min");
         String xMax = mData.getConfiguration("x-max");
 
@@ -185,7 +186,7 @@ public class DataConfiguration extends Configuration {
             // now create the matchin x values
             JSONArray xValues = new JSONArray();
             xValues.put(xID);
-            if (mData.getType().equals(Graph.TYPE_TIME)) {
+            if (mData.getType().equals(GraphUtil.TYPE_TIME)) {
                 xValues.put(parseTime(xMin, "x-min"));
                 xValues.put(parseTime(xMax, "x-max"));
             } else {
@@ -205,7 +206,7 @@ public class DataConfiguration extends Configuration {
      * @param prefix "y" or "secondary-y"
      * @return True iff a series was actually created
      */
-    private boolean addBoundary(String xID, String yID, String prefix) throws JSONException, InvalidStateException {
+    private boolean addBoundary(String xID, String yID, String prefix) throws GraphException, JSONException {
         String min = mData.getConfiguration(prefix + "-min");
         String max = mData.getConfiguration(prefix + "-max");
         if (min != null && max != null) {
@@ -232,7 +233,7 @@ public class DataConfiguration extends Configuration {
     private JSONArray getGroups() throws JSONException {
         JSONArray outer = new JSONArray();
         JSONArray inner = new JSONArray();
-        if (mData.getType().equals(Graph.TYPE_BAR)
+        if (mData.getType().equals(GraphUtil.TYPE_BAR)
                 && Boolean.valueOf(mData.getConfiguration("stack", "false"))) {
             for (Iterator<String> i = mTypes.keys(); i.hasNext(); ) {
                 String key = i.next();
@@ -259,7 +260,7 @@ public class DataConfiguration extends Configuration {
      * For bar charts, set up bar labels and force the x axis min and max so bars are spaced nicely
      */
     private void normalizeBoundaries() throws JSONException {
-        if (mData.getType().equals(Graph.TYPE_BAR)) {
+        if (mData.getType().equals(GraphUtil.TYPE_BAR)) {
             mData.setConfiguration("x-min", "0.5");
             mData.setConfiguration("x-max", String.valueOf(mBarCount + 0.5));
             mBarLabels.put("");
@@ -343,19 +344,19 @@ public class DataConfiguration extends Configuration {
      * @param yID ID of the y-values array
      * @param s   The SeriesData providing the data
      */
-    private void setColumns(String xID, String yID, SeriesData s) throws InvalidStateException, JSONException {
+    private void setColumns(String xID, String yID, SeriesData s) throws GraphException, JSONException {
         JSONArray xValues = new JSONArray();
         JSONArray yValues = new JSONArray();
         xValues.put(xID);
         yValues.put(yID);
 
         int barIndex = 0;
-        boolean addBarLabels = mData.getType().equals(Graph.TYPE_BAR) && mBarLabels.length() == 1;
+        boolean addBarLabels = mData.getType().equals(GraphUtil.TYPE_BAR) && mBarLabels.length() == 1;
         JSONArray rValues = new JSONArray();
         double maxRadius = parseDouble(s.getConfiguration("max-radius", "0"), "max-radius");
         for (XYPointData p : s.getPoints()) {
             String description = "data (" + p.getX() + ", " + p.getY() + ")";
-            if (mData.getType().equals(Graph.TYPE_BAR)) {
+            if (mData.getType().equals(GraphUtil.TYPE_BAR)) {
                 // In CommCare, bar graphs are specified with x as a set of text labels
                 // and y as a set of values. In C3, bar graphs are still basically
                 // of XY graphs, with numeric x and y values. Deal with this by
@@ -367,7 +368,7 @@ public class DataConfiguration extends Configuration {
                     mBarLabels.put(p.getX());
                 }
             } else {
-                if (mData.getType().equals(Graph.TYPE_TIME)) {
+                if (mData.getType().equals(GraphUtil.TYPE_TIME)) {
                     xValues.put(parseTime(p.getX(), description));
                 } else {
                     xValues.put(parseDouble(p.getX(), description));
@@ -376,7 +377,7 @@ public class DataConfiguration extends Configuration {
             yValues.put(parseDouble(p.getY(), description));
 
             // Bubble charts also get a radius
-            if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+            if (mData.getType().equals(GraphUtil.TYPE_BUBBLE)) {
                 BubblePointData b = (BubblePointData)p;
                 double r = parseDouble(b.getRadius(), description + " with radius " + b.getRadius());
                 rValues.put(r);
@@ -387,7 +388,7 @@ public class DataConfiguration extends Configuration {
         }
         mColumns.put(xValues);
         mColumns.put(yValues);
-        if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+        if (mData.getType().equals(GraphUtil.TYPE_BUBBLE)) {
             mRadii.put(yID, rValues);
             mMaxRadii.put(yID, maxRadius);
         }
@@ -428,10 +429,10 @@ public class DataConfiguration extends Configuration {
      */
     private void setPointStyle(String yID, SeriesData s) throws JSONException {
         String symbol;
-        if (mData.getType().equals(Graph.TYPE_BAR)) {
+        if (mData.getType().equals(GraphUtil.TYPE_BAR)) {
             // point-style doesn't apply to bar charts
             symbol = "none";
-        } else if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+        } else if (mData.getType().equals(GraphUtil.TYPE_BUBBLE)) {
             // point-style doesn't apply to bubble charts,
             // but this'll make the legend symbol a circle
             symbol = "circle";
@@ -452,9 +453,9 @@ public class DataConfiguration extends Configuration {
      */
     private void setType(String yID, SeriesData s) throws JSONException {
         String type = "line";
-        if (mData.getType().equals(Graph.TYPE_BUBBLE)) {
+        if (mData.getType().equals(GraphUtil.TYPE_BUBBLE)) {
             type = "scatter";
-        } else if (mData.getType().equals(Graph.TYPE_BAR)) {
+        } else if (mData.getType().equals(GraphUtil.TYPE_BAR)) {
             type = "bar";
         } else if (s.getConfiguration("fill-below") != null) {
             type = "area";
