@@ -1404,7 +1404,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void showSaveErrorAndExit() {
-        Toast.makeText(this, StringUtils.getStringSpannableRobust(this, R.string.data_saved_error), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, Localization.get("form.entry.save.error"), Toast.LENGTH_SHORT).show();
         hasSaved = false;
         finishReturnInstance();
     }
@@ -1434,7 +1434,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         } else if (!headless &&
                 !saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS, complete, headless)) {
             Toast.makeText(this,
-                    StringUtils.getStringSpannableRobust(this, R.string.data_saved_error),
+                    Localization.get("form.entry.save.error"),
                     Toast.LENGTH_SHORT).show();
             return;
         }
