@@ -181,6 +181,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     // rotation (or similar)
     private static final String KEY_FORM_LOAD_HAS_TRIGGERED = "newform";
     private static final String KEY_FORM_LOAD_FAILED = "form-failed";
+    private static final String KEY_LOC_ERROR = "location-not-enabled";
+    private static final String KEY_LOC_ERROR_PATH = "location-based-xpath-error";
 
     private static final int MENU_LANGUAGES = Menu.FIRST + 1;
     private static final int MENU_HIERARCHY_VIEW = Menu.FIRST + 2;
@@ -211,6 +213,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean mIncompleteEnabled = true;
     private boolean hasFormLoadBeenTriggered = false;
     private boolean hasFormLoadFailed = false;
+    private String locationRecieverErrorAction = null;
+    private String badLocationXpath = null;
 
     // used to limit forward/backward swipes to one per question
     private boolean isAnimatingSwipe;
@@ -314,12 +318,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             @Override
             public void onReceive(Context context, Intent intent) {
                 context.removeStickyBroadcast(intent);
-                String action = intent.getAction();
-                if (GeoUtils.ACTION_CHECK_GPS_ENABLED.equals(action)) {
-                    handleNoGpsBroadcast(context);
-                } else if (PollSensorAction.XPATH_ERROR_ACTION.equals(action)) {
-                    handleXpathErrorBroadcast(intent);
-                }
+                badLocationXpath = intent.getStringExtra(PollSensorAction.KEY_UNRESOLVED_XPATH);
+                locationRecieverErrorAction = intent.getAction();
             }
         };
 
@@ -327,28 +327,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         filter.addAction(PollSensorAction.XPATH_ERROR_ACTION);
         filter.addAction(GeoUtils.ACTION_CHECK_GPS_ENABLED);
         registerReceiver(mLocationServiceIssueReceiver, filter);
-    }
-
-    private void handleNoGpsBroadcast(Context context) {
-        LocationManager manager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        Set<String> providers = GeoUtils.evaluateProviders(manager);
-        if (providers.isEmpty()) {
-            DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int i) {
-                    if (i == DialogInterface.BUTTON_POSITIVE) {
-                        Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                        startActivity(intent);
-                    }
-                    dialog.dismiss();
-                }
-            };
-            GeoUtils.showNoGpsDialog(this, onChangeListener);
-        }
-    }
-
-    private void handleXpathErrorBroadcast(Intent intent) {
-        String problemXpath = intent.getStringExtra(PollSensorAction.KEY_UNRESOLVED_XPATH);
-        UserfacingErrorHandling.logErrorAndShowDialog(this, new XPathException(problemXpath), EXIT);
     }
 
     private void setupUI() {
@@ -410,6 +388,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putString(KEY_FORMPATH, mFormPath);
         outState.putBoolean(KEY_FORM_LOAD_HAS_TRIGGERED, hasFormLoadBeenTriggered);
         outState.putBoolean(KEY_FORM_LOAD_FAILED, hasFormLoadFailed);
+        outState.putString(KEY_LOC_ERROR, locationRecieverErrorAction);
+        outState.putString(KEY_LOC_ERROR_PATH, badLocationXpath);
+
         outState.putString(KEY_FORM_CONTENT_URI, formProviderContentURI.toString());
         outState.putString(KEY_INSTANCE_CONTENT_URI, instanceProviderContentURI.toString());
         outState.putString(KEY_INSTANCEDESTINATION, mInstanceDestination);
@@ -800,7 +781,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         menu.add(0, MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.form_entry_settings)).setIcon(
                 android.R.drawable.ic_menu_preferences);
-        return true;
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
@@ -1885,6 +1867,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 protected void deliverError(FormEntryActivity receiver, Exception e) {
                     receiver.setFormLoadFailure();
                     receiver.dismissProgressDialog();
+
                     if (e != null) {
                         UserfacingErrorHandling.createErrorDialog(receiver, e.getMessage(), EXIT);
                     } else {
@@ -1903,6 +1886,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void handleFormLoadCompletion(FormController fc) {
+        if (GeoUtils.ACTION_CHECK_GPS_ENABLED.equals(locationRecieverErrorAction)) {
+            handleNoGpsBroadcast();
+        } else if (PollSensorAction.XPATH_ERROR_ACTION.equals(locationRecieverErrorAction)) {
+            handleXpathErrorBroadcast();
+        }
+
         mFormController = fc;
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
             // Newer menus may have already built the menu, before all data was ready
@@ -1948,6 +1937,29 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         reportFormEntry();
         refreshCurrentView();
         FormNavigationUI.updateNavigationCues(this, mFormController, mCurrentView);
+    }
+
+    private void handleNoGpsBroadcast() {
+        LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        Set<String> providers = GeoUtils.evaluateProviders(manager);
+        if (providers.isEmpty()) {
+            DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int i) {
+                    if (i == DialogInterface.BUTTON_POSITIVE) {
+                        Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                        startActivity(intent);
+                    }
+                    dialog.dismiss();
+                }
+            };
+            GeoUtils.showNoGpsDialog(this, onChangeListener);
+        }
+    }
+
+    private void handleXpathErrorBroadcast() {
+        CommCareActivity.createErrorDialog(FormEntryActivity.this,
+                "There is a bug in one of your form's XPath Expressions \n" + badLocationXpath, EXIT);
     }
 
     /**
@@ -2347,6 +2359,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             if (savedInstanceState.containsKey(KEY_FORM_LOAD_FAILED)) {
                 hasFormLoadFailed = savedInstanceState.getBoolean(KEY_FORM_LOAD_FAILED, false);
             }
+
+            locationRecieverErrorAction = savedInstanceState.getString(KEY_LOC_ERROR);
+            badLocationXpath = savedInstanceState.getString(KEY_LOC_ERROR_PATH);
+
             if (savedInstanceState.containsKey(KEY_FORM_CONTENT_URI)) {
                 formProviderContentURI = Uri.parse(savedInstanceState.getString(KEY_FORM_CONTENT_URI));
             }
