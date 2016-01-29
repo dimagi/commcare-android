@@ -24,7 +24,6 @@ class UpdateUIController implements CommCareActivityUIController {
     private SquareButtonWithText installUpdateButton;
     private ProgressBar progressBar;
     private TextView currentVersionText;
-    private TextView pendingUpdateText;
     private TextView progressText;
 
     private final UpdateActivity activity;
@@ -33,8 +32,6 @@ class UpdateUIController implements CommCareActivityUIController {
             Localization.get("updates.check.start");
     private final String stopCheckingText =
             Localization.get("updates.check.cancel");
-    private final String installText =
-            Localization.get("updates.check.install");
     private final String cancellingMsg =
             Localization.get("updates.check.cancelling");
     private final String beginCheckingText =
@@ -43,14 +40,12 @@ class UpdateUIController implements CommCareActivityUIController {
             Localization.get("updates.check.network_unavailable");
     private final String checkFailedMessage =
             Localization.get("updates.check.failed");
-    private final String upToDateAppliedOnLoginText =
-            Localization.get("updates.applied.on.login");
     private final String errorMsg = Localization.get("updates.error");
     private final String upToDateText = Localization.get("updates.success");
 
     private enum UIState {
         Idle, UpToDate, FailedCheck, Downloading, UnappliedUpdateAvailable,
-        Cancelling, Error, NoConnectivity
+        Cancelling, Error, NoConnectivity, ApplyingUpdate
     }
 
     private UIState currentUIState;
@@ -67,9 +62,6 @@ class UpdateUIController implements CommCareActivityUIController {
         progressText = (TextView)activity.findViewById(R.id.update_progress_text);
         currentVersionText =
                 (TextView)activity.findViewById(R.id.current_version_text);
-        pendingUpdateText =
-                (TextView)activity.findViewById(R.id.pending_update_text);
-        pendingUpdateText.setText(upToDateAppliedOnLoginText);
 
         setupButtonListeners();
         idleUiState();
@@ -77,7 +69,10 @@ class UpdateUIController implements CommCareActivityUIController {
 
     @Override
     public void refreshView() {
-        refreshStatusText();
+        if (currentUIState != UIState.ApplyingUpdate) {
+            // don't load app info while changing said app info; that causes crashes
+            refreshStatusText();
+        }
     }
 
     private void setupButtonListeners() {
@@ -109,7 +104,9 @@ class UpdateUIController implements CommCareActivityUIController {
                 activity.lauchUpdateInstallTask();
             }
         });
-        installUpdateButton.setText(installText);
+        String updateVersionPlaceholderMsg =
+            Localization.get("updates.staged.version", new String[]{"-1"});
+        installUpdateButton.setText(updateVersionPlaceholderMsg);
     }
 
     protected void upToDateUiState() {
@@ -126,7 +123,6 @@ class UpdateUIController implements CommCareActivityUIController {
         checkUpdateButton.setEnabled(true);
         stopUpdateButton.setVisibility(View.GONE);
         installUpdateButton.setVisibility(View.GONE);
-        pendingUpdateText.setVisibility(View.GONE);
 
         updateProgressText("");
         updateProgressBar(0, 100);
@@ -155,7 +151,6 @@ class UpdateUIController implements CommCareActivityUIController {
         stopUpdateButton.setVisibility(View.GONE);
         installUpdateButton.setVisibility(View.VISIBLE);
         progressBar.setVisibility(View.GONE);
-        pendingUpdateText.setVisibility(View.VISIBLE);
 
         updateProgressBar(100, 100);
 
@@ -183,7 +178,6 @@ class UpdateUIController implements CommCareActivityUIController {
         checkUpdateButton.setEnabled(false);
         stopUpdateButton.setVisibility(View.GONE);
         installUpdateButton.setVisibility(View.GONE);
-        pendingUpdateText.setVisibility(View.GONE);
 
         updateProgressText(errorMsg);
     }
@@ -194,9 +188,16 @@ class UpdateUIController implements CommCareActivityUIController {
         checkUpdateButton.setEnabled(false);
         stopUpdateButton.setVisibility(View.GONE);
         installUpdateButton.setVisibility(View.GONE);
-        pendingUpdateText.setVisibility(View.GONE);
 
         updateProgressText(noConnectivityMsg);
+    }
+    protected void applyingUpdateUiState() {
+        currentUIState = UIState.ApplyingUpdate;
+
+        checkUpdateButton.setVisibility(View.GONE);
+        stopUpdateButton.setVisibility(View.GONE);
+        installUpdateButton.setVisibility(View.GONE);
+        progressBar.setVisibility(View.GONE);
     }
 
     protected void updateProgressText(String msg) {
@@ -251,6 +252,9 @@ class UpdateUIController implements CommCareActivityUIController {
                 break;
             case NoConnectivity:
                 noConnectivityUiState();
+                break;
+            case ApplyingUpdate:
+                applyingUpdateUiState();
                 break;
             default:
                 break;

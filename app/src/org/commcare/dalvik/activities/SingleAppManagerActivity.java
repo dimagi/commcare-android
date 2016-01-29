@@ -18,7 +18,6 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.services.CommCareSessionService;
-import org.javarosa.core.services.locale.Localization;
 
 
 /**
@@ -125,12 +124,6 @@ public class SingleAppManagerActivity extends Activity {
                         Toast.makeText(this, R.string.update_canceled, Toast.LENGTH_LONG).show();
                         task.cancel(true);
                     }
-                } else if (resultCode == RESULT_OK) {
-                    if (intent.getBooleanExtra(CommCareSetupActivity.KEY_REQUIRE_REFRESH, true)) {
-                        Toast.makeText(this, Localization.get("update.success"), Toast.LENGTH_LONG).show();
-                        CommCareApplication._().expireUserSession();
-                    }
-                    return;
                 }
                 break;
             case DispatchActivity.MISSING_MEDIA_ACTIVITY:
@@ -225,6 +218,7 @@ public class SingleAppManagerActivity extends Activity {
             CommCareSessionService s = CommCareApplication._().getSession();
             if (s.isActive()) {
                 triggerLogoutWarning(LOGOUT_FOR_UPDATE);
+                update();
             } else {
                 update();
             }
