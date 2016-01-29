@@ -32,6 +32,7 @@ import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionStateUninitException;
+import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.AlertDialogFragment;
@@ -613,7 +614,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * tryToAddActionSearchBar} method.
      */
     public interface ActionBarInstantiator {
-        void onActionBarFound(MenuItem searchItem, SearchView searchView);
+        void onActionBarFound(MenuItem searchItem, SearchView searchView, MenuItem barcodeItem);
     }
 
     /**
@@ -635,6 +636,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             MenuItem searchItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
             SearchView searchView =
                     (SearchView) searchItem.getActionView();
+            MenuItem barcodeItem = menu.findItem(org.commcare.dalvik.R.id.barcode_scan_action_bar);
             if (searchView != null) {
                 int[] searchViewStyle =
                         AndroidUtil.getThemeColorIDs(this,
@@ -645,7 +647,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 TextView textView = (TextView) searchView.findViewById(id);
                 textView.setTextColor(searchViewStyle[0]);
                 if (instantiator != null) {
-                    instantiator.onActionBarFound(searchItem, searchView);
+                    instantiator.onActionBarFound(searchItem, searchView, barcodeItem);
                 }
             }
 

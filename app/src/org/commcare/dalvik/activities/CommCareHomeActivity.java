@@ -1232,6 +1232,7 @@ public class CommCareHomeActivity
                 return true;
             case MENU_PIN:
                 launchPinAuthentication();
+                return true;
             case MENU_DISABLE_ANALYTICS:
                 showAnalyticsOptOutDialog();
                 return true;

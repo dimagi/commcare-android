@@ -248,7 +248,7 @@
             android:windowSoftInputMode="stateUnchanged|adjustResize">
         </activity>
         <activity
-            android:name=".activities.GraphActivity">
+            android:name=".activities.CommCareGraphActivity">
         </activity>
         <activity
             android:name=".activities.EntityDetailActivity"
@@ -401,5 +401,8 @@
             <data android:mimeType="vnd.android.cursor.dir/vnd.odk.instance"/>
         </intent-filter>
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="${googlePlayMapsApiKey}"/>
     </application>
 </manifest>
