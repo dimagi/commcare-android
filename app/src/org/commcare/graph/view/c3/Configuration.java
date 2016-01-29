@@ -1,13 +1,14 @@
-package org.commcare.android.view.c3;
+package org.commcare.graph.view.c3;
 
-import org.commcare.android.util.InvalidStateException;
-import org.commcare.suite.model.graph.GraphData;
-import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.util.OrderedHashtable;
+import org.commcare.graph.model.GraphData;
+import org.commcare.graph.util.GraphException;
+
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Base class for helper classes that build C3 graph configuration.
@@ -23,19 +24,19 @@ public class Configuration {
 
     final GraphData mData;
     final JSONObject mConfiguration;
-    final OrderedHashtable<String, String> mVariables;
+    final SortedMap<String, String> mVariables;
 
     Configuration(GraphData data) {
         mData = data;
         mConfiguration = new JSONObject();
-        mVariables = new OrderedHashtable<>();
+        mVariables = new TreeMap<>();
     }
 
     public JSONObject getConfiguration() {
         return mConfiguration;
     }
 
-    public OrderedHashtable<String, String> getVariables() {
+    public SortedMap<String, String> getVariables() {
         return mVariables;
     }
 
@@ -47,16 +48,16 @@ public class Configuration {
      * @param description Something to identify the kind of value, used to augment any error message.
      * @return String of format YYYY-MM-DD HH:MM:SS, which is what C3 expects.
      * This expected format is set in DataConfiguration as xFormat.
-     * @throws InvalidStateException
+     * @throws GraphException
      */
-    String parseTime(String value, String description) throws InvalidStateException {
+    String parseTime(String value, String description) throws GraphException {
         if (value.matches(".*[^0-9.].*")) {
             if (!value.matches(".*:.*")) {
                 value += " 00:00:00";
             }
         } else {
             double daysSinceEpoch = parseDouble(value, description);
-            Date d = new Date((long)(daysSinceEpoch * DateUtils.DAY_IN_MS));
+            Date d = new Date((long)(daysSinceEpoch * 86400000l));
             value = mDateFormat.format(d);
         }
         return value;
@@ -67,15 +68,15 @@ public class Configuration {
      *
      * @param description Something to identify the kind of value, used to augment any error message.
      */
-    double parseDouble(String value, String description) throws InvalidStateException {
+    double parseDouble(String value, String description) throws GraphException {
         try {
             Double numeric = Double.valueOf(value);
             if (numeric.isNaN()) {
-                throw new InvalidStateException("Could not understand '" + value + "' in " + description);
+                throw new GraphException("Could not understand '" + value + "' in " + description);
             }
             return numeric;
         } catch (NumberFormatException nfe) {
-            throw new InvalidStateException("Could not understand '" + value + "' in " + description);
+            throw new GraphException("Could not understand '" + value + "' in " + description);
         }
     }
 }
