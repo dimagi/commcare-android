@@ -44,7 +44,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Void, String, SaveToDiskTask.SaveStatus, R> {
     // callback to run upon saving
     private FormSavedListener mSavedListener;
-    private final Boolean mSave;
+    private final Boolean exitAfterSave;
     private final Boolean mMarkCompleted;
     // URI to the thing we are saving
     private Uri mUri;
@@ -74,7 +74,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         TAG = SaveToDiskTask.class.getSimpleName();
 
         this.mUri = mUri;
-        mSave = saveAndExit;
+        exitAfterSave = saveAndExit;
         mMarkCompleted = markCompleted;
         mInstanceName = updatedName;
         this.context = context;
@@ -105,7 +105,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         FormEntryActivity.mFormController.postProcessInstance();
 
         if (exportData(mMarkCompleted)) {
-            return mSave ? SaveStatus.SAVED_AND_EXIT : SaveStatus.SAVED;
+            return exitAfterSave ? SaveStatus.SAVED_AND_EXIT : SaveStatus.SAVED;
         }
 
         return SaveStatus.SAVE_ERROR;

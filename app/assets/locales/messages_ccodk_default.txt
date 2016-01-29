@@ -136,6 +136,8 @@ sync.recover.started=Recovering local DB State. Please do not turn off the app!
 form.entry.segfault=There was an unrecoverable error during form entry! If the problem persists, seek technical support
 form.entry.processing=Processing your Form
 form.entry.processing.title=Processing Form
+form.entry.save.success=Form successfully saved!
+form.entry.save.error=Sorry, form save failed. Please contact technical support to look into the issue.
 
 login.attempt.badcred=Username or password are incorrect. Please try again.
 

@@ -2109,16 +2109,16 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         } else {
             switch (saveStatus) {
                 case SAVED:
-                    Toast.makeText(this, StringUtils.getStringSpannableRobust(this, R.string.data_saved_ok), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, Localization.get("form.entry.save.success"), Toast.LENGTH_SHORT).show();
                     hasSaved = true;
                     break;
                 case SAVED_AND_EXIT:
-                    Toast.makeText(this, StringUtils.getStringSpannableRobust(this, R.string.data_saved_ok), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, Localization.get("form.entry.save.success"), Toast.LENGTH_SHORT).show();
                     hasSaved = true;
                     finishReturnInstance();
                     break;
                 case SAVE_ERROR:
-                    Toast.makeText(this, StringUtils.getStringSpannableRobust(this, R.string.data_saved_error), Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, Localization.get("form.entry.save.error"), Toast.LENGTH_LONG).show();
                     break;
                 case INVALID_ANSWER:
                     // an answer constraint was violated, so try to save the
