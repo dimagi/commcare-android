@@ -14,6 +14,7 @@ import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.TaskListener;
 import org.commcare.android.tasks.TaskListenerRegistrationException;
 import org.commcare.android.tasks.UpdateTask;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.utils.ConnectivityStatus;
 import org.javarosa.core.services.locale.Localization;
@@ -237,7 +238,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     protected void deliverResult(UpdateActivity receiver,
                                                  AppInstallStatus result) {
                         if (result == AppInstallStatus.Installed) {
-                            receiver.exitOnSuccessfulUpdate();
+                            receiver.logoutOnSuccessfulUpdate();
                         } else {
                             receiver.uiController.errorUiState();
                         }
@@ -256,6 +257,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 };
         task.connect(this);
         task.execute();
+        uiController.applyingUpdateUiState();
     }
 
     @Override
@@ -273,10 +275,12 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         return dialog;
     }
 
-    private void exitOnSuccessfulUpdate() {
+    private void logoutOnSuccessfulUpdate() {
         final String upgradeFinishedText =
                 Localization.get("updates.install.finished");
         Toast.makeText(this, upgradeFinishedText, Toast.LENGTH_LONG).show();
+        CommCareApplication._().expireUserSession();
+        setResult(RESULT_OK);
         this.finish();
     }
 
@@ -287,7 +291,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     @Override
     public void initUIController() {
-        uiController = new UpdateUIController(this);
+        boolean fromAppManager = getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
+        uiController = new UpdateUIController(this, fromAppManager);
     }
 
     @Override
