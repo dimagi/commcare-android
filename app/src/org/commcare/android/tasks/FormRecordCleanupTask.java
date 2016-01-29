@@ -346,25 +346,15 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                         "Session ID exists, but with no record (or broken record)");
             }
         }
-        String dataPath = null;
 
         if (formRecordId != -1) {
             try {
                 FormRecord r = frStorage.read(formRecordId);
-                dataPath = r.getPath(context);
+                removeInstanceFile(context, r);
 
                 //See if there is a hanging session ID for this
                 if (sessionId == -1) {
-                    Vector<Integer> sessionIds = ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, formRecordId);
-                    // We really shouldn't be able to end up with sessionId's
-                    // that point to more than one thing.
-                    if (sessionIds.size() == 1) {
-                        sessionId = sessionIds.firstElement();
-                    } else if (sessionIds.size() > 1) {
-                        sessionId = sessionIds.firstElement();
-                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
-                                "Multiple session ID's pointing to the same form record");
-                    }
+                    sessionId = loadSSDIDFromFormRecord(ssdStorage, formRecordId);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -380,25 +370,53 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
         if (formRecordId != -1) {
             frStorage.remove(formRecordId);
         }
+    }
+
+    private static void removeInstanceFile(Context context, FormRecord record) {
+        String dataPath;
+        try {
+            dataPath = record.getPath(context);
+        } catch (FileNotFoundException e) {
+            // FormRecords won't have instance uris if the form was never started
+            return;
+        }
 
         if (dataPath != null) {
             String selection = InstanceColumns.INSTANCE_FILE_PATH + "=?";
             Cursor c = context.getContentResolver().query(InstanceColumns.CONTENT_URI, new String[]{InstanceColumns._ID}, selection, new String[]{dataPath}, null);
-            try {
-                if (c.moveToFirst()) {
-                    //There's a cursor for this file, good.
-                    long id = c.getLong(0);
+            if (c != null) {
+                try {
+                    if (c.moveToFirst()) {
+                        //There's a cursor for this file, good.
+                        long id = c.getLong(0);
 
-                    //this should take care of the files
-                    context.getContentResolver().delete(ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, id), null, null);
-                } else {
-                    //No instance record for whatever reason, manually wipe files
-                    FileUtil.deleteFileOrDir(dataPath);
+                        //this should take care of the files
+                        context.getContentResolver().delete(ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, id), null, null);
+                    } else {
+                        //No instance record for whatever reason, manually wipe files
+                        FileUtil.deleteFileOrDir(dataPath);
+                    }
+                } finally {
+                    c.close();
                 }
-            } finally {
-                c.close();
             }
         }
+    }
+
+    private static int loadSSDIDFromFormRecord(SqlStorage<SessionStateDescriptor> ssdStorage,
+                                            int formRecordId) {
+        Vector<Integer> sessionIds =
+                ssdStorage.getIDsForValue(SessionStateDescriptor.META_FORM_RECORD_ID, formRecordId);
+        // We really shouldn't be able to end up with sessionId's
+        // that point to more than one thing.
+        if (sessionIds.isEmpty()) {
+            return -1;
+        } else if (sessionIds.size() > 1) {
+            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                    "Multiple session ID's pointing to the same form record");
+
+        }
+        return sessionIds.firstElement();
     }
 
     private static TransactionParser buildCaseParser(String namespace,
