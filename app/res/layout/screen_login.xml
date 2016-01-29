@@ -95,6 +95,7 @@
                                 android:drawableLeft="@drawable/icon_user_neutral50"
                                 android:hint="Username"
                                 android:inputType="text"
+                                android:imeOptions="actionNext"
                                 android:nextFocusDown="@+id/edit_password"
                                 android:textSize="@dimen/text_medium">
                                 <requestFocus/>
@@ -110,8 +111,8 @@
                                 android:drawableLeft="@drawable/icon_lock_neutral50"
                                 android:hint="Password"
                                 android:inputType="textPassword"
-                                android:nextFocusDown="@+id/checkserver"
                                 android:nextFocusUp="@+id/edit_username"
+                                android:imeOptions="actionDone"
                                 android:textSize="@dimen/text_medium"/>
 
                             <TextView
