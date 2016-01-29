@@ -218,7 +218,6 @@ public class SingleAppManagerActivity extends Activity {
             CommCareSessionService s = CommCareApplication._().getSession();
             if (s.isActive()) {
                 triggerLogoutWarning(LOGOUT_FOR_UPDATE);
-                update();
             } else {
                 update();
             }
@@ -233,6 +232,7 @@ public class SingleAppManagerActivity extends Activity {
     private void update() {
         CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
         Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
+        i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
         startActivityForResult(i, CommCareHomeActivity.UPGRADE_APP);
     }
 

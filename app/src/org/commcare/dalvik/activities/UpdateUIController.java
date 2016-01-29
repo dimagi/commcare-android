@@ -42,6 +42,7 @@ class UpdateUIController implements CommCareActivityUIController {
             Localization.get("updates.check.failed");
     private final String errorMsg = Localization.get("updates.error");
     private final String upToDateText = Localization.get("updates.success");
+    private final String applyUpdateButtonTextKey;
 
     private enum UIState {
         Idle, UpToDate, FailedCheck, Downloading, UnappliedUpdateAvailable,
@@ -50,7 +51,12 @@ class UpdateUIController implements CommCareActivityUIController {
 
     private UIState currentUIState;
 
-    public UpdateUIController(UpdateActivity updateActivity) {
+    public UpdateUIController(UpdateActivity updateActivity, boolean startedByAppManager) {
+        if (startedByAppManager) {
+            applyUpdateButtonTextKey = "updates.staged.version.app.manager";
+        } else {
+            applyUpdateButtonTextKey = "updates.staged.version";
+        }
         activity = updateActivity;
     }
 
@@ -105,7 +111,7 @@ class UpdateUIController implements CommCareActivityUIController {
             }
         });
         String updateVersionPlaceholderMsg =
-            Localization.get("updates.staged.version", new String[]{"-1"});
+            Localization.get(applyUpdateButtonTextKey, new String[]{"-1"});
         installUpdateButton.setText(updateVersionPlaceholderMsg);
     }
 
@@ -156,7 +162,7 @@ class UpdateUIController implements CommCareActivityUIController {
 
         int version = ResourceInstallUtils.upgradeTableVersion();
         String versionMsg =
-                Localization.get("updates.staged.version",
+                Localization.get(applyUpdateButtonTextKey,
                         new String[]{Integer.toString(version)});
         installUpdateButton.setText(versionMsg);
         updateProgressText("");

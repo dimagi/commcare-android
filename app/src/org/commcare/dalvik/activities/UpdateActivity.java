@@ -291,7 +291,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     @Override
     public void initUIController() {
-        uiController = new UpdateUIController(this);
+        boolean fromAppManager = getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
+        uiController = new UpdateUIController(this, fromAppManager);
     }
 
     @Override
