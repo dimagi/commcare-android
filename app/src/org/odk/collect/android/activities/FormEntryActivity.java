@@ -802,7 +802,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         menu.add(0, MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.form_entry_settings)).setIcon(
                 android.R.drawable.ic_menu_preferences);
-        return true;
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override
