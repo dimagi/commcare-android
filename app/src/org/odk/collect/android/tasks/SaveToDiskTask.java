@@ -96,10 +96,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
      */
     @Override
     protected SaveStatus doTaskBackground(Void... nothing) {
-        // validation failed, pass specific failure
-        boolean areAnswersValid =
-                validateAnswers(mMarkCompleted, DeveloperPreferences.shouldFireTriggersOnSave());
-        if (!areAnswersValid) {
+        if (hasInvalidAnswers(mMarkCompleted, DeveloperPreferences.shouldFireTriggersOnSave())) {
             return SaveStatus.INVALID_ANSWER;
         }
 
@@ -361,7 +358,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
      * @param fireTriggerables re-fire the triggers associated with the
      *                         question when checking its constraints?
      */
-    private boolean validateAnswers(boolean markCompleted, boolean fireTriggerables) {
+    private boolean hasInvalidAnswers(boolean markCompleted, boolean fireTriggerables) {
         FormIndex i = FormEntryActivity.mFormController.getFormIndex();
         FormEntryActivity.mFormController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
 
@@ -387,12 +384,12 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
                         (saveStatus == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY ||
                                 saveStatus == FormEntryController.ANSWER_CONSTRAINT_VIOLATED)) {
 
-                    return false;
+                    return true;
                 }
             }
         }
 
         FormEntryActivity.mFormController.jumpToIndex(i);
-        return true;
+        return false;
     }
 }
