@@ -84,10 +84,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private static final int SMS_PERMISSIONS_REQUEST = 2;
 
-    /**
-     * Should the user be logged out when this activity is done?
-     */
-    public static final String KEY_REQUIRE_REFRESH = "require_referesh";
     public static final String KEY_INSTALL_FAILED = "install_failed";
 
     /**
@@ -630,12 +626,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
             Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
-            i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
             startActivity(i);
         } else {
             //Good to go
             Intent i = new Intent(getIntent());
-            i.putExtra(KEY_REQUIRE_REFRESH, requireRefresh);
             i.putExtra(KEY_INSTALL_FAILED, failed);
             setResult(RESULT_OK, i);
         }
