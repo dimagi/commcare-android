@@ -36,8 +36,8 @@ public final class ViewUtil {
     // (We'd like to be able to add a displayunit to a menu in a super
     // easy/straightforward way.
     public static void addDisplayToMenu(Context context, Menu menu,
-                                        int menuId, DisplayData display) {
-        MenuItem item = menu.add(0, menuId, menuId,
+                                        int menuId, int menuGroupId, DisplayData display) {
+        MenuItem item = menu.add(menuGroupId, menuId, menuId,
                 Localizer.clearArguments(display.getName()).trim());
         if (display.getImageURI() != null) {
             Bitmap b = MediaUtil.inflateDisplayImage(context, display.getImageURI());

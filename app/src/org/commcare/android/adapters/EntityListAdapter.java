@@ -17,6 +17,7 @@ import org.commcare.android.view.GridEntityView;
 import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.instance.TreeReference;
 
@@ -35,8 +36,8 @@ public class EntityListAdapter implements ListAdapter {
 
     public static final int SPECIAL_ACTION = -2;
 
-    private int actionPosition = -1;
-    private final boolean actionEnabled;
+    private int actionsStartPosition = -1;
+    private final int actionsCount;
 
     private boolean mFuzzySearchEnabled = true;
 
@@ -71,7 +72,11 @@ public class EntityListAdapter implements ListAdapter {
                              int[] sort,
                              NodeEntityFactory factory) {
         this.detail = detail;
-        actionEnabled = detail.getCustomAction() != null;
+        if (detail.getCustomActions() != null) {
+            actionsCount = 0;
+        } else {
+            actionsCount = detail.getCustomActions().size();
+        }
 
         this.full = full;
         setCurrent(new ArrayList<Entity<TreeReference>>());
@@ -111,8 +116,8 @@ public class EntityListAdapter implements ListAdapter {
      */
     void setCurrent(List<Entity<TreeReference>> arrayList) {
         current = arrayList;
-        if (actionEnabled) {
-            actionPosition = current.size();
+        if (actionsCount > 0) {
+            actionsStartPosition = current.size();
         }
     }
 
@@ -161,15 +166,23 @@ public class EntityListAdapter implements ListAdapter {
      */
     @Override
     public int getCount() {
-        return getCount(false, false);
+        return getCurrentCountWithActions();
     }
 
-    /**
-     * Get number of items, with a parameter to decide whether or not action counts as an item.
-     */
-    public int getCount(boolean ignoreAction, boolean fullCount) {
-        //Always one extra element if the action is defined
-        return (fullCount ? full.size() : current.size()) + (actionEnabled && !ignoreAction ? 1 : 0);
+    public int getFullCount() {
+        return full.size();
+    }
+
+    public int getFullCountWithActions() {
+        return full.size() + actionsCount;
+    }
+
+    public int getCurrentCount() {
+        return current.size();
+    }
+
+    public int getCurrentCountWithActions() {
+        return current.size() + actionsCount;
     }
 
     @Override
@@ -179,20 +192,16 @@ public class EntityListAdapter implements ListAdapter {
 
     @Override
     public long getItemId(int position) {
-        if (actionEnabled) {
-            if (position == actionPosition) {
-                return SPECIAL_ACTION;
-            }
+        if (actionsCount > 0 && position >= actionsStartPosition) {
+            return SPECIAL_ACTION;
         }
         return references.indexOf(current.get(position).getElement());
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (actionEnabled) {
-            if (position == actionPosition) {
-                return 1;
-            }
+        if (actionsCount > 0 && position >= actionsStartPosition) {
+            return 1;
         }
         return 0;
     }
@@ -203,13 +212,14 @@ public class EntityListAdapter implements ListAdapter {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (actionEnabled && position == actionPosition) {
+        if (actionsCount > 0 && position >= actionsStartPosition) {
             HorizontalMediaView tiav = (HorizontalMediaView)convertView;
 
             if (tiav == null) {
                 tiav = new HorizontalMediaView(context);
             }
-            tiav.setDisplay(detail.getCustomAction().getDisplay());
+            Action currentAction = detail.getCustomActions().get(position - actionsStartPosition);
+            tiav.setDisplay(currentAction.getDisplay());
             tiav.setBackgroundResource(R.drawable.list_bottom_tab);
             //We're gonna double pad this because we want to give it some visual distinction
             //and keep the icon more centered
@@ -250,7 +260,7 @@ public class EntityListAdapter implements ListAdapter {
 
     @Override
     public int getViewTypeCount() {
-        return actionEnabled ? 2 : 1;
+        return (actionsCount > 0) ? 2 : 1;
     }
 
     @Override
