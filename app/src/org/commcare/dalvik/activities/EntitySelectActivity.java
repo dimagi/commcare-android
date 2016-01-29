@@ -621,7 +621,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if (id == EntityListAdapter.SPECIAL_ACTION) {
-            triggerDetailAction(position - adapter.getCount());
+            triggerDetailAction(position - (adapter.getCount() - 1));
             return;
         }
 

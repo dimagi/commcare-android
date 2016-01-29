@@ -36,7 +36,7 @@ public class EntityListAdapter implements ListAdapter {
 
     public static final int SPECIAL_ACTION = -2;
 
-    private int actionsStartPosition = -1;
+    private int actionsStartPosition = 0;
     private final int actionsCount;
 
     private boolean mFuzzySearchEnabled = true;
@@ -73,9 +73,9 @@ public class EntityListAdapter implements ListAdapter {
                              NodeEntityFactory factory) {
         this.detail = detail;
         if (detail.getCustomActions() != null) {
-            actionsCount = 0;
-        } else {
             actionsCount = detail.getCustomActions().size();
+        } else {
+            actionsCount = 0;
         }
 
         this.full = full;
