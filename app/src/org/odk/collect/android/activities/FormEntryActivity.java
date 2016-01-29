@@ -2094,11 +2094,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * Display save status notification and exit or continue on in the form.
      * If form entry is being saved because key session is expiring then
      * continue closing the session/logging out.
-     *
-     * @see org.odk.collect.android.listeners.FormSavedListener#savingComplete(int, boolean)
      */
     @Override
-    public void savingComplete(int saveStatus, boolean headless) {
+    public void savingComplete(SaveToDiskTask.SaveStatus saveStatus, boolean headless) {
         // Did we just save a form because the key session
         // (CommCareSessionService) is ending?
         if (savingFormOnKeySessionExpiration) {
@@ -2110,20 +2108,19 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             CommCareApplication._().expireUserSession();
         } else {
             switch (saveStatus) {
-                case SaveToDiskTask.SAVED:
+                case SAVED:
                     Toast.makeText(this, StringUtils.getStringSpannableRobust(this, R.string.data_saved_ok), Toast.LENGTH_SHORT).show();
                     hasSaved = true;
                     break;
-                case SaveToDiskTask.SAVED_AND_EXIT:
+                case SAVED_AND_EXIT:
                     Toast.makeText(this, StringUtils.getStringSpannableRobust(this, R.string.data_saved_ok), Toast.LENGTH_SHORT).show();
                     hasSaved = true;
                     finishReturnInstance();
                     break;
-                case SaveToDiskTask.SAVE_ERROR:
+                case SAVE_ERROR:
                     Toast.makeText(this, StringUtils.getStringSpannableRobust(this, R.string.data_saved_error), Toast.LENGTH_LONG).show();
                     break;
-                case FormEntryController.ANSWER_CONSTRAINT_VIOLATED:
-                case FormEntryController.ANSWER_REQUIRED_BUT_EMPTY:
+                case INVALID_ANSWER:
                     // an answer constraint was violated, so try to save the
                     // current question to trigger the constraint violation message
                     refreshCurrentView();
