@@ -2108,12 +2108,16 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             CommCareApplication._().expireUserSession();
         } else {
             switch (saveStatus) {
-                case SAVED:
-                    Toast.makeText(this, Localization.get("form.entry.save.success"), Toast.LENGTH_SHORT).show();
+                case SAVED_COMPLETE:
+                    Toast.makeText(this, Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
+                    hasSaved = true;
+                    break;
+                case SAVED_INCOMPLETE:
+                    Toast.makeText(this, Localization.get("form.entry.incomplete.save.success"), Toast.LENGTH_SHORT).show();
                     hasSaved = true;
                     break;
                 case SAVED_AND_EXIT:
-                    Toast.makeText(this, Localization.get("form.entry.save.success"), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
                     hasSaved = true;
                     finishReturnInstance();
                     break;

@@ -61,7 +61,8 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
     private final SecretKeySpec symetricKey;
 
     public enum SaveStatus {
-        SAVED,
+        SAVED_COMPLETE,
+        SAVED_INCOMPLETE,
         SAVE_ERROR,
         INVALID_ANSWER,
         SAVED_AND_EXIT
@@ -105,7 +106,13 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         FormEntryActivity.mFormController.postProcessInstance();
 
         if (exportData(mMarkCompleted)) {
-            return exitAfterSave ? SaveStatus.SAVED_AND_EXIT : SaveStatus.SAVED;
+            if (exitAfterSave) {
+                return SaveStatus.SAVED_AND_EXIT;
+            } else if (mMarkCompleted) {
+                return SaveStatus.SAVED_COMPLETE;
+            } else {
+                return SaveStatus.SAVED_INCOMPLETE;
+            }
         }
 
         return SaveStatus.SAVE_ERROR;
