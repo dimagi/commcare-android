@@ -15,16 +15,6 @@
         android:gravity="center_vertical" />
 
     <TextView
-        android:id="@+id/file_server_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left"
-        android:layout_margin="5dp"
-        android:text="File Server Manager"
-        android:textStyle="bold" >
-    </TextView>
-
-    <TextView
         android:id="@+id/file_server_status_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
