@@ -1074,7 +1074,7 @@ public class CommCareHomeActivity
     /**
      * Decides if we should actually be on the home screen, or else should redirect elsewhere
      */
-        private void attemptDispatchHomeScreen() {
+    private void attemptDispatchHomeScreen() {
         try {
             if (CommCareApplication._().isSyncPending(false)) {
                 // There is a sync pending

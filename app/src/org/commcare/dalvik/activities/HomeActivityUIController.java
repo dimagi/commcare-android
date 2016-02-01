@@ -45,8 +45,8 @@ public class HomeActivityUIController implements CommCareActivityUIController {
     @Override
     public void refreshView() {
         adapter.notifyDataSetChanged();
-        //setupGridView();
         gridView.invalidateSpanAssignments();
+        gridView.onScrollStateChanged(0);
     }
 
     private static Vector<String> getHiddenButtons() {
@@ -71,12 +71,10 @@ public class HomeActivityUIController implements CommCareActivityUIController {
     private void setupGridView() {
         final RecyclerView grid = (RecyclerView)activity.findViewById(R.id.home_gridview_buttons);
         grid.setHasFixedSize(false);
-        gridView =
-                new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        gridView = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         grid.setLayoutManager(gridView);
         grid.setItemAnimator(null);
         grid.setAdapter(adapter);
-        gridView.onScrollStateChanged(0);
 
         grid.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @SuppressLint("NewApi")
