@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.text.format.DateFormat;
@@ -497,16 +498,24 @@ public class CommCareSessionService extends Service {
                 contentView.setTextViewText(R.id.progressText, text);
                 contentView.setTextViewText(R.id.submissionDetails, "0b transmitted");
 
-                submissionNotification = new NotificationCompat.Builder(CommCareSessionService.this)
+                NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(CommCareSessionService.this)
                         .setContentTitle(getString(notificationId))
                         .setContentText(text)
                         .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
                         .setContentIntent(contentIntent)
-                        .setContent(contentView)
                         .setOngoing(true)
                         .setWhen(System.currentTimeMillis())
-                        .setTicker(getTickerText(totalItems))
-                        .build();
+                        .setTicker(getTickerText(totalItems));
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    notificationBuilder.setContent(contentView);
+                    submissionNotification = notificationBuilder.build();
+                } else {
+                    // It would be nice if Google would fix bugs that are, you know, from 2012...
+                    // bug: https://code.google.com/p/android/issues/detail?id=30495
+                    submissionNotification = notificationBuilder.build();
+                    submissionNotification.contentView = contentView;
+                }
 
                 if (user != null) {
                     //Send the notification.

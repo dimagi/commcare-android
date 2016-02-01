@@ -20,12 +20,13 @@ import org.commcare.android.models.AsyncEntity;
 import org.commcare.android.models.Entity;
 import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.android.util.AndroidUtil;
-import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
+import org.commcare.graph.model.GraphData;
+import org.commcare.graph.util.GraphException;
+import org.commcare.graph.view.GraphView;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.graph.GraphData;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.odk.collect.android.views.media.AudioButton;
@@ -201,9 +202,9 @@ public class EntityView extends LinearLayout {
                 if (rendered == null) {
                     try {
                         rendered = g.getView(g.getHTML((GraphData) field));
-                    } catch (InvalidStateException ise) {
+                    } catch (GraphException ex) {
                         rendered = new TextView(context);
-                        ((TextView) rendered).setText(ise.getMessage());
+                        ((TextView) rendered).setText(ex.getMessage());
                     }
                     renderedGraphsCache.get(i).put(orientation, rendered);
                 }

@@ -10,6 +10,7 @@ import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
@@ -121,6 +122,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private ImageButton barcodeButton;
     private SearchView searchView;
     private MenuItem searchItem;
+    private MenuItem barcodeItem;
 
     private SessionDatum selectDatum;
 
@@ -289,6 +291,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             barcodeScanOnClickListener = makeBarcodeClickListener();
         } else {
             barcodeScanOnClickListener = makeCalloutClickListener(callout);
+            if(callout.getImage() != null){
+                setupImageLayout(barcodeButton, callout.getImage());
+            }
         }
 
         barcodeButton.setOnClickListener(barcodeScanOnClickListener);
@@ -357,10 +362,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private View.OnClickListener makeCalloutClickListener(Callout callout) {
         final CalloutData calloutData = callout.getRawCalloutData();
 
-        if (calloutData.getImage() != null) {
-            setupImageLayout(barcodeButton, calloutData.getImage());
-        }
-
         final Intent i = new Intent(calloutData.getActionName());
         for (Map.Entry<String, String> keyValue : calloutData.getExtras().entrySet()) {
             i.putExtra(keyValue.getKey(), keyValue.getValue());
@@ -379,12 +380,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         };
     }
 
-    /**
-     * Updates the ImageView layout that is passed in, based on the
-     * new id and source
-     */
-    private void setupImageLayout(View layout, final String imagePath) {
-        ImageView iv = (ImageView)layout;
+    private Drawable getCalloutDrawable(String imagePath){
         Bitmap b;
         if (!imagePath.equals("")) {
             try {
@@ -392,19 +388,38 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 if (b == null) {
                     // Input stream could not be used to derive bitmap, so
                     // showing error-indicating image
-                    iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+                    return getResources().getDrawable(R.drawable.ic_menu_archive);
                 } else {
-                    iv.setImageBitmap(b);
+                    return new BitmapDrawable(b);
                 }
             } catch (IOException | InvalidReferenceException ex) {
                 ex.printStackTrace();
                 // Error loading image, default to folder button
-                iv.setImageDrawable(getResources().getDrawable(R.drawable.ic_menu_archive));
+                return getResources().getDrawable(R.drawable.ic_menu_archive);
             }
         } else {
             // no image passed in, draw a white background
-            iv.setImageDrawable(getResources().getDrawable(R.color.white));
+            return getResources().getDrawable(R.color.white);
         }
+    }
+
+    /**
+     * Updates the ImageView layout that is passed in, based on the
+     * new id and source
+     */
+    private void setupImageLayout(View layout, final String imagePath) {
+        ImageView iv = (ImageView)layout;
+        Drawable drawable = getCalloutDrawable(imagePath);
+        iv.setImageDrawable(drawable);
+    }
+
+    /**
+     * Updates the ImageView layout that is passed in, based on the
+     * new id and source
+     */
+    private void setupImageLayout(MenuItem menuItem, final String imagePath) {
+        Drawable drawable = getCalloutDrawable(imagePath);
+        menuItem.setIcon(drawable);
     }
 
     private void createDataSetObserver() {
@@ -712,21 +727,15 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             menu.add(0, MENU_MAP, MENU_MAP, Localization.get("select.menu.map")).setIcon(
                     android.R.drawable.ic_menu_mapmode);
         }
-        if (shortSelect != null) {
-            Action action = shortSelect.getCustomAction();
-            if (action != null) {
-                ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION,
-                        action.getDisplay().evaluate());
-            }
-        }
 
         tryToAddActionSearchBar(this, menu, new ActionBarInstantiator() {
             // again, this should be unnecessary...
             @TargetApi(Build.VERSION_CODES.HONEYCOMB)
             @Override
-            public void onActionBarFound(MenuItem searchItem, SearchView searchView) {
+            public void onActionBarFound(MenuItem searchItem, SearchView searchView, MenuItem barcodeItem) {
                 EntitySelectActivity.this.searchItem = searchItem;
                 EntitySelectActivity.this.searchView = searchView;
+                EntitySelectActivity.this.barcodeItem = barcodeItem;
                 // restore last query string in the searchView if there is one
                 if (lastQueryString != null && lastQueryString.length() > 0) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -755,6 +764,17 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 });
             }
         });
+
+        if (shortSelect != null) {
+            Action action = shortSelect.getCustomAction();
+            if (action != null) {
+                ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION,
+                        action.getDisplay().evaluate());
+            }
+            if(shortSelect.getCallout() != null && shortSelect.getCallout().getImage() != null){
+                setupImageLayout(barcodeItem, shortSelect.getCallout().getImage());
+            }
+        }
 
         return true;
     }

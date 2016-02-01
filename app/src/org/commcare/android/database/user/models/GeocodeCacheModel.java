@@ -19,8 +19,10 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
+ * TODO: Database migration to remove the associated database tables.
  * @author ctsims
  */
+@Deprecated
 public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel {
 
     public static final String STORAGE_KEY = "geocodecache";
