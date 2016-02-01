@@ -8,21 +8,19 @@
 
     <include
         android:id="@+id/dialog_title"
-        layout="@layout/dialog_title" />
+        layout="@layout/dialog_title"/>
 
     <ScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/standard_spacer_large"
         android:layout_marginLeft="@dimen/standard_spacer_large"
-        android:layout_marginRight="@dimen/standard_spacer_large"
-        android:layout_marginBottom="@dimen/standard_spacer_large" >
+        android:layout_marginRight="@dimen/standard_spacer_large">
 
         <TextView
             android:id="@+id/dialog_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/font_size_dp_large" />
-
+            android:textSize="@dimen/font_size_dp_large"/>
     </ScrollView>
-
 </LinearLayout>

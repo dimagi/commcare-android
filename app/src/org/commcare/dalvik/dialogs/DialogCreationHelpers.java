@@ -22,11 +22,9 @@ public class DialogCreationHelpers {
         final String commcareVersion = CommCareApplication._().getCurrentVersionString();
 
         LayoutInflater li = LayoutInflater.from(activity);
-        // TODO PLM: remove scroll file
-        //View view = li.inflate(R.layout.scrolling_info_dialog, null);
         View view = li.inflate(R.layout.scrolling_info_dialog, null);
 
-        TextView titleView = (TextView) view.findViewById(R.id.dialog_title).findViewById(R.id.dialog_title_text);
+        TextView titleView = (TextView) view.findViewById(R.id.dialog_title_text);
         titleView.setText(activity.getString(R.string.about_cc));
 
         TextView aboutText = (TextView)view.findViewById(R.id.dialog_text);
@@ -56,14 +54,16 @@ public class DialogCreationHelpers {
                                                            final int requestCode,
                                                            String title,
                                                            String body) {
-        LayoutInflater li = LayoutInflater.from(activity);
-        View view = li.inflate(R.layout.scrolling_info_dialog, null);
-        TextView aboutText = (TextView)view.findViewById(R.id.dialog_text);
+        View view = LayoutInflater.from(activity).inflate(R.layout.scrolling_info_dialog, null);
 
-        aboutText.setText(body);
+        TextView bodyText = (TextView)view.findViewById(R.id.dialog_text);
+        bodyText.setText(body);
+
+        TextView titleText = (TextView) view.findViewById(R.id.dialog_title_text);
+        titleText.setText(title);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle(title);
+        builder.setCancelable(false);
         builder.setView(view);
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             @Override
@@ -72,8 +72,6 @@ public class DialogCreationHelpers {
                 dialog.dismiss();
             }
         });
-        builder.setCancelable(false);
-
         return builder.create();
     }
 }
