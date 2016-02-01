@@ -41,6 +41,9 @@ install.button.start=Start Install
 install.bad.ref=You did not scan a valid URL. Please try again.
 install.bad.login=Login to Existing App
 install.appprofile=Enter your app code
+install.perms.request=Request required permissions
+install.perms.rationale.message=CommCare requires at least external storage read & write permissions in order to store form submissions.
+install.perms.denied.message=Crucial permissions denied ${0} times.\n\n If requesting permissions here fails, please enable permissions under Android's 'Settings -> Apps -> CommCare -> Permissions'.
 
 upgrade.button.retry=Retry Upgrade
 upgrade.button.startover=Restart Upgrade
