@@ -1,4 +1,4 @@
-package org.commcare.android.view;
+package org.commcare.graph.view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -9,19 +9,19 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 
-import org.commcare.android.util.InvalidStateException;
-import org.commcare.android.view.c3.AxisConfiguration;
-import org.commcare.android.view.c3.DataConfiguration;
-import org.commcare.android.view.c3.GridConfiguration;
-import org.commcare.android.view.c3.LegendConfiguration;
+import org.commcare.graph.activities.GraphActivity;
+import org.commcare.graph.model.GraphData;
+import org.commcare.graph.util.GraphException;
+import org.commcare.graph.view.c3.AxisConfiguration;
+import org.commcare.graph.view.c3.DataConfiguration;
+import org.commcare.graph.view.c3.GridConfiguration;
+import org.commcare.graph.view.c3.LegendConfiguration;
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.activities.GraphActivity;
-import org.commcare.suite.model.graph.GraphData;
-import org.javarosa.core.util.OrderedHashtable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Enumeration;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * View containing a graph. Note that this does not derive from View; call renderView to get a view for adding to other views, etc.
@@ -44,7 +44,11 @@ public class GraphView {
     }
 
     public Intent getIntent(String html) {
-        Intent intent = new Intent(mContext, GraphActivity.class);
+        return getIntent(html, GraphActivity.class);
+    }
+
+    public Intent getIntent(String html, Class className) {
+        Intent intent = new Intent(mContext, className);
         intent.putExtra(HTML, html);
         intent.putExtra(TITLE, mTitle);
         return intent;
@@ -85,9 +89,9 @@ public class GraphView {
      * @param graphData The data to render.
      * @return Full HTML page, including head, body, and all script and style tags
      */
-    public String getHTML(GraphData graphData) throws InvalidStateException {
+    public String getHTML(GraphData graphData) throws GraphException {
         mData = graphData;
-        OrderedHashtable<String, String> variables = new OrderedHashtable<>();
+        SortedMap<String, String> variables = new TreeMap<>();
         JSONObject config = new JSONObject();
         StringBuilder html = new StringBuilder();
         try {
@@ -150,14 +154,12 @@ public class GraphView {
      *                  and a property corresponding to each item in variables.
      * @return HTML string
      */
-    private String getVariablesHTML(OrderedHashtable<String, String> variables, String namespace) {
+    private String getVariablesHTML(SortedMap<String, String> variables, String namespace) {
         StringBuilder html = new StringBuilder();
-        Enumeration<String> e = variables.keys();
         if (namespace != null && !namespace.equals("")) {
             html.append("var ").append(namespace).append(" = {};\n");
         }
-        while (e.hasMoreElements()) {
-            String name = e.nextElement();
+        for (String name : variables.keySet()) {
             if (namespace == null || namespace.equals("")) {
                 html.append("var ").append(name);
             } else {
