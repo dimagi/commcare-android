@@ -12,13 +12,12 @@ updates.check.begin=Checking for updates...
 updates.check.failed=Failed to download updates
 updates.check.start=Recheck
 updates.check.cancel=Stop checking
-updates.check.install=Install
 updates.check.cancelling=Cancelling check for updates
 updates.install.finished=App update was successful
 updates.check.network_unavailable=No network connectivity
-updates.staged.version=Update to version ${0}
+updates.staged.version=Update to version ${0} & log out
+updates.staged.version.app.manager=Update to version ${0}
 updates.error=Error encountered during update download
-updates.applied.on.login=(downloaded update will automatically be applied on next login.)
 
 updates.pinned.download=Downloading updates
 updates.pinned.progress=${0}/${1}
