@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -60,6 +61,8 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         btnFetchFiles.setOnClickListener(new OnClickListener() {
             @Override
@@ -120,7 +123,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         mUnzipTask.connect(InstallArchiveActivity.this);
         Log.d(TAG, "executing task with: " + targetDirectory + " , " + filepath);
         mUnzipTask.execute(filepath, targetDirectory);
-
     }
 
     private void onUnzipSuccessful() {
