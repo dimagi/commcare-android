@@ -32,9 +32,10 @@ import java.io.File;
 /**
  * @author wspride
  */
-
 @ManagedUi(R.layout.screen_multimedia_inflater)
 public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActivity> {
+    private static final String TAG = InstallArchiveActivity.class.getSimpleName();
+
     private static final int REQUEST_FILE_LOCATION = 1;
 
     @UiElement(value = R.id.screen_multimedia_inflater_prompt, locale = "archive.install.prompt")
@@ -52,8 +53,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     @UiElement(value = R.id.screen_multimedia_inflater_install, locale = "archive.install.button")
     private Button btnInstallArchive;
 
-    private static final String TAG = InstallArchiveActivity.class.getSimpleName();
-
     public static final String ARCHIVE_REFERENCE = "archive-ref";
 
     private String targetDirectory;
@@ -61,8 +60,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
         btnFetchFiles.setOnClickListener(new OnClickListener() {
             @Override
@@ -85,14 +82,15 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
                 InstallArchiveActivity.this.createArchive(editFileLocation.getText().toString());
             }
         });
+
+        // avoid keyboard pop-up
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
     }
 
     private void createArchive(String filepath) {
-
         UnzipTask<InstallArchiveActivity> mUnzipTask = new UnzipTask<InstallArchiveActivity>() {
             @Override
             protected void deliverResult(InstallArchiveActivity receiver, Integer result) {
-                Log.d(TAG, "delivering unzip result");
                 if (result > 0) {
                     receiver.onUnzipSuccessful();
                 } else {
@@ -103,15 +101,12 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
             @Override
             protected void deliverUpdate(InstallArchiveActivity receiver, String... update) {
-                Log.d(TAG, "delivering unzip upate");
-                //
                 receiver.updateProgress(update[0], UnzipTask.UNZIP_TASK_ID);
                 receiver.txtInteractiveMessages.setText(update[0]);
             }
 
             @Override
             protected void deliverError(InstallArchiveActivity receiver, Exception e) {
-                Log.d(TAG, "unzip deliver error: " + e.getMessage());
                 receiver.txtInteractiveMessages.setText(Localization.get("archive.install.error", new String[]{e.getMessage()}));
                 receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             }
@@ -120,8 +115,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         String targetDirectory = getTargetFolder();
         FileUtil.deleteFileOrDir(targetDirectory);
 
-        mUnzipTask.connect(InstallArchiveActivity.this);
-        Log.d(TAG, "executing task with: " + targetDirectory + " , " + filepath);
+        mUnzipTask.connect(this);
         mUnzipTask.execute(filepath, targetDirectory);
     }
 
@@ -156,6 +150,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     @Override
     protected void onResume() {
         super.onResume();
+
         evalState();
     }
 
@@ -194,10 +189,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         return targetDirectory;
     }
 
-    /**
-     * Implementation of generateProgressDialog() for DialogController -- other methods
-     * handled entirely in CommCareActivity
-     */
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (taskId == UnzipTask.UNZIP_TASK_ID) {
