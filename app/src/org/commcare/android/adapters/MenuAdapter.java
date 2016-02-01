@@ -19,6 +19,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.SessionDatum;
@@ -106,7 +107,7 @@ public class MenuAdapter implements ListAdapter {
                             }
 
                             Entry e = map.get(command);
-                            if (e.getXFormNamespace() == null) {
+                            if (e.isView()) {
                                 //If this is a "view", not an "entry"
                                 //we only want to display it if all of its 
                                 //datums are not already present
@@ -177,7 +178,7 @@ public class MenuAdapter implements ListAdapter {
         if (tempItem instanceof Menu) {
             return ((Menu) tempItem).getId().hashCode();
         } else {
-            return ((Entry) tempItem).getCommandId().hashCode();
+            return ((FormEntry) tempItem).getCommandId().hashCode();
         }
     }
 
@@ -260,8 +261,8 @@ public class MenuAdapter implements ListAdapter {
         NavIconState iconChoice = NavIconState.NEXT;
 
         //figure out some icons
-        if (menuDisplayable instanceof Entry) {
-            SessionDatum datum = asw.getSession().getNeededDatum((Entry) menuDisplayable);
+        if (menuDisplayable instanceof FormEntry) {
+            SessionDatum datum = asw.getSession().getNeededDatum((FormEntry) menuDisplayable);
             if (datum == null || datum.getNodeset() == null) {
                 iconChoice = NavIconState.JUMP;
             }
