@@ -55,8 +55,6 @@ public class WiFiDirectAdapter extends SquareButtonAdapter {
 
     public void updateDisplayData(){
 
-        System.out.println("Updating display data, state: " + wiFiDirectActivity.mState);
-
         ArrayList<HomeCardDisplayData> buttonData = new ArrayList<HomeCardDisplayData>();
         HomeCardDisplayData sendButton = HomeCardDisplayData.homeCardDataWithStaticText("Send",
                 R.color.white,
