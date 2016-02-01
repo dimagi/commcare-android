@@ -585,7 +585,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
             @Override
             public void onSuccess() {
-                // WiFiDirectBroadcastReceiver will notify us. Ignore for now.
+                myStatusText.setText(localize("wifi.direct.connect.success"));
             }
 
             @Override
