@@ -42,7 +42,7 @@ public class InstallPermissionsFragment extends Fragment {
                         Permissions.ALL_PERMISSIONS_REQUEST);
             }
         });
-        requestPermsButton.setText(Localization.get("install.perms.request"));
+        requestPermsButton.setText(Localization.get("permission.acquire.required"));
 
         return view;
     }

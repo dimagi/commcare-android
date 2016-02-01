@@ -28,11 +28,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/content_min_margin"
                 android:layout_marginRight="@dimen/content_min_margin"
+                android:gravity="center"
                 android:paddingBottom="@dimen/content_start"
                 android:paddingTop="@dimen/content_start"
-                android:gravity="center"
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold"/>
+                android:textSize="@dimen/text_small"/>
 
             <TextView
                 android:id="@+id/needed_perms_message"
@@ -40,11 +39,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/content_min_margin"
                 android:layout_marginRight="@dimen/content_min_margin"
+                android:gravity="center"
                 android:paddingBottom="@dimen/content_start"
                 android:paddingTop="@dimen/content_start"
-                android:gravity="center"
-                android:textSize="@dimen/text_small"
-                android:textStyle="bold"/>
+                android:textSize="@dimen/text_small"/>
 
             <Button
                 android:id="@+id/get_perms_button"

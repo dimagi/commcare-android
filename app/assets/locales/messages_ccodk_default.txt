@@ -41,7 +41,6 @@ install.button.start=Start Install
 install.bad.ref=You did not scan a valid URL. Please try again.
 install.bad.login=Login to Existing App
 install.appprofile=Enter your app code
-install.perms.request=Request required permissions
 install.perms.rationale.message=CommCare requires at least external storage read & write permissions in order to store form submissions.
 install.perms.denied.message=Crucial permissions denied ${0} times.\n\n If requesting permissions here fails, please enable permissions under Android's 'Settings -> Apps -> CommCare -> Permissions'.
 
@@ -276,7 +275,6 @@ bulk.form.dump.success=${1} forms dumped successfully
 mult.install.error=Unexpected Error installing the multimedia! Please try again. Error Text: ${0}  
 
 login.menu.demo=Enter as Demo User
-login.menu.permission=Acquire Required Permissions
 login.menu.password.mode=Switch to Password Login Mode
 main.sync.demo=You cannot sync data down from the server when logged in in demo mode
 
@@ -647,3 +645,4 @@ permission.sms.install.title=Permission for obtaining SMS app code
 permission.sms.install.message=CommCare would like to scan your recent messages for an app install code.
 permission.form.gps.title=Permission to capture location during form entry
 permission.form.gps.message=CommCare would like to capture your location and provide it to forms you complete.
+permission.acquire.required=Acquire Required Permissions
