@@ -38,6 +38,7 @@
                 android:paddingLeft="@dimen/standard_spacer"
                 android:paddingRight="@dimen/standard_spacer"
                 android:textSize="@dimen/font_size_large"
+                android:maxLines="1"
                 app:text_size_small="@dimen/font_size_medium"/>
         </RelativeLayout>
 

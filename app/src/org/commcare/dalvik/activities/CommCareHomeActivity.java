@@ -1055,6 +1055,12 @@ public class CommCareHomeActivity
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        uiController.refreshView();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
@@ -1062,6 +1068,7 @@ public class CommCareHomeActivity
             refreshActionBar();
         }
         attemptDispatchHomeScreen();
+        uiController.refreshView();
     }
 
     /**
