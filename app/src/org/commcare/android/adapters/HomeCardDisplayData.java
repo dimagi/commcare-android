@@ -92,5 +92,10 @@ public class HomeCardDisplayData {
             squareButtonViewHolder.subTextView.setVisibility(View.GONE);
         }
     }
+
+    @Override
+    public String toString(){
+        return "HomeCardDisplayData text=" + this.text + ", imageResource=" + imageResource;
+    }
 }
 

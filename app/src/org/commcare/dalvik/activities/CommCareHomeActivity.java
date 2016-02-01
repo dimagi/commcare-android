@@ -1055,6 +1055,12 @@ public class CommCareHomeActivity
     }
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        uiController.refreshView();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
@@ -1062,12 +1068,13 @@ public class CommCareHomeActivity
             refreshActionBar();
         }
         attemptDispatchHomeScreen();
+        uiController.refreshView();
     }
 
     /**
      * Decides if we should actually be on the home screen, or else should redirect elsewhere
      */
-    private void attemptDispatchHomeScreen() {
+        private void attemptDispatchHomeScreen() {
         try {
             if (CommCareApplication._().isSyncPending(false)) {
                 // There is a sync pending
