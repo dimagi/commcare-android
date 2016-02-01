@@ -574,9 +574,9 @@ archive.install.no.browser=You need a file manager to access the files on this d
 archive.install.prompt=Install your CommCare application from a .ccz file
 archive.install.button=Install App
 
-wifi.direct.transfer.forms=Transfer Forms
-wifi.direct.receive.forms=Receive Forms
-wifi.direct.submit.forms=Submit Forms
+wifi.direct.transfer.forms=Transfer
+wifi.direct.receive.forms=Receive
+wifi.direct.submit.forms=Submit
 wifi.direct.send.forms=Sending Forms
 wifi.direct.change.state.title=Send, Receive, Submit
 wifi.direct.change.state.text=Do you want to send, receive, or submit forms?

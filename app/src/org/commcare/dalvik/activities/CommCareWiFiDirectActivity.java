@@ -220,6 +220,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     }
 
     private void changeState(){
+        updateStatusText();
         adapter.updateDisplayData();
         adapter.notifyDataSetChanged();
     }
@@ -280,8 +281,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         Logger.log(TAG, "Device designated as sender");
         resetData();
         mState = wdState.send;
-        updateStatusText();
-        adapter.notifyDataSetChanged();
+        changeState();
     }
 
     private void beReceiver(){
@@ -317,8 +317,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         hostGroup();
 
         mState = wdState.receive;
-        updateStatusText();
-        adapter.notifyDataSetChanged();
+        changeState();
     }
 
     private void beSubmitter(){
@@ -351,8 +350,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         wifiFragment.resetConnectionGroup();
 
         mState = wdState.submit;
-        updateStatusText();
-        adapter.notifyDataSetChanged();
+        changeState();
     }
 
     private void cleanPostSend(){
