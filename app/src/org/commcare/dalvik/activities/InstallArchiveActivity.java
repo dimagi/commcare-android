@@ -37,19 +37,19 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     private static final int REQUEST_FILE_LOCATION = 1;
 
     @UiElement(value = R.id.screen_multimedia_inflater_prompt, locale = "archive.install.prompt")
-    TextView txtDisplayPrompt;
+    private TextView txtDisplayPrompt;
 
     @UiElement(value = R.id.screen_multimedia_install_messages, locale = "archive.install.state.empty")
-    TextView txtInteractiveMessages;
+    private TextView txtInteractiveMessages;
 
     @UiElement(R.id.screen_multimedia_inflater_location)
-    EditText editFileLocation;
+    private EditText editFileLocation;
 
     @UiElement(R.id.screen_multimedia_inflater_filefetch)
-    ImageButton btnFetchFiles;
+    private ImageButton btnFetchFiles;
 
     @UiElement(value = R.id.screen_multimedia_inflater_install, locale = "archive.install.button")
-    Button btnInstallArchive;
+    private Button btnInstallArchive;
 
     private static final String TAG = InstallArchiveActivity.class.getSimpleName();
 
@@ -114,7 +114,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             }
         };
 
-        File mFile = new File(filepath);
         String targetDirectory = getTargetFolder();
         FileUtil.deleteFileOrDir(targetDirectory);
 
