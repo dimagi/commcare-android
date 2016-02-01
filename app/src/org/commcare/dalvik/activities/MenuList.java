@@ -2,7 +2,6 @@ package org.commcare.dalvik.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -14,11 +13,10 @@ import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SaveSessionCommCareActivity;
 import org.commcare.android.framework.UiElement;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.session.SessionFrame;
-import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.util.CommCarePlatform;
 
@@ -88,8 +86,8 @@ public class MenuList extends SaveSessionCommCareActivity implements OnItemClick
         if (value == null) {
             return;
         }
-        if (value instanceof Entry) {
-            commandId = ((Entry)value).getCommandId();
+        if (value instanceof FormEntry) {
+            commandId = ((FormEntry)value).getCommandId();
         } else {
             commandId = ((Menu)value).getId();
         }
