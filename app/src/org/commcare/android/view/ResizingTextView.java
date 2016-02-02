@@ -70,6 +70,7 @@ public class ResizingTextView extends TextView {
         if (!mHasTriedSmallLayout && this.getLineCount() > 1) {
             setTextSizeToSmall();
         }
+        reset();
     }
 
     private void setTextSizeToSmall() {
