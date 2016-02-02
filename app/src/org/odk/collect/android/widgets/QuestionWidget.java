@@ -72,7 +72,6 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     protected TextView mQuestionText;
     private FrameLayout helpPlaceholder;
     private ShrinkingTextView mHintText;
-    protected boolean hasListener;
     private View toastView;
 
     //Whether this question widget needs to request focus on
@@ -83,28 +82,18 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     protected WidgetChangedListener widgetChangedListener;
 
     public QuestionWidget(Context context, FormEntryPrompt p) {
-        this(context, p, null);
-    }
-
-    private QuestionWidget(Context context, FormEntryPrompt p, WidgetChangedListener w){
         super(context);
         mPrompt = p;
 
         //this is pretty sketch but is the only way to make the required background to work trivially for now
         this.setClipToPadding(false);
-        
-        if(w!=null){
-            hasListener = false;
-            widgetChangedListener = w;
-        }
+
         this.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 QuestionWidget.this.acceptFocus();
             }
         });
-
-        hasListener = (w != null);
 
         SharedPreferences settings =
                 PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext());
@@ -617,7 +606,6 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
     public void setChangedListener(WidgetChangedListener wcl){
         widgetChangedListener = wcl;
-        hasListener = (wcl != null);
     }
 
     public void unsetListeners() {
@@ -626,13 +614,17 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     public void widgetEntryChanged(){
-        if(this.toastView != null) {
+        if (this.toastView != null) {
             this.toastView.setVisibility(View.GONE);
             ViewUtil.setBackgroundRetainPadding(this, null);
         }
-        if(hasListener){
+        if (hasListener()) {
             widgetChangedListener.widgetEntryChanged();
         }
+    }
+
+    public boolean hasListener() {
+        return widgetChangedListener != null;
     }
 
     public void checkFileSize(File file){

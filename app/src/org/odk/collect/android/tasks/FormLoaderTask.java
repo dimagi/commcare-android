@@ -131,7 +131,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
                 throw new RuntimeException("Error reading XForm file");
             }
             XFormParser.registerHandler("intent", new IntentExtensionParser());
-            XFormParser.registerStructuredAction("pollsensor", new PollSensorExtensionParser());
+            XFormParser.registerActionHandler("pollsensor", new PollSensorExtensionParser());
             fd = XFormExtensionUtils.getFormFromInputStream(fis);
             if (fd == null) {
                 throw new RuntimeException("Error reading XForm file");

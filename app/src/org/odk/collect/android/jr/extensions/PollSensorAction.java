@@ -16,6 +16,7 @@ import android.support.v4.content.ContextCompat;
 
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.Action;
+import org.javarosa.core.model.ActionTriggerSource;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.Recalculate;
@@ -80,12 +81,10 @@ public class PollSensorAction extends Action implements LocationListener {
 
     /**
      * Deal with a pollsensor action: start getting a GPS fix, and prepare to cancel after maximum amount of time.
-     *
-     * @param model The FormDef that triggered the action
      */
     @Override
-    public TreeReference processAction(FormDef model, TreeReference contextRef) {
-        mModel = model;
+    public TreeReference processAction(ActionTriggerSource target, TreeReference contextRef) {
+        mModel = (FormDef) target;
         mContextRef = contextRef;
 
         // LocationManager needs to be dealt with in the main UI thread, so wrap GPS-checking logic in a Handler

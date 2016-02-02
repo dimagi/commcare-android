@@ -73,7 +73,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
         //Ugh. Really need to sync up the Xform libs between ccodk and odk.
         XFormParser.registerHandler("intent", new IntentExtensionParser());
-        XFormParser.registerStructuredAction("pollsensor", new PollSensorExtensionParser());
+        XFormParser.registerActionHandler("pollsensor", new PollSensorExtensionParser());
 
         FormDef formDef;
         try {
