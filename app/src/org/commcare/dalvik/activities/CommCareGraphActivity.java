@@ -18,6 +18,6 @@ public class CommCareGraphActivity extends CommCareActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        (new GraphActivityStateHandler(this)).onCreate();
+        (new GraphActivityStateHandler(this)).setContent();
     }
 }
