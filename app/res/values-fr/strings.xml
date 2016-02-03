@@ -38,8 +38,6 @@ License.
     <string name="clear_answer_no">Annuler</string>
     <string name="completed_data">Complet (%s)</string>
     <string name="data">Formulaires sauvegardés</string>
-    <string name="data_saved_error">Désolé, la sauvegarde du formulaire a échoué.</string>
-    <string name="data_saved_ok">Le Formulaire a été enregistré avec succès.</string>
     <string name="delete_confirm">Supprimer %s formulaire(s)?</string>
     <string name="delete_file">Supprimer la sélection</string>
     <string name="delete_no">Ne pas supprimer</string>

@@ -39,8 +39,6 @@
     <string name="clear_answer_no">Avbryt</string>
     <string name="completed_data">Fullfør (%s)</string>
     <string name="data">Lagret skjemaer</string>
-    <string name="data_saved_error">Beklager, skjema lagring mislyktes!</string>
-    <string name="data_saved_ok">Skjema lagret!</string>
     <string name="delete_confirm">Slett %s skjema(er)?</string>
     <string name="delete_file">Slett utvalgte</string>
     <string name="delete_no">Ikke slett</string>
