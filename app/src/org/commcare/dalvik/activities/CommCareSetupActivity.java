@@ -27,6 +27,7 @@ import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.fragments.ContainerFragment;
 import org.commcare.android.fragments.InstallConfirmFragment;
+import org.commcare.android.fragments.InstallPermissionsFragment;
 import org.commcare.android.fragments.SelectInstallModeFragment;
 import org.commcare.android.fragments.SetupEnterURLFragment;
 import org.commcare.android.framework.CommCareActivity;
@@ -97,7 +98,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public enum UiState {
         IN_URL_ENTRY,
         CHOOSE_INSTALL_ENTRY_METHOD,
-        READY_TO_INSTALL
+        READY_TO_INSTALL,
+        NEEDS_PERMS
     }
 
     private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
@@ -138,6 +140,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private final FragmentManager fm = getSupportFragmentManager();
     private final InstallConfirmFragment startInstall = new InstallConfirmFragment();
     private final SelectInstallModeFragment installFragment = new SelectInstallModeFragment();
+    private final InstallPermissionsFragment permFragment = new InstallPermissionsFragment();
     private ContainerFragment<CommCareApp> containerFragment;
 
     @Override
@@ -190,10 +193,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void loadStateFromInstance(Bundle savedInstanceState) {
-        String uiStateEncoded = savedInstanceState.getString(KEY_UI_STATE);
-        this.uiState = uiStateEncoded == null ? UiState.CHOOSE_INSTALL_ENTRY_METHOD : UiState.valueOf(UiState.class, uiStateEncoded);
-        Log.v("UiState", "uiStateEncoded is: " + uiStateEncoded +
-                ", so my uiState is: " + uiState);
+        uiState = (UiState)savedInstanceState.getSerializable(KEY_UI_STATE);
         incomingRef = savedInstanceState.getString("profileref");
         fromExternal = savedInstanceState.getBoolean(KEY_FROM_EXTERNAL);
         fromManager = savedInstanceState.getBoolean(KEY_FROM_MANAGER);
@@ -292,6 +292,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 fragment = installFragment;
                 this.offlineInstall = false;
                 break;
+            case NEEDS_PERMS:
+                fragment = permFragment;
+                break;
             default:
                 return;
         }
@@ -314,7 +317,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return fragment;
     }
 
-
     @Override
     protected int getWakeLockLevel() {
         return PowerManager.SCREEN_DIM_WAKE_LOCK | PowerManager.ON_AFTER_RELEASE;
@@ -323,7 +325,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putString(KEY_UI_STATE, uiState.toString());
+        outState.putSerializable(KEY_UI_STATE, uiState);
         outState.putString("profileref", incomingRef);
         outState.putBoolean("startAllowed", startAllowed);
         outState.putBoolean(KEY_OFFLINE, offlineInstall);
@@ -820,14 +822,19 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             // external storage perms were enabled, so setup temp storage,
             // which fails in application setup without external storage perms.
             CommCareApplication._().prepareTemporaryStorage();
+            uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
+            uiStateScreenTransition();
         }
     }
 
     private void showMissingPermissionState() {
-        // TODO PLM: instead of popping up the same message we should disable
-        // install buttons and show a message and button to re-request the
-        // permissions.
-        Permissions.acquireAllAppPermissions(this, this,
-                Permissions.ALL_PERMISSIONS_REQUEST);
+        if (uiState != UiState.NEEDS_PERMS) {
+            uiState = UiState.NEEDS_PERMS;
+            uiStateScreenTransition();
+        } else {
+            InstallPermissionsFragment permFragment =
+                    (InstallPermissionsFragment)getSupportFragmentManager().findFragmentById(R.id.setup_fragment_container);
+            permFragment.updateDeniedState();
+        }
     }
 }
