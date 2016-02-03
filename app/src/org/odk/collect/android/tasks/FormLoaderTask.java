@@ -82,7 +82,6 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
     protected FECWrapper doTaskBackground(Uri... form) {
         FormEntryController fec;
         FormDef fd = null;
-        FileInputStream fis;
 
         Pair<String, String> formAndMediaPaths = getFormAndMediaPaths(form[0]);
 
@@ -108,19 +107,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
         // If we couldn't find a cached version, load the form from the XML
         if (fd == null) {
-            // no binary, read from xml
-            Log.i(TAG, "Attempting to load from: " + formXml.getAbsolutePath());
-            try {
-                fis = new FileInputStream(formXml);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException("Error reading XForm file");
-            }
-            XFormParser.registerHandler("intent", new IntentExtensionParser());
-            XFormParser.registerStructuredAction("pollsensor", new PollSensorExtensionParser());
-            fd = XFormExtensionUtils.getFormFromInputStream(fis);
-            if (fd == null) {
-                throw new RuntimeException("Error reading XForm file");
-            }
+            fd = loadFormFromFile(formXml);
         }
 
         // Try to write the form definition to a cached location
@@ -179,6 +166,24 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
                 c.close();
             }
         }
+    }
+
+    private FormDef loadFormFromFile(File formXml) {
+        FileInputStream fis;
+        // no binary, read from xml
+        Log.i(TAG, "Attempting to load from: " + formXml.getAbsolutePath());
+        try {
+            fis = new FileInputStream(formXml);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("Error reading XForm file");
+        }
+        XFormParser.registerHandler("intent", new IntentExtensionParser());
+        XFormParser.registerStructuredAction("pollsensor", new PollSensorExtensionParser());
+        FormDef fd = XFormExtensionUtils.getFormFromInputStream(fis);
+        if (fd == null) {
+            throw new RuntimeException("Error reading XForm file");
+        }
+        return fd;
     }
 
     private void setupFormMedia(String formMediaPath, File formXmlFile) {
