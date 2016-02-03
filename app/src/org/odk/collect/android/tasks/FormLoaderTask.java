@@ -80,7 +80,6 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
      */
     @Override
     protected FECWrapper doTaskBackground(Uri... form) {
-        FormEntryController fec;
         FormDef fd = null;
 
         Pair<String, String> formAndMediaPaths = getFormAndMediaPaths(form[0]);
@@ -120,23 +119,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             Logger.log(AndroidLogger.TYPE_RESOURCES, "XForm could not be serialized. Error trace:\n" + ExceptionReporting.getStackTrace(e));
         }
 
-        fd.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler((Context)activity));
-        // create FormEntryController from formdef
-        FormEntryModel fem = new FormEntryModel(fd);
-        fec = new FormEntryController(fem);
-
-        //TODO: Get a reasonable IIF object
-        // import existing data into formdef
-        if (FormEntryActivity.mInstancePath != null) {
-            // This order is important. Import data, then initialize.
-            importData(FormEntryActivity.mInstancePath, fec);
-            fd.initialize(false, iif);
-        } else {
-            fd.initialize(true, iif);
-        }
-        if (mReadOnly) {
-            fd.getInstance().getRoot().setEnabled(false);
-        }
+        FormEntryController fec = initFormDef(fd);
 
         // Remove previous forms
         ReferenceManager._().clearSession();
@@ -184,6 +167,27 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             throw new RuntimeException("Error reading XForm file");
         }
         return fd;
+    }
+
+    private FormEntryController initFormDef(FormDef fd) {
+        fd.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler((Context)activity));
+        // create FormEntryController from formdef
+        FormEntryModel fem = new FormEntryModel(fd);
+        FormEntryController fec = new FormEntryController(fem);
+
+        //TODO: Get a reasonable IIF object
+        // import existing data into formdef
+        if (FormEntryActivity.mInstancePath != null) {
+            // This order is important. Import data, then initialize.
+            importData(FormEntryActivity.mInstancePath, fec);
+            fd.initialize(false, iif);
+        } else {
+            fd.initialize(true, iif);
+        }
+        if (mReadOnly) {
+            fd.getInstance().getRoot().setEnabled(false);
+        }
+        return fec;
     }
 
     private void setupFormMedia(String formMediaPath, File formXmlFile) {
