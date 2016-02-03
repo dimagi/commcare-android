@@ -374,7 +374,6 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
                             FormEntryActivity.mFormController.checkCurrentQuestionConstraint();
                 }
                 if (markCompleted &&
-                        saveStatus != FormEntryController.ANSWER_OK && // not technically needed
                         (saveStatus == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY ||
                                 saveStatus == FormEntryController.ANSWER_CONSTRAINT_VIOLATED)) {
 
