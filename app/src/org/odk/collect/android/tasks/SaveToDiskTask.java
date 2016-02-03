@@ -41,10 +41,10 @@ import javax.crypto.spec.SecretKeySpec;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Void, String, Integer, R> {
+public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Void, String, SaveToDiskTask.SaveStatus, R> {
     // callback to run upon saving
     private FormSavedListener mSavedListener;
-    private final Boolean mSave;
+    private final Boolean exitAfterSave;
     private final Boolean mMarkCompleted;
     // URI to the thing we are saving
     private Uri mUri;
@@ -56,10 +56,13 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
 
     private final SecretKeySpec symetricKey;
 
-    public static final int SAVED = 500;
-    public static final int SAVE_ERROR = 501;
-    public static final int VALIDATED = 503;
-    public static final int SAVED_AND_EXIT = 504;
+    public enum SaveStatus {
+        SAVED_COMPLETE,
+        SAVED_INCOMPLETE,
+        SAVE_ERROR,
+        INVALID_ANSWER,
+        SAVED_AND_EXIT
+    }
 
     public static final int SAVING_TASK_ID = 17;
 
@@ -67,7 +70,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         TAG = SaveToDiskTask.class.getSimpleName();
 
         this.mUri = mUri;
-        mSave = saveAndExit;
+        exitAfterSave = saveAndExit;
         mMarkCompleted = markCompleted;
         mInstanceName = updatedName;
         this.context = context;
@@ -86,21 +89,24 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
      * an instance, it will be used to fill the {@link FormDef}.
      */
     @Override
-    protected Integer doTaskBackground(Void... nothing) {
-        // validation failed, pass specific failure
-        int validateStatus =
-                validateAnswers(mMarkCompleted, DeveloperPreferences.shouldFireTriggersOnSave());
-        if (validateStatus != VALIDATED) {
-            return validateStatus;
+    protected SaveStatus doTaskBackground(Void... nothing) {
+        if (hasInvalidAnswers(mMarkCompleted, DeveloperPreferences.shouldFireTriggersOnSave())) {
+            return SaveStatus.INVALID_ANSWER;
         }
 
         FormEntryActivity.mFormController.postProcessInstance();
 
         if (exportData(mMarkCompleted)) {
-            return mSave ? SAVED_AND_EXIT : SAVED;
+            if (exitAfterSave) {
+                return SaveStatus.SAVED_AND_EXIT;
+            } else if (mMarkCompleted) {
+                return SaveStatus.SAVED_COMPLETE;
+            } else {
+                return SaveStatus.SAVED_INCOMPLETE;
+            }
         }
 
-        return SAVE_ERROR;
+        return SaveStatus.SAVE_ERROR;
     }
 
     /**
@@ -311,7 +317,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
     }
 
     @Override
-    protected void onPostExecute(Integer result) {
+    protected void onPostExecute(SaveStatus result) {
         super.onPostExecute(result);
 
         synchronized (this) {
@@ -321,7 +327,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
     }
 
     @Override
-    protected void deliverResult(R receiver, Integer result) {
+    protected void deliverResult(R receiver, SaveStatus result) {
     }
 
     @Override
@@ -346,7 +352,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
      * @param fireTriggerables re-fire the triggers associated with the
      *                         question when checking its constraints?
      */
-    private int validateAnswers(boolean markCompleted, boolean fireTriggerables) {
+    private boolean hasInvalidAnswers(boolean markCompleted, boolean fireTriggerables) {
         FormIndex i = FormEntryActivity.mFormController.getFormIndex();
         FormEntryActivity.mFormController.jumpToIndex(FormIndex.createBeginningOfFormIndex());
 
@@ -367,13 +373,16 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
                     saveStatus =
                             FormEntryActivity.mFormController.checkCurrentQuestionConstraint();
                 }
-                if (markCompleted && saveStatus != FormEntryController.ANSWER_OK) {
-                    return saveStatus;
+                if (markCompleted &&
+                        (saveStatus == FormEntryController.ANSWER_REQUIRED_BUT_EMPTY ||
+                                saveStatus == FormEntryController.ANSWER_CONSTRAINT_VIOLATED)) {
+
+                    return true;
                 }
             }
         }
 
         FormEntryActivity.mFormController.jumpToIndex(i);
-        return VALIDATED;
+        return false;
     }
 }
