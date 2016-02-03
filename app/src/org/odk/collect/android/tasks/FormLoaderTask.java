@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.v4.util.Pair;
 import android.util.Log;
 
 import org.commcare.android.crypt.EncryptionIO;
@@ -83,26 +84,10 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         FormDef fd = null;
         FileInputStream fis;
 
-        Uri theForm = form[0];
+        Pair<String, String> formAndMediaPaths = getFormAndMediaPaths(form[0]);
 
-        Cursor c = null;
-        String formPath = "";
-        String formMediaPath = null;
-        try {
-            //TODO: Selection=? helper
-            c = ((Context)activity).getContentResolver().query(theForm, new String[]{FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
-
-            if (!c.moveToFirst()) {
-                throw new IllegalArgumentException("Invalid Form URI Provided! No form content found at URI: " + theForm.toString());
-            }
-
-            formPath = c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
-            formMediaPath = c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH));
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
+        String formPath = formAndMediaPaths.first;
+        String formMediaPath = formAndMediaPaths.second;
 
         File formXml = new File(formPath);
         String formHash = FileUtils.getMd5Hash(formXml);
@@ -201,6 +186,26 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
         data = new FECWrapper(fc);
         return data;
+    }
+
+    private Pair<String, String> getFormAndMediaPaths(Uri formUri) {
+        Cursor c = null;
+        try {
+            //TODO: Selection=? helper
+            c = ((Context)activity).getContentResolver().query(formUri, new String[]{FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
+
+            if (c == null || !c.moveToFirst()) {
+                throw new IllegalArgumentException("Invalid Form URI Provided! No form content found at URI: " + formUri.toString());
+            }
+
+            return new Pair<>(c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH)),
+                    c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH)));
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
+
     }
 
     private boolean importData(String filePath, FormEntryController fec) {
