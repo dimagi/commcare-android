@@ -351,12 +351,12 @@ public class GridEntityView extends GridLayout {
                 if (cssid != null && !cssid.equals("none")) {
                     // user defined a style we want to use
                     Spannable mSpannable = MarkupUtil.getCustomSpannable(cssid, rowData);
-                    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
+                    EntityView.highlightSearches(searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
                     ((TextView) retVal).setText(mSpannable);
                 } else {
                     // just process inline markup
                     Spannable mSpannable = MarkupUtil.returnCSS(rowData);
-                    EntityView.highlightSearches(this.getContext(), searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
+                    EntityView.highlightSearches(searchTerms, mSpannable, htmlIfiedSearchField, mFuzzySearchEnabled, mIsAsynchronous);
                     ((TextView) retVal).setText(mSpannable);
                 }
 

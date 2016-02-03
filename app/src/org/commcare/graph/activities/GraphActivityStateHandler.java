@@ -19,7 +19,7 @@ public class GraphActivityStateHandler {
         activity = a;
     }
 
-    public void onCreate() {
+    public void setContent() {
         Bundle extras = activity.getIntent().getExtras();
         String title = extras.getString(GraphView.TITLE);
         if (title == null) {

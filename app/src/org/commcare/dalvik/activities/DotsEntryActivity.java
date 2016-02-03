@@ -529,6 +529,6 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         c.roll(Calendar.DATE, dotsData.days().length - dayIndex + 1);
         
         ddv = new DotsDetailView();
-        showView(ddv.LoadDotsDetailView(this, day, dayIndex, c.getTime(), regimenIndex, this), AnimationType.fade);
+        showView(ddv.LoadDotsDetailView(this, day, dayIndex, regimenIndex, this), AnimationType.fade);
     }
 }
