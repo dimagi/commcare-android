@@ -34,6 +34,7 @@ import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
 import org.odk.collect.android.jr.extensions.IntentExtensionParser;
+import org.odk.collect.android.jr.extensions.PollSensorAction;
 import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
 import org.odk.collect.android.jr.extensions.XFormExtensionUtils;
 
@@ -73,7 +74,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
         //Ugh. Really need to sync up the Xform libs between ccodk and odk.
         XFormParser.registerHandler("intent", new IntentExtensionParser());
-        XFormParser.registerActionHandler("pollsensor", new PollSensorExtensionParser());
+        XFormParser.registerActionHandler(PollSensorAction.ELEMENT_NAME, new PollSensorExtensionParser());
 
         FormDef formDef;
         try {

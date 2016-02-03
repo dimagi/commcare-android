@@ -33,6 +33,7 @@ import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
+import org.javarosa.core.model.Action;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.QuestionExtensionReceiver;
@@ -618,6 +619,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             this.toastView.setVisibility(View.GONE);
             ViewUtil.setBackgroundRetainPadding(this, null);
         }
+        getPrompt().getQuestion().triggerActionsFromEvent(Action.Event.EVENT_QUESTION_VALUE_CHANGED);
         if (hasListener()) {
             widgetChangedListener.widgetEntryChanged();
         }

@@ -44,7 +44,8 @@ import java.util.TimerTask;
  */
 @SuppressWarnings("ResourceType")
 public class PollSensorAction extends Action implements LocationListener {
-    private static final String name = "pollsensor";
+
+    public static final String ELEMENT_NAME = "pollsensor";
     public static final String KEY_UNRESOLVED_XPATH = "unresolved_xpath";
     public static final String XPATH_ERROR_ACTION = "poll_sensor_xpath_error_action";
     private TreeReference target;
@@ -71,11 +72,11 @@ public class PollSensorAction extends Action implements LocationListener {
     }
 
     public PollSensorAction() {
-        super(name);
+        super(ELEMENT_NAME);
     }
 
     public PollSensorAction(TreeReference target) {
-        super(name);
+        super(ELEMENT_NAME);
         this.target = target;
     }
 
