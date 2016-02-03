@@ -76,8 +76,8 @@ public class SetupEnterURLFragment extends Fragment {
             return url;
         }
         // if it's not the last (which should be "Raw") choice, we'll use the prefix
-        if (!url.contains("://")) { // if there is no (http|jr):// prefix, we'll assume it's a http:// URL
-            url = "http://" + url;
+        if (!url.contains("://")) { // if there is no (http|jr):// prefix, we'll assume it's a http://bit.ly/ URL
+            url = "http://bit.ly/" + url;
         }
         return url;
     }
