@@ -11,7 +11,6 @@ import net.sqlcipher.database.SQLiteDatabaseHook;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.util.externalizable.AndroidPrototypeFactory;
 import org.javarosa.core.util.PrefixTree;
-import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
@@ -94,9 +93,6 @@ public class DbUtil {
                         }
                         if (!emptyc) {
                             continue;
-                        }
-                        if (Externalizable.class.isAssignableFrom(prototype)) {
-                            classNames.add(cn);
                         }
                         classNames.add(cn);
                     }
