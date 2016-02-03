@@ -217,12 +217,11 @@ public class ODKView extends ScrollView
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int newHeight = MeasureSpec.getSize(heightMeasureSpec);
-        int newWidth = MeasureSpec.getSize(widthMeasureSpec);
         int oldHeight = this.getMeasuredHeight();
         
         if(oldHeight == 0 || Math.abs(((newHeight * 1.0 - oldHeight) / oldHeight)) > .2) {
             for(QuestionWidget qw : this.widgets) { 
-                qw.updateFrameSize(newWidth, newHeight);
+                qw.updateFrameSize(newHeight);
             }
         }
         
