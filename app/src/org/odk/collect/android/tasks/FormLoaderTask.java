@@ -151,36 +151,10 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             fd.getInstance().getRoot().setEnabled(false);
         }
 
-        // set paths to /sdcard/odk/forms/formfilename-media/
-        String formFileName = formXml.getName().substring(0, formXml.getName().lastIndexOf("."));
-
         // Remove previous forms
         ReferenceManager._().clearSession();
 
-        if (formMediaPath != null) {
-            ReferenceManager._().addSessionRootTranslator(
-                    new RootTranslator("jr://images/", formMediaPath));
-            ReferenceManager._().addSessionRootTranslator(
-                    new RootTranslator("jr://audio/", formMediaPath));
-            ReferenceManager._().addSessionRootTranslator(
-                    new RootTranslator("jr://video/", formMediaPath));
-
-        } else {
-            // This should get moved to the Application Class
-            if (ReferenceManager._().getFactories().length == 0) {
-                // this is /sdcard/odk
-                ReferenceManager._().addReferenceFactory(
-                        new FileReferenceFactory(Environment.getExternalStorageDirectory() + "/odk"));
-            }
-
-            // Set jr://... to point to /sdcard/odk/forms/filename-media/
-            ReferenceManager._().addSessionRootTranslator(
-                    new RootTranslator("jr://images/", "jr://file/forms/" + formFileName + "-media/"));
-            ReferenceManager._().addSessionRootTranslator(
-                    new RootTranslator("jr://audio/", "jr://file/forms/" + formFileName + "-media/"));
-            ReferenceManager._().addSessionRootTranslator(
-                    new RootTranslator("jr://video/", "jr://file/forms/" + formFileName + "-media/"));
-        }
+        setupFormMedia(formMediaPath, formXml);
 
         FormController fc = new FormController(fec, mReadOnly);
 
@@ -205,7 +179,35 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
                 c.close();
             }
         }
+    }
 
+    private void setupFormMedia(String formMediaPath, File formXmlFile) {
+        if (formMediaPath != null) {
+            ReferenceManager._().addSessionRootTranslator(
+                    new RootTranslator("jr://images/", formMediaPath));
+            ReferenceManager._().addSessionRootTranslator(
+                    new RootTranslator("jr://audio/", formMediaPath));
+            ReferenceManager._().addSessionRootTranslator(
+                    new RootTranslator("jr://video/", formMediaPath));
+        } else {
+            // This should get moved to the Application Class
+            if (ReferenceManager._().getFactories().length == 0) {
+                // this is /sdcard/odk
+                ReferenceManager._().addReferenceFactory(
+                        new FileReferenceFactory(Environment.getExternalStorageDirectory() + "/odk"));
+            }
+
+            // set paths to /sdcard/odk/forms/formfilename-media/
+            String formFileName = formXmlFile.getName().substring(0, formXmlFile.getName().lastIndexOf("."));
+
+            // Set jr://... to point to /sdcard/odk/forms/filename-media/
+            ReferenceManager._().addSessionRootTranslator(
+                    new RootTranslator("jr://images/", "jr://file/forms/" + formFileName + "-media/"));
+            ReferenceManager._().addSessionRootTranslator(
+                    new RootTranslator("jr://audio/", "jr://file/forms/" + formFileName + "-media/"));
+            ReferenceManager._().addSessionRootTranslator(
+                    new RootTranslator("jr://video/", "jr://file/forms/" + formFileName + "-media/"));
+        }
     }
 
     private boolean importData(String filePath, FormEntryController fec) {
