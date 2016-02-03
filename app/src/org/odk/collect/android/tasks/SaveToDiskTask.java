@@ -54,10 +54,6 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
     // URI to the table we are saving to
     private final Uri instanceContentUri;
 
-    // Should this save task tell its save-complete callback to run without any
-    // GUI calls?
-    private final boolean headless;
-    
     private final SecretKeySpec symetricKey;
 
     public enum SaveStatus {
@@ -70,7 +66,6 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
 
     public static final int SAVING_TASK_ID = 17;
 
-
     public SaveToDiskTask(Uri mUri, Boolean saveAndExit, Boolean markCompleted, String updatedName, Context context, Uri instanceContentUri, SecretKeySpec symetricKey, boolean headless) {
         TAG = SaveToDiskTask.class.getSimpleName();
 
@@ -81,7 +76,6 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         this.context = context;
         this.instanceContentUri = instanceContentUri;
         this.symetricKey = symetricKey;
-        this.headless = headless;
 
         if (headless) {
             this.taskId = -1;
@@ -328,7 +322,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
 
         synchronized (this) {
             if (mSavedListener != null)
-                mSavedListener.savingComplete(result, headless);
+                mSavedListener.savingComplete(result);
         }
     }
 

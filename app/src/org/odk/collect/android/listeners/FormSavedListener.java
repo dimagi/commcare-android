@@ -9,8 +9,6 @@ public interface FormSavedListener {
 
     /**
      * Callback to be run after a form has been saved.
-     *
-     * @param headless is this thread running without a GUI?
      */
-    void savingComplete(SaveToDiskTask.SaveStatus formSaveStatus, boolean headless);
+    void savingComplete(SaveToDiskTask.SaveStatus formSaveStatus);
 }

@@ -2107,7 +2107,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * continue closing the session/logging out.
      */
     @Override
-    public void savingComplete(SaveToDiskTask.SaveStatus saveStatus, boolean headless) {
+    public void savingComplete(SaveToDiskTask.SaveStatus saveStatus) {
         // Did we just save a form because the key session
         // (CommCareSessionService) is ending?
         if (savingFormOnKeySessionExpiration) {

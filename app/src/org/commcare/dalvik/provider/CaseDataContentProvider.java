@@ -75,7 +75,6 @@ public class CaseDataContentProvider extends ContentProvider {
 
     @Override
     public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-
         //first, determine whether we're logged in and whether we have a valid data set to even be iterating over.
         try {
             CommCareApplication._().getUserDbHandle();
@@ -84,15 +83,14 @@ public class CaseDataContentProvider extends ContentProvider {
             //that notifies the other service to trigger a Login event.
             return null;
         }
-        
-        
+
         //Standard dispatcher following Android best practices
         int match = CaseDataAPI.UriMatch(uri);
         
         switch(match) {
         case CaseDataAPI.MetadataColumns.MATCH_CASES:
         case CaseDataAPI.MetadataColumns.MATCH_CASE:
-            return queryCaseList(uri, projection, selection, selectionArgs, sortOrder);
+            return queryCaseList(uri, selection, selectionArgs);
         case CaseDataAPI.DataColumns.MATCH_DATA:
             return queryCaseData(uri.getLastPathSegment());
         case CaseDataAPI.AttachmentColumns.MATCH_ATTACHMENTS:
@@ -102,14 +100,13 @@ public class CaseDataContentProvider extends ContentProvider {
             return null;
         }
         throw new IllegalArgumentException("URI: " + uri.toString() +" is not a valid content path for CommCare Case Data");
-        
     }
     
 
 
 
     //this is the complex case. Querying the full case database for metadata.
-    private Cursor queryCaseList(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    private Cursor queryCaseList(Uri uri, String selection, String[] selectionArgs) {
 
         //Not cached yet. Long term this should be a priority.
         SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
