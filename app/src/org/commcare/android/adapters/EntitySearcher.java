@@ -131,6 +131,9 @@ public class EntitySearcher {
                         }
                     }
                 }
+                if (!add) {
+                    break;
+                }
             }
             if (add) {
                 //matchList.add(e);
