@@ -80,7 +80,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
     protected FECWrapper doTaskBackground(Uri... form) {
         FormDef fd = null;
 
-        Pair<String, String> formAndMediaPaths = getFormAndMediaPaths((Context)activity, form[0]);
+        Pair<String, String> formAndMediaPaths = getFormAndMediaPaths(form[0]);
 
         String formPath = formAndMediaPaths.first;
         String formMediaPath = formAndMediaPaths.second;
@@ -130,11 +130,11 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         return data;
     }
 
-    public static Pair<String, String> getFormAndMediaPaths(Context context, Uri formUri) {
+    private Pair<String, String> getFormAndMediaPaths(Uri formUri) {
         Cursor c = null;
         try {
             //TODO: Selection=? helper
-            c = context.getContentResolver().query(formUri, new String[]{FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
+            c = ((Context)activity).getContentResolver().query(formUri, new String[]{FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
 
             if (c == null || !c.moveToFirst()) {
                 throw new IllegalArgumentException("Invalid Form URI Provided! No form content found at URI: " + formUri.toString());
@@ -149,7 +149,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         }
     }
 
-    public static FormDef loadFormFromFile(File formXmlFile) {
+    private FormDef loadFormFromFile(File formXmlFile) {
         FileInputStream fis;
         // no binary, read from xml
         Log.i(TAG, "Attempting to load from: " + formXmlFile.getAbsolutePath());
