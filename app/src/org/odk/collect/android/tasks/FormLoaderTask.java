@@ -49,8 +49,6 @@ import java.io.OutputStream;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Background task for loading a form.
- *
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
@@ -151,12 +149,12 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         }
     }
 
-    private FormDef loadFormFromFile(File formXml) {
+    private FormDef loadFormFromFile(File formXmlFile) {
         FileInputStream fis;
         // no binary, read from xml
-        Log.i(TAG, "Attempting to load from: " + formXml.getAbsolutePath());
+        Log.i(TAG, "Attempting to load from: " + formXmlFile.getAbsolutePath());
         try {
-            fis = new FileInputStream(formXml);
+            fis = new FileInputStream(formXmlFile);
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Error reading XForm file");
         }
@@ -169,10 +167,10 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         return fd;
     }
 
-    private FormEntryController initFormDef(FormDef fd) {
-        fd.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler((Context)activity));
+    private FormEntryController initFormDef(FormDef formDef) {
+        formDef.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler((Context)activity));
         // create FormEntryController from formdef
-        FormEntryModel fem = new FormEntryModel(fd);
+        FormEntryModel fem = new FormEntryModel(formDef);
         FormEntryController fec = new FormEntryController(fem);
 
         //TODO: Get a reasonable IIF object
@@ -180,12 +178,12 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         if (FormEntryActivity.mInstancePath != null) {
             // This order is important. Import data, then initialize.
             importData(FormEntryActivity.mInstancePath, fec);
-            fd.initialize(false, iif);
+            formDef.initialize(false, iif);
         } else {
-            fd.initialize(true, iif);
+            formDef.initialize(true, iif);
         }
         if (mReadOnly) {
-            fd.getInstance().getRoot().setEnabled(false);
+            formDef.getInstance().getRoot().setEnabled(false);
         }
         return fec;
     }
@@ -264,20 +262,16 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         }
     }
 
-
     /**
      * Read serialized {@link FormDef} from file and recreate as object.
-     *
-     * @param formDef serialized FormDef file
-     * @return {@link FormDef} object
      */
-    private static FormDef deserializeFormDef(Context context, File formDef) {
+    private static FormDef deserializeFormDef(Context context, File formDefFile) {
         FileInputStream fis;
         FormDef fd;
         try {
             // create new form def
             fd = new FormDef();
-            fis = new FileInputStream(formDef);
+            fis = new FileInputStream(formDefFile);
             DataInputStream dis = new DataInputStream(new BufferedInputStream(fis));
 
             // read serialized formdef into new formdef
@@ -293,14 +287,10 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
     /**
      * Write the FormDef to the file system as a binary blob.
-     *
-     * @param filepath path to the form file
-     * @throws IOException
      */
-    @SuppressWarnings("resource")
-    public void serializeFormDef(FormDef fd, String filepath) throws IOException {
+    private void serializeFormDef(FormDef fd, String formFilePath) throws IOException {
         // calculate unique md5 identifier for this form
-        String hash = FileUtils.getMd5Hash(new File(filepath));
+        String hash = FileUtils.getMd5Hash(new File(formFilePath));
         File formDef = getCachedForm(hash);
 
         // create a serialized form file if there isn't already one at this hash
