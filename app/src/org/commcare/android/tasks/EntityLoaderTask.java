@@ -82,11 +82,11 @@ public class EntityLoaderTask
                     pendingTask = null;
 
                     if (mException != null) {
-                        listener.deliverError(mException);
+                        listener.deliverLoadError(mException);
                         return;
                     }
 
-                    listener.deliverResult(result.first, result.second, factory);
+                    listener.deliverLoadResult(result.first, result.second, factory);
 
                     return;
                 }
@@ -127,6 +127,6 @@ public class EntityLoaderTask
 
     public void attachListener(EntityLoaderListener listener) {
         this.listener = listener;
-        listener.attach(this);
+        listener.attachLoader(this);
     }
 }

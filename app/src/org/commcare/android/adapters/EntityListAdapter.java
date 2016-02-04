@@ -17,6 +17,7 @@ import org.commcare.android.view.GridEntityView;
 import org.commcare.android.view.HorizontalMediaView;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.instance.TreeReference;
 
@@ -35,8 +36,8 @@ public class EntityListAdapter implements ListAdapter {
 
     public static final int SPECIAL_ACTION = -2;
 
-    private int actionPosition = -1;
-    private final boolean actionEnabled;
+    private int actionsStartPosition = 0;
+    private final int actionsCount;
 
     private boolean mFuzzySearchEnabled = true;
 
@@ -71,7 +72,11 @@ public class EntityListAdapter implements ListAdapter {
                              int[] sort,
                              NodeEntityFactory factory) {
         this.detail = detail;
-        actionEnabled = detail.getCustomAction() != null;
+        if (detail.getCustomActions() != null) {
+            actionsCount = detail.getCustomActions().size();
+        } else {
+            actionsCount = 0;
+        }
 
         this.full = full;
         setCurrent(new ArrayList<Entity<TreeReference>>());
@@ -111,8 +116,8 @@ public class EntityListAdapter implements ListAdapter {
      */
     void setCurrent(List<Entity<TreeReference>> arrayList) {
         current = arrayList;
-        if (actionEnabled) {
-            actionPosition = current.size();
+        if (actionsCount > 0) {
+            actionsStartPosition = current.size();
         }
     }
 
@@ -161,15 +166,23 @@ public class EntityListAdapter implements ListAdapter {
      */
     @Override
     public int getCount() {
-        return getCount(false, false);
+        return getCurrentCountWithActions();
     }
 
-    /**
-     * Get number of items, with a parameter to decide whether or not action counts as an item.
-     */
-    public int getCount(boolean ignoreAction, boolean fullCount) {
-        //Always one extra element if the action is defined
-        return (fullCount ? full.size() : current.size()) + (actionEnabled && !ignoreAction ? 1 : 0);
+    public int getFullCount() {
+        return full.size();
+    }
+
+    public int getFullCountWithActions() {
+        return full.size() + actionsCount;
+    }
+
+    public int getCurrentCount() {
+        return current.size();
+    }
+
+    public int getCurrentCountWithActions() {
+        return current.size() + actionsCount;
     }
 
     @Override
@@ -179,20 +192,16 @@ public class EntityListAdapter implements ListAdapter {
 
     @Override
     public long getItemId(int position) {
-        if (actionEnabled) {
-            if (position == actionPosition) {
-                return SPECIAL_ACTION;
-            }
+        if (actionsCount > 0 && position >= actionsStartPosition) {
+            return SPECIAL_ACTION;
         }
         return references.indexOf(current.get(position).getElement());
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (actionEnabled) {
-            if (position == actionPosition) {
-                return 1;
-            }
+        if (actionsCount > 0 && position >= actionsStartPosition) {
+            return 1;
         }
         return 0;
     }
@@ -203,54 +212,58 @@ public class EntityListAdapter implements ListAdapter {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (actionEnabled && position == actionPosition) {
-            HorizontalMediaView tiav = (HorizontalMediaView)convertView;
-
-            if (tiav == null) {
-                tiav = new HorizontalMediaView(context);
-            }
-            tiav.setDisplay(detail.getCustomAction().getDisplay());
-            tiav.setBackgroundResource(R.drawable.list_bottom_tab);
-            //We're gonna double pad this because we want to give it some visual distinction
-            //and keep the icon more centered
-            int padding = (int)context.getResources().getDimension(R.dimen.entity_padding);
-            tiav.setPadding(padding, padding, padding, padding);
-            return tiav;
+        if (actionsCount > 0 && position >= actionsStartPosition) {
+            return getActionView(position, (HorizontalMediaView)convertView);
         }
 
         Entity<TreeReference> entity = current.get(position);
         // if we use a <grid>, setup an AdvancedEntityView
         if (usesGridView) {
-            GridEntityView emv = (GridEntityView)convertView;
-            int[] titleColor = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.entity_select_title_text_color});
-            if (emv == null) {
-                emv = new GridEntityView(context, detail, entity, currentSearchTerms, mImageLoader, mFuzzySearchEnabled);
-            } else {
-                emv.setSearchTerms(currentSearchTerms);
-                emv.setViews(context, detail, entity);
-            }
-            emv.setTitleTextColor(titleColor[0]);
-            return emv;
-
+            return getGridView(entity, (GridEntityView)convertView);
+        } else {
+            return getEntityView(entity, (EntityView)convertView, position);
         }
-        // if not, just use the normal row
-        else {
-            EntityView emv = (EntityView)convertView;
+    }
 
-            if (emv == null) {
-                emv = EntityView.buildEntryEntityView(context, detail, entity, null, currentSearchTerms, position, mFuzzySearchEnabled);
-            } else {
-                emv.setSearchTerms(currentSearchTerms);
-                emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);
-            }
-            return emv;
+    private View getActionView(int position, HorizontalMediaView tiav) {
+        if (tiav == null) {
+            tiav = new HorizontalMediaView(context);
         }
+        Action currentAction = detail.getCustomActions().get(position - actionsStartPosition);
+        tiav.setDisplay(currentAction.getDisplay());
+        tiav.setBackgroundResource(R.drawable.list_bottom_tab);
+        //We're gonna double pad this because we want to give it some visual distinction
+        //and keep the icon more centered
+        int padding = (int)context.getResources().getDimension(R.dimen.entity_padding);
+        tiav.setPadding(padding, padding, padding, padding);
+        return tiav;
+    }
 
+    private View getGridView(Entity<TreeReference> entity, GridEntityView emv) {
+        int[] titleColor = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.entity_select_title_text_color});
+        if (emv == null) {
+            emv = new GridEntityView(context, detail, entity, currentSearchTerms, mImageLoader, mFuzzySearchEnabled);
+        } else {
+            emv.setSearchTerms(currentSearchTerms);
+            emv.setViews(context, detail, entity);
+        }
+        emv.setTitleTextColor(titleColor[0]);
+        return emv;
+    }
+
+    private View getEntityView(Entity<TreeReference> entity, EntityView emv, int position) {
+        if (emv == null) {
+            emv = EntityView.buildEntryEntityView(context, detail, entity, null, currentSearchTerms, position, mFuzzySearchEnabled);
+        } else {
+            emv.setSearchTerms(currentSearchTerms);
+            emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);
+        }
+        return emv;
     }
 
     @Override
     public int getViewTypeCount() {
-        return actionEnabled ? 2 : 1;
+        return (actionsCount > 0) ? 2 : 1;
     }
 
     @Override
@@ -322,5 +335,12 @@ public class EntityListAdapter implements ListAdapter {
                 entitySearcher.finish();
             }
         }
+    }
+
+    /**
+     * Get action's index in detail's list of actions given position in adapter
+     */
+    public int getActionIndex(int positionInAdapter) {
+        return positionInAdapter - (getCurrentCountWithActions() - 1);
     }
 }

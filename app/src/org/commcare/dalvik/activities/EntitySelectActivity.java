@@ -115,6 +115,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private static final int MENU_MAP = Menu.FIRST + 2;
     private static final int MENU_ACTION = Menu.FIRST + 3;
 
+    private static final int MENU_ACTION_GROUP = Menu.FIRST + 1;
+
     private EditText searchbox;
     private TextView searchResultStatus;
     private EntityListAdapter adapter;
@@ -207,8 +209,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 String query = getSearchText().toString();
                 if (!"".equals(query)) {
                     searchResultStatus.setText(Localization.get("select.search.status", new String[]{
-                            "" + adapter.getCount(true, false),
-                            "" + adapter.getCount(true, true),
+                            "" + adapter.getFullCountWithActions(),
+                            "" + adapter.getFullCount(),
                             query
                     }));
                     searchResultStatus.setVisibility(View.VISIBLE);
@@ -619,7 +621,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if (id == EntityListAdapter.SPECIAL_ACTION) {
-            triggerDetailAction();
+            triggerDetailAction(adapter.getActionIndex(position));
             return;
         }
 
@@ -826,10 +828,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         });
 
         if (shortSelect != null) {
-            Action action = shortSelect.getCustomAction();
-            if (action != null) {
-                ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION,
-                        action.getDisplay().evaluate());
+            int actionIndex = MENU_ACTION;
+            for (Action action : shortSelect.getCustomActions()) {
+                if (action != null) {
+                    ViewUtil.addDisplayToMenu(this, menu, actionIndex, MENU_ACTION_GROUP,
+                            action.getDisplay().evaluate());
+                    actionIndex += 1;
+                }
             }
             if(shortSelect.getCallout() != null && shortSelect.getCallout().getImage() != null){
                 setupImageLayout(barcodeItem, shortSelect.getCallout().getImage());
@@ -877,6 +882,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getGroupId() == MENU_ACTION_GROUP) {
+            triggerDetailAction(item.getItemId() - MENU_ACTION);
+        }
         switch (item.getItemId()) {
             case MENU_SORT:
                 createSortMenu();
@@ -884,9 +892,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             case MENU_MAP:
                 Intent i = new Intent(this, EntityMapActivity.class);
                 this.startActivityForResult(i, MAP_SELECT);
-                return true;
-            case MENU_ACTION:
-                triggerDetailAction();
                 return true;
             // handling click on the barcode scanner's actionbar
             // trying to set the onclicklistener in its view in the onCreateOptionsMenu method does not work because it returns null
@@ -901,8 +906,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private void triggerDetailAction() {
-        Action action = shortSelect.getCustomAction();
+    private void triggerDetailAction(int index) {
+        Action action = shortSelect.getCustomActions().get(index);
 
         try {
             asw.executeStackActions(action.getStackOperations());
@@ -968,9 +973,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    public void deliverResult(List<Entity<TreeReference>> entities,
-                              List<TreeReference> references,
-                              NodeEntityFactory factory) {
+    public void deliverLoadResult(List<Entity<TreeReference>> entities,
+                                  List<TreeReference> references,
+                                  NodeEntityFactory factory) {
         loader = null;
         Detail detail = session.getDetail(selectDatum.getShortDetail());
         int[] order = detail.getSortOrder();
@@ -1046,7 +1051,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    public void attach(EntityLoaderTask task) {
+    public void attachLoader(EntityLoaderTask task) {
         findViewById(R.id.entity_select_loading).setVisibility(View.VISIBLE);
         this.loader = task;
     }
@@ -1127,7 +1132,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    public void deliverError(Exception e) {
+    public void deliverLoadError(Exception e) {
         displayException(e);
     }
 

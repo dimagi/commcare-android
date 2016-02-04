@@ -28,20 +28,6 @@ class UpdateUIController implements CommCareActivityUIController {
 
     private final UpdateActivity activity;
 
-    private final String startCheckingText =
-            Localization.get("updates.check.start");
-    private final String stopCheckingText =
-            Localization.get("updates.check.cancel");
-    private final String cancellingMsg =
-            Localization.get("updates.check.cancelling");
-    private final String beginCheckingText =
-            Localization.get("updates.check.begin");
-    private final String noConnectivityMsg =
-            Localization.get("updates.check.network_unavailable");
-    private final String checkFailedMessage =
-            Localization.get("updates.check.failed");
-    private final String errorMsg = Localization.get("updates.error");
-    private final String upToDateText = Localization.get("updates.success");
     private final String applyUpdateButtonTextKey;
 
     private enum UIState {
@@ -90,7 +76,7 @@ class UpdateUIController implements CommCareActivityUIController {
                 activity.startUpdateCheck();
             }
         });
-        checkUpdateButton.setText(startCheckingText);
+        checkUpdateButton.setText(Localization.getWithDefault("updates.check.start", ""));
 
         stopUpdateButton =
                 (SquareButtonWithText)activity.findViewById(R.id.stop_update_download_button);
@@ -100,7 +86,7 @@ class UpdateUIController implements CommCareActivityUIController {
                 activity.stopUpdateCheck();
             }
         });
-        stopUpdateButton.setText(stopCheckingText);
+        stopUpdateButton.setText(Localization.getWithDefault("updates.check.cancel", ""));
 
         installUpdateButton =
                 (SquareButtonWithText)activity.findViewById(R.id.install_update_button);
@@ -111,7 +97,7 @@ class UpdateUIController implements CommCareActivityUIController {
             }
         });
         String updateVersionPlaceholderMsg =
-            Localization.get(applyUpdateButtonTextKey, new String[]{"-1"});
+            Localization.getWithDefault(applyUpdateButtonTextKey, new String[]{"-1"}, "");
         installUpdateButton.setText(updateVersionPlaceholderMsg);
     }
 
@@ -120,7 +106,7 @@ class UpdateUIController implements CommCareActivityUIController {
         currentUIState = UIState.UpToDate;
 
         updateProgressBar(100, 100);
-        progressText.setText(upToDateText);
+        progressText.setText(Localization.get("updates.success"));
     }
 
     protected void idleUiState() {
@@ -137,7 +123,7 @@ class UpdateUIController implements CommCareActivityUIController {
     protected void checkFailedUiState() {
         idleUiState();
         currentUIState = UIState.FailedCheck;
-        updateProgressText(checkFailedMessage);
+        updateProgressText(Localization.get("updates.check.failed"));
     }
 
     protected void downloadingUiState() {
@@ -148,7 +134,7 @@ class UpdateUIController implements CommCareActivityUIController {
         installUpdateButton.setVisibility(View.GONE);
 
         updateProgressBar(0, 100);
-        updateProgressText(beginCheckingText);
+        updateProgressText(Localization.get("updates.check.begin"));
     }
 
     protected void unappliedUpdateAvailableUiState() {
@@ -175,7 +161,7 @@ class UpdateUIController implements CommCareActivityUIController {
         stopUpdateButton.setVisibility(View.VISIBLE);
         installUpdateButton.setVisibility(View.GONE);
 
-        updateProgressText(cancellingMsg);
+        updateProgressText(Localization.get("updates.check.cancelling"));
     }
 
     protected void errorUiState() {
@@ -185,7 +171,7 @@ class UpdateUIController implements CommCareActivityUIController {
         stopUpdateButton.setVisibility(View.GONE);
         installUpdateButton.setVisibility(View.GONE);
 
-        updateProgressText(errorMsg);
+        updateProgressText(Localization.get("updates.error"));
     }
 
     protected void noConnectivityUiState() {
@@ -195,7 +181,7 @@ class UpdateUIController implements CommCareActivityUIController {
         stopUpdateButton.setVisibility(View.GONE);
         installUpdateButton.setVisibility(View.GONE);
 
-        updateProgressText(noConnectivityMsg);
+        updateProgressText(Localization.get("updates.check.network_unavailable"));
     }
     protected void applyingUpdateUiState() {
         currentUIState = UIState.ApplyingUpdate;
