@@ -84,8 +84,8 @@ public class PollSensorAction extends Action implements LocationListener {
      * Deal with a pollsensor action: start getting a GPS fix, and prepare to cancel after maximum amount of time.
      */
     @Override
-    public TreeReference processAction(ActionTriggerSource target, TreeReference contextRef) {
-        mModel = (FormDef) target;
+    public TreeReference processAction(FormDef model, TreeReference contextRef) {
+        mModel = model;
         mContextRef = contextRef;
 
         // LocationManager needs to be dealt with in the main UI thread, so wrap GPS-checking logic in a Handler
