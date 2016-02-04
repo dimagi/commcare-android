@@ -1,4 +1,5 @@
 import com.android.builder.core.DefaultManifestParser;
+import org.apache.tools.ant.filters.ReplaceTokens
 
 ////////////
 // README //
@@ -32,6 +33,11 @@ repositories {
     flatDir {
         dirs 'app/libs'
     }
+}
+
+configurations {
+    // prevents libs from including commons-logging, which Android already does
+    all*.exclude group: 'commons-logging', module: 'commons-logging'
 }
 
 dependencies {
@@ -91,6 +97,7 @@ ext {
                     "HaAJkjpnc165Os+aYwIDAQAB"
     QA_BETA_APP_ID = ""
     STANDALONE_APP_ID = ""
+    COMMCARE_APP_ID = ""
 }
 
 def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : ""
@@ -142,11 +149,12 @@ android {
         minSdkVersion 9
         targetSdkVersion 23
         applicationId "org.commcare.dalvik"
+        project.ext.COMMCARE_APP_ID = applicationId
         resValue "string", "application_name", "CommCare"
         def odkProviderStr = "org.commcare.android.provider.odk"
         manifestPlaceholders = [
-            odkProvider:odkProviderStr,
-            googlePlayMapsApiKey:"\"${project.ext.GOOGLE_PLAY_MAPS_API_KEY}\""
+                odkProvider         : odkProviderStr,
+                googlePlayMapsApiKey: "\"${project.ext.GOOGLE_PLAY_MAPS_API_KEY}\""
         ]
 
         versionCode computeVersionCode()
@@ -291,6 +299,13 @@ android {
     }
 }
 
+/**
+ * Setup tasks to inject google-services.json file with package name matching
+ * the build variant.
+
+ * NOTE: My Groovy knowledge is abismal and Gradle plugins do black magic,
+ * hence, the need for an *_APP_ID var for each build variant :(
+ */
 afterEvaluate {
     processQabetaDebugGoogleServices.dependsOn switchGoogleServicesQabeta
     processQabetaReleaseGoogleServices.dependsOn switchGoogleServicesQabeta
@@ -302,26 +317,26 @@ afterEvaluate {
 
 task switchGoogleServicesCommcare(type: Copy) {
     description = 'Makes build use normal google-services.json file'
-    from("app")
+    println project.ext.COMMCARE_APP_ID
+    from("templates")
     include "google-services.json"
+    filter(ReplaceTokens, tokens: [applicationId: project.ext.COMMCARE_APP_ID])
     into "."
 }
 
 task switchGoogleServicesStandalone(type: Copy) {
     description = 'Switches package name in google-services.json to match Standalone package name'
-    from("app") {
-      include "google-services.json"
-      filter { it.replaceAll('"package_name": "org.commcare.dalvik"', 'package_name": "${project.ext.STANDALONE_APP_ID)}"') }
-    }
+    from("templates")
+    include "google-services.json"
+    filter(ReplaceTokens, tokens: [applicationId: project.ext.STANDALONE_APP_ID])
     into "."
 }
 
 task switchGoogleServicesQabeta(type: Copy) {
     description = 'Switches package name in google-services.json to match Qabeta package name'
-    from("app") {
-      include "google-services.json"
-      filter { it.replaceAll('"package_name": "org.commcare.dalvik"', 'package_name": "${project.ext.QA_BETA_APP_ID)}"') }
-    }
+    from("templates")
+    include "google-services.json"
+    filter(ReplaceTokens, tokens: [applicationId: project.ext.QA_BETA_APP_ID])
     into "."
 }
 
