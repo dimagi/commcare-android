@@ -69,14 +69,14 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
     }
 
     @Override
-    public void attach(EntityLoaderTask task) {
+    public void attachLoader(EntityLoaderTask task) {
         this.loader = task;
     }
 
     @Override
-    public void deliverResult(List<Entity<TreeReference>> entities,
-                              List<TreeReference> references,
-                              NodeEntityFactory factory) {
+    public void deliverLoadResult(List<Entity<TreeReference>> entities,
+                                  List<TreeReference> references,
+                                  NodeEntityFactory factory) {
         Bundle args = getArguments();
         Detail childDetail = asw.getSession().getDetail(args.getString(DETAIL_ID));
         final int thisIndex = args.getInt(CHILD_DETAIL_INDEX, -1);
@@ -91,7 +91,7 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
     }
 
     @Override
-    public void deliverError(Exception e) {
+    public void deliverLoadError(Exception e) {
         ((CommCareActivity)getActivity()).displayException(e);
     }
 }
