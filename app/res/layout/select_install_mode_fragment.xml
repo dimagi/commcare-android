@@ -87,7 +87,7 @@
                             android:gravity="end"
                             SquareButtonWithText:backgroundColor="@color/cc_light_cool_accent_color"
                             SquareButtonWithText:img="@drawable/startup_url"
-                            SquareButtonWithText:subtitle="Enter URL"
+                            SquareButtonWithText:subtitle="Enter Code"
                             SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
                 </LinearLayout>
