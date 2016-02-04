@@ -61,22 +61,6 @@
 
     <string name="url_prompt">Choose a URL</string>
 
-    <string-array name="url_list">
-        <item>bit.ly</item>
-        <item>tinyurl</item>
-        <item>Local</item>
-    </string-array>
-    <string-array name="url_list_selected_display">
-        <item>http://bit.ly/</item>
-        <item>http://tinyurl/</item>
-        <item>Local</item>
-    </string-array>
-    <string-array name="url_vals">
-        <item>http://bit.ly/</item>
-        <item>http://tinyurl.com/</item>
-        <item></item>
-    </string-array>
-
     <string name="aboutdialog">%s\n\n
 _Copyright 2015, Dimagi inc, All rights reserved_ \n\n
 
@@ -179,8 +163,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="clear_answer_no" cc:translatable="true">CANCEL</string>
     <string name="completed_data" cc:translatable="true">Complete (%s)</string>
     <string name="data" cc:translatable="true">Saved Forms</string>
-    <string name="data_saved_error" cc:translatable="true">Sorry, form save failed. Please contact technical support to look into the issue.</string>
-    <string name="data_saved_ok" cc:translatable="true">Form successfully saved!</string>
     <string name="delete_confirm" cc:translatable="true">Delete %s form(s)?</string>
     <string name="delete_file" cc:translatable="true">Delete Selected</string>
     <string name="delete_no" cc:translatable="true">Do Not Delete</string>
