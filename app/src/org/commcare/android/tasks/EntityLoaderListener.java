@@ -7,11 +7,11 @@ import org.javarosa.core.model.instance.TreeReference;
 import java.util.List;
 
 public interface EntityLoaderListener {
-    void attach(EntityLoaderTask task);
+    void attachLoader(EntityLoaderTask task);
 
-    void deliverResult(List<Entity<TreeReference>> entities,
-                       List<TreeReference> references,
-                       NodeEntityFactory factory);
+    void deliverLoadResult(List<Entity<TreeReference>> entities,
+                           List<TreeReference> references,
+                           NodeEntityFactory factory);
 
-    void deliverError(Exception e);
+    void deliverLoadError(Exception e);
 }
