@@ -88,7 +88,9 @@ ext {
             "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDHiuy2ULV4pobkuQN2TEjmR1tn" +
                     "HJ+F335hm/lVdaFQzvBmeq64MUMbumheVLDJaSUiAVzqSHDKJWH01ZQRowqBYjwo" +
                     "ycVSQSeO2glc6XZZ+CJudAPXe8iFWLQp3kBBnBmVcBXCOQFO7aLgQMv4nqKZsLW0" +
-                    "HaAJkjpnc165Os+aYwIDAQAB";
+                    "HaAJkjpnc165Os+aYwIDAQAB"
+    QA_BETA_APP_ID = ""
+    STANDALONE_APP_ID = ""
 }
 
 def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : ""
@@ -232,7 +234,9 @@ android {
             // convert numbers to words to use in app id
             def ccVersionSafe = numbersToLetters(ccVersion)
 
+
             applicationId "org.commcare.${ccVersionSafe}"
+            project.ext.QA_BETA_APP_ID = applicationId
 
             // setup content provider strings correctly to not conflict with other apps
             def odkProviderStr = "org.commcare.${ccVersionSafe}.provider.odk"
@@ -250,6 +254,7 @@ android {
             // id
 
             applicationId "org.commcare.${ccDomainSafe}"
+            project.ext.STANDALONE_APP_ID = applicationId
             resValue "string", "application_name", ccDomainSafe
             def odkProviderStr = "org.commcare.${ccDomainSafe}.provider.odk"
             manifestPlaceholders = [odkProvider: odkProviderStr]
@@ -284,6 +289,40 @@ android {
             systemProperty 'robolectric.logging', 'stdout'
         }
     }
+}
+
+afterEvaluate {
+    processQabetaDebugGoogleServices.dependsOn switchGoogleServicesQabeta
+    processQabetaReleaseGoogleServices.dependsOn switchGoogleServicesQabeta
+    processStandaloneDebugGoogleServices.dependsOn switchGoogleServicesStandalone
+    processStandaloneReleaseGoogleServices.dependsOn switchGoogleServicesStandalone
+    processCommcareDebugGoogleServices.dependsOn switchGoogleServicesCommcare
+    processCommcareReleaseGoogleServices.dependsOn switchGoogleServicesCommcare
+}
+
+task switchGoogleServicesCommcare(type: Copy) {
+    description = 'Makes build use normal google-services.json file'
+    from("app")
+    include "google-services.json"
+    into "."
+}
+
+task switchGoogleServicesStandalone(type: Copy) {
+    description = 'Switches package name in google-services.json to match Standalone package name'
+    from("app") {
+      include "google-services.json"
+      filter { it.replaceAll('"package_name": "org.commcare.dalvik"', 'package_name": "${project.ext.STANDALONE_APP_ID)}"') }
+    }
+    into "."
+}
+
+task switchGoogleServicesQabeta(type: Copy) {
+    description = 'Switches package name in google-services.json to match Qabeta package name'
+    from("app") {
+      include "google-services.json"
+      filter { it.replaceAll('"package_name": "org.commcare.dalvik"', 'package_name": "${project.ext.QA_BETA_APP_ID)}"') }
+    }
+    into "."
 }
 
 /**
