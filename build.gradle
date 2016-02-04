@@ -154,7 +154,7 @@ android {
         def odkProviderStr = "org.commcare.android.provider.odk"
         manifestPlaceholders = [
                 odkProvider         : odkProviderStr,
-                googlePlayMapsApiKey: "\"${project.ext.GOOGLE_PLAY_MAPS_API_KEY}\""
+                googlePlayMapsApiKey: "${project.ext.GOOGLE_PLAY_MAPS_API_KEY}"
         ]
 
         versionCode computeVersionCode()
