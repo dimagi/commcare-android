@@ -336,4 +336,11 @@ public class EntityListAdapter implements ListAdapter {
             }
         }
     }
+
+    /**
+     * Get action's index in detail's list of actions given position in adapter
+     */
+    public int getActionIndex(int positionInAdapter) {
+        return positionInAdapter - (getCurrentCountWithActions() - 1);
+    }
 }
