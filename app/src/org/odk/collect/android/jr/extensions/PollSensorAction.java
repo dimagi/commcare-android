@@ -16,7 +16,6 @@ import android.support.v4.content.ContextCompat;
 
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.Action;
-import org.javarosa.core.model.ActionTriggerSource;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.Recalculate;

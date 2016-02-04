@@ -619,10 +619,6 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             this.toastView.setVisibility(View.GONE);
             ViewUtil.setBackgroundRetainPadding(this, null);
         }
-
-        getPrompt().getQuestion().triggerActionsFromEvent(Action.EVENT_QUESTION_VALUE_CHANGED,
-                getPrompt().getForm(), null);
-
         if (hasListener()) {
             widgetChangedListener.widgetEntryChanged();
         }

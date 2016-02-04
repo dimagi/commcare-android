@@ -2148,7 +2148,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     /**
      * Attempts to save an answer to the specified index.
      *
-     * @param evaluateConstraints Should form contraints be checked when saving answer?
+     * @param evaluateConstraints Should form constraints be checked when saving answer?
      * @return status as determined in FormEntryController
      */
     private int saveAnswer(IAnswerData answer, FormIndex index, boolean evaluateConstraints) {
