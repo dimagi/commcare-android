@@ -160,7 +160,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     }
 
     @Override
-    public void prepareEntitiesInternal() {
+    protected void prepareEntitiesInternal() {
         synchronized (mAsyncLock) {
             if (mAsyncPrimingThread == null) {
                 mAsyncPrimingThread = new Thread(new Runnable() {
@@ -177,7 +177,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
     }
 
     @Override
-    public boolean isEntitySetReadyInternal() {
+    protected boolean isEntitySetReadyInternal() {
         synchronized (mAsyncLock) {
             return mAsyncPrimingThread == null || !mAsyncPrimingThread.isAlive();
         }

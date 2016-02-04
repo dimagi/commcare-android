@@ -39,8 +39,6 @@
     <string name="clear_answer_no">Atšaukti</string>
     <string name="completed_data">Baigta (%s)</string>
     <string name="data">Išsaugotos formos</string>
-    <string name="data_saved_error">Deja, formos išsaugoti nepavyko!</string>
-    <string name="data_saved_ok">Forma sėkmingai išsaugota!</string>
     <string name="delete_confirm">Ištrinti %s formą(-as)?</string>
     <string name="delete_file">Ištrinti pažymėtas</string>
     <string name="delete_no">Neištrinti</string>
