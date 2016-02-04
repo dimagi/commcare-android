@@ -4,6 +4,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.v4.util.Pair;
 import android.util.Log;
 
 import org.commcare.android.crypt.EncryptionIO;
@@ -48,8 +49,6 @@ import java.io.OutputStream;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * Background task for loading a form.
- *
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
@@ -79,30 +78,12 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
      */
     @Override
     protected FECWrapper doTaskBackground(Uri... form) {
-        FormEntryController fec;
         FormDef fd = null;
-        FileInputStream fis;
 
-        Uri theForm = form[0];
+        Pair<String, String> formAndMediaPaths = getFormAndMediaPaths(form[0]);
 
-        Cursor c = null;
-        String formPath = "";
-        String formMediaPath = null;
-        try {
-            //TODO: Selection=? helper
-            c = ((Context)activity).getContentResolver().query(theForm, new String[]{FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
-
-            if (!c.moveToFirst()) {
-                throw new IllegalArgumentException("Invalid Form URI Provided! No form content found at URI: " + theForm.toString());
-            }
-
-            formPath = c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH));
-            formMediaPath = c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH));
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
+        String formPath = formAndMediaPaths.first;
+        String formMediaPath = formAndMediaPaths.second;
 
         File formXml = new File(formPath);
         String formHash = FileUtils.getMd5Hash(formXml);
@@ -123,19 +104,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
         // If we couldn't find a cached version, load the form from the XML
         if (fd == null) {
-            // no binary, read from xml
-            Log.i(TAG, "Attempting to load from: " + formXml.getAbsolutePath());
-            try {
-                fis = new FileInputStream(formXml);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException("Error reading XForm file");
-            }
-            XFormParser.registerHandler("intent", new IntentExtensionParser());
-            XFormParser.registerStructuredAction("pollsensor", new PollSensorExtensionParser());
-            fd = XFormExtensionUtils.getFormFromInputStream(fis);
-            if (fd == null) {
-                throw new RuntimeException("Error reading XForm file");
-            }
+            fd = loadFormFromFile(formXml);
         }
 
         // Try to write the form definition to a cached location
@@ -148,30 +117,78 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             Logger.log(AndroidLogger.TYPE_RESOURCES, "XForm could not be serialized. Error trace:\n" + ExceptionReporting.getStackTrace(e));
         }
 
-        fd.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler((Context)activity));
+        FormEntryController fec = initFormDef(fd);
+
+        // Remove previous forms
+        ReferenceManager._().clearSession();
+
+        setupFormMedia(formMediaPath, formXml);
+
+        FormController fc = new FormController(fec, mReadOnly);
+
+        data = new FECWrapper(fc);
+        return data;
+    }
+
+    private Pair<String, String> getFormAndMediaPaths(Uri formUri) {
+        Cursor c = null;
+        try {
+            //TODO: Selection=? helper
+            c = ((Context)activity).getContentResolver().query(formUri, new String[]{FormsProviderAPI.FormsColumns.FORM_FILE_PATH, FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH}, null, null, null);
+
+            if (c == null || !c.moveToFirst()) {
+                throw new IllegalArgumentException("Invalid Form URI Provided! No form content found at URI: " + formUri.toString());
+            }
+
+            return new Pair<>(c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_FILE_PATH)),
+                    c.getString(c.getColumnIndex(FormsProviderAPI.FormsColumns.FORM_MEDIA_PATH)));
+        } finally {
+            if (c != null) {
+                c.close();
+            }
+        }
+    }
+
+    private FormDef loadFormFromFile(File formXmlFile) {
+        FileInputStream fis;
+        // no binary, read from xml
+        Log.i(TAG, "Attempting to load from: " + formXmlFile.getAbsolutePath());
+        try {
+            fis = new FileInputStream(formXmlFile);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException("Error reading XForm file");
+        }
+        XFormParser.registerHandler("intent", new IntentExtensionParser());
+        XFormParser.registerStructuredAction("pollsensor", new PollSensorExtensionParser());
+        FormDef fd = XFormExtensionUtils.getFormFromInputStream(fis);
+        if (fd == null) {
+            throw new RuntimeException("Error reading XForm file");
+        }
+        return fd;
+    }
+
+    private FormEntryController initFormDef(FormDef formDef) {
+        formDef.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler((Context)activity));
         // create FormEntryController from formdef
-        FormEntryModel fem = new FormEntryModel(fd);
-        fec = new FormEntryController(fem);
+        FormEntryModel fem = new FormEntryModel(formDef);
+        FormEntryController fec = new FormEntryController(fem);
 
         //TODO: Get a reasonable IIF object
         // import existing data into formdef
         if (FormEntryActivity.mInstancePath != null) {
             // This order is important. Import data, then initialize.
             importData(FormEntryActivity.mInstancePath, fec);
-            fd.initialize(false, iif);
+            formDef.initialize(false, iif);
         } else {
-            fd.initialize(true, iif);
+            formDef.initialize(true, iif);
         }
         if (mReadOnly) {
-            fd.getInstance().getRoot().setEnabled(false);
+            formDef.getInstance().getRoot().setEnabled(false);
         }
+        return fec;
+    }
 
-        // set paths to /sdcard/odk/forms/formfilename-media/
-        String formFileName = formXml.getName().substring(0, formXml.getName().lastIndexOf("."));
-
-        // Remove previous forms
-        ReferenceManager._().clearSession();
-
+    private void setupFormMedia(String formMediaPath, File formXmlFile) {
         if (formMediaPath != null) {
             ReferenceManager._().addSessionRootTranslator(
                     new RootTranslator("jr://images/", formMediaPath));
@@ -179,7 +196,6 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
                     new RootTranslator("jr://audio/", formMediaPath));
             ReferenceManager._().addSessionRootTranslator(
                     new RootTranslator("jr://video/", formMediaPath));
-
         } else {
             // This should get moved to the Application Class
             if (ReferenceManager._().getFactories().length == 0) {
@@ -187,6 +203,9 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
                 ReferenceManager._().addReferenceFactory(
                         new FileReferenceFactory(Environment.getExternalStorageDirectory() + "/odk"));
             }
+
+            // set paths to /sdcard/odk/forms/formfilename-media/
+            String formFileName = formXmlFile.getName().substring(0, formXmlFile.getName().lastIndexOf("."));
 
             // Set jr://... to point to /sdcard/odk/forms/filename-media/
             ReferenceManager._().addSessionRootTranslator(
@@ -196,11 +215,6 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             ReferenceManager._().addSessionRootTranslator(
                     new RootTranslator("jr://video/", "jr://file/forms/" + formFileName + "-media/"));
         }
-
-        FormController fc = new FormController(fec, mReadOnly);
-
-        data = new FECWrapper(fc);
-        return data;
     }
 
     private boolean importData(String filePath, FormEntryController fec) {
@@ -248,20 +262,16 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         }
     }
 
-
     /**
      * Read serialized {@link FormDef} from file and recreate as object.
-     *
-     * @param formDef serialized FormDef file
-     * @return {@link FormDef} object
      */
-    private static FormDef deserializeFormDef(Context context, File formDef) {
+    private static FormDef deserializeFormDef(Context context, File formDefFile) {
         FileInputStream fis;
         FormDef fd;
         try {
             // create new form def
             fd = new FormDef();
-            fis = new FileInputStream(formDef);
+            fis = new FileInputStream(formDefFile);
             DataInputStream dis = new DataInputStream(new BufferedInputStream(fis));
 
             // read serialized formdef into new formdef
@@ -277,14 +287,10 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
     /**
      * Write the FormDef to the file system as a binary blob.
-     *
-     * @param filepath path to the form file
-     * @throws IOException
      */
-    @SuppressWarnings("resource")
-    public void serializeFormDef(FormDef fd, String filepath) throws IOException {
+    private void serializeFormDef(FormDef fd, String formFilePath) throws IOException {
         // calculate unique md5 identifier for this form
-        String hash = FileUtils.getMd5Hash(new File(filepath));
+        String hash = FileUtils.getMd5Hash(new File(formFilePath));
         File formDef = getCachedForm(hash);
 
         // create a serialized form file if there isn't already one at this hash
