@@ -19,6 +19,6 @@ public class GraphActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        (new GraphActivityStateHandler(this)).onCreate();
+        (new GraphActivityStateHandler(this)).setContent();
     }
 }
