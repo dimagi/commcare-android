@@ -18,7 +18,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.android.tools.build:gradle:2.0.0-alpha9'
         classpath 'com.google.gms:google-services:2.0.0-alpha7'
     }
 }
@@ -54,7 +54,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-maps:8.4.0'
     compile 'com.google.android.gms:play-services-analytics:8.4.0'
     compile 'com.google.zxing:core:3.0.0'
-    compile 'ch.acra:acra:4.6.2'
+    compile 'ch.acra:acra:4.8.1@aar'
     compile 'joda-time:joda-time:2.3'
     compile 'net.sf.kxml:kxml2:2.3.0'
     compile 'net.zetetic:android-database-sqlcipher:3.3.1-2@aar'

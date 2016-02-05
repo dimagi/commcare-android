@@ -542,7 +542,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         v.startAnimation(a);
     }
 
-    public void updateFrameSize(int width, int height) {
+    public void updateFrameSize(int height) {
         int maxHintHeight = height / 4;
         if(mHintText != null) {
             mHintText.updateMaxHeight(maxHintHeight);

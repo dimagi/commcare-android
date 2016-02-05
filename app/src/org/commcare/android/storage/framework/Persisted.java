@@ -35,7 +35,7 @@ public class Persisted implements Persistable, IMetaData {
         try {
             for (Field f : getPersistedFieldsInOrder()) {
                 currentField = f.getName();
-                readVal(f, this, in, pf);
+                readVal(f, this, in);
             }
         } catch (IllegalAccessException iae) {
             throw new DeserializationException(currentField == null ? "" : (" for field" + currentField), iae);
@@ -96,7 +96,7 @@ public class Persisted implements Persistable, IMetaData {
         return recordId;
     }
 
-    private void readVal(Field f, Object o, DataInputStream in, PrototypeFactory pf) throws DeserializationException, IOException, IllegalAccessException {
+    private void readVal(Field f, Object o, DataInputStream in) throws DeserializationException, IOException, IllegalAccessException {
         Persisting p = f.getAnnotation(Persisting.class);
         Class type = f.getType();
         try {

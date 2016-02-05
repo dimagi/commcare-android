@@ -115,6 +115,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private static final int MENU_MAP = Menu.FIRST + 2;
     private static final int MENU_ACTION = Menu.FIRST + 3;
 
+    private static final int MENU_ACTION_GROUP = Menu.FIRST + 1;
+
     private EditText searchbox;
     private TextView searchResultStatus;
     private EntityListAdapter adapter;
@@ -176,32 +178,60 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        this.createDataSetObserver();
+        createDataSetObserver();
+        restoreSavedState(savedInstanceState);
+
+        if (savedInstanceState == null) {
+            hereFunctionHandler.refreshLocation();
+        }
 
         refreshTimer = new EntitySelectRefreshTimer();
+        asw = CommCareApplication._().getCurrentSessionWrapper();
+        session = asw.getSession();
 
+        // avoid session dependent when there is no command
+        if (session.getCommand() != null) {
+            selectDatum = session.getNeededDatum();
+            shortSelect = session.getDetail(selectDatum.getShortDetail());
+            mNoDetailMode = selectDatum.getLongDetail() == null;
+
+            boolean isOrientationChange = savedInstanceState != null;
+            setupUI(isOrientationChange);
+        }
+    }
+
+    private void createDataSetObserver() {
+        mListStateObserver = new DataSetObserver() {
+            @Override
+            public void onChanged() {
+                super.onChanged();
+                //update the search results box
+                String query = getSearchText().toString();
+                if (!"".equals(query)) {
+                    searchResultStatus.setText(Localization.get("select.search.status", new String[]{
+                            "" + adapter.getFullCountWithActions(),
+                            "" + adapter.getFullCount(),
+                            query
+                    }));
+                    searchResultStatus.setVisibility(View.VISIBLE);
+                } else {
+                    searchResultStatus.setVisibility(View.GONE);
+                }
+            }
+        };
+    }
+
+
+    private void restoreSavedState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             this.mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
             this.containsHereFunction = savedInstanceState.getBoolean(CONTAINS_HERE_FUNCTION);
             this.locationChangedWhileLoading = savedInstanceState.getBoolean(
                     LOCATION_CHANGED_WHILE_LOADING);
-        } else {
-            hereFunctionHandler.refreshLocation();
         }
+    }
 
-        asw = CommCareApplication._().getCurrentSessionWrapper();
-        session = asw.getSession();
-
-        if (session.getCommand() == null) {
-            // session ended, avoid (session dependent) setup because session
-            // management will exit the activity in onResume
-            return;
-        }
-
-        selectDatum = session.getNeededDatum();
-        shortSelect = session.getDetail(selectDatum.getShortDetail());
-        mNoDetailMode = selectDatum.getLongDetail() == null;
-
+    private void setupUI(boolean isOrientationChange) {
         if (this.getString(R.string.panes).equals("two") && !mNoDetailMode) {
             //See if we're on a big 'ol screen.
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -209,7 +239,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             } else {
                 setContentView(R.layout.entity_select_layout);
 
-                boolean isOrientationChange = savedInstanceState != null;
                 restoreExistingSelection(isOrientationChange);
             }
         } else {
@@ -258,6 +287,31 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 startActivityForResult(detailIntent, CONFIRM_SELECT);
             }
         }
+    }
+
+    private void setupDivider(ListView view) {
+        boolean useNewDivider = shortSelect.usesGridView();
+
+        if (useNewDivider) {
+            int viewWidth = view.getWidth();
+            // sometimes viewWidth is 0, and in this case we default to a reasonable value taken from dimens.xml
+            int dividerWidth;
+            if (viewWidth == 0) {
+                dividerWidth = (int)getResources().getDimension(R.dimen.entity_select_divider_left_inset);
+            } else {
+                dividerWidth = (int)(viewWidth / 6.0);
+            }
+            dividerWidth += (int)getResources().getDimension(R.dimen.row_padding_horizontal);
+
+            LayerDrawable dividerDrawable = (LayerDrawable)getResources().getDrawable(R.drawable.divider_case_list_modern);
+            dividerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
+
+            view.setDivider(dividerDrawable);
+        } else {
+            view.setDivider(null);
+        }
+
+        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
     }
 
     private void setupToolbar(ListView view) {
@@ -422,82 +476,56 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         menuItem.setIcon(drawable);
     }
 
-    private void createDataSetObserver() {
-        mListStateObserver = new DataSetObserver() {
-            @Override
-            public void onChanged() {
-                super.onChanged();
-                //update the search results box
-                String query = getSearchText().toString();
-                if (!"".equals(query)) {
-                    searchResultStatus.setText(Localization.get("select.search.status", new String[]{
-                            "" + adapter.getCount(true, false),
-                            "" + adapter.getCount(true, true),
-                            query
-                    }));
-                    searchResultStatus.setVisibility(View.VISIBLE);
-                } else {
-                    searchResultStatus.setVisibility(View.GONE);
-                }
-            }
-        };
-    }
-
-    @Override
-    protected boolean isTopNavEnabled() {
-        return true;
-    }
-
-    @Override
-    public String getActivityTitle() {
-        return null;
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
-        //Don't go through making the whole thing if we're finishing anyway.
-        if (this.isFinishing() || isStartingDetailActivity) {
-            return;
-        }
 
-        if (adapter != null) {
-            adapter.registerDataSetObserver(mListStateObserver);
-        }
+        if (!isFinishing() && !isStartingDetailActivity) {
+            if (adapter != null) {
+                adapter.registerDataSetObserver(mListStateObserver);
+            }
 
-        if (!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
-            TreeReference entity =
-                    selectDatum.getEntityFromID(asw.getEvaluationContext(),
-                            this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
-
-            if (entity != null) {
-                if (inAwesomeMode) {
-                    if (adapter != null) {
-                        displayReferenceAwesome(entity, adapter.getPosition(entity));
-                        updateSelectedItem(entity, true);
-                    }
-                } else {
-                    //Once we've done the initial dispatch, we don't want to end up triggering it later.
-                    this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
-
-                    Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(), entity, null, selectDatum, asw);
-                    if (adapter != null) {
-                        i.putExtra("entity_detail_index", adapter.getPosition(entity));
-                        i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID,
-                                selectDatum.getShortDetail());
-                    }
-                    startActivityForResult(i, CONFIRM_SELECT);
+            if (!resuming && !mNoDetailMode && this.getIntent().hasExtra(EXTRA_ENTITY_KEY)) {
+                if (resumeSelectedEntity()) {
                     return;
                 }
             }
-        }
 
-        hereFunctionHandler.registerEvalLocationListener(this);
-        if (this.containsHereFunction) {
-            hereFunctionHandler.allowGpsUse();
-        }
+            hereFunctionHandler.registerEvalLocationListener(this);
+            if (containsHereFunction) {
+                hereFunctionHandler.allowGpsUse();
+            }
 
-        refreshView();
+            refreshView();
+        }
+    }
+
+    private boolean resumeSelectedEntity() {
+        TreeReference selectedEntity =
+                selectDatum.getEntityFromID(asw.getEvaluationContext(),
+                        this.getIntent().getStringExtra(EXTRA_ENTITY_KEY));
+
+        if (selectedEntity != null) {
+            if (inAwesomeMode) {
+                if (adapter != null) {
+                    displayReferenceAwesome(selectedEntity, adapter.getPosition(selectedEntity));
+                    updateSelectedItem(selectedEntity, true);
+                }
+            } else {
+                //Once we've done the initial dispatch, we don't want to end up triggering it later.
+                this.getIntent().removeExtra(EXTRA_ENTITY_KEY);
+
+                Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(), selectedEntity, null, selectDatum, asw);
+                if (adapter != null) {
+                    i.putExtra("entity_detail_index", adapter.getPosition(selectedEntity));
+                    i.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID,
+                            selectDatum.getShortDetail());
+                }
+                startActivityForResult(i, CONFIRM_SELECT);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -534,6 +562,25 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
+    public boolean loadEntities() {
+        if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
+            Log.i(TAG, "entities reloading");
+            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
+            entityLoader.attachListener(this);
+            entityLoader.execute(selectDatum.getNodeset());
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+
+        savedInstanceState.putBoolean(CONTAINS_HERE_FUNCTION, containsHereFunction);
+        savedInstanceState.putBoolean(LOCATION_CHANGED_WHILE_LOADING, locationChangedWhileLoading);
+    }
+
     @Override
     protected void onPause() {
         super.onPause();
@@ -556,9 +603,25 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (loader != null) {
+            if (isFinishing()) {
+                loader.cancel(false);
+            } else {
+                loader.detachActivity();
+            }
+        }
+
+        if (adapter != null) {
+            adapter.signalKilled();
+        }
+    }
+
+    @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if (id == EntityListAdapter.SPECIAL_ACTION) {
-            triggerDetailAction();
+            triggerDetailAction(adapter.getActionIndex(position));
             return;
         }
 
@@ -691,7 +754,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         finish();
     }
 
-
     @Override
     public void afterTextChanged(Editable incomingEditable) {
         final String incomingString = incomingEditable.toString();
@@ -766,10 +828,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         });
 
         if (shortSelect != null) {
-            Action action = shortSelect.getCustomAction();
-            if (action != null) {
-                ViewUtil.addDisplayToMenu(this, menu, MENU_ACTION,
-                        action.getDisplay().evaluate());
+            int actionIndex = MENU_ACTION;
+            for (Action action : shortSelect.getCustomActions()) {
+                if (action != null) {
+                    ViewUtil.addDisplayToMenu(this, menu, actionIndex, MENU_ACTION_GROUP,
+                            action.getDisplay().evaluate());
+                    actionIndex += 1;
+                }
             }
             if(shortSelect.getCallout() != null && shortSelect.getCallout().getImage() != null){
                 setupImageLayout(barcodeItem, shortSelect.getCallout().getImage());
@@ -817,6 +882,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getGroupId() == MENU_ACTION_GROUP) {
+            triggerDetailAction(item.getItemId() - MENU_ACTION);
+        }
         switch (item.getItemId()) {
             case MENU_SORT:
                 createSortMenu();
@@ -824,9 +892,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             case MENU_MAP:
                 Intent i = new Intent(this, EntityMapActivity.class);
                 this.startActivityForResult(i, MAP_SELECT);
-                return true;
-            case MENU_ACTION:
-                triggerDetailAction();
                 return true;
             // handling click on the barcode scanner's actionbar
             // trying to set the onclicklistener in its view in the onCreateOptionsMenu method does not work because it returns null
@@ -841,8 +906,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         return super.onOptionsItemSelected(item);
     }
 
-    private void triggerDetailAction() {
-        Action action = shortSelect.getCustomAction();
+    private void triggerDetailAction(int index) {
+        Action action = shortSelect.getCustomActions().get(index);
 
         try {
             asw.executeStackActions(action.getStackOperations());
@@ -909,33 +974,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-
-        savedInstanceState.putBoolean(CONTAINS_HERE_FUNCTION, containsHereFunction);
-        savedInstanceState.putBoolean(LOCATION_CHANGED_WHILE_LOADING, locationChangedWhileLoading);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (loader != null) {
-            if (isFinishing()) {
-                loader.cancel(false);
-            } else {
-                loader.detachActivity();
-            }
-        }
-
-        if (adapter != null) {
-            adapter.signalKilled();
-        }
-    }
-
-    @Override
-    public void deliverResult(List<Entity<TreeReference>> entities,
-                              List<TreeReference> references,
-                              NodeEntityFactory factory) {
+    public void deliverLoadResult(List<Entity<TreeReference>> entities,
+                                  List<TreeReference> references,
+                                  NodeEntityFactory factory) {
         loader = null;
         Detail detail = session.getDetail(selectDatum.getShortDetail());
         int[] order = detail.getSortOrder();
@@ -951,7 +992,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         setupDivider(view);
 
-        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, null, factory);
+        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, factory);
 
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
@@ -989,32 +1030,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    private void setupDivider(ListView view) {
-        boolean useNewDivider = shortSelect.usesGridView();
-
-        if (useNewDivider) {
-            int viewWidth = view.getWidth();
-            float density = getResources().getDisplayMetrics().density;
-            int viewWidthDP = (int)(viewWidth / density);
-            // sometimes viewWidth is 0, and in this case we default to a reasonable value taken from dimens.xml
-            int dividerWidth = viewWidth == 0 ? (int)getResources().getDimension(R.dimen.entity_select_divider_left_inset) : (int)(viewWidth / 6.0);
-
-            Drawable divider = getResources().getDrawable(R.drawable.divider_case_list_modern);
-
-            LayerDrawable layerDrawable = (LayerDrawable)divider;
-
-            dividerWidth += (int)getResources().getDimension(R.dimen.row_padding_horizontal);
-
-            layerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
-
-            view.setDivider(layerDrawable);
-        } else {
-            view.setDivider(null);
-        }
-
-        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
-    }
-
     private void updateSelectedItem(boolean forceMove) {
         TreeReference chosen = null;
         if (selectedIntent != null) {
@@ -1037,17 +1052,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    public void attach(EntityLoaderTask task) {
+    public void attachLoader(EntityLoaderTask task) {
         findViewById(R.id.entity_select_loading).setVisibility(View.VISIBLE);
         this.loader = task;
-    }
-
-    private void select() {
-        // create intent for return and store path
-        Intent i = new Intent(EntitySelectActivity.this.getIntent());
-        i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
-        setResult(RESULT_OK, i);
-        finish();
     }
 
     @Override
@@ -1117,8 +1124,16 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         detailView.refresh(factory.getDetail(), selection, detailIndex);
     }
 
+    private void select() {
+        // create intent for return and store path
+        Intent i = new Intent(EntitySelectActivity.this.getIntent());
+        i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
+        setResult(RESULT_OK, i);
+        finish();
+    }
+
     @Override
-    public void deliverError(Exception e) {
+    public void deliverLoadError(Exception e) {
         displayException(e);
     }
 
@@ -1146,17 +1161,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
         finish();
         return true;
-    }
-
-    public boolean loadEntities() {
-        if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
-            Log.i("HereFunctionHandler", "entities reloading");
-            EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
-            entityLoader.attachListener(this);
-            entityLoader.execute(selectDatum.getNodeset());
-            return true;
-        }
-        return false;
     }
 
     public void onEvalLocationChanged() {
@@ -1219,5 +1223,15 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 GeoUtils.showNoGpsDialog(activity, onChangeListener);
             }  // else handler has outlived activity, do nothing
         }
+    }
+
+    @Override
+    protected boolean isTopNavEnabled() {
+        return true;
+    }
+
+    @Override
+    public String getActivityTitle() {
+        return null;
     }
 }
