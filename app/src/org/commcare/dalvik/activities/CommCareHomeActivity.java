@@ -68,7 +68,6 @@ import org.commcare.session.SessionNavigator;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
-import org.commcare.suite.model.SyncEntry;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -100,6 +99,7 @@ public class CommCareHomeActivity
      * or EntityDetailActivity (to allow user to confirm an auto-selected case)
      */
     private static final int GET_CASE = 2;
+    private static final int GET_REMOTE_DATA = 3;
 
     /**
      * Request code for launching FormEntryActivity
@@ -525,6 +525,8 @@ public class CommCareHomeActivity
                         }
                     }
                     break;
+                case GET_REMOTE_DATA:
+                    break;
                 case MODEL_RESULT:
                     boolean fetchNext = processReturnFromFormEntry(resultCode, intent);
                     if (!fetchNext) {
@@ -816,6 +818,9 @@ public class CommCareHomeActivity
             case SessionNavigator.LAUNCH_CONFIRM_DETAIL:
                 launchConfirmDetail(asw);
                 break;
+            case SessionNavigator.START_REMOTE_QUERY:
+                launchRemoteSync(asw);
+                break;
             case SessionNavigator.EXCEPTION_THROWN:
                 displayException(sessionNavigator.getCurrentException());
         }
@@ -866,11 +871,7 @@ public class CommCareHomeActivity
         Intent i;
         String command = asw.getSession().getCommand();
 
-        Entry commandEntry = CommCareApplication._().getCommCarePlatform().getEntry(command);
-        if (commandEntry instanceof SyncEntry) {
-            i = new Intent(getApplicationContext(), SyncRequestActivity.class);
-            prepareSyncRequestIntent((SyncEntry)commandEntry, i);
-        } else if (useGridMenu(command)) {
+        if (useGridMenu(command)) {
             i = new Intent(getApplicationContext(), MenuGrid.class);
         } else {
             i = new Intent(getApplicationContext(), MenuList.class);
@@ -880,7 +881,11 @@ public class CommCareHomeActivity
         startActivityForResult(i, GET_COMMAND);
     }
 
-    private void prepareSyncRequestIntent(SyncEntry entry, Intent i) {
+    private void launchRemoteSync(AndroidSessionWrapper asw) {
+        String command = asw.getSession().getCommand();
+        Entry commandEntry = CommCareApplication._().getCommCarePlatform().getEntry(command);
+        Intent i = new Intent(getApplicationContext(), SyncRequestActivity.class);
+        startActivityForResult(i, GET_REMOTE_DATA);
     }
 
     private void launchEntitySelect(CommCareSession session) {
