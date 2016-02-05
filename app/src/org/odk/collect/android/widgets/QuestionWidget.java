@@ -9,7 +9,6 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
-import android.text.SpannableString;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.URLSpan;
@@ -33,7 +32,6 @@ import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
-import org.javarosa.core.model.Action;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.QuestionExtensionReceiver;
@@ -51,7 +49,6 @@ import org.odk.collect.android.views.ShrinkingTextView;
 import org.odk.collect.android.views.media.MediaLayout;
 
 import java.io.File;
-import java.util.Vector;
 
 public abstract class QuestionWidget extends LinearLayout implements QuestionExtensionReceiver {
     private final static String TAG = QuestionWidget.class.getSimpleName();
