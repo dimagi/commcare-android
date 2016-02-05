@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -66,8 +65,10 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigationResponder;
 import org.commcare.session.SessionNavigator;
+import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.suite.model.SyncEntry;
 import org.commcare.suite.model.Text;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -864,7 +865,12 @@ public class CommCareHomeActivity
     private void handleGetCommand(AndroidSessionWrapper asw) {
         Intent i;
         String command = asw.getSession().getCommand();
-        if (useGridMenu(command)) {
+
+        Entry commandEntry = CommCareApplication._().getCommCarePlatform().getEntry(command);
+        if (commandEntry instanceof SyncEntry) {
+            i = new Intent(getApplicationContext(), SyncRequestActivity.class);
+            prepareSyncRequestIntent((SyncEntry)commandEntry, i);
+        } else if (useGridMenu(command)) {
             i = new Intent(getApplicationContext(), MenuGrid.class);
         } else {
             i = new Intent(getApplicationContext(), MenuList.class);
@@ -872,6 +878,9 @@ public class CommCareHomeActivity
         i.putExtra(SessionFrame.STATE_COMMAND_ID, command);
         addPendingDataExtra(i, asw.getSession());
         startActivityForResult(i, GET_COMMAND);
+    }
+
+    private void prepareSyncRequestIntent(SyncEntry entry, Intent i) {
     }
 
     private void launchEntitySelect(CommCareSession session) {
