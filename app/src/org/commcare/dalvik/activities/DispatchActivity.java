@@ -9,12 +9,14 @@ import android.widget.Toast;
 
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -49,6 +51,9 @@ public class DispatchActivity extends FragmentActivity {
     private boolean shortcutExtraWasConsumed;
 
     private static final String EXTRA_CONSUMED_KEY = "shortcut_extra_was_consumed";
+
+    // Used for soft assert for login redirection bug
+    private boolean waitingForActivityResultFromLogin;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -192,9 +197,15 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void launchLoginScreen() {
+        if (waitingForActivityResultFromLogin) {
+            Logger.log(AndroidLogger.SOFT_ASSERT, "Login redirection bug occurred; " +
+                    "DispatchActivity is attempting to launch a new LoginActivity while it is " +
+                    "still waiting for a result from another one.");
+        }
         Intent i = new Intent(this, LoginActivity.class);
         i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, userTriggeredLogout);
         startActivityForResult(i, LOGIN_USER);
+        waitingForActivityResultFromLogin = true;
     }
 
     private void launchHomeScreen() {
@@ -306,6 +317,7 @@ public class DispatchActivity extends FragmentActivity {
                     return;
                 }
             case LOGIN_USER:
+                waitingForActivityResultFromLogin = false;
                 if (resultCode == RESULT_CANCELED) {
                     shouldFinish = true;
                     return;
