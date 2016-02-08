@@ -49,11 +49,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.android.analytics.GoogleAnalyticsFields;
 import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.analytics.TimedStatsTracker;
 import org.commcare.android.framework.SaveSessionCommCareActivity;
+import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -1958,7 +1958,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void handleXpathErrorBroadcast() {
-        CommCareActivity.createErrorDialog(FormEntryActivity.this,
+        UserfacingErrorHandling.createErrorDialog(FormEntryActivity.this,
                 "There is a bug in one of your form's XPath Expressions \n" + badLocationXpath, EXIT);
     }
 
