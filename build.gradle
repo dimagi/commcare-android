@@ -66,11 +66,6 @@ dependencies {
     compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
 }
 
-project.ext {
-    compileSdkVersion = "Google Inc.:Google APIs:23"
-    buildToolsVersion = "23.0.2"
-}
-
 ext {
     // Obtained from ~/.gradle/gradle.properties on build server or load default
     // empty strings.
@@ -113,8 +108,8 @@ def getDate() {
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion = "Google Inc.:Google APIs:23"
+    buildToolsVersion = "23.0.2"
 
     useLibrary 'org.apache.http.legacy'
 
