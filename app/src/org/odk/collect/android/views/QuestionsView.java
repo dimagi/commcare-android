@@ -39,7 +39,7 @@ import java.util.HashMap;
 /**
  * @author carlhartung
  */
-public class ODKView extends ScrollView
+public class QuestionsView extends ScrollView
         implements OnLongClickListener, WidgetChangedListener {
 
     // starter random number for view IDs
@@ -67,7 +67,7 @@ public class ODKView extends ScrollView
      */
     private static final boolean SEPERATORS_ENABLED = false;
 
-    public ODKView(Context context) {
+    public QuestionsView(Context context) {
         super(context);
 
         SharedPreferences settings =
@@ -89,9 +89,9 @@ public class ODKView extends ScrollView
         mGroupLabel = null;
     }
 
-    public ODKView(Context context, FormEntryPrompt[] questionPrompts,
-                   FormEntryCaption[] groups, WidgetFactory factory,
-                   WidgetChangedListener wcl) {
+    public QuestionsView(Context context, FormEntryPrompt[] questionPrompts,
+                         FormEntryCaption[] groups, WidgetFactory factory,
+                         WidgetChangedListener wcl) {
         this(context);
 
         if(wcl !=null){
