@@ -12,9 +12,6 @@ import org.odk.collect.android.activities.FormEntryActivity;
 
 import java.io.File;
 
-/**
- * @author Phillip Mates (pmates@dimagi.com).
- */
 public class FormFileSystemHelpers {
     private static String TAG = FormFileSystemHelpers.class.getSimpleName();
 

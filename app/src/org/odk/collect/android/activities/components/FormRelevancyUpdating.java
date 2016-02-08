@@ -7,6 +7,9 @@ import org.odk.collect.android.widgets.QuestionWidget;
 import java.util.ArrayList;
 import java.util.Vector;
 
+/**
+ * @author amstone326
+ */
 public class FormRelevancyUpdating {
     /**
      * @return A list of the select choices for each widget in the list of old widgets, with the
@@ -34,11 +37,11 @@ public class FormRelevancyUpdating {
     }
 
     /**
-     * @param newValidPrompts - All of the prompts that should be in the new view
-     * @param oldPrompt - The prompt from the prior view for which we are seeking a match in the
-     *                  list of new prompts
-     * @param oldQuestionText - the question text of the old prompt
-     * @param oldSelectChoices - the select choices of the old prompt
+     * @param newValidPrompts  All of the prompts that should be in the new view
+     * @param oldPrompt        The prompt from the prior view for which we are seeking a match in the
+     *                         list of new prompts
+     * @param oldQuestionText  the question text of the old prompt
+     * @param oldSelectChoices the select choices of the old prompt
      * @return The form entry prompt from the new list that is equivalent to oldPrompt, or null
      * if none exists
      */
