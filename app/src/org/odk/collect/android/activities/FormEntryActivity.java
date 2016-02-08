@@ -1512,7 +1512,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         registerFormEntryReceiver();
-        questionsView.restoreTimePickerData();
+        if (questionsView != null) {
+            questionsView.restoreTimePickerData();
+        }
 
         if (mFormController != null) {
             // clear pending callout post onActivityResult processing
