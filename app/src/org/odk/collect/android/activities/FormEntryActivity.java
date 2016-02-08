@@ -103,13 +103,11 @@ import org.odk.collect.android.utilities.GeoUtils;
 import org.odk.collect.android.views.ODKView;
 import org.odk.collect.android.views.ResizingImageView;
 import org.odk.collect.android.widgets.DateTimeWidget;
-import org.odk.collect.android.widgets.ImageWidget;
 import org.odk.collect.android.widgets.IntentWidget;
 import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.TimeWidget;
 
 import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -438,13 +436,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 processIntentResponse(intent);
                 break;
             case IMAGE_CAPTURE:
-                processCaptureResponse(true);
+                ImageCaptureProcessing.processCaptureResponse(this, getInstanceFolder(), true);
                 break;
             case SIGNATURE_CAPTURE:
-                processCaptureResponse(false);
+                ImageCaptureProcessing.processCaptureResponse(this, getInstanceFolder(), false);
                 break;
             case IMAGE_CHOOSER:
-                processImageChooserResponse(intent);
+                ImageCaptureProcessing.processImageChooserResponse(this, getInstanceFolder(), intent);
                 break;
             case AUDIO_VIDEO_FETCH:
                 processChooserResponse(intent);
@@ -462,78 +460,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    /**
-     * Processes the return from an image capture intent, launched by either an ImageWidget or
-     * SignatureWidget
-     *
-     * @param isImage true if this was from an ImageWidget, false if it was a SignatureWidget
-     */
-    private void processCaptureResponse(boolean isImage) {
-        /* We saved the image to the tempfile_path, but we really want it to be in:
-         * /sdcard/odk/instances/[current instance]/something.[jpg/png/etc] so we move it there
-         * before inserting it into the content provider. Once the android image capture bug gets
-         * fixed, (read, we move on from Android 1.6) we want to handle images the audio and
-         * video
-         */
-
-        // The intent is empty, but we know we saved the image to the temp file
-        File originalImage = ImageWidget.TEMP_FILE_FOR_IMAGE_CAPTURE;
-        try {
-            File unscaledFinalImage = ImageCaptureProcessing.moveAndScaleImage(originalImage, isImage, getInstanceFolder(), this);
-            saveImageWidgetAnswer(unscaledFinalImage);
-        } catch (IOException e) {
-            e.printStackTrace();
-            showCustomToast(Localization.get("image.capture.not.saved"), Toast.LENGTH_LONG);
-        }
-    }
-
     private String getInstanceFolder() {
        return mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
     }
 
-    private void processImageChooserResponse(Intent intent) {
-        /* We have a saved image somewhere, but we really want it to be in:
-         * /sdcard/odk/instances/[current instance]/something.[jpg/png/etc] so we move it there
-         * before inserting it into the content provider. Once the android image capture bug gets
-         * fixed, (read, we move on from Android 1.6) we want to handle images the audio and
-         * video
-         */
-
-        // get gp of chosen file
-        Uri selectedImage = intent.getData();
-        String imagePath = FileUtils.getPath(this, selectedImage);
-
-        if (imagePath == null) {
-            showCustomToast(Localization.get("invalid.image.selection"), Toast.LENGTH_LONG);
-            return;
-        }
-
-        File originalImage = new File(imagePath);
-
-        if (originalImage.exists()) {
-            try {
-                File unscaledFinalImage = ImageCaptureProcessing.moveAndScaleImage(originalImage, true, getInstanceFolder(), this);
-                saveImageWidgetAnswer(unscaledFinalImage);
-            } catch (IOException e) {
-                e.printStackTrace();
-                showCustomToast(Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG);
-            }
-        } else {
-            // The user has managed to select a file from the image browser that doesn't actually
-            // exist on the file system anymore
-            showCustomToast(Localization.get("invalid.image.selection"), Toast.LENGTH_LONG);
-        }
-    }
-
-    private void saveImageWidgetAnswer(File unscaledFinalImage) {
-        // Add the new image to the Media content provider so that the viewing is fast in Android 2.0+
-        ContentValues values = new ContentValues(6);
-        values.put(Images.Media.TITLE, unscaledFinalImage.getName());
-        values.put(Images.Media.DISPLAY_NAME, unscaledFinalImage.getName());
-        values.put(Images.Media.DATE_TAKEN, System.currentTimeMillis());
-        values.put(Images.Media.MIME_TYPE, "image/jpeg");
-        values.put(Images.Media.DATA, unscaledFinalImage.getAbsolutePath());
-
+    public void saveImageWidgetAnswer(ContentValues values) {
         Uri imageURI =
                 getContentResolver().insert(Images.Media.EXTERNAL_CONTENT_URI, values);
         Log.i(TAG, "Inserting image returned uri = " + imageURI);
@@ -1232,7 +1163,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         isAnimatingSwipe = false;
     }
 
-    private void showCustomToast(String message, int duration) {
+    public void showCustomToast(String message, int duration) {
         LayoutInflater inflater =
             (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
