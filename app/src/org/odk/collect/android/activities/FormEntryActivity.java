@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Rect;
 import android.location.LocationManager;
@@ -17,7 +16,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.support.v4.app.Fragment;
@@ -25,7 +23,6 @@ import android.support.v4.app.FragmentManager;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.util.Pair;
-import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ContextThemeWrapper;
@@ -84,6 +81,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.odk.collect.android.activities.components.FormLayoutHelpers;
 import org.odk.collect.android.activities.components.FormNavigationController;
 import org.odk.collect.android.activities.components.FormNavigationUI;
 import org.odk.collect.android.activities.components.ImageCaptureProcessing;
@@ -1189,7 +1187,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
 
         this.mGroupNativeVisibility = false;
-        this.updateGroupViewVisibility();
+        FormLayoutHelpers.updateGroupViewVisibility(this, mGroupNativeVisibility, mGroupForcedInvisible);
 
         mCurrentView.setFocus(this);
 
@@ -1198,7 +1196,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
             groupLabel.setText(groupLabelText);
             this.mGroupNativeVisibility = true;
-            updateGroupViewVisibility();
+            FormLayoutHelpers.updateGroupViewVisibility(this, mGroupNativeVisibility, mGroupForcedInvisible);
         }
     }
 
@@ -2531,83 +2529,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     protected void onMajorLayoutChange(Rect newRootViewDimensions) {
-        determineNumberOfValidGroupLines(newRootViewDimensions);
+        mGroupForcedInvisible =
+                FormLayoutHelpers.determineNumberOfValidGroupLines(this, newRootViewDimensions, mGroupNativeVisibility, mGroupForcedInvisible);
     }
 
-    private void determineNumberOfValidGroupLines(Rect newRootViewDimensions) {
-        FrameLayout header = (FrameLayout)findViewById(R.id.form_entry_header);
-        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
-
-        int contentSize = newRootViewDimensions.height();
-
-        View navBar = this.findViewById(R.id.nav_pane);
-        int headerSize = navBar.getHeight();
-        if(headerSize == 0) {
-            headerSize = this.getResources().getDimensionPixelSize(R.dimen.new_progressbar_minheight);
-        }
-
-        int availableWindow = contentSize - headerSize - getActionBarSize();
-
-        int questionFontSize = getFontSizeInPx();
-
-        //Request a consistent amount of the screen before groups can cut down
-
-        int spaceRequested = questionFontSize * 6;
-
-        int spaceAvailable = availableWindow - spaceRequested;
-
-        int defaultHeaderSpace = this.getResources().getDimensionPixelSize(R.dimen.content_min_margin) * 2;
-
-        float textSize = groupLabel.getTextSize();
-
-        int numberOfGroupLinesAllowed = (int)((spaceAvailable - defaultHeaderSpace) / textSize);
-
-        if(numberOfGroupLinesAllowed < 0) {
-            numberOfGroupLinesAllowed = 0;
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            if (groupLabel.getMaxLines() == numberOfGroupLinesAllowed) {
-                return;
-            }
-        }
-
-        if(numberOfGroupLinesAllowed == 0) {
-            this.mGroupForcedInvisible = true;
-            updateGroupViewVisibility();
-            groupLabel.setMaxLines(0);
-        } else {
-            this.mGroupForcedInvisible = false;
-            updateGroupViewVisibility();
-            groupLabel.setMaxLines(numberOfGroupLinesAllowed);
-        }
-    }
-
-    private void updateGroupViewVisibility() {
-        FrameLayout header = (FrameLayout)findViewById(R.id.form_entry_header);
-        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
-
-        if(mGroupNativeVisibility && !mGroupForcedInvisible) {
-            header.setVisibility(View.VISIBLE);
-            groupLabel.setVisibility(View.VISIBLE);
-        } else {
-            header.setVisibility(View.GONE);
-            groupLabel.setVisibility(View.GONE);
-
-        }
-    }
-
-    private int getFontSizeInPx() {
-        SharedPreferences settings =
-                PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        String question_font =
-                settings.getString(FormEntryPreferences.KEY_FONT_SIZE, ODKStorage.DEFAULT_FONTSIZE);
-
-        int sizeInPx = Integer.valueOf(question_font);
-
-        return (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, sizeInPx,
-                getResources().getDisplayMetrics());
-    }
 
     private void reportFormEntry() {
         TimedStatsTracker.registerEnterForm(getCurrentFormID());
