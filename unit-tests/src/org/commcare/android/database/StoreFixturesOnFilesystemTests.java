@@ -66,7 +66,7 @@ public class StoreFixturesOnFilesystemTests {
         AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication._());
 
         try {
-            parseIntoSandbox(testClass.getClassLoader().getResourceAsStream("ipm_restore.xml"), false);
+            parseIntoSandbox(testClass.getClassLoader().getResourceAsStream("odk_level_ipm_restore.xml"), false);
         } catch (Exception e) {
             e.printStackTrace();
         }
