@@ -103,10 +103,8 @@ import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.utilities.GeoUtils;
 import org.odk.collect.android.views.ODKView;
 import org.odk.collect.android.views.ResizingImageView;
-import org.odk.collect.android.widgets.DateTimeWidget;
 import org.odk.collect.android.widgets.IntentWidget;
 import org.odk.collect.android.widgets.QuestionWidget;
-import org.odk.collect.android.widgets.TimeWidget;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -1514,38 +1512,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         registerFormEntryReceiver();
-        restoreTimePickerData();
+        mCurrentView.restoreTimePickerData();
 
         if (mFormController != null) {
             // clear pending callout post onActivityResult processing
             mFormController.setPendingCalloutFormIndex(null);
-        }
-    }
-
-    private void restoreTimePickerData() {
-        // On honeycomb and above this is handled by calling:
-        //   TimePicker.setSaveFromParentEnabled(false);
-        //   TimePicker.setSaveEnabled(true);
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            //csims@dimagi.com - 22/08/2012 - For release only, fix immediately.
-            //There is a _horribly obnoxious_ bug in TimePickers that messes up how they work
-            //on screen rotation. We need to re-do any setAnswers that we perform on them after
-            //onResume.
-            try {
-                if (mCurrentView.getWidgets() != null) {
-                    for (QuestionWidget qw : mCurrentView.getWidgets()) {
-                        if (qw instanceof DateTimeWidget) {
-                            ((DateTimeWidget)qw).setAnswer();
-                        } else if (qw instanceof TimeWidget) {
-                            ((TimeWidget)qw).setAnswer();
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                //if this fails, we _really_ don't want to mess anything up. this is a last minute
-                //fix
-            }
         }
     }
 

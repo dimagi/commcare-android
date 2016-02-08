@@ -3,6 +3,7 @@ package org.odk.collect.android.views;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -25,8 +26,10 @@ import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.listeners.WidgetChangedListener;
 import org.odk.collect.android.logic.PendingCalloutInterface;
 import org.odk.collect.android.preferences.FormEntryPreferences;
+import org.odk.collect.android.widgets.DateTimeWidget;
 import org.odk.collect.android.widgets.QuestionWidget;
 import org.odk.collect.android.widgets.StringWidget;
+import org.odk.collect.android.widgets.TimeWidget;
 import org.odk.collect.android.widgets.WidgetFactory;
 
 import java.util.ArrayList;
@@ -432,4 +435,32 @@ public class ODKView extends ScrollView
         }
         return prompt;
     }
+
+    public void restoreTimePickerData() {
+        // On honeycomb and above this is handled by calling:
+        //   TimePicker.setSaveFromParentEnabled(false);
+        //   TimePicker.setSaveEnabled(true);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            //csims@dimagi.com - 22/08/2012 - For release only, fix immediately.
+            //There is a _horribly obnoxious_ bug in TimePickers that messes up how they work
+            //on screen rotation. We need to re-do any setAnswers that we perform on them after
+            //onResume.
+            try {
+                if (getWidgets() != null) {
+                    for (QuestionWidget qw : getWidgets()) {
+                        if (qw instanceof DateTimeWidget) {
+                            ((DateTimeWidget)qw).setAnswer();
+                        } else if (qw instanceof TimeWidget) {
+                            ((TimeWidget)qw).setAnswer();
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                //if this fails, we _really_ don't want to mess anything up. this is a last minute
+                //fix
+            }
+        }
+    }
+
 }
