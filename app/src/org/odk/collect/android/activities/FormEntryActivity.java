@@ -16,7 +16,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.provider.MediaStore.Images;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -82,6 +81,7 @@ import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.activities.components.FormLayoutHelpers;
+import org.odk.collect.android.activities.components.FormFileSystemHelpers;
 import org.odk.collect.android.activities.components.FormNavigationController;
 import org.odk.collect.android.activities.components.FormNavigationUI;
 import org.odk.collect.android.activities.components.FormRelevancyUpdating;
@@ -1375,151 +1375,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void discardChangesAndExit() {
-        String selection =
-            InstanceColumns.INSTANCE_FILE_PATH + " like '"
-                    + mInstancePath + "'";
-        Cursor c = null;
-        int instanceCount = 0;
-        try {
-            c = getContentResolver().query(instanceProviderContentURI, null, selection, null, null);
-            if (c != null) {
-                instanceCount = c.getCount();
-            }
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-
-        // if it's not already saved, erase everything
-        if (instanceCount < 1) {
-            int images = 0;
-            int audio = 0;
-            int video = 0;
-            // delete media first
-            String instanceFolder =
-                mInstancePath.substring(0,
-                    mInstancePath.lastIndexOf("/") + 1);
-            Log.i(TAG, "attempting to delete: " + instanceFolder);
-
-            String where =
-                Images.Media.DATA + " like '" + instanceFolder + "%'";
-
-
-            // images
-            Cursor imageCursor = null;
-            try {
-                String[] projection = {
-                        Images.ImageColumns._ID
-                };
-                imageCursor = getContentResolver().query(
-                            android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                            projection, where, null, null);
-                if (imageCursor != null && imageCursor.getCount() > 0) {
-                    imageCursor.moveToFirst();
-                    int columnIndex =
-                            imageCursor.getColumnIndex(Images.ImageColumns._ID);
-                    String id = imageCursor.getString(columnIndex);
-
-                    Log.i(
-                            TAG,
-                        "attempting to delete: "
-                                + Uri.withAppendedPath(
-                                    android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                    id));
-                    images =
-                        getContentResolver()
-                                .delete(
-                                    Uri.withAppendedPath(
-                                        android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                        id), null, null);
-                }
-            } finally {
-                if ( imageCursor != null ) {
-                    imageCursor.close();
-                }
-            }
-
-            // audio
-            Cursor audioCursor = null;
-            try {
-                String[] projection = {
-                        MediaStore.Audio.AudioColumns._ID
-                };
-                audioCursor = getContentResolver().query(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    projection, where, null, null);
-                if (audioCursor != null && audioCursor.getCount() > 0) {
-                    audioCursor.moveToFirst();
-                    int columnIndex =
-                            audioCursor.getColumnIndex(MediaStore.Audio.AudioColumns._ID);
-                    String id = audioCursor.getString(columnIndex);
-
-                    Log.i(
-                            TAG,
-                        "attempting to delete: "
-                                + Uri.withAppendedPath(
-                                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                                    id));
-                    audio =
-                        getContentResolver()
-                                .delete(
-                                    Uri.withAppendedPath(
-                                        MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                                        id), null, null);
-                }
-            } finally {
-                if ( audioCursor != null ) {
-                    audioCursor.close();
-                }
-            }
-
-            // video
-            Cursor videoCursor = null;
-            try {
-                String[] projection = {
-                        MediaStore.Video.VideoColumns._ID
-                };
-                videoCursor = getContentResolver().query(
-                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                    projection, where, null, null);
-                if (videoCursor != null && videoCursor.getCount() > 0) {
-                    videoCursor.moveToFirst();
-                    int columnIndex =
-                            videoCursor.getColumnIndex(MediaStore.Video.VideoColumns._ID);
-                    String id = videoCursor.getString(columnIndex);
-
-                    Log.i(
-                            TAG,
-                        "attempting to delete: "
-                                + Uri.withAppendedPath(
-                                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                                    id));
-                    video =
-                        getContentResolver()
-                                .delete(
-                                    Uri.withAppendedPath(
-                                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-                                        id), null, null);
-                }
-            } finally {
-                if ( videoCursor != null ) {
-                    videoCursor.close();
-                }
-            }
-
-            Log.i(TAG, "removed from content providers: " + images
-                    + " image files, " + audio + " audio files,"
-                    + " and " + video + " video files.");
-            File f = new File(instanceFolder);
-            if (f.exists() && f.isDirectory()) {
-                for (File del : f.listFiles()) {
-                    Log.i(TAG, "deleting file: " + del.getAbsolutePath());
-                    del.delete();
-                }
-                f.delete();
-            }
-        }
+        FormFileSystemHelpers.removeMediaAttachedToUnsavedForm(this, mInstancePath, instanceProviderContentURI);
 
         finishReturnInstance(false);
     }
@@ -1721,7 +1577,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         break;
                     case FormsColumns.CONTENT_ITEM_TYPE:
                         formUri = uri;
-                        mFormPath = getFormPath(uri);
+                        mFormPath = FormFileSystemHelpers.getFormPath(this, uri);
                         break;
                     default:
                         Log.e(TAG, "unrecognized URI");
@@ -2284,25 +2140,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    private String getFormPath(Uri uri) throws FormQueryException {
-        Cursor c = null;
-        try {
-            c = getContentResolver().query(uri, null, null, null, null);
-            if (c == null) {
-                throw new FormQueryException("Bad URI: resolved to null");
-            } else if (c.getCount() != 1) {
-                throw new FormQueryException("Bad URI: " + uri);
-            } else {
-                c.moveToFirst();
-                return c.getString(c.getColumnIndex(FormsColumns.FORM_FILE_PATH));
-            }
-        } finally {
-            if (c != null) {
-                c.close();
-            }
-        }
-    }
-
     private Pair<Uri, Boolean> getInstanceUri(Uri uri) throws FormQueryException {
         Cursor instanceCursor = null;
         Cursor formCursor = null;
@@ -2402,8 +2239,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    private class FormQueryException extends Exception {
-        FormQueryException(String msg) {
+    public static class FormQueryException extends Exception {
+        public FormQueryException(String msg) {
             super(msg);
         }
     }
