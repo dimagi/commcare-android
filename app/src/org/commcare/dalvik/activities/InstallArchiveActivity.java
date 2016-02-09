@@ -51,8 +51,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     @UiElement(value = R.id.screen_multimedia_inflater_install, locale = "archive.install.button")
     Button btnInstallArchive;
 
-    private final boolean done = false;
-
     private static final String TAG = InstallArchiveActivity.class.getSimpleName();
 
     public static final String ARCHIVE_REFERENCE = "archive-ref";
@@ -161,6 +159,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     }
 
     private void evalState() {
+        boolean done = false;
         if (done) {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.done"));
             this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
