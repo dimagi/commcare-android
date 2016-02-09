@@ -33,7 +33,6 @@ import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.StringUtils;
-import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.AlertDialogFragment;

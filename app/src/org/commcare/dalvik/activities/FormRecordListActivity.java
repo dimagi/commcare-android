@@ -49,7 +49,6 @@ import org.commcare.android.tasks.TaskListenerRegistrationException;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.view.IncompleteFormRecordView;
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
