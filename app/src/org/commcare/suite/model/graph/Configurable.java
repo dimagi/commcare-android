@@ -11,10 +11,10 @@ import java.util.Enumeration;
  */
 public interface Configurable {
 
-    public Enumeration getConfigurationKeys();
+    Enumeration getConfigurationKeys();
 
-    public Text getConfiguration(String key);
+    Text getConfiguration(String key);
 
-    public void setConfiguration(String key, Text value);
+    void setConfiguration(String key, Text value);
 
 }
