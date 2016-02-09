@@ -24,6 +24,7 @@ public class MediaFileAndroidInstaller extends FileSystemInstaller {
 
     private String path;
 
+    @SuppressWarnings("unused")
     public MediaFileAndroidInstaller() {
         // For externalization
     }

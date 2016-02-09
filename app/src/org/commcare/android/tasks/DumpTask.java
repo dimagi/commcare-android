@@ -33,7 +33,6 @@ import javax.crypto.spec.SecretKeySpec;
 
 /**
  * @author ctsims
- *
  */
 public abstract class DumpTask extends CommCareTask<String, String, Boolean, CommCareFormDumpActivity>{
 
@@ -41,17 +40,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
     private Long[] results;
     private File dumpFolder;
         
-    public static final long SUBMISSION_BEGIN = 16;
-    public static final long SUBMISSION_START = 32;
-    public static final long SUBMISSION_NOTIFY = 64;
-    public static final long SUBMISSION_DONE = 128;
-    
-    public static final long PROGRESS_LOGGED_OUT = 256;
-    public static final long PROGRESS_SDCARD_REMOVED = 512;
-    
     public static final int BULK_DUMP_ID = 23456;
-    
-    private static long MAX_BYTES = (5 * 1048576)-1024; // 5MB less 1KB overhead
     
     public DumpTask(Context c) {
         this.c = c;

@@ -51,13 +51,6 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         return mContentView;
     }
 
-    /**
-     * @return this device
-     */
-    public WifiP2pDevice getDevice() {
-        return device;
-    }
-
     public static String getDeviceStatus(int deviceStatus) {
         Log.d(TAG, "Peer status :" + deviceStatus);
         switch (deviceStatus) {

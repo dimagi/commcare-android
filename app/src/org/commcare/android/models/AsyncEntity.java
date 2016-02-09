@@ -38,7 +38,6 @@ public class AsyncEntity extends Entity<TreeReference> {
     private final Object[] data;
     private final String[] sortData;
     private final boolean[] relevancyData;
-    private final String[] backgroundData;
     private final String[][] sortDataPieces;
     private final EvaluationContext context;
     private final Hashtable<String, XPathExpression> mVariableDeclarations;
@@ -68,7 +67,6 @@ public class AsyncEntity extends Entity<TreeReference> {
         this.sortData = new String[fields.length];
         this.sortDataPieces = new String[fields.length][];
         this.relevancyData = new boolean[fields.length];
-        this.backgroundData = new String[fields.length];
         this.context = ec;
         this.mVariableDeclarations = variables;
         this.mEntityStorageCache = cache;

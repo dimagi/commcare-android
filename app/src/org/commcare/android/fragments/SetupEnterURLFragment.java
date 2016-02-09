@@ -11,7 +11,6 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
@@ -23,12 +22,10 @@ import org.javarosa.core.services.locale.Localization;
  * @author Daniel Luna (dcluna@dimagi.com)
  */
 public class SetupEnterURLFragment extends Fragment {
-    private static final String TAG = SetupEnterURLFragment.class.getSimpleName();
     private static final String interfaceName = URLInstaller.class.getName();
 
     private URLInstaller listener;
 
-    private Spinner prefixURLSpinner;
     private EditText profileLocation;
 
     public interface URLInstaller {
