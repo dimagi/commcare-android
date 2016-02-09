@@ -160,11 +160,10 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         peers.clear();
         peers.addAll(peerList.getDeviceList());
         ((WiFiPeerListAdapter)getListAdapter()).notifyDataSetChanged();
+
         if (peers.size() == 0) {
             Log.d(TAG, "No devices found");
-            return;
         }
-
     }
 
     public void clearPeers() {
