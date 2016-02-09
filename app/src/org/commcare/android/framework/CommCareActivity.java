@@ -417,7 +417,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     @Override
-    public void taskCancelled(int id) {
+    public void taskCancelled() {
 
     }
 

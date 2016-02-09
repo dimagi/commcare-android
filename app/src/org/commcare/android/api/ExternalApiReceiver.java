@@ -58,7 +58,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         }
 
         @Override
-        public void taskCancelled(int id) {
+        public void taskCancelled() {
         }
 
         @Override
