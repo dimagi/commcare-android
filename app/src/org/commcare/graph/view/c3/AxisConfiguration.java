@@ -123,7 +123,7 @@ public class AxisConfiguration extends Configuration {
                 } catch (JSONException e) {
                     // Assume labelString is just a scalar, which
                     // represents the number of labels the user wants.
-                    tick.put("count", Integer.valueOf(labelString));
+                    tick.put("count", Double.valueOf(labelString).intValue());
                 }
             }
         }
