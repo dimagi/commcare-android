@@ -70,6 +70,7 @@ public class XPathErrorSerializer
             writeText("msg", errorEntry.getMessage());
             writeText("ssn", errorEntry.getSessionPath());
             writeText("vsn", errorEntry.getAppVersion() + "");
+            writeText("app_id", errorEntry.getAppId());
             writeText("expr", errorEntry.getExpression());
         } catch (Exception e) {
             e.printStackTrace();

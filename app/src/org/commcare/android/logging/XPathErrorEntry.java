@@ -1,10 +1,13 @@
 package org.commcare.android.logging;
 
+import android.support.v4.util.Pair;
+
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.session.CommCareSession;
+import org.commcare.suite.model.Profile;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IMetaData;
@@ -30,6 +33,7 @@ public class XPathErrorEntry extends LogEntry implements Persistable, IMetaData 
 
     private int recordId = -1;
     private int appVersion;
+    private String appId;
     private String expression;
     private String sessionFramePath;
 
@@ -46,7 +50,9 @@ public class XPathErrorEntry extends LogEntry implements Persistable, IMetaData 
             this.expression = expression;
         }
         this.sessionFramePath = getCurrentSession();
-        this.appVersion = lookupCurrentAppVersion();
+        Pair<Integer, String> appVersionAndId = lookupCurrentAppVersionAndId();
+        this.appVersion = appVersionAndId.first;
+        this.appId = appVersionAndId.second;
     }
 
     private static String getCurrentSession() {
@@ -59,14 +65,15 @@ public class XPathErrorEntry extends LogEntry implements Persistable, IMetaData 
         }
     }
 
-    private int lookupCurrentAppVersion() {
+    private Pair<Integer, String> lookupCurrentAppVersionAndId() {
         CommCareApp app = CommCareApplication._().getCurrentApp();
 
         if (app != null) {
-            return app.getCommCarePlatform().getCurrentProfile().getVersion();
+            Profile profile = app.getCommCarePlatform().getCurrentProfile();
+            return new Pair<>(profile.getVersion(), profile.getUniqueId());
         }
 
-        return -1;
+        return new Pair<>(-1, "");
     }
 
     public String getExpression() {
@@ -79,6 +86,10 @@ public class XPathErrorEntry extends LogEntry implements Persistable, IMetaData 
 
     public int getAppVersion() {
         return appVersion;
+    }
+
+    public String getAppId() {
+        return appId;
     }
 
     @Override
@@ -105,6 +116,7 @@ public class XPathErrorEntry extends LogEntry implements Persistable, IMetaData 
 
         recordId = ExtUtil.readInt(in);
         appVersion = ExtUtil.readInt(in);
+        appId = ExtUtil.readString(in);
         expression = ExtUtil.readString(in);
         sessionFramePath = ExtUtil.readString(in);
     }
@@ -115,6 +127,7 @@ public class XPathErrorEntry extends LogEntry implements Persistable, IMetaData 
 
         ExtUtil.writeNumeric(out, recordId);
         ExtUtil.writeNumeric(out, appVersion);
+        ExtUtil.writeString(out, appId);
         ExtUtil.writeString(out, expression);
         ExtUtil.writeString(out, sessionFramePath);
     }
