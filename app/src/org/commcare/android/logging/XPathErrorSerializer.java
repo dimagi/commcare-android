@@ -24,6 +24,11 @@ public class XPathErrorSerializer
     private final SqlStorage<XPathErrorEntry> errorLogStorage;
     private XmlSerializer serializer;
 
+    /**
+     * Report format version for ability to dispatch different parser on server
+     */
+    private static final int ERROR_FORMAT_VERSION = 1;
+
     public XPathErrorSerializer(final SqlStorage<XPathErrorEntry> logStorage) {
         errorLogStorage = logStorage;
         this.setPurger(new Purger() {
@@ -46,14 +51,15 @@ public class XPathErrorSerializer
     public void writeToDeviceReport(XmlSerializer serializer) throws IOException {
         this.serializer = serializer;
 
-        serializer.startTag(DeviceReportWriter.XMLNS, "xpath_error_subreport");
+        serializer.startTag(DeviceReportWriter.XMLNS, "user_error_subreport");
+        serializer.attribute(null, "version", ERROR_FORMAT_VERSION + "");
 
         try {
             for (XPathErrorEntry entry : errorLogStorage) {
                 serializeLog(entry.getID(), entry);
             }
         } finally {
-            serializer.endTag(DeviceReportWriter.XMLNS, "xpath_error_subreport");
+            serializer.endTag(DeviceReportWriter.XMLNS, "user_error_subreport");
         }
     }
 
@@ -63,19 +69,19 @@ public class XPathErrorSerializer
         String dateString =
                 DateUtils.formatDateTime(errorEntry.getTime(), DateUtils.FORMAT_ISO8601);
 
-        serializer.startTag(DeviceReportWriter.XMLNS, "xpath_error");
+        serializer.startTag(DeviceReportWriter.XMLNS, "user_error");
         try {
             serializer.attribute(null, "date", dateString);
             writeText("type", errorEntry.getType());
             writeText("msg", errorEntry.getMessage());
-            writeText("ssn", errorEntry.getSessionPath());
-            writeText("vsn", errorEntry.getAppVersion() + "");
+            writeText("session", errorEntry.getSessionPath());
+            writeText("version", errorEntry.getAppVersion() + "");
             writeText("app_id", errorEntry.getAppId());
             writeText("expr", errorEntry.getExpression());
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            serializer.endTag(DeviceReportWriter.XMLNS, "xpath_error");
+            serializer.endTag(DeviceReportWriter.XMLNS, "user_error");
         }
     }
 
