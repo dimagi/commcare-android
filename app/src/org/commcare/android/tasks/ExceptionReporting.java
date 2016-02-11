@@ -57,7 +57,7 @@ public class ExceptionReporting {
             // using that. This is preferable when possible, because it means that if the send
             // fails, we have still written the DeviceReportRecord to storage, and will attempt
             // to send it again later
-            record = DeviceReportRecord.generateRecordStubForAllLogs();
+            record = DeviceReportRecord.generateRecordStubForForceCloses();
         } catch (SessionUnavailableException e) {
             // The forceclose occurred when a user was not logged in, so we don't have a session
             // to store the record to; just use a temp output stream instead
