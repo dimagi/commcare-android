@@ -14,6 +14,7 @@ import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
 import org.commcare.util.CommCarePlatform;
+import org.odk.collect.android.activities.FormEntryActivity;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -122,7 +123,9 @@ public class DevSessionRestorer {
             return;
         }
         String serializedSession = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-        prefs.edit().putString(CommCarePreferences.CURRENT_SESSION, serializedSession).commit();
+        String formEntrySession = FormEntryActivity.getFormEntrySession();
+        prefs.edit().putString(CommCarePreferences.CURRENT_SESSION, serializedSession)
+                .putString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, formEntrySession).apply();
         try {
             serializedStream.close();
         } catch (IOException e) {

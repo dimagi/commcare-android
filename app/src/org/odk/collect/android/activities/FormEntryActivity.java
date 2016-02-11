@@ -857,9 +857,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // only try to save if the current event is a question or a field-list
         // group
         boolean success = true;
-        if ((mFormController.getEvent() == FormEntryController.EVENT_QUESTION)
-                || ((mFormController.getEvent() == FormEntryController.EVENT_GROUP) &&
-                mFormController.indexIsInFieldList())) {
+        if (isEventQuestionOrListGroup()) {
             HashMap<FormIndex, IAnswerData> answers =
                     mCurrentView.getAnswers();
 
@@ -896,6 +894,16 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         }
         return success;
+    }
+
+    private boolean isEventQuestionOrListGroup() {
+        return (mFormController.getEvent() == FormEntryController.EVENT_QUESTION) ||
+                (mFormController.getEvent() == FormEntryController.EVENT_GROUP
+                        && mFormController.indexIsInFieldList());
+    }
+
+    private void restoreEntrySession() {
+
     }
 
     /**
@@ -2629,6 +2637,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return mCurrentView;
         } else {
             throw new RuntimeException("On principal of design, only meant for testing purposes");
+        }
+    }
+
+    public static String getFormEntrySession() {
+        if (mFormController == null) {
+            return "";
+        } else {
+            return mFormController.getFormEntrySession().toString();
         }
     }
 }
