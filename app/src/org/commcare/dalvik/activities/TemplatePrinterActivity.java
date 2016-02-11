@@ -3,10 +3,12 @@ package org.commcare.dalvik.activities;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CancellationSignal;
+import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.print.PageRange;
 import android.print.PrintAttributes;
@@ -19,6 +21,7 @@ import android.webkit.WebViewClient;
 
 import org.commcare.android.tasks.TemplatePrinterTask;
 import org.commcare.android.tasks.TemplatePrinterTask.PopulateListener;
+import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.TemplatePrinterUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -42,6 +45,13 @@ import java.util.Date;
  */
 public class TemplatePrinterActivity extends Activity implements PopulateListener {
 
+    private static final String KEY_TEMPLATE_STYLE = "PRINT_TEMPLATE_STYLE";
+    private static final String TEMPLATE_STYLE_HTML = "TEMPLATE_HTML";
+    private static final String TEMPLATE_STYLE_ZPL = "TEMPLATE_ZPL";
+
+    private static final int CALLOUT_ZPL = 1;
+
+
     /**
      * The path to the temp file location that is written to in TemplatePrinterTask, and then
      * read back from in doHtmlPrint()
@@ -60,20 +70,67 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_template_printer);
 
+        String path = getPathOrThrowError();
+
+        //A null return code from the path retriever means that it is displaying a message;
+        if(path == null) {
+            return;
+        }
+
+        String printStyle = this.getIntent().getExtras().getString(KEY_TEMPLATE_STYLE);
+        if(printStyle == null) {
+            printStyle = TEMPLATE_STYLE_HTML;
+        }
+
+        if(TEMPLATE_STYLE_ZPL.equals(printStyle)) {
+            File file = new File(path);
+
+            doZebraPrint(path);
+            return;
+        }
+
+
         //Check to make sure we are targeting API 19 or above, which is where print is supported
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
             showErrorDialog(Localization.get("print.not.supported"));
             return;
         }
 
+
+        this.outputPath = CommCareApplication._().getTempFilePath() + ".html";
+
+        preparePrintDoc(path);
+    }
+
+    private void doZebraPrint(String path) {
+
+        //move file temporarily to globally readable spot
+        File oldPath = new File(path);
+        File newDest = Environment.getExternalStorageDirectory();
+
+        File destFile = new File(newDest, oldPath.getName());
+
+        FileUtils.copyFile(oldPath, destFile);
+
+        Intent i = new Intent("com.dimagi.android.zebraprinttool.action.PrintTemplate");
+        i.putExtra("zebra:template_file_path", destFile.getAbsolutePath());
+        i.putExtras(this.getIntent().getExtras());
+        this.startActivityForResult(i, CALLOUT_ZPL);
+    }
+
+    /**
+     * Retrieve a valid path that is the template file to be used during printing, or
+     * display an error message to the user. If a message is displayed, the method will
+     * return null and the activity should not continue attempting to print
+     */
+    private String getPathOrThrowError() {
         Bundle data = getIntent().getExtras();
+
         //Check to make sure key-value data has been passed with the intent
         if (data == null) {
             showErrorDialog(Localization.get("no.print.data"));
-            return;
+            return null;
         }
-
-        this.outputPath = CommCareApplication._().getTempFilePath() + ".html";
 
         //Check if a doc location is coming in from the Intent
         //Will return a reference of format jr://... if it has been set
@@ -81,9 +138,10 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         if (path != null) {
             try {
                 path = ReferenceManager._().DeriveReference(path).getLocalURI();
-                preparePrintDoc(path);
+                return path;
             } catch (InvalidReferenceException e) {
                 showErrorDialog(Localization.get("template.invalid"));
+                return null;
             }
         } else {
             //Try to use the document location that was set in Settings menu
@@ -91,8 +149,9 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             path = prefs.getString(CommCarePreferences.PREFS_PRINT_DOC_LOCATION, "");
             if ("".equals(path)) {
                 showErrorDialog(Localization.get("missing.template.file"));
+                return null;
             } else {
-                preparePrintDoc(path);
+                return path;
             }
         }
     }
@@ -179,6 +238,15 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             showErrorDialog(Localization.get("print.io.error"));
         }
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == CALLOUT_ZPL) {
+            this.finish();
+            return;
+        }
     }
 
     /**
