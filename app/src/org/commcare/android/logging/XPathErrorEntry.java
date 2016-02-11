@@ -2,16 +2,13 @@ package org.commcare.android.logging;
 
 import android.support.v4.util.Pair;
 
+import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Profile;
-import org.javarosa.core.log.LogEntry;
-import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.storage.IMetaData;
-import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -26,12 +23,8 @@ import java.util.Date;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class XPathErrorEntry extends LogEntry implements Persistable, IMetaData {
+public class XPathErrorEntry extends AndroidLogEntry {
     public static final String STORAGE_KEY = "XPATH_ERROR";
-    private static final String TAG = XPathErrorEntry.class.getSimpleName();
-    private static final String META_DATE = "date";
-
-    private int recordId = -1;
     private int appVersion;
     private String appId;
     private String expression;
@@ -100,21 +93,10 @@ public class XPathErrorEntry extends LogEntry implements Persistable, IMetaData 
     }
 
     @Override
-    public void setID(int ID) {
-        recordId = ID;
-    }
-
-    @Override
-    public int getID() {
-        return recordId;
-    }
-
-    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         super.readExternal(in, pf);
 
-        recordId = ExtUtil.readInt(in);
         appVersion = ExtUtil.readInt(in);
         appId = ExtUtil.readString(in);
         expression = ExtUtil.readString(in);
@@ -125,25 +107,9 @@ public class XPathErrorEntry extends LogEntry implements Persistable, IMetaData 
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
 
-        ExtUtil.writeNumeric(out, recordId);
         ExtUtil.writeNumeric(out, appVersion);
         ExtUtil.writeString(out, appId);
         ExtUtil.writeString(out, expression);
         ExtUtil.writeString(out, sessionFramePath);
-    }
-
-    @Override
-    public String[] getMetaDataFields() {
-        return new String[]{META_DATE};
-    }
-
-    @Override
-    public Object getMetaData(String fieldName) {
-        if (META_DATE.equals(fieldName)) {
-            return DateUtils.formatDate(getTime(), DateUtils.FORMAT_ISO8601);
-        }
-
-        throw new IllegalArgumentException("No metadata field " +
-                fieldName + " for " + TAG + " model");
     }
 }
