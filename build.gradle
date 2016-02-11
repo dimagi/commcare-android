@@ -318,26 +318,44 @@ afterEvaluate {
 task switchGoogleServicesCommcare(type: Copy) {
     description = 'Makes build use normal google-services.json file'
     println project.ext.COMMCARE_APP_ID
-    from("templates")
-    include "google-services.json"
+
+    /**
+     * This is an awkward workaround for a Windows build error that occurs when you try
+     * to copy something into the root directory (containing the .gradle folder). Don't
+     * change it without testing on a windows machine
+     */
+    outputs.files.setFrom(file("$projectDir/google-services.json"))
+    from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.COMMCARE_APP_ID])
-    into "."
+    into projectDir
 }
 
 task switchGoogleServicesStandalone(type: Copy) {
     description = 'Switches package name in google-services.json to match Standalone package name'
-    from("templates")
-    include "google-services.json"
+
+    /**
+     * This is an awkward workaround for a Windows build error that occurs when you try
+     * to copy something into the root directory (containing the .gradle folder). Don't
+     * change it without testing on a windows machine
+     */
+    outputs.files.setFrom(file("$projectDir/google-services.json"))
+    from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.STANDALONE_APP_ID])
-    into "."
+    into projectDir
 }
 
 task switchGoogleServicesQabeta(type: Copy) {
     description = 'Switches package name in google-services.json to match Qabeta package name'
-    from("templates")
-    include "google-services.json"
+
+    /**
+     * This is an awkward workaround for a Windows build error that occurs when you try
+     * to copy something into the root directory (containing the .gradle folder). Don't
+     * change it without testing on a windows machine
+     */
+    outputs.files.setFrom(file("$projectDir/google-services.json"))
+    from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.QA_BETA_APP_ID])
-    into "."
+    into projectDir
 }
 
 /**
