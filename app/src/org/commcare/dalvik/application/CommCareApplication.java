@@ -55,9 +55,9 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.DatabaseUserOpenHelper;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.framework.SessionActivityRegistration;
-import org.commcare.android.javarosa.AndroidLogEntry;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.javarosa.PreInitLogger;
+import org.commcare.android.logging.AndroidLogEntry;
+import org.commcare.android.logging.AndroidLogger;
+import org.commcare.android.logging.PreInitLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.notifications.NotificationClearReceiver;
@@ -1003,7 +1003,6 @@ public class CommCareApplication extends Application {
     private void doReportMaintenance(boolean force) {
         //OK. So for now we're going to daily report sends and not bother with any of the frequency properties.
 
-
         //Create a new submission task no matter what. If nothing is pending, it'll see if there are unsent reports
         //and try to send them. Otherwise, it'll create the report
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -1029,7 +1028,7 @@ public class CommCareApplication extends Application {
                 dataListener,
                 url);
 
-        //Execute on a true multithreaded chain, since this is an asynchronous process
+        // Execute on a true multithreaded chain, since this is an asynchronous process
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
@@ -1092,6 +1091,10 @@ public class CommCareApplication extends Application {
         return isPending(lastUpdateCheck, duration);
     }
 
+    /**
+     * Used to check if an update, sync, or log submission is pending, based upon the last time
+     * it occurred and the expected period between occurrences
+     */
     private boolean isPending(long last, long period) {
         long now = new Date().getTime();
 

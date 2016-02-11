@@ -9,7 +9,7 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.UserSandboxUtils;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.net.HttpRequestGenerator;

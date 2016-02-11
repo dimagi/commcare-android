@@ -30,13 +30,14 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
 
     @Override
     public void uncaughtException(Thread thread, Throwable ex) {
+        // Always report to HQ device logs
         ExceptionReporting.reportExceptionInBg(ex);
 
         if (warnUserAndExit(ex)) {
             // You must close the crashed thread in order to start a new activity.
             System.exit(0);
         } else {
-            // handle error normally (report to ACRA/play store)
+            // Default error handling, which includes reporting to ACRA
             parent.uncaughtException(thread, ex);
         }
     }

@@ -2,7 +2,6 @@ package org.commcare.android.logging;
 
 import android.support.v4.util.Pair;
 
-import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -65,7 +64,7 @@ public class XPathErrorEntry extends LogEntry implements Persistable, IMetaData 
         }
     }
 
-    private Pair<Integer, String> lookupCurrentAppVersionAndId() {
+    private static Pair<Integer, String> lookupCurrentAppVersionAndId() {
         CommCareApp app = CommCareApplication._().getCurrentApp();
 
         if (app != null) {

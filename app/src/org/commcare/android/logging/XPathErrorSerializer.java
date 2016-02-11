@@ -1,8 +1,6 @@
 package org.commcare.android.logging;
 
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.javarosa.DeviceReportElement;
-import org.commcare.android.javarosa.DeviceReportWriter;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.log.StreamLogSerializer;
 import org.javarosa.core.model.utils.DateUtils;
