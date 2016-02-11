@@ -2,11 +2,6 @@ package org.commcare.android.logging;
 
 import android.support.v4.util.Pair;
 
-import org.commcare.android.util.SessionStateUninitException;
-import org.commcare.dalvik.application.CommCareApp;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.session.CommCareSession;
-import org.commcare.suite.model.Profile;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IMetaData;
@@ -48,31 +43,10 @@ public class XPathErrorEntry extends LogEntry implements Persistable, IMetaData 
         } else {
             this.expression = expression;
         }
-        this.sessionFramePath = getCurrentSession();
-        Pair<Integer, String> appVersionAndId = lookupCurrentAppVersionAndId();
+        this.sessionFramePath = LoggingUtils.getCurrentSession();
+        Pair<Integer, String> appVersionAndId = LoggingUtils.lookupCurrentAppVersionAndId();
         this.appVersion = appVersionAndId.first;
         this.appId = appVersionAndId.second;
-    }
-
-    private static String getCurrentSession() {
-        CommCareSession currentSession;
-        try {
-            currentSession = CommCareApplication._().getCurrentSession();
-            return currentSession.getFrame().toString();
-        } catch (SessionStateUninitException e) {
-            return "";
-        }
-    }
-
-    private static Pair<Integer, String> lookupCurrentAppVersionAndId() {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
-
-        if (app != null) {
-            Profile profile = app.getCommCarePlatform().getCurrentProfile();
-            return new Pair<>(profile.getVersion(), profile.getUniqueId());
-        }
-
-        return new Pair<>(-1, "");
     }
 
     public String getExpression() {

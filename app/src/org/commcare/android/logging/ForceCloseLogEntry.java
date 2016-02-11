@@ -7,8 +7,8 @@ import java.util.Date;
  */
 public class ForceCloseLogEntry extends AndroidLogEntry {
 
-    public ForceCloseLogEntry(String type, String message, Date date, Throwable exception) {
-
+    public ForceCloseLogEntry(Throwable exception, String stackTrace) {
+        super(AndroidLogger.TYPE_FORCECLOSE, stackTrace, new Date());
     }
 
 }

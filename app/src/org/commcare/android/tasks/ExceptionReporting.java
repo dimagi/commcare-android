@@ -7,6 +7,13 @@ import org.apache.http.HttpResponse;
 import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
+import org.commcare.android.database.SqlStorage;
+import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.android.logging.AndroidLogger;
+import org.commcare.android.logging.DeviceReportRecord;
+import org.commcare.android.logging.ForceCloseLogEntry;
+import org.commcare.android.logging.ForceCloseLogSerializer;
+import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.model.User;
 import org.commcare.android.logging.AndroidLogEntry;
@@ -15,6 +22,7 @@ import org.commcare.android.logging.DeviceReportWriter;
 import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.javarosa.core.services.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -42,45 +50,56 @@ public class ExceptionReporting {
     }
 
     private static void sendExceptionToServer(Throwable exception) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-
-        //TODO: This is ridiculous. Just do the normal log submission process
-        DeviceReportWriter report;
+        DeviceReportRecord record = null;
+        ByteArrayOutputStream baos = null;
         try {
-            report = new DeviceReportWriter(baos);
-        } catch (IOException e) {
-            report = null;
+            // We had a session and were able to create a DeviceReportRecord, so will send the error
+            // using that. This is preferable when possible, because it means that if the send
+            // fails, we have still written the DeviceReportRecord to storage, and will attempt
+            // to send it again later
+            record = DeviceReportRecord.generateRecordStubForAllLogs();
+        } catch (SessionUnavailableException e) {
+            // The forceclose occurred when a user was not logged in, so we don't have a session
+            // to store the record to; just use a temp output stream instead
+            baos = new ByteArrayOutputStream();
         }
 
         String exceptionText = getStackTrace(exception);
-        if (report != null) {
-            report.addReportElement(new AndroidLogSerializer(new AndroidLogEntry("forceclose", exceptionText, new Date())));
-        }
+        String submissionUri = getSubmissionUri();
+        DeviceReportWriter reportWriter;
 
-        byte[] data;
         try {
-            if (report == null) {
-                throw new IOException();
+            reportWriter = new DeviceReportWriter(record != null ? record.openOutputStream() : baos);
+            reportWriter.addReportElement(new ForceCloseLogSerializer(
+                    new ForceCloseLogEntry(exception, exceptionText)));
+            reportWriter.write();
+
+            if (record == null) {
+                sendWithoutWriting(baos.toByteArray(), submissionUri);
+            } else {
+                if (!LogSubmissionTask.submitDeviceReportRecord(record, submissionUri, null, -1)) {
+                    // If submission failed, write this record to storage so we can send it later
+                    try {
+                        SqlStorage<DeviceReportRecord> storage =
+                                CommCareApplication._().getUserStorage(DeviceReportRecord.class);
+                        storage.write(record);
+                    } catch (UserStorageClosedException e) {
+
+                    }
+                }
             }
-            report.write();
-            data = baos.toByteArray();
         } catch (IOException e) {
-            //_weak_
+            // Couldn't create a report writer, so just manually create the data we want to send
             e.printStackTrace();
             String fsDate = new Date().toString();
-            data = ("<?xml version='1.0' ?><n0:device_report xmlns:n0=\"http://code.javarosa.org/devicereport\"><device_id>FAILSAFE</device_id><report_date>" + fsDate + "</report_date><log_subreport><log_entry date=\"" + fsDate + "\"><entry_type>forceclose</entry_type><entry_message>" + exceptionText + "</entry_message></log_entry></log_subreport></device_report>").getBytes();
+            byte[] data = ("<?xml version='1.0' ?><n0:device_report xmlns:n0=\"http://code.javarosa.org/devicereport\"><device_id>FAILSAFE</device_id><report_date>" + fsDate + "</report_date><log_subreport><log_entry date=\"" + fsDate + "\"><entry_type>forceclose</entry_type><entry_message>" + exceptionText + "</entry_message></log_entry></log_subreport></device_report>").getBytes();
+            sendWithoutWriting(data, submissionUri);
         }
+    }
 
-        String URI = CommCareApplication._().getString(R.string.PostURL);
-        try {
-            SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-            URI = settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, CommCareApplication._().getString(R.string.PostURL));
-        } catch (Exception e) {
-            //D-oh. Really?
-        }
-
+    private static void sendWithoutWriting(byte[] dataToSend, String submissionUri) {
         //TODO: Send this with the standard logging subsystem
-        String payload = new String(data);
+        String payload = new String(dataToSend);
         Log.d(TAG, "Outgoing payload: " + payload);
 
         MultipartEntity entity = new MultipartEntity();
@@ -112,12 +131,22 @@ public class ExceptionReporting {
         }
 
         try {
-            HttpResponse response = generator.postData(URI, entity);
+            HttpResponse response = generator.postData(submissionUri, entity);
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             response.getEntity().writeTo(bos);
             Log.d(TAG, "Response: " + new String(bos.toByteArray()));
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static String getSubmissionUri() {
+        try {
+            SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+            return settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
+                    CommCareApplication._().getString(R.string.PostURL));
+        } catch (Exception e) {
+            return CommCareApplication._().getString(R.string.PostURL);
         }
     }
 

@@ -9,6 +9,7 @@ public class GlobalConstants {
     public static final String FILE_CC_CACHE = "commcare/cache";
     public static final String FILE_CC_MEDIA = "commcare/media/";
     public static final String FILE_CC_LOGS = "commcare/logs/";
+    public static final String FILE_CC_FORCECLOSES = "commcare/forcecloses";
 
     public static final String FILE_CC_ATTACHMENTS = "attachments/";
 

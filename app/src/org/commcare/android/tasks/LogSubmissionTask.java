@@ -103,7 +103,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                 return LogSubmitOutcomes.Error;
             }
 
-            // See how many we have pending to submit.
+            // See how many we have pending to submit
             int numberOfLogsToSubmit = storage.getNumRecords();
             if (numberOfLogsToSubmit == 0) {
                 return LogSubmitOutcomes.Submitted;
@@ -127,6 +127,11 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         }
     }
 
+    /**
+     * Serialize all of the entries currently in Android logs and Xpath error logs, and write
+     * that to a DeviceReportRecord, which then gets added to the internal storage object of
+     * all DeviceReportRecords that have yet to be submitted
+     */
     private boolean serializeLogs(SqlStorage<DeviceReportRecord> storage) {
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
 
@@ -135,9 +140,9 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
         DeviceReportRecord record;
         try {
-            record = DeviceReportRecord.generateNewRecordStub();
+            record = DeviceReportRecord.generateRecordStubForAllLogs();
         } catch (SessionUnavailableException e) {
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "User database closed while trying to submit logs");
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "User database closed while trying to submit");
             return false;
         }
 
@@ -160,10 +165,10 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             XPathErrorSerializer xpathErrorSerializer = new XPathErrorSerializer(CommCareApplication._().getGlobalStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
             reporter.addReportElement(xpathErrorSerializer);
 
-            //serialize logs
+            // Serialize logs to the record
             reporter.write();
 
-            //Write the record for where the logs are now saved to.
+            //Write this DeviceReportRecord to where all logs are saved to
             storage.write(record);
 
             //The logs are saved and recorded, so we can feel safe clearing the logs we serialized.
@@ -183,7 +188,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         int index = 0;
         for (DeviceReportRecord slr : storage) {
             try {
-                if (submit(slr, index)) {
+                if (submitDeviceReportRecord(slr, submissionUrl, this, index)) {
                     submittedSuccesfullyIds.add(slr.getID());
                     submittedSuccesfully.add(slr);
                 }
@@ -194,7 +199,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         }
     }
 
-    private boolean submit(DeviceReportRecord slr, int index) {
+    public static boolean submitDeviceReportRecord(DeviceReportRecord slr, String submissionUrl,
+                                                   DataSubmissionListener listener, int index) {
         //Get our file pointer
         File f = new File(slr.getFilePath());
 
@@ -203,8 +209,10 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             return true;
         }
 
-        //signal that it's time to start submitting the file
-        this.startSubmission(index, f.length());
+        if (listener != null) {
+            listener.startSubmission(index, f.length());
+        }
+
         HttpRequestGenerator generator;
         User user;
         try {
@@ -220,8 +228,12 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             generator = new HttpRequestGenerator(user);
         }
 
-        // mime post
-        MultipartEntity entity = new DataSubmissionEntity(this, index);
+        MultipartEntity entity;
+        if (listener != null) {
+            entity = new DataSubmissionEntity(listener, index);
+        } else {
+            entity = new MultipartEntity();
+        }
 
         EncryptedFileBody fb = new EncryptedFileBody(f, getDecryptCipher(new SecretKeySpec(slr.getKey(), "AES")), ContentType.TEXT_XML);
         entity.addPart("xml_submission_file", fb);
@@ -245,7 +257,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         return (responseCode >= 200 && responseCode < 300);
     }
 
-    private boolean removeLocalReports(SqlStorage<DeviceReportRecord> storage,
+    private static boolean removeLocalReports(SqlStorage<DeviceReportRecord> storage,
                                        ArrayList<Integer> submittedSuccesfullyIds,
                                        ArrayList<DeviceReportRecord> submittedSuccesfully) {
         try {
