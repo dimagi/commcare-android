@@ -29,6 +29,7 @@ public class XPathErrorEntry extends AndroidLogEntry {
     private String appId;
     private String expression;
     private String sessionFramePath;
+    private String userId;
 
     public XPathErrorEntry() {
         // for externalization
@@ -43,6 +44,7 @@ public class XPathErrorEntry extends AndroidLogEntry {
             this.expression = expression;
         }
         this.sessionFramePath = getCurrentSession();
+        this.userId = CommCareApplication._().getCurrentUserId();
         Pair<Integer, String> appVersionAndId = lookupCurrentAppVersionAndId();
         this.appVersion = appVersionAndId.first;
         this.appId = appVersionAndId.second;
@@ -85,6 +87,10 @@ public class XPathErrorEntry extends AndroidLogEntry {
         return appId;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
     @Override
     public String toString() {
         return getTime().toString() + " | " +
@@ -101,6 +107,7 @@ public class XPathErrorEntry extends AndroidLogEntry {
         appId = ExtUtil.readString(in);
         expression = ExtUtil.readString(in);
         sessionFramePath = ExtUtil.readString(in);
+        userId = ExtUtil.readString(in);
     }
 
     @Override
@@ -111,5 +118,6 @@ public class XPathErrorEntry extends AndroidLogEntry {
         ExtUtil.writeString(out, appId);
         ExtUtil.writeString(out, expression);
         ExtUtil.writeString(out, sessionFramePath);
+        ExtUtil.writeString(out, userId);
     }
 }
