@@ -71,7 +71,7 @@ public class ExceptionReporting {
         try {
             reportWriter = new DeviceReportWriter(record != null ? record.openOutputStream() : baos);
             reportWriter.addReportElement(new ForceCloseLogSerializer(
-                    new ForceCloseLogEntry(exception, exceptionText)));
+                    new ForceCloseLogEntry(exceptionText)));
             reportWriter.write();
 
             if (record == null) {

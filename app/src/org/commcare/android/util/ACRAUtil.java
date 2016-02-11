@@ -7,8 +7,8 @@ import org.acra.ACRA;
 import org.acra.ErrorReporter;
 import org.acra.config.ACRAConfiguration;
 import org.acra.config.ACRAConfigurationFactory;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.activities.ReportProblemActivity;
 
 /**
  * Contains constants and methods used in ACRA reporting.
@@ -47,15 +47,15 @@ public class ACRAUtil {
 
     public static void registerAppData() {
         if (isAcraConfigured) {
-            addCustomData(ACRAUtil.POST_URL, ReportProblemActivity.getPostURL());
-            addCustomData(ACRAUtil.VERSION, ReportProblemActivity.getVersion());
-            addCustomData(ACRAUtil.DOMAIN, ReportProblemActivity.getDomain());
+            addCustomData(ACRAUtil.POST_URL, ReportingUtils.getPostURL());
+            addCustomData(ACRAUtil.VERSION, ReportingUtils.getVersion());
+            addCustomData(ACRAUtil.DOMAIN, ReportingUtils.getDomain());
         }
     }
 
     public static void registerUserData() {
         if (isAcraConfigured) {
-            ACRAUtil.addCustomData(ACRAUtil.USERNAME, ReportProblemActivity.getUser());
+            ACRAUtil.addCustomData(ACRAUtil.USERNAME, ReportingUtils.getUser());
         }
     }
 }

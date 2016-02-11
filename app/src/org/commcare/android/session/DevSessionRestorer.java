@@ -108,26 +108,36 @@ public class DevSessionRestorer {
         if (ccApp == null) {
             return;
         }
-
         SharedPreferences prefs = ccApp.getAppPreferences();
+        String serializedSession = getSerializedSessionString();
+        if (!"".equals(serializedSession)) {
+            prefs.edit().putString(CommCarePreferences.CURRENT_SESSION, serializedSession).commit();
+        }
+    }
+
+    public static String getSerializedSessionString() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream serializedStream = new DataOutputStream(baos);
+
         try {
             CommCareApplication._().getCurrentSession().serializeSessionState(serializedStream);
         } catch (IOException e) {
             Log.w(TAG, "Failed to serialize session");
-            return;
+            return "";
         } catch (SessionStateUninitException e) {
             Log.w(TAG, "Attempting to save a non-existent session");
-            return;
+            return "";
         }
+
         String serializedSession = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-        prefs.edit().putString(CommCarePreferences.CURRENT_SESSION, serializedSession).commit();
+
         try {
             serializedStream.close();
         } catch (IOException e) {
             Log.d(TAG, "Failed to close session serialization stream.");
         }
+
+        return serializedSession;
     }
 
     public static boolean savedSessionPresent() {

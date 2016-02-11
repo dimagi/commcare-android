@@ -1,7 +1,5 @@
 package org.commcare.android.logging;
 
-import android.support.v4.util.Pair;
-
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -35,10 +33,9 @@ public class XPathErrorEntry extends AndroidLogEntry {
         } else {
             this.expression = expression;
         }
-        this.sessionFramePath = LoggingUtils.getCurrentSession();
-        Pair<Integer, String> appVersionAndId = LoggingUtils.lookupCurrentAppVersionAndId();
-        this.appVersion = appVersionAndId.first;
-        this.appId = appVersionAndId.second;
+        this.sessionFramePath = ReportingUtils.getCurrentSession();
+        this.appVersion = ReportingUtils.getAppBuildNumber();
+        this.appId = ReportingUtils.getAppId();
     }
 
     public String getExpression() {
