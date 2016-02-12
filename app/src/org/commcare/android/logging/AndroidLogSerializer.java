@@ -11,23 +11,30 @@ import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;
 import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  * @author ctsims
  */
 public class AndroidLogSerializer extends StreamLogSerializer implements DeviceReportElement {
-    private LogEntry entry;
-    private final boolean isSingleLog;
 
     private XmlSerializer serializer;
 
-    public AndroidLogSerializer(LogEntry entry) {
-        isSingleLog = true;
-        this.entry = entry;
-    }
+    // The entire storage object of all log entries
+    private final SqlStorage<AndroidLogEntry> logStorage;
+
+    // Optionally, a subset of the entries in log storage, if we do not want to send all of them
+    private final Vector<AndroidLogEntry> subsetOfLogsToSend;
 
     public AndroidLogSerializer(final SqlStorage<AndroidLogEntry> logStorage) {
-        isSingleLog = false;
+        this(logStorage, null);
+    }
+
+    public AndroidLogSerializer(final SqlStorage<AndroidLogEntry> logStorage,
+                                Vector<AndroidLogEntry> logsToSend) {
+        this.subsetOfLogsToSend = logsToSend;
+        this.logStorage = logStorage;
+
         this.setPurger(new Purger() {
             @Override
             public void purge(final SortedIntSet IDs) {
@@ -78,11 +85,13 @@ public class AndroidLogSerializer extends StreamLogSerializer implements DeviceR
         serializer.startTag(DeviceReportWriter.XMLNS, "log_subreport");
 
         try {
-            if (isSingleLog) {
-                serializeLog(entry);
+            if (subsetOfLogsToSend != null) {
+                for (AndroidLogEntry entry : subsetOfLogsToSend) {
+                    serializeLog(entry.getID(), entry);
+                }
             } else {
-                if (Logger._() != null) {
-                    Logger._().serializeLogs(this);
+                for (AndroidLogEntry entry : logStorage) {
+                    serializeLog(entry.getID(), entry);
                 }
             }
         } finally {

@@ -158,21 +158,34 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                 return false;
             }
 
-            //Add the logs as the primary payload
-            AndroidLogSerializer logSerializer = new AndroidLogSerializer(CommCareApplication._().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
-            reporter.addReportElement(logSerializer);
+            String currentAppId = CommCareApplication._().getCurrentApp().getUniqueId();
+            SqlStorage<AndroidLogEntry> userLogStorage =
+                    CommCareApplication._().getUserStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class);
+            // Only actually send those logs in user storage whose app id matches the current app id
+            AndroidLogSerializer userLogSerializer = new AndroidLogSerializer(
+                    userLogStorage,
+                    userLogStorage.getRecordsForValue(AndroidLogEntry.META_APP_ID, currentAppId));
+            reporter.addReportElement(userLogSerializer);
 
+            // Serialize all logs currently in global storage, since we have no way to determine
+            // which app they truly belong to
+            AndroidLogSerializer globalLogSerializer = new AndroidLogSerializer(
+                    CommCareApplication._().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
+            reporter.addReportElement(globalLogSerializer);
+
+            // TODO: Make XpathErrorSerializer also only send logs from the current app
             XPathErrorSerializer xpathErrorSerializer = new XPathErrorSerializer(CommCareApplication._().getUserStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
             reporter.addReportElement(xpathErrorSerializer);
 
             // Serialize logs to the record
             reporter.write();
 
-            //Write this DeviceReportRecord to where all logs are saved to
+            // Write this DeviceReportRecord to where all logs are saved to
             storage.write(record);
 
-            //The logs are saved and recorded, so we can feel safe clearing the logs we serialized.
-            logSerializer.purge();
+            // The logs are saved and recorded, so we can feel safe clearing the logs we serialized.
+            userLogSerializer.purge();
+            globalLogSerializer.purge();
             xpathErrorSerializer.purge();
         } catch (Exception e) {
             //Bad times!
