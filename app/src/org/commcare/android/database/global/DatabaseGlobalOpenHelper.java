@@ -50,7 +50,7 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
             builder = new AndroidTableBuilder(AndroidSharedKeyRecord.class);
             database.execSQL(builder.getTableCreateString());
 
-            
+
             builder = new AndroidTableBuilder(AndroidLogEntry.STORAGE_KEY);
             builder.addData(new AndroidLogEntry());
             database.execSQL(builder.getTableCreateString());
