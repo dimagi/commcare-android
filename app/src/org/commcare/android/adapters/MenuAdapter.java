@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.util.MediaUtil;
@@ -97,9 +98,10 @@ public class MenuAdapter implements ListAdapter {
                                         continue;
                                     }
                                 } catch (XPathTypeMismatchException e) {
-                                    Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "relevancy condition for menu item returned non-boolean value : " + ret);
-                                    throw new RuntimeException("relevancy condition for menu item returned non-boolean value : " + ret);
-
+                                    final String msg = "relevancy condition for menu item returned non-boolean value : " + ret;
+                                    XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e.getSource(), msg);
+                                    Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, msg);
+                                    throw new RuntimeException(msg);
                                 }
                                 if (!XPathFuncExpr.toBoolean(ret)) {
                                     continue;
@@ -136,10 +138,12 @@ public class MenuAdapter implements ListAdapter {
                         }
                     }
                 } catch (XPathSyntaxException xpse) {
+                    XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpathExpression, xpse.getMessage());
                     CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.bad.xpath", new String[]{xpathExpression, xpse.getMessage()}));
                     displayableData = new MenuDisplayable[0];
                     return;
                 } catch (XPathException xpe) {
+                    XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
                     CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.xpath.err", new String[]{xpathExpression, xpe.getMessage()}));
                     displayableData = new MenuDisplayable[0];
                     return;

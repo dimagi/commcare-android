@@ -24,7 +24,6 @@ public class PreInitLogger implements ILogger {
     @Override
     public void log(String type, String message, Date logDate) {
         logs.add(new AndroidLogEntry(type, message, logDate));
-
     }
 
     public void dumpToNewLogger() {

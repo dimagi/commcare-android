@@ -2,6 +2,7 @@ package org.commcare.android.tasks;
 
 import android.util.Pair;
 
+import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.models.AsyncNodeEntityFactory;
 import org.commcare.android.models.Entity;
@@ -59,6 +60,7 @@ public class EntityLoaderTask
             factory.prepareEntities();
             return new Pair<>(full, references);
         } catch (XPathException xe) {
+            XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xe);
             XPathException me = new XPathException("Encountered an xpath error while trying to load and filter the list.");
             me.setSource(xe.getSource());
             xe.printStackTrace();
