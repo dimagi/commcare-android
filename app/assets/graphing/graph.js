@@ -3,16 +3,16 @@
 document.addEventListener("DOMContentLoaded", function(event) {
     var retryFrequency = 10,
         delay = 0;
-    setTimeout(function() {
+    var intervalID = setInterval(function() {
         delay += retryFrequency;
         if (!document.body.offsetWidth || !document.body.offsetHeight) {
             if (delay > 6000) {
                 displayError("Could not find document body.");
-                clearTimeout();
+                clearInterval(intervalID);
             }
             return;
         }
-        clearTimeout();
+        clearInterval(intervalID);
 
         try {
             // Match graph size to view size
