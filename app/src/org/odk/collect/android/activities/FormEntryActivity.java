@@ -52,15 +52,14 @@ import android.widget.Toast;
 import org.commcare.android.analytics.GoogleAnalyticsFields;
 import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.analytics.TimedStatsTracker;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.SaveSessionCommCareActivity;
+import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
@@ -257,7 +256,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             ODKStorage.createODKDirs();
         } catch (RuntimeException e) {
             Logger.exception(e);
-            CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
+            UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), EXIT);
             return;
         }
 
@@ -967,7 +966,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             Log.i(TAG, "created view for group");
         } catch (RuntimeException e) {
             Logger.exception(e);
-            CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
+            UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), EXIT);
             // this is badness to avoid a crash.
             // really a next view should increment the formcontroller, create the view
             // if the view is null, then keep the current view and pop an error.
@@ -1078,8 +1077,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 }
             } while (event != FormEntryController.EVENT_END_OF_FORM);
             }catch(XPathTypeMismatchException e){
-                Logger.exception(e);
-                CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
+                UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
             }
         }
     }
@@ -1263,8 +1261,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         try {
             details = FormNavigationController.calculateNavigationStatus(mFormController, mCurrentView);
         } catch (XPathTypeMismatchException e) {
-            Logger.exception(e);
-            CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
+            UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
             return;
         }
         final boolean backExitsForm = !details.relevantBeforeCurrentScreen;
@@ -1326,7 +1323,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     mFormController.newRepeat();
                 } catch (XPathTypeMismatchException e) {
                     Logger.exception(e);
-                    CommCareActivity.createErrorDialog(FormEntryActivity.this, e.getMessage(), EXIT);
+                    UserfacingErrorHandling.logErrorAndShowDialog(FormEntryActivity.this, e, EXIT);
                     return;
                 }
                 showNextView();
@@ -1824,7 +1821,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             final String contentType = getContentResolver().getType(uri);
             Uri formUri;
             if (contentType == null){
-                CommCareHomeActivity.createErrorDialog(this, "form URI resolved to null", EXIT);
+                UserfacingErrorHandling.createErrorDialog(this, "form URI resolved to null", EXIT);
                 return;
             }
 
@@ -1842,17 +1839,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         break;
                     default:
                         Log.e(TAG, "unrecognized URI");
-                        CommCareHomeActivity.createErrorDialog(this, "unrecognized URI: " + uri, EXIT);
+                        UserfacingErrorHandling.createErrorDialog(this, "unrecognized URI: " + uri, EXIT);
                         return;
                 }
             } catch (FormQueryException e) {
-                CommCareHomeActivity.createErrorDialog(this, e.getMessage(), EXIT);
+                UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), EXIT);
                 return;
             }
 
             if(formUri == null) {
                 Log.e(TAG, "unrecognized URI");
-                CommCareActivity.createErrorDialog(this, "couldn't locate FormDB entry for the item at: " + uri, EXIT);
+                UserfacingErrorHandling.createErrorDialog(this, "couldn't locate FormDB entry for the item at: " + uri, EXIT);
                 return;
             }
 
@@ -1872,9 +1869,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     receiver.dismissProgressDialog();
 
                     if (e != null) {
-                        CommCareActivity.createErrorDialog(receiver, e.getMessage(), EXIT);
+                        UserfacingErrorHandling.createErrorDialog(receiver, e.getMessage(), EXIT);
                     } else {
-                        CommCareActivity.createErrorDialog(receiver, StringUtils.getStringRobust(receiver, R.string.parse_error), EXIT);
+                        UserfacingErrorHandling.createErrorDialog(receiver, StringUtils.getStringRobust(receiver, R.string.parse_error), EXIT);
                     }
                 }
             };
@@ -1961,7 +1958,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void handleXpathErrorBroadcast() {
-        CommCareActivity.createErrorDialog(FormEntryActivity.this,
+        UserfacingErrorHandling.createErrorDialog(FormEntryActivity.this,
                 "There is a bug in one of your form's XPath Expressions \n" + badLocationXpath, EXIT);
     }
 
@@ -2162,7 +2159,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         } catch (XPathException e) {
             //this is where runtime exceptions get triggered after the form has loaded
-            CommCareActivity.createErrorDialog(this, "There is a bug in one of your form's XPath Expressions \n" + e.getMessage(), EXIT);
+            UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
             //We're exiting anyway
             return FormEntryController.ANSWER_OK;
         }
@@ -2313,8 +2310,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         try {
             updateFormRelevancies();
         } catch (XPathTypeMismatchException e) {
-            Logger.exception(e);
-            CommCareActivity.createErrorDialog(this, e.getMessage(), EXIT);
+            UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
             return;
         }
 
