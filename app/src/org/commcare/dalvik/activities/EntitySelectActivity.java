@@ -43,7 +43,7 @@ import android.widget.Toast;
 
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.fragments.ContainerFragment;
-import org.commcare.android.framework.CommCareActivity;
+import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.android.framework.SaveSessionCommCareActivity;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -557,7 +557,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 refreshTimer.start(this);
             }
         } catch (RuntimeException re) {
-            createErrorDialog(re.getMessage(), true);
+            UserfacingErrorHandling.createErrorDialog(this, re.getMessage(), true);
         }
     }
 
@@ -911,8 +911,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         try {
             asw.executeStackActions(action.getStackOperations());
         } catch (XPathTypeMismatchException e) {
-            Logger.exception(e);
-            CommCareActivity.createErrorDialog(this, e.getMessage(), true);
+            UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
             return;
         }
 
