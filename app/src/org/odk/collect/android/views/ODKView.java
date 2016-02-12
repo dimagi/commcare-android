@@ -213,6 +213,12 @@ public class ODKView extends ScrollView
 
         return answers;
     }
+
+    public void setWidgetFromFormControllerState() {
+        for (QuestionWidget q : widgets) {
+            q.setAnswerFromPrompt();
+        }
+    }
     
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {

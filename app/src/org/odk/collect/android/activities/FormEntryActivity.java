@@ -74,13 +74,16 @@ import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.SelectChoice;
+import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.javarosa.form.api.FormEntrySession;
 import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
@@ -170,6 +173,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static final String KEY_INCOMPLETE_ENABLED = "org.odk.collect.form.management";
     public static final String KEY_RESIZING_ENABLED = "org.odk.collect.resizing.enabled";
     private static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
+    public static final String KEY_FORM_ENTRY_SESSION = "form_entry_session";
 
     /**
      * Intent extra flag to track if this form is an archive. Used to trigger
@@ -240,6 +244,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean savingFormOnKeySessionExpiration = false;
     private boolean mGroupForcedInvisible = false;
     private boolean mGroupNativeVisibility = false;
+    private FormEntrySession formEntryRestoreSession;
 
     enum AnimationType {
         LEFT, RIGHT, FADE
@@ -398,6 +403,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putBoolean(KEY_INCOMPLETE_ENABLED, mIncompleteEnabled);
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
+        outState.putSerializable(KEY_FORM_ENTRY_SESSION, formEntryRestoreSession);
 
         if(symetricKey != null) {
             try {
@@ -902,10 +908,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         && mFormController.indexIsInFieldList());
     }
 
-    private void restoreEntrySession() {
-
-    }
-
     /**
      * Clears the answer on the screen.
      */
@@ -1208,6 +1210,37 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             this.mGroupNativeVisibility = true;
             updateGroupViewVisibility();
         }
+        onQuestionViewChanged();
+    }
+
+    private void onQuestionViewChanged() {
+        if (isRestoringFormSession()) {
+            restoreQuestionView();
+        }
+    }
+
+    private boolean isRestoringFormSession() {
+        return formEntryRestoreSession != null && formEntryRestoreSession.size() > 0;
+    }
+
+    private void restoreQuestionView() {
+        for (FormIndex questionIndex : mCurrentView.getAnswers().keySet()) {
+            FormEntrySession.FormEntryAction action = formEntryRestoreSession.peekAction();
+            if (!questionIndex.toString().equals(action.formIndexString)) {
+                break;
+            }
+            while (questionIndex.toString().equals(formEntryRestoreSession.peekAction().formIndexString)) {
+                action = formEntryRestoreSession.popAction();
+                FormEntryPrompt entryPrompt = mFormController.getQuestionPrompt(questionIndex);
+                IAnswerData answerData = AnswerDataFactory.template(entryPrompt.getControlType(), entryPrompt.getDataType()).cast(new UncastData(action.value));
+                saveAnswer(answerData, questionIndex, true);
+            }
+        }
+
+        mCurrentView.setWidgetFromFormControllerState();
+        if (formEntryRestoreSession.size() > 0) {
+            showNextView();
+        }
     }
 
     /**
@@ -1277,6 +1310,18 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
         final boolean backExitsForm = !details.relevantBeforeCurrentScreen;
         final boolean nextExitsForm = details.relevantAfterCurrentScreen == 0;
+
+        if (isRestoringFormSession()) {
+            if (formEntryRestoreSession.peekAction().isNewRepeatAddition) {
+                mFormController.newRepeat();
+                formEntryRestoreSession.popAction();
+            } else if (nextExitsForm) {
+                triggerUserFormComplete();
+                return;
+            }
+            showNextView();
+            return;
+        }
 
         // Assign title and text strings based on the current state
         String title, addAnotherText, skipText, backText;
@@ -2406,6 +2451,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             if(savedInstanceState.containsKey(KEY_HAS_SAVED)) {
                 hasSaved = savedInstanceState.getBoolean(KEY_HAS_SAVED);
             }
+
+            formEntryRestoreSession = (FormEntrySession)savedInstanceState.getSerializable(KEY_FORM_ENTRY_SESSION);
         }
     }
 
@@ -2516,6 +2563,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         if(intent.hasExtra(KEY_RESIZING_ENABLED)) {
             ResizingImageView.resizeMethod = intent.getStringExtra(KEY_RESIZING_ENABLED);
+        }
+        if (intent.hasExtra(KEY_FORM_ENTRY_SESSION)) {
+            formEntryRestoreSession =
+                    FormEntrySession.fromString(intent.getStringExtra(KEY_FORM_ENTRY_SESSION));
         }
     }
 

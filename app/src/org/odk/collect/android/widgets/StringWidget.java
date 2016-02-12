@@ -229,4 +229,9 @@ public class StringWidget extends QuestionWidget implements OnClickListener, Tex
     public void setAnswer(String answer) {
         mAnswer.setText(answer);
     }
+
+    @Override
+    public void setAnswerFromPrompt() {
+        mAnswer.setText((String)mPrompt.getAnswerValue().getValue());
+    }
 }
