@@ -1,4 +1,4 @@
-package org.commcare.android.tasks;
+package org.commcare.android.logging;
 
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -9,20 +9,13 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
-import org.commcare.android.logging.AndroidLogger;
-import org.commcare.android.logging.DeviceReportRecord;
-import org.commcare.android.logging.ForceCloseLogEntry;
-import org.commcare.android.logging.ForceCloseLogSerializer;
+import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.model.User;
-import org.commcare.android.logging.AndroidLogEntry;
-import org.commcare.android.logging.AndroidLogSerializer;
-import org.commcare.android.logging.DeviceReportWriter;
 import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.services.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -34,12 +27,12 @@ import java.util.Date;
 
 /**
  * Catch exceptions that are going to crash the phone, grab the stack trace,
- * and upload to developers.
+ * and upload to device logs.
  *
  * @author csims@dimagi.com
  **/
-public class ExceptionReporting {
-    private static final String TAG = ExceptionReporting.class.getSimpleName();
+public class ForceCloseReporting {
+    private static final String TAG = ForceCloseReporting.class.getSimpleName();
 
     public static void reportExceptionInBg(final Throwable exception) {
         new Thread(new Runnable() {
@@ -97,8 +90,13 @@ public class ExceptionReporting {
         }
     }
 
+    /**
+     * Just try to send the given data, and do nothing it fails (we don't have the option to
+     * save it and try again later, bec
+     * @param dataToSend
+     * @param submissionUri
+     */
     private static void sendWithoutWriting(byte[] dataToSend, String submissionUri) {
-        //TODO: Send this with the standard logging subsystem
         String payload = new String(dataToSend);
         Log.d(TAG, "Outgoing payload: " + payload);
 

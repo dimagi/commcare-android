@@ -16,7 +16,7 @@ import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.logging.AndroidLogger;
-import org.commcare.android.tasks.ExceptionReporting;
+import org.commcare.android.logging.ForceCloseReporting;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
@@ -103,7 +103,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
                             @Override
                             protected void deliverError(RecoveryActivity receiver, Exception e) {
-                                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Error in recovery form send: " + ExceptionReporting.getStackTrace(e));
+                                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Error in recovery form send: " + ForceCloseReporting.getStackTrace(e));
                                 receiver.displayMessage("Error while sending : " + e.getMessage());
                             }
 

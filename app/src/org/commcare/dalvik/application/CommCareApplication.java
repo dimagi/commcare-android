@@ -69,7 +69,7 @@ import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.tasks.DataSubmissionListener;
-import org.commcare.android.tasks.ExceptionReporting;
+import org.commcare.android.logging.ForceCloseReporting;
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.android.tasks.UpdateTask;
@@ -322,6 +322,10 @@ public class CommCareApplication extends Application {
             closeUserSession();
             SessionActivityRegistration.registerSessionExpiration();
             sendBroadcast(new Intent(SessionActivityRegistration.USER_SESSION_EXPIRED));
+
+            // Switch the logger back over to using global storage, now that we don't have a session
+            Logger.registerLogger(new AndroidLogger(
+                    this.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
         }
     }
 
@@ -513,7 +517,7 @@ public class CommCareApplication extends Application {
             Log.i("FAILURE", "Problem with loading");
             Log.i("FAILURE", "E: " + e.getMessage());
             e.printStackTrace();
-            ExceptionReporting.reportExceptionInBg(e);
+            ForceCloseReporting.reportExceptionInBg(e);
             resourceState = STATE_CORRUPTED;
         }
         app.setAppResourceState(resourceState);
@@ -943,7 +947,13 @@ public class CommCareApplication extends Application {
                         }
                     }
 
-                    XPathErrorLogger.registerStorage(getUserStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
+                    // Switch the logger over to using user storage while there is a session
+                    Logger.registerLogger(new AndroidLogger(getUserStorage(AndroidLogEntry.STORAGE_KEY,
+                            AndroidLogEntry.class)));
+
+                    // Initialize the XPathErrorLogger with a user storage object to write to
+                    XPathErrorLogger.registerStorage(getUserStorage(XPathErrorEntry.STORAGE_KEY,
+                            XPathErrorEntry.class));
 
                     //service available
                     mIsBound = true;

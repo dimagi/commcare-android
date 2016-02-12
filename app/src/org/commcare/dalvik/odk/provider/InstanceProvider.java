@@ -22,7 +22,7 @@ import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.logic.FormRecordProcessor;
 import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
-import org.commcare.android.tasks.ExceptionReporting;
+import org.commcare.android.logging.ForceCloseReporting;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.SessionUnavailableException;
@@ -496,7 +496,7 @@ public class InstanceProvider extends ContentProvider {
             FormRecordCleanupTask.wipeRecord(getContext(), currentState);
 
             // Notify the server of this problem (since we aren't going to crash)
-            ExceptionReporting.reportExceptionInBg(e);
+            ForceCloseReporting.reportExceptionInBg(e);
 
             raiseFormEntryError("An error occurred: " + e.getMessage() +
                     " and your data could not be saved.", currentState);
