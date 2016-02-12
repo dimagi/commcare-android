@@ -14,7 +14,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 /**
- * Generic logic for storing stats/logs in app preference storage layer.
+ * Generic logic for storing stats in app preference storage layer.
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
