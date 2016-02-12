@@ -159,4 +159,9 @@ public class TriggerWidget extends QuestionWidget {
         mTriggerButton.cancelLongPress();
         mStringAnswer.cancelLongPress();
     }
+
+    @Override
+    public void setAnswerFromPrompt() {
+        mStringAnswer.setText((String)mPrompt.getAnswerValue().getValue());
+    }
 }

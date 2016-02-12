@@ -158,4 +158,8 @@ public class IntegerWidget extends StringWidget {
         // don't revert click behavior in this case since it might be customized.
     }
 
+    @Override
+    public void setAnswerFromPrompt() {
+        mAnswer.setText(((Integer)mPrompt.getAnswerValue().getValue()).toString());
+    }
 }

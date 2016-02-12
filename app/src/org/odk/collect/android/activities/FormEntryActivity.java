@@ -1224,15 +1224,24 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void restoreQuestionView() {
-        for (FormIndex questionIndex : mCurrentView.getAnswers().keySet()) {
+        for (QuestionWidget widget : mCurrentView.getWidgets()) {
+            FormIndex questionIndex = widget.getPrompt().getIndex();
+
             FormEntrySession.FormEntryAction action = formEntryRestoreSession.peekAction();
+            while (action.isSkipAction()) {
+                action = formEntryRestoreSession.popAction();
+            }
             if (!questionIndex.toString().equals(action.formIndexString)) {
+                Log.d(TAG, "skipping");
                 break;
             }
             while (questionIndex.toString().equals(formEntryRestoreSession.peekAction().formIndexString)) {
                 action = formEntryRestoreSession.popAction();
                 FormEntryPrompt entryPrompt = mFormController.getQuestionPrompt(questionIndex);
                 IAnswerData answerData = AnswerDataFactory.template(entryPrompt.getControlType(), entryPrompt.getDataType()).cast(new UncastData(action.value));
+                if (answerData == null) {
+                    Log.w(TAG, "answer is null");
+                }
                 saveAnswer(answerData, questionIndex, true);
             }
         }
@@ -1312,9 +1321,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         final boolean nextExitsForm = details.relevantAfterCurrentScreen == 0;
 
         if (isRestoringFormSession()) {
-            if (formEntryRestoreSession.peekAction().isNewRepeatAddition) {
+            if (formEntryRestoreSession.peekAction().isNewRepeatAction()) {
                 mFormController.newRepeat();
-                formEntryRestoreSession.popAction();
+                while(formEntryRestoreSession.popAction().isNewRepeatAction()) {}
             } else if (nextExitsForm) {
                 triggerUserFormComplete();
                 return;

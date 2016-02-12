@@ -1,6 +1,7 @@
 package org.odk.collect.android.widgets;
 
 import android.content.Context;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -197,7 +198,12 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
 
     @Override
     public void setAnswerFromPrompt() {
-        String selectionStr = mPrompt.getAnswerValue().uncast().getString();
+        IAnswerData answerData = mPrompt.getAnswerValue();
+        if (answerData == null) {
+            Log.w(this.getClass().getSimpleName(), "no data set");
+            return;
+        }
+        String selectionStr = answerData.uncast().getString();
 
         for (int i = 0; i < mItems.size(); i++) {
             if (mItems.get(i).getValue().equals(selectionStr)) {
