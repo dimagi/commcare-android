@@ -16,6 +16,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.logging.DeviceReportRecord;
+import org.commcare.android.logging.XPathErrorEntry;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.User;
@@ -41,9 +42,10 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.8 - Merge commcare-odk and commcare User, make AUser legacy type.
      * V.9 - Update serialized fixtures in db to use new schema
      * V.10 - Migration of FormRecord to add appId field
+     * V.11 - Add table for storing xpath errors for specific cc app versions
      */
 
-    private static final int USER_DB_VERSION = 10;
+    private static final int USER_DB_VERSION = 11;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 
@@ -87,6 +89,12 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             builder = new AndroidTableBuilder(DeviceReportRecord.class);
+            database.execSQL(builder.getTableCreateString());
+
+            // add table for dedicated xpath error logging for reporting xpath
+            // errors on specific cc app builds.
+            builder = new AndroidTableBuilder(XPathErrorEntry.STORAGE_KEY);
+            builder.addData(new XPathErrorEntry());
             database.execSQL(builder.getTableCreateString());
 
             builder = new AndroidTableBuilder("fixture");

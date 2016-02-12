@@ -39,8 +39,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
 import org.acra.annotation.ReportsCrashes;
-import org.commcare.android.logging.XPathErrorEntry;
-import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.analytics.TimedStatsTracker;
 import org.commcare.android.database.AndroidDbHelper;
@@ -58,6 +56,8 @@ import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.logging.AndroidLogEntry;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logging.PreInitLogger;
+import org.commcare.android.logging.XPathErrorEntry;
+import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.notifications.NotificationClearReceiver;
@@ -238,7 +238,6 @@ public class CommCareApplication extends Application {
             Logger.registerLogger(new AndroidLogger(this.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
             pil.dumpToNewLogger();
         }
-        XPathErrorLogger.registerStorage(getGlobalStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
 
         intializeDefaultLocalizerData();
 
@@ -943,6 +942,8 @@ public class CommCareApplication extends Application {
                             }
                         }
                     }
+
+                    XPathErrorLogger.registerStorage(getUserStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
 
                     //service available
                     mIsBound = true;

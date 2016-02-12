@@ -1,5 +1,6 @@
 package org.commcare.android.logging;
 
+import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -20,6 +21,7 @@ public class XPathErrorEntry extends AndroidLogEntry {
     private String appId;
     private String expression;
     private String sessionFramePath;
+    private String userId;
 
     public XPathErrorEntry() {
         // for externalization
@@ -33,9 +35,11 @@ public class XPathErrorEntry extends AndroidLogEntry {
         } else {
             this.expression = expression;
         }
+
         this.sessionFramePath = ReportingUtils.getCurrentSession();
         this.appVersion = ReportingUtils.getAppBuildNumber();
         this.appId = ReportingUtils.getAppId();
+        this.userId = CommCareApplication._().getCurrentUserId();
     }
 
     public String getExpression() {
@@ -54,6 +58,10 @@ public class XPathErrorEntry extends AndroidLogEntry {
         return appId;
     }
 
+    public String getUserId() {
+        return userId;
+    }
+
     @Override
     public String toString() {
         return getTime().toString() + " | " +
@@ -70,6 +78,7 @@ public class XPathErrorEntry extends AndroidLogEntry {
         appId = ExtUtil.readString(in);
         expression = ExtUtil.readString(in);
         sessionFramePath = ExtUtil.readString(in);
+        userId = ExtUtil.readString(in);
     }
 
     @Override
@@ -80,5 +89,6 @@ public class XPathErrorEntry extends AndroidLogEntry {
         ExtUtil.writeString(out, appId);
         ExtUtil.writeString(out, expression);
         ExtUtil.writeString(out, sessionFramePath);
+        ExtUtil.writeString(out, userId);
     }
 }

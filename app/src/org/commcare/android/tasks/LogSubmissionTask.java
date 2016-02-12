@@ -7,17 +7,16 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntity;
-import org.commcare.android.logging.XPathErrorEntry;
-import org.commcare.android.logging.XPathErrorSerializer;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
-import org.javarosa.core.model.User;
 import org.commcare.android.io.DataSubmissionEntity;
 import org.commcare.android.logging.AndroidLogEntry;
 import org.commcare.android.logging.AndroidLogSerializer;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logging.DeviceReportRecord;
 import org.commcare.android.logging.DeviceReportWriter;
+import org.commcare.android.logging.XPathErrorEntry;
+import org.commcare.android.logging.XPathErrorSerializer;
 import org.commcare.android.mime.EncryptedFileBody;
 import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
@@ -26,6 +25,7 @@ import org.commcare.android.tasks.LogSubmissionTask.LogSubmitOutcomes;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 
 import java.io.File;
@@ -162,7 +162,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             AndroidLogSerializer logSerializer = new AndroidLogSerializer(CommCareApplication._().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
             reporter.addReportElement(logSerializer);
 
-            XPathErrorSerializer xpathErrorSerializer = new XPathErrorSerializer(CommCareApplication._().getGlobalStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
+            XPathErrorSerializer xpathErrorSerializer = new XPathErrorSerializer(CommCareApplication._().getUserStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
             reporter.addReportElement(xpathErrorSerializer);
 
             // Serialize logs to the record

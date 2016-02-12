@@ -72,6 +72,7 @@ public class XPathErrorSerializer
             serializer.attribute(null, "date", dateString);
             writeText("type", errorEntry.getType());
             writeText("msg", errorEntry.getMessage());
+            writeText("user_id", errorEntry.getUserId());
             writeText("session", errorEntry.getSessionPath());
             writeText("version", errorEntry.getAppVersion() + "");
             writeText("app_id", errorEntry.getAppId());
