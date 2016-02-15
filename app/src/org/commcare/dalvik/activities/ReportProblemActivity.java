@@ -1,7 +1,6 @@
 package org.commcare.dalvik.activities;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -14,9 +13,7 @@ import android.widget.Toast;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logging.ReportingUtils;
-import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 
 public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportProblemActivity> implements OnClickListener {
