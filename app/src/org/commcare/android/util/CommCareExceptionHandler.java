@@ -3,7 +3,7 @@ package org.commcare.android.util;
 import android.content.Context;
 import android.content.Intent;
 
-import org.commcare.android.logging.ForceCloseReporting;
+import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.dalvik.activities.CrashWarningActivity;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -31,7 +31,7 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
     @Override
     public void uncaughtException(Thread thread, Throwable ex) {
         // Always report to HQ device logs
-        ForceCloseReporting.reportExceptionInBg(ex);
+        ForceCloseLogger.reportExceptionInBg(ex);
 
         if (warnUserAndExit(ex)) {
             // You must close the crashed thread in order to start a new activity.

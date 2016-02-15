@@ -6,7 +6,7 @@ import android.util.Pair;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.logging.ForceCloseReporting;
+import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.core.process.XmlFormRecordProcessor;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -180,7 +180,7 @@ public class FormRecordProcessor {
             reporter.append("PASS: Linear scan of ").append(label).append(". ").append(accumulated).append(" bytes read in total\n");
             return true;
         } catch (Exception e) {
-            reporter.append("FAILURE: Error during linear scan of ").append(label).append("\n").append(ForceCloseReporting.getStackTrace(e));
+            reporter.append("FAILURE: Error during linear scan of ").append(label).append("\n").append(ForceCloseLogger.getStackTrace(e));
             return false;
         } finally {
             try {
@@ -207,7 +207,7 @@ public class FormRecordProcessor {
             reporter.append("PASS: Instance file reads as valid XML\n");
             return true;
         } catch (Exception e) {
-            reporter.append("FAILURE: XML Instance file could not be validated\n").append(ForceCloseReporting.getStackTrace(e));
+            reporter.append("FAILURE: XML Instance file could not be validated\n").append(ForceCloseLogger.getStackTrace(e));
             return false;
         } finally {
             try {

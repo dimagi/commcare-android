@@ -17,6 +17,7 @@ import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.logging.AndroidLogEntry;
 import org.commcare.android.logging.DeviceReportRecord;
+import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.XPathErrorEntry;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -44,7 +45,7 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.9 - Update serialized fixtures in db to use new schema
      * V.10 - Migration of FormRecord to add appId field
      * V.11 - Add table for storing xpath errors for specific cc app versions
-     * V.12 - Add table for storing device logs in user storage
+     * V.12 - Add tables for storing normal device logs and force close logs in user storage
      */
 
     private static final int USER_DB_VERSION = 12;
@@ -99,10 +100,14 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
             builder.addData(new XPathErrorEntry());
             database.execSQL(builder.getTableCreateString());
 
-            // Add table for storing logs in user storage (as opposed to global storage) whenever
-            // possible
+            // Add tables for storing normal device logs and force close logs in user storage
+            // (as opposed to global storage) whenever possible
             builder = new AndroidTableBuilder(AndroidLogEntry.STORAGE_KEY);
             builder.addData(new AndroidLogEntry());
+            database.execSQL(builder.getTableCreateString());
+
+            builder = new AndroidTableBuilder(ForceCloseLogEntry.STORAGE_KEY);
+            builder.addData(new ForceCloseLogEntry());
             database.execSQL(builder.getTableCreateString());
 
             builder = new AndroidTableBuilder("fixture");

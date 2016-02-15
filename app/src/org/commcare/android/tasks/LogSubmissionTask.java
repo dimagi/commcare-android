@@ -15,6 +15,8 @@ import org.commcare.android.logging.AndroidLogSerializer;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logging.DeviceReportRecord;
 import org.commcare.android.logging.DeviceReportWriter;
+import org.commcare.android.logging.ForceCloseLogEntry;
+import org.commcare.android.logging.ForceCloseLogSerializer;
 import org.commcare.android.logging.XPathErrorEntry;
 import org.commcare.android.logging.XPathErrorSerializer;
 import org.commcare.android.mime.EncryptedFileBody;
@@ -140,7 +142,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
         DeviceReportRecord record;
         try {
-            record = DeviceReportRecord.generateRecordStubForAllLogs();
+            record = DeviceReportRecord.generateNewRecordStub();
         } catch (SessionUnavailableException e) {
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "User database closed while trying to submit");
             return false;
@@ -158,13 +160,22 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                 return false;
             }
 
-            // Serialize all logs for the current user (both normal and xpath-error-related)
+            // Serialize all logs for the current user (normal and xpath errors)
             AndroidLogSerializer userLogSerializer = new AndroidLogSerializer(
                     CommCareApplication._().getUserStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
             reporter.addReportElement(userLogSerializer);
 
-            XPathErrorSerializer xpathErrorSerializer = new XPathErrorSerializer(CommCareApplication._().getUserStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
+            XPathErrorSerializer xpathErrorSerializer = new XPathErrorSerializer(
+                    CommCareApplication._().getUserStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
             reporter.addReportElement(xpathErrorSerializer);
+
+            // Serialize all force close logs -- these can exist in both user and global storage
+            ForceCloseLogSerializer globalForceCloseSerializer = new ForceCloseLogSerializer(
+                    CommCareApplication._().getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+            reporter.addReportElement(globalForceCloseSerializer);
+            ForceCloseLogSerializer userForceCloseSerializer = new ForceCloseLogSerializer(
+                    CommCareApplication._().getUserStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+            reporter.addReportElement(userForceCloseSerializer);
 
             // Serialize all logs currently in global storage, since we have no way to determine
             // which app they truly belong to
@@ -182,6 +193,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             userLogSerializer.purge();
             globalLogSerializer.purge();
             xpathErrorSerializer.purge();
+            globalForceCloseSerializer.purge();
+            userForceCloseSerializer.purge();
         } catch (Exception e) {
             //Bad times!
             e.printStackTrace();
@@ -217,9 +230,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             return true;
         }
 
-        if (listener != null) {
-            listener.startSubmission(index, f.length());
-        }
+        listener.startSubmission(index, f.length());
 
         HttpRequestGenerator generator;
         User user;
@@ -236,12 +247,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             generator = new HttpRequestGenerator(user);
         }
 
-        MultipartEntity entity;
-        if (listener != null) {
-            entity = new DataSubmissionEntity(listener, index);
-        } else {
-            entity = new MultipartEntity();
-        }
+        MultipartEntity entity = new DataSubmissionEntity(listener, index);
 
         EncryptedFileBody fb = new EncryptedFileBody(f, getDecryptCipher(new SecretKeySpec(slr.getKey(), "AES")), ContentType.TEXT_XML);
         entity.addPart("xml_submission_file", fb);

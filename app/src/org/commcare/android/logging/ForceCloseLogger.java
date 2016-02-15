@@ -8,7 +8,6 @@ import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -31,72 +30,59 @@ import java.util.Date;
  *
  * @author csims@dimagi.com
  **/
-public class ForceCloseReporting {
-    private static final String TAG = ForceCloseReporting.class.getSimpleName();
+public class ForceCloseLogger {
+    private static final String TAG = ForceCloseLogger.class.getSimpleName();
+
+    private static SqlStorage<ForceCloseLogEntry> logStorage;
+
+    public static void registerStorage(SqlStorage<ForceCloseLogEntry> storage) {
+        logStorage = storage;
+    }
 
     public static void reportExceptionInBg(final Throwable exception) {
         new Thread(new Runnable() {
             public void run() {
-                sendExceptionToServer(exception);
+                sendToServerOrStore(exception);
             }
         }).start();
     }
 
-    private static void sendExceptionToServer(Throwable exception) {
-        DeviceReportRecord record = null;
-        ByteArrayOutputStream baos = null;
-        try {
-            // We had a session and were able to create a DeviceReportRecord, so will send the error
-            // using that. This is preferable when possible, because it means that if the send
-            // fails, we have still written the DeviceReportRecord to storage, and will attempt
-            // to send it again later
-            record = DeviceReportRecord.generateRecordStubForForceCloses();
-        } catch (SessionUnavailableException e) {
-            // The forceclose occurred when a user was not logged in, so we don't have a session
-            // to store the record to; just use a temp output stream instead
-            baos = new ByteArrayOutputStream();
-        }
-
+    /**
+     * Attempts to send a force close report for the given exception to the server
+     * immediately. If this fails, instead writes the exception to storage as a ForceCloseLogEntry,
+     * so that we can attempt to send it again later during a normal LogSubmissionTask
+     */
+    private static void sendToServerOrStore(Throwable exception) {
+        ByteArrayOutputStream streamToWriteErrorTo = new ByteArrayOutputStream();
         String exceptionText = getStackTrace(exception);
         String submissionUri = getSubmissionUri();
+        ForceCloseLogEntry entry = new ForceCloseLogEntry(exceptionText);
         DeviceReportWriter reportWriter;
 
         try {
-            reportWriter = new DeviceReportWriter(record != null ? record.openOutputStream() : baos);
-            reportWriter.addReportElement(new ForceCloseLogSerializer(
-                    new ForceCloseLogEntry(exceptionText)));
+            reportWriter = new DeviceReportWriter(streamToWriteErrorTo);
+            reportWriter.addReportElement(new ForceCloseLogSerializer(entry));
             reportWriter.write();
-
-            if (record == null) {
-                sendWithoutWriting(baos.toByteArray(), submissionUri);
-            } else {
-                if (!LogSubmissionTask.submitDeviceReportRecord(record, submissionUri, null, -1)) {
-                    // If submission failed, write this record to storage so we can send it later
-                    try {
-                        SqlStorage<DeviceReportRecord> storage =
-                                CommCareApplication._().getUserStorage(DeviceReportRecord.class);
-                        storage.write(record);
-                    } catch (UserStorageClosedException e) {
-                        // Nothing we can do, storage was somehow closed before we got a chance to write
-                    }
-                }
+            if (!sendErrorToServer(streamToWriteErrorTo.toByteArray(), submissionUri)) {
+                writeErrorToStorage(entry);
             }
         } catch (IOException e) {
-            // Couldn't create a report writer, so just manually create the data we want to send
             e.printStackTrace();
+            // Couldn't create a report writer, so just manually create the data we want to send
             String fsDate = new Date().toString();
             byte[] data = ("<?xml version='1.0' ?><n0:device_report xmlns:n0=\"http://code.javarosa.org/devicereport\"><device_id>FAILSAFE</device_id><report_date>" + fsDate + "</report_date><log_subreport><log_entry date=\"" + fsDate + "\"><entry_type>forceclose</entry_type><entry_message>" + exceptionText + "</entry_message></log_entry></log_subreport></device_report>").getBytes();
-            sendWithoutWriting(data, submissionUri);
+            if (!sendErrorToServer(data, submissionUri)) {
+                writeErrorToStorage(entry);
+            }
         }
     }
 
     /**
-     * Just try to send the given data, and do nothing it fails (we don't have the option to
-     * save it and try again later, bec
-     * @param dataToSend
-     * @param submissionUri
+     * Try to send the given data to the given uri
+     *
+     * @return If send was successful
      */
-    private static void sendWithoutWriting(byte[] dataToSend, String submissionUri) {
+    private static boolean sendErrorToServer(byte[] dataToSend, String submissionUri) {
         String payload = new String(dataToSend);
         Log.d(TAG, "Outgoing payload: " + payload);
 
@@ -114,6 +100,7 @@ public class ForceCloseReporting {
         } catch (IllegalCharsetNameException | UnsupportedEncodingException
                 | UnsupportedCharsetException e1) {
             e1.printStackTrace();
+            return false;
         }
 
         HttpRequestGenerator generator;
@@ -135,6 +122,15 @@ public class ForceCloseReporting {
             Log.d(TAG, "Response: " + new String(bos.toByteArray()));
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    private static void writeErrorToStorage(ForceCloseLogEntry entry) {
+        if (logStorage != null) {
+            logStorage.write(entry);
         }
     }
 

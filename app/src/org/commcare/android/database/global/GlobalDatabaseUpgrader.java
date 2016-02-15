@@ -4,12 +4,15 @@ import android.content.Context;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.ConcreteAndroidDbHelper;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.MigrationException;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.global.models.ApplicationRecordV1;
+import org.commcare.android.logging.AndroidLogEntry;
+import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.ProviderUtils;
 import org.javarosa.core.services.storage.Persistable;
@@ -35,6 +38,11 @@ class GlobalDatabaseUpgrader {
         if (oldVersion == 2) {
             if (upgradeTwoThree(db)) {
                 oldVersion = 3;
+            }
+        }
+        if (oldVersion == 3) {
+            if (upgradeThreeFour(db)) {
+                oldVersion = 4;
             }
         }
     }
@@ -90,6 +98,22 @@ class GlobalDatabaseUpgrader {
                 db.setTransactionSuccessful();
                 return true;
             }
+            return false;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean upgradeThreeFour(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            AndroidTableBuilder builder = new AndroidTableBuilder(ForceCloseLogEntry.STORAGE_KEY);
+            builder.addData(new ForceCloseLogEntry());
+            db.execSQL(builder.getTableCreateString());
+
+            db.setTransactionSuccessful();
+            return true;
+        } catch (Exception e) {
             return false;
         } finally {
             db.endTransaction();

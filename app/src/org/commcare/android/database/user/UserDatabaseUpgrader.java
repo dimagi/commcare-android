@@ -22,6 +22,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.logging.AndroidLogEntry;
+import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.XPathErrorEntry;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -343,11 +344,14 @@ class UserDatabaseUpgrader {
     private boolean upgradeElevenTwelve(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            // Add table for storing logs in user storage (as opposed to global storage) whenever
-            // possible
             AndroidTableBuilder builder = new AndroidTableBuilder(AndroidLogEntry.STORAGE_KEY);
             builder.addData(new AndroidLogEntry());
             db.execSQL(builder.getTableCreateString());
+
+            builder = new AndroidTableBuilder(ForceCloseLogEntry.STORAGE_KEY);
+            builder.addData(new ForceCloseLogEntry());
+            db.execSQL(builder.getTableCreateString());
+
             db.setTransactionSuccessful();
             return true;
         } catch (Exception e) {

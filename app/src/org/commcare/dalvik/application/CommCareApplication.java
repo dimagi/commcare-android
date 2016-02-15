@@ -55,6 +55,7 @@ import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.logging.AndroidLogEntry;
 import org.commcare.android.logging.AndroidLogger;
+import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.android.logging.PreInitLogger;
 import org.commcare.android.logging.XPathErrorEntry;
 import org.commcare.android.logging.XPathErrorLogger;
@@ -69,7 +70,7 @@ import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.android.storage.framework.Table;
 import org.commcare.android.tasks.DataSubmissionListener;
-import org.commcare.android.logging.ForceCloseReporting;
+import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.tasks.LogSubmissionTask;
 import org.commcare.android.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.android.tasks.UpdateTask;
@@ -235,7 +236,10 @@ public class CommCareApplication extends Application {
             throw new RuntimeException(sfe);
         } finally {
             //No matter what happens, set up our new logger, we want those logs!
-            Logger.registerLogger(new AndroidLogger(this.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+            Logger.registerLogger(new AndroidLogger(
+                    getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+            ForceCloseLogger.registerStorage(
+                    getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
             pil.dumpToNewLogger();
         }
 
@@ -310,9 +314,11 @@ public class CommCareApplication extends Application {
 
             releaseUserResourcesAndServices();
 
-            // Switch the logger back over to using global storage, now that we don't have a session
+            // Switch loggers back over to using global storage, now that we don't have a session
             Logger.registerLogger(new AndroidLogger(
                     this.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+            ForceCloseLogger.registerStorage(
+                    this.getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
         }
     }
 
@@ -517,7 +523,7 @@ public class CommCareApplication extends Application {
             Log.i("FAILURE", "Problem with loading");
             Log.i("FAILURE", "E: " + e.getMessage());
             e.printStackTrace();
-            ForceCloseReporting.reportExceptionInBg(e);
+            ForceCloseLogger.reportExceptionInBg(e);
             resourceState = STATE_CORRUPTED;
         }
         app.setAppResourceState(resourceState);
@@ -947,9 +953,12 @@ public class CommCareApplication extends Application {
                         }
                     }
 
-                    // Switch the logger over to using user storage while there is a session
+                    // Switch the regular and forece close loggers over to using user storage while
+                    // there is a session
                     Logger.registerLogger(new AndroidLogger(getUserStorage(AndroidLogEntry.STORAGE_KEY,
                             AndroidLogEntry.class)));
+                    ForceCloseLogger.registerStorage(getUserStorage(ForceCloseLogEntry.STORAGE_KEY,
+                            ForceCloseLogEntry.class));
 
                     // Initialize the XPathErrorLogger with a user storage object to write to
                     XPathErrorLogger.registerStorage(getUserStorage(XPathErrorEntry.STORAGE_KEY,

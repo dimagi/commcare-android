@@ -10,7 +10,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.UserSandboxUtils;
 import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.logging.AndroidLogger;
-import org.commcare.android.logging.ForceCloseReporting;
+import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.net.HttpRequestGenerator;
@@ -562,7 +562,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "IO Error while migrating database: " + ioe.getMessage());
             return false;
         } catch (Exception e) {
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ForceCloseReporting.getStackTrace(e));
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ForceCloseLogger.getStackTrace(e));
             return false;
         }
     }

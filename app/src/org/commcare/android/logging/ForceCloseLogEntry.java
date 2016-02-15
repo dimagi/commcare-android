@@ -26,6 +26,13 @@ public class ForceCloseLogEntry extends AndroidLogEntry {
     private String readableSessionString;
     private String serializedSessionString;
 
+    /**
+     * Serialization only
+     */
+    public ForceCloseLogEntry() {
+
+    }
+
     public ForceCloseLogEntry(String stackTrace) {
         super(AndroidLogger.TYPE_FORCECLOSE, stackTrace, new Date());
         appBuildNumber = ReportingUtils.getAppBuildNumber();
