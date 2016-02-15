@@ -3,6 +3,7 @@ package org.commcare.android.models;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.user.models.EntityStorageCache;
+import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -38,7 +39,6 @@ public class AsyncEntity extends Entity<TreeReference> {
     private final Object[] data;
     private final String[] sortData;
     private final boolean[] relevancyData;
-    private final String[] backgroundData;
     private final String[][] sortDataPieces;
     private final EvaluationContext context;
     private final Hashtable<String, XPathExpression> mVariableDeclarations;
@@ -68,7 +68,6 @@ public class AsyncEntity extends Entity<TreeReference> {
         this.sortData = new String[fields.length];
         this.sortDataPieces = new String[fields.length][];
         this.relevancyData = new boolean[fields.length];
-        this.backgroundData = new String[fields.length];
         this.context = ec;
         this.mVariableDeclarations = variables;
         this.mEntityStorageCache = cache;
@@ -102,6 +101,7 @@ public class AsyncEntity extends Entity<TreeReference> {
                 try {
                     data[i] = fields[i].getTemplate().evaluate(context);
                 } catch (XPathException xpe) {
+                    XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
                     xpe.printStackTrace();
                     data[i] = "<invalid xpath: " + xpe.getMessage() + ">";
                 }
@@ -165,6 +165,7 @@ public class AsyncEntity extends Entity<TreeReference> {
 
                         mEntityStorageCache.cache(mCacheIndex, cacheKey, sortData[i]);
                     } catch (XPathException xpe) {
+                        XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
                         xpe.printStackTrace();
                         sortData[i] = "<invalid xpath: " + xpe.getMessage() + ">";
                     }
@@ -198,7 +199,9 @@ public class AsyncEntity extends Entity<TreeReference> {
             try {
                 this.relevancyData[fieldIndex] = this.fields[fieldIndex].isRelevant(this.context);
             } catch (XPathSyntaxException e) {
-                throw new RuntimeException("Invalid relevant condition for field : " + fields[fieldIndex].getHeader().toString());
+                final String msg = "Invalid relevant condition for field : " + fields[fieldIndex].getHeader().toString();
+                XPathErrorLogger.INSTANCE.logErrorToCurrentApp("unknown", msg);
+                throw new RuntimeException(msg);
             }
             return this.relevancyData[fieldIndex];
         }

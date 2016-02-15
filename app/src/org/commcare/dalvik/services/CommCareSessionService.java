@@ -20,7 +20,7 @@ import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.DatabaseUserOpenHelper;
 import org.commcare.android.database.user.UserSandboxUtils;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.SessionStateUninitException;
