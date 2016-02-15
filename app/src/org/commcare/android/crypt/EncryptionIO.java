@@ -1,6 +1,6 @@
 package org.commcare.android.crypt;
 
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.javarosa.core.services.Logger;
 
 import java.io.BufferedInputStream;

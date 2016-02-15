@@ -14,7 +14,7 @@ import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.storage.FormSaveUtil;
 import org.commcare.android.tasks.network.DataPullRequester;

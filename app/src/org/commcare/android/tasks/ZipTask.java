@@ -6,7 +6,7 @@ import android.util.Log;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.ProcessIssues;
 import org.commcare.android.tasks.templates.CommCareTask;

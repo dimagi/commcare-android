@@ -30,7 +30,7 @@ import org.commcare.android.framework.CommCareActivityUIController;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.android.framework.WithUIController;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
