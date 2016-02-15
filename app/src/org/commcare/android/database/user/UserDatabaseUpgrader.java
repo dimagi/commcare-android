@@ -21,6 +21,7 @@ import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.logging.AndroidLogEntry;
 import org.commcare.android.logging.XPathErrorEntry;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -101,9 +102,16 @@ class UserDatabaseUpgrader {
                 oldVersion = 10;
             }
         }
+
         if (oldVersion == 10) {
             if (upgradeTenEleven(db)) {
                 oldVersion = 11;
+            }
+        }
+
+        if (oldVersion == 11) {
+            if (upgradeElevenTwelve(db)) {
+                oldVersion = 12;
             }
         }
     }
@@ -332,6 +340,22 @@ class UserDatabaseUpgrader {
         }
     }
 
+    private boolean upgradeElevenTwelve(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            // Add table for storing logs in user storage (as opposed to global storage) whenever
+            // possible
+            AndroidTableBuilder builder = new AndroidTableBuilder(AndroidLogEntry.STORAGE_KEY);
+            builder.addData(new AndroidLogEntry());
+            db.execSQL(builder.getTableCreateString());
+            db.setTransactionSuccessful();
+            return true;
+        } catch (Exception e) {
+            return false;
+        } finally {
+            db.endTransaction();
+        }
+    }
 
     private void updateIndexes(SQLiteDatabase db) {
         db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_id_index", "AndroidCase", "case_id"));

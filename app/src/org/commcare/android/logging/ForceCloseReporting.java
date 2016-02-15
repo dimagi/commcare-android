@@ -77,7 +77,7 @@ public class ForceCloseReporting {
                                 CommCareApplication._().getUserStorage(DeviceReportRecord.class);
                         storage.write(record);
                     } catch (UserStorageClosedException e) {
-
+                        // Nothing we can do, storage was somehow closed before we got a chance to write
                     }
                 }
             }
