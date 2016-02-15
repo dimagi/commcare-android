@@ -158,14 +158,13 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                 return false;
             }
 
-            String currentAppId = CommCareApplication._().getCurrentApp().getUniqueId();
-            SqlStorage<AndroidLogEntry> userLogStorage =
-                    CommCareApplication._().getUserStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class);
-            // Only actually send those logs in user storage whose app id matches the current app id
+            // Serialize all logs for the current user (both normal and xpath-error-related)
             AndroidLogSerializer userLogSerializer = new AndroidLogSerializer(
-                    userLogStorage,
-                    userLogStorage.getRecordsForValue(AndroidLogEntry.META_APP_ID, currentAppId));
+                    CommCareApplication._().getUserStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
             reporter.addReportElement(userLogSerializer);
+
+            XPathErrorSerializer xpathErrorSerializer = new XPathErrorSerializer(CommCareApplication._().getUserStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
+            reporter.addReportElement(xpathErrorSerializer);
 
             // Serialize all logs currently in global storage, since we have no way to determine
             // which app they truly belong to
@@ -173,11 +172,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                     CommCareApplication._().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
             reporter.addReportElement(globalLogSerializer);
 
-            // TODO: Make XpathErrorSerializer also only send logs from the current app
-            XPathErrorSerializer xpathErrorSerializer = new XPathErrorSerializer(CommCareApplication._().getUserStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
-            reporter.addReportElement(xpathErrorSerializer);
-
-            // Serialize logs to the record
+            // Write serialized logs to the record
             reporter.write();
 
             // Write this DeviceReportRecord to where all logs are saved to
