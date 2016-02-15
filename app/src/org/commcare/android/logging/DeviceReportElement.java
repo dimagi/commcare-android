@@ -1,4 +1,4 @@
-package org.commcare.android.javarosa;
+package org.commcare.android.logging;
 
 import org.xmlpull.v1.XmlSerializer;
 

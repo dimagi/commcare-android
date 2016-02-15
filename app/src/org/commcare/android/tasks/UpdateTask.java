@@ -2,7 +2,7 @@ package org.commcare.android.tasks;
 
 import android.content.Context;
 
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.resource.ResourceInstallUtils;
