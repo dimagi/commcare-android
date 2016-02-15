@@ -2,8 +2,6 @@ package org.commcare.android.logging;
 
 import android.support.v4.util.Pair;
 
-import org.commcare.android.javarosa.AndroidLogEntry;
-import org.commcare.android.javarosa.AndroidLogger;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
