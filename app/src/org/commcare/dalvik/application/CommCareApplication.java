@@ -309,6 +309,10 @@ public class CommCareApplication extends Application {
             ManagedAsyncTask.cancelTasks();
 
             releaseUserResourcesAndServices();
+
+            // Switch the logger back over to using global storage, now that we don't have a session
+            Logger.registerLogger(new AndroidLogger(
+                    this.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
         }
     }
 
@@ -322,10 +326,6 @@ public class CommCareApplication extends Application {
             closeUserSession();
             SessionActivityRegistration.registerSessionExpiration();
             sendBroadcast(new Intent(SessionActivityRegistration.USER_SESSION_EXPIRED));
-
-            // Switch the logger back over to using global storage, now that we don't have a session
-            Logger.registerLogger(new AndroidLogger(
-                    this.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
         }
     }
 
