@@ -15,7 +15,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.FormUploadUtil;

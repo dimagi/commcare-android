@@ -9,7 +9,7 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import org.commcare.android.crypt.EncryptionIO;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;

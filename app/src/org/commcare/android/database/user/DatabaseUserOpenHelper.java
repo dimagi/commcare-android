@@ -15,7 +15,7 @@ import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.android.javarosa.DeviceReportRecord;
+import org.commcare.android.logging.DeviceReportRecord;
 import org.commcare.android.logging.XPathErrorEntry;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
