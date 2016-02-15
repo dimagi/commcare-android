@@ -18,8 +18,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
             // Match graph size to view size
             var titleHeight = (document.getElementById('chart-title') || { offsetHeight: 0 }).offsetHeight;
             config.size = {
-                height: document.documentElement.offsetHeight - titleHeight,
-                width: document.documentElement.offsetWidth,
+                height: document.body.offsetHeight - titleHeight,
+                width: document.body.offsetWidth,
             };
 
             // Turn off default hover/click behaviors
