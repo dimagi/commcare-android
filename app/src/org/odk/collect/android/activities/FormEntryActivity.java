@@ -244,7 +244,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean mGroupForcedInvisible = false;
     private boolean mGroupNativeVisibility = false;
     private FormEntrySession formEntryRestoreSession;
-
     enum AnimationType {
         LEFT, RIGHT, FADE
     }
@@ -1208,45 +1207,55 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             this.mGroupNativeVisibility = true;
             updateGroupViewVisibility();
         }
-        onQuestionViewChanged();
-    }
-
-    private void onQuestionViewChanged() {
-        if (isRestoringFormSession()) {
-            restoreQuestionView();
-        }
     }
 
     private boolean isRestoringFormSession() {
         return formEntryRestoreSession != null && formEntryRestoreSession.size() > 0;
     }
 
-    private void restoreQuestionView() {
-        for (QuestionWidget widget : mCurrentView.getWidgets()) {
-            FormIndex questionIndex = widget.getPrompt().getIndex();
+    private void replayForm() {
+        int event = mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
+        while (event != FormEntryController.EVENT_END_OF_FORM && isRestoringFormSession()) {
+            replayEvent(event);
+            event = mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
+        }
+    }
 
-            FormEntrySession.FormEntryAction action = formEntryRestoreSession.peekAction();
-            while (action.isSkipAction()) {
-                action = formEntryRestoreSession.popAction();
-            }
-            if (!questionIndex.toString().equals(action.formIndexString)) {
-                Log.d(TAG, "skipping");
-                break;
-            }
-            while (questionIndex.toString().equals(formEntryRestoreSession.peekAction().formIndexString)) {
-                action = formEntryRestoreSession.popAction();
-                FormEntryPrompt entryPrompt = mFormController.getQuestionPrompt(questionIndex);
-                IAnswerData answerData = AnswerDataFactory.template(entryPrompt.getControlType(), entryPrompt.getDataType()).cast(new UncastData(action.value));
-                if (answerData == null) {
-                    Log.w(TAG, "answer is null");
+    private void replayEvent(int event) {
+        if (event == FormEntryController.EVENT_QUESTION) {
+            replayQuestion();
+        } else if (event == FormEntryController.EVENT_PROMPT_NEW_REPEAT) {
+            if (formEntryRestoreSession.peekAction().isNewRepeatAction()) {
+                mFormController.newRepeat();
+                while (formEntryRestoreSession.peekAction().isNewRepeatAction()) {
+                    formEntryRestoreSession.popAction();
                 }
-                saveAnswer(answerData, questionIndex, true);
             }
+            // TODO PLM: can't handle proceeding to end of form after "Don't add" action
+        }
+    }
+
+    private void replayQuestion() {
+        FormIndex questionIndex = mFormController.getFormIndex();
+        FormEntrySession.FormEntryAction action = formEntryRestoreSession.peekAction();
+
+        if (!questionIndex.toString().equals(action.formIndexString)) {
+            UserfacingErrorHandling.createErrorDialog(this, "Unable to replay form due to incorrect question index", EXIT);
+            return;
         }
 
-        mCurrentView.setWidgetFromFormControllerState();
-        if (formEntryRestoreSession.size() > 0) {
-            showNextView();
+        if (action.isSkipAction()) {
+            formEntryRestoreSession.popAction();
+            return;
+        }
+        while (questionIndex.toString().equals(formEntryRestoreSession.peekAction().formIndexString)) {
+            action = formEntryRestoreSession.popAction();
+            FormEntryPrompt entryPrompt = mFormController.getQuestionPrompt(questionIndex);
+            IAnswerData answerData = AnswerDataFactory.template(entryPrompt.getControlType(), entryPrompt.getDataType()).cast(new UncastData(action.value));
+            if (answerData == null) {
+                Log.w(TAG, "answer is null");
+            }
+            saveAnswer(answerData, questionIndex, true);
         }
     }
 
@@ -1316,18 +1325,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
         final boolean backExitsForm = !details.relevantBeforeCurrentScreen;
         final boolean nextExitsForm = details.relevantAfterCurrentScreen == 0;
-
-        if (isRestoringFormSession()) {
-            if (formEntryRestoreSession.peekAction().isNewRepeatAction()) {
-                mFormController.newRepeat();
-                while(formEntryRestoreSession.popAction().isNewRepeatAction()) {}
-            } else if (nextExitsForm) {
-                triggerUserFormComplete();
-                return;
-            }
-            showNextView();
-            return;
-        }
 
         // Assign title and text strings based on the current state
         String title, addAnotherText, skipText, backText;
@@ -1997,6 +1994,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         reportFormEntry();
+
+        if (isRestoringFormSession()) {
+            replayForm();
+        }
+
         refreshCurrentView();
         FormNavigationUI.updateNavigationCues(this, mFormController, mCurrentView);
     }
