@@ -5,7 +5,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import org.commcare.android.analytics.UpdateStats;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.UpdateTask;
 import org.commcare.android.util.AndroidCommCarePlatform;

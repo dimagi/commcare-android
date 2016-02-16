@@ -2,7 +2,7 @@ package org.commcare.android.tasks;
 
 import android.os.SystemClock;
 
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;

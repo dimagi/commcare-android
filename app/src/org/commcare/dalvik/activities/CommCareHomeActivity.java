@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -29,8 +28,9 @@ import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.CommCareActivityUIController;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
+import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.android.framework.WithUIController;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
@@ -561,11 +561,11 @@ public class CommCareHomeActivity
             sessionNavigator.stepBack();
             if (isDemoUser()) {
                 // most likely crashing due to data not being available in demo mode
-                CommCareActivity.createErrorDialog(this,
+                UserfacingErrorHandling.createErrorDialog(this,
                         Localization.get("demo.mode.feature.unavailable"),
                         false);
             } else {
-                CommCareActivity.createErrorDialog(this, e.getMessage(), false);
+                UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), false);
             }
         }
     }
@@ -681,8 +681,7 @@ public class CommCareHomeActivity
                 try {
                     terminateSuccessful = currentState.terminateSession();
                 } catch (XPathTypeMismatchException e) {
-                    Logger.exception(e);
-                    CommCareActivity.createErrorDialog(this, e.getMessage(), true);
+                    UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
                     return false;
                 }
                 if (!terminateSuccessful) {
@@ -852,8 +851,7 @@ public class CommCareHomeActivity
         try {
             terminateSuccesful = asw.terminateSession();
         } catch (XPathTypeMismatchException e) {
-            Logger.exception(e);
-            CommCareActivity.createErrorDialog(this, e.getMessage(), true);
+            UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
             return;
         }
         if (terminateSuccesful) {
