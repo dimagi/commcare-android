@@ -179,10 +179,6 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     // Abstract methods
     public abstract IAnswerData getAnswer();
 
-    public void setAnswerFromPrompt() {
-        Log.w(TAG, "____unable to set answer from prompt for " + this.getClass().getSimpleName());
-    }
-
     public abstract void clearAnswer();
 
     public abstract void setFocus(Context context);

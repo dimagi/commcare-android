@@ -1,7 +1,6 @@
 package org.odk.collect.android.widgets;
 
 import android.content.Context;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -193,26 +192,6 @@ public class SelectMultiWidget extends QuestionWidget {
         super.cancelLongPress();
         for (CheckBox c : mCheckboxes) {
             c.cancelLongPress();
-        }
-    }
-
-    @Override
-    public void setAnswerFromPrompt() {
-        Vector<Selection> ve;
-        if (mPrompt.getAnswerValue() != null) {
-            ve = (Vector<Selection>)getCurrentAnswer().getValue();
-        } else {
-            Log.w(this.getClass().getSimpleName(), "no data set");
-            return;
-        }
-
-        for (int i = 0; i < mItems.size(); i++) {
-            for (Selection selection : ve) {
-                if (mItems.get(i).getValue().equals(selection.getValue())) {
-                    mCheckboxes.get(i).setChecked(true);
-                    break;
-                }
-            }
         }
     }
 }
