@@ -343,12 +343,10 @@ class UserDatabaseUpgrader {
         try {
             db.execSQL("DROP TABLE IF EXISTS " + GeocodeCacheModel.STORAGE_KEY);
             db.setTransactionSuccessful();
-            return true;
-        } catch (Exception e) {
-            return false;
         } finally {
             db.endTransaction();
         }
+        return true;
     }
 
 
