@@ -11,10 +11,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import org.commcare.android.framework.SessionActivityRegistration;
+import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
+import org.javarosa.xpath.XPathArityException;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.adapters.HierarchyListAdapter;
 import org.odk.collect.android.logic.FormHierarchyBuilder;
 import org.odk.collect.android.logic.HierarchyElement;
@@ -172,7 +175,13 @@ public class FormHierarchyActivity extends ListActivity {
 
         formList = new ArrayList<>();
 
-        String hierarchyPath = FormHierarchyBuilder.populateHierarchyList(this, formList);
+        String hierarchyPath;
+        try {
+            hierarchyPath = FormHierarchyBuilder.populateHierarchyList(this, formList);
+        } catch (XPathTypeMismatchException | XPathArityException e) {
+            UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
+            return;
+        }
 
         setGoUpButton(hierarchyPath);
 

@@ -81,6 +81,7 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.model.xform.XFormsModule;
+import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.activities.components.FormNavigationController;
@@ -1076,7 +1077,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         break;
                 }
             } while (event != FormEntryController.EVENT_END_OF_FORM);
-            }catch(XPathTypeMismatchException e){
+            }catch(XPathTypeMismatchException | XPathArityException e){
                 UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
             }
         }
