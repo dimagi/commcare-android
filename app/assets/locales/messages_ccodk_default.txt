@@ -621,11 +621,11 @@ wifi.direct.status.transfer.count=Device has ${0} unsent forms.
 wifi.direct.status.transfer.message=This will allow you to transfer forms from this device to another device via Wi-Fi Direct
 
 wifi.direct.status.receive.header=You are in Receive Form Mode
-wifi.direct.status.receive.count=wDevice has ${0} collected forms.
+wifi.direct.status.receive.count=Device has ${0} collected forms.
 wifi.direct.status.receive.message=This will allow you to receive forms on this device from another device via Wi-Fi Direct
 
 wifi.direct.status.submit.header=You are in Submit Form Mode
-wifi.direct.status.submit.count=wDevice has ${0} unsubmitted forms.
+wifi.direct.status.submit.count=Device has ${0} unsubmitted forms.
 wifi.direct.status.submit.message=This mode will allow you to submit forms to the CommCare Server if you have an internet connection.
 
 
