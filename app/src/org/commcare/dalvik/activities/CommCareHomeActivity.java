@@ -988,6 +988,7 @@ public class CommCareHomeActivity
         i.putExtra(FormEntryActivity.KEY_AES_STORAGE_KEY, Base64.encodeToString(r.getAesKey(), Base64.DEFAULT));
         i.putExtra(FormEntryActivity.KEY_FORM_CONTENT_URI, FormsProviderAPI.FormsColumns.CONTENT_URI.toString());
         i.putExtra(FormEntryActivity.KEY_INSTANCE_CONTENT_URI, InstanceProviderAPI.InstanceColumns.CONTENT_URI.toString());
+        i.putExtra(FormEntryActivity.KEY_RECORD_FORM_ENTRY_SESSION, DeveloperPreferences.isSessionSavingEnabled());
         if (headerTitle != null) {
             i.putExtra(FormEntryActivity.KEY_HEADER_STRING, headerTitle);
         }

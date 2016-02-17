@@ -57,6 +57,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
     private final SecretKeySpec mSymetricKey;
     private final boolean mReadOnly;
+    private final boolean recordEntrySession;
 
     private final R activity;
 
@@ -64,11 +65,13 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
     public static final int FORM_LOADER_TASK_ID = 16;
 
-    public FormLoaderTask(SecretKeySpec symetricKey, boolean readOnly, R activity) {
+    public FormLoaderTask(SecretKeySpec symetricKey, boolean readOnly,
+                          boolean recordEntrySession, R activity) {
         this.mSymetricKey = symetricKey;
         this.mReadOnly = readOnly;
         this.activity = activity;
         this.taskId = FORM_LOADER_TASK_ID;
+        this.recordEntrySession = recordEntrySession;
         TAG = FormLoaderTask.class.getSimpleName();
     }
 
@@ -171,7 +174,12 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         formDef.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler((Context)activity));
         // create FormEntryController from formdef
         FormEntryModel fem = new FormEntryModel(formDef);
-        FormEntryController fec = new FormEntryController(fem);
+        FormEntryController fec;
+        if (recordEntrySession) {
+            fec = FormEntryController.buildRecordingController(fem);
+        } else {
+            fec = new FormEntryController(fem);
+        }
 
         //TODO: Get a reasonable IIF object
         // import existing data into formdef

@@ -172,6 +172,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static final String KEY_RESIZING_ENABLED = "org.odk.collect.resizing.enabled";
     private static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
     public static final String KEY_FORM_ENTRY_SESSION = "form_entry_session";
+    public static final String KEY_RECORD_FORM_ENTRY_SESSION = "record_form_entry_session";
 
     /**
      * Intent extra flag to track if this form is an archive. Used to trigger
@@ -243,6 +244,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean mGroupForcedInvisible = false;
     private boolean mGroupNativeVisibility = false;
     private FormEntrySession formEntryRestoreSession;
+    private boolean recordEntrySession;
     enum AnimationType {
         LEFT, RIGHT, FADE
     }
@@ -401,6 +403,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
         outState.putSerializable(KEY_FORM_ENTRY_SESSION, formEntryRestoreSession);
+        outState.putBoolean(KEY_RECORD_FORM_ENTRY_SESSION, recordEntrySession);
 
         if(symetricKey != null) {
             try {
@@ -1861,7 +1864,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 return;
             }
 
-            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, isInstanceReadOnly, this) {
+            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, isInstanceReadOnly, recordEntrySession, this) {
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
                     receiver.handleFormLoadCompletion(wrapperResult.getController());
@@ -2412,6 +2415,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
 
             formEntryRestoreSession = (FormEntrySession)savedInstanceState.getSerializable(KEY_FORM_ENTRY_SESSION);
+            recordEntrySession = savedInstanceState.getBoolean(KEY_RECORD_FORM_ENTRY_SESSION, false);
         }
     }
 
@@ -2527,6 +2531,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             formEntryRestoreSession =
                     FormEntrySession.fromString(intent.getStringExtra(KEY_FORM_ENTRY_SESSION));
         }
+        recordEntrySession = intent.getBooleanExtra(KEY_RECORD_FORM_ENTRY_SESSION, false);
     }
 
     private void setTitleToLoading() {
@@ -2650,11 +2655,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
     }
 
-    public static String getFormEntrySession() {
+    public static String getFormEntrySessionString() {
         if (mFormController == null) {
             return "";
         } else {
-            return mFormController.getFormEntrySession().toString();
+            return mFormController.getFormEntrySessionString();
         }
     }
 }

@@ -123,7 +123,7 @@ public class DevSessionRestorer {
             return;
         }
         String serializedSession = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-        String formEntrySession = FormEntryActivity.getFormEntrySession();
+        String formEntrySession = FormEntryActivity.getFormEntrySessionString();
         prefs.edit().putString(CommCarePreferences.CURRENT_SESSION, serializedSession)
                 .putString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, formEntrySession).apply();
         try {

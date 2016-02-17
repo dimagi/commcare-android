@@ -12,7 +12,6 @@ import org.javarosa.core.services.transport.payload.ByteArrayPayload;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.javarosa.form.api.FormEntrySession;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.model.xform.XPathReference;
 import org.odk.collect.android.views.ODKView;
@@ -582,8 +581,8 @@ public class FormController implements PendingCalloutInterface {
         return new WidgetFactory(mFormEntryController.getModel().getForm(), this);
     }
 
-    public FormEntrySession getFormEntrySession() {
-        return mFormEntryController.getFormEntrySession();
+    public String getFormEntrySessionString() {
+        return mFormEntryController.getFormEntrySessionString();
     }
 
     public FormEntryController getFormEntryController() {
