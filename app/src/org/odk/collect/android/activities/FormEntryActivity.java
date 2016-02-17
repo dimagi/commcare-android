@@ -458,8 +458,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 break;
             case HIERARCHY_ACTIVITY:
             case HIERARCHY_ACTIVITY_FIRST_START:
-                // We may have jumped to a new index in hierarchy activity, so refresh
-                refreshCurrentView(false);
+                if (resultCode == FormHierarchyActivity.RESULT_XPATH_ERROR) {
+                    finish();
+                } else {
+                    // We may have jumped to a new index in hierarchy activity, so refresh
+                    refreshCurrentView(false);
+                }
                 break;
         }
     }

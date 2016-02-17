@@ -33,6 +33,7 @@ public class FormHierarchyActivity extends ListActivity {
     private List<HierarchyElement> formList;
     private TextView mPath;
     private FormIndex mStartIndex;
+    public final static int RESULT_XPATH_ERROR = RESULT_FIRST_USER + 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -190,6 +191,7 @@ public class FormHierarchyActivity extends ListActivity {
             // TODO PLM: show blocking dialog with error; requires
             // making this implement DialogController & use Fragments
             Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
+            setResult(RESULT_XPATH_ERROR);
             finish();
             return;
         }
