@@ -7,11 +7,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.android.framework.SessionActivityRegistration;
-import org.commcare.android.framework.UserfacingErrorHandling;
+import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.services.locale.Localization;
@@ -81,14 +83,17 @@ public class FormHierarchyActivity extends ListActivity {
             @Override
             public void run() {
                 int position = 0;
-                for (int i = 0; i < getListAdapter().getCount(); i++) {
-                    HierarchyElement he = (HierarchyElement)getListAdapter().getItem(i);
-                    if (mStartIndex.equals(he.getFormIndex())) {
-                        position = i;
-                        break;
+                ListAdapter adapter = getListAdapter();
+                if (adapter != null) {
+                    for (int i = 0; i < adapter.getCount(); i++) {
+                        HierarchyElement he = (HierarchyElement)getListAdapter().getItem(i);
+                        if (mStartIndex.equals(he.getFormIndex())) {
+                            position = i;
+                            break;
+                        }
                     }
+                    getListView().setSelection(position);
                 }
-                getListView().setSelection(position);
             }
         });
 
@@ -179,7 +184,13 @@ public class FormHierarchyActivity extends ListActivity {
         try {
             hierarchyPath = FormHierarchyBuilder.populateHierarchyList(this, formList);
         } catch (XPathTypeMismatchException | XPathArityException e) {
-            UserfacingErrorHandling.logErrorAndShowDialog(this, e, true);
+            XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
+
+            final String errorMsg = "Encounted xpath error: " + e.getMessage();
+            // TODO PLM: show blocking dialog with error; requires
+            // making this implement DialogController & use Fragments
+            Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
+            finish();
             return;
         }
 
