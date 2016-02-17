@@ -617,7 +617,7 @@ wifi.direct.wipe.task.title=Wiping Forms
 wifi.direct.wipe.task.message=Cleaning up after transfer
 
 wifi.direct.status.transfer.header=You are in Transfer Form Mode
-wifi.direct.status.transfer.count=wDevice has ${0} unsent forms.
+wifi.direct.status.transfer.count=Device has ${0} unsent forms.
 wifi.direct.status.transfer.message=This will allow you to transfer forms from this device to another device via Wi-Fi Direct
 
 wifi.direct.status.receive.header=You are in Receive Form Mode
