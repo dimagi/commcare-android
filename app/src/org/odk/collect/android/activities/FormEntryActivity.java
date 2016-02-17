@@ -1261,7 +1261,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         FormNavigationController.NavigationDetails details;
         try {
             details = FormNavigationController.calculateNavigationStatus(mFormController, mCurrentView);
-        } catch (XPathTypeMismatchException e) {
+        } catch (XPathTypeMismatchException | XPathArityException e) {
             UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
             return;
         }
@@ -1322,7 +1322,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 dialog.dismiss();
                 try {
                     mFormController.newRepeat();
-                } catch (XPathTypeMismatchException e) {
+                } catch (XPathTypeMismatchException | XPathArityException e) {
                     Logger.exception(e);
                     UserfacingErrorHandling.logErrorAndShowDialog(FormEntryActivity.this, e, EXIT);
                     return;
@@ -2310,7 +2310,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void widgetEntryChanged() {
         try {
             updateFormRelevancies();
-        } catch (XPathTypeMismatchException e) {
+        } catch (XPathTypeMismatchException | XPathArityException e) {
             UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
             return;
         }
