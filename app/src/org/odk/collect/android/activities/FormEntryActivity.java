@@ -73,9 +73,7 @@ import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.SelectChoice;
-import org.javarosa.core.model.data.AnswerDataFactory;
 import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.UncastData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -83,6 +81,7 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.form.api.FormEntrySession;
+import org.javarosa.form.api.FormEntrySessionReplayer;
 import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
@@ -1036,7 +1035,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
             try{
             group_skip: do {
-                event = mFormController.stepToNextEvent(FormController.STEP_OVER_GROUP);
+                event = mFormController.stepToNextEvent(FormEntryController.STEP_OVER_GROUP);
                 switch (event) {
                     case FormEntryController.EVENT_QUESTION:
                         ODKView next = createView();
@@ -1206,56 +1205,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             groupLabel.setText(groupLabelText);
             this.mGroupNativeVisibility = true;
             updateGroupViewVisibility();
-        }
-    }
-
-    private boolean isRestoringFormSession() {
-        return formEntryRestoreSession != null && formEntryRestoreSession.size() > 0;
-    }
-
-    private void replayForm() {
-        int event = mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
-        while (event != FormEntryController.EVENT_END_OF_FORM && isRestoringFormSession()) {
-            replayEvent(event);
-            event = mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
-        }
-    }
-
-    private void replayEvent(int event) {
-        if (event == FormEntryController.EVENT_QUESTION) {
-            replayQuestion();
-        } else if (event == FormEntryController.EVENT_PROMPT_NEW_REPEAT) {
-            if (formEntryRestoreSession.peekAction().isNewRepeatAction()) {
-                mFormController.newRepeat();
-                while (formEntryRestoreSession.peekAction().isNewRepeatAction()) {
-                    formEntryRestoreSession.popAction();
-                }
-            }
-            // TODO PLM: can't handle proceeding to end of form after "Don't add" action
-        }
-    }
-
-    private void replayQuestion() {
-        FormIndex questionIndex = mFormController.getFormIndex();
-        FormEntrySession.FormEntryAction action = formEntryRestoreSession.peekAction();
-
-        if (!questionIndex.toString().equals(action.formIndexString)) {
-            UserfacingErrorHandling.createErrorDialog(this, "Unable to replay form due to incorrect question index", EXIT);
-            return;
-        }
-
-        if (action.isSkipAction()) {
-            formEntryRestoreSession.popAction();
-            return;
-        }
-        while (questionIndex.toString().equals(formEntryRestoreSession.peekAction().formIndexString)) {
-            action = formEntryRestoreSession.popAction();
-            FormEntryPrompt entryPrompt = mFormController.getQuestionPrompt(questionIndex);
-            IAnswerData answerData = AnswerDataFactory.template(entryPrompt.getControlType(), entryPrompt.getDataType()).cast(new UncastData(action.value));
-            if (answerData == null) {
-                Log.w(TAG, "answer is null");
-            }
-            saveAnswer(answerData, questionIndex, true);
         }
     }
 
@@ -1995,8 +1944,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         reportFormEntry();
 
-        if (isRestoringFormSession()) {
-            replayForm();
+        try {
+            FormEntrySessionReplayer.tryReplayingFormEntry(mFormController.getFormEntryController(),
+                    formEntryRestoreSession);
+        } catch (FormEntrySessionReplayer.ReplayError e) {
+            UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), EXIT);
         }
 
         refreshCurrentView();

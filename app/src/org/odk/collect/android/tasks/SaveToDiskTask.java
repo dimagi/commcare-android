@@ -25,7 +25,6 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.listeners.FormSavedListener;
-import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.EncryptionUtils;
 import org.odk.collect.android.utilities.EncryptionUtils.EncryptedFormInformation;
 
@@ -361,7 +360,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
             Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Saving form without firing triggers.");
         }
         while ((event =
-            FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP)) != FormEntryController.EVENT_END_OF_FORM) {
+            FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP)) != FormEntryController.EVENT_END_OF_FORM) {
             if (event == FormEntryController.EVENT_QUESTION) {
                 int saveStatus;
                 if (fireTriggerables) {

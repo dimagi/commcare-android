@@ -38,9 +38,6 @@ public class FormController implements PendingCalloutInterface {
 
     private final boolean mReadOnly;
 
-    public static final boolean STEP_OVER_GROUP = true;
-    public static final boolean STEP_INTO_GROUP = false;
-
     /**
      * OpenRosa metadata tag names.
      */
@@ -587,5 +584,9 @@ public class FormController implements PendingCalloutInterface {
 
     public FormEntrySession getFormEntrySession() {
         return mFormEntryController.getFormEntrySession();
+    }
+
+    public FormEntryController getFormEntryController() {
+        return mFormEntryController;
     }
 }

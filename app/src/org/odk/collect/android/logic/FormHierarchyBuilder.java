@@ -58,7 +58,7 @@ public class FormHierarchyBuilder {
         // node to display.
         if (FormEntryActivity.mFormController.getEvent() == FormEntryController.EVENT_REPEAT) {
             enclosingGroupIndex = FormEntryActivity.mFormController.getFormIndex();
-            FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
+            FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP);
         } else {
             FormIndex startTest = FormHierarchyActivity.stepIndexOut(currentIndex);
             // If we have a 'group' tag, we want to step back until we hit a repeat or the
@@ -81,12 +81,12 @@ public class FormHierarchyBuilder {
             // beginning
             if (FormEntryActivity.mFormController.getEvent() == FormEntryController.EVENT_REPEAT) {
                 enclosingGroupIndex = FormEntryActivity.mFormController.getFormIndex();
-                FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
+                FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP);
             }
         }
         int event = FormEntryActivity.mFormController.getEvent();
         if (event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
-            FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
+            FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP);
             hierarchyPath = "";
         } else {
             hierarchyPath = FormHierarchyActivity.getCurrentPath();
@@ -111,7 +111,7 @@ public class FormHierarchyBuilder {
                     event = addRepeatChildren();
                     continue;
             }
-            event = FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP);
+            event = FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP);
         }
     }
 
@@ -173,7 +173,7 @@ public class FormHierarchyBuilder {
             } else if (!isCurrentIndexOutsideOfGroup(firstRepeatChildIndex)) {
                 return event;
             }
-            event = FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_OVER_GROUP);
+            event = FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_OVER_GROUP);
         }
         return event;
     }
