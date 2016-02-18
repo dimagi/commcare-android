@@ -126,8 +126,7 @@ public class CommCareVerificationActivity
         if (!shouldBeHere) {
             // send back to dispatch activity
             setResult(RESULT_OK);
-            this.finish();
-            return;
+            finish();
         }
     }
 

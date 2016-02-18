@@ -4,7 +4,7 @@ import android.content.Context;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.bitcache.BitCache;
 import org.commcare.android.util.bitcache.BitCacheFactory;

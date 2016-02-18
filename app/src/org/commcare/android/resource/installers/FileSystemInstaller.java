@@ -2,7 +2,7 @@ package org.commcare.android.resource.installers;
 
 import android.util.Pair;
 
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.FileUtil;

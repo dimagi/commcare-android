@@ -177,10 +177,6 @@ public class EntityListAdapter implements ListAdapter {
         return full.size() + actionsCount;
     }
 
-    public int getCurrentCount() {
-        return current.size();
-    }
-
     public int getCurrentCountWithActions() {
         return current.size() + actionsCount;
     }

@@ -13,7 +13,7 @@ import org.commcare.android.database.HybridFileBackedSqlStorage;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.SqlStorageIterator;
 import org.commcare.android.database.UnencryptedHybridFileBackedSqlStorage;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;

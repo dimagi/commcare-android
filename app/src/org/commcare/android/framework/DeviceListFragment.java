@@ -51,13 +51,6 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         return mContentView;
     }
 
-    /**
-     * @return this device
-     */
-    public WifiP2pDevice getDevice() {
-        return device;
-    }
-
     public static String getDeviceStatus(int deviceStatus) {
         Log.d(TAG, "Peer status :" + deviceStatus);
         switch (deviceStatus) {
@@ -160,11 +153,10 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         peers.clear();
         peers.addAll(peerList.getDeviceList());
         ((WiFiPeerListAdapter)getListAdapter()).notifyDataSetChanged();
+
         if (peers.size() == 0) {
             Log.d(TAG, "No devices found");
-            return;
         }
-
     }
 
     public void clearPeers() {

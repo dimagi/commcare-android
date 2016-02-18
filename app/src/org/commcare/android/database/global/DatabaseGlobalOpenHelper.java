@@ -13,7 +13,7 @@ import org.commcare.android.database.AndroidTableBuilder;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.javarosa.AndroidLogEntry;
+import org.commcare.android.logging.AndroidLogEntry;
 
 /**
  * The helper for opening/updating the global (unencrypted) db space for CommCare.
@@ -50,7 +50,7 @@ public class DatabaseGlobalOpenHelper extends SQLiteOpenHelper {
             builder = new AndroidTableBuilder(AndroidSharedKeyRecord.class);
             database.execSQL(builder.getTableCreateString());
 
-            
+
             builder = new AndroidTableBuilder(AndroidLogEntry.STORAGE_KEY);
             builder.addData(new AndroidLogEntry());
             database.execSQL(builder.getTableCreateString());

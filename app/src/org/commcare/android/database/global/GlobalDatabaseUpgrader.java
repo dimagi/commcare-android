@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.database.global;
 
 import android.content.Context;

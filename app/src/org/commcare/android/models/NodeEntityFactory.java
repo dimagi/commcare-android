@@ -1,5 +1,6 @@
 package org.commcare.android.models;
 
+import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
@@ -48,16 +49,25 @@ public class NodeEntityFactory {
                     sortDetails[count] = sortText.evaluate(nodeContext);
                 }
                 relevancyDetails[count] = f.isRelevant(nodeContext);
-            } catch (XPathSyntaxException | XPathException xpe) {
-                xpe.printStackTrace();
-                details[count] = "<invalid xpath: " + xpe.getMessage() + ">";
-                // assume that if there's an error, user should see it
-                relevancyDetails[count] = true;
+            } catch (XPathSyntaxException e) {
+                storeErrorDetails(e, count, details, relevancyDetails);
+            } catch (XPathException xpe) {
+                XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
+                storeErrorDetails(xpe, count, details, relevancyDetails);
             }
             count++;
         }
 
         return new Entity<>(details, sortDetails, relevancyDetails, data);
+    }
+
+    private static void storeErrorDetails(Exception e, int index,
+                                          Object[] details,
+                                          boolean[] relevancyDetails) {
+        e.printStackTrace();
+        details[index] = "<invalid xpath: " + e.getMessage() + ">";
+        // assume that if there's an error, user should see it
+        relevancyDetails[index] = true;
     }
 
     public List<TreeReference> expandReferenceList(TreeReference treeReference) {
