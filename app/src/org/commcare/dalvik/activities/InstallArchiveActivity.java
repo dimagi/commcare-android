@@ -175,7 +175,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     }
 
     @Override
-    public void taskCancelled(int id) {
+    public void taskCancelled() {
         txtInteractiveMessages.setText(Localization.get("archive.install.cancelled"));
         this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }
