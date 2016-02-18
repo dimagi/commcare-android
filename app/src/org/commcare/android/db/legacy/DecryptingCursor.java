@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteQuery;
 
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.database.DbUtil;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
 

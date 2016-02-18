@@ -263,7 +263,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
     }
 
     @Override
-    public void taskCancelled(int id) {
+    public void taskCancelled() {
         txtInteractiveMessages.setText(Localization.get("bulk.form.cancel"));
         this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }

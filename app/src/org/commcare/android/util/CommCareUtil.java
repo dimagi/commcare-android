@@ -22,8 +22,6 @@ import java.util.Vector;
  * @author ctsims
  */
 public class CommCareUtil {
-    private static final String TAG = CommCareUtil.class.getSimpleName();
-
     public static FormInstance loadFixture(String refId, String userId) {
         IStorageUtilityIndexed<FormInstance> userFixtureStorage = CommCareApplication._().getUserStorage("fixture", FormInstance.class);
         IStorageUtilityIndexed<FormInstance> appFixtureStorage = CommCareApplication._().getAppStorage("fixture", FormInstance.class);
