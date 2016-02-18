@@ -1746,7 +1746,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    public void taskCancelled(int id) {
+    public void taskCancelled() {
         finish();
     }
 

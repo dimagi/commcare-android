@@ -5,7 +5,6 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.DemoUserBuilder;
 import org.commcare.android.mocks.CommCareTaskConnectorFake;
 import org.commcare.android.resource.AppInstallStatus;
-import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;

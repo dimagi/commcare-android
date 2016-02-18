@@ -153,30 +153,6 @@ public class HorizontalMediaView extends RelativeLayout {
         addView(mTextView, textParams);
     }
 
-
-    /**
-     * This adds a divider at the bottom of this layout. Used to separate fields in lists.
-     */
-    public void addDivider(ImageView v) {
-        RelativeLayout.LayoutParams dividerParams =
-                new RelativeLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.WRAP_CONTENT);
-        if (mImageView != null) {
-            dividerParams.addRule(RelativeLayout.BELOW, mImageView.getId());
-        } else if (mMissingImage != null) {
-            dividerParams.addRule(RelativeLayout.BELOW, mMissingImage.getId());
-        } else if (mAudioButton != null) {
-            dividerParams.addRule(RelativeLayout.BELOW, mAudioButton.getId());
-        } else if (mTextView != null) {
-            // No picture
-            dividerParams.addRule(RelativeLayout.BELOW, mTextView.getId());
-        } else {
-            Log.e(t, "Tried to add divider to uninitialized ATVWidget");
-            return;
-        }
-        addView(v, dividerParams);
-    }
-
-
     @Override
     protected void onWindowVisibilityChanged(int visibility) {
         super.onWindowVisibilityChanged(visibility);
