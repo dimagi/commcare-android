@@ -43,8 +43,8 @@ import android.widget.Toast;
 
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.fragments.ContainerFragment;
-import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.android.framework.SaveSessionCommCareActivity;
+import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
@@ -219,7 +219,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private void restoreSavedState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
-            this.mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
+            this.isMappingEnabled = savedInstanceState.getBoolean(MAPPING_ENABLED);
             this.containsHereFunction = savedInstanceState.getBoolean(CONTAINS_HERE_FUNCTION);
             this.locationChangedWhileLoading = savedInstanceState.getBoolean(
                     LOCATION_CHANGED_WHILE_LOADING);
@@ -566,7 +566,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     public boolean loadEntities() {
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
-            Log.i(TAG, "entities reloading");
             EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
             entityLoader.attachListener(this);
             entityLoader.execute(selectDatum.getNodeset());
