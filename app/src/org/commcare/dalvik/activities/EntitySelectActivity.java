@@ -580,6 +580,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         super.onSaveInstanceState(savedInstanceState);
 
         savedInstanceState.putBoolean(CONTAINS_HERE_FUNCTION, containsHereFunction);
+        savedInstanceState.putBoolean(MAPPING_ENABLED, isMappingEnabled);
         savedInstanceState.putBoolean(LOCATION_CHANGED_WHILE_LOADING, locationChangedWhileLoading);
     }
 
@@ -975,40 +976,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-<<<<<<< HEAD
     public void deliverLoadResult(List<Entity<TreeReference>> entities,
                                   List<TreeReference> references,
                                   NodeEntityFactory factory) {
-=======
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-
-        savedInstanceState.putBoolean(CONTAINS_HERE_FUNCTION, containsHereFunction);
-        savedInstanceState.putBoolean(MAPPING_ENABLED, isMappingEnabled);
-        savedInstanceState.putBoolean(LOCATION_CHANGED_WHILE_LOADING, locationChangedWhileLoading);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (loader != null) {
-            if (isFinishing()) {
-                loader.cancel(false);
-            } else {
-                loader.detachActivity();
-            }
-        }
-
-        if (adapter != null) {
-            adapter.signalKilled();
-        }
-    }
-
-    @Override
-    public void deliverResult(List<Entity<TreeReference>> entities,
-                              List<TreeReference> references,
-                              NodeEntityFactory factory) {
->>>>>>> commcare_2.26
         loader = null;
         Detail detail = session.getDetail(selectDatum.getShortDetail());
         int[] order = detail.getSortOrder();
