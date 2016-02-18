@@ -34,6 +34,7 @@ import java.util.ArrayList;
  */
 public class ProfileAndroidInstaller extends FileSystemInstaller {
 
+    @SuppressWarnings("unused")
     public ProfileAndroidInstaller() {
         // For externalization
     }

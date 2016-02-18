@@ -121,7 +121,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private TextView searchResultStatus;
     private EntityListAdapter adapter;
     private LinearLayout header;
-    private ImageButton barcodeButton;
     private SearchView searchView;
     private MenuItem searchItem;
     private MenuItem barcodeItem;
@@ -338,7 +337,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         mViewMode = session.isViewCommand(session.getCommand());
 
-        barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
+        ImageButton barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
 
         Callout callout = shortSelect.getCallout();
         if (callout ==  null) {
