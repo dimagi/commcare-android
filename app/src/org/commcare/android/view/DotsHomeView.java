@@ -27,9 +27,6 @@ public class DotsHomeView extends RelativeLayout {
     private final DotsData data;
     private final DotsEditListener listener;
     private static final String[] dayArray = new String[]{"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"};
-    private TableRow[] tRows;
-    private View[] dayViews;
-
 
     private static final int TABLE_LENGTH = 7;
 
@@ -48,12 +45,12 @@ public class DotsHomeView extends RelativeLayout {
         int days = data.days().length;
         int rows = (int)Math.ceil(days / TABLE_LENGTH);
 
-        dayViews = new View[days];
+        View[] dayViews = new View[days];
 
         table.setShrinkAllColumns(true);
         table.setStretchAllColumns(true);
 
-        tRows = new TableRow[rows];
+        TableRow[] tRows = new TableRow[rows];
 
         for (int i = 0; i < tRows.length; ++i) {
             tRows[i] = new TableRow(this.getContext());

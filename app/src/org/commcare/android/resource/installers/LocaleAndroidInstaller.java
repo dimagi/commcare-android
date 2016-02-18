@@ -21,6 +21,7 @@ public class LocaleAndroidInstaller extends FileSystemInstaller {
 
     private String locale;
 
+    @SuppressWarnings("unused")
     public LocaleAndroidInstaller() {
         // For externalization
     }
