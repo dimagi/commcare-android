@@ -60,7 +60,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver> extends M
             if (connector != null) {
                 connector.startTaskTransition();
                 connector.stopBlockingForTask(getTaskId());
-                connector.taskCancelled(getTaskId());
+                connector.taskCancelled();
                 connector.stopTaskTransition();
             }
         }

@@ -15,7 +15,6 @@ import org.commcare.android.database.migration.FixtureSerializationMigration;
 import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.resources.model.Resource;
-import org.javarosa.core.model.instance.FormInstance;
 
 import java.util.ArrayList;
 import java.util.Collections;

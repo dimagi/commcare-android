@@ -23,6 +23,7 @@ public class BubbleSeries extends XYSeries {
     /*
      * Deserialization Only!
      */
+    @SuppressWarnings("unused")
     public BubbleSeries() {
 
     }

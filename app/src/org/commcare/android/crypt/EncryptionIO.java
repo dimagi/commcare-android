@@ -26,8 +26,6 @@ import javax.crypto.spec.SecretKeySpec;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class EncryptionIO {
-    private final static String TAG = EncryptionIO.class.getSimpleName();
-
     public static OutputStream createFileOutputStream(String filename,
                                                       SecretKeySpec symetricKey)
             throws FileNotFoundException {
