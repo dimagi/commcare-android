@@ -5,9 +5,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.graph.activities.GraphActivityStateHandler;
-
 /**
  * Full-screen view of a graph.
  *

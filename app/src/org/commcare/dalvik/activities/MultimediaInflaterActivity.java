@@ -183,7 +183,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
     }
 
     @Override
-    public void taskCancelled(int id) {
+    public void taskCancelled() {
         txtInteractiveMessages.setText(Localization.get("mult.install.cancelled"));
         this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }

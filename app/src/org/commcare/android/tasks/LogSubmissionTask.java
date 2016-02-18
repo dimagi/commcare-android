@@ -9,25 +9,25 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
-import org.javarosa.core.model.User;
 import org.commcare.android.io.DataSubmissionEntity;
-import org.commcare.android.javarosa.AndroidLogEntry;
-import org.commcare.android.javarosa.AndroidLogSerializer;
-import org.commcare.android.javarosa.AndroidLogger;
-import org.commcare.android.javarosa.DeviceReportRecord;
-import org.commcare.android.javarosa.DeviceReportWriter;
+import org.commcare.android.logging.AndroidLogEntry;
+import org.commcare.android.logging.AndroidLogSerializer;
+import org.commcare.android.logging.AndroidLogger;
+import org.commcare.android.logging.DeviceReportRecord;
+import org.commcare.android.logging.DeviceReportWriter;
+import org.commcare.android.logging.XPathErrorEntry;
+import org.commcare.android.logging.XPathErrorSerializer;
 import org.commcare.android.mime.EncryptedFileBody;
 import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.tasks.LogSubmissionTask.LogSubmitOutcomes;
-import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.security.InvalidKeyException;
@@ -154,8 +154,11 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             }
 
             //Add the logs as the primary payload
-            AndroidLogSerializer serializer = new AndroidLogSerializer(CommCareApplication._().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
-            reporter.addReportElement(serializer);
+            AndroidLogSerializer logSerializer = new AndroidLogSerializer(CommCareApplication._().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
+            reporter.addReportElement(logSerializer);
+
+            XPathErrorSerializer xpathErrorSerializer = new XPathErrorSerializer(CommCareApplication._().getUserStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
+            reporter.addReportElement(xpathErrorSerializer);
 
             //serialize logs
             reporter.write();
@@ -164,7 +167,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             storage.write(record);
 
             //The logs are saved and recorded, so we can feel safe clearing the logs we serialized.
-            serializer.purge();
+            logSerializer.purge();
+            xpathErrorSerializer.purge();
         } catch (Exception e) {
             //Bad times!
             e.printStackTrace();
@@ -237,15 +241,6 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         }
 
         int responseCode = response.getStatusLine().getStatusCode();
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-
-        try {
-            AndroidStreamUtil.writeFromInputToOutput(response.getEntity().getContent(), bos);
-        } catch (IOException | IllegalStateException e) {
-            e.printStackTrace();
-        }
-        //TODO: Anything with the response?
 
         return (responseCode >= 200 && responseCode < 300);
     }

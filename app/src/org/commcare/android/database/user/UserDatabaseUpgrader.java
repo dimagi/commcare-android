@@ -21,6 +21,7 @@ import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.logging.XPathErrorEntry;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.User;
@@ -98,6 +99,11 @@ class UserDatabaseUpgrader {
         if (oldVersion == 9) {
             if (upgradeNineTen(db)) {
                 oldVersion = 10;
+            }
+        }
+        if (oldVersion == 10) {
+            if (upgradeTenEleven(db)) {
+                oldVersion = 11;
             }
         }
     }
@@ -308,6 +314,24 @@ class UserDatabaseUpgrader {
                 FormRecord.META_APP_ID,
                 "TEXT"));
     }
+
+    private boolean upgradeTenEleven(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            // add table for dedicated xpath error logging for reporting xpath
+            // errors on specific cc app builds.
+            AndroidTableBuilder builder = new AndroidTableBuilder(XPathErrorEntry.STORAGE_KEY);
+            builder.addData(new XPathErrorEntry());
+            db.execSQL(builder.getTableCreateString());
+            db.setTransactionSuccessful();
+            return true;
+        } catch (Exception e) {
+            return false;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
 
     private void updateIndexes(SQLiteDatabase db) {
         db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_id_index", "AndroidCase", "case_id"));

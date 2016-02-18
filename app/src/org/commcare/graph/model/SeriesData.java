@@ -12,8 +12,8 @@ public class SeriesData implements ConfigurableData {
     private Hashtable<String, String> mConfiguration;
 
     public SeriesData() {
-        mPoints = new Vector<XYPointData>();
-        mConfiguration = new Hashtable<String, String>();
+        mPoints = new Vector<>();
+        mConfiguration = new Hashtable<>();
     }
 
     public void addPoint(XYPointData p) {

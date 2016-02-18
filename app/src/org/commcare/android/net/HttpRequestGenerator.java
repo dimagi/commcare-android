@@ -27,7 +27,7 @@ import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.dalvik.application.CommCareApplication;

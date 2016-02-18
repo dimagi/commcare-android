@@ -1,4 +1,4 @@
-package org.commcare.android.javarosa;
+package org.commcare.android.logging;
 
 import org.commcare.android.database.SqlStorage;
 import org.javarosa.core.log.LogEntry;
@@ -16,23 +16,22 @@ import java.util.Hashtable;
  * @author ctsims
  */
 public class AndroidLogSerializer extends StreamLogSerializer implements DeviceReportElement {
-    private SqlStorage<AndroidLogEntry> storage;
     private LogEntry entry;
+    private final boolean isSingleLog;
 
     private XmlSerializer serializer;
 
     public AndroidLogSerializer(LogEntry entry) {
+        isSingleLog = true;
         this.entry = entry;
     }
 
-    public AndroidLogSerializer(SqlStorage<AndroidLogEntry> logStorage) {
-        super();
-        this.storage = logStorage;
-
+    public AndroidLogSerializer(final SqlStorage<AndroidLogEntry> logStorage) {
+        isSingleLog = false;
         this.setPurger(new Purger() {
             @Override
             public void purge(final SortedIntSet IDs) {
-                storage.removeAll(new EntityFilter<LogEntry>() {
+                logStorage.removeAll(new EntityFilter<LogEntry>() {
                     public int preFilter(int id, Hashtable<String, Object> metaData) {
                         return IDs.contains(id) ? PREFILTER_INCLUDE : PREFILTER_EXCLUDE;
                     }
@@ -74,18 +73,17 @@ public class AndroidLogSerializer extends StreamLogSerializer implements DeviceR
 
     @Override
     public void writeToDeviceReport(XmlSerializer serializer) throws IOException {
-        //TODO: Stop doing what the special case here is for
         this.serializer = serializer;
 
         serializer.startTag(DeviceReportWriter.XMLNS, "log_subreport");
 
         try {
-            if (storage != null) {
+            if (isSingleLog) {
+                serializeLog(entry);
+            } else {
                 if (Logger._() != null) {
                     Logger._().serializeLogs(this);
                 }
-            } else {
-                serializeLog(entry);
             }
         } finally {
             serializer.endTag(DeviceReportWriter.XMLNS, "log_subreport");

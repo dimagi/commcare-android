@@ -25,7 +25,7 @@ public class CommCareTaskConnectorFake<R> implements CommCareTaskConnector<R> {
     }
 
     @Override
-    public void taskCancelled(int id) {
+    public void taskCancelled() {
 
     }
 

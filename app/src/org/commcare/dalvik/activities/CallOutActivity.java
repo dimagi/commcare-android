@@ -37,8 +37,6 @@ public class CallOutActivity extends FragmentActivity
 
     private static final String CALLOUT_ACTION_KEY = "callout-action-key";
 
-    private static final int DIALOG_NUMBER_ACTION = 0;
-
     private static final int SMS_RESULT = 0;
     private static final int CALL_RESULT = 1;
 
