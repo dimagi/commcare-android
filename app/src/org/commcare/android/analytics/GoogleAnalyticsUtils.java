@@ -27,6 +27,7 @@ public class GoogleAnalyticsUtils {
             return;
         }
         getTracker().send(new HitBuilders.EventBuilder()
+                .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
                 .setCategory(category)
                 .setAction(action)
                 .build());
@@ -40,6 +41,7 @@ public class GoogleAnalyticsUtils {
             return;
         }
         getTracker().send(new HitBuilders.EventBuilder()
+                .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
                 .setCategory(category)
                 .setAction(action)
                 .setLabel(label)
@@ -54,6 +56,7 @@ public class GoogleAnalyticsUtils {
             return;
         }
         getTracker().send(new HitBuilders.EventBuilder()
+                .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
                 .setCategory(category)
                 .setAction(action)
                 .setLabel(label)
@@ -150,6 +153,7 @@ public class GoogleAnalyticsUtils {
         }
         HitBuilders.EventBuilder builder = new HitBuilders.EventBuilder();
         builder.setCategory(category)
+                .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
                 .setAction(GoogleAnalyticsFields.ACTION_EDIT_PREF)
                 .setLabel(label);
         if (value != -1) {
@@ -211,6 +215,7 @@ public class GoogleAnalyticsUtils {
             return;
         }
         getTracker().send(new HitBuilders.EventBuilder()
+                .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
                 .setCategory(GoogleAnalyticsFields.CATEGORY_TIMED_EVENTS)
                 .setAction(action)
                 .setValue(value)
