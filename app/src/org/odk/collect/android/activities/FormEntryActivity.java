@@ -81,6 +81,7 @@ import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.model.xform.XFormsModule;
+import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.activities.components.FormNavigationController;
@@ -457,8 +458,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 break;
             case HIERARCHY_ACTIVITY:
             case HIERARCHY_ACTIVITY_FIRST_START:
-                // We may have jumped to a new index in hierarchy activity, so refresh
-                refreshCurrentView(false);
+                if (resultCode == FormHierarchyActivity.RESULT_XPATH_ERROR) {
+                    finish();
+                } else {
+                    // We may have jumped to a new index in hierarchy activity, so refresh
+                    refreshCurrentView(false);
+                }
                 break;
         }
     }
@@ -1076,7 +1081,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         break;
                 }
             } while (event != FormEntryController.EVENT_END_OF_FORM);
-            }catch(XPathTypeMismatchException e){
+            }catch(XPathTypeMismatchException | XPathArityException e){
                 UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
             }
         }
@@ -1260,7 +1265,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         FormNavigationController.NavigationDetails details;
         try {
             details = FormNavigationController.calculateNavigationStatus(mFormController, mCurrentView);
-        } catch (XPathTypeMismatchException e) {
+        } catch (XPathTypeMismatchException | XPathArityException e) {
             UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
             return;
         }
@@ -1321,7 +1326,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 dialog.dismiss();
                 try {
                     mFormController.newRepeat();
-                } catch (XPathTypeMismatchException e) {
+                } catch (XPathTypeMismatchException | XPathArityException e) {
                     Logger.exception(e);
                     UserfacingErrorHandling.logErrorAndShowDialog(FormEntryActivity.this, e, EXIT);
                     return;
@@ -2309,7 +2314,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public void widgetEntryChanged() {
         try {
             updateFormRelevancies();
-        } catch (XPathTypeMismatchException e) {
+        } catch (XPathTypeMismatchException | XPathArityException e) {
             UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
             return;
         }
