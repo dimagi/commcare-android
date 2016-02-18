@@ -7,14 +7,19 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.android.framework.SessionActivityRegistration;
+import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
+import org.javarosa.xpath.XPathArityException;
+import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.adapters.HierarchyListAdapter;
 import org.odk.collect.android.logic.FormHierarchyBuilder;
 import org.odk.collect.android.logic.HierarchyElement;
@@ -28,6 +33,7 @@ public class FormHierarchyActivity extends ListActivity {
     private List<HierarchyElement> formList;
     private TextView mPath;
     private FormIndex mStartIndex;
+    public final static int RESULT_XPATH_ERROR = RESULT_FIRST_USER + 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,14 +84,17 @@ public class FormHierarchyActivity extends ListActivity {
             @Override
             public void run() {
                 int position = 0;
-                for (int i = 0; i < getListAdapter().getCount(); i++) {
-                    HierarchyElement he = (HierarchyElement)getListAdapter().getItem(i);
-                    if (mStartIndex.equals(he.getFormIndex())) {
-                        position = i;
-                        break;
+                ListAdapter adapter = getListAdapter();
+                if (adapter != null) {
+                    for (int i = 0; i < adapter.getCount(); i++) {
+                        HierarchyElement he = (HierarchyElement)getListAdapter().getItem(i);
+                        if (mStartIndex.equals(he.getFormIndex())) {
+                            position = i;
+                            break;
+                        }
                     }
+                    getListView().setSelection(position);
                 }
-                getListView().setSelection(position);
             }
         });
 
@@ -172,7 +181,20 @@ public class FormHierarchyActivity extends ListActivity {
 
         formList = new ArrayList<>();
 
-        String hierarchyPath = FormHierarchyBuilder.populateHierarchyList(this, formList);
+        String hierarchyPath;
+        try {
+            hierarchyPath = FormHierarchyBuilder.populateHierarchyList(this, formList);
+        } catch (XPathTypeMismatchException | XPathArityException e) {
+            XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
+
+            final String errorMsg = "Encounted xpath error: " + e.getMessage();
+            // TODO PLM: show blocking dialog with error; requires
+            // making this implement DialogController & use Fragments
+            Toast.makeText(this, errorMsg, Toast.LENGTH_LONG).show();
+            setResult(RESULT_XPATH_ERROR);
+            finish();
+            return;
+        }
 
         setGoUpButton(hierarchyPath);
 

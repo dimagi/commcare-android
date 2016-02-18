@@ -26,14 +26,12 @@ import android.widget.TextView;
 
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.fragments.ContainerFragment;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionStateUninitException;
-import org.commcare.android.util.StringUtils;
-import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.AlertDialogFragment;
@@ -418,7 +416,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     @Override
-    public void taskCancelled(int id) {
+    public void taskCancelled() {
 
     }
 
@@ -508,54 +506,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     protected boolean isNetworkNotConnected() {
         return !ConnectivityStatus.isNetworkAvailable(this);
-    }
-
-    protected void createErrorDialog(String errorMsg, boolean shouldExit) {
-        createErrorDialog(this, errorMsg, shouldExit);
-    }
-
-    /**
-     * Pop up a semi-friendly error dialog rather than crashing outright.
-     *
-     * @param activity   Activity to which to attach the dialog.
-     * @param shouldExit If true, cancel activity when user exits dialog.
-     */
-    public static void createErrorDialog(final CommCareActivity activity, String errorMsg,
-                                         final boolean shouldExit) {
-        String title = StringUtils.getStringRobust(activity, org.commcare.dalvik.R.string.error_occured);
-
-        AlertDialogFactory factory = new AlertDialogFactory(activity, title, errorMsg);
-        factory.setIcon(android.R.drawable.ic_dialog_info);
-
-        DialogInterface.OnCancelListener cancelListener =
-                new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        if (shouldExit) {
-                            activity.setResult(RESULT_CANCELED);
-                            activity.finish();
-                        }
-                        dialog.dismiss();
-                    }
-                };
-        factory.setOnCancelListener(cancelListener);
-
-        CharSequence buttonDisplayText =
-                StringUtils.getStringSpannableRobust(activity, org.commcare.dalvik.R.string.ok);
-        DialogInterface.OnClickListener buttonListener =
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int i) {
-                        if (shouldExit) {
-                            activity.setResult(RESULT_CANCELED);
-                            activity.finish();
-                        }
-                        dialog.dismiss();
-                    }
-                };
-        factory.setPositiveButton(buttonDisplayText, buttonListener);
-
-        activity.showAlertDialog(factory);
     }
 
     // region - All methods for implementation of DialogController

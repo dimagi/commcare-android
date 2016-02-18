@@ -165,9 +165,6 @@ public class IntentWidget extends QuestionWidget {
         }
     }
 
-    /**
-     * Allows answer to be set externally in {@Link FormEntryActivity}.
-     */
     @Override
     public void setBinaryData(Object answer) {
         mStringAnswer.setText((String)answer);

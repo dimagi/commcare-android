@@ -1,5 +1,6 @@
 package org.commcare.android.adapters;
 
+import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -107,7 +108,9 @@ public class EntitySorter implements Comparator<Entity<TreeReference>> {
                 return value;
             }
         } catch (XPathTypeMismatchException e) {
-            //So right now this will fail 100% silently, which is bad.
+            XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
+
+            e.printStackTrace();
             return null;
         }
     }
