@@ -43,8 +43,8 @@ import android.widget.Toast;
 
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.fragments.ContainerFragment;
-import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.android.framework.SaveSessionCommCareActivity;
+import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.android.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
@@ -96,14 +96,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         EntityLoaderListener,
         OnItemClickListener,
         DetailCalloutListener {
-    private static final String TAG = EntitySelectActivity.class.getSimpleName();
-
     private CommCareSession session;
     private AndroidSessionWrapper asw;
 
     public static final String EXTRA_ENTITY_KEY = "esa_entity_key";
-    private static final String EXTRA_IS_MAP = "is_map";
     private static final String CONTAINS_HERE_FUNCTION = "contains_here_function";
+    private static final String MAPPING_ENABLED = "map_view_enabled";
     private static final String LOCATION_CHANGED_WHILE_LOADING = "location_changed_while_loading";
 
     private static final int CONFIRM_SELECT = 0;
@@ -128,8 +126,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private SessionDatum selectDatum;
 
     private boolean mResultIsMap = false;
-
-    private boolean mMappingEnabled = false;
+    private boolean isMappingEnabled = false;
 
     // Is the detail screen for showing entities, without option for moving
     // forward on to form manipulation?
@@ -220,10 +217,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         };
     }
 
-
     private void restoreSavedState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
-            this.mResultIsMap = savedInstanceState.getBoolean(EXTRA_IS_MAP, false);
+            this.isMappingEnabled = savedInstanceState.getBoolean(MAPPING_ENABLED);
             this.containsHereFunction = savedInstanceState.getBoolean(CONTAINS_HERE_FUNCTION);
             this.locationChangedWhileLoading = savedInstanceState.getBoolean(
                     LOCATION_CHANGED_WHILE_LOADING);
@@ -249,6 +245,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         setupDivider(view);
         setupToolbar(view);
+        setupMapNav();
     }
 
     private void setupLandscapeDualPaneView() {
@@ -466,6 +463,15 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         iv.setImageDrawable(drawable);
     }
 
+    private void setupMapNav() {
+        for (DetailField field : shortSelect.getFields()) {
+            if ("address".equals(field.getTemplateForm())) {
+                isMappingEnabled = true;
+                break;
+            }
+        }
+    }
+
     /**
      * Updates the ImageView layout that is passed in, based on the
      * new id and source
@@ -537,9 +543,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
             for (int i = 0; i < headers.length; ++i) {
                 headers[i] = shortSelect.getFields()[i].getHeader().evaluate();
-                if ("address".equals(shortSelect.getFields()[i].getTemplateForm())) {
-                    this.mMappingEnabled = true;
-                }
             }
 
             header.removeAllViews();
@@ -563,7 +566,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     public boolean loadEntities() {
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
-            Log.i(TAG, "entities reloading");
             EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
             entityLoader.attachListener(this);
             entityLoader.execute(selectDatum.getNodeset());
@@ -577,6 +579,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         super.onSaveInstanceState(savedInstanceState);
 
         savedInstanceState.putBoolean(CONTAINS_HERE_FUNCTION, containsHereFunction);
+        savedInstanceState.putBoolean(MAPPING_ENABLED, isMappingEnabled);
         savedInstanceState.putBoolean(LOCATION_CHANGED_WHILE_LOADING, locationChangedWhileLoading);
     }
 
@@ -784,7 +787,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         //use the old method here because some Android versions don't like Spannables for titles
         menu.add(0, MENU_SORT, MENU_SORT, Localization.get("select.menu.sort")).setIcon(
                 android.R.drawable.ic_menu_sort_alphabetically);
-        if (mMappingEnabled) {
+        if (isMappingEnabled) {
             menu.add(0, MENU_MAP, MENU_MAP, Localization.get("select.menu.map")).setIcon(
                     android.R.drawable.ic_menu_mapmode);
         }
