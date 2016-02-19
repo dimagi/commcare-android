@@ -1198,7 +1198,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         SpannableStringBuilder groupLabelText = mCurrentView.getGroupLabel();
 
-        if (groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
+        // don't consider '>' char when evaluating whether there's a group label
+        if (groupLabelText != null && !groupLabelText.toString().replace(">","").trim().equals("")) {
             groupLabel.setText(groupLabelText);
             this.mGroupNativeVisibility = true;
             updateGroupViewVisibility();
@@ -1465,6 +1466,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             public void onClick(View v) {
                 GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_EXIT_NO_SAVE);
                 discardChangesAndExit();
+                dialog.dismiss();
             }
         };
         DialogChoiceItem quitFormItem = new DialogChoiceItem(
@@ -1479,6 +1481,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 public void onClick(View v) {
                     GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_SAVE_AND_EXIT);
                     saveFormToDisk(EXIT);
+                    dialog.dismiss();
                 }
             };
             DialogChoiceItem saveIncompleteItem = new DialogChoiceItem(
