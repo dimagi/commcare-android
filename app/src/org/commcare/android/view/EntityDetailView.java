@@ -26,6 +26,7 @@ import org.commcare.dalvik.activities.CommCareGraphActivity;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
 import org.commcare.graph.view.GraphView;
+import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -113,7 +114,20 @@ public class EntityDetailView extends FrameLayout {
         addressView = detailRow.findViewById(R.id.detail_address_view);
         addressText = (TextView)addressView.findViewById(R.id.detail_address_text);
         addressButton = (Button)addressView.findViewById(R.id.detail_address_button);
+
         imageView = (ImageView)detailRow.findViewById(R.id.detail_value_image);
+        int height;
+        if (CommCarePreferences.isSmartInflationEnabled()) {
+            // If using smart inflation, we don't want to do any other artificial resizing of images
+            height = LayoutParams.WRAP_CONTENT;
+        } else {
+            // otherwise, should let the image view stretch to fill the height of the row
+            height = LayoutParams.MATCH_PARENT;
+        }
+        FrameLayout.LayoutParams imageViewParams =
+                new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, height);
+        imageView.setLayoutParams(imageViewParams);
+
         graphLayout = (AspectRatioLayout)detailRow.findViewById(R.id.graph);
         calloutView = detailRow.findViewById(R.id.callout_view);
         calloutText = (TextView)detailRow.findViewById(R.id.callout_text);

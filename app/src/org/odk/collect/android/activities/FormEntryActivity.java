@@ -1477,6 +1477,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             public void onClick(View v) {
                 GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_EXIT_NO_SAVE);
                 discardChangesAndExit();
+                dialog.dismiss();
             }
         };
         DialogChoiceItem quitFormItem = new DialogChoiceItem(
@@ -1491,6 +1492,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 public void onClick(View v) {
                     GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_SAVE_AND_EXIT);
                     saveFormToDisk(EXIT);
+                    dialog.dismiss();
                 }
             };
             DialogChoiceItem saveIncompleteItem = new DialogChoiceItem(
