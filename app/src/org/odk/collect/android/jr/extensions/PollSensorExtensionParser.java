@@ -37,6 +37,6 @@ public class PollSensorExtensionParser implements IElementHandler {
             action = new PollSensorAction();
         }
 
-        form.registerEventListener(event, action);
+        form.getActionController().registerEventListener(event, action);
     }
 }
