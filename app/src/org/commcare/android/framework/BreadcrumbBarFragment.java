@@ -21,7 +21,7 @@ import android.view.animation.Transformation;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;

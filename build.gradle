@@ -1,4 +1,4 @@
-import com.android.builder.core.DefaultManifestParser;
+import com.android.builder.core.DefaultManifestParser
 import org.apache.tools.ant.filters.ReplaceTokens
 
 ////////////
@@ -19,8 +19,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.0.0-alpha9'
-        classpath 'com.google.gms:google-services:2.0.0-alpha7'
+        classpath 'com.android.tools.build:gradle:2.0.0-beta5'
+        classpath 'com.google.gms:google-services:2.0.0-beta5'
     }
 }
 
@@ -55,13 +55,13 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:23.1.1'
     compile 'com.android.support:support-v4:23.1.1'
     compile 'com.android.support:gridlayout-v7:23.1.1'
-    compile 'com.madgag.spongycastle:core:1.52.0.0'
-    compile 'com.madgag.spongycastle:prov:1.52.0.0'
+    compile 'com.madgag.spongycastle:core:1.54.0.0'
+    compile 'com.madgag.spongycastle:prov:1.54.0.0'
     compile 'com.google.android.gms:play-services-maps:8.4.0'
     compile 'com.google.android.gms:play-services-analytics:8.4.0'
-    compile 'com.google.zxing:core:3.0.0'
+    compile 'com.google.zxing:core:3.2.1'
     compile 'ch.acra:acra:4.8.1@aar'
-    compile 'joda-time:joda-time:2.3'
+    compile 'joda-time:joda-time:2.9.2'
     compile 'net.sf.kxml:kxml2:2.3.0'
     compile 'net.zetetic:android-database-sqlcipher:3.3.1-2@aar'
     compile 'org.apache.james:apache-mime4j:0.7.2'
@@ -70,11 +70,6 @@ dependencies {
     }
     compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
     compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
-}
-
-project.ext {
-    compileSdkVersion = "Google Inc.:Google APIs:23"
-    buildToolsVersion = "23.0.2"
 }
 
 ext {
@@ -122,8 +117,8 @@ def getDate() {
 }
 
 android {
-    compileSdkVersion rootProject.ext.compileSdkVersion
-    buildToolsVersion rootProject.ext.buildToolsVersion
+    compileSdkVersion = "Google Inc.:Google APIs:23"
+    buildToolsVersion = "23.0.2"
 
     useLibrary 'org.apache.http.legacy'
 
@@ -318,26 +313,44 @@ afterEvaluate {
 task switchGoogleServicesCommcare(type: Copy) {
     description = 'Makes build use normal google-services.json file'
     println project.ext.COMMCARE_APP_ID
-    from("templates")
-    include "google-services.json"
+
+    /**
+     * This is an awkward workaround for a Windows build error that occurs when you try
+     * to copy something into the root directory (containing the .gradle folder). Don't
+     * change it without testing on a windows machine
+     */
+    outputs.files.setFrom(file("$projectDir/google-services.json"))
+    from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.COMMCARE_APP_ID])
-    into "."
+    into projectDir
 }
 
 task switchGoogleServicesStandalone(type: Copy) {
     description = 'Switches package name in google-services.json to match Standalone package name'
-    from("templates")
-    include "google-services.json"
+
+    /**
+     * This is an awkward workaround for a Windows build error that occurs when you try
+     * to copy something into the root directory (containing the .gradle folder). Don't
+     * change it without testing on a windows machine
+     */
+    outputs.files.setFrom(file("$projectDir/google-services.json"))
+    from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.STANDALONE_APP_ID])
-    into "."
+    into projectDir
 }
 
 task switchGoogleServicesQabeta(type: Copy) {
     description = 'Switches package name in google-services.json to match Qabeta package name'
-    from("templates")
-    include "google-services.json"
+
+    /**
+     * This is an awkward workaround for a Windows build error that occurs when you try
+     * to copy something into the root directory (containing the .gradle folder). Don't
+     * change it without testing on a windows machine
+     */
+    outputs.files.setFrom(file("$projectDir/google-services.json"))
+    from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.QA_BETA_APP_ID])
-    into "."
+    into projectDir
 }
 
 /**

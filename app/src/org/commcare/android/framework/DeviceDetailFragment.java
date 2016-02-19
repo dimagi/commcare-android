@@ -1,7 +1,6 @@
 package org.commcare.android.framework;
 
 import android.annotation.SuppressLint;
-import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.os.Bundle;
@@ -33,18 +32,6 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
     public void onConnectionInfoAvailable(final WifiP2pInfo info) {
         Log.d(TAG, "onConnectionInfoAvailable");
         this.getView().setVisibility(View.VISIBLE);
-    }
-
-    /**
-     * Updates the UI with device data
-     *
-     * @param device the device to be displayed
-     */
-    public void showDetails(WifiP2pDevice device) {
-        Log.d(TAG, "showing details in ddfragment with device: " + device.deviceAddress);
-        this.getView().setVisibility(View.VISIBLE);
-        TextView view = (TextView)mContentView.findViewById(R.id.device_address);
-        view.setText(device.deviceAddress);
     }
 
     /**

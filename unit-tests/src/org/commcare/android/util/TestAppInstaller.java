@@ -5,13 +5,14 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.DemoUserBuilder;
 import org.commcare.android.mocks.CommCareTaskConnectorFake;
 import org.commcare.android.resource.AppInstallStatus;
-import org.commcare.android.tasks.ManageKeyRecordTask;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.application.CommCareTestApp;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.javarosa.core.model.User;
+import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.util.PropertyUtils;
 import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
@@ -44,6 +45,21 @@ public class TestAppInstaller {
         buildTestUser();
 
         login(username, password);
+    }
+
+    public static void initInstallAndLogin(String appPath,
+                                           String username,
+                                           String password) {
+        // needed to resolve "jr://resource" type references
+        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
+
+        TestUtils.initializeStaticTestStorage();
+        TestAppInstaller.setupPrototypeFactory();
+
+        TestAppInstaller appTestInstaller =
+                new TestAppInstaller(
+                        appPath, username, password);
+        appTestInstaller.installAppAndLogin();
     }
 
     private void installApp() {
