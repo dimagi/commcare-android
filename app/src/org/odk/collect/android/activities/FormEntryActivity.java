@@ -1471,7 +1471,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         };
         DialogChoiceItem quitFormItem = new DialogChoiceItem(
                 StringUtils.getStringRobust(this, R.string.do_not_save),
-                R.drawable.ic_trashcan,
+                R.drawable.icon_exit_form,
                 exitFormListener);
 
         DialogChoiceItem[] items;
