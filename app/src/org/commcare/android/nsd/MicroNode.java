@@ -17,6 +17,8 @@ import java.net.URL;
 import java.util.ArrayList;
 
 /**
+ * API wrapper class for services provided by CommCare micronodes.
+ *
  * Created by ctsims on 2/19/2016.
  */
 public class MicroNode {

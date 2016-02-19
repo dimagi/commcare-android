@@ -81,7 +81,8 @@ public class NsdTools {
             if(mAttachedMicronodes.size() > 0) {
 
                 //Receivers should expect to receive these messages from not-their-main thread
-                //which is managed inherently during discovery, but registration
+                //which is managed inherently during discovery, but won't be during
+                //registration
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -93,16 +94,20 @@ public class NsdTools {
     }
 
     public static Collection<MicroNode> getAvailableMicronodes() {
-        //Make a shallow copy in case this list is modified,
+        //Make a shallow copy in case this list is modified, since it is likely
+        //to have long operaitons run during iteration.
         return new HashSet<>(mAttachedMicronodes.values());
     }
 
     private static void removeListener(NsdServiceListener listener) {
         synchronized (listeners) {
-            listeners.remove(listener);
+            if(listeners.contains(listener)) {
+                listeners.remove(listener);
+            }
         }
     }
-
+    
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private static void doDiscovery(Context context) {
         synchronized (NsdToolsLock) {
             if(mNsdManager == null) {
