@@ -125,6 +125,9 @@ public class ShrinkingTextView extends TextView {
             }
 
             if (mExpanded) {
+                if (mFullHeight == -1) {
+                    mFullHeight = ShrinkingTextView.this.getMeasuredHeight();
+                }
                 mCurrentAnimation = new ExpandAnimation(mFullHeight, mMaxHeight);
             } else {
                 mCurrentAnimation = new ExpandAnimation(mMaxHeight, mFullHeight);
