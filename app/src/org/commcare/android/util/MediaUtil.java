@@ -8,7 +8,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.WindowManager;
 
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.references.JavaFileReference;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -168,7 +168,7 @@ public class MediaUtil {
      * 2. The aspect ratio of the original image is maintained (so the height would get scaled
      * down proportionally with the width)
      */
-    private static Bitmap getBitmapScaledToContainer(String imageFilepath, int containerHeight,
+    public static Bitmap getBitmapScaledToContainer(String imageFilepath, int containerHeight,
                                                      int containerWidth) {
         // Determine dimensions of original image
         BitmapFactory.Options o = new BitmapFactory.Options();
@@ -204,8 +204,7 @@ public class MediaUtil {
                                                              int targetHeight, int targetWidth,
                                                              int boundingHeight, int boundingWidth,
                                                              boolean scaleByContainerOnly) {
-
-        Pair<Integer, Integer> dimensImposedByContainer = getProportionalDimensForContainer(
+        Pair<Integer, Integer> dimensImposedByContainer = getDimensImposedByContainer(
                 originalHeight, originalWidth, boundingHeight, boundingWidth);
 
         int newWidth, newHeight;
@@ -242,6 +241,31 @@ public class MediaUtil {
     }
 
     /**
+     * @return The original dimens if they both fit within the bounds. Otherwise, return the
+     * smallest dimensions that both preserve the original aspect ratio, and still fill the
+     * container
+     */
+    private static Pair<Integer, Integer> getDimensImposedByContainer(int originalHeight,
+                                                                      int originalWidth,
+                                                                      int boundingHeight,
+                                                                      int boundingWidth) {
+        if (originalHeight < boundingHeight && originalWidth < boundingWidth) {
+            return new Pair<>(originalWidth, originalHeight);
+        }
+
+        double heightScaleDownFactor = (double)boundingHeight / originalHeight;
+        double widthScaleDownFactor =  (double)boundingWidth / originalWidth;
+        // Choosing the larger of the scale down factors, so that the image still fills the entire
+        // container
+        double dominantScaleDownFactor = Math.max(heightScaleDownFactor, heightScaleDownFactor);
+
+        int widthImposedByContainer = (int)Math.round(originalWidth * dominantScaleDownFactor);
+        int heightImposedByContainer = (int)Math.round(originalHeight * dominantScaleDownFactor);
+        return new Pair<>(widthImposedByContainer, heightImposedByContainer);
+
+    }
+
+    /**
      * @return A bitmap representation of the given image file, scaled up as close as possible to
      * desiredWidth and desiredHeight, without exceeding either boundingHeight or boundingWidth
      */
@@ -249,10 +273,10 @@ public class MediaUtil {
                                                 int desiredHeight, int desiredWidth,
                                                 int boundingHeight, int boundingWidth) {
         if (boundingHeight < desiredHeight || boundingWidth < desiredWidth) {
-            Pair<Integer, Integer> dimensImposedByContainer = getProportionalDimensForContainer(
+            Pair<Integer, Integer> dimensForScaleUp = boundedScaleUpHelper(
                     desiredHeight, desiredWidth, boundingHeight, boundingWidth);
-            desiredWidth = dimensImposedByContainer.first;
-            desiredHeight = dimensImposedByContainer.second;
+            desiredWidth = dimensForScaleUp.first;
+            desiredHeight = dimensForScaleUp.second;
         }
         try {
             BitmapFactory.Options o = new BitmapFactory.Options();
@@ -268,6 +292,24 @@ public class MediaUtil {
             // choice but to scale down
             return performSafeScaleDown(imageFilepath, 2, 1);
         }
+    }
+
+    /**
+     * @return A (width, height) pair representing the largest possible dimensions that both:
+     * a) do not exceed boundingHeight or boundingWidth, and
+     * b) maintain the aspect ratio given by originalHeight and originalWidth
+     */
+    private static Pair<Integer, Integer> boundedScaleUpHelper(int originalHeight,
+                                                               int originalWidth,
+                                                               int boundingHeight,
+                                                               int boundingWidth) {
+        double heightScaleFactor = (double)boundingHeight / originalHeight;
+        double widthScaleFactor =  (double)boundingWidth / originalWidth;
+        double dominantScaleFactor = Math.min(heightScaleFactor, widthScaleFactor);
+
+        int scaledUpWidthImposedByContainer = (int)Math.round(originalWidth * dominantScaleFactor);
+        int scaledUpHeightImposedByContainer = (int)Math.round(originalHeight * dominantScaleFactor);
+        return new Pair<>(scaledUpWidthImposedByContainer, scaledUpHeightImposedByContainer);
     }
 
     /**
@@ -287,23 +329,4 @@ public class MediaUtil {
             return performSafeScaleDown(imageFilepath, scale + 1, depth + 1);
         }
     }
-
-    /**
-     * @return A (width, height) pair representing the largest dimensions for which the aspect
-     * ratio given by originalHeight and originalWidth is maintained, without exceeding
-     * boundingHeight or boundingWidth
-     */
-    private static Pair<Integer, Integer> getProportionalDimensForContainer(int originalHeight,
-                                                                            int originalWidth,
-                                                                            int boundingHeight,
-                                                                            int boundingWidth) {
-        double heightScaleFactor = (double)boundingHeight / originalHeight;
-        double widthScaleFactor = (double)boundingWidth / originalWidth;
-        double dominantScaleFactor = Math.min(heightScaleFactor, widthScaleFactor);
-
-        int widthImposedByContainer = (int)Math.round(originalWidth * dominantScaleFactor);
-        int heightImposedByContainer = (int)Math.round(originalHeight * dominantScaleFactor);
-        return new Pair<>(widthImposedByContainer, heightImposedByContainer);
-    }
-
 }

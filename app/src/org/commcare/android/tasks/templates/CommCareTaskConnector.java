@@ -28,7 +28,7 @@ public interface CommCareTaskConnector<R> {
      */
     void stopBlockingForTask(int id);
 
-    void taskCancelled(int id);
+    void taskCancelled();
 
     R getReceiver();
 

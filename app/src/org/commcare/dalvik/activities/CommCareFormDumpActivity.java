@@ -16,7 +16,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DumpTask;
@@ -263,7 +263,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
     }
 
     @Override
-    public void taskCancelled(int id) {
+    public void taskCancelled() {
         txtInteractiveMessages.setText(Localization.get("bulk.form.cancel"));
         this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }

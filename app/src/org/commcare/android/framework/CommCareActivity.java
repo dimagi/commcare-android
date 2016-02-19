@@ -26,13 +26,12 @@ import android.widget.TextView;
 
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.fragments.ContainerFragment;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.android.util.MarkupUtil;
 import org.commcare.android.util.SessionStateUninitException;
-import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.AlertDialogFragment;
@@ -417,7 +416,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     @Override
-    public void taskCancelled(int id) {
+    public void taskCancelled() {
 
     }
 

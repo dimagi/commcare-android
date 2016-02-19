@@ -8,7 +8,7 @@ import android.support.v4.util.Pair;
 import android.util.Log;
 
 import org.commcare.android.crypt.EncryptionIO;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.android.tasks.templates.CommCareTask;

@@ -65,7 +65,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
             return new Vector<>();
         } else {
             c.moveToFirst();
-            Vector<Integer> indices = new Vector<Integer>();
+            Vector<Integer> indices = new Vector<>();
             int index = c.getColumnIndexOrThrow(DatabaseHelper.ID_COL);
             while (!c.isAfterLast()) {
                 int id = c.getInt(index);
@@ -85,7 +85,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
             return new Vector<>();
         } else {
             c.moveToFirst();
-            Vector<T> indices = new Vector<T>();
+            Vector<T> indices = new Vector<>();
             int index = c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL);
             while (!c.isAfterLast()) {
                 byte[] data = c.getBlob(index);

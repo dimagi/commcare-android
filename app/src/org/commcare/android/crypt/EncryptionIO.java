@@ -1,6 +1,6 @@
 package org.commcare.android.crypt;
 
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.javarosa.core.services.Logger;
 
 import java.io.BufferedInputStream;
@@ -26,8 +26,6 @@ import javax.crypto.spec.SecretKeySpec;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class EncryptionIO {
-    private final static String TAG = EncryptionIO.class.getSimpleName();
-
     public static OutputStream createFileOutputStream(String filename,
                                                       SecretKeySpec symetricKey)
             throws FileNotFoundException {

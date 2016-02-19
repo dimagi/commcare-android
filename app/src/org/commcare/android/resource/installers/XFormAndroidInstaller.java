@@ -9,7 +9,7 @@ import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Log;
 
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApplication;

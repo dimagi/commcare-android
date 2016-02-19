@@ -9,6 +9,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
 
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.graph.activities.GraphActivity;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
@@ -16,7 +17,6 @@ import org.commcare.graph.view.c3.AxisConfiguration;
 import org.commcare.graph.view.c3.DataConfiguration;
 import org.commcare.graph.view.c3.GridConfiguration;
 import org.commcare.graph.view.c3.LegendConfiguration;
-import org.commcare.dalvik.BuildConfig;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -35,7 +35,6 @@ public class GraphView {
     private final Context mContext;
     private final String mTitle;
     private final boolean mIsFullScreen;
-    private GraphData mData;
 
     public GraphView(Context context, String title, boolean isFullScreen) {
         mContext = context;
@@ -90,25 +89,24 @@ public class GraphView {
      * @return Full HTML page, including head, body, and all script and style tags
      */
     public String getHTML(GraphData graphData) throws GraphException {
-        mData = graphData;
         SortedMap<String, String> variables = new TreeMap<>();
         JSONObject config = new JSONObject();
         StringBuilder html = new StringBuilder();
         try {
             // Configure data first, as it may affect the other configurations
-            DataConfiguration data = new DataConfiguration(mData);
+            DataConfiguration data = new DataConfiguration(graphData);
             config.put("data", data.getConfiguration());
 
-            AxisConfiguration axis = new AxisConfiguration(mData);
+            AxisConfiguration axis = new AxisConfiguration(graphData);
             config.put("axis", axis.getConfiguration());
 
-            GridConfiguration grid = new GridConfiguration(mData);
+            GridConfiguration grid = new GridConfiguration(graphData);
             config.put("grid", grid.getConfiguration());
 
-            LegendConfiguration legend = new LegendConfiguration(mData);
+            LegendConfiguration legend = new LegendConfiguration(graphData);
             config.put("legend", legend.getConfiguration());
 
-            variables.put("type", "'" + mData.getType() + "'");
+            variables.put("type", "'" + graphData.getType() + "'");
             variables.put("config", config.toString());
 
             html.append(
