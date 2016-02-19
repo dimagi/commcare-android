@@ -7,23 +7,53 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.android.nsd.MicroNode;
+import org.commcare.android.nsd.NsdServiceListener;
+import org.commcare.android.nsd.NsdTools;
 import org.commcare.android.view.SquareButtonWithText;
+
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareSetupActivity;
+import org.commcare.dalvik.dialogs.DialogChoiceItem;
+import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.javarosa.core.services.locale.Localization;
+import java.util.ArrayList;
 
 /**
  * Fragment for choosing app installation mode (barcode or manual install).
  *
  * @author Daniel Luna (dluna@dimagi.com)
  */
-public class SelectInstallModeFragment extends Fragment {
+public class SelectInstallModeFragment extends Fragment implements NsdServiceListener{
+
+    public static final String TAG = SelectInstallModeFragment.class.getName();
+
+    View mFetchHubContainer;
+
+    ArrayList<String[]> mLocalApps = new ArrayList<>();
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        NsdTools.registerForNsdServices(this.getContext(), this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        NsdTools.deRegisterForNsdServices(this);
+    }
+
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.select_install_mode_fragment, container, false);
@@ -69,6 +99,65 @@ public class SelectInstallModeFragment extends Fragment {
             }
         });
 
+        SquareButtonWithText installFromLocal = (SquareButtonWithText)view.findViewById(R.id.btn_fetch_hub);
+        installFromLocal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Activity currentActivity = getActivity();
+                if (currentActivity instanceof CommCareSetupActivity) {
+                    showLocalAppDialog();
+                }
+            }
+        });
+
+        mFetchHubContainer = view.findViewById(R.id.btn_fetch_hub_container);
+
         return view;
+    }
+
+    private void showLocalAppDialog() {
+        ContextThemeWrapper wrapper = new ContextThemeWrapper(getContext(), R.style.DialogBaseTheme);
+        final PaneledChoiceDialog chooseApp = new PaneledChoiceDialog(wrapper,
+                Localization.get("install.choose.local.app"));
+
+        DialogChoiceItem[] items = new DialogChoiceItem[mLocalApps.size()];
+        int count = 0;
+        for(final String[] app : mLocalApps) {
+            DialogChoiceItem item = new DialogChoiceItem(app[0], -1, new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Activity currentActivity = getActivity();
+                    if (currentActivity instanceof CommCareSetupActivity) {
+                        ((CommCareSetupActivity)currentActivity).onURLChosen(app[1]);
+                    }
+                    chooseApp.dismiss();
+                }
+            });
+            items[count] = item;
+            count++;
+        }
+        chooseApp.setChoiceItems(items);
+        chooseApp.show();
+    }
+
+    @Override
+    public synchronized void onMicronodeDiscovery() {
+        boolean appsAvailable = false;
+        mLocalApps = new ArrayList<>();
+        for(MicroNode node : NsdTools.getAvailableMicronodes()) {
+            for(String[] applications : node.getAvailableApplications()) {
+                mLocalApps.add(applications);
+                appsAvailable = true;
+            }
+        }
+        Activity activity = getActivity();
+        if(appsAvailable && activity != null) {
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mFetchHubContainer.setVisibility(View.VISIBLE);
+                }
+            });
+        }
     }
 }
