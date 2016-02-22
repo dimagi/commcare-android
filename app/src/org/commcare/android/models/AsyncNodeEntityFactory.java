@@ -100,15 +100,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         }
 
         String[] names = cachePrimeKeys[0];
-
-        //Build the where clause for the provided key names
-        String whereClause = "";
-        for (int i = 0; i < names.length; ++i) {
-            whereClause += AndroidTableBuilder.scrubName(names[i]) + " = ?";
-            if (i + 1 < names.length) {
-                whereClause += " AND ";
-            }
-        }
+        String whereClause = buildKeyNameWhereClause(names);
 
         long now = System.currentTimeMillis();
 
@@ -124,19 +116,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
             DbUtil.explainSql(db, sqlStatement, args);
         }
 
-        //TODO: This will _only_ query up to about a meg of data, which is an un-great limitation. 
-        //Should probably split this up SQL LIMIT based looped
-        //For reference the current limitation is about 10k rows with 1 field each. 
-        Cursor walker = db.rawQuery(sqlStatement, args);
-        while (walker.moveToNext()) {
-            String entityId = walker.getString(walker.getColumnIndex("entity_key"));
-            String cacheId = walker.getString(walker.getColumnIndex("cache_key"));
-            String val = walker.getString(walker.getColumnIndex("value"));
-            if (this.mEntitySet.containsKey(entityId)) {
-                this.mEntitySet.get(entityId).setSortData(cacheId, val);
-            }
-        }
-        walker.close();
+        populateEntitySet(db, sqlStatement, args);
 
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
             Log.d(TAG, "Sequential Cache Load: " + (System.currentTimeMillis() - now) + "ms");
@@ -159,6 +139,33 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         } else {
             return "";
         }
+    }
+
+    private String buildKeyNameWhereClause(String[] names) {
+        String whereClause = "";
+        for (int i = 0; i < names.length; ++i) {
+            whereClause += AndroidTableBuilder.scrubName(names[i]) + " = ?";
+            if (i + 1 < names.length) {
+                whereClause += " AND ";
+            }
+        }
+        return whereClause;
+    }
+
+    private void populateEntitySet(SQLiteDatabase db, String sqlStatement, String[] args) {
+        //TODO: This will _only_ query up to about a meg of data, which is an un-great limitation.
+        //Should probably split this up SQL LIMIT based looped
+        //For reference the current limitation is about 10k rows with 1 field each.
+        Cursor walker = db.rawQuery(sqlStatement, args);
+        while (walker.moveToNext()) {
+            String entityId = walker.getString(walker.getColumnIndex("entity_key"));
+            String cacheId = walker.getString(walker.getColumnIndex("cache_key"));
+            String val = walker.getString(walker.getColumnIndex("value"));
+            if (this.mEntitySet.containsKey(entityId)) {
+                this.mEntitySet.get(entityId).setSortData(cacheId, val);
+            }
+        }
+        walker.close();
     }
 
     @Override
