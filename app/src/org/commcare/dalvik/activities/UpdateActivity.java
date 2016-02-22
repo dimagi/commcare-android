@@ -32,9 +32,11 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     private static final String TAG = UpdateActivity.class.getSimpleName();
     private static final String TASK_CANCELLING_KEY = "update_task_cancelling";
+    private static final String IS_APPLYING_UPDATE_KEY = "applying_update_task_running";
     private static final int DIALOG_UPGRADE_INSTALL = 6;
 
     private boolean taskIsCancelling;
+    private boolean isApplyingUpdate;
     private UpdateTask updateTask;
     private UpdateUIController uiController;
 
@@ -54,6 +56,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         if (savedInstanceState != null) {
             taskIsCancelling =
                     savedInstanceState.getBoolean(TASK_CANCELLING_KEY, false);
+            isApplyingUpdate =
+                    savedInstanceState.getBoolean(IS_APPLYING_UPDATE_KEY, false);
             uiController.loadSavedUIState(savedInstanceState);
         }
     }
@@ -120,7 +124,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     }
 
     private void setPendingUpdate() {
-        if (ResourceInstallUtils.isUpdateReadyToInstall()) {
+        if (!isApplyingUpdate && ResourceInstallUtils.isUpdateReadyToInstall()) {
             uiController.unappliedUpdateAvailableUiState();
         }
     }
@@ -149,6 +153,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         super.onSaveInstanceState(outState);
 
         outState.putBoolean(TASK_CANCELLING_KEY, taskIsCancelling);
+        outState.putBoolean(IS_APPLYING_UPDATE_KEY, isApplyingUpdate);
         uiController.saveCurrentUIState(outState);
     }
 
@@ -242,6 +247,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                         } else {
                             receiver.uiController.errorUiState();
                         }
+                        receiver.isApplyingUpdate = false;
                     }
 
                     @Override
@@ -253,10 +259,12 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     protected void deliverError(UpdateActivity receiver,
                                                 Exception e) {
                         receiver.uiController.errorUiState();
+                        receiver.isApplyingUpdate = false;
                     }
                 };
         task.connect(this);
         task.execute();
+        isApplyingUpdate = true;
         uiController.applyingUpdateUiState();
     }
 
@@ -299,5 +307,4 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     public CommCareActivityUIController getUIController() {
         return this.uiController;
     }
-
 }

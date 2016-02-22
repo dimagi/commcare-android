@@ -24,10 +24,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_toLeftOf="@id/screen_multimedia_inflater_filefetch">
-
-            <requestFocus/>
         </EditText>
-
     </RelativeLayout>
 
     <TextView
@@ -38,8 +35,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_margin="10dp"
-        android:gravity="center"
-        android:text="From here you can install your app multimedia from a ZIP file on the local filesystem"/>
+        android:gravity="center"/>
 
     <TextView
         android:id="@+id/screen_multimedia_install_messages"
@@ -47,8 +43,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/screen_multimedia_inflater_frame_location"
-        android:layout_centerHorizontal="true"
-        android:text="Please select a valid ZIP file"/>
+        android:layout_centerHorizontal="true"/>
 
     <Button
         android:id="@+id/screen_multimedia_inflater_install"
@@ -56,6 +51,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:text="Install Multimedia"/>
+        android:layout_gravity="bottom"
+        android:background="@color/cc_brand_color"
+        android:paddingBottom="@dimen/content_start"
+        android:paddingTop="@dimen/content_start"
+        android:textColor="@color/cc_neutral_bg"/>
 
 </RelativeLayout>

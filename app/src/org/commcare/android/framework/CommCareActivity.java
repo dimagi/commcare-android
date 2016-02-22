@@ -12,7 +12,6 @@ import android.support.v4.app.FragmentManager;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Pair;
-import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.Menu;
@@ -214,21 +213,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     protected void onMajorLayoutChange(Rect newRootViewDimensions) {
 
    }
-
-    protected int getActionBarSize() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            int actionBarHeight = getActionBar().getHeight();
-
-            if (actionBarHeight != 0) {
-                return actionBarHeight;
-            }
-            final TypedValue tv = new TypedValue();
-            if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-                actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
-            }
-            return actionBarHeight;
-        } return 0;
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

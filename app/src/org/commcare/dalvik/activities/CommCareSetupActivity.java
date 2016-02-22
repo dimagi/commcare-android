@@ -373,8 +373,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     Toast.LENGTH_LONG).show();
             this.uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
         }
-
-        uiStateScreenTransition();
+        if (offlineInstall) {
+            onStartInstallClicked();
+        } else {
+            uiStateScreenTransition();
+        }
     }
 
     private CommCareApp getCommCareApp() {
@@ -724,8 +727,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         dialog.addProgressBar();
         return dialog;
     }
-
-    //region StartStopInstallCommands implementation
 
     @Override
     public void onStartInstallClicked() {
