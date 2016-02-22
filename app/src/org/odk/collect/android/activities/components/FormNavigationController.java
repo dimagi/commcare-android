@@ -5,7 +5,7 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.logic.FormController;
-import org.odk.collect.android.views.ODKView;
+import org.odk.collect.android.views.QuestionsView;
 
 public class FormNavigationController {
     public static class NavigationDetails {
@@ -28,7 +28,7 @@ public class FormNavigationController {
     }
 
     public static NavigationDetails calculateNavigationStatus(FormController formEntryController,
-                                                              ODKView view) {
+                                                              QuestionsView view) {
         NavigationDetails details = new NavigationDetails();
 
         FormIndex userFormIndex = formEntryController.getFormIndex();
