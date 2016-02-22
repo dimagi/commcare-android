@@ -141,7 +141,7 @@ public class AsyncEntity extends Entity<TreeReference> {
                         return null;
                     }
 
-                    String cacheKey = EntityStorageCache.getCacheKey(mDetailId, String.valueOf(i));
+                    String cacheKey = AsyncNodeEntityFactory.getCacheKey(mDetailId, String.valueOf(i));
 
                     if (mCacheIndex != null) {
                         //Check the cache!
