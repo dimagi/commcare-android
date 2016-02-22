@@ -568,7 +568,6 @@ archive.install.title=Unzipping your Application Resources
 archive.install.progress=Unzipped ${0} out of ${1} resources
 archive.install.state.empty=Please select a CCZ file to begin
 archive.install.state.ready=Offline installer ready, press install to begin
-archive.install.state.done=Your CCZ file has been installed
 archive.install.state.invalid.path=The file path selected is not a valid CCZ file. Please select a valid file.
 archive.install.cancelled=Offline installation cancelled
 archive.install.bad=The selected CCZ file is not valid. Please choose a valid ccz file.

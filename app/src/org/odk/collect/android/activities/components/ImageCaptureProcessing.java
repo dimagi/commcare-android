@@ -1,5 +1,12 @@
 package org.odk.collect.android.activities.components;
 
+import android.content.ContentValues;
+import android.content.Intent;
+import android.net.Uri;
+import android.provider.MediaStore.Images.Media;
+import android.widget.Toast;
+
+import org.javarosa.core.services.locale.Localization;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.widgets.ImageWidget;
@@ -19,7 +26,7 @@ public class ImageCaptureProcessing {
      * @return the image file that should be displayed on the device screen when this question
      * widget is in view
      */
-    public static File moveAndScaleImage(File originalImage, boolean shouldScale,
+    private static File moveAndScaleImage(File originalImage, boolean shouldScale,
                                          String instanceFolder,
                                          FormEntryActivity formEntryActivity) throws IOException {
         String extension = FileUtils.getExtension(originalImage.getAbsolutePath());
@@ -64,5 +71,79 @@ public class ImageCaptureProcessing {
                 return rawImageFile;
             }
         }
+    }
+
+    /**
+     * Processes the return from an image capture intent, launched by either an ImageWidget or
+     * SignatureWidget
+     *
+     * @param isImage true if this was from an ImageWidget, false if it was a SignatureWidget
+     */
+    public static void processCaptureResponse(FormEntryActivity activity,
+                                              String instanceFolder,
+                                              boolean isImage) {
+        /* We saved the image to the tempfile_path, but we really want it to be in:
+         * /sdcard/odk/instances/[current instance]/something.[jpg/png/etc] so we move it there
+         * before inserting it into the content provider. Once the android image capture bug gets
+         * fixed, (read, we move on from Android 1.6) we want to handle images the audio and
+         * video
+         */
+
+        // The intent is empty, but we know we saved the image to the temp file
+        File originalImage = ImageWidget.TEMP_FILE_FOR_IMAGE_CAPTURE;
+        try {
+            File unscaledFinalImage = moveAndScaleImage(originalImage, isImage, instanceFolder, activity);
+            activity.saveImageWidgetAnswer(buildImageFileContentValues(unscaledFinalImage));
+        } catch (IOException e) {
+            e.printStackTrace();
+            activity.showCustomToast(Localization.get("image.capture.not.saved"), Toast.LENGTH_LONG);
+        }
+    }
+
+    public static void processImageChooserResponse(FormEntryActivity activity,
+                                                   String instanceFolder,
+                                                   Intent intent) {
+        /* We have a saved image somewhere, but we really want it to be in:
+         * /sdcard/odk/instances/[current instance]/something.[jpg/png/etc] so we move it there
+         * before inserting it into the content provider. Once the android image capture bug gets
+         * fixed, (read, we move on from Android 1.6) we want to handle images the audio and
+         * video
+         */
+
+        // get gp of chosen file
+        Uri selectedImage = intent.getData();
+        String imagePath = FileUtils.getPath(activity, selectedImage);
+
+        if (imagePath == null) {
+            activity.showCustomToast(Localization.get("invalid.image.selection"), Toast.LENGTH_LONG);
+            return;
+        }
+
+        File originalImage = new File(imagePath);
+
+        if (originalImage.exists()) {
+            try {
+                File unscaledFinalImage = moveAndScaleImage(originalImage, true, instanceFolder, activity);
+                activity.saveImageWidgetAnswer(buildImageFileContentValues(unscaledFinalImage));
+            } catch (IOException e) {
+                e.printStackTrace();
+                activity.showCustomToast(Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG);
+            }
+        } else {
+            // The user has managed to select a file from the image browser that doesn't actually
+            // exist on the file system anymore
+            activity.showCustomToast(Localization.get("invalid.image.selection"), Toast.LENGTH_LONG);
+        }
+    }
+
+    private static ContentValues buildImageFileContentValues(File unscaledFinalImage) {
+        // Add the new image to the Media content provider so that the viewing is fast in Android 2.0+
+        ContentValues values = new ContentValues(6);
+        values.put(Media.TITLE, unscaledFinalImage.getName());
+        values.put(Media.DISPLAY_NAME, unscaledFinalImage.getName());
+        values.put(Media.DATE_TAKEN, System.currentTimeMillis());
+        values.put(Media.MIME_TYPE, "image/jpeg");
+        values.put(Media.DATA, unscaledFinalImage.getAbsolutePath());
+        return values;
     }
 }
