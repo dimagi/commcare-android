@@ -96,7 +96,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         System.arraycopy(cachePrimeKeys[1], 0, args, 0, cachePrimeKeys[1].length);
 
         for (int i = 0; i < sortKeys.size(); ++i) {
-            args[2 + i] = EntityStorageCache.getCacheKey(getDetail().getId(), String.valueOf(sortKeys.get(i)));
+            args[2 + i] = getCacheKey(getDetail().getId(), String.valueOf(sortKeys.get(i)));
         }
 
         String[] names = cachePrimeKeys[0];
@@ -139,6 +139,10 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         } else {
             return "";
         }
+    }
+
+    public static String getCacheKey(String detailId, String mFieldId) {
+        return detailId + "_" + mFieldId;
     }
 
     private String buildKeyNameWhereClause(String[] names) {
