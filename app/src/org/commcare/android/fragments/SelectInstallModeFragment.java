@@ -18,12 +18,12 @@ import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NsdServiceListener;
 import org.commcare.android.nsd.NsdTools;
 import org.commcare.android.view.SquareButtonWithText;
-
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.CommCareSetupActivity;
 import org.commcare.dalvik.dialogs.DialogChoiceItem;
 import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.javarosa.core.services.locale.Localization;
+
 import java.util.ArrayList;
 
 /**
@@ -31,13 +31,10 @@ import java.util.ArrayList;
  *
  * @author Daniel Luna (dluna@dimagi.com)
  */
-public class SelectInstallModeFragment extends Fragment implements NsdServiceListener{
+public class SelectInstallModeFragment extends Fragment implements NsdServiceListener {
 
-    public static final String TAG = SelectInstallModeFragment.class.getName();
-
-    View mFetchHubContainer;
-
-    ArrayList<String[]> mLocalApps = new ArrayList<>();
+    private View mFetchHubContainer;
+    private ArrayList<String[]> mLocalApps = new ArrayList<>();
 
     @Override
     public void onResume() {
@@ -51,8 +48,6 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         super.onPause();
         NsdTools.deRegisterForNsdServices(this);
     }
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -122,7 +117,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
         DialogChoiceItem[] items = new DialogChoiceItem[mLocalApps.size()];
         int count = 0;
-        for(final String[] app : mLocalApps) {
+        for (final String[] app : mLocalApps) {
             DialogChoiceItem item = new DialogChoiceItem(app[0], -1, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -144,14 +139,14 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
     public synchronized void onMicronodeDiscovery() {
         boolean appsAvailable = false;
         mLocalApps = new ArrayList<>();
-        for(MicroNode node : NsdTools.getAvailableMicronodes()) {
-            for(String[] applications : node.getAvailableApplications()) {
+        for (MicroNode node : NsdTools.getAvailableMicronodes()) {
+            for (String[] applications : node.getAvailableApplications()) {
                 mLocalApps.add(applications);
                 appsAvailable = true;
             }
         }
         Activity activity = getActivity();
-        if(appsAvailable && activity != null) {
+        if (appsAvailable && activity != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {

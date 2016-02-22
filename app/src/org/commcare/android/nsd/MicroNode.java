@@ -1,8 +1,5 @@
 package org.commcare.android.nsd;
 
-import android.util.Log;
-import android.view.View;
-
 import org.commcare.android.net.HttpRequestGenerator;
 import org.javarosa.core.io.StreamsUtil;
 import org.json.JSONArray;
@@ -12,7 +9,6 @@ import org.json.JSONObject;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -31,7 +27,7 @@ public class MicroNode {
     }
 
     public ArrayList<String[]> getAvailableApplications() {
-        if(availableApplications == null) {
+        if (availableApplications == null) {
             availableApplications = new ArrayList<>();
 
             try {
@@ -48,11 +44,7 @@ public class MicroNode {
                     String[] appRecord = new String[]{app.getString("name"), app.getString("profile_url")};
                     availableApplications.add(appRecord);
                 }
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
+            } catch (IOException | JSONException e) {
                 e.printStackTrace();
             }
         }

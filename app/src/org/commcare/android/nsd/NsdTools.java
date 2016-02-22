@@ -1,28 +1,13 @@
 package org.commcare.android.nsd;
 
-
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
 import android.util.Log;
-import android.view.View;
 
-import org.commcare.android.fragments.SelectInstallModeFragment;
-import org.commcare.android.net.HttpRequestGenerator;
-import org.javarosa.core.io.StreamsUtil;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -37,14 +22,17 @@ import java.util.Set;
  */
 public class NsdTools {
 
-    private static final String TAG = "NsdTools";
+    private static final String TAG = NsdTools.class.getSimpleName();
+
+    private static final String SERVICE_TYPE = "_http._tcp.";
+    private static final String SERVICE_NAME = "commcare_micronode";
+
+    private final static HashMap<String, MicroNode> mAttachedMicronodes = new HashMap<>();
+    private final static Set<NsdServiceListener> listeners = new HashSet<>();
+    private final static Object nsdToolsLock = new Object();
 
     private static NsdManager.DiscoveryListener mDiscoveryListener;
     private static NsdManager mNsdManager;
-
-    private static HashMap<String, MicroNode> mAttachedMicronodes = new HashMap<>();
-
-    private static Set<NsdServiceListener> listeners = new HashSet<NsdServiceListener>();
 
     public enum NsdState {
         Init,
@@ -54,18 +42,12 @@ public class NsdTools {
 
     private static NsdState state = NsdState.Init;
 
-    private static Object NsdToolsLock = new Object();
-
-    public static final String SERVICE_TYPE = "_http._tcp.";
-    public static final String SERVICE_NAME = "commcare_micronode";
-
     public static void registerForNsdServices(Context context, NsdServiceListener listener) {
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             return;
         }
 
         addListener(listener);
-
         doDiscovery(context);
     }
 
@@ -77,8 +59,8 @@ public class NsdTools {
         synchronized (listeners) {
             listeners.add(listener);
         }
-        if(state != NsdState.Init) {
-            if(mAttachedMicronodes.size() > 0) {
+        if (state != NsdState.Init) {
+            if (mAttachedMicronodes.size() > 0) {
 
                 //Receivers should expect to receive these messages from not-their-main thread
                 //which is managed inherently during discovery, but won't be during
@@ -101,20 +83,20 @@ public class NsdTools {
 
     private static void removeListener(NsdServiceListener listener) {
         synchronized (listeners) {
-            if(listeners.contains(listener)) {
+            if (listeners.contains(listener)) {
                 listeners.remove(listener);
             }
         }
     }
-    
+
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private static void doDiscovery(Context context) {
-        synchronized (NsdToolsLock) {
-            if(mNsdManager == null) {
+        synchronized (nsdToolsLock) {
+            if (mNsdManager == null) {
                 mNsdManager = (NsdManager)context.getSystemService(Context.NSD_SERVICE);
             }
 
-            if(state == NsdState.Init || state == NsdState.Idle) {
+            if (state == NsdState.Init || state == NsdState.Idle) {
                 initializeDiscoveryListener();
                 state = NsdState.Discovery;
                 mNsdManager.discoverServices(SERVICE_TYPE,
@@ -200,15 +182,16 @@ public class NsdTools {
     }
 
     private static void updateAttachedServices() {
-        for(NsdServiceListener listener : listeners) {
+        for (NsdServiceListener listener : listeners) {
             listener.onMicronodeDiscovery();
         }
     }
+
     private static void attachMicronode(InetAddress host, int port) {
         String node = "http://" + host.getHostAddress() + ":" + port;
 
 
-        if(mAttachedMicronodes.containsKey(node)) {
+        if (mAttachedMicronodes.containsKey(node)) {
             //already know about this one, nothing to be done
             return;
         }
@@ -216,6 +199,4 @@ public class NsdTools {
 
         updateAttachedServices();
     }
-
-
 }
