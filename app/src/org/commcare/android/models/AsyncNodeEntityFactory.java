@@ -83,27 +83,11 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
             return;
         }
 
-        //Figure out sort keys
         Vector<Integer> sortKeys = new Vector<>();
-        DetailField[] fields = getDetail().getFields();
-
-        String validKeys = "(";
-        boolean added = false;
-        for (int i = 0; i < fields.length; ++i) {
-            //We're only gonna pull out the fields we can index/sort on
-            if (fields[i].getSort() != null) {
-                sortKeys.add(i);
-                validKeys += "?, ";
-                added = true;
-            }
-        }
-
-        //If we didn't actually find any keys to cache, get outta here
-        if (!added) {
+        String validKeys = buildValidKeys(sortKeys, getDetail().getFields());
+        if ("".equals(validKeys)) {
             return;
         }
-        validKeys = validKeys.substring(0, validKeys.length() - 2) + ")";
-
 
         //Create our full args tree. We need the elements from the cache primer
         //along with the specific keys we wanna pull out
@@ -156,6 +140,24 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
 
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
             Log.d(TAG, "Sequential Cache Load: " + (System.currentTimeMillis() - now) + "ms");
+        }
+    }
+
+    private String buildValidKeys(Vector<Integer> sortKeys, DetailField[] fields) {
+        String validKeys = "(";
+        boolean added = false;
+        for (int i = 0; i < fields.length; ++i) {
+            //We're only gonna pull out the fields we can index/sort on
+            if (fields[i].getSort() != null) {
+                sortKeys.add(i);
+                validKeys += "?, ";
+                added = true;
+            }
+        }
+        if (added) {
+            return validKeys.substring(0, validKeys.length() - 2) + ")";
+        } else {
+            return "";
         }
     }
 
