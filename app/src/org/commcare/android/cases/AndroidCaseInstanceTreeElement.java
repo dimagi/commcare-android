@@ -27,6 +27,12 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     private final Hashtable<Integer, Integer> multiplicityIdMapping = new Hashtable<>();
 
+    //We're storing this here for now because this is a safe lifecycle object that must represent
+    //a single snapshot of the case database, but it could be generalized later.
+    private final Hashtable<String, Vector<Integer>> mIndexCache = new Hashtable<>();
+
+    private String[][] mMostRecentBatchFetch = null;
+
     public AndroidCaseInstanceTreeElement(AbstractTreeElement instanceRoot, SqlStorage<ACase> storage, boolean reportMode) {
         this(instanceRoot, storage, reportMode, new CaseIndexTable());
     }
@@ -63,10 +69,6 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
     protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
         return DataUtil.union(selectedCases, cases);
     }
-
-    //We're storing this here for now because this is a safe lifecycle object that must represent
-    //a single snapshot of the case database, but it could be generalized later.
-    private final Hashtable<String, Vector<Integer>> mIndexCache = new Hashtable<>();
 
     @Override
     protected Vector<Integer> getNextIndexMatch(Vector<String> keys, Vector<Object> values, IStorageUtilityIndexed<?> storage) {
@@ -197,11 +199,8 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     }
 
-    private String[][] mMostRecentBatchFetch = null;
-
     @Override
     public String[][] getCachePrimeGuess() {
         return mMostRecentBatchFetch;
     }
-
 }
