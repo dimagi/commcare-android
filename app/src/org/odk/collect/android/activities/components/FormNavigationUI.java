@@ -22,7 +22,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.logic.FormController;
-import org.odk.collect.android.views.ODKView;
+import org.odk.collect.android.views.QuestionsView;
 import org.odk.collect.android.widgets.QuestionWidget;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class FormNavigationUI {
      */
     public static void updateNavigationCues(CommCareActivity activity,
                                             FormController formController,
-                                            ODKView view) {
+                                            QuestionsView view) {
         updateFloatingLabels(activity, view);
 
         FormNavigationController.NavigationDetails details;
@@ -147,7 +147,7 @@ public class FormNavigationUI {
     }
 
     private static void updateFloatingLabels(CommCareActivity activity,
-                                             ODKView currentView) {
+                                             QuestionsView currentView) {
         //TODO: this should actually be set up to scale per screen size.
         ArrayList<Pair<String, FloatingLabel>> smallLabels = new ArrayList<>();
         ArrayList<Pair<String, FloatingLabel>> largeLabels = new ArrayList<>();

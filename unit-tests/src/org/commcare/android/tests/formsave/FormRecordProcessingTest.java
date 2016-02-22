@@ -27,7 +27,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.views.ODKView;
+import org.odk.collect.android.views.QuestionsView;
 import org.odk.collect.android.widgets.IntegerWidget;
 import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
@@ -142,8 +142,8 @@ public class FormRecordProcessingTest {
         ImageButton nextButton = (ImageButton)formEntryActivity.findViewById(R.id.nav_btn_next);
 
         // enter an answer for the question
-        ODKView odkView = formEntryActivity.getODKView();
-        IntegerWidget cohort = (IntegerWidget)odkView.getWidgets().get(0);
+        QuestionsView questionsView = formEntryActivity.getODKView();
+        IntegerWidget cohort = (IntegerWidget)questionsView.getWidgets().get(0);
         cohort.setAnswer("2");
 
         nextButton.performClick();
