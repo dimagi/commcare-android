@@ -10,7 +10,7 @@ import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.android.database.user.models.EntityStorageCache;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.references.JavaHttpReference;

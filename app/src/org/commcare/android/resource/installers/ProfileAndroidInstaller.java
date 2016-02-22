@@ -4,7 +4,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.util.DummyResourceTable;
 import org.commcare.dalvik.application.CommCareApp;
@@ -34,6 +34,7 @@ import java.util.ArrayList;
  */
 public class ProfileAndroidInstaller extends FileSystemInstaller {
 
+    @SuppressWarnings("unused")
     public ProfileAndroidInstaller() {
         // For externalization
     }

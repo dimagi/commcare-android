@@ -46,7 +46,6 @@ import java.util.Arrays;
 public class GridEntityView extends GridLayout {
 
     private String[] searchTerms;
-    private Object[] mRowData;
     private View[] mRowViews;
     private boolean mFuzzySearchEnabled = false;
     private boolean mIsAsynchronous = false;
@@ -228,17 +227,17 @@ public class GridEntityView extends GridLayout {
         String[] forms = detail.getTemplateForms();
         GridCoordinate[] coords = detail.getGridCoordinates();
         GridStyle[] styles = detail.getGridStyles();
-        mRowData = entity.getData();
-        mRowViews = new View[mRowData.length];
+        Object[] rowData = entity.getData();
+        mRowViews = new View[rowData.length];
 
-        Log.v("TempForms", "Template: " + Arrays.toString(forms) + " | RowData: " + Arrays.toString(mRowData) + " | Coords: " + Arrays.toString(coords) + " | Styles: " + Arrays.toString(styles));
+        Log.v("TempForms", "Template: " + Arrays.toString(forms) + " | RowData: " + Arrays.toString(rowData) + " | Coords: " + Arrays.toString(coords) + " | Styles: " + Arrays.toString(styles));
 
         this.setBackgroundDrawable(null);
 
         this.setPadding(ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL, ROW_PADDING_HORIZONTAL, ROW_PADDING_VERTICAL);
 
         // iterate through every entity to be inserted in this view
-        for (int i = 0; i < mRowData.length; i++) {
+        for (int i = 0; i < rowData.length; i++) {
 
             String multimediaType = forms[i];
             GridStyle mStyle = styles[i];

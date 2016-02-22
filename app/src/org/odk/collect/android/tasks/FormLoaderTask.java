@@ -8,7 +8,8 @@ import android.support.v4.util.Pair;
 import android.util.Log;
 
 import org.commcare.android.crypt.EncryptionIO;
-import org.commcare.android.javarosa.AndroidLogger;
+import org.commcare.android.database.DbUtil;
+import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.android.tasks.templates.CommCareTask;
@@ -32,7 +33,6 @@ import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
 import org.odk.collect.android.jr.extensions.XFormExtensionUtils;
 import org.odk.collect.android.logic.FileReferenceFactory;
 import org.odk.collect.android.logic.FormController;
-import org.odk.collect.android.utilities.ApkUtils;
 import org.odk.collect.android.utilities.FileUtils;
 
 import java.io.BufferedInputStream;
@@ -275,7 +275,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             DataInputStream dis = new DataInputStream(new BufferedInputStream(fis));
 
             // read serialized formdef into new formdef
-            fd.readExternal(dis, ApkUtils.getPrototypeFactory(context));
+            fd.readExternal(dis, DbUtil.getPrototypeFactory(context));
             dis.close();
         } catch (Throwable e) {
             e.printStackTrace();

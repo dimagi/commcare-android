@@ -1,4 +1,4 @@
-package org.commcare.android.javarosa;
+package org.commcare.android.logging;
 
 import org.commcare.android.crypt.EncryptionIO;
 import org.commcare.android.logic.GlobalConstants;
@@ -10,20 +10,12 @@ import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.Logger;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
-import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
