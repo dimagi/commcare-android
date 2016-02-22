@@ -103,20 +103,17 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     }
 
     public static Vector<Integer> fillIdWindow(Cursor c, String columnName) {
+        Vector<Integer> indices = new Vector<>();
         try {
-            if (c.getCount() == 0) {
-                return new Vector<>();
-            } else {
-                c.moveToFirst();
-                Vector<Integer> indices = new Vector<>();
+            if (c.moveToFirst()) {
                 int index = c.getColumnIndexOrThrow(columnName);
                 while (!c.isAfterLast()) {
                     int id = c.getInt(index);
                     indices.add(id);
                     c.moveToNext();
                 }
-                return indices;
             }
+            return indices;
         } finally {
             if (c != null) {
                 c.close();

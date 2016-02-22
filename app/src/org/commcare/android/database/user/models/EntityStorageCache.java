@@ -112,13 +112,6 @@ public class EntityStorageCache {
         }
     }
 
-    /**
-     * TODO: This is the wrong place for this, I think? Hard to say where it should go...
-     */
-    public static String getCacheKey(String detailId, String mFieldId) {
-        return detailId + "_" + mFieldId;
-    }
-
     public static int getSortFieldIdFromCacheKey(String detailId, String cacheKey) {
         String intId = cacheKey.substring(detailId.length() + 1);
         try {
