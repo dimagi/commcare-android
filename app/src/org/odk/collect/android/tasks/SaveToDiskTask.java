@@ -3,9 +3,7 @@ package org.odk.collect.android.tasks;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.net.Uri;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import org.commcare.android.crypt.EncryptionIO;
@@ -41,7 +39,7 @@ import javax.crypto.spec.SecretKeySpec;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Void, String, SaveToDiskTask.SaveStatus, R> {
+public class SaveToDiskTask extends CommCareTask<Void, String, SaveToDiskTask.SaveStatus, FormEntryActivity> {
     // callback to run upon saving
     private FormSavedListener mSavedListener;
     private final Boolean exitAfterSave;
@@ -55,11 +53,11 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
     private final Uri instanceContentUri;
 
     private final SecretKeySpec symetricKey;
+    private String errorMessage = "";
 
     public enum SaveStatus {
         SAVED_COMPLETE,
         SAVED_INCOMPLETE,
-        SAVE_ERROR,
         INVALID_ANSWER,
         SAVED_AND_EXIT
     }
@@ -96,17 +94,15 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
 
         FormEntryActivity.mFormController.postProcessInstance();
 
-        if (exportData(mMarkCompleted)) {
-            if (exitAfterSave) {
-                return SaveStatus.SAVED_AND_EXIT;
-            } else if (mMarkCompleted) {
-                return SaveStatus.SAVED_COMPLETE;
-            } else {
-                return SaveStatus.SAVED_INCOMPLETE;
-            }
-        }
+        exportData(mMarkCompleted);
 
-        return SaveStatus.SAVE_ERROR;
+        if (exitAfterSave) {
+            return SaveStatus.SAVED_AND_EXIT;
+        } else if (mMarkCompleted) {
+            return SaveStatus.SAVED_COMPLETE;
+        } else {
+            return SaveStatus.SAVED_INCOMPLETE;
+        }
     }
 
     /**
@@ -162,7 +158,11 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
                     }
                 }
                 values.put(InstanceColumns.INSTANCE_FILE_PATH, FormEntryActivity.mInstancePath);
-                mUri = context.getContentResolver().insert(instanceContentUri, values);
+                try {
+                    mUri = context.getContentResolver().insert(instanceContentUri, values);
+                } catch (IllegalStateException e) {
+                    throw new RuntimeException(e);
+                }
             } else if (rowsUpdated == 1) {
                 Log.i(TAG, "Instance already exists, updating");
             } else{
@@ -177,7 +177,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
      * other methods.
      * @return was writing of data successful?
      */
-    private boolean exportData(boolean markCompleted) {
+    private void exportData(boolean markCompleted) {
         ByteArrayPayload payload;
         try {
             // assume no binary data inside the model.
@@ -188,21 +188,12 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
             writeXmlToStream(payload,
                     EncryptionIO.createFileOutputStream(FormEntryActivity.mInstancePath, symetricKey));
         } catch (IOException e) {
-            Log.e(TAG, "Error creating serialized payload");
-            e.printStackTrace();
-            return false;
+            throw new RuntimeException("Unable to serialize form save payload.");
         }
 
         // update the mUri. We've saved the reloadable instance, so update status...
+        updateInstanceDatabase(true, true);
 
-        try {
-            updateInstanceDatabase(true, true);
-        } catch (SQLException e) {
-            Log.e(TAG, "Error creating database entries for form.");
-            e.printStackTrace();
-            return false;
-        }
-        
         if ( markCompleted ) {
             // now see if it is to be finalized and perhaps update everything...
             boolean canEditAfterCompleted = FormEntryActivity.mFormController.isSubmissionEntireForm();
@@ -215,9 +206,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
             try {
                 payload = FormEntryActivity.mFormController.getSubmissionXml();
             } catch (IOException e) {
-                Log.e(TAG, "Error creating serialized payload");
-                e.printStackTrace();
-                return false;
+                throw new RuntimeException("Unable to serialize form save payload.");
             }
 
             File instanceXml = new File(FormEntryActivity.mInstancePath);
@@ -240,8 +229,8 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
                 // if we are encrypting, the form cannot be reopened afterward
                 canEditAfterCompleted = false;
                 // and encrypt the submission (this is a one-way operation)...
-                if ( !EncryptionUtils.generateEncryptedSubmission(instanceXml, submissionXml, formInfo) ) {
-                    return false;
+                if (!EncryptionUtils.generateEncryptedSubmission(instanceXml, submissionXml, formInfo)) {
+                    throw new RuntimeException("Unable to encrypt form submission.");
                 }
                 isEncrypted = true;
             }
@@ -256,14 +245,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
             // 1. Update the instance database (with status complete).
             // 2. Overwrite the instanceXml with the submission.xml 
             //    and remove the plaintext attachments if encrypting
-            
-            try {
-                updateInstanceDatabase(false, canEditAfterCompleted);
-            } catch (SQLException e) {
-                Logger.exception("Error creating database entries for form", e);
-                e.printStackTrace();
-                return false;
-            }
+            updateInstanceDatabase(false, canEditAfterCompleted);
 
             if (  !canEditAfterCompleted ) {
                 // AT THIS POINT, there is no going back.  We are committed
@@ -279,13 +261,13 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
                 if ( !instanceXml.delete() ) {
                     Log.e(TAG, "Error deleting " + instanceXml.getAbsolutePath()
                             + " prior to renaming submission.xml");
-                    return true;
+                    return;
                 }
     
                 // rename the submission.xml to be the instanceXml
                 if ( !submissionXml.renameTo(instanceXml) ) {
                     Log.e(TAG, "Error renaming submission.xml to " + instanceXml.getAbsolutePath());
-                    return true;
+                    return;
                 }
                 
                 // if encrypted, delete all plaintext files
@@ -297,7 +279,6 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
                 }
             }
         }
-        return true;
     }
     
     private void writeXmlToStream(ByteArrayPayload payload, OutputStream output) throws IOException {
@@ -318,15 +299,16 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
     }
 
     @Override
-    protected void deliverResult(R receiver, SaveStatus result) {
+    protected void deliverResult(FormEntryActivity receiver, SaveStatus result) {
     }
 
     @Override
-    protected void deliverUpdate(R receiver, String... update) {
+    protected void deliverUpdate(FormEntryActivity receiver, String... update) {
     }
 
     @Override
-    protected void deliverError(R receiver, Exception e) {
+    protected void deliverError(FormEntryActivity receiver, Exception e) {
+        receiver.handleFormSaveError(e);
     }
 
     public void setFormSavedListener(FormSavedListener fsl) {

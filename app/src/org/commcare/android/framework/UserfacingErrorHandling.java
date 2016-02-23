@@ -31,10 +31,14 @@ public class UserfacingErrorHandling {
      * @param shouldExit If true, cancel activity when user exits dialog.
      */
     public static void createErrorDialog(final CommCareActivity activity, String errorMsg,
-                                          final boolean shouldExit) {
+                                         final boolean shouldExit) {
         String title = StringUtils.getStringRobust(activity, org.commcare.dalvik.R.string.error_occured);
+        createErrorDialog(activity, errorMsg, title, shouldExit);
+    }
 
-        AlertDialogFactory factory = new AlertDialogFactory(activity, title, errorMsg);
+    public static void createErrorDialog(final CommCareActivity activity, String errorMsg,
+                                         String dialogTitle, final boolean shouldExit) {
+        AlertDialogFactory factory = new AlertDialogFactory(activity, dialogTitle, errorMsg);
         factory.setIcon(android.R.drawable.ic_dialog_info);
 
         DialogInterface.OnCancelListener cancelListener =

@@ -217,7 +217,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean isDialogShowing;
 
     private FormLoaderTask<FormEntryActivity> mFormLoaderTask;
-    private SaveToDiskTask<FormEntryActivity> mSaveToDiskTask;
+    private SaveToDiskTask mSaveToDiskTask;
 
     private Uri formProviderContentURI = FormsColumns.CONTENT_URI;
     private Uri instanceProviderContentURI = InstanceColumns.CONTENT_URI;
@@ -1834,7 +1834,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // least attempted to be saved) so CommCareSessionService can
             // continue closing down key pool and user database.
             CommCareApplication._().expireUserSession();
-        } else {
+        } else if (saveStatus != null) {
             switch (saveStatus) {
                 case SAVED_COMPLETE:
                     Toast.makeText(this, Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
@@ -1849,9 +1849,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     hasSaved = true;
                     finishReturnInstance();
                     break;
-                case SAVE_ERROR:
-                    Toast.makeText(this, Localization.get("form.entry.save.error"), Toast.LENGTH_LONG).show();
-                    break;
                 case INVALID_ANSWER:
                     // an answer constraint was violated, so try to save the
                     // current question to trigger the constraint violation message
@@ -1861,6 +1858,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
             refreshCurrentView();
         }
+
+        // save error encountered, handled elsewhere
     }
 
     /**
@@ -2243,6 +2242,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private int getCurrentFormID() {
         return mFormController.getFormID();
+    }
+
+    public void handleFormSaveError(Exception e) {
+        if (e instanceof IllegalStateException) {
+            // TODO PLM: send this error to HQ as a app build error, most likely a user level issue.
+        }
+        UserfacingErrorHandling.createErrorDialog(this, e.getMessage(),
+                Localization.get("notification.formentry.save_error.title"), EXIT);
     }
 
     /**

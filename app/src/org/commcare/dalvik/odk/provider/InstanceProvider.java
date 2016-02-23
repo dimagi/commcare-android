@@ -29,6 +29,7 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.xml.util.InvalidStorageStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -105,7 +106,7 @@ public class InstanceProvider extends ContentProvider {
 
     private void init() {
         String appId = ProviderUtils.getSandboxedAppId();
-        if (mDbHelper == null || mDbHelper.getAppId() != appId) {
+        if (mDbHelper == null || !appId.equals(mDbHelper.getAppId())) {
             String dbName = ProviderUtils.getProviderDbName(ProviderUtils.ProviderType.INSTANCES, appId);
             mDbHelper = new DatabaseHelper(CommCareApplication._(), dbName, appId);
         }
@@ -216,6 +217,8 @@ public class InstanceProvider extends ContentProvider {
             if (linkToSession) {
                 try {
                     linkToSessionFormRecord(instanceUri);
+                } catch (IllegalStateException e) {
+                    throw e;
                 } catch (Exception e) {
                     throw new SQLException("Failed to insert row into " + uri);
                 }
@@ -404,6 +407,8 @@ public class InstanceProvider extends ContentProvider {
         if (values.containsKey(InstanceColumns.STATUS) && count > 0) {
             try {
                 linkToSessionFormRecord(getInstanceRowUri(uri, where, whereArgs));
+            } catch (IllegalStateException e) {
+                throw e;
             } catch (Exception e) {
                 throw new SQLException("Failed to update row " + uri);
             }
@@ -466,15 +471,15 @@ public class InstanceProvider extends ContentProvider {
      * @param instanceUri points to a concrete instance we want to register
      */
     private void linkToSessionFormRecord(Uri instanceUri) {
+        AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
+        if (instanceUri == null) {
+            raiseFormEntryError("Form Entry did not return a form", currentState);
+            return;
+        }
+
         if (!InstanceColumns.CONTENT_ITEM_TYPE.equals(getType(instanceUri))) {
             Log.w(t, "Tried to link a FormRecord to a URI that doesn't point " +
                     "to a concrete instance.");
-            return;
-        }
-        AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
-
-        if (instanceUri == null) {
-            raiseFormEntryError("Form Entry did not return a form", currentState);
             return;
         }
 
@@ -506,6 +511,11 @@ public class InstanceProvider extends ContentProvider {
         try {
             current = syncRecordToInstance(currentState.getFormRecord(),
                     instanceUri.toString(), instanceStatus);
+        } catch (InvalidStorageStructureException | InvalidStateException e) {
+            // record should be wiped when form entry is exited
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, e.getMessage());
+            throw new IllegalStateException(e.getMessage());
         } catch (Exception e) {
             // Something went wrong with all of the connections which should exist.
             FormRecordCleanupTask.wipeRecord(getContext(), currentState);
