@@ -103,14 +103,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     }
 
     private void doZebraPrint(String path) {
-
-        //move file temporarily to globally readable spot
-        File oldPath = new File(path);
-        File newDest = Environment.getExternalStorageDirectory();
-
-        File destFile = new File(newDest, oldPath.getName());
-
-        FileUtils.copyFile(oldPath, destFile);
+        File destFile = new File(path);
 
         Intent i = new Intent("com.dimagi.android.zebraprinttool.action.PrintTemplate");
         i.putExtra("zebra:template_file_path", destFile.getAbsolutePath());
