@@ -138,7 +138,10 @@ public class InstanceProvider extends ContentProvider {
         Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, sortOrder);
 
         // Tell the cursor what uri to watch, so it knows when its source data changes
-        c.setNotificationUri(getContext().getContentResolver(), uri);
+        Context context = getContext();
+        if (context != null) {
+            c.setNotificationUri(context.getContentResolver(), uri);
+        }
         return c;
     }
 
@@ -209,7 +212,7 @@ public class InstanceProvider extends ContentProvider {
 
         if (rowId > 0) {
             Uri instanceUri = ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, rowId);
-            getContext().getContentResolver().notifyChange(instanceUri, null);
+            notifyChangeSafe(getContext(), uri);
 
             if (linkToSession) {
                 try {
@@ -297,12 +300,14 @@ public class InstanceProvider extends ContentProvider {
             case INSTANCES:
                 Cursor del = null;
                 try {
-                    del = this.query(uri, null, where, whereArgs, null);
-                    del.moveToPosition(-1);
-                    while (del.moveToNext()) {
-                        String instanceFile = del.getString(del.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
-                        String instanceDir = (new File(instanceFile)).getParent();
-                        deleteFileOrDir(instanceDir);
+                    del = query(uri, null, where, whereArgs, null);
+                    if (del != null) {
+                        del.moveToPosition(-1);
+                        while (del.moveToNext()) {
+                            String instanceFile = del.getString(del.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+                            String instanceDir = (new File(instanceFile)).getParent();
+                            deleteFileOrDir(instanceDir);
+                        }
                     }
                 } finally {
                     if (del != null) {
@@ -317,13 +322,15 @@ public class InstanceProvider extends ContentProvider {
 
                 Cursor c = null;
                 try {
-                    c = this.query(uri, null, where, whereArgs, null);
+                    c = query(uri, null, where, whereArgs, null);
                     // This should only ever return 1 record.  I hope.
-                    c.moveToPosition(-1);
-                    while (c.moveToNext()) {
-                        String instanceFile = c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
-                        String instanceDir = (new File(instanceFile)).getParent();
-                        deleteFileOrDir(instanceDir);
+                    if (c != null) {
+                        c.moveToPosition(-1);
+                        while (c.moveToNext()) {
+                            String instanceFile = c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+                            String instanceDir = (new File(instanceFile)).getParent();
+                            deleteFileOrDir(instanceDir);
+                        }
                     }
                 } finally {
                     if (c != null) {
@@ -343,16 +350,16 @@ public class InstanceProvider extends ContentProvider {
         }
         db.close();
 
-        getContext().getContentResolver().notifyChange(uri, null);
+        notifyChangeSafe(getContext(), uri);
         return count;
     }
 
+    private static void notifyChangeSafe(Context context, Uri uri) {
+        if (context != null) {
+            context.getContentResolver().notifyChange(uri, null);
+        }
+    }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @see android.content.ContentProvider#update(android.net.Uri, android.content.ContentValues, java.lang.String, java.lang.String[])
-     */
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String where, String[] whereArgs) {
         int count;
@@ -403,7 +410,7 @@ public class InstanceProvider extends ContentProvider {
             }
         }
 
-        getContext().getContentResolver().notifyChange(uri, null);
+        notifyChangeSafe(getContext(), uri);
 
         return count;
     }
@@ -431,11 +438,13 @@ public class InstanceProvider extends ContentProvider {
                 Cursor c = null;
                 try {
                     c = this.query(potentialUri, null, selection, selectionArgs, null);
-                    c.moveToPosition(-1);
-                    if (c.moveToNext()) {
-                        // there should only be one result for this query
-                        String instanceId = c.getString(c.getColumnIndex("_id"));
-                        return InstanceColumns.CONTENT_URI.buildUpon().appendPath(instanceId).build();
+                    if (c != null) {
+                        c.moveToPosition(-1);
+                        if (c.moveToNext()) {
+                            // there should only be one result for this query
+                            String instanceId = c.getString(c.getColumnIndex("_id"));
+                            return InstanceColumns.CONTENT_URI.buildUpon().appendPath(instanceId).build();
+                        }
                     }
                 } finally {
                     if (c != null) {
@@ -472,17 +481,24 @@ public class InstanceProvider extends ContentProvider {
 
         String instanceStatus = null;
 
-        Cursor c = getContext().getContentResolver().query(instanceUri, null, null, null, null);
-        try {
-            c.moveToFirst();
-            instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceColumns.STATUS));
-        } catch (IllegalArgumentException iae) {
-            iae.printStackTrace();
-            // TODO: Fail more hardcore here? Wipe the form record and its ties?
-            raiseFormEntryError("Unrecoverable error when trying to read form|" + iae.getMessage(),
-                    currentState);
-        } finally {
-            c.close();
+        Context context = getContext();
+        if (context != null) {
+            Cursor c = context.getContentResolver().query(instanceUri, null, null, null, null);
+            try {
+                if (c != null) {
+                    c.moveToFirst();
+                    instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceColumns.STATUS));
+                }
+            } catch (IllegalArgumentException iae) {
+                iae.printStackTrace();
+                // TODO: Fail more hardcore here? Wipe the form record and its ties?
+                raiseFormEntryError("Unrecoverable error when trying to read form|" + iae.getMessage(),
+                        currentState);
+            } finally {
+                if (c != null) {
+                    c.close();
+                }
+            }
         }
 
         boolean complete = InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus);

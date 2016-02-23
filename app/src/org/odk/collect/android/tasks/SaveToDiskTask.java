@@ -127,11 +127,12 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, Boolean.toString(canEditAfterCompleted));
 
         // Insert or update the form instance into the database.
-        if (context.getContentResolver().getType(mUri) == InstanceColumns.CONTENT_ITEM_TYPE) {
+        String resolverType = context.getContentResolver().getType(mUri);
+        if (InstanceColumns.CONTENT_ITEM_TYPE.equals(resolverType)) {
             // Started with a concrete instance (e.i. by editing an existing
             // form), so just update it.
             context.getContentResolver().update(mUri, values, null, null);
-        } else if (context.getContentResolver().getType(mUri) == FormsColumns.CONTENT_ITEM_TYPE) {
+        } else if (FormsColumns.CONTENT_ITEM_TYPE.equals(resolverType)) {
             // Started with an empty form or possibly a manually saved form.
             // Try updating, and create a new instance if that fails.
             String[] whereArgs = {FormEntryActivity.mInstancePath};
