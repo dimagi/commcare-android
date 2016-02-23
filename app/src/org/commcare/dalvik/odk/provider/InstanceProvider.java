@@ -24,7 +24,6 @@ import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.android.tasks.FormRecordCleanupTask;
-import org.commcare.android.util.InvalidStateException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
@@ -617,5 +616,11 @@ public class InstanceProvider extends ContentProvider {
 
         currentState.reset();
         throw new RuntimeException(loggerText);
+    }
+
+    private static class InvalidStateException extends Exception {
+        public InvalidStateException(String message) {
+            super(message);
+        }
     }
 }
