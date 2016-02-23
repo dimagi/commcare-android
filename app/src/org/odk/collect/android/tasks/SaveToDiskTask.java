@@ -179,16 +179,13 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
     private boolean exportData(boolean markCompleted) {
         ByteArrayPayload payload;
         try {
-
             // assume no binary data inside the model.
             FormInstance datamodel = FormEntryActivity.mFormController.getInstance();
             XFormSerializingVisitor serializer = new XFormSerializingVisitor(markCompleted);
-            payload = (ByteArrayPayload) serializer.createSerializedPayload(datamodel);
+            payload = (ByteArrayPayload)serializer.createSerializedPayload(datamodel);
 
-            // write out xml
-            exportXmlFile(payload,
+            writeXmlToStream(payload,
                     EncryptionIO.createFileOutputStream(FormEntryActivity.mInstancePath, symetricKey));
-
         } catch (IOException e) {
             Log.e(TAG, "Error creating serialized payload");
             e.printStackTrace();
@@ -226,11 +223,14 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
             File submissionXml = new File(instanceXml.getParentFile(), "submission.xml");
             // write out submission.xml -- the data to actually submit to aggregate
             try {
-                exportXmlFile(payload,
+                writeXmlToStream(payload,
                         EncryptionIO.createFileOutputStream(submissionXml.getAbsolutePath(), symetricKey));
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
                 throw new RuntimeException("Something is blocking acesss to the file at " + submissionXml.getAbsolutePath());
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new RuntimeException("Unable to write xml to " + submissionXml.getAbsolutePath());
             }
             
             // see if the form is encrypted and we can encrypt it...
@@ -299,21 +299,11 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         return true;
     }
     
-    /**
-     * This method actually writes the xml to disk.
-     */
-    private boolean exportXmlFile(ByteArrayPayload payload, OutputStream output) {
+    private void writeXmlToStream(ByteArrayPayload payload, OutputStream output) throws IOException {
         // create data stream
         InputStream is = payload.getPayloadStream();
-        try {
-            StreamsUtil.writeFromInputToOutput(is, output);
-            output.close();
-            return true;
-        } catch (IOException e) {
-            Log.e(TAG, "Error reading from payload data stream");
-            e.printStackTrace();
-            return false;
-        }
+        StreamsUtil.writeFromInputToOutput(is, output);
+        output.close();
     }
 
     @Override
