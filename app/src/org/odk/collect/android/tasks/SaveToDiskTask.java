@@ -172,10 +172,12 @@ public class SaveToDiskTask extends CommCareTask<Void, String, SaveToDiskTask.Sa
     }
 
     /**
-     * Write's the data to the sdcard, and updates the instances content provider.
-     * In theory we don't have to write to disk, and this is where you'd add
-     * other methods.
-     * @return was writing of data successful?
+     * Write's the data to the sdcard, and updates the instances content
+     * provider. In theory we don't have to write to disk, and this is where
+     * you'd add other methods.
+     *
+     * @throws RuntimeException      File IO issues
+     * @throws IllegalStateException Form record processing issue
      */
     private void exportData(boolean markCompleted) {
         ByteArrayPayload payload;
