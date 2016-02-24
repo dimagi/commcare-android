@@ -260,7 +260,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             is = new CipherInputStream(fis, decrypter);
 
             // Construct parser for this form's internal data.
-            DataModelPullParser parser = new DataModelPullParser(is, factory, true, false);
+            DataModelPullParser parser = new DataModelPullParser(is, factory);
 
             // populate uuid, modified, and caseIDs arrays by parsing
             parser.parse();
