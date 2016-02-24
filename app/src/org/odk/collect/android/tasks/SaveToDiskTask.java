@@ -53,7 +53,6 @@ public class SaveToDiskTask extends CommCareTask<Void, String, SaveToDiskTask.Sa
     private final Uri instanceContentUri;
 
     private final SecretKeySpec symetricKey;
-    private String errorMessage = "";
 
     public enum SaveStatus {
         SAVED_COMPLETE,
