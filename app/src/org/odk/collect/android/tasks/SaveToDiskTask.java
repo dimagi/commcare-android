@@ -99,12 +99,15 @@ public class SaveToDiskTask extends CommCareTask<Void, String, Pair<SaveToDiskTa
             exportData(mMarkCompleted);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            return new Pair<>(SaveStatus.SAVE_ERROR, "Something is blocking acesss to the submission file in " + FormEntryActivity.mInstancePath);
+            return new Pair<>(SaveStatus.SAVE_ERROR,
+                    "Something is blocking acesss to the submission file in " + FormEntryActivity.mInstancePath);
         } catch (IOException e) {
             e.printStackTrace();
-            return new Pair<>(SaveStatus.SAVE_ERROR, "Unable to write xml to " + FormEntryActivity.mInstancePath);
-        } catch (FormRecordAlterationException e) {
-            // TODO PLM: send this error to HQ as a app build error, most likely a user level issue.
+            return new Pair<>(SaveStatus.SAVE_ERROR,
+                    "Unable to write xml to " + FormEntryActivity.mInstancePath);
+        } catch (FormInstanceTransactionException e) {
+            // TODO PLM: send this error to HQ as a app build error, most
+            // likely a user level issue.
             e.printStackTrace();
             return new Pair<>(SaveStatus.SAVE_ERROR, e.getMessage());
         }
@@ -122,7 +125,7 @@ public class SaveToDiskTask extends CommCareTask<Void, String, Pair<SaveToDiskTa
      * Update or create a new entry in the form table for the
      */
     private void updateInstanceDatabase(boolean incomplete, boolean canEditAfterCompleted)
-            throws FormRecordAlterationException {
+            throws FormInstanceTransactionException {
         ContentValues values = new ContentValues();
         if (mInstanceName != null) {
             values.put(InstanceColumns.DISPLAY_NAME, mInstanceName);
@@ -141,13 +144,22 @@ public class SaveToDiskTask extends CommCareTask<Void, String, Pair<SaveToDiskTa
         if (InstanceColumns.CONTENT_ITEM_TYPE.equals(resolverType)) {
             // Started with a concrete instance (e.i. by editing an existing
             // form), so just update it.
-            context.getContentResolver().update(mUri, values, null, null);
+            try {
+                context.getContentResolver().update(mUri, values, null, null);
+            } catch (IllegalStateException e) {
+                throw new FormInstanceTransactionException(e);
+            }
         } else if (FormsColumns.CONTENT_ITEM_TYPE.equals(resolverType)) {
             // Started with an empty form or possibly a manually saved form.
             // Try updating, and create a new instance if that fails.
             String[] whereArgs = {FormEntryActivity.mInstancePath};
-            int rowsUpdated = context.getContentResolver().update(instanceContentUri, values,
-                    InstanceColumns.INSTANCE_FILE_PATH + "=?", whereArgs);
+            int rowsUpdated;
+            try {
+                rowsUpdated = context.getContentResolver().update(instanceContentUri, values,
+                        InstanceColumns.INSTANCE_FILE_PATH + "=?", whereArgs);
+            } catch (IllegalStateException e) {
+                throw new FormInstanceTransactionException(e);
+            }
             if (rowsUpdated == 0) {
                 // Form instance didn't exist in the table, so create it.
                 Log.e(TAG, "No instance found, creating");
@@ -175,7 +187,7 @@ public class SaveToDiskTask extends CommCareTask<Void, String, Pair<SaveToDiskTa
                 try {
                     mUri = context.getContentResolver().insert(instanceContentUri, values);
                 } catch (IllegalStateException e) {
-                    throw new FormRecordAlterationException(e);
+                    throw new FormInstanceTransactionException(e);
                 }
             } else if (rowsUpdated == 1) {
                 Log.i(TAG, "Instance already exists, updating");
@@ -189,8 +201,16 @@ public class SaveToDiskTask extends CommCareTask<Void, String, Pair<SaveToDiskTa
      * Write's the data to the sdcard, and updates the instances content
      * provider. In theory we don't have to write to disk, and this is where
      * you'd add other methods.
+     *
+     * @throws IOException                      Issue serializing form and
+     *                                          storing to filesystem
+     * @throws FormInstanceTransactionException Issue performing transactions
+     *                                          associated with form saving,
+     *                                          like case updates and updating
+     *                                          the associated form record
      */
-    private void exportData(boolean markCompleted) throws IOException, FormRecordAlterationException {
+    private void exportData(boolean markCompleted)
+            throws IOException, FormInstanceTransactionException {
         ByteArrayPayload payload;
         // assume no binary data inside the model.
         FormInstance datamodel = FormEntryActivity.mFormController.getInstance();
@@ -207,7 +227,7 @@ public class SaveToDiskTask extends CommCareTask<Void, String, Pair<SaveToDiskTa
             // now see if it is to be finalized and perhaps update everything...
             boolean canEditAfterCompleted = FormEntryActivity.mFormController.isSubmissionEntireForm();
             boolean isEncrypted = false;
-            
+
             // build a submission.xml to hold the data being submitted 
             // and (if appropriate) encrypt the files on the side
 
@@ -231,7 +251,7 @@ public class SaveToDiskTask extends CommCareTask<Void, String, Pair<SaveToDiskTa
                 }
                 isEncrypted = true;
             }
-            
+
             // At this point, we have:
             // 1. the saved original instanceXml, 
             // 2. all the plaintext attachments
@@ -253,20 +273,20 @@ public class SaveToDiskTask extends CommCareTask<Void, String, Pair<SaveToDiskTa
                 // Handle the fall-out for a failed "submission.xml" rename
                 // in the InstanceUploader task.  Leftover plaintext media
                 // files are handled during form deletion.
-    
+
                 // delete the restore Xml file.
                 if ( !instanceXml.delete() ) {
                     Log.e(TAG, "Error deleting " + instanceXml.getAbsolutePath()
                             + " prior to renaming submission.xml");
                     return;
                 }
-    
+
                 // rename the submission.xml to be the instanceXml
                 if ( !submissionXml.renameTo(instanceXml) ) {
                     Log.e(TAG, "Error renaming submission.xml to " + instanceXml.getAbsolutePath());
                     return;
                 }
-                
+
                 // if encrypted, delete all plaintext files
                 // (anything not named instanceXml or anything not ending in .enc)
                 if ( isEncrypted ) {
@@ -277,7 +297,7 @@ public class SaveToDiskTask extends CommCareTask<Void, String, Pair<SaveToDiskTa
             }
         }
     }
-    
+
     private void writeXmlToStream(ByteArrayPayload payload, OutputStream output) throws IOException {
         InputStream is = payload.getPayloadStream();
         StreamsUtil.writeFromInputToOutput(is, output);
@@ -355,8 +375,8 @@ public class SaveToDiskTask extends CommCareTask<Void, String, Pair<SaveToDiskTa
         return false;
     }
 
-    private static class FormRecordAlterationException extends Exception {
-        FormRecordAlterationException(Throwable throwable) {
+    private static class FormInstanceTransactionException extends Exception {
+        FormInstanceTransactionException(Throwable throwable) {
             super(throwable);
         }
     }

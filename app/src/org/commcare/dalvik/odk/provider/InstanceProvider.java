@@ -511,11 +511,6 @@ public class InstanceProvider extends ContentProvider {
         try {
             current = syncRecordToInstance(currentState.getFormRecord(),
                     instanceUri.toString(), instanceStatus);
-        } catch (InvalidStorageStructureException | InvalidStateException e) {
-            // record should be wiped when form entry is exited
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, e.getMessage());
-            throw new IllegalStateException(e.getMessage());
         } catch (Exception e) {
             // Something went wrong with all of the connections which should exist.
             FormRecordCleanupTask.wipeRecord(getContext(), currentState);
@@ -542,6 +537,10 @@ public class InstanceProvider extends ContentProvider {
             if (FormRecord.STATUS_COMPLETE.equals(current.getStatus())) {
                 try {
                     new FormRecordProcessor(getContext()).process(current);
+                } catch (InvalidStorageStructureException e) {
+                    // record should be wiped when form entry is exited
+                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, e.getMessage());
+                    throw new IllegalStateException(e.getMessage());
                 } catch (Exception e) {
                     NotificationMessage message =
                             NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.FormEntry_Save_Error,
