@@ -40,7 +40,8 @@ import javax.crypto.spec.SecretKeySpec;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class SaveToDiskTask extends CommCareTask<Void, String, Pair<SaveToDiskTask.SaveStatus, String>, FormEntryActivity> {
+public class SaveToDiskTask extends
+        CommCareTask<Void, String, Pair<SaveToDiskTask.SaveStatus, String>, FormEntryActivity> {
     // callback to run upon saving
     private FormSavedListener mSavedListener;
     private final Boolean exitAfterSave;
@@ -65,7 +66,9 @@ public class SaveToDiskTask extends CommCareTask<Void, String, Pair<SaveToDiskTa
 
     public static final int SAVING_TASK_ID = 17;
 
-    public SaveToDiskTask(Uri mUri, Boolean saveAndExit, Boolean markCompleted, String updatedName, Context context, Uri instanceContentUri, SecretKeySpec symetricKey, boolean headless) {
+    public SaveToDiskTask(Uri mUri, Boolean saveAndExit, Boolean markCompleted,
+                          String updatedName, Context context, Uri instanceContentUri,
+                          SecretKeySpec symetricKey, boolean headless) {
         TAG = SaveToDiskTask.class.getSimpleName();
 
         this.mUri = mUri;
