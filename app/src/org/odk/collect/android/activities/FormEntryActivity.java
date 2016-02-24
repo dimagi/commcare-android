@@ -1824,7 +1824,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * continue closing the session/logging out.
      */
     @Override
-    public void savingComplete(SaveToDiskTask.SaveStatus saveStatus) {
+    public void savingComplete(SaveToDiskTask.SaveStatus saveStatus, String errorMessage) {
         // Did we just save a form because the key session
         // (CommCareSessionService) is ending?
         if (savingFormOnKeySessionExpiration) {
@@ -1855,11 +1855,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     refreshCurrentView();
                     saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS);
                     return;
+                case SAVE_ERROR:
+                    UserfacingErrorHandling.createErrorDialog(this, errorMessage,
+                            Localization.get("notification.formentry.save_error.title"), EXIT);
+                    return;
             }
             refreshCurrentView();
         }
-
-        // save error encountered, handled elsewhere
     }
 
     /**
@@ -2242,14 +2244,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private int getCurrentFormID() {
         return mFormController.getFormID();
-    }
-
-    public void handleFormSaveError(Exception e) {
-        if (e instanceof IllegalStateException) {
-            // TODO PLM: send this error to HQ as a app build error, most likely a user level issue.
-        }
-        UserfacingErrorHandling.createErrorDialog(this, e.getMessage(),
-                Localization.get("notification.formentry.save_error.title"), EXIT);
     }
 
     /**

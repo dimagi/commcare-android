@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.v4.util.Pair;
 import android.util.Log;
 
 import org.commcare.android.crypt.EncryptionIO;
@@ -39,7 +40,7 @@ import javax.crypto.spec.SecretKeySpec;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class SaveToDiskTask extends CommCareTask<Void, String, SaveToDiskTask.SaveStatus, FormEntryActivity> {
+public class SaveToDiskTask extends CommCareTask<Void, String, Pair<SaveToDiskTask.SaveStatus, String>, FormEntryActivity> {
     // callback to run upon saving
     private FormSavedListener mSavedListener;
     private final Boolean exitAfterSave;
@@ -57,6 +58,7 @@ public class SaveToDiskTask extends CommCareTask<Void, String, SaveToDiskTask.Sa
     public enum SaveStatus {
         SAVED_COMPLETE,
         SAVED_INCOMPLETE,
+        SAVE_ERROR,
         INVALID_ANSWER,
         SAVED_AND_EXIT
     }
@@ -86,28 +88,41 @@ public class SaveToDiskTask extends CommCareTask<Void, String, SaveToDiskTask.Sa
      * an instance, it will be used to fill the {@link FormDef}.
      */
     @Override
-    protected SaveStatus doTaskBackground(Void... nothing) {
+    protected Pair<SaveStatus, String> doTaskBackground(Void... nothing) {
         if (hasInvalidAnswers(mMarkCompleted, DeveloperPreferences.shouldFireTriggersOnSave())) {
-            return SaveStatus.INVALID_ANSWER;
+            return new Pair<>(SaveStatus.INVALID_ANSWER, "");
         }
 
         FormEntryActivity.mFormController.postProcessInstance();
 
-        exportData(mMarkCompleted);
+        try {
+            exportData(mMarkCompleted);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return new Pair<>(SaveStatus.SAVE_ERROR, "Something is blocking acesss to the submission file in " + FormEntryActivity.mInstancePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new Pair<>(SaveStatus.SAVE_ERROR, "Unable to write xml to " + FormEntryActivity.mInstancePath);
+        } catch (FormRecordAlterationException e) {
+            // TODO PLM: send this error to HQ as a app build error, most likely a user level issue.
+            e.printStackTrace();
+            return new Pair<>(SaveStatus.SAVE_ERROR, e.getMessage());
+        }
 
         if (exitAfterSave) {
-            return SaveStatus.SAVED_AND_EXIT;
+            return new Pair<>(SaveStatus.SAVED_AND_EXIT, "");
         } else if (mMarkCompleted) {
-            return SaveStatus.SAVED_COMPLETE;
+            return new Pair<>(SaveStatus.SAVED_COMPLETE, "");
         } else {
-            return SaveStatus.SAVED_INCOMPLETE;
+            return new Pair<>(SaveStatus.SAVED_INCOMPLETE, "");
         }
     }
 
     /**
      * Update or create a new entry in the form table for the
      */
-    private void updateInstanceDatabase(boolean incomplete, boolean canEditAfterCompleted) {
+    private void updateInstanceDatabase(boolean incomplete, boolean canEditAfterCompleted)
+            throws FormRecordAlterationException {
         ContentValues values = new ContentValues();
         if (mInstanceName != null) {
             values.put(InstanceColumns.DISPLAY_NAME, mInstanceName);
@@ -160,7 +175,7 @@ public class SaveToDiskTask extends CommCareTask<Void, String, SaveToDiskTask.Sa
                 try {
                     mUri = context.getContentResolver().insert(instanceContentUri, values);
                 } catch (IllegalStateException e) {
-                    throw new RuntimeException(e);
+                    throw new FormRecordAlterationException(e);
                 }
             } else if (rowsUpdated == 1) {
                 Log.i(TAG, "Instance already exists, updating");
@@ -174,23 +189,16 @@ public class SaveToDiskTask extends CommCareTask<Void, String, SaveToDiskTask.Sa
      * Write's the data to the sdcard, and updates the instances content
      * provider. In theory we don't have to write to disk, and this is where
      * you'd add other methods.
-     *
-     * @throws RuntimeException      File IO issues
-     * @throws IllegalStateException Form record processing issue
      */
-    private void exportData(boolean markCompleted) {
+    private void exportData(boolean markCompleted) throws IOException, FormRecordAlterationException {
         ByteArrayPayload payload;
-        try {
-            // assume no binary data inside the model.
-            FormInstance datamodel = FormEntryActivity.mFormController.getInstance();
-            XFormSerializingVisitor serializer = new XFormSerializingVisitor(markCompleted);
-            payload = (ByteArrayPayload)serializer.createSerializedPayload(datamodel);
+        // assume no binary data inside the model.
+        FormInstance datamodel = FormEntryActivity.mFormController.getInstance();
+        XFormSerializingVisitor serializer = new XFormSerializingVisitor(markCompleted);
+        payload = (ByteArrayPayload)serializer.createSerializedPayload(datamodel);
 
-            writeXmlToStream(payload,
-                    EncryptionIO.createFileOutputStream(FormEntryActivity.mInstancePath, symetricKey));
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to serialize form save payload.");
-        }
+        writeXmlToStream(payload,
+                EncryptionIO.createFileOutputStream(FormEntryActivity.mInstancePath, symetricKey));
 
         // update the mUri. We've saved the reloadable instance, so update status...
         updateInstanceDatabase(true, true);
@@ -204,26 +212,14 @@ public class SaveToDiskTask extends CommCareTask<Void, String, SaveToDiskTask.Sa
             // and (if appropriate) encrypt the files on the side
 
             // pay attention to the ref attribute of the submission profile...
-            try {
-                payload = FormEntryActivity.mFormController.getSubmissionXml();
-            } catch (IOException e) {
-                throw new RuntimeException("Unable to serialize form save payload.");
-            }
+            payload = FormEntryActivity.mFormController.getSubmissionXml();
 
             File instanceXml = new File(FormEntryActivity.mInstancePath);
             File submissionXml = new File(instanceXml.getParentFile(), "submission.xml");
             // write out submission.xml -- the data to actually submit to aggregate
-            try {
-                writeXmlToStream(payload,
-                        EncryptionIO.createFileOutputStream(submissionXml.getAbsolutePath(), symetricKey));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                throw new RuntimeException("Something is blocking acesss to the file at " + submissionXml.getAbsolutePath());
-            } catch (IOException e) {
-                e.printStackTrace();
-                throw new RuntimeException("Unable to write xml to " + submissionXml.getAbsolutePath());
-            }
-            
+            writeXmlToStream(payload,
+                    EncryptionIO.createFileOutputStream(submissionXml.getAbsolutePath(), symetricKey));
+
             // see if the form is encrypted and we can encrypt it...
             EncryptedFormInformation formInfo = EncryptionUtils.getEncryptedFormInformation(mUri, FormEntryActivity.mFormController.getSubmissionMetadata(), context, instanceContentUri);
             if ( formInfo != null ) {
@@ -283,24 +279,24 @@ public class SaveToDiskTask extends CommCareTask<Void, String, SaveToDiskTask.Sa
     }
     
     private void writeXmlToStream(ByteArrayPayload payload, OutputStream output) throws IOException {
-        // create data stream
         InputStream is = payload.getPayloadStream();
         StreamsUtil.writeFromInputToOutput(is, output);
         output.close();
     }
 
     @Override
-    protected void onPostExecute(SaveStatus result) {
+    protected void onPostExecute(Pair<SaveStatus, String> result) {
         super.onPostExecute(result);
 
         synchronized (this) {
-            if (mSavedListener != null)
-                mSavedListener.savingComplete(result);
+            if (mSavedListener != null) {
+                mSavedListener.savingComplete(result.first, result.second);
+            }
         }
     }
 
     @Override
-    protected void deliverResult(FormEntryActivity receiver, SaveStatus result) {
+    protected void deliverResult(FormEntryActivity receiver, Pair<SaveStatus, String> result) {
     }
 
     @Override
@@ -309,7 +305,6 @@ public class SaveToDiskTask extends CommCareTask<Void, String, SaveToDiskTask.Sa
 
     @Override
     protected void deliverError(FormEntryActivity receiver, Exception e) {
-        receiver.handleFormSaveError(e);
     }
 
     public void setFormSavedListener(FormSavedListener fsl) {
@@ -358,5 +353,11 @@ public class SaveToDiskTask extends CommCareTask<Void, String, SaveToDiskTask.Sa
 
         FormEntryActivity.mFormController.jumpToIndex(i);
         return false;
+    }
+
+    private static class FormRecordAlterationException extends Exception {
+        FormRecordAlterationException(Throwable throwable) {
+            super(throwable);
+        }
     }
 }
