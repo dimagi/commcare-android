@@ -66,7 +66,7 @@ public class CallOutActivity extends FragmentActivity
     }
 
     private void loadStateFromInstance(Bundle savedInstanceState) {
-        if (savedInstanceState.containsKey(CALLOUT_ACTION_KEY)) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(CALLOUT_ACTION_KEY)) {
             calloutAction = savedInstanceState.getString(CALLOUT_ACTION_KEY);
         }
     }
