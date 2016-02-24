@@ -12,6 +12,7 @@ import android.net.wifi.p2p.WifiP2pManager.ChannelListener;
 import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.Spannable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -93,7 +94,7 @@ public class WiFiDirectManagementFragment extends Fragment
 
     public void onThisDeviceChanged(Intent intent) {
 
-        setStatusText("This device's connection status changed...");
+        setStatusText(mActivity.localize("wifi.direct.status.changed"));
 
         WifiP2pDevice mDevice = intent.getParcelableExtra(WifiP2pManager.EXTRA_WIFI_P2P_DEVICE);
 
@@ -101,7 +102,7 @@ public class WiFiDirectManagementFragment extends Fragment
 
         if (status == WifiP2pDevice.AVAILABLE && isHost) {
             Logger.log(TAG, "Relaunching Wi-fi direct group as host");
-            setStatusText("Host relaunching group...");
+            setStatusText(mActivity.localize("Host relaunching group..."));
             mManager.createGroup(mChannel, this);
         }
 
@@ -159,22 +160,22 @@ public class WiFiDirectManagementFragment extends Fragment
         if (info.groupFormed) {
             if (info.isGroupOwner) {
                 if (isHost) {
-                    setStatusText("Successfully created and hosted group");
+                    setStatusText(mActivity.localize("wifi.direct.host.owner.success"));
                 } else {
-                    setStatusText("Group owner but not host");
+                    setStatusText(mActivity.localize("wifi.direct.owner.not.host"));
                 }
             } else {
                 if (isHost) {
-                    setStatusText("Host but not group owner");
+                    setStatusText(mActivity.localize("wifi.direct.host.not.owner"));
                 } else {
-                    setStatusText("Successfully joined group");
+                    setStatusText(mActivity.localize("wifi.direct.join.success"));
                 }
             }
         } else {
             if (isHost) {
-                setStatusText("You are the host but didn't form a group. Restart the Wi-fi functionality.");
+                setStatusText(mActivity.localize("wifi.direct.host.no.group"));
             } else {
-                setStatusText("YWaiting to join new group...");
+                setStatusText(mActivity.localize("wifi.direct.waiting.for.group"));
             }
         }
     }
@@ -187,8 +188,8 @@ public class WiFiDirectManagementFragment extends Fragment
         return isConnected;
     }
 
-    private void setStatusText(String text) {
-        Log.d(TAG, text);
+    private void setStatusText(Spannable text) {
+        Log.d(TAG, text.toString());
         mStatusText.setText(text);
     }
 

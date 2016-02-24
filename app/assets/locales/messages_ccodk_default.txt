@@ -625,6 +625,16 @@ wifi.direct.status.submit.header=You are in Submit Form Mode
 wifi.direct.status.submit.count=SD Card has ${0} unsubmitted forms.
 wifi.direct.status.submit.message=This mode will allow you to submit forms to the CommCare Server if you have an internet connection.
 
+wifi.direct.status.changed=This device's connection status changed...
+
+wifi.direct.host.owner.success=Successfully created and hosted group
+wifi.direct.owner.not.host=Group owner but not host
+wifi.direct.host.not.owner=Host but not group owner
+wifi.direct.join.success=Successfully joined group
+wifi.direct.host.no.group=You are the host but didn't form a group. Restart the Wi-fi functionality.
+wifi.direct.waiting.for.group=Waiting to join new group...
+wifi.direct.relaunching.group=Host relaunching group...
+
 
 form.attachment.invalid=Invalid filetype choosen. Please select a valid multimedia file.
 
