@@ -305,6 +305,9 @@ select.menu.map=View on Map
 
 select.detail.title=Details
 select.list.title=Select
+select.detail.callout.title=Select phone number action
+select.detail.callout.call=Call
+select.detail.callout.sms=Send SMS
 
 home.logged.in.message=Logged In: ${0}
 notification.logged.in=Logged Into ${0}
@@ -642,6 +645,7 @@ permission.all.message=CommCare needs permissions to read/write forms to memory,
 permission.all.denial.message=CommCare doesn't have the necessary permissions. Please enable via 'Settings -> Apps'
 permission.case.callout.title=Permissions for calling & messaging
 permission.case.callout.message=CommCare needs call & messaging permissions to enable communication with cases.
+permission.case.callout.denied=Permissions denied for calling & messaging from case detail screen.
 permission.sms.install.title=Permission for obtaining SMS app code
 permission.sms.install.message=CommCare would like to scan your recent messages for an app install code.
 permission.form.gps.title=Permission to capture location during form entry
