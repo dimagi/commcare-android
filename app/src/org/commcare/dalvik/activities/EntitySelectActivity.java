@@ -2,16 +2,11 @@ package org.commcare.dalvik.activities;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -34,12 +29,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.commcare.android.adapters.EntityListAdapter;
 import org.commcare.android.fragments.ContainerFragment;
@@ -59,6 +52,7 @@ import org.commcare.android.view.TabbedDetailView;
 import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.utils.EntityDetailUtils;
+import org.commcare.dalvik.activities.utils.EntitySelectCalloutSetup;
 import org.commcare.dalvik.activities.utils.EntitySelectRefreshTimer;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.DialogChoiceItem;
@@ -74,19 +68,15 @@ import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.utilities.GeoUtils;
 import org.odk.collect.android.views.media.AudioController;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author ctsims
@@ -106,8 +96,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private static final int CONFIRM_SELECT = 0;
     private static final int MAP_SELECT = 2;
-    private static final int BARCODE_FETCH = 1;
-    private static final int CALLOUT = 3;
+    public static final int BARCODE_FETCH = 1;
+    public static final int CALLOUT = 3;
 
     private static final int MENU_SORT = Menu.FIRST + 1;
     private static final int MENU_MAP = Menu.FIRST + 2;
@@ -338,11 +328,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         Callout callout = shortSelect.getCallout();
         if (callout ==  null) {
-            barcodeScanOnClickListener = makeBarcodeClickListener();
+            barcodeScanOnClickListener = EntitySelectCalloutSetup.makeBarcodeClickListener(this);
         } else {
-            barcodeScanOnClickListener = makeCalloutClickListener(callout);
+            barcodeScanOnClickListener = EntitySelectCalloutSetup.makeCalloutClickListener(this, callout);
             if(callout.getImage() != null){
-                setupImageLayout(barcodeButton, callout.getImage());
+                EntitySelectCalloutSetup.setupImageLayout(this, barcodeButton, callout.getImage());
             }
         }
 
@@ -381,88 +371,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    /**
-     * @return A click listener that launches QR code scanner
-     */
-    private View.OnClickListener makeBarcodeClickListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent("com.google.zxing.client.android.SCAN");
-                try {
-                    EntitySelectActivity.this.startActivityForResult(i, BARCODE_FETCH);
-                } catch (ActivityNotFoundException anfe) {
-                    Toast.makeText(EntitySelectActivity.this,
-                            "No barcode reader available! You can install one " +
-                                    "from the android market.",
-                            Toast.LENGTH_LONG).show();
-                }
-            }
-        };
-    }
-
-    /**
-     * Build click listener from callout: set button's image, get intent action,
-     * and copy extras into intent.
-     *
-     * @param callout contains intent action and extras, and sometimes button image
-     * @return click listener that launches the callout's activity with the
-     * associated callout extras
-     */
-    private View.OnClickListener makeCalloutClickListener(Callout callout) {
-        final CalloutData calloutData = callout.getRawCalloutData();
-
-        final Intent i = new Intent(calloutData.getActionName());
-        for (Map.Entry<String, String> keyValue : calloutData.getExtras().entrySet()) {
-            i.putExtra(keyValue.getKey(), keyValue.getValue());
-        }
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    EntitySelectActivity.this.startActivityForResult(i, CALLOUT);
-                } catch (ActivityNotFoundException anfe) {
-                    Toast.makeText(EntitySelectActivity.this,
-                            "No application found for action: " + i.getAction(),
-                            Toast.LENGTH_LONG).show();
-                }
-            }
-        };
-    }
-
-    private Drawable getCalloutDrawable(String imagePath){
-        Bitmap b;
-        if (!imagePath.equals("")) {
-            try {
-                b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(imagePath).getStream());
-                if (b == null) {
-                    // Input stream could not be used to derive bitmap, so
-                    // showing error-indicating image
-                    return getResources().getDrawable(R.drawable.ic_menu_archive);
-                } else {
-                    return new BitmapDrawable(b);
-                }
-            } catch (IOException | InvalidReferenceException ex) {
-                ex.printStackTrace();
-                // Error loading image, default to folder button
-                return getResources().getDrawable(R.drawable.ic_menu_archive);
-            }
-        } else {
-            // no image passed in, draw a white background
-            return getResources().getDrawable(R.color.white);
-        }
-    }
-
-    /**
-     * Updates the ImageView layout that is passed in, based on the
-     * new id and source
-     */
-    private void setupImageLayout(View layout, final String imagePath) {
-        ImageView iv = (ImageView)layout;
-        Drawable drawable = getCalloutDrawable(imagePath);
-        iv.setImageDrawable(drawable);
-    }
-
     private void setupMapNav() {
         for (DetailField field : shortSelect.getFields()) {
             if ("address".equals(field.getTemplateForm())) {
@@ -470,15 +378,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 break;
             }
         }
-    }
-
-    /**
-     * Updates the ImageView layout that is passed in, based on the
-     * new id and source
-     */
-    private void setupImageLayout(MenuItem menuItem, final String imagePath) {
-        Drawable drawable = getCalloutDrawable(imagePath);
-        menuItem.setIcon(drawable);
     }
 
     @Override
@@ -839,7 +738,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 }
             }
             if(shortSelect.getCallout() != null && shortSelect.getCallout().getImage() != null){
-                setupImageLayout(barcodeItem, shortSelect.getCallout().getImage());
+                EntitySelectCalloutSetup.setupImageLayout(this, barcodeItem, shortSelect.getCallout().getImage());
             }
         }
 
