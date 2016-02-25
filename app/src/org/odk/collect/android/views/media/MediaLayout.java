@@ -210,11 +210,12 @@ public class MediaLayout extends RelativeLayout {
                             mImageView.setAdjustViewBounds(true);
                             mImageView.setMaxWidth(maxBounds[0]);
                             mImageView.setMaxHeight(maxBounds[1]);
+                        } else{
+                            mImageView.setScaleType(ImageView.ScaleType.CENTER);
                         }
                         mImageView.setPadding(10, 10, 10, 10);
                         mImageView.setImageBitmap(b);
                         mImageView.setId(23423534);
-                        mImageView.setAdjustViewBounds(true);
                         mediaPane = mImageView;
                     } else if (errorMsg == null) {
                         // An error hasn't been logged and loading the image failed, so it's likely
