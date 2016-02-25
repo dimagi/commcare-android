@@ -315,6 +315,7 @@ notification.logged.in=Logged Into ${0}
 title.datum.wrapper=[${0}]
 
 activity.task.error.generic=Unexpected error! Please try again.
+activity.task.cancelling=Cancelling
 
 dialog.ok=OK
 
