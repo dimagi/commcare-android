@@ -222,7 +222,7 @@ public class CustomProgressDialog extends DialogFragment {
     }
 
     private void setCancellingText(TextView titleTextView, TextView messageTextView) {
-        titleTextView.setText(cancellingPrefixText + " " + title);
+        titleTextView.setText(cancellingPrefixText + " '" + title + "'");
         messageTextView.setText(cancellingPrefixText + "...");
     }
 
