@@ -29,6 +29,7 @@ import org.javarosa.xform.parse.XFormParser;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.jr.extensions.CalendaredDateFormatHandler;
 import org.odk.collect.android.jr.extensions.IntentExtensionParser;
+import org.odk.collect.android.jr.extensions.PollSensorAction;
 import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
 import org.odk.collect.android.jr.extensions.XFormExtensionUtils;
 import org.odk.collect.android.logic.FileReferenceFactory;
@@ -159,7 +160,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             throw new RuntimeException("Error reading XForm file");
         }
         XFormParser.registerHandler("intent", new IntentExtensionParser());
-        XFormParser.registerStructuredAction("pollsensor", new PollSensorExtensionParser());
+        XFormParser.registerActionHandler(PollSensorAction.ELEMENT_NAME, new PollSensorExtensionParser());
         FormDef fd = XFormExtensionUtils.getFormFromInputStream(fis);
         if (fd == null) {
             throw new RuntimeException("Error reading XForm file");
