@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,7 +15,6 @@ import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,6 +52,7 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.activities.utils.EntityDetailUtils;
 import org.commcare.dalvik.activities.utils.EntitySelectCalloutSetup;
 import org.commcare.dalvik.activities.utils.EntitySelectRefreshTimer;
+import org.commcare.dalvik.activities.utils.EntitySelectViewSetup;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.DialogChoiceItem;
 import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
@@ -82,10 +81,8 @@ import java.util.List;
  * @author ctsims
  */
 public class EntitySelectActivity extends SaveSessionCommCareActivity
-        implements TextWatcher,
-        EntityLoaderListener,
-        OnItemClickListener,
-        DetailCalloutListener {
+        implements TextWatcher, EntityLoaderListener,
+        OnItemClickListener, DetailCalloutListener {
     private CommCareSession session;
     private AndroidSessionWrapper asw;
 
@@ -233,13 +230,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
         view.setOnItemClickListener(this);
 
-        setupDivider(view);
+        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
         setupToolbar(view);
         setupMapNav();
     }
 
     private void setupLandscapeDualPaneView() {
-        //Inflate and set up the normal view for now.
         setContentView(R.layout.screen_compound_select);
         View.inflate(this, R.layout.entity_select_layout, (ViewGroup)findViewById(R.id.screen_compound_select_left_pane));
         inAwesomeMode = true;
@@ -252,8 +248,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void restoreExistingSelection(boolean isOrientationChange) {
-        //So we're not in landscape mode anymore, but were before. If we had something selected, we
-        //need to go to the detail screen instead.
+        // Restore detail screen for selection from landscape mode as we move into portrait mode.
         if (isOrientationChange) {
             Intent intent = this.getIntent();
 
@@ -265,39 +260,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 // it being de-selected.
                 intent.removeExtra(EntityDetailActivity.CONTEXT_REFERENCE);
 
-                // attach the selected entity to the new detail intent
-                // we're launching
+                // include selected entity in the launching detail intent
                 Intent detailIntent = EntityDetailUtils.getDetailIntent(getApplicationContext(), selectedRef, null, selectDatum, asw);
 
                 isStartingDetailActivity = true;
                 startActivityForResult(detailIntent, CONFIRM_SELECT);
             }
         }
-    }
-
-    private void setupDivider(ListView view) {
-        boolean useNewDivider = shortSelect.usesGridView();
-
-        if (useNewDivider) {
-            int viewWidth = view.getWidth();
-            // sometimes viewWidth is 0, and in this case we default to a reasonable value taken from dimens.xml
-            int dividerWidth;
-            if (viewWidth == 0) {
-                dividerWidth = (int)getResources().getDimension(R.dimen.entity_select_divider_left_inset);
-            } else {
-                dividerWidth = (int)(viewWidth / 6.0);
-            }
-            dividerWidth += (int)getResources().getDimension(R.dimen.row_padding_horizontal);
-
-            LayerDrawable dividerDrawable = (LayerDrawable)getResources().getDrawable(R.drawable.divider_case_list_modern);
-            dividerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
-
-            view.setDivider(dividerDrawable);
-        } else {
-            view.setDivider(null);
-        }
-
-        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
     }
 
     private void setupToolbar(ListView view) {
@@ -365,7 +334,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             // on orientation change
             if (adapter != null) {
                 view.setAdapter(adapter);
-                setupDivider(view);
+                EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
+
                 findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
             }
         }
@@ -523,25 +493,24 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if (id == EntityListAdapter.SPECIAL_ACTION) {
             triggerDetailAction(adapter.getActionIndex(position));
-            return;
-        }
-
-        TreeReference selection = adapter.getItem(position);
-        if (CommCarePreferences.isEntityDetailLoggingEnabled()) {
-            Logger.log(EntityDetailActivity.class.getSimpleName(), selectDatum.getLongDetail());
-        }
-        if (inAwesomeMode) {
-            displayReferenceAwesome(selection, position);
-            updateSelectedItem(selection, false);
         } else {
-            Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(),
-                    selection, null, selectDatum, asw);
-            i.putExtra("entity_detail_index", position);
-            if (mNoDetailMode) {
-                // Not actually launching detail intent because there's no confirm detail available
-                returnWithResult(i);
+            TreeReference selection = adapter.getItem(position);
+            if (CommCarePreferences.isEntityDetailLoggingEnabled()) {
+                Logger.log(EntityDetailActivity.class.getSimpleName(), selectDatum.getLongDetail());
+            }
+            if (inAwesomeMode) {
+                displayReferenceAwesome(selection, position);
+                updateSelectedItem(selection, false);
             } else {
-                startActivityForResult(i, CONFIRM_SELECT);
+                Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(),
+                        selection, null, selectDatum, asw);
+                i.putExtra("entity_detail_index", position);
+                if (mNoDetailMode) {
+                    // Not actually launching detail intent because there's no confirm detail available
+                    returnWithResult(i);
+                } else {
+                    startActivityForResult(i, CONFIRM_SELECT);
+                }
             }
         }
     }
@@ -560,7 +529,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 if (resultCode == RESULT_OK && !mViewMode) {
                     // create intent for return and store path
                     returnWithResult(intent);
-                    return;
                 } else {
                     //Did we enter the detail from mapping mode? If so, go back to that
                     if (mResultIsMap) {
@@ -577,16 +545,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                                         EntityDetailActivity.CONTEXT_REFERENCE,
                                         TreeReference.class);
                         if (r != null && adapter != null) {
-                            // TODO: added 'adapter != null' due to a
-                            // NullPointerException, we need to figure out how to
-                            // make sure adapter is never null -- PLM
+                            // TODO PLM: adapter null check should be unnessecary
                             this.displayReferenceAwesome(r, adapter.getPosition(r));
                             updateSelectedItem(r, true);
                         }
                         AudioController.INSTANCE.releaseCurrentMediaEntity();
                     }
-                    return;
                 }
+                break;
             case MAP_SELECT:
                 if (resultCode == RESULT_OK) {
                     TreeReference r =
@@ -607,12 +573,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                             i.putExtra("entity_detail_index", adapter.getPosition(r));
                             startActivityForResult(i, CONFIRM_SELECT);
                         }
-                        return;
                     }
                 } else {
                     refreshView();
-                    return;
                 }
+                break;
             default:
                 super.onActivityResult(requestCode, resultCode, intent);
         }
@@ -890,7 +855,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         ListView view = ((ListView) this.findViewById(R.id.screen_entity_select_list));
 
-        setupDivider(view);
+        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
 
         adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, factory);
 
@@ -939,10 +904,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void updateSelectedItem(TreeReference selected, boolean forceMove) {
-        if (adapter == null) {
-            return;
-        }
-        if (selected != null) {
+        if (adapter != null && selected != null) {
             adapter.notifyCurrentlyHighlighted(selected);
             if (forceMove) {
                 ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
@@ -989,7 +951,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             next.setText(Localization.get("select.detail.confirm"));
             next.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
-                    select();
+                    performEntitySelect();
                 }
             });
 
@@ -1024,8 +986,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         detailView.refresh(factory.getDetail(), selection, detailIndex);
     }
 
-    private void select() {
-        // create intent for return and store path
+    private void performEntitySelect() {
         Intent i = new Intent(EntitySelectActivity.this.getIntent());
         i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
         setResult(RESULT_OK, i);
@@ -1048,7 +1009,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
 
             if (!mViewMode) {
-                select();
+                performEntitySelect();
             }
         }
         return true;
