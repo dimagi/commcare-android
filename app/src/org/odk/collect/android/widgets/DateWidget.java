@@ -1,22 +1,9 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.odk.collect.android.widgets;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.DatePicker;
@@ -47,20 +34,42 @@ public class DateWidget extends QuestionWidget {
 
     private final DatePicker mDatePicker;
     private final DatePicker.OnDateChangedListener mDateListener;
-
+    private boolean isRelevancyUpdateScheduled = false;
 
     @SuppressLint("NewApi")
     public DateWidget(Context context, FormEntryPrompt prompt) {
         super(context, prompt);
 
-        mDatePicker = new DatePicker(getContext());
-        mDatePicker.setFocusable(!prompt.isReadOnly());
-        mDatePicker.setEnabled(!prompt.isReadOnly());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mDatePicker.setCalendarViewShown(false);
-        }
+        mDatePicker = buildDatePicker(!prompt.isReadOnly());
+        mDateListener = buildDateListener();
 
-        mDateListener = new DatePicker.OnDateChangedListener() {
+        setAnswer();
+
+        setGravity(Gravity.LEFT);
+        addView(mDatePicker);
+    }
+
+    private DatePicker buildDatePicker(boolean isQuestionWriteable) {
+        DatePicker datePicker = new DatePicker(getContext());
+        datePicker.setFocusable(isQuestionWriteable);
+        datePicker.setEnabled(isQuestionWriteable);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            datePicker.setCalendarViewShown(false);
+        }
+        return datePicker;
+    }
+
+    private DatePicker.OnDateChangedListener buildDateListener() {
+        final Handler mainHandler = new Handler(getContext().getMainLooper());
+        final Runnable updateFormRelevancyRunnable = new Runnable() {
+            @Override
+            public void run() {
+                widgetEntryChanged();
+                isRelevancyUpdateScheduled = false;
+            }
+        };
+
+        return new DatePicker.OnDateChangedListener() {
             @Override
             public void onDateChanged(DatePicker view, int year, int month, int day) {
                 if (mPrompt.isReadOnly()) {
@@ -79,24 +88,14 @@ public class DateWidget extends QuestionWidget {
                         if (!(mDatePicker.getDayOfMonth() == day && mDatePicker.getMonth() == month && mDatePicker.getYear() == year)) {
                             //CTS: No reason to change the day if it's already correct
                             mDatePicker.updateDate(year, month, day);
-
-                        } else {
-                            return;
                         }
                     }
                 }
-
-                //TODO: Not here, the change isn't processed yet.
-                widgetEntryChanged();
-
+                if (!isRelevancyUpdateScheduled) {
+                    mainHandler.postDelayed(updateFormRelevancyRunnable, 750);
+                }
             }
         };
-
-        // If there's an answer, use it.
-        setAnswer();
-
-        setGravity(Gravity.LEFT);
-        addView(mDatePicker);
     }
 
     private void setAnswer() {
@@ -105,7 +104,6 @@ public class DateWidget extends QuestionWidget {
             //The incoming date is in Java Format, parsed from an ISO-8601 date.
             DateTime isoAnchoredDate =
                     new DateTime(((Date)getCurrentAnswer().getValue()).getTime());
-
 
             //The java date we loaded doesn't know how to communicate its timezone offsets to
             //Joda if the offset for the datetime represented differs from what it is currently.
@@ -126,7 +124,6 @@ public class DateWidget extends QuestionWidget {
         }
     }
 
-
     /**
      * Resets date to today.
      */
@@ -137,7 +134,6 @@ public class DateWidget extends QuestionWidget {
                 mDateListener);
     }
 
-
     @Override
     public IAnswerData getAnswer() {
         mDatePicker.clearFocus();
@@ -147,7 +143,6 @@ public class DateWidget extends QuestionWidget {
         return new DateData(ldt.toDate());
     }
 
-
     @Override
     public void setFocus(Context context) {
         // Hide the soft keyboard if it's showing.
@@ -155,7 +150,6 @@ public class DateWidget extends QuestionWidget {
                 (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(this.getWindowToken(), 0);
     }
-
 
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
@@ -174,5 +168,4 @@ public class DateWidget extends QuestionWidget {
         super.cancelLongPress();
         mDatePicker.cancelLongPress();
     }
-
 }
