@@ -20,6 +20,7 @@ import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
+import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.logging.XPathErrorEntry;
 import org.commcare.cases.ledger.Ledger;
@@ -104,6 +105,11 @@ class UserDatabaseUpgrader {
         if (oldVersion == 10) {
             if (upgradeTenEleven(db)) {
                 oldVersion = 11;
+            }
+        }
+        if (oldVersion == 11) {
+            if (upgradeElevenTwelve(db)) {
+                oldVersion = 12;
             }
         }
     }
@@ -330,6 +336,17 @@ class UserDatabaseUpgrader {
         } finally {
             db.endTransaction();
         }
+    }
+
+    private boolean upgradeElevenTwelve(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL("DROP TABLE IF EXISTS " + GeocodeCacheModel.STORAGE_KEY);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+        return true;
     }
 
 

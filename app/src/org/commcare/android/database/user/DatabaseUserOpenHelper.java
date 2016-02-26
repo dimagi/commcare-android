@@ -13,7 +13,6 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.logging.DeviceReportRecord;
 import org.commcare.android.logging.XPathErrorEntry;
@@ -43,9 +42,10 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
      * V.9 - Update serialized fixtures in db to use new schema
      * V.10 - Migration of FormRecord to add appId field
      * V.11 - Add table for storing xpath errors for specific cc app versions
+     * V.12 - Drop old GeocodeCacheModel table
      */
 
-    private static final int USER_DB_VERSION = 11;
+    private static final int USER_DB_VERSION = 12;
 
     private static final String USER_DB_LOCATOR = "database_sandbox_";
 
@@ -82,10 +82,6 @@ public class DatabaseUserOpenHelper extends SQLiteOpenHelper {
             database.execSQL(builder.getTableCreateString());
 
             builder = new AndroidTableBuilder(SessionStateDescriptor.class);
-            database.execSQL(builder.getTableCreateString());
-
-            builder = new AndroidTableBuilder(GeocodeCacheModel.STORAGE_KEY);
-            builder.addData(new GeocodeCacheModel());
             database.execSQL(builder.getTableCreateString());
 
             builder = new AndroidTableBuilder(DeviceReportRecord.class);
