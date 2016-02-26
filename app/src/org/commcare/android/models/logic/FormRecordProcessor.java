@@ -4,12 +4,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Pair;
 
+import org.commcare.android.cases.CaseUtils;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.core.process.XmlFormRecordProcessor;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.AndroidTransactionParserFactory;
 import org.commcare.xml.LedgerXmlParsers;
@@ -114,7 +118,9 @@ public class FormRecordProcessor {
     }
 
     private void performPurge() {
-
+        if(DeveloperPreferences.isAutoPurgeEnabled()) {
+            CaseUtils.purgeCases();
+        }
     }
 
     public void beginBulkSubmit() {
