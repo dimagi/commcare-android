@@ -44,8 +44,6 @@ public class CustomProgressDialog extends DialogFragment {
     private final static String KEY_PROGRESS_BAR_PROGRESS = "progress_bar_progress";
     private final static String KEY_PROGRESS_BAR_MAX = "progress_bar_max";
 
-    private final static String cancellingPrefixText = Localization.get("activity.task.cancelling");
-
     //id of the task that spawned this dialog, -1 if not associated with a CommCareTask
     private int taskId;
 
@@ -224,8 +222,8 @@ public class CustomProgressDialog extends DialogFragment {
     }
 
     private void setCancellingText(TextView titleTextView, TextView messageTextView, Button cancelButton) {
-        titleTextView.setText(cancellingPrefixText + " '" + title + "'");
-        messageTextView.setText(cancellingPrefixText + "...");
+        titleTextView.setText(Localization.get("activity.task.cancelling.title", new String[]{title}));
+        messageTextView.setText(Localization.get("activity.task.cancelling.message"));
         cancelButton.setEnabled(false);
     }
 
