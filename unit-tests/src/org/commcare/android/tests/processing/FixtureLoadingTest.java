@@ -1,5 +1,7 @@
 package org.commcare.android.tests.processing;
 
+import junit.framework.Assert;
+
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.HybridFileBackedSqlStorage;
 import org.commcare.android.database.StoreFixturesOnFilesystemTests;
@@ -21,7 +23,8 @@ public class FixtureLoadingTest {
 
     @Before
     public void setup() {
-        StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "odk_level_ipm_restore_with_empty_fixture.xml");
+        StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(),
+                "odk_level_ipm_restore_with_empty_fixture.xml");
     }
 
     /**
@@ -34,10 +37,10 @@ public class FixtureLoadingTest {
                 CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class);
         FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
                 new String[]{"commtrack:locations"});
-        form.setName("fake");
+        Assert.assertTrue(form != null);
 
         form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
                 new String[]{"commtrack:programs"});
-        form.setName("fake");
+        Assert.assertTrue(form != null);
     }
 }
