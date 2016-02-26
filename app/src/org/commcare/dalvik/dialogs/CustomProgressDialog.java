@@ -159,9 +159,9 @@ public class CustomProgressDialog extends DialogFragment {
         messageView.setText(message);
 
         if (usingCancelButton) {
-            setupCancelButton(view);
+            Button cancelButton = setupCancelButton(view);
             if (wasCancelPressed) {
-                setCancellingText(titleView, messageView);
+                setCancellingText(titleView, messageView, cancelButton);
             }
         }
 
@@ -196,7 +196,7 @@ public class CustomProgressDialog extends DialogFragment {
         }
     }
 
-    private void setupCancelButton(View v) {
+    private Button setupCancelButton(View v) {
         Button b = (Button)v.findViewById(R.id.dialog_cancel_button);
         b.setOnClickListener(new OnClickListener() {
 
@@ -208,6 +208,7 @@ public class CustomProgressDialog extends DialogFragment {
 
         });
         b.setVisibility(View.VISIBLE);
+        return b;
     }
 
     private void showCancelledState() {
@@ -217,13 +218,15 @@ public class CustomProgressDialog extends DialogFragment {
         if (pd != null) {
             TextView titleView = (TextView)pd.findViewById(R.id.progress_dialog_title).findViewById(R.id.dialog_title_text);
             TextView messageView = (TextView)pd.findViewById(R.id.progress_dialog_message);
-            setCancellingText(titleView, messageView);
+            Button cancelButton = (Button)pd.findViewById(R.id.dialog_cancel_button);
+            setCancellingText(titleView, messageView, cancelButton);
         }
     }
 
-    private void setCancellingText(TextView titleTextView, TextView messageTextView) {
+    private void setCancellingText(TextView titleTextView, TextView messageTextView, Button cancelButton) {
         titleTextView.setText(cancellingPrefixText + " '" + title + "'");
         messageTextView.setText(cancellingPrefixText + "...");
+        cancelButton.setEnabled(false);
     }
 
     public void updateMessage(String text) {
