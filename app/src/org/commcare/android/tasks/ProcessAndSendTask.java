@@ -158,6 +158,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
     private boolean checkFormRecordStatus(FormRecord[] records)
             throws FileNotFoundException, TaskCancelledException {
         boolean needToSendLogs = false;
+        processor.beginBulkSubmit();
         for (int i = 0; i < records.length; ++i) {
             if (isCancelled()) {
                 throw new TaskCancelledException();
@@ -198,6 +199,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
                 }
             }
         }
+        processor.closeBulkSubmit();
         return needToSendLogs;
     }
 

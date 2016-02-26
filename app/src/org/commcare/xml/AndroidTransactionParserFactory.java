@@ -38,6 +38,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
     final private HttpRequestGenerator generator;
 
     private TransactionParserFactory formInstanceParser;
+    private boolean caseIndexesWereDisrupted = false;
 
     /**
      * A mapping from an installed form's namespace its install path.
@@ -87,7 +88,13 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
             @Override
             public TransactionParser<Case> getParser(KXmlParser parser) {
                 if (created == null) {
-                    created = new AndroidCaseXmlParser(parser, tallies, true, sandbox.getCaseStorage(), generator);
+                    created = new AndroidCaseXmlParser(parser, tallies, true, sandbox.getCaseStorage(), generator) {
+
+                        @Override
+                        public void onIndexDisrupted(String caseId) {
+                            caseIndexesWereDisrupted = true;
+                        }
+                    };
                 }
 
                 return created;
@@ -119,5 +126,9 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
                 return created;
             }
         };
+    }
+
+    public boolean wereCaseIndexesDisrupted() {
+        return caseIndexesWereDisrupted;
     }
 }

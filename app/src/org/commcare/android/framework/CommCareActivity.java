@@ -80,7 +80,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * Activity has been put in the background. Flag prevents dialogs
      * from being shown while activity isn't active.
      */
-    private boolean areFragmentsPaused;
+    private boolean areFragmentsPaused = true;
 
     /**
      * Mark when task tried to show progress dialog before fragments have resumed,
@@ -288,7 +288,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-
     /**
      * @return wakelock level for an activity with a running task attached to
      * it; defaults to not using wakelocks.
@@ -311,10 +310,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    /*
-     * Override these to control the UI for your task
-     */
-
     @Override
     public void startBlockingForTask(int id) {
         dialogId = id;
@@ -326,8 +321,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             showNewProgressDialog();
         }
     }
-
-
 
     private void showNewProgressDialog() {
         // Only show a new dialog if we chose to dismiss the old one; If
@@ -346,8 +339,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         if (id >= 0) {
             if (inTaskTransition) {
                 dismissLastDialogAfterTransition = true;
-            } else if (areFragmentsPaused) {
-                triedDismissingWhilePaused = true;
             } else {
                 dismissProgressDialog();
             }
@@ -497,7 +488,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public void updateProgress(String updateText, int taskId) {
         CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
-        if (mProgressDialog != null) {
+        if (mProgressDialog != null && !areFragmentsPaused) {
             if (mProgressDialog.getTaskId() == taskId) {
                 mProgressDialog.updateMessage(updateText);
             } else {
@@ -511,7 +502,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public void updateProgressBar(int progress, int max, int taskId) {
         CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
-        if (mProgressDialog != null) {
+        if (mProgressDialog != null && !areFragmentsPaused) {
             if (mProgressDialog.getTaskId() == taskId) {
                 mProgressDialog.updateProgressBar(progress, max);
             } else {
@@ -541,8 +532,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public void dismissProgressDialog() {
         CustomProgressDialog progressDialog = getCurrentProgressDialog();
-        if (!areFragmentsPaused && progressDialog != null && progressDialog.isAdded()) {
-            progressDialog.dismiss();
+        if (progressDialog != null && progressDialog.isAdded()) {
+            if (areFragmentsPaused) {
+                triedDismissingWhilePaused = true;
+            } else {
+                progressDialog.dismiss();
+            }
         }
     }
 

@@ -1,6 +1,3 @@
-/**
- *
- */
 package org.commcare.android.database.user.models;
 
 import com.google.android.maps.GeoPoint;
@@ -19,7 +16,9 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- * TODO: Database migration to remove the associated database tables.
+ * Removed from current code base; left intact for legacy migration code paths.
+ * Can remove once the legacy upgrade strategy is sunsetted.
+ *
  * @author ctsims
  */
 @Deprecated
