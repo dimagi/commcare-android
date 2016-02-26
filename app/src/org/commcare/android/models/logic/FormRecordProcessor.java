@@ -42,6 +42,10 @@ public class FormRecordProcessor {
     private final Context c;
     private final SqlStorage<FormRecord> storage;
 
+    private boolean isBulkProcessing = false;
+
+    private boolean isPurgePending = false;
+
     public FormRecordProcessor(Context c) {
         this.c = c;
         storage = CommCareApplication._().getUserStorage(FormRecord.class);
@@ -81,7 +85,19 @@ public class FormRecordProcessor {
         Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
         this.c.sendBroadcast(i);
 
-        return updateRecordStatus(record, FormRecord.STATUS_UNSENT);
+        //Update the record before trying to purge, so we don't block on this, in case
+        //anything weird happens. We don't want to get into a loop
+        FormRecord updatedRecord =  updateRecordStatus(record, FormRecord.STATUS_UNSENT);
+
+        if(factory.wereCaseIndexesDisrupted()) {
+            if(isBulkProcessing) {
+                isPurgePending = true;
+            } else {
+                performPurge();
+            }
+        }
+
+        return updatedRecord;
     }
 
     public FormRecord updateRecordStatus(FormRecord record, String newStatus) {
@@ -97,6 +113,22 @@ public class FormRecordProcessor {
         return storage.read(dbId);
     }
 
+    private void performPurge() {
+
+    }
+
+    public void beginBulkSubmit() {
+        isBulkProcessing = true;
+        isPurgePending = false;
+    }
+
+    public void closeBulkSubmit() {
+        isBulkProcessing = false;
+        if(isPurgePending) {
+            performPurge();
+        }
+        isPurgePending = false;
+    }
 
     /**
      * Performs deep checks on the current form data to establish whether or
