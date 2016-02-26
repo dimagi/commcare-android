@@ -10,6 +10,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.commcare.android.analytics.GoogleAnalyticsFields;
+import org.commcare.android.cases.CaseUtils;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -208,7 +209,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                     factory.initUserParser(CommCareApplication._().getSession().getLoggedInUser().getWrappedKey());
 
                     //Only purge cases if we already had a logged in user. Otherwise we probably can't read the DB.
-                    purgeCases();
+                    CaseUtils.purgeCases();
                     useRequestFlags = true;
                 }
                 //Either way, don't re-do this step
@@ -463,55 +464,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
         } catch (NoSuchElementException nsee) {
             //TODO: Something here? Maybe figure out if we downloaded a user from the server and attach the data to it?
         }
-    }
-
-    private void purgeCases() {
-        long start = System.currentTimeMillis();
-        //We need to determine if we're using ownership for purging. For right now, only in sync mode
-        Vector<String> owners = new Vector<>();
-        Vector<String> users = new Vector<>();
-        for (IStorageIterator<User> userIterator = CommCareApplication._().getUserStorage(User.STORAGE_KEY, User.class).iterate(); userIterator.hasMore(); ) {
-            String id = userIterator.nextRecord().getUniqueId();
-            owners.addElement(id);
-            users.addElement(id);
-        }
-
-        //Now add all of the relevant groups
-        //TODO: Wow. This is.... kind of megasketch
-        for (String userId : users) {
-            DataInstance instance = CommCareUtil.loadFixture("user-groups", userId);
-            if (instance == null) {
-                continue;
-            }
-            EvaluationContext ec = new EvaluationContext(instance);
-            for (TreeReference ref : ec.expandReference(XPathReference.getPathExpr("/groups/group/@id").getReference())) {
-                AbstractTreeElement<AbstractTreeElement> idelement = ec.resolveReference(ref);
-                if (idelement.getValue() != null) {
-                    owners.addElement(idelement.getValue().uncast().getString());
-                }
-            }
-        }
-
-        SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
-        CasePurgeFilter filter = new CasePurgeFilter(storage, owners);
-        if (filter.invalidEdgesWereRemoved()) {
-            Logger.log(AndroidLogger.SOFT_ASSERT, "An invalid edge was created in the internal " +
-                    "case DAG of a case purge filter, meaning that at least 1 case on the " +
-                    "device had an index into another case that no longer exists on the device");
-            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Case lists on the server and device" +
-                    " were out of sync. The following cases were expected to be on the device, " +
-                    "but were missing: " + filter.getMissingCasesString() + ". As a result, the " +
-                    "following cases were also removed from the device: " + filter.getRemovedCasesString());
-        }
-        int removedCases = storage.removeAll(filter).size();
-
-        SqlStorage<Ledger> stockStorage = CommCareApplication._().getUserStorage(Ledger.STORAGE_KEY, Ledger.class);
-        LedgerPurgeFilter stockFilter = new LedgerPurgeFilter(stockStorage, storage);
-        int removedLedgers = stockStorage.removeAll(stockFilter).size();
-
-        long taken = System.currentTimeMillis() - start;
-
-        Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Purged [%d Case, %d Ledger] records in %dms", removedCases, removedLedgers, taken));
     }
 
     private String readInput(InputStream stream, AndroidTransactionParserFactory factory) throws InvalidStructureException, IOException,

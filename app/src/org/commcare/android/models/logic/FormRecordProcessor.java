@@ -4,12 +4,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Pair;
 
+import org.commcare.android.cases.CaseUtils;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.core.process.XmlFormRecordProcessor;
+import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.AndroidTransactionParserFactory;
 import org.commcare.xml.LedgerXmlParsers;
@@ -41,6 +45,10 @@ public class FormRecordProcessor {
 
     private final Context c;
     private final SqlStorage<FormRecord> storage;
+
+    private boolean isBulkProcessing = false;
+
+    private boolean isPurgePending = false;
 
     public FormRecordProcessor(Context c) {
         this.c = c;
@@ -81,7 +89,19 @@ public class FormRecordProcessor {
         Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
         this.c.sendBroadcast(i);
 
-        return updateRecordStatus(record, FormRecord.STATUS_UNSENT);
+        //Update the record before trying to purge, so we don't block on this, in case
+        //anything weird happens. We don't want to get into a loop
+        FormRecord updatedRecord =  updateRecordStatus(record, FormRecord.STATUS_UNSENT);
+
+        if(factory.wereCaseIndexesDisrupted()) {
+            if(isBulkProcessing) {
+                isPurgePending = true;
+            } else {
+                performPurge();
+            }
+        }
+
+        return updatedRecord;
     }
 
     public FormRecord updateRecordStatus(FormRecord record, String newStatus) {
@@ -97,6 +117,24 @@ public class FormRecordProcessor {
         return storage.read(dbId);
     }
 
+    private void performPurge() {
+        if(DeveloperPreferences.isAutoPurgeEnabled()) {
+            CaseUtils.purgeCases();
+        }
+    }
+
+    public void beginBulkSubmit() {
+        isBulkProcessing = true;
+        isPurgePending = false;
+    }
+
+    public void closeBulkSubmit() {
+        isBulkProcessing = false;
+        if(isPurgePending) {
+            performPurge();
+        }
+        isPurgePending = false;
+    }
 
     /**
      * Performs deep checks on the current form data to establish whether or

@@ -26,6 +26,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public final static String ACTION_BAR_ENABLED = "cc-action-nav-enabled";
     public final static String LIST_REFRESH_ENABLED = "cc-list-refresh";
     public final static String HOME_REPORT_ENABLED = "cc-home-report";
+    public final static String AUTO_PURGE_ENABLED = "cc-auto-purge";
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -82,6 +83,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         prefKeyToAnalyticsEvent.put(ALTERNATE_QUESTION_LAYOUT_ENABLED, GoogleAnalyticsFields.LABEL_IMAGE_ABOVE_TEXT);
         prefKeyToAnalyticsEvent.put(FIRE_TRIGGERS_ON_SAVE, GoogleAnalyticsFields.LABEL_TRIGGERS_ON_SAVE);
         prefKeyToAnalyticsEvent.put(HOME_REPORT_ENABLED, GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED);
+        prefKeyToAnalyticsEvent.put(AUTO_PURGE_ENABLED, GoogleAnalyticsFields.LABEL_AUTO_PURGE);
     }
 
     @Override
@@ -225,6 +227,11 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     public static boolean shouldOfferPinForLogin() {
         return doesPropertyMatch(OFFER_PIN_FOR_LOGIN, CommCarePreferences.NO,
+                CommCarePreferences.YES);
+    }
+
+    public static boolean isAutoPurgeEnabled() {
+        return doesPropertyMatch(AUTO_PURGE_ENABLED, CommCarePreferences.NO,
                 CommCarePreferences.YES);
     }
 
