@@ -488,7 +488,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public void updateProgress(String updateText, int taskId) {
         CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
-        if (mProgressDialog != null) {
+        if (mProgressDialog != null && !areFragmentsPaused) {
             if (mProgressDialog.getTaskId() == taskId) {
                 mProgressDialog.updateMessage(updateText);
             } else {
@@ -502,7 +502,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public void updateProgressBar(int progress, int max, int taskId) {
         CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
-        if (mProgressDialog != null) {
+        if (mProgressDialog != null && !areFragmentsPaused) {
             if (mProgressDialog.getTaskId() == taskId) {
                 mProgressDialog.updateProgressBar(progress, max);
             } else {
