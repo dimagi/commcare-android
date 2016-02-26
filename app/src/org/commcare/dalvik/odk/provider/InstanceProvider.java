@@ -537,7 +537,7 @@ public class InstanceProvider extends ContentProvider {
             if (FormRecord.STATUS_COMPLETE.equals(current.getStatus())) {
                 try {
                     new FormRecordProcessor(getContext()).process(current);
-                } catch (InvalidStorageStructureException e) {
+                } catch (InvalidStructureException | InvalidStorageStructureException e) {
                     // record should be wiped when form entry is exited
                     Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, e.getMessage());
                     throw new IllegalStateException(e.getMessage());

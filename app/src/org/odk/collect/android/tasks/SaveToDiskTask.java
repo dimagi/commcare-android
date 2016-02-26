@@ -112,7 +112,9 @@ public class SaveToDiskTask extends
             // TODO PLM: send this error to HQ as a app build error, most
             // likely a user level issue.
             e.printStackTrace();
-            return new Pair<>(SaveStatus.SAVE_ERROR, e.getMessage());
+            // Passing exceptions through content providers make error message strings messy.
+            String cleanedMessage = e.getMessage().replace("java.lang.IllegalStateException: ", "");
+            return new Pair<>(SaveStatus.SAVE_ERROR, cleanedMessage);
         }
 
         if (exitAfterSave) {
@@ -313,7 +315,11 @@ public class SaveToDiskTask extends
 
         synchronized (this) {
             if (mSavedListener != null) {
-                mSavedListener.savingComplete(result.first, result.second);
+                if (result == null) {
+                    mSavedListener.savingComplete(SaveStatus.SAVE_ERROR, "Unknown Error");
+                } else {
+                    mSavedListener.savingComplete(result.first, result.second);
+                }
             }
         }
     }
