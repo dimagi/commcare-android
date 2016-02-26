@@ -13,6 +13,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
+import java.util.NoSuchElementException;
+
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
@@ -35,12 +37,16 @@ public class FixtureLoadingTest {
     public void testEmptyFixtureFollowedByNormalFixture() {
         HybridFileBackedSqlStorage<FormInstance> userFixtureStorage =
                 CommCareApplication._().getFileBackedUserStorage("fixture", FormInstance.class);
-        FormInstance form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
-                new String[]{"commtrack:locations"});
-        Assert.assertTrue(form != null);
+        boolean didntFindEmptyFixture = false;
+        try {
+            userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+                    new String[]{"commtrack:locations"});
+        } catch (NoSuchElementException e) {
+            didntFindEmptyFixture = true;
+        }
+        Assert.assertTrue(didntFindEmptyFixture);
 
-        form = userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
+        userFixtureStorage.getRecordForValues(new String[]{FormInstance.META_ID},
                 new String[]{"commtrack:programs"});
-        Assert.assertTrue(form != null);
     }
 }
