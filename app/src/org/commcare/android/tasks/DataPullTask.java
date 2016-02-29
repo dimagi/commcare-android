@@ -22,12 +22,8 @@ import org.commcare.android.tasks.network.DataPullRequester;
 import org.commcare.android.tasks.network.DataPullResponseFactory;
 import org.commcare.android.tasks.network.RemoteDataPullResponse;
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.bitcache.BitCache;
-import org.commcare.cases.ledger.Ledger;
-import org.commcare.cases.ledger.LedgerPurgeFilter;
-import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.services.CommCareSessionService;
@@ -36,15 +32,9 @@ import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.xml.AndroidTransactionParserFactory;
 import org.javarosa.core.model.User;
-import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.AbstractTreeElement;
-import org.javarosa.core.model.instance.DataInstance;
-import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
-import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -56,7 +46,6 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
-import java.util.Vector;
 
 import javax.crypto.SecretKey;
 
@@ -226,7 +215,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                     Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
                     return PullTaskResult.AUTH_FAILED;
                 } else if (pullResponse.responseCode >= 200 && pullResponse.responseCode < 300) {
-
                     if (loginNeeded) {
                         //This is necessary (currently) to make sure that data
                         //is encoded. Probably a better way to do this.

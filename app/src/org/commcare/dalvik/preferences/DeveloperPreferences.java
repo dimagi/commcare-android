@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 
 import org.commcare.android.analytics.GoogleAnalyticsFields;
 import org.commcare.android.analytics.GoogleAnalyticsUtils;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
 import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.dalvik.BuildConfig;
@@ -27,6 +28,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public final static String LIST_REFRESH_ENABLED = "cc-list-refresh";
     public final static String HOME_REPORT_ENABLED = "cc-home-report";
     public final static String AUTO_PURGE_ENABLED = "cc-auto-purge";
+    public final static String LOAD_FORM_PAYLOAD_AS = "cc-form-payload-status";
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -84,6 +86,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         prefKeyToAnalyticsEvent.put(FIRE_TRIGGERS_ON_SAVE, GoogleAnalyticsFields.LABEL_TRIGGERS_ON_SAVE);
         prefKeyToAnalyticsEvent.put(HOME_REPORT_ENABLED, GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED);
         prefKeyToAnalyticsEvent.put(AUTO_PURGE_ENABLED, GoogleAnalyticsFields.LABEL_AUTO_PURGE);
+        prefKeyToAnalyticsEvent.put(LOAD_FORM_PAYLOAD_AS, GoogleAnalyticsFields.LABEL_LOAD_FORM_PAYLOAD_AS);
     }
 
     @Override
@@ -99,6 +102,14 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
             case ENABLE_SAVE_SESSION:
                 if (!isSessionSavingEnabled()) {
                     DevSessionRestorer.clearSession();
+                }
+                break;
+            case LOAD_FORM_PAYLOAD_AS:
+                if (!formLoadPayloadStatus().equals(FormRecord.STATUS_SAVED)) {
+                    // clear submission server so that 'unsent' forms that are loaded don't get sent to HQ
+                    CommCareApplication._().getCurrentApp().getAppPreferences().edit()
+                            .putString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, "")
+                            .apply();
                 }
                 break;
         }
@@ -235,4 +246,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 CommCarePreferences.YES);
     }
 
+    public static String formLoadPayloadStatus() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(LOAD_FORM_PAYLOAD_AS, FormRecord.STATUS_SAVED);
+    }
 }
