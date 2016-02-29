@@ -28,7 +28,6 @@ import org.commcare.xml.CaseXmlParser;
 import org.commcare.xml.MetaDataXmlParser;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.Logger;
-import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.kxml2.io.KXmlParser;
@@ -77,13 +76,14 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                 new String[]{FormRecord.STATUS_SAVED, currentAppId});
         int numOldRecordsRemoved = recordsToRemove.size();
 
-        Vector<Integer> unindexedRecords = storage.getIDsForValues(new String[]{FormRecord.META_STATUS}, new String[]{FormRecord.STATUS_UNINDEXED});
+        Vector<Integer> unindexedRecords =
+                storage.getIDsForValues(new String[]{FormRecord.META_STATUS}, new String[]{FormRecord.STATUS_UNINDEXED});
         int count = 0;
         for (int recordID : unindexedRecords) {
             FormRecord r = storage.read(recordID);
 
             try {
-                updateAndWriteUnindexedRecord(context, platform, r, storage);
+                updateAndWriteUnindexedRecordTo(context, platform, r, storage, FormRecord.STATUS_SAVED);
             } catch (FileNotFoundException | InvalidStructureException e) {
                 // No form or bad form data, mark for deletion
                 recordsToRemove.add(recordID);
@@ -173,26 +173,25 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      * @throws UnfullfilledRequirementsException Parsing encountered a platform
      *                                           versioning problem
      */
-    private static void updateAndWriteUnindexedRecord(Context context,
-                                                      CommCarePlatform platform,
-                                                      FormRecord oldRecord,
-                                                      SqlStorage<FormRecord> storage)
+    public static void updateAndWriteUnindexedRecordTo(Context context,
+                                                       CommCarePlatform platform,
+                                                       FormRecord oldRecord,
+                                                       SqlStorage<FormRecord> storage,
+                                                       String saveStatus)
             throws InvalidStructureException, IOException,
             XmlPullParserException, UnfullfilledRequirementsException {
 
         Pair<FormRecord, String> recordUpdates = reparseRecord(context, oldRecord);
 
         FormRecord updated = recordUpdates.first;
-        updated = updated.updateInstanceAndStatus(updated.getInstanceURI().toString(), FormRecord.STATUS_SAVED);
+        updated = updated.updateInstanceAndStatus(updated.getInstanceURI().toString(), saveStatus);
         String caseId = recordUpdates.second;
 
         if (caseId != null &&
                 FormRecord.STATUS_UNINDEXED.equals(oldRecord.getStatus())) {
             // There is a case id associated with an unidexed form record,
             // calculate the state descripter and write it.
-            //
-            // Should only occur when we are loading forms manually onto the
-            // phone using DataPullTask.
+            // Occurs when loading forms manually onto the device using DataPullTask.
             AndroidSessionWrapper asw
                     = AndroidSessionWrapper.mockEasiestRoute(platform,
                     oldRecord.getFormNamespace(), caseId);
@@ -201,11 +200,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             SqlStorage<SessionStateDescriptor> ssdStorage =
                     CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 
-            try {
-                ssdStorage.write(asw.getSessionStateDescriptor());
-            } catch (StorageFullException e) {
-                // TODO PLM should we abort completely here?
-            }
+            ssdStorage.write(asw.getSessionStateDescriptor());
         }
 
         storage.write(updated);
