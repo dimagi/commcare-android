@@ -1,6 +1,5 @@
 package org.commcare.dalvik.activities;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -18,16 +17,14 @@ import android.net.wifi.p2p.WifiP2pManager.PeerListListener;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
-import android.view.ViewTreeObserver;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.android.adapters.WiFiDirectAdapter;
+import org.commcare.android.adapters.WiFiDirectUIController;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.framework.CommCareActivityUIController;
 import org.commcare.android.framework.DeviceDetailFragment;
 import org.commcare.android.framework.DeviceListFragment;
 import org.commcare.android.framework.DeviceListFragment.DeviceActionListener;
@@ -36,6 +33,7 @@ import org.commcare.android.framework.FileServerFragment.FileServerListener;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.WiFiDirectManagementFragment;
 import org.commcare.android.framework.WiFiDirectManagementFragment.WifiDirectManagerListener;
+import org.commcare.android.framework.WithUIController;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.tasks.FormTransferTask;
 import org.commcare.android.tasks.SendTask;
@@ -68,7 +66,9 @@ import java.util.Vector;
  * WiFi state related events.
  */
 @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<CommCareWiFiDirectActivity> implements DeviceActionListener, FileServerListener, WifiDirectManagerListener {
+public class CommCareWiFiDirectActivity
+        extends SessionAwareCommCareActivity<CommCareWiFiDirectActivity>
+        implements DeviceActionListener, FileServerListener, WifiDirectManagerListener, WithUIController {
 
     private static final String TAG = CommCareWiFiDirectActivity.class.getSimpleName();
 
@@ -82,7 +82,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     public enum wdState {send, receive, submit}
 
-    private WiFiDirectAdapter adapter;
+    private WiFiDirectUIController uiController;
 
     public static String baseDirectory;
     public static String sourceDirectory;
@@ -98,7 +98,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     private static final int FILE_SERVER_TASK_ID = 129123;
 
-    public wdState mState = wdState.send;
+    private wdState mState = wdState.send;
 
     private FormRecord[] cachedRecords;
 
@@ -107,14 +107,10 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.wifi_direct_main);
-        adapter = new WiFiDirectAdapter(this);
 
         myStatusText = (TextView)this.findViewById(R.id.my_status_text);
-
         formCountText = (TextView)this.findViewById(R.id.form_count_text);
-
         stateStatusText = (TextView)this.findViewById(R.id.wifi_state_status);
-
         stateHeaderText = (TextView)this.findViewById(R.id.wifi_state_header);
 
         String baseDir = this.getFilesDir().getAbsolutePath();
@@ -133,42 +129,25 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION);
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION);
         mIntentFilter.addAction(WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
-        setupGridView();
-        changeState();
         if (savedInstanceState == null) {
             showChangeStateDialog();
         }
+        uiController.setupUI();
+    }
+
+    @Override
+    public void initUIController() {
+        uiController = new WiFiDirectUIController(this);
+    }
+
+    @Override
+    public CommCareActivityUIController getUIController() {
+        return this.uiController;
     }
 
     public void showChangeStateDialog() {
         showDialog(this, localize("wifi.direct.change.state.title").toString(),
                 localize("wifi.direct.change.state.text").toString());
-    }
-
-    private void setupGridView() {
-        final RecyclerView grid = (RecyclerView)findViewById(R.id.wifi_direct_gridview_buttons);
-        grid.setHasFixedSize(true);
-
-        StaggeredGridLayoutManager gridView =
-                new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
-        grid.setLayoutManager(gridView);
-        grid.setItemAnimator(null);
-        grid.setAdapter(adapter);
-
-        grid.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @SuppressLint("NewApi")
-            @Override
-            public void onGlobalLayout() {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                    grid.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                } else {
-                    grid.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                }
-
-                grid.requestLayout();
-                adapter.notifyDataSetChanged();
-            }
-        });
     }
 
     /**
@@ -187,7 +166,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
         fragment.startReceiver(mManager, mChannel);
 
-        updateStatusText();
+        changeState();
     }
 
     /**
@@ -222,8 +201,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     private void changeState() {
         updateStatusText();
-        adapter.updateDisplayData();
-        adapter.notifyDataSetChanged();
+        uiController.refreshView();
     }
 
     private void showDialog(Activity activity, String title, String message) {
@@ -852,4 +830,9 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         }
         return CustomProgressDialog.newInstance(title, message, taskId);
     }
+
+    public wdState getWifiDirectState() {
+        return mState;
+    }
+
 }
