@@ -7,7 +7,7 @@ import android.preference.PreferenceManager;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 
 import java.util.Map;

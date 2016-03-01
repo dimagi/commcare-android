@@ -12,10 +12,10 @@ import android.widget.ListView;
 import org.commcare.adapters.EntitySubnodeDetailAdapter;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.tasks.EntityLoaderListener;
-import org.commcare.android.tasks.EntityLoaderTask;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
+import org.commcare.tasks.EntityLoaderListener;
+import org.commcare.tasks.EntityLoaderTask;
 import org.commcare.views.EntityView;
 import org.javarosa.core.model.instance.TreeReference;
 

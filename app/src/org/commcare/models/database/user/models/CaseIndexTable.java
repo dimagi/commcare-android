@@ -5,9 +5,9 @@ import android.content.ContentValues;
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.CommCareApplication;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.UserStorageClosedException;

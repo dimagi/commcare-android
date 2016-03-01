@@ -1,9 +1,9 @@
 package org.commcare.models.database;
 
+import org.commcare.CommCareApplication;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.model.Case;
 import org.commcare.core.interfaces.UserSandbox;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.models.database.user.models.ACase;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;

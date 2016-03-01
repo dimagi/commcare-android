@@ -15,9 +15,9 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.utils.FileUtils;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UriToFilePath;

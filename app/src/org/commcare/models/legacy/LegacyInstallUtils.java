@@ -15,10 +15,10 @@ import android.util.Pair;
 import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 
+import org.commcare.CommCareApp;
+import org.commcare.CommCareApplication;
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.logic.GlobalConstants;
-import org.commcare.dalvik.application.CommCareApp;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.logging.AndroidLogEntry;
 import org.commcare.logging.AndroidLogger;

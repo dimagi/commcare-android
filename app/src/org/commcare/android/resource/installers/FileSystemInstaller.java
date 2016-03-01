@@ -2,7 +2,7 @@ package org.commcare.android.resource.installers;
 
 import android.util.Pair;
 
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;

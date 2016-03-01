@@ -49,7 +49,7 @@
 
     <application
         tools:replace="android:label,android:icon"
-        android:name=".application.CommCareApplication"
+        android:name="org.commcare.CommCareApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/application_name"
         android:hardwareAccelerated="true"

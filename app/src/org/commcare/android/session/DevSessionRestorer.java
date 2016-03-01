@@ -5,10 +5,10 @@ import android.util.Base64;
 import android.util.Log;
 import android.util.Pair;
 
+import org.commcare.CommCareApp;
+import org.commcare.CommCareApplication;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.application.CommCareApp;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;

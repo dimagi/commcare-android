@@ -1,6 +1,6 @@
 package org.commcare.models.database;
 
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.CommCareApplication;
 import org.javarosa.core.services.storage.Persistable;
 
 import java.io.ByteArrayOutputStream;

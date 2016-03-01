@@ -1,10 +1,11 @@
 package org.commcare.models.database;
 
+import org.commcare.CommCareApplication;
+import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.xml.AndroidTransactionParserFactory;
 import org.javarosa.core.model.instance.FormInstance;
@@ -37,7 +38,7 @@ import java.util.Vector;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@Config(application = org.commcare.dalvik.application.CommCareTestApplication.class,
+@Config(application = CommCareTestApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class StoreFixturesOnFilesystemTests {

@@ -5,11 +5,11 @@ import android.text.Spannable;
 import android.text.format.DateUtils;
 import android.widget.TextView;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareHomeActivity;
 import org.commcare.adapters.HomeCardDisplayData;
 import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.FormRecord;
 import org.javarosa.core.services.locale.Localization;

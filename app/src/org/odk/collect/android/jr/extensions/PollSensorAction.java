@@ -14,7 +14,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.CommCareApplication;
 import org.commcare.utils.GeoUtils;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.actions.Action;

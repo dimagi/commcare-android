@@ -23,15 +23,15 @@ import android.view.ViewTreeObserver;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.tasks.templates.CommCareTaskConnector;
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.CommCareApplication;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.user.models.ACase;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.MarkupUtil;

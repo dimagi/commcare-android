@@ -8,7 +8,7 @@ import android.text.SpannableString;
 
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.javarosa.core.services.locale.Localization;
 

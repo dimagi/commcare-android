@@ -2,10 +2,10 @@ package org.odk.collect.android.logic;
 
 import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.FormRecordListActivity;
-import org.commcare.android.tasks.DataPullTask;
-import org.commcare.android.tasks.FormRecordCleanupTask;
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.tasks.DataPullTask;
+import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;

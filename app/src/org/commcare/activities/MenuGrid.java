@@ -9,13 +9,13 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.GridView;
 
+import org.commcare.CommCareApplication;
 import org.commcare.adapters.GridMenuAdapter;
 import org.commcare.adapters.MenuAdapter;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SaveSessionCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;

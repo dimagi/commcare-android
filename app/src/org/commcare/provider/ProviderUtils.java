@@ -1,6 +1,6 @@
 package org.commcare.provider;
 
-import org.commcare.dalvik.application.CommCareApp;
+import org.commcare.CommCareApp;
 
 /**
  * Some utility methods used by InstanceProvider and FormsProvider, and by the db upgrade methods

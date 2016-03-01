@@ -1,6 +1,6 @@
 package org.commcare.interfaces;
 
-import org.commcare.android.tasks.SaveToDiskTask;
+import org.commcare.tasks.SaveToDiskTask;
 
 /**
  * @author Carl Hartung (carlhartung@gmail.com)

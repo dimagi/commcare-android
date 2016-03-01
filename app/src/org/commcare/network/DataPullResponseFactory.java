@@ -1,6 +1,6 @@
 package org.commcare.network;
 
-import org.commcare.android.tasks.DataPullTask;
+import org.commcare.tasks.DataPullTask;
 
 import java.io.IOException;
 

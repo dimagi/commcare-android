@@ -15,19 +15,19 @@ import android.widget.RemoteViews;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.CommCareApplication;
 import org.commcare.activities.DispatchActivity;
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.tasks.DataSubmissionListener;
-import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.app.models.UserKeyRecord;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
+import org.commcare.tasks.DataSubmissionListener;
+import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;

@@ -10,7 +10,7 @@ import android.support.v4.app.NotificationCompat;
 
 import org.commcare.activities.UpdateActivity;
 import org.commcare.android.resource.AppInstallStatus;
-import org.commcare.android.tasks.TaskListener;
+import org.commcare.tasks.TaskListener;
 import org.javarosa.core.services.locale.Localization;
 
 /**

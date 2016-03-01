@@ -6,8 +6,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
+import org.commcare.CommCareApplication;
 import org.commcare.cases.ledger.Ledger;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.logging.DeviceReportRecord;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.models.database.AndroidTableBuilder;

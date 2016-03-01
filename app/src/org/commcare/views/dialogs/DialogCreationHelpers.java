@@ -9,9 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.framework.RuntimePermissionRequester;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.utils.MarkupUtil;
 
 /**

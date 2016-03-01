@@ -1,6 +1,6 @@
 package org.commcare.logging.analytics;
 
-import org.commcare.dalvik.application.CommCareApp;
+import org.commcare.CommCareApp;
 import org.commcare.resources.model.InstallStatsLogger;
 
 import java.io.PrintWriter;

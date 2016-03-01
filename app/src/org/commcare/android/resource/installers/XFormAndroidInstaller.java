@@ -9,8 +9,8 @@ import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Log;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.logic.GlobalConstants;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.resources.model.MissingMediaException;

@@ -1,9 +1,9 @@
 package org.commcare.android.tests.application;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Profile;
 import org.junit.Assert;
 import org.junit.Before;
@@ -17,7 +17,7 @@ import org.robolectric.annotation.Config;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@Config(application = org.commcare.dalvik.application.CommCareApplication.class,
+@Config(application = CommCareApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class AppInitializationTest {

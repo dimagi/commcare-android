@@ -1,9 +1,10 @@
 package org.commcare.models.database;
 
+import org.commcare.CommCareApp;
+import org.commcare.CommCareApplication;
+import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.application.CommCareApp;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.FormInstanceWithFailures;
@@ -21,7 +22,7 @@ import java.io.File;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@Config(application = org.commcare.dalvik.application.CommCareTestApplication.class,
+@Config(application = CommCareTestApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class HybridFileBackedSqlStorageTest {

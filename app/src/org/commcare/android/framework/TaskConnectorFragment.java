@@ -8,7 +8,7 @@ import android.os.PowerManager.WakeLock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
-import org.commcare.android.tasks.templates.CommCareTask;
+import org.commcare.tasks.templates.CommCareTask;
 
 /**
  * Hold a reference to current task to report its progress and results The

@@ -14,13 +14,13 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.references.ArchiveFileRoot;
-import org.commcare.android.tasks.UnzipTask;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.tasks.UnzipTask;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.UriToFilePath;
 import org.commcare.views.dialogs.CustomProgressDialog;

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.commcare.activities.CrashWarningActivity;
-import org.commcare.android.tasks.ExceptionReporting;
+import org.commcare.tasks.ExceptionReporting;
 import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.lang.Thread.UncaughtExceptionHandler;

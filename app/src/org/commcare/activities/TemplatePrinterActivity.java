@@ -17,11 +17,11 @@ import android.print.PrintManager;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import org.commcare.android.tasks.TemplatePrinterTask;
-import org.commcare.android.tasks.TemplatePrinterTask.PopulateListener;
+import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.tasks.TemplatePrinterTask;
+import org.commcare.tasks.TemplatePrinterTask.PopulateListener;
 import org.commcare.utils.FileUtils;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.javarosa.core.reference.InvalidReferenceException;

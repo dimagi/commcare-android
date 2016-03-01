@@ -1,6 +1,6 @@
 package org.commcare.utils;
 
-import org.commcare.android.tasks.TemplatePrinterTask;
+import org.commcare.tasks.TemplatePrinterTask;
 
 /**
  * Created by amstone326 on 7/31/15.

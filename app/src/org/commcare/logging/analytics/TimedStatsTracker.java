@@ -3,7 +3,7 @@ package org.commcare.logging.analytics;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.CommCareApplication;
 
 import java.util.Date;
 

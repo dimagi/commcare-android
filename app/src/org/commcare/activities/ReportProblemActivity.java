@@ -11,9 +11,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.network.HttpRequestGenerator;
 import org.javarosa.core.services.Logger;

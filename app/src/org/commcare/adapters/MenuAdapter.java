@@ -12,9 +12,9 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.XPathErrorLogger;

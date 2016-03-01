@@ -5,9 +5,9 @@ import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.instance.TreeReference;

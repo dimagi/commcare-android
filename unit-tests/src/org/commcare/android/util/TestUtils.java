@@ -2,9 +2,9 @@ package org.commcare.android.util;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.cases.AndroidCaseInstanceTreeElement;
 import org.commcare.android.logic.GlobalConstants;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;

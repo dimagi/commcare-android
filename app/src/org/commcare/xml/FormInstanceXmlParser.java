@@ -4,7 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.provider.InstanceProviderAPI;

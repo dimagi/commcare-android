@@ -2,8 +2,8 @@ package org.commcare.logging;
 
 import android.support.v4.util.Pair;
 
-import org.commcare.dalvik.application.CommCareApp;
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.CommCareApp;
+import org.commcare.CommCareApplication;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Profile;
 import org.commcare.utils.SessionStateUninitException;

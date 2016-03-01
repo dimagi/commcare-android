@@ -3,8 +3,8 @@
  */
 package org.commcare.models.database.app.models;
 
+import org.commcare.CommCareApp;
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.framework.Persisted;
 import org.commcare.models.framework.Persisting;

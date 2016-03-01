@@ -6,10 +6,10 @@ import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.crypt.EncryptionIO;
 import org.commcare.android.logic.GlobalConstants;
-import org.commcare.dalvik.application.AppFilePathBuilder;
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.interfaces.AppFilePathBuilder;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.SessionUnavailableException;

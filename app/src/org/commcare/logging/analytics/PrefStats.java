@@ -4,7 +4,7 @@ import android.content.SharedPreferences;
 import android.util.Base64;
 import android.util.Log;
 
-import org.commcare.dalvik.application.CommCareApp;
+import org.commcare.CommCareApp;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

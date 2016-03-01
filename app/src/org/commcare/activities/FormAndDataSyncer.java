@@ -6,14 +6,14 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
 
-import org.commcare.android.tasks.DataPullTask;
-import org.commcare.android.tasks.ProcessAndSendTask;
+import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.tasks.DataPullTask;
+import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
