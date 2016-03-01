@@ -504,7 +504,7 @@ public class LegacyInstallUtils {
                             try {
                                 formRecordPath = t.getPath(c);
                                 String newPath = replaceOldRoot(formRecordPath, oldRoot, newFileSystemRoot);
-                                if (newPath != formRecordPath) {
+                                if (newPath.equals(formRecordPath)) {
                                     ContentValues cv = new ContentValues();
                                     cv.put(InstanceColumns.INSTANCE_FILE_PATH, newPath);
                                     c.getContentResolver().update(t.getInstanceURI(), cv, null, null);
