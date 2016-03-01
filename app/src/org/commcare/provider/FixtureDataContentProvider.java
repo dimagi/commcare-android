@@ -1,4 +1,4 @@
-package org.commcare.dalvik.provider;
+package org.commcare.provider;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;

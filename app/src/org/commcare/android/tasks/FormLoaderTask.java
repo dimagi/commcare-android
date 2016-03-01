@@ -12,7 +12,7 @@ import org.commcare.android.crypt.EncryptionIO;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.FormsProviderAPI;
+import org.commcare.provider.FormsProviderAPI;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.DbUtil;
 import org.commcare.utils.FileUtils;

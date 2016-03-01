@@ -7,8 +7,8 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.dalvik.odk.provider.FormsProviderAPI;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
+import org.commcare.provider.FormsProviderAPI;
+import org.commcare.provider.InstanceProviderAPI;
 
 import java.io.File;
 

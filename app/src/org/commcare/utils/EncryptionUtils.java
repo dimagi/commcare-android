@@ -6,8 +6,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
-import org.commcare.dalvik.odk.provider.FormsProviderAPI;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
+import org.commcare.provider.FormsProviderAPI;
+import org.commcare.provider.InstanceProviderAPI;
 import org.kxml2.io.KXmlSerializer;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;

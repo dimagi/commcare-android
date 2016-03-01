@@ -5,7 +5,7 @@ import android.content.Context;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.ProviderUtils;
+import org.commcare.provider.ProviderUtils;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.MigrationException;

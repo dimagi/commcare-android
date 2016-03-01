@@ -95,21 +95,21 @@
         <activity android:name="org.commcare.activities.MenuGrid"/>
 
         <provider
-            android:name=".odk.provider.FormsProvider"
+            android:name="org.commcare.provider.FormsProvider"
             android:exported="true"
             android:authorities="${odkProvider}.forms"/>
         <provider
-            android:name=".odk.provider.InstanceProvider"
+            android:name="org.commcare.provider.InstanceProvider"
             android:exported="true"
             android:authorities="${odkProvider}.instances"/>
         <provider
-            android:name=".provider.CaseDataContentProvider"
+            android:name="org.commcare.provider.CaseDataContentProvider"
             android:authorities="${applicationId}.case"
             android:enabled="true"
             android:exported="true"
             android:readPermission="${applicationId}.provider.cases.read"/>
         <provider
-            android:name=".provider.FixtureDataContentProvider"
+            android:name="org.commcare.provider.FixtureDataContentProvider"
             android:authorities="${applicationId}.fixture"
             android:enabled="true"
             android:exported="true"

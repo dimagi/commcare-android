@@ -1,4 +1,4 @@
-package org.commcare.dalvik.odk.provider;
+package org.commcare.provider;
 
 import android.net.Uri;
 import android.provider.BaseColumns;

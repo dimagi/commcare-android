@@ -1,4 +1,4 @@
-package org.commcare.dalvik.odk.provider;
+package org.commcare.provider;
 
 import org.commcare.dalvik.application.CommCareApp;
 

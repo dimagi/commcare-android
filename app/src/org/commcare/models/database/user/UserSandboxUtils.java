@@ -11,13 +11,13 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.DeviceReportRecord;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.app.models.UserKeyRecord;
 import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.services.Logger;
 

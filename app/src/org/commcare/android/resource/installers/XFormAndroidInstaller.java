@@ -11,8 +11,8 @@ import android.util.Log;
 
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.logging.AndroidLogger;
+import org.commcare.provider.FormsProviderAPI;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;

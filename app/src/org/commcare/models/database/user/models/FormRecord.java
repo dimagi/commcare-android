@@ -4,12 +4,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.models.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
+import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 
 import java.io.FileNotFoundException;
 import java.util.Date;

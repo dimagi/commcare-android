@@ -5,7 +5,7 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.FormsProviderAPI;
+import org.commcare.provider.FormsProviderAPI;
 
 import java.util.Hashtable;
 

@@ -1,4 +1,4 @@
-package org.commcare.dalvik.odk.provider;
+package org.commcare.provider;
 
 import android.content.ContentProvider;
 import android.content.ContentUris;
@@ -20,7 +20,6 @@ import org.commcare.android.models.logic.FormRecordProcessor;
 import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.android.tasks.FormRecordCleanupTask;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.models.database.user.models.FormRecord;
@@ -75,15 +74,15 @@ public class InstanceProvider extends ContentProvider {
         @Override
         public void onCreate(SQLiteDatabase db) {
             db.execSQL("CREATE TABLE " + INSTANCES_TABLE_NAME + " ("
-                    + InstanceColumns._ID + " integer primary key, "
-                    + InstanceColumns.DISPLAY_NAME + " text not null, "
-                    + InstanceColumns.SUBMISSION_URI + " text, "
-                    + InstanceColumns.CAN_EDIT_WHEN_COMPLETE + " text, "
-                    + InstanceColumns.INSTANCE_FILE_PATH + " text not null, "
-                    + InstanceColumns.JR_FORM_ID + " text not null, "
-                    + InstanceColumns.STATUS + " text not null, "
-                    + InstanceColumns.LAST_STATUS_CHANGE_DATE + " date not null, "
-                    + InstanceColumns.DISPLAY_SUBTEXT + " text not null );");
+                    + InstanceProviderAPI.InstanceColumns._ID + " integer primary key, "
+                    + InstanceProviderAPI.InstanceColumns.DISPLAY_NAME + " text not null, "
+                    + InstanceProviderAPI.InstanceColumns.SUBMISSION_URI + " text, "
+                    + InstanceProviderAPI.InstanceColumns.CAN_EDIT_WHEN_COMPLETE + " text, "
+                    + InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH + " text not null, "
+                    + InstanceProviderAPI.InstanceColumns.JR_FORM_ID + " text not null, "
+                    + InstanceProviderAPI.InstanceColumns.STATUS + " text not null, "
+                    + InstanceProviderAPI.InstanceColumns.LAST_STATUS_CHANGE_DATE + " date not null, "
+                    + InstanceProviderAPI.InstanceColumns.DISPLAY_SUBTEXT + " text not null );");
         }
 
 
@@ -126,7 +125,7 @@ public class InstanceProvider extends ContentProvider {
 
             case INSTANCE_ID:
                 qb.setProjectionMap(sInstancesProjectionMap);
-                qb.appendWhere(InstanceColumns._ID + "=" + uri.getPathSegments().get(1));
+                qb.appendWhere(InstanceProviderAPI.InstanceColumns._ID + "=" + uri.getPathSegments().get(1));
                 break;
 
             default:
@@ -146,10 +145,10 @@ public class InstanceProvider extends ContentProvider {
     public String getType(@NonNull Uri uri) {
         switch (sUriMatcher.match(uri)) {
             case INSTANCES:
-                return InstanceColumns.CONTENT_TYPE;
+                return InstanceProviderAPI.InstanceColumns.CONTENT_TYPE;
 
             case INSTANCE_ID:
-                return InstanceColumns.CONTENT_ITEM_TYPE;
+                return InstanceProviderAPI.InstanceColumns.CONTENT_ITEM_TYPE;
 
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -180,19 +179,19 @@ public class InstanceProvider extends ContentProvider {
 
 
         // Make sure that the fields are all set
-        if (!values.containsKey(InstanceColumns.LAST_STATUS_CHANGE_DATE)) {
+        if (!values.containsKey(InstanceProviderAPI.InstanceColumns.LAST_STATUS_CHANGE_DATE)) {
             // set the change date to now
-            values.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, System.currentTimeMillis());
+            values.put(InstanceProviderAPI.InstanceColumns.LAST_STATUS_CHANGE_DATE, System.currentTimeMillis());
         }
 
-        if (!values.containsKey(InstanceColumns.DISPLAY_SUBTEXT)) {
+        if (!values.containsKey(InstanceProviderAPI.InstanceColumns.DISPLAY_SUBTEXT)) {
             // set display subtext to detail save date
-            values.put(InstanceColumns.DISPLAY_SUBTEXT,
+            values.put(InstanceProviderAPI.InstanceColumns.DISPLAY_SUBTEXT,
                     getDisplaySubtext(InstanceProviderAPI.STATUS_INCOMPLETE));
         }
 
-        if (!values.containsKey(InstanceColumns.STATUS)) {
-            values.put(InstanceColumns.STATUS, InstanceProviderAPI.STATUS_INCOMPLETE);
+        if (!values.containsKey(InstanceProviderAPI.InstanceColumns.STATUS)) {
+            values.put(InstanceProviderAPI.InstanceColumns.STATUS, InstanceProviderAPI.STATUS_INCOMPLETE);
         }
 
         // Should we link this instance to the session's form record, or create
@@ -208,7 +207,7 @@ public class InstanceProvider extends ContentProvider {
         db.close();
 
         if (rowId > 0) {
-            Uri instanceUri = ContentUris.withAppendedId(InstanceColumns.CONTENT_URI, rowId);
+            Uri instanceUri = ContentUris.withAppendedId(InstanceProviderAPI.InstanceColumns.CONTENT_URI, rowId);
             getContext().getContentResolver().notifyChange(instanceUri, null);
 
             if (linkToSession) {
@@ -221,7 +220,7 @@ public class InstanceProvider extends ContentProvider {
                 // Forms with this flag are being loaded onto the phone
                 // manually and hence shouldn't be attached to the FormRecord
                 // in the current session
-                String xmlns = values.getAsString(InstanceColumns.JR_FORM_ID);
+                String xmlns = values.getAsString(InstanceProviderAPI.InstanceColumns.JR_FORM_ID);
 
                 SecretKey key;
                 try {
@@ -300,7 +299,7 @@ public class InstanceProvider extends ContentProvider {
                     del = this.query(uri, null, where, whereArgs, null);
                     del.moveToPosition(-1);
                     while (del.moveToNext()) {
-                        String instanceFile = del.getString(del.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+                        String instanceFile = del.getString(del.getColumnIndex(InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH));
                         String instanceDir = (new File(instanceFile)).getParent();
                         deleteFileOrDir(instanceDir);
                     }
@@ -321,7 +320,7 @@ public class InstanceProvider extends ContentProvider {
                     // This should only ever return 1 record.  I hope.
                     c.moveToPosition(-1);
                     while (c.moveToNext()) {
-                        String instanceFile = c.getString(c.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH));
+                        String instanceFile = c.getString(c.getColumnIndex(InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH));
                         String instanceDir = (new File(instanceFile)).getParent();
                         deleteFileOrDir(instanceDir);
                     }
@@ -333,7 +332,7 @@ public class InstanceProvider extends ContentProvider {
 
                 count =
                         db.delete(INSTANCES_TABLE_NAME,
-                                InstanceColumns._ID + "=" + instanceId
+                                InstanceProviderAPI.InstanceColumns._ID + "=" + instanceId
                                         + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""),
                                 whereArgs);
                 break;
@@ -362,10 +361,10 @@ public class InstanceProvider extends ContentProvider {
 
         // Given a value in the status column and none in the display subtext
         // column, set the display subtext column from the status value.
-        if (values.containsKey(InstanceColumns.STATUS) &&
-                !values.containsKey(InstanceColumns.DISPLAY_SUBTEXT)) {
-            values.put(InstanceColumns.DISPLAY_SUBTEXT,
-                    getDisplaySubtext(values.getAsString(InstanceColumns.STATUS)));
+        if (values.containsKey(InstanceProviderAPI.InstanceColumns.STATUS) &&
+                !values.containsKey(InstanceProviderAPI.InstanceColumns.DISPLAY_SUBTEXT)) {
+            values.put(InstanceProviderAPI.InstanceColumns.DISPLAY_SUBTEXT,
+                    getDisplaySubtext(values.getAsString(InstanceProviderAPI.InstanceColumns.STATUS)));
         }
 
         switch (sUriMatcher.match(uri)) {
@@ -380,7 +379,7 @@ public class InstanceProvider extends ContentProvider {
                 String instanceId = uri.getPathSegments().get(1);
 
                 count =
-                        db.update(INSTANCES_TABLE_NAME, values, InstanceColumns._ID + "=" + instanceId
+                        db.update(INSTANCES_TABLE_NAME, values, InstanceProviderAPI.InstanceColumns._ID + "=" + instanceId
                                 + (!TextUtils.isEmpty(where) ? " AND (" + where + ')' : ""), whereArgs);
                 break;
 
@@ -395,7 +394,7 @@ public class InstanceProvider extends ContentProvider {
         // since updating a form record in turn calls this update function, so
         // we need to break the infinite loop by only updating the form record
         // when the the status changes.
-        if (values.containsKey(InstanceColumns.STATUS) && count > 0) {
+        if (values.containsKey(InstanceProviderAPI.InstanceColumns.STATUS) && count > 0) {
             try {
                 linkToSessionFormRecord(getInstanceRowUri(uri, where, whereArgs));
             } catch (Exception e) {
@@ -435,7 +434,7 @@ public class InstanceProvider extends ContentProvider {
                     if (c.moveToNext()) {
                         // there should only be one result for this query
                         String instanceId = c.getString(c.getColumnIndex("_id"));
-                        return InstanceColumns.CONTENT_URI.buildUpon().appendPath(instanceId).build();
+                        return InstanceProviderAPI.InstanceColumns.CONTENT_URI.buildUpon().appendPath(instanceId).build();
                     }
                 } finally {
                     if (c != null) {
@@ -458,7 +457,7 @@ public class InstanceProvider extends ContentProvider {
      * @param instanceUri points to a concrete instance we want to register
      */
     private void linkToSessionFormRecord(Uri instanceUri) {
-        if (!InstanceColumns.CONTENT_ITEM_TYPE.equals(getType(instanceUri))) {
+        if (!InstanceProviderAPI.InstanceColumns.CONTENT_ITEM_TYPE.equals(getType(instanceUri))) {
             Log.w(t, "Tried to link a FormRecord to a URI that doesn't point " +
                     "to a concrete instance.");
             return;
@@ -475,7 +474,7 @@ public class InstanceProvider extends ContentProvider {
         Cursor c = getContext().getContentResolver().query(instanceUri, null, null, null, null);
         try {
             c.moveToFirst();
-            instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceColumns.STATUS));
+            instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceProviderAPI.InstanceColumns.STATUS));
         } catch (IllegalArgumentException iae) {
             iae.printStackTrace();
             // TODO: Fail more hardcore here? Wipe the form record and its ties?
@@ -579,15 +578,15 @@ public class InstanceProvider extends ContentProvider {
         sUriMatcher.addURI(InstanceProviderAPI.AUTHORITY, "instances/#", INSTANCE_ID);
 
         sInstancesProjectionMap = new HashMap<>();
-        sInstancesProjectionMap.put(InstanceColumns._ID, InstanceColumns._ID);
-        sInstancesProjectionMap.put(InstanceColumns.DISPLAY_NAME, InstanceColumns.DISPLAY_NAME);
-        sInstancesProjectionMap.put(InstanceColumns.SUBMISSION_URI, InstanceColumns.SUBMISSION_URI);
-        sInstancesProjectionMap.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, InstanceColumns.CAN_EDIT_WHEN_COMPLETE);
-        sInstancesProjectionMap.put(InstanceColumns.INSTANCE_FILE_PATH, InstanceColumns.INSTANCE_FILE_PATH);
-        sInstancesProjectionMap.put(InstanceColumns.JR_FORM_ID, InstanceColumns.JR_FORM_ID);
-        sInstancesProjectionMap.put(InstanceColumns.STATUS, InstanceColumns.STATUS);
-        sInstancesProjectionMap.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, InstanceColumns.LAST_STATUS_CHANGE_DATE);
-        sInstancesProjectionMap.put(InstanceColumns.DISPLAY_SUBTEXT, InstanceColumns.DISPLAY_SUBTEXT);
+        sInstancesProjectionMap.put(InstanceProviderAPI.InstanceColumns._ID, InstanceProviderAPI.InstanceColumns._ID);
+        sInstancesProjectionMap.put(InstanceProviderAPI.InstanceColumns.DISPLAY_NAME, InstanceProviderAPI.InstanceColumns.DISPLAY_NAME);
+        sInstancesProjectionMap.put(InstanceProviderAPI.InstanceColumns.SUBMISSION_URI, InstanceProviderAPI.InstanceColumns.SUBMISSION_URI);
+        sInstancesProjectionMap.put(InstanceProviderAPI.InstanceColumns.CAN_EDIT_WHEN_COMPLETE, InstanceProviderAPI.InstanceColumns.CAN_EDIT_WHEN_COMPLETE);
+        sInstancesProjectionMap.put(InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH, InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH);
+        sInstancesProjectionMap.put(InstanceProviderAPI.InstanceColumns.JR_FORM_ID, InstanceProviderAPI.InstanceColumns.JR_FORM_ID);
+        sInstancesProjectionMap.put(InstanceProviderAPI.InstanceColumns.STATUS, InstanceProviderAPI.InstanceColumns.STATUS);
+        sInstancesProjectionMap.put(InstanceProviderAPI.InstanceColumns.LAST_STATUS_CHANGE_DATE, InstanceProviderAPI.InstanceColumns.LAST_STATUS_CHANGE_DATE);
+        sInstancesProjectionMap.put(InstanceProviderAPI.InstanceColumns.DISPLAY_SUBTEXT, InstanceProviderAPI.InstanceColumns.DISPLAY_SUBTEXT);
     }
 
     /**
