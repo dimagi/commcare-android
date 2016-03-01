@@ -17,10 +17,10 @@ public class TimedStatsTracker {
 
     private static final String TAG = TimedStatsTracker.class.getSimpleName();
 
-    private static String KEY_LAST_FORM_ID = "last-form-id";
-    private static String KEY_LAST_FORM_START_TIME = "last-form-start-time";
-    private static String KEY_LAST_SESSION_START_TIME = "last-session-start-time";
-    private static String KEY_LAST_LOGGED_IN_USER = "last-logged-in-user";
+    private static final String KEY_LAST_FORM_ID = "last-form-id";
+    private static final String KEY_LAST_FORM_START_TIME = "last-form-start-time";
+    private static final String KEY_LAST_SESSION_START_TIME = "last-session-start-time";
+    private static final String KEY_LAST_LOGGED_IN_USER = "last-logged-in-user";
 
     public static void registerEnterForm(int formID) {
         SharedPreferences.Editor editor =

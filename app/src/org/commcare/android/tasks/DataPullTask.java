@@ -537,7 +537,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
         SERVER_ERROR(GoogleAnalyticsFields.VALUE_SERVER_ERROR),
         STORAGE_FULL(GoogleAnalyticsFields.VALUE_STORAGE_FULL);
 
-        private int googleAnalyticsValue;
+        private final int googleAnalyticsValue;
 
         PullTaskResult(int googleAnalyticsValue) {
             this.googleAnalyticsValue = googleAnalyticsValue;

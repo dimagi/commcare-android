@@ -12,8 +12,8 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
-import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.android.logging.AndroidLogger;
+import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
@@ -52,7 +52,7 @@ public class MenuAdapter implements ListAdapter {
 
     private final AndroidSessionWrapper asw;
     final Context context;
-    MenuDisplayable[] displayableData;
+    final MenuDisplayable[] displayableData;
 
     public MenuAdapter(Context context, CommCarePlatform platform, String menuID) {
         this.context = context;
