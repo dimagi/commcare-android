@@ -12,15 +12,14 @@ import android.widget.GridView;
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.GridMenuAdapter;
 import org.commcare.adapters.MenuAdapter;
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.SaveSessionCommCareActivity;
-import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.views.ManagedUi;
+import org.commcare.views.UiElement;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 

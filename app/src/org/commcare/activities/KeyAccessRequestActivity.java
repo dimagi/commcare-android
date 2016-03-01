@@ -9,11 +9,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.global.models.AndroidSharedKeyRecord;
+import org.commcare.views.ManagedUi;
+import org.commcare.views.UiElement;
 import org.javarosa.core.services.storage.StorageFullException;
 
 /**

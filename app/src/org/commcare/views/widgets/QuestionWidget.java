@@ -28,10 +28,10 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.preferences.FormEntryPreferences;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.ODKStorage;
+import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.utils.FileUtils;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.StringUtils;

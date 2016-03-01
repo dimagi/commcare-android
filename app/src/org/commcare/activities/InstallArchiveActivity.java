@@ -15,14 +15,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 import org.commcare.engine.references.ArchiveFileRoot;
 import org.commcare.tasks.UnzipTask;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.UriToFilePath;
+import org.commcare.views.ManagedUi;
+import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;

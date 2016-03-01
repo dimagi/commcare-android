@@ -115,7 +115,7 @@
             android:exported="true"
             android:readPermission="${applicationId}.provider.cases.read"/>
 
-        <activity android:name=".preferences.CommCarePreferences">
+        <activity android:name="org.commcare.preferences.CommCarePreferences">
         </activity>
         <activity android:name="org.commcare.activities.DotsEntryActivity">
             <intent-filter>
@@ -260,7 +260,7 @@
         </activity>
 
         <service
-            android:name=".services.CommCareSessionService"
+            android:name="org.commcare.services.CommCareSessionService"
             android:enabled="true">
         </service>
 
@@ -286,7 +286,7 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name=".preferences.FormEntryPreferences"
+            android:name="org.commcare.preferences.FormEntryPreferences"
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
@@ -337,7 +337,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name="org.commcare.android.api.ExternalApiReceiver">
+        <receiver android:name="org.commcare.provider.ExternalApiReceiver">
             <intent-filter>
                 <action android:name="${applicationId}.api.action.ExternalAction"/>
 
@@ -345,7 +345,7 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="org.commcare.android.api.SessionCaptureReceiver">
+        <receiver android:name="org.commcare.provider.SessionCaptureReceiver">
             <intent-filter>
                 <action android:name="${applicationId}.api.action.SessionCaptureAction"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -368,7 +368,7 @@
         </activity>
         <activity android:name="org.commcare.activities.RecoveryActivity">
         </activity>
-        <activity android:name=".preferences.DeveloperPreferences">
+        <activity android:name="org.commcare.preferences.DeveloperPreferences">
         </activity>
         <activity
             android:name="org.commcare.activities.TemplatePrinterActivity"

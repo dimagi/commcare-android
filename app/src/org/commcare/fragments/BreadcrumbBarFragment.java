@@ -22,15 +22,15 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.activities.FormRecordListActivity;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;

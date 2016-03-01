@@ -8,12 +8,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.SessionAwareCommCareActivity;
-import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.app.models.UserKeyRecord;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.views.ManagedUi;
+import org.commcare.views.UiElement;
 import org.javarosa.core.services.locale.Localization;
 
 /**

@@ -10,8 +10,8 @@ import android.view.View;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.framework.RuntimePermissionRequester;
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.utils.MarkupUtil;
 
 /**

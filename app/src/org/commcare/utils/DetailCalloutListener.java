@@ -4,7 +4,7 @@ import org.commcare.suite.model.CalloutData;
 
 /**
  * @author ctsims
- * @see org.commcare.android.logic.DetailCalloutListenerDefaultImpl
+ * @see org.commcare.logic.DetailCalloutListenerDefaultImpl
  */
 public interface DetailCalloutListener {
     void callRequested(String phoneNumber);

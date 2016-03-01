@@ -6,11 +6,10 @@ import android.util.Log;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.framework.CommCareActivity;
-import org.commcare.android.framework.CommCareActivityUIController;
-import org.commcare.android.framework.WithUIController;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
+import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.interfaces.WithUIController;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;

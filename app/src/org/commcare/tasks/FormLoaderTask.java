@@ -9,14 +9,16 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.android.crypt.EncryptionIO;
 import org.commcare.engine.extensions.CalendaredDateFormatHandler;
 import org.commcare.engine.extensions.IntentExtensionParser;
 import org.commcare.engine.extensions.PollSensorAction;
 import org.commcare.engine.extensions.PollSensorExtensionParser;
 import org.commcare.engine.extensions.XFormExtensionUtils;
 import org.commcare.logging.AndroidLogger;
+import org.commcare.logic.FileReferenceFactory;
+import org.commcare.logic.FormController;
 import org.commcare.models.database.DbUtil;
+import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FileUtils;
@@ -32,8 +34,6 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
-import org.odk.collect.android.logic.FileReferenceFactory;
-import org.odk.collect.android.logic.FormController;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;

@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteQuery;
 
-import org.commcare.android.crypt.CipherPool;
+import org.commcare.models.encryption.CipherPool;
 import org.commcare.modern.models.EncryptedModel;
 
 import java.util.Hashtable;

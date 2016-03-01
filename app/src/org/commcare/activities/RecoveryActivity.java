@@ -11,19 +11,18 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.SessionAwareCommCareActivity;
-import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.ExceptionReporting;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
+import org.commcare.views.ManagedUi;
+import org.commcare.views.UiElement;
 import org.javarosa.core.services.Logger;
 
 /**

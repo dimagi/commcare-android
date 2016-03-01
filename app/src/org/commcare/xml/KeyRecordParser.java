@@ -1,8 +1,8 @@
 package org.commcare.xml;
 
-import org.commcare.android.crypt.CryptUtil;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.models.database.app.models.UserKeyRecord;
+import org.commcare.models.encryption.CryptUtil;
 import org.commcare.utils.Base64;
 import org.commcare.utils.Base64DecoderException;
 import org.javarosa.xml.util.InvalidStructureException;

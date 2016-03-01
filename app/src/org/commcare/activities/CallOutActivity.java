@@ -17,7 +17,7 @@ import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.Toast;
 
-import org.commcare.android.framework.RuntimePermissionRequester;
+import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.dialogs.PaneledChoiceDialog;

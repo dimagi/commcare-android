@@ -30,9 +30,9 @@ import android.widget.Toast;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.engine.extensions.IntentCallout;
+import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.StringUtils;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.logic.PendingCalloutInterface;
 
 
 /**

@@ -14,7 +14,7 @@ import android.widget.CheckBox;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.commcare.android.framework.CommCareActivity;
+import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 

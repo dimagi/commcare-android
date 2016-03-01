@@ -6,10 +6,10 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.android.crypt.CryptUtil;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.app.models.UserKeyRecord;
+import org.commcare.models.encryption.CryptUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.util.PropertyUtils;
 

@@ -32,16 +32,16 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.IncompleteFormListAdapter;
-import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.logic.ArchivedFormRemoteRestore;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.models.database.user.models.SessionStateDescriptor;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.tasks.FormRecordLoadListener;
@@ -57,7 +57,6 @@ import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.StorageFullException;
-import org.odk.collect.android.logic.ArchivedFormRemoteRestore;
 
 
 public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRecordListActivity>

@@ -9,8 +9,8 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.adapters.EntitySubnodeDetailAdapter;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;

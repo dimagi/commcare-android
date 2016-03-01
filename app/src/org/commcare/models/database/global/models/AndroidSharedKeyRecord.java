@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcel;
 
-import org.commcare.android.crypt.CryptUtil;
+import org.commcare.models.encryption.CryptUtil;
 import org.commcare.models.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;

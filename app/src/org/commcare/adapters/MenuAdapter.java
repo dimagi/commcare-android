@@ -14,10 +14,10 @@ import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;

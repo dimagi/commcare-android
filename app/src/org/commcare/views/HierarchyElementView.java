@@ -6,7 +6,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
-import org.odk.collect.android.logic.HierarchyElement;
+import org.commcare.logic.HierarchyElement;
 
 public class HierarchyElementView extends RelativeLayout {
     private final TextView mPrimaryTextView;

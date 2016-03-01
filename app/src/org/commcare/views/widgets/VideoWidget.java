@@ -18,13 +18,13 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
+import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.FileUtils;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UriToFilePath;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.logic.PendingCalloutInterface;
 
 import java.io.File;
 

@@ -2,7 +2,7 @@ package org.commcare.utils.bitcache;
 
 import android.content.Context;
 
-import org.commcare.android.crypt.CryptUtil;
+import org.commcare.models.encryption.CryptUtil;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;

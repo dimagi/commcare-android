@@ -7,8 +7,8 @@ import android.util.Pair;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.crypt.EncryptionIO;
 import org.commcare.interfaces.AppFilePathBuilder;
+import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;

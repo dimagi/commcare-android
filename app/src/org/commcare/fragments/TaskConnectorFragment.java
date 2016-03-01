@@ -8,7 +8,7 @@ import android.os.PowerManager.WakeLock;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 
-import org.commcare.android.framework.CommCareActivity;
+import org.commcare.activities.CommCareActivity;
 import org.commcare.tasks.templates.CommCareTask;
 
 /**

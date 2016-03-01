@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.os.Build;
 import android.os.Bundle;
 
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.graph.activities.GraphActivityStateHandler;
 
 /**

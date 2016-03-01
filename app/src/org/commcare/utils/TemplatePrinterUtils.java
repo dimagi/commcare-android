@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 
-import org.commcare.android.crypt.CryptUtil;
+import org.commcare.models.encryption.CryptUtil;
 import org.commcare.views.dialogs.AlertDialogFactory;
 
 import java.io.BufferedReader;

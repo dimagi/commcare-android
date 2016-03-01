@@ -27,10 +27,7 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.WiFiDirectAdapter;
-import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.preferences.CommCarePreferences;
-import org.commcare.dalvik.services.WiFiDirectBroadcastReceiver;
 import org.commcare.fragments.DeviceDetailFragment;
 import org.commcare.fragments.DeviceListFragment;
 import org.commcare.fragments.DeviceListFragment.DeviceActionListener;
@@ -41,6 +38,8 @@ import org.commcare.fragments.WiFiDirectManagementFragment.WifiDirectManagerList
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.preferences.CommCarePreferences;
+import org.commcare.services.WiFiDirectBroadcastReceiver;
 import org.commcare.tasks.FormTransferTask;
 import org.commcare.tasks.SendTask;
 import org.commcare.tasks.UnzipTask;

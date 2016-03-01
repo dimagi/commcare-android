@@ -4,9 +4,9 @@ import android.content.SharedPreferences;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.dalvik.preferences.CommCarePreferences;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.logging.AndroidLogger;
+import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;

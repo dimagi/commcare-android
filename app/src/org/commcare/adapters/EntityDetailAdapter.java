@@ -6,7 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
-import org.commcare.android.framework.ModifiableEntityDetailAdapter;
+import org.commcare.interfaces.ModifiableEntityDetailAdapter;
 import org.commcare.models.Entity;
 import org.commcare.suite.model.Detail;
 import org.commcare.utils.DetailCalloutListener;

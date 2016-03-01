@@ -30,11 +30,11 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.activities.GeoPointActivity;
 import org.commcare.activities.GeoPointMapActivity;
 import org.commcare.dalvik.R;
+import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.logic.PendingCalloutInterface;
 
 import java.text.DecimalFormat;
 

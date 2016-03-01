@@ -15,10 +15,11 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.preferences.FormEntryPreferences;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.logging.AndroidLogger;
+import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.models.ODKStorage;
+import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.views.widgets.DateTimeWidget;
 import org.commcare.views.widgets.QuestionWidget;
@@ -30,7 +31,6 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.logic.PendingCalloutInterface;
 
 import java.util.ArrayList;
 import java.util.Collections;

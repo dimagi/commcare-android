@@ -6,9 +6,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.framework.CommCareActivityUIController;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.ResourceInstallUtils;
+import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.views.SquareButtonWithText;
 import org.javarosa.core.services.locale.Localization;
 

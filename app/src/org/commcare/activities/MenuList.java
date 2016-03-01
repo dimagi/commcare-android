@@ -10,15 +10,14 @@ import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.MenuAdapter;
-import org.commcare.android.framework.ManagedUi;
-import org.commcare.android.framework.SaveSessionCommCareActivity;
-import org.commcare.android.framework.UiElement;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.views.ManagedUi;
+import org.commcare.views.UiElement;
 
 @ManagedUi(R.layout.screen_suite_menu)
 public class MenuList extends SaveSessionCommCareActivity implements OnItemClickListener {

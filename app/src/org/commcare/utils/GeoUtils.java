@@ -9,7 +9,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.support.v4.content.ContextCompat;
 
-import org.commcare.android.framework.CommCareActivity;
+import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.commcare.views.dialogs.AlertDialogFactory;
 import org.javarosa.core.model.data.GeoPointData;

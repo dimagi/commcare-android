@@ -1,7 +1,7 @@
 package org.commcare.logging;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.crypt.EncryptionIO;
+import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.models.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;

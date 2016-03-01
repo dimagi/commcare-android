@@ -9,7 +9,7 @@ import android.widget.ImageView;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.utils.MediaUtil;
 
 public class CustomBanner {

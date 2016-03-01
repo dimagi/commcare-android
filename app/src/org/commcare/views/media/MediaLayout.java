@@ -20,8 +20,8 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.preferences.CommCarePreferences;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.QRCodeEncoder;
 import org.commcare.views.ResizingImageView;

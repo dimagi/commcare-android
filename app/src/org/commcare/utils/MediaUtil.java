@@ -8,9 +8,9 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.WindowManager;
 
-import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.engine.references.JavaFileReference;
 import org.commcare.logging.AndroidLogger;
+import org.commcare.preferences.CommCarePreferences;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;

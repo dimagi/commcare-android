@@ -9,10 +9,11 @@ import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.android.crypt.EncryptionIO;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.interfaces.FormSavedListener;
 import org.commcare.logging.AndroidLogger;
+import org.commcare.logic.FormController;
+import org.commcare.models.encryption.EncryptionIO;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
@@ -27,7 +28,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.transport.payload.ByteArrayPayload;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XFormSerializingVisitor;
-import org.odk.collect.android.logic.FormController;
 
 import java.io.File;
 import java.io.FileNotFoundException;

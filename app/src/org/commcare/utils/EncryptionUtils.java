@@ -6,13 +6,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.util.Log;
 
+import org.commcare.logic.FormController.InstanceMetadata;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.provider.InstanceProviderAPI;
 import org.kxml2.io.KXmlSerializer;
 import org.kxml2.kdom.Document;
 import org.kxml2.kdom.Element;
 import org.kxml2.kdom.Node;
-import org.odk.collect.android.logic.FormController.InstanceMetadata;
 
 import java.io.File;
 import java.io.FileInputStream;

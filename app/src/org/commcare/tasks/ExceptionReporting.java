@@ -9,11 +9,11 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.logging.AndroidLogEntry;
 import org.commcare.logging.AndroidLogSerializer;
 import org.commcare.logging.DeviceReportWriter;
 import org.commcare.network.HttpRequestGenerator;
+import org.commcare.preferences.CommCarePreferences;
 import org.javarosa.core.model.User;
 
 import java.io.ByteArrayOutputStream;

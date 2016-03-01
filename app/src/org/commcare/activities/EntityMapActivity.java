@@ -19,7 +19,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.framework.CommCareActivity;
 import org.commcare.dalvik.R;
 import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;

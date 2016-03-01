@@ -10,10 +10,10 @@ import android.widget.Toast;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.HomeScreenAdapter;
-import org.commcare.android.framework.CommCareActivityUIController;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.preferences.CommCarePreferences;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.suite.model.Profile;
 
 import java.util.Vector;

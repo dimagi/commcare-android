@@ -19,7 +19,7 @@ import android.webkit.WebViewClient;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.TemplatePrinterTask;
 import org.commcare.tasks.TemplatePrinterTask.PopulateListener;
 import org.commcare.utils.FileUtils;

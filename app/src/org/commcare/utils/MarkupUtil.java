@@ -9,7 +9,7 @@ import android.text.SpannableString;
 import net.nightwhistler.htmlspanner.HtmlSpanner;
 
 import org.commcare.CommCareApplication;
-import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.preferences.DeveloperPreferences;
 import org.javarosa.core.services.locale.Localization;
 
 import in.uncod.android.bypass.Bypass;

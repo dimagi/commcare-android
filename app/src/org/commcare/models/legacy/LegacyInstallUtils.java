@@ -17,8 +17,6 @@ import net.sqlcipher.database.SQLiteException;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.android.crypt.CipherPool;
-import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.logging.AndroidLogEntry;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.DeviceReportRecord;
@@ -33,7 +31,9 @@ import org.commcare.models.database.user.models.ACase;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.models.database.user.models.GeocodeCacheModel;
 import org.commcare.models.database.user.models.SessionStateDescriptor;
+import org.commcare.models.encryption.CipherPool;
 import org.commcare.modern.models.EncryptedModel;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.resources.model.Resource;

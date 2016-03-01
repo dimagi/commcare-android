@@ -7,12 +7,12 @@ import android.util.Log;
 import org.commcare.dalvik.R;
 import org.commcare.engine.extensions.AndroidXFormExtensions;
 import org.commcare.engine.extensions.IntentCallout;
+import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.logic.PendingCalloutInterface;
 
 /**
  * Convenience class that handles creation of widgets.
