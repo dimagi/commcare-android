@@ -35,7 +35,6 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
     private final List<WifiP2pDevice> peers = new ArrayList<>();
     ProgressDialog progressDialog = null;
     View mContentView = null;
-    private WifiP2pDevice device;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -137,7 +136,6 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
      */
     public void updateThisDevice(WifiP2pDevice device) {
         Log.d(TAG, "updating my device: " + device.deviceName + " with status: " + device.status);
-        this.device = device;
         TextView view = (TextView)mContentView.findViewById(R.id.my_name);
         view.setText(device.deviceName);
         view = (TextView)mContentView.findViewById(R.id.my_status);
