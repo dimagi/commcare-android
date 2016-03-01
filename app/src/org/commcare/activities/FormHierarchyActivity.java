@@ -12,6 +12,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.adapters.HierarchyListAdapter;
 import org.commcare.android.framework.SessionActivityRegistration;
 import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.dalvik.R;
@@ -20,7 +21,6 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.odk.collect.android.adapters.HierarchyListAdapter;
 import org.odk.collect.android.logic.FormHierarchyBuilder;
 import org.odk.collect.android.logic.HierarchyElement;
 import org.odk.collect.android.logic.HierarchyEntryType;

@@ -30,7 +30,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.android.adapters.IncompleteFormListAdapter;
+import org.commcare.adapters.IncompleteFormListAdapter;
 import org.commcare.android.analytics.GoogleAnalyticsFields;
 import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.UserStorageClosedException;

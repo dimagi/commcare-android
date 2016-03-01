@@ -12,8 +12,8 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import org.commcare.android.adapters.EntityDetailPagerAdapter;
-import org.commcare.android.adapters.ListItemViewStriper;
+import org.commcare.adapters.EntityDetailPagerAdapter;
+import org.commcare.adapters.ListItemViewStriper;
 import org.commcare.android.util.AndroidUtil;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;

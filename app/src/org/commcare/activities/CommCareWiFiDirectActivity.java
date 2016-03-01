@@ -25,7 +25,7 @@ import android.view.ViewTreeObserver;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.android.adapters.WiFiDirectAdapter;
+import org.commcare.adapters.WiFiDirectAdapter;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.framework.DeviceDetailFragment;

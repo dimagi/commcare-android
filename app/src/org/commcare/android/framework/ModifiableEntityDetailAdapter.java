@@ -1,6 +1,6 @@
 package org.commcare.android.framework;
 
-import org.commcare.android.adapters.ListItemViewModifier;
+import org.commcare.adapters.ListItemViewModifier;
 
 /**
  * Created by jschweers on 9/2/2015.

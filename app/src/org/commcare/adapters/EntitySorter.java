@@ -1,4 +1,4 @@
-package org.commcare.android.adapters;
+package org.commcare.adapters;
 
 import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.android.models.Entity;

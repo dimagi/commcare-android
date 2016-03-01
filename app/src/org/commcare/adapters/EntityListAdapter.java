@@ -1,4 +1,4 @@
-package org.commcare.android.adapters;
+package org.commcare.adapters;
 
 import android.app.Activity;
 import android.database.DataSetObserver;

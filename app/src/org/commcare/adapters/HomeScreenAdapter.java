@@ -1,4 +1,4 @@
-package org.commcare.android.adapters;
+package org.commcare.adapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;

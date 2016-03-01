@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.text.Spannable;
 import android.view.View;
 
-import org.commcare.android.adapters.HomeCardDisplayData;
-import org.commcare.android.adapters.SquareButtonViewHolder;
+import org.commcare.adapters.HomeCardDisplayData;
+import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.android.analytics.GoogleAnalyticsFields;
 import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.util.StorageUtils;

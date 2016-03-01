@@ -9,7 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import org.commcare.android.adapters.EntitySubnodeDetailAdapter;
+import org.commcare.adapters.EntitySubnodeDetailAdapter;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;

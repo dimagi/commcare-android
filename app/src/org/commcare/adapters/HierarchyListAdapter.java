@@ -1,4 +1,4 @@
-package org.odk.collect.android.adapters;
+package org.commcare.adapters;
 
 import android.content.Context;
 import android.view.View;

@@ -8,7 +8,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import org.commcare.android.adapters.MenuAdapter;
+import org.commcare.adapters.MenuAdapter;
 import org.commcare.android.framework.BreadcrumbBarFragment;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SaveSessionCommCareActivity;

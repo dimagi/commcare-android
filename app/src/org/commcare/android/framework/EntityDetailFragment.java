@@ -11,8 +11,8 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import org.commcare.activities.EntitySelectActivity;
-import org.commcare.android.adapters.EntityDetailAdapter;
-import org.commcare.android.adapters.ListItemViewModifier;
+import org.commcare.adapters.EntityDetailAdapter;
+import org.commcare.adapters.ListItemViewModifier;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;

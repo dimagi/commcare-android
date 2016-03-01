@@ -6,8 +6,8 @@ import android.text.format.DateUtils;
 import android.widget.TextView;
 
 import org.commcare.activities.CommCareHomeActivity;
-import org.commcare.android.adapters.HomeCardDisplayData;
-import org.commcare.android.adapters.SquareButtonViewHolder;
+import org.commcare.adapters.HomeCardDisplayData;
+import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;

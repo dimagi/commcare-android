@@ -41,7 +41,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.android.adapters.EntityListAdapter;
+import org.commcare.adapters.EntityListAdapter;
 import org.commcare.android.fragments.ContainerFragment;
 import org.commcare.android.framework.SaveSessionCommCareActivity;
 import org.commcare.android.framework.UserfacingErrorHandling;
