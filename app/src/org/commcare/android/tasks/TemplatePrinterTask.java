@@ -3,8 +3,8 @@ package org.commcare.android.tasks;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import org.commcare.android.util.PrintValidationException;
-import org.commcare.android.util.TemplatePrinterUtils;
+import org.commcare.utils.PrintValidationException;
+import org.commcare.utils.TemplatePrinterUtils;
 
 import java.io.File;
 import java.io.IOException;

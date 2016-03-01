@@ -1,11 +1,11 @@
 package org.commcare.android.tasks;
 
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
+import org.commcare.utils.AndroidCommCarePlatform;
 import org.javarosa.core.util.SizeBoundUniqueVector;
 import org.javarosa.core.util.SizeBoundVector;
 

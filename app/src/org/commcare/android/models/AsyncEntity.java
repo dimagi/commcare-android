@@ -4,11 +4,11 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.logging.XPathErrorLogger;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
+import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathException;

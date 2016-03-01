@@ -11,11 +11,11 @@ import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.ProcessIssues;
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.FormUploadUtil;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.utils.FileUtil;
+import org.commcare.utils.FormUploadUtil;
+import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StorageUtils;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 

@@ -31,10 +31,10 @@ import org.commcare.android.framework.ManagedUiFramework;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.android.ui.CustomBanner;
-import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.utils.MediaUtil;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;

@@ -7,9 +7,9 @@ import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;

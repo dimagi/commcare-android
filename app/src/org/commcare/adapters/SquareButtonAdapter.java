@@ -13,8 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
+import org.commcare.views.ViewUtil;
 
 import java.util.List;
 

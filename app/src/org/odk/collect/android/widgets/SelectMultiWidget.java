@@ -10,13 +10,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import org.commcare.dalvik.R;
+import org.commcare.views.media.MediaLayout;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.SelectMultiData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.views.media.MediaLayout;
 
 import java.util.Vector;
 

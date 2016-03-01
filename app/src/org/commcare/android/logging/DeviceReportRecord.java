@@ -5,10 +5,10 @@ import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.storage.framework.Persisted;
 import org.commcare.android.storage.framework.Persisting;
 import org.commcare.android.storage.framework.Table;
-import org.commcare.android.util.FileUtil;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.modern.models.EncryptedModel;
+import org.commcare.utils.FileUtil;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.utils.DateUtils;
 
 import java.io.File;

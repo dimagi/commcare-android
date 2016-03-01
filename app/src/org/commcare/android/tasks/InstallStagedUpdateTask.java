@@ -4,10 +4,10 @@ import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.utils.AndroidCommCarePlatform;
 
 /**
  * Blocks user while performing installation of staged update table.

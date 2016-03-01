@@ -14,9 +14,9 @@ import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.EntityLoaderListener;
 import org.commcare.android.tasks.EntityLoaderTask;
-import org.commcare.android.view.EntityView;
 import org.commcare.dalvik.R;
 import org.commcare.suite.model.Detail;
+import org.commcare.views.EntityView;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.List;

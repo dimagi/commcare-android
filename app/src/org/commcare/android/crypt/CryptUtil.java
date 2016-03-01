@@ -1,6 +1,6 @@
 package org.commcare.android.crypt;
 
-import org.commcare.android.util.AndroidStreamUtil;
+import org.commcare.utils.AndroidStreamUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

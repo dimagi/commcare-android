@@ -28,10 +28,12 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import org.commcare.android.logging.AndroidLogger;
-import org.commcare.android.util.MarkupUtil;
-import org.commcare.android.util.StringUtils;
-import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
+import org.commcare.utils.MarkupUtil;
+import org.commcare.utils.StringUtils;
+import org.commcare.views.ShrinkingTextView;
+import org.commcare.views.ViewUtil;
+import org.commcare.views.media.MediaLayout;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.QuestionExtensionReceiver;
@@ -45,8 +47,6 @@ import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.listeners.WidgetChangedListener;
 import org.odk.collect.android.preferences.FormEntryPreferences;
 import org.odk.collect.android.utilities.FileUtils;
-import org.odk.collect.android.views.ShrinkingTextView;
-import org.odk.collect.android.views.media.MediaLayout;
 
 import java.io.File;
 

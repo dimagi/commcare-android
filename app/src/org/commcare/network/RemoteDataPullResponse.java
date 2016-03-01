@@ -6,9 +6,9 @@ import android.util.Log;
 
 import org.apache.http.HttpResponse;
 import org.commcare.android.tasks.DataPullTask;
-import org.commcare.android.util.AndroidStreamUtil;
-import org.commcare.android.util.bitcache.BitCache;
-import org.commcare.android.util.bitcache.BitCacheFactory;
+import org.commcare.utils.AndroidStreamUtil;
+import org.commcare.utils.bitcache.BitCache;
+import org.commcare.utils.bitcache.BitCacheFactory;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;

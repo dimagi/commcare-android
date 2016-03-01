@@ -7,8 +7,8 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import org.commcare.android.util.AndroidInstanceInitializer;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.utils.AndroidInstanceInitializer;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;

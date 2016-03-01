@@ -3,7 +3,6 @@ package org.commcare.android.resource;
 import android.content.SharedPreferences;
 
 import org.commcare.android.logging.AndroidLogger;
-import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
@@ -14,6 +13,7 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.utils.AndroidCommCarePlatform;
 import org.javarosa.core.services.Logger;
 
 import java.net.MalformedURLException;

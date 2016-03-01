@@ -15,8 +15,8 @@ import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.View.OnClickListener;
 
-import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
+import org.commcare.utils.StringUtils;
 import org.odk.collect.android.application.GeoProgressDialog;
 import org.odk.collect.android.listeners.TimerListener;
 import org.odk.collect.android.utilities.GeoUtils;

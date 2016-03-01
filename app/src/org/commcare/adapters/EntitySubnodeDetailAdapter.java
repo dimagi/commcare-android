@@ -8,8 +8,8 @@ import android.widget.ListAdapter;
 
 import org.commcare.android.framework.ModifiableEntityDetailAdapter;
 import org.commcare.android.models.Entity;
-import org.commcare.android.view.EntityView;
 import org.commcare.suite.model.Detail;
+import org.commcare.views.EntityView;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.ArrayList;

@@ -8,8 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.commcare.android.view.SquareButtonWithText;
 import org.commcare.dalvik.R;
+import org.commcare.views.SquareButtonWithText;
 import org.javarosa.core.services.locale.Localization;
 
 /**

@@ -1,6 +1,6 @@
 package org.commcare.android.references;
 
-import org.commcare.android.util.FileUtil;
+import org.commcare.utils.FileUtil;
 import org.javarosa.core.reference.Reference;
 
 import java.io.File;

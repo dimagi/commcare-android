@@ -1,6 +1,6 @@
 package org.commcare.android.models;
 
-import org.commcare.android.util.StringUtils;
+import org.commcare.utils.StringUtils;
 
 /**
  * @author ctsims

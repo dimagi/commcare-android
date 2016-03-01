@@ -17,10 +17,10 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.locale.Localization;
 
 /**

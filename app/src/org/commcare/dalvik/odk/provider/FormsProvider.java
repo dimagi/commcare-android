@@ -16,9 +16,9 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
+import org.commcare.utils.FileUtil;
 
 import java.io.File;
 import java.io.IOException;

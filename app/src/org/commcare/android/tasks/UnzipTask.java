@@ -3,8 +3,8 @@ package org.commcare.android.tasks;
 import android.util.Log;
 
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.AndroidStreamUtil;
-import org.commcare.android.util.FileUtil;
+import org.commcare.utils.AndroidStreamUtil;
+import org.commcare.utils.FileUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 

@@ -18,12 +18,12 @@ import org.commcare.android.framework.UiElement;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.android.tasks.ProcessAndSendTask;
-import org.commcare.android.util.FormUploadUtil;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.android.util.StorageUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.utils.FormUploadUtil;
+import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StorageUtils;
 import org.javarosa.core.services.Logger;
 
 /**

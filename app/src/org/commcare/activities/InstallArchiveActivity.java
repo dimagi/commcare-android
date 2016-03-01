@@ -19,11 +19,11 @@ import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.references.ArchiveFileRoot;
 import org.commcare.android.tasks.UnzipTask;
-import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
-import org.commcare.dalvik.utils.UriToFilePath;
+import org.commcare.utils.FileUtil;
+import org.commcare.utils.UriToFilePath;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.PropertyUtils;
 

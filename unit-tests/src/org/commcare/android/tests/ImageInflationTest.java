@@ -4,8 +4,8 @@ import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
 
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.utils.MediaUtil;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

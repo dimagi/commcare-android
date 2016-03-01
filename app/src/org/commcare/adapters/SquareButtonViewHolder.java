@@ -5,8 +5,8 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import org.commcare.android.view.SquareImageView;
 import org.commcare.dalvik.R;
+import org.commcare.views.SquareImageView;
 
 /**
  * Holds views for a home screen button

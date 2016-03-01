@@ -9,11 +9,11 @@ import org.commcare.android.database.DbUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
+import org.commcare.utils.SessionUnavailableException;
 
 import java.util.Vector;
 

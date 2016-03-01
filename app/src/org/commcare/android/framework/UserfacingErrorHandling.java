@@ -4,8 +4,8 @@ import android.app.Activity;
 import android.content.DialogInterface;
 
 import org.commcare.android.logging.XPathErrorLogger;
-import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
+import org.commcare.utils.StringUtils;
 import org.javarosa.xpath.XPathException;
 
 /**

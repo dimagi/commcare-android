@@ -9,9 +9,9 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.UserStorageClosedException;
 import org.commcare.android.database.app.DatabaseAppOpenHelper;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
+import org.commcare.utils.SessionUnavailableException;
 
 /**
  * @author ctsims

@@ -16,12 +16,12 @@ import org.commcare.android.framework.UiElement;
 import org.commcare.android.tasks.ConnectionDiagnosticTask;
 import org.commcare.android.tasks.DataSubmissionListener;
 import org.commcare.android.tasks.LogSubmissionTask;
-import org.commcare.android.util.MarkupUtil;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.utils.MarkupUtil;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 

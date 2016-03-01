@@ -1,10 +1,10 @@
 package org.commcare.android.database;
 
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.FormInstanceWithFailures;
 import org.junit.Assert;

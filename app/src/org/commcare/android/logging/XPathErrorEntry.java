@@ -2,11 +2,11 @@ package org.commcare.android.logging;
 
 import android.support.v4.util.Pair;
 
-import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Profile;
+import org.commcare.utils.SessionStateUninitException;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;

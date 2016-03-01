@@ -2,7 +2,7 @@ package org.commcare.android.framework;
 
 import android.os.Bundle;
 
-import org.commcare.android.util.SessionUnavailableException;
+import org.commcare.utils.SessionUnavailableException;
 
 /**
  * Manage redirection to login screen when session expiration occurs.

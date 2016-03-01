@@ -3,7 +3,7 @@ package org.commcare.android.tasks;
 import android.util.Pair;
 
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.SigningUtil;
+import org.commcare.utils.SigningUtil;
 
 public abstract class RetrieveParseVerifyMessageTask<R> extends CommCareTask<String, Void, String, R> {
 

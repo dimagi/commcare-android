@@ -8,8 +8,8 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
-import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.suite.model.Text;
+import org.commcare.utils.AndroidCommCarePlatform;
 
 import java.util.ArrayList;
 import java.util.HashSet;

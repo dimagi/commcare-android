@@ -15,10 +15,10 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logging.DeviceReportRecord;
-import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.utils.FileUtil;
 import org.javarosa.core.services.Logger;
 
 import java.io.File;

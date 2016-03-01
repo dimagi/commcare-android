@@ -5,8 +5,6 @@ import android.content.SharedPreferences.Editor;
 
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.logging.AndroidLogger;
-import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.DummyResourceTable;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.resources.model.Resource;
@@ -16,6 +14,8 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.PropertySetter;
+import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.DummyResourceTable;
 import org.commcare.xml.CommCareElementParser;
 import org.commcare.xml.ProfileParser;
 import org.javarosa.core.reference.InvalidReferenceException;

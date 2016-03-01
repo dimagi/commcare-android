@@ -16,11 +16,11 @@ import org.commcare.adapters.ListItemViewModifier;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.util.DetailCalloutListener;
-import org.commcare.android.util.SerializationUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
+import org.commcare.utils.DetailCalloutListener;
+import org.commcare.utils.SerializationUtil;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 

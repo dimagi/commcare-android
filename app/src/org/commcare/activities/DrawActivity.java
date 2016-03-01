@@ -22,10 +22,10 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
-import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.dialogs.DialogChoiceItem;
 import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
+import org.commcare.utils.MediaUtil;
 import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.utilities.FileUtils;
 

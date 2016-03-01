@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.QuestionDataExtension;

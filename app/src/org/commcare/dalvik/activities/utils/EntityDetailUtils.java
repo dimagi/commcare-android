@@ -5,9 +5,9 @@ import android.content.Intent;
 
 import org.commcare.activities.EntityDetailActivity;
 import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.util.SerializationUtil;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.utils.SerializationUtil;
 import org.javarosa.core.model.instance.TreeReference;
 
 /**

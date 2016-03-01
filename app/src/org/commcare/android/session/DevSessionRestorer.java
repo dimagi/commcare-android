@@ -6,7 +6,6 @@ import android.util.Log;
 import android.util.Pair;
 
 import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -14,6 +13,7 @@ import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.utils.SessionStateUninitException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

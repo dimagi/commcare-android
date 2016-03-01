@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <org.commcare.android.view.SquareButton
+    <org.commcare.views.SquareButton
         android:id="@+id/button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -14,7 +14,7 @@
         android:scaleType="fitEnd"
         />
 
-    <org.commcare.android.view.ResizingTextView
+    <org.commcare.views.ResizingTextView
         android:id="@+id/text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

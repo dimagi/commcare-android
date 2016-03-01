@@ -13,13 +13,13 @@ import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tasks.FormRecordLoadListener;
 import org.commcare.android.tasks.FormRecordLoaderTask;
-import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.view.IncompleteFormRecordView;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.Text;
+import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.views.IncompleteFormRecordView;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -19,9 +19,9 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.dalvik.R;
+import org.commcare.views.QuestionsView;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.logic.FormController;
-import org.odk.collect.android.views.QuestionsView;
 import org.odk.collect.android.widgets.QuestionWidget;
 
 import java.util.ArrayList;

@@ -7,19 +7,18 @@ import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.xml.CommCareElementParser;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.util.Vector;
-import java.lang.IllegalStateException;
 
 /**
  * @author ctsims

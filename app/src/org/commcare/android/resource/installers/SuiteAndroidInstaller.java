@@ -2,9 +2,6 @@ package org.commcare.android.resource.installers;
 
 import android.util.Log;
 
-import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.DummyResourceTable;
-import org.commcare.android.util.FileUtil;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
@@ -14,6 +11,9 @@ import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.Suite;
+import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.DummyResourceTable;
+import org.commcare.utils.FileUtil;
 import org.commcare.xml.AndroidSuiteParser;
 import org.commcare.xml.SuiteParser;
 import org.javarosa.core.reference.InvalidReferenceException;

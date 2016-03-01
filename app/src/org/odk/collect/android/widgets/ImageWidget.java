@@ -19,9 +19,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.android.util.MediaUtil;
-import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
+import org.commcare.utils.MediaUtil;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.model.UploadQuestionExtension;
 import org.javarosa.core.model.data.IAnswerData;

@@ -28,23 +28,23 @@ import org.commcare.android.fragments.ContainerFragment;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.tasks.templates.CommCareTaskConnector;
-import org.commcare.android.util.AndroidUtil;
-import org.commcare.android.util.MarkupUtil;
-import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.AlertDialogFragment;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
-import org.commcare.dalvik.utils.ConnectivityStatus;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.utils.AndroidUtil;
+import org.commcare.utils.ConnectivityStatus;
+import org.commcare.utils.MarkupUtil;
+import org.commcare.utils.SessionStateUninitException;
+import org.commcare.views.media.AudioController;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
-import org.odk.collect.android.views.media.AudioController;
 
 /**
  * Base class for CommCareActivities to simplify

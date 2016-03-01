@@ -1,11 +1,11 @@
 package org.odk.collect.android.activities.components;
 
+import org.commcare.views.QuestionsView;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.logic.FormController;
-import org.odk.collect.android.views.QuestionsView;
 
 public class FormNavigationController {
     public static class NavigationDetails {

@@ -36,14 +36,14 @@ import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.ManageKeyRecordTask;
-import org.commcare.android.util.ACRAUtil;
-import org.commcare.android.view.ViewUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogCreationHelpers;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.utils.ACRAUtil;
+import org.commcare.views.ViewUtil;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;

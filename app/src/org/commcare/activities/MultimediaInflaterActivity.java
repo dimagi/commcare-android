@@ -19,11 +19,11 @@ import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.tasks.MultimediaInflaterTask;
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
-import org.commcare.dalvik.utils.UriToFilePath;
+import org.commcare.utils.FileUtil;
+import org.commcare.utils.UriToFilePath;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.File;

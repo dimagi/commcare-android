@@ -5,9 +5,9 @@ import android.widget.Toast;
 import org.commcare.activities.FormRecordListActivity;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.FormRecordCleanupTask;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.util.CommCarePlatform;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
 

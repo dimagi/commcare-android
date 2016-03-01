@@ -9,9 +9,9 @@ import android.support.annotation.NonNull;
 
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
-import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 

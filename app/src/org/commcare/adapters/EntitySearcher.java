@@ -7,9 +7,9 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
-import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 

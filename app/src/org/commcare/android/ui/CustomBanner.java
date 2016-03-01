@@ -7,10 +7,10 @@ import android.support.annotation.NonNull;
 import android.util.DisplayMetrics;
 import android.widget.ImageView;
 
-import org.commcare.android.util.MediaUtil;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.utils.MediaUtil;
 
 public class CustomBanner {
     public static boolean useCustomBannerFitToActivity(Activity activity,
