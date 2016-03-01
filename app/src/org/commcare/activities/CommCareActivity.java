@@ -376,7 +376,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      *
      * @param e Exception to handle
      */
-    protected void displayException(Exception e) {
+    public void displayException(Exception e) {
         String title =  Localization.get("notification.case.predicate.title");
         String message = Localization.get("notification.case.predicate.action", new String[]{e.getMessage()});
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {

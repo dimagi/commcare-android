@@ -574,7 +574,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     @Override
-    protected int getWakeLockLevel() {
+    public int getWakeLockLevel() {
         return PowerManager.PARTIAL_WAKE_LOCK;
     }
 
