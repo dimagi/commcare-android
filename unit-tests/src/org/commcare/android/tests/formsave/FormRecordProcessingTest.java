@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.ImageButton;
 
 import org.commcare.activities.CommCareHomeActivity;
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
@@ -26,7 +27,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.views.QuestionsView;
 import org.odk.collect.android.widgets.IntegerWidget;
 import org.robolectric.Robolectric;

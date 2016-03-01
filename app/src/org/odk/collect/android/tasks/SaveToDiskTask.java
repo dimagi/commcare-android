@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.crypt.EncryptionIO;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
@@ -23,7 +24,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.transport.payload.ByteArrayPayload;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XFormSerializingVisitor;
-import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.listeners.FormSavedListener;
 import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.utilities.EncryptionUtils;

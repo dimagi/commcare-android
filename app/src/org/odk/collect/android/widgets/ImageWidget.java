@@ -18,6 +18,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.util.MediaUtil;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
@@ -26,7 +27,6 @@ import org.javarosa.core.model.UploadQuestionExtension;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.logic.PendingCalloutInterface;
 import org.odk.collect.android.utilities.UrlUtils;

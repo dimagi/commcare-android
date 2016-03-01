@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.Toast;
 
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
@@ -22,7 +23,6 @@ import org.commcare.dalvik.utils.UriToFilePath;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.logic.PendingCalloutInterface;
 import org.odk.collect.android.utilities.FileUtils;
 

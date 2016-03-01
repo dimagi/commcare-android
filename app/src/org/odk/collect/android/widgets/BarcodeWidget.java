@@ -27,10 +27,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.jr.extensions.IntentCallout;
 import org.odk.collect.android.logic.PendingCalloutInterface;
 

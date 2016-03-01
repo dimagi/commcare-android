@@ -10,9 +10,9 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.dalvik.R;
-import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.preferences.FormEntryPreferences;
 

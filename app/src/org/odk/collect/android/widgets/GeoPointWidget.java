@@ -26,14 +26,14 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.GeoPointActivity;
+import org.commcare.activities.GeoPointMapActivity;
 import org.commcare.android.util.StringUtils;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.activities.GeoPointActivity;
-import org.odk.collect.android.activities.GeoPointMapActivity;
 import org.odk.collect.android.logic.PendingCalloutInterface;
 
 import java.text.DecimalFormat;

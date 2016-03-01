@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.support.v4.util.Pair;
 import android.util.Log;
 
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.crypt.EncryptionIO;
 import org.commcare.android.database.DbUtil;
 import org.commcare.android.logging.AndroidLogger;
@@ -26,7 +27,6 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
-import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.jr.extensions.CalendaredDateFormatHandler;
 import org.odk.collect.android.jr.extensions.IntentExtensionParser;
 import org.odk.collect.android.jr.extensions.PollSensorAction;

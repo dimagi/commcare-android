@@ -265,24 +265,24 @@
         </service>
 
         <activity
-            android:name="org.odk.collect.android.activities.FormEntryActivity"
+            android:name="org.commcare.activities.FormEntryActivity"
             android:launchMode="singleTop"
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name="org.odk.collect.android.activities.DrawActivity"
+            android:name="org.commcare.activities.DrawActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name="org.odk.collect.android.activities.FormHierarchyActivity"
+            android:name="org.commcare.activities.FormHierarchyActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name="org.odk.collect.android.activities.GeoPointActivity"
+            android:name="org.commcare.activities.GeoPointActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name="org.odk.collect.android.activities.GeoPointMapActivity"
+            android:name="org.commcare.activities.GeoPointMapActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity

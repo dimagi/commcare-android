@@ -6,9 +6,9 @@ import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
 
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
-import org.odk.collect.android.activities.FormEntryActivity;
 
 import java.io.File;
 

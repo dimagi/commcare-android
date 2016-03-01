@@ -6,8 +6,8 @@ import android.net.Uri;
 import android.provider.MediaStore.Images.Media;
 import android.widget.Toast;
 
+import org.commcare.activities.FormEntryActivity;
 import org.javarosa.core.services.locale.Localization;
-import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.utilities.FileUtils;
 import org.odk.collect.android.widgets.ImageWidget;
 

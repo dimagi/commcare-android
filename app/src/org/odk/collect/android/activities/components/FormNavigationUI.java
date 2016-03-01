@@ -15,11 +15,11 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.dalvik.R;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.views.QuestionsView;
 import org.odk.collect.android.widgets.QuestionWidget;

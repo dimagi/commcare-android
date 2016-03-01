@@ -2,6 +2,8 @@ package org.odk.collect.android.logic;
 
 import android.content.Context;
 
+import org.commcare.activities.FormEntryActivity;
+import org.commcare.activities.FormHierarchyActivity;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
@@ -9,8 +11,6 @@ import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.activities.FormHierarchyActivity;
 
 import java.util.List;
 

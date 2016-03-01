@@ -1,4 +1,4 @@
-package org.odk.collect.android.activities;
+package org.commcare.activities;
 
 import android.annotation.SuppressLint;
 import android.app.ActionBar;

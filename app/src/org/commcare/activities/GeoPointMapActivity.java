@@ -1,4 +1,4 @@
-package org.odk.collect.android.activities;
+package org.commcare.activities;
 
 import android.Manifest;
 import android.content.Context;
