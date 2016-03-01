@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import org.commcare.activities.EntitySelectActivity;
 import org.commcare.android.adapters.EntityDetailAdapter;
 import org.commcare.android.adapters.ListItemViewModifier;
 import org.commcare.android.models.AndroidSessionWrapper;
@@ -18,7 +19,6 @@ import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.util.DetailCalloutListener;
 import org.commcare.android.util.SerializationUtil;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.EntitySelectActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.condition.EvaluationContext;

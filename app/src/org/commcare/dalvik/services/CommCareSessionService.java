@@ -15,6 +15,7 @@ import android.widget.RemoteViews;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.activities.DispatchActivity;
 import org.commcare.android.crypt.CipherPool;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -26,7 +27,6 @@ import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.DispatchActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.javarosa.core.model.User;

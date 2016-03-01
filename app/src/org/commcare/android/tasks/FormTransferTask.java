@@ -2,8 +2,8 @@ package org.commcare.android.tasks;
 
 import android.util.Log;
 
+import org.commcare.activities.CommCareWiFiDirectActivity;
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

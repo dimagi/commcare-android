@@ -3,9 +3,9 @@ package org.commcare.android.tasks;
 import android.content.Context;
 import android.util.Log;
 
+import org.commcare.activities.CommCareWiFiDirectActivity;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 
 /**
  * @author ctsims

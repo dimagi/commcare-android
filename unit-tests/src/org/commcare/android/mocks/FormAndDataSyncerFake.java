@@ -2,9 +2,9 @@ package org.commcare.android.mocks;
 
 import android.util.Log;
 
+import org.commcare.activities.CommCareHomeActivity;
+import org.commcare.activities.FormAndDataSyncer;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.dalvik.activities.CommCareHomeActivity;
-import org.commcare.dalvik.activities.FormAndDataSyncer;
 
 /**
  * Fake object that prevent tests from communicating with server to pull or submit data

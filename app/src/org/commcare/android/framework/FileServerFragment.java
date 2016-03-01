@@ -12,9 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.commcare.activities.CommCareWiFiDirectActivity;
 import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 import org.javarosa.core.services.Logger;
 
 import java.io.File;

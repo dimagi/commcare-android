@@ -2,8 +2,8 @@ package org.commcare.android.tasks;
 
 import android.content.Context;
 
-import org.commcare.dalvik.activities.DataPullController;
-import org.commcare.dalvik.activities.LoginMode;
+import org.commcare.activities.DataPullController;
+import org.commcare.activities.LoginMode;
 import org.commcare.dalvik.application.CommCareApp;
 
 /**

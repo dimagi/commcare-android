@@ -8,13 +8,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
+import org.commcare.activities.FormRecordListActivity.FormRecordFilter;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tasks.FormRecordLoadListener;
 import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.android.view.IncompleteFormRecordView;
-import org.commcare.dalvik.activities.FormRecordListActivity.FormRecordFilter;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;

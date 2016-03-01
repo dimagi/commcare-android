@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import org.commcare.activities.RecoveryActivity;
 import org.commcare.android.analytics.GoogleAnalyticsFields;
 import org.commcare.android.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
@@ -23,7 +24,6 @@ import org.commcare.android.util.ChangeLocaleUtil;
 import org.commcare.android.util.CommCareUtil;
 import org.commcare.android.util.TemplatePrinterUtils;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.RecoveryActivity;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.utils.UriToFilePath;

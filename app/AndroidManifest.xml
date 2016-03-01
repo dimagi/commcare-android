@@ -55,7 +55,7 @@
         android:hardwareAccelerated="true"
         android:theme="@style/AppBaseTheme">
         <activity
-            android:name=".activities.DispatchActivity"
+            android:name="org.commcare.activities.DispatchActivity"
             android:label="@string/application_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -70,7 +70,7 @@
         </activity>
 
         <activity
-            android:name=".activities.AppManagerActivity"
+            android:name="org.commcare.activities.AppManagerActivity"
             android:label="@string/manager_activity_name"
             android:launchMode="singleTask"
             android:taskAffinity="org.commcare.Manage">
@@ -80,19 +80,19 @@
         </activity>
 
         <activity
-            android:name=".activities.LoginActivity"
+            android:name="org.commcare.activities.LoginActivity"
             android:label="@string/application_name"
             android:windowSoftInputMode="adjustResize">
         </activity>
 
         <activity
-            android:name=".activities.CrashWarningActivity"
+            android:name="org.commcare.activities.CrashWarningActivity"
             android:label="CommCare Forced Closure">
         </activity>
 
-        <activity android:name=".activities.CommCareHomeActivity"/>
-        <activity android:name=".activities.MenuList"/>
-        <activity android:name=".activities.MenuGrid"/>
+        <activity android:name="org.commcare.activities.CommCareHomeActivity"/>
+        <activity android:name="org.commcare.activities.MenuList"/>
+        <activity android:name="org.commcare.activities.MenuGrid"/>
 
         <provider
             android:name=".odk.provider.FormsProvider"
@@ -117,17 +117,17 @@
 
         <activity android:name=".preferences.CommCarePreferences">
         </activity>
-        <activity android:name=".activities.DotsEntryActivity">
+        <activity android:name="org.commcare.activities.DotsEntryActivity">
             <intent-filter>
                 <action android:name="${applicationId}.action.DotsEntry"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </activity>
-        <activity android:name=".activities.CallOutActivity">
+        <activity android:name="org.commcare.activities.CallOutActivity">
         </activity>
         <activity
-            android:name=".activities.CommCareSetupActivity"
+            android:name="org.commcare.activities.CommCareSetupActivity"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
@@ -192,7 +192,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.UpdateActivity"
+            android:name="org.commcare.activities.UpdateActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
         <!-- Enable Shortcuts for Command Actions -->
@@ -240,22 +240,22 @@
         </activity-alias>
 
         <activity
-            android:name=".activities.SingleAppManagerActivity"
+            android:name="org.commcare.activities.SingleAppManagerActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name=".activities.EntitySelectActivity"
+            android:name="org.commcare.activities.EntitySelectActivity"
             android:windowSoftInputMode="stateUnchanged|adjustResize">
         </activity>
         <activity
-            android:name=".activities.CommCareGraphActivity">
+            android:name="org.commcare.activities.CommCareGraphActivity">
         </activity>
         <activity
-            android:name=".activities.EntityDetailActivity"
+            android:name="org.commcare.activities.EntityDetailActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name=".activities.FormRecordListActivity"
+            android:name="org.commcare.activities.FormRecordListActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
 
@@ -290,11 +290,11 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name=".activities.InstallArchiveActivity"
+            android:name="org.commcare.activities.InstallArchiveActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
 
-        <activity android:name=".activities.EntityMapActivity">
+        <activity android:name="org.commcare.activities.EntityMapActivity">
         </activity>
 
         <uses-library
@@ -307,29 +307,29 @@
             android:name="com.google.android.maps"
             android:required="false"/>
 
-        <activity android:name=".activities.MessageActivity">
+        <activity android:name="org.commcare.activities.MessageActivity">
         </activity>
 
         <receiver android:name="org.commcare.android.models.notifications.NotificationClearReceiver">
         </receiver>
 
         <activity
-            android:name=".activities.ReportProblemActivity"
+            android:name="org.commcare.activities.ReportProblemActivity"
             android:label="@string/title_activity_report_problem">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.CommCareSetupActivity"/>
+                android:value="org.commcare.activities.CommCareSetupActivity"/>
         </activity>
         <activity
-            android:name=".activities.CommCareVerificationActivity"
+            android:name="org.commcare.activities.CommCareVerificationActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name=".activities.UnrecoverableErrorActivity"
+            android:name="org.commcare.activities.UnrecoverableErrorActivity"
             android:theme="@style/Theme.Transparent">
         </activity>
         <activity
-            android:name=".activities.KeyAccessRequestActivity"
+            android:name="org.commcare.activities.KeyAccessRequestActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="${applicationId}.action.CommCareKeyAccessRequest"/>
@@ -352,26 +352,26 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".activities.MultimediaInflaterActivity">
+        <activity android:name="org.commcare.activities.MultimediaInflaterActivity">
         </activity>
         <activity
-            android:name=".activities.CommCareFormDumpActivity"
+            android:name="org.commcare.activities.CommCareFormDumpActivity"
             android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
-            android:name=".activities.ConnectionDiagnosticActivity"
+            android:name="org.commcare.activities.ConnectionDiagnosticActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name=".activities.CommCareWiFiDirectActivity"
+            android:name="org.commcare.activities.CommCareWiFiDirectActivity"
             android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".activities.RecoveryActivity">
+        <activity android:name="org.commcare.activities.RecoveryActivity">
         </activity>
         <activity android:name=".preferences.DeveloperPreferences">
         </activity>
         <activity
-            android:name=".activities.TemplatePrinterActivity"
+            android:name="org.commcare.activities.TemplatePrinterActivity"
             android:theme="@style/Theme.Dialog.NoTitle">
             <intent-filter>
                 <action android:name="${applicationId}.action.PRINT"/>
@@ -379,14 +379,14 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.SeatAppActivity">
+            android:name="org.commcare.activities.SeatAppActivity">
         </activity>
         <activity
-            android:name=".activities.CreatePinActivity"
+            android:name="org.commcare.activities.CreatePinActivity"
             android:windowSoftInputMode="stateVisible|adjustResize">
         </activity>
         <activity
-            android:name=".activities.PinAuthenticationActivity"
+            android:name="org.commcare.activities.PinAuthenticationActivity"
             android:windowSoftInputMode="stateVisible|adjustResize">
         </activity>
 

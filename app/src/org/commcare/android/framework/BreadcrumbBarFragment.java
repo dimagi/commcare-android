@@ -21,6 +21,8 @@ import android.view.animation.Transformation;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 
+import org.commcare.activities.CommCareSetupActivity;
+import org.commcare.activities.FormRecordListActivity;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.Entity;
@@ -30,8 +32,6 @@ import org.commcare.android.util.SessionStateUninitException;
 import org.commcare.android.view.GridEntityView;
 import org.commcare.android.view.TabbedDetailView;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareSetupActivity;
-import org.commcare.dalvik.activities.FormRecordListActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;

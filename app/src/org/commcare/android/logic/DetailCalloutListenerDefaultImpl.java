@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.widget.Toast;
 
-import org.commcare.dalvik.activities.CallOutActivity;
+import org.commcare.activities.CallOutActivity;
 import org.commcare.suite.model.CalloutData;
 
 import java.util.Hashtable;
@@ -15,7 +15,7 @@ import java.util.Hashtable;
  * Created by dancluna on 3/5/15.
  */
 public class DetailCalloutListenerDefaultImpl {
-    // Implementing DetailCalloutListener, reusing the code from @href{org.commcare.dalvik.activities.EntityDetailActivity}
+    // Implementing DetailCalloutListener, reusing the code from @href{org.commcare.activities.EntityDetailActivity}
     // implementing classes can just delegate to this class if they want its default functionality
     // CommCare-159503: in awesome mode, the app crashed when trying to dial/sms a number
     //   due to EntitySelectActivity not implementing DetailCalloutListener.

@@ -2,8 +2,8 @@ package org.commcare.android.adapters;
 
 import android.view.View;
 
+import org.commcare.activities.CommCareWiFiDirectActivity;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 
 import java.util.ArrayList;
 

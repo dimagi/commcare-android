@@ -19,8 +19,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.CommCareWiFiDirectActivity;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 import org.javarosa.core.services.Logger;
 
 /**

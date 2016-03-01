@@ -13,9 +13,9 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.android.view.SquareButtonWithText;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareSetupActivity;
 import org.javarosa.core.services.locale.Localization;
 
 /**

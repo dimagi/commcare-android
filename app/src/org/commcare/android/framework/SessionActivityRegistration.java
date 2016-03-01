@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
 
-import org.commcare.dalvik.activities.DispatchActivity;
+import org.commcare.activities.DispatchActivity;
 
 /**
  * Manage redirection to login screen when session expiration occurs.

@@ -2,13 +2,13 @@ package org.commcare.android.tasks;
 
 import android.util.Pair;
 
-import org.commcare.android.logging.XPathErrorLogger;
+import org.commcare.activities.EntitySelectActivity;
 import org.commcare.android.logging.AndroidLogger;
+import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.android.models.AsyncNodeEntityFactory;
 import org.commcare.android.models.Entity;
 import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
-import org.commcare.dalvik.activities.EntitySelectActivity;
 import org.commcare.suite.model.Detail;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;

@@ -5,6 +5,7 @@ import android.os.Environment;
 import android.util.Log;
 import android.widget.ImageButton;
 
+import org.commcare.activities.CommCareHomeActivity;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
@@ -15,7 +16,6 @@ import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareHomeActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionNavigator;

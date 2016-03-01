@@ -3,8 +3,8 @@ package org.commcare.android.adapters;
 import android.content.Context;
 import android.view.View;
 
+import org.commcare.activities.HomeButtons;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.HomeButtons;
 
 /**
  * Holds data for displaying home screen buttons

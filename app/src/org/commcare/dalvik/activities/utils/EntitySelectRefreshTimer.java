@@ -1,6 +1,6 @@
 package org.commcare.dalvik.activities.utils;
 
-import org.commcare.dalvik.activities.EntitySelectActivity;
+import org.commcare.activities.EntitySelectActivity;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 
 import java.util.Timer;

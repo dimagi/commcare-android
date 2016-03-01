@@ -8,9 +8,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 
+import org.commcare.activities.UpdateActivity;
 import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.tasks.TaskListener;
-import org.commcare.dalvik.activities.UpdateActivity;
 import org.javarosa.core.services.locale.Localization;
 
 /**

@@ -3,8 +3,8 @@ package org.commcare.android.util;
 import android.content.Context;
 import android.content.Intent;
 
+import org.commcare.activities.CrashWarningActivity;
 import org.commcare.android.tasks.ExceptionReporting;
-import org.commcare.dalvik.activities.CrashWarningActivity;
 import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.lang.Thread.UncaughtExceptionHandler;

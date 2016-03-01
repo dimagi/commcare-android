@@ -8,10 +8,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import org.commcare.activities.CommCareHomeActivity;
+import org.commcare.activities.HomeButtons;
 import org.commcare.android.ui.CustomBanner;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareHomeActivity;
-import org.commcare.dalvik.activities.HomeButtons;
 
 import java.util.List;
 import java.util.Vector;

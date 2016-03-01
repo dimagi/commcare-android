@@ -1,6 +1,6 @@
 package org.commcare.android.models.notifications;
 
-import org.commcare.dalvik.activities.LoginActivity;
+import org.commcare.activities.LoginActivity;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).

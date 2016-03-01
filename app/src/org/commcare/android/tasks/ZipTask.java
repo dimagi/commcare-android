@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Environment;
 import android.util.Log;
 
+import org.commcare.activities.CommCareWiFiDirectActivity;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.AndroidLogger;
@@ -14,7 +15,6 @@ import org.commcare.android.util.FileUtil;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.android.util.StorageUtils;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;

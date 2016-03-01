@@ -4,6 +4,8 @@ import android.content.Context;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.commcare.activities.DataPullController;
+import org.commcare.activities.LoginMode;
 import org.commcare.android.crypt.CryptUtil;
 import org.commcare.android.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -15,8 +17,6 @@ import org.commcare.android.models.notifications.NotificationMessageFactory.Stoc
 import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.tasks.templates.HttpCalloutTask;
 import org.commcare.android.util.SessionUnavailableException;
-import org.commcare.dalvik.activities.DataPullController;
-import org.commcare.dalvik.activities.LoginMode;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;

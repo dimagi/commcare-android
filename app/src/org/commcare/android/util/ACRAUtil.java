@@ -7,8 +7,8 @@ import org.acra.ACRA;
 import org.acra.ErrorReporter;
 import org.acra.config.ACRAConfiguration;
 import org.acra.config.ACRAConfigurationFactory;
+import org.commcare.activities.ReportProblemActivity;
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.activities.ReportProblemActivity;
 
 /**
  * Contains constants and methods used in ACRA reporting.
