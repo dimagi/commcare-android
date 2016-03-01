@@ -26,8 +26,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.adapters.WiFiDirectAdapter;
-import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.android.framework.DeviceDetailFragment;
 import org.commcare.android.framework.DeviceListFragment;
 import org.commcare.android.framework.DeviceListFragment.DeviceActionListener;
@@ -49,6 +47,8 @@ import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.services.WiFiDirectBroadcastReceiver;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.StorageUtils;
 import org.javarosa.core.services.Logger;

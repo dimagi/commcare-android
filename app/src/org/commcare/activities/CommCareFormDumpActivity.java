@@ -11,14 +11,10 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.logging.AndroidLogger;
-import org.commcare.android.models.notifications.NotificationMessageFactory;
-import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
 import org.commcare.android.tasks.DumpTask;
 import org.commcare.android.tasks.SendTask;
 import org.commcare.dalvik.R;
@@ -26,8 +22,12 @@ import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.StorageUtils;
+import org.commcare.views.notifications.NotificationMessageFactory;
+import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 

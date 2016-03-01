@@ -9,15 +9,15 @@ import android.net.Uri;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.models.database.AndroidDbHelper;
-import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.app.models.UserKeyRecord;
-import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logging.DeviceReportRecord;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.models.database.AndroidDbHelper;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.app.models.UserKeyRecord;
+import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.services.Logger;
 

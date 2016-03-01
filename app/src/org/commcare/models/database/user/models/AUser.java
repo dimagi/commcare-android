@@ -17,7 +17,7 @@
 package org.commcare.models.database.user.models;
 
 
-import org.commcare.android.storage.framework.Table;
+import org.commcare.models.framework.Table;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;

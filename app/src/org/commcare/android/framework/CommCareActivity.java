@@ -23,7 +23,6 @@ import android.view.ViewTreeObserver;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import org.commcare.models.database.user.models.ACase;
 import org.commcare.android.fragments.ContainerFragment;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
@@ -33,6 +32,7 @@ import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.dialogs.AlertDialogFragment;
 import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.dalvik.dialogs.DialogController;
+import org.commcare.models.database.user.models.ACase;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;

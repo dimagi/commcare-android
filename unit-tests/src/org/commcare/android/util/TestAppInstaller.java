@@ -1,8 +1,5 @@
 package org.commcare.android.util;
 
-import org.commcare.models.database.app.models.UserKeyRecord;
-import org.commcare.models.database.global.models.ApplicationRecord;
-import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.android.mocks.CommCareTaskConnectorFake;
 import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.tasks.ResourceEngineTask;
@@ -10,6 +7,9 @@ import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.application.CommCareTestApp;
 import org.commcare.dalvik.services.CommCareSessionService;
+import org.commcare.models.database.app.models.UserKeyRecord;
+import org.commcare.models.database.global.models.ApplicationRecord;
+import org.commcare.models.database.user.DemoUserBuilder;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;

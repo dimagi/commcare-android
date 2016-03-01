@@ -9,9 +9,9 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import org.commcare.android.models.notifications.NotificationMessage;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.views.notifications.NotificationMessage;
 
 import java.text.DateFormat;
 import java.util.ArrayList;

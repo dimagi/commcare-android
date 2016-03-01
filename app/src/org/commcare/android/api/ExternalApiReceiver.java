@@ -9,7 +9,6 @@ import android.widget.Toast;
 
 import org.commcare.activities.LoginMode;
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.db.legacy.LegacyInstallUtils;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ExternalManageKeyRecordTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
@@ -22,6 +21,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.app.models.UserKeyRecord;
 import org.commcare.models.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;

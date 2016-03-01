@@ -2,9 +2,9 @@ package org.commcare.android.models;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
 import org.commcare.utils.SessionUnavailableException;

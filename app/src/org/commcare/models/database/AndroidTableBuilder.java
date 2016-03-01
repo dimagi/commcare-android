@@ -2,7 +2,7 @@ package org.commcare.models.database;
 
 import android.util.Pair;
 
-import org.commcare.android.storage.framework.Table;
+import org.commcare.models.framework.Table;
 import org.commcare.modern.database.TableBuilder;
 
 import java.util.ArrayList;

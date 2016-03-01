@@ -8,8 +8,8 @@ import android.widget.Toast;
 
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.utils.FileUtils;
+import org.commcare.views.widgets.ImageWidget;
 import org.javarosa.core.services.locale.Localization;
-import org.odk.collect.android.widgets.ImageWidget;
 
 import java.io.File;
 import java.io.IOException;

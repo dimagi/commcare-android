@@ -1,8 +1,8 @@
 package org.odk.collect.android.activities.components;
 
+import org.commcare.views.widgets.QuestionWidget;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.widgets.QuestionWidget;
 
 import java.util.ArrayList;
 import java.util.Vector;

@@ -2,14 +2,14 @@ package org.commcare.android.tasks;
 
 import android.util.Log;
 
-import org.commcare.android.models.notifications.NotificationMessageFactory;
-import org.commcare.android.models.notifications.NotificationMessageFactory.StockMessages;
-import org.commcare.android.models.notifications.ProcessIssues;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.views.notifications.NotificationMessageFactory;
+import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
+import org.commcare.views.notifications.ProcessIssues;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
 

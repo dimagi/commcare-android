@@ -71,6 +71,8 @@ import org.commcare.utils.StringUtils;
 import org.commcare.utils.UriToFilePath;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.ResizingImageView;
+import org.commcare.views.widgets.IntentWidget;
+import org.commcare.views.widgets.QuestionWidget;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.SelectChoice;
@@ -103,8 +105,6 @@ import org.odk.collect.android.logic.PropertyManager;
 import org.odk.collect.android.preferences.FormEntryPreferences;
 import org.odk.collect.android.tasks.FormLoaderTask;
 import org.odk.collect.android.tasks.SaveToDiskTask;
-import org.odk.collect.android.widgets.IntentWidget;
-import org.odk.collect.android.widgets.QuestionWidget;
 
 import java.io.File;
 import java.text.SimpleDateFormat;

@@ -2,13 +2,13 @@ package org.commcare.xml;
 
 import android.content.Context;
 
-import org.commcare.models.database.AndroidSandbox;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.cases.model.Case;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
+import org.commcare.models.database.AndroidSandbox;
 import org.commcare.network.HttpRequestGenerator;
 import org.kxml2.io.KXmlParser;
 

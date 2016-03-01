@@ -6,10 +6,10 @@ import android.util.Log;
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.utils.SessionUnavailableException;
 

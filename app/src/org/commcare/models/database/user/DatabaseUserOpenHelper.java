@@ -6,6 +6,10 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
+import org.commcare.android.logging.DeviceReportRecord;
+import org.commcare.android.logging.XPathErrorEntry;
+import org.commcare.cases.ledger.Ledger;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
@@ -14,10 +18,6 @@ import org.commcare.models.database.user.models.CaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.models.database.user.models.SessionStateDescriptor;
-import org.commcare.android.logging.DeviceReportRecord;
-import org.commcare.android.logging.XPathErrorEntry;
-import org.commcare.cases.ledger.Ledger;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 

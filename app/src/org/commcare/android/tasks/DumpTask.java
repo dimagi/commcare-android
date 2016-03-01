@@ -5,18 +5,18 @@ import android.content.Context;
 import android.os.Environment;
 
 import org.commcare.activities.CommCareFormDumpActivity;
-import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.android.logging.AndroidLogger;
-import org.commcare.android.models.notifications.NotificationMessageFactory;
-import org.commcare.android.models.notifications.ProcessIssues;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.ReflectionUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
+import org.commcare.views.notifications.NotificationMessageFactory;
+import org.commcare.views.notifications.ProcessIssues;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 

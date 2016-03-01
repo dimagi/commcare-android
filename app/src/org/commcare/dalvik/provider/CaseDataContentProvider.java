@@ -7,10 +7,10 @@ import android.database.MatrixCursor;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 
-import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.ACase;
 import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.models.ACase;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;

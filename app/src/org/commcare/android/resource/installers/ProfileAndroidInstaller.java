@@ -3,10 +3,10 @@ package org.commcare.android.resource.installers;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
-import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;

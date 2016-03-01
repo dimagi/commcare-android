@@ -2,9 +2,9 @@ package org.commcare.adapters;
 
 import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.android.models.Entity;
-import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.suite.model.DetailField;
+import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.xpath.XPathTypeMismatchException;

@@ -10,13 +10,13 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.android.tasks.UpdateTask;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.services.CommCareSessionService;
+import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.utils.SessionUnavailableException;
 
 

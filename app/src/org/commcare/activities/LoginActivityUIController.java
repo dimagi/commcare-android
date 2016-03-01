@@ -22,19 +22,19 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.app.models.UserKeyRecord;
-import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivityUIController;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.ManagedUiFramework;
 import org.commcare.android.framework.UiElement;
 import org.commcare.android.session.DevSessionRestorer;
-import org.commcare.android.ui.CustomBanner;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.app.models.UserKeyRecord;
+import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.utils.MediaUtil;
+import org.commcare.views.CustomBanner;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;

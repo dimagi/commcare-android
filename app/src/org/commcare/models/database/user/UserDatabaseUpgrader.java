@@ -5,6 +5,9 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.logging.XPathErrorEntry;
+import org.commcare.cases.ledger.Ledger;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
@@ -22,9 +25,6 @@ import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.models.database.user.models.FormRecordV1;
 import org.commcare.models.database.user.models.GeocodeCacheModel;
 import org.commcare.models.database.user.models.SessionStateDescriptor;
-import org.commcare.android.logging.XPathErrorEntry;
-import org.commcare.cases.ledger.Ledger;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 

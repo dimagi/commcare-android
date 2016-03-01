@@ -8,12 +8,12 @@ import android.os.Build;
 
 import org.commcare.android.analytics.GoogleAnalyticsFields;
 import org.commcare.android.analytics.GoogleAnalyticsUtils;
-import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;

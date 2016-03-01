@@ -3,9 +3,9 @@
  */
 package org.commcare.models.database.global.models;
 
-import org.commcare.android.storage.framework.Persisted;
-import org.commcare.android.storage.framework.Persisting;
-import org.commcare.android.storage.framework.Table;
+import org.commcare.models.framework.Persisted;
+import org.commcare.models.framework.Persisting;
+import org.commcare.models.framework.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.suite.model.Profile;
 import org.javarosa.core.services.locale.Localization;

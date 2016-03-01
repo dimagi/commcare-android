@@ -3,7 +3,6 @@ package org.commcare.android.tests.application;
 import android.util.Log;
 
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.TaskListener;
@@ -12,6 +11,7 @@ import org.commcare.android.tasks.UpdateTask;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.suite.model.Profile;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;

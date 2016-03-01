@@ -2,12 +2,12 @@ package org.commcare.android.models;
 
 import android.util.Log;
 
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.models.database.user.models.ACase;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.models.database.user.models.SessionStateDescriptor;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Entry;

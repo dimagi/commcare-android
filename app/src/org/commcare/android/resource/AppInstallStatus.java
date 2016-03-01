@@ -1,6 +1,6 @@
 package org.commcare.android.resource;
 
-import org.commcare.android.models.notifications.MessageTag;
+import org.commcare.views.notifications.MessageTag;
 
 public enum AppInstallStatus implements MessageTag {
     // Statuses unique to app installation

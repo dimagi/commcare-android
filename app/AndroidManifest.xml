@@ -310,7 +310,7 @@
         <activity android:name="org.commcare.activities.MessageActivity">
         </activity>
 
-        <receiver android:name="org.commcare.android.models.notifications.NotificationClearReceiver">
+        <receiver android:name="org.commcare.views.notifications.NotificationClearReceiver">
         </receiver>
 
         <activity

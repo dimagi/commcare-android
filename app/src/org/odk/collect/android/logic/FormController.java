@@ -1,6 +1,7 @@
 package org.odk.collect.android.logic;
 
 import org.commcare.views.QuestionsView;
+import org.commcare.views.widgets.WidgetFactory;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.GroupDef;
@@ -15,7 +16,6 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.model.xform.XPathReference;
-import org.odk.collect.android.widgets.WidgetFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;

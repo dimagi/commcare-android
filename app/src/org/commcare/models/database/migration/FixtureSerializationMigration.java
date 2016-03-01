@@ -6,6 +6,8 @@ import android.util.Log;
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.logging.AndroidLogger;
+import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
@@ -13,8 +15,6 @@ import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.SqlStorageIterator;
 import org.commcare.models.database.UnencryptedHybridFileBackedSqlStorage;
-import org.commcare.android.logging.AndroidLogger;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.Persistable;

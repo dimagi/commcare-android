@@ -4,10 +4,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
-import org.commcare.android.storage.framework.Persisted;
-import org.commcare.android.storage.framework.Persisting;
-import org.commcare.android.storage.framework.Table;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.models.framework.Persisted;
+import org.commcare.models.framework.Persisting;
+import org.commcare.models.framework.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
 

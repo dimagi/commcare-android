@@ -4,11 +4,11 @@
 package org.commcare.models.database.app.models;
 
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.storage.framework.Persisted;
-import org.commcare.android.storage.framework.Persisting;
-import org.commcare.android.storage.framework.Table;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.models.framework.Persisted;
+import org.commcare.models.framework.Persisting;
+import org.commcare.models.framework.Table;
 import org.commcare.modern.models.MetaField;
 import org.javarosa.core.util.PropertyUtils;
 

@@ -10,8 +10,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.framework.UiElement;
@@ -21,6 +19,8 @@ import org.commcare.android.tasks.ProcessAndSendTask;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;

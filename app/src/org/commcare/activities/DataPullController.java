@@ -1,7 +1,7 @@
 package org.commcare.activities;
 
-import org.commcare.android.models.notifications.MessageTag;
-import org.commcare.android.models.notifications.NotificationMessage;
+import org.commcare.views.notifications.MessageTag;
+import org.commcare.views.notifications.NotificationMessage;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).

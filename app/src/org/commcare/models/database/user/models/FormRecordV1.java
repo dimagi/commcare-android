@@ -1,8 +1,8 @@
 package org.commcare.models.database.user.models;
 
-import org.commcare.android.storage.framework.Persisted;
-import org.commcare.android.storage.framework.Persisting;
-import org.commcare.android.storage.framework.Table;
+import org.commcare.models.framework.Persisted;
+import org.commcare.models.framework.Persisting;
+import org.commcare.models.framework.Table;
 import org.commcare.modern.models.MetaField;
 
 import java.util.Date;

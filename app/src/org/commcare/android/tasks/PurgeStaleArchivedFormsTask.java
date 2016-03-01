@@ -1,10 +1,10 @@
 package org.commcare.android.tasks;
 
-import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.models.FormRecord;
 import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;
 
