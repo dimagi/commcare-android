@@ -1,10 +1,11 @@
-package org.commcare.android.tasks.templates;
+package org.commcare.network;
 
 import android.content.Context;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.commcare.android.logging.AndroidLogger;
+import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.bitcache.BitCache;
 import org.commcare.android.util.bitcache.BitCacheFactory;
@@ -25,7 +26,7 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 /**
  * @author ctsims
  */
-public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, org.commcare.android.tasks.templates.HttpCalloutTask.HttpCalloutOutcomes, R> {
+public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, HttpCalloutTask.HttpCalloutOutcomes, R> {
 
     public enum HttpCalloutOutcomes {
         NetworkFailure,

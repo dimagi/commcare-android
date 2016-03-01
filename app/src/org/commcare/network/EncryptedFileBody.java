@@ -1,4 +1,4 @@
-package org.commcare.android.mime;
+package org.commcare.network;
 
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MIME;

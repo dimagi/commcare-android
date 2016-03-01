@@ -17,14 +17,14 @@ import org.commcare.android.logging.DeviceReportRecord;
 import org.commcare.android.logging.DeviceReportWriter;
 import org.commcare.android.logging.XPathErrorEntry;
 import org.commcare.android.logging.XPathErrorSerializer;
-import org.commcare.android.mime.EncryptedFileBody;
 import org.commcare.android.models.notifications.MessageTag;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
-import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.tasks.LogSubmissionTask.LogSubmitOutcomes;
 import org.commcare.android.util.SessionUnavailableException;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.network.EncryptedFileBody;
+import org.commcare.network.HttpRequestGenerator;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 

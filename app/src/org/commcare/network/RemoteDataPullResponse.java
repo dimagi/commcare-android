@@ -1,11 +1,10 @@
-package org.commcare.android.tasks.network;
+package org.commcare.network;
 
 import android.content.Context;
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
 import org.apache.http.HttpResponse;
-import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.tasks.DataPullTask;
 import org.commcare.android.util.AndroidStreamUtil;
 import org.commcare.android.util.bitcache.BitCache;

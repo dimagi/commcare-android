@@ -13,9 +13,9 @@ import android.widget.Toast;
 
 import org.commcare.android.framework.SessionAwareCommCareActivity;
 import org.commcare.android.logging.AndroidLogger;
-import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.network.HttpRequestGenerator;
 import org.javarosa.core.services.Logger;
 
 public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportProblemActivity> implements OnClickListener {

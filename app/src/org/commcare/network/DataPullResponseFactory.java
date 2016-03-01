@@ -1,6 +1,5 @@
-package org.commcare.android.tasks.network;
+package org.commcare.network;
 
-import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.tasks.DataPullTask;
 
 import java.io.IOException;

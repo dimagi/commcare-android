@@ -12,13 +12,13 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.commcare.android.database.UserStorageClosedException;
-import org.javarosa.core.model.User;
 import org.commcare.android.io.DataSubmissionEntity;
 import org.commcare.android.logging.AndroidLogger;
-import org.commcare.android.mime.EncryptedFileBody;
-import org.commcare.android.net.HttpRequestGenerator;
 import org.commcare.android.tasks.DataSubmissionListener;
+import org.commcare.network.EncryptedFileBody;
+import org.commcare.network.HttpRequestGenerator;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
+import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 
 import java.io.ByteArrayOutputStream;

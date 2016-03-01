@@ -1,5 +1,6 @@
 package org.commcare.android.tasks.network;
 
+import org.commcare.network.RemoteDataPullResponse;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 

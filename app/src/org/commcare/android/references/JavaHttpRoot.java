@@ -1,6 +1,6 @@
 package org.commcare.android.references;
 
-import org.commcare.android.net.HttpRequestGenerator;
+import org.commcare.network.HttpRequestGenerator;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceFactory;

@@ -1,4 +1,4 @@
-package org.commcare.android.net;
+package org.commcare.network;
 
 import android.content.SharedPreferences;
 import android.net.Uri;
