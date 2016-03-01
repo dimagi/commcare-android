@@ -1,6 +1,6 @@
 package org.commcare.models.database.user.models;
 
-import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;

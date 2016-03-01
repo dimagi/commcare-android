@@ -7,7 +7,6 @@ import android.preference.PreferenceManager;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
-import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;

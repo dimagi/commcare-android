@@ -197,7 +197,7 @@
         </activity>
         <!-- Enable Shortcuts for Command Actions -->
         <activity
-            android:name=".application.AndroidShortcuts"
+            android:name="org.commcare.utils.AndroidShortcuts"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -206,7 +206,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".application.ManagerShortcut">
+            android:name="org.commcare.utils.ManagerShortcut">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -216,7 +216,7 @@
         <activity-alias
             android:name=".application.ShortcutGenerator"
             android:label="CommCare Action"
-            android:targetActivity=".application.AndroidShortcuts">
+            android:targetActivity="org.commcare.utils.AndroidShortcuts">
 
             <!-- This intent-filter allows your shortcuts to be created in the launcher. -->
             <intent-filter>
@@ -229,7 +229,7 @@
         <activity-alias
             android:name=".application.ManagerGenerator"
             android:label="App Manager"
-            android:targetActivity=".application.ManagerShortcut">
+            android:targetActivity="org.commcare.utils.ManagerShortcut">
 
             <!-- This intent-filter allows your shortcuts to be created in the launcher. -->
             <intent-filter>

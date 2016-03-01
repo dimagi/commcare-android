@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import org.commcare.android.session.DevSessionRestorer;
+import org.commcare.dalvik.preferences.DevSessionRestorer;
 
 /**
  * Process broadcasts requesting to save the current commcare user session.

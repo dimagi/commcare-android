@@ -24,7 +24,9 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.fragments.ContainerFragment;
+import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.user.models.ACase;
 import org.commcare.session.SessionFrame;
@@ -292,7 +294,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * @return wakelock level for an activity with a running task attached to
      * it; defaults to not using wakelocks.
      */
-    protected int getWakeLockLevel() {
+    public int getWakeLockLevel() {
         return CommCareTask.DONT_WAKELOCK;
     }
 
@@ -790,5 +792,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     private boolean isManagedUiActivity() {
         return ManagedUiFramework.isManagedUi(getUIManager().getClass());
+    }
+
+    public void setStateHolder(TaskConnectorFragment<R> stateHolder) {
+        this.stateHolder = stateHolder;
     }
 }

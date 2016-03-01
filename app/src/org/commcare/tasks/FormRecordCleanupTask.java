@@ -8,12 +8,12 @@ import android.util.Log;
 import android.util.Pair;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.cases.model.Case;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.logging.AndroidLogger;
+import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.ACase;
 import org.commcare.models.database.user.models.FormRecord;

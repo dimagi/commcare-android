@@ -5,7 +5,7 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.resource.AndroidResourceManager;
+import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;

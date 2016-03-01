@@ -6,11 +6,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
-import org.commcare.android.models.AsyncNodeEntityFactory;
-import org.commcare.android.models.Entity;
-import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.models.AsyncNodeEntityFactory;
+import org.commcare.models.Entity;
+import org.commcare.models.NodeEntityFactory;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.utils.AndroidUtil;

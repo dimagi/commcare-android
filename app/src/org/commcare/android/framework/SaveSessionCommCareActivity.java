@@ -3,7 +3,7 @@ package org.commcare.android.framework;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import org.commcare.android.session.DevSessionRestorer;
+import org.commcare.dalvik.preferences.DevSessionRestorer;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.javarosa.core.services.locale.Localization;
 

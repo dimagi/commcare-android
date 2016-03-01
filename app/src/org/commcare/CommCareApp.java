@@ -5,10 +5,9 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.references.JavaFileRoot;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.engine.references.JavaFileRoot;
 import org.commcare.interfaces.AppFilePathBuilder;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.AndroidDbHelper;
@@ -23,6 +22,7 @@ import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.Stylizer;
 import org.javarosa.core.reference.InvalidReferenceException;

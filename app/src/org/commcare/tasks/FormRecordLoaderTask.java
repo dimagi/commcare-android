@@ -3,7 +3,7 @@ package org.commcare.tasks;
 import android.content.Context;
 import android.util.Pair;
 
-import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.models.database.user.models.SessionStateDescriptor;

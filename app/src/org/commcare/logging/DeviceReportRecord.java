@@ -2,12 +2,12 @@ package org.commcare.logging;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.crypt.EncryptionIO;
-import org.commcare.android.logic.GlobalConstants;
 import org.commcare.models.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.utils.DateUtils;
 

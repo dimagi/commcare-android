@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import org.commcare.android.logic.GlobalConstants;
 import org.commcare.logging.AndroidLogEntry;
 import org.commcare.logging.DeviceReportRecord;
 import org.commcare.models.database.user.models.ACase;
@@ -16,6 +15,7 @@ import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.models.database.user.models.GeocodeCacheModel;
 import org.commcare.models.database.user.models.SessionStateDescriptor;
 import org.commcare.resources.model.Resource;
+import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 

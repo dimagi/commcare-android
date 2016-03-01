@@ -2,7 +2,6 @@ package org.commcare.utils;
 
 import android.util.Pair;
 
-import org.commcare.android.logic.GlobalConstants;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.BufferedReader;

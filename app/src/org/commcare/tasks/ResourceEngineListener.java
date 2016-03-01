@@ -1,6 +1,6 @@
 package org.commcare.tasks;
 
-import org.commcare.android.resource.AppInstallStatus;
+import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.resources.model.UnresolvedResourceException;
 
 public interface ResourceEngineListener {

@@ -5,8 +5,8 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import org.commcare.android.framework.EntityDetailFragment;
-import org.commcare.android.framework.EntitySubnodeDetailFragment;
+import org.commcare.fragments.EntityDetailFragment;
+import org.commcare.fragments.EntitySubnodeDetailFragment;
 import org.commcare.suite.model.Detail;
 import org.commcare.utils.SerializationUtil;
 import org.javarosa.core.model.instance.TreeReference;

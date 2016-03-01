@@ -10,7 +10,7 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.os.Build;
 import android.util.Log;
 
-import org.commcare.android.framework.WiFiDirectManagementFragment;
+import org.commcare.fragments.WiFiDirectManagementFragment;
 import org.javarosa.core.services.Logger;
 
 /**

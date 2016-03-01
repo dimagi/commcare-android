@@ -9,7 +9,7 @@ import android.graphics.BitmapFactory;
 import android.support.v4.app.NotificationCompat;
 
 import org.commcare.activities.UpdateActivity;
-import org.commcare.android.resource.AppInstallStatus;
+import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.tasks.TaskListener;
 import org.javarosa.core.services.locale.Localization;
 

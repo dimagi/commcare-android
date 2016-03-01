@@ -19,7 +19,6 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.RecoveryActivity;
 import org.commcare.android.framework.SessionAwarePreferenceActivity;
-import org.commcare.android.session.DevSessionRestorer;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;

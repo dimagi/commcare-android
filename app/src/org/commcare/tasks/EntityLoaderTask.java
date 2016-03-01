@@ -3,11 +3,11 @@ package org.commcare.tasks;
 import android.util.Pair;
 
 import org.commcare.activities.EntitySelectActivity;
-import org.commcare.android.models.AsyncNodeEntityFactory;
-import org.commcare.android.models.Entity;
-import org.commcare.android.models.NodeEntityFactory;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.XPathErrorLogger;
+import org.commcare.models.AsyncNodeEntityFactory;
+import org.commcare.models.Entity;
+import org.commcare.models.NodeEntityFactory;
 import org.commcare.suite.model.Detail;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.javarosa.core.model.condition.EvaluationContext;

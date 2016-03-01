@@ -7,9 +7,8 @@ import android.util.Pair;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.references.JavaHttpReference;
 import org.commcare.cases.model.Case;
+import org.commcare.engine.references.JavaHttpReference;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.models.database.user.models.ACase;
@@ -18,6 +17,7 @@ import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.utils.AndroidStreamUtil;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;

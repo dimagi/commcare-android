@@ -6,7 +6,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
-import org.commcare.android.resource.AndroidResourceManager;
+import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.app.models.UserKeyRecord;

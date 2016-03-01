@@ -4,10 +4,10 @@ import android.content.Context;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.android.resource.AndroidResourceManager;
-import org.commcare.android.resource.AppInstallStatus;
-import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.dalvik.R;
+import org.commcare.engine.resource.AndroidResourceManager;
+import org.commcare.engine.resource.AppInstallStatus;
+import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.Resource;

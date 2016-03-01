@@ -8,10 +8,10 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.crypt.EncryptionIO;
-import org.commcare.android.logic.GlobalConstants;
 import org.commcare.interfaces.AppFilePathBuilder;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.storage.EntityFilter;

@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.commcare.activities.EntityDetailActivity;
-import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.utils.SerializationUtil;

@@ -5,13 +5,13 @@ import android.content.Intent;
 import android.util.Log;
 
 import org.commcare.dalvik.R;
+import org.commcare.engine.extensions.AndroidXFormExtensions;
+import org.commcare.engine.extensions.IntentCallout;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.jr.extensions.AndroidXFormExtensions;
-import org.odk.collect.android.jr.extensions.IntentCallout;
 import org.odk.collect.android.logic.PendingCalloutInterface;
 
 /**

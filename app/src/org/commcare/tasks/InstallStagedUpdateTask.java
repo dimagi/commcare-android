@@ -2,9 +2,9 @@ package org.commcare.tasks;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.android.resource.AndroidResourceManager;
-import org.commcare.android.resource.AppInstallStatus;
-import org.commcare.android.resource.ResourceInstallUtils;
+import org.commcare.engine.resource.AndroidResourceManager;
+import org.commcare.engine.resource.AppInstallStatus;
+import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.AndroidCommCarePlatform;

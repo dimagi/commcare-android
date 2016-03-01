@@ -3,9 +3,9 @@ package org.commcare.tasks;
 import android.os.SystemClock;
 
 import org.commcare.CommCareApp;
-import org.commcare.android.resource.AppInstallStatus;
-import org.commcare.android.resource.ResourceInstallUtils;
-import org.commcare.android.resource.installers.LocalStorageUnavailableException;
+import org.commcare.engine.resource.AppInstallStatus;
+import org.commcare.engine.resource.ResourceInstallUtils;
+import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;

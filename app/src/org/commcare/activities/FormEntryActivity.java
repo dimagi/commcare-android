@@ -51,6 +51,8 @@ import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.preferences.FormEntryPreferences;
+import org.commcare.engine.extensions.IntentCallout;
+import org.commcare.engine.extensions.PollSensorAction;
 import org.commcare.interfaces.AdvanceToNextListener;
 import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.interfaces.FormSavedListener;
@@ -101,8 +103,6 @@ import org.odk.collect.android.activities.components.FormNavigationController;
 import org.odk.collect.android.activities.components.FormNavigationUI;
 import org.odk.collect.android.activities.components.FormRelevancyUpdating;
 import org.odk.collect.android.activities.components.ImageCaptureProcessing;
-import org.odk.collect.android.jr.extensions.IntentCallout;
-import org.odk.collect.android.jr.extensions.PollSensorAction;
 import org.odk.collect.android.logic.FormController;
 import org.odk.collect.android.logic.PropertyManager;
 

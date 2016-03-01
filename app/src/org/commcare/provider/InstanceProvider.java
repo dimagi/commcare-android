@@ -16,9 +16,9 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.models.AndroidSessionWrapper;
-import org.commcare.android.models.logic.FormRecordProcessor;
 import org.commcare.logging.AndroidLogger;
+import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.tasks.ExceptionReporting;

@@ -1,7 +1,7 @@
 package org.commcare.tasks;
 
-import org.commcare.android.models.Entity;
-import org.commcare.android.models.NodeEntityFactory;
+import org.commcare.models.Entity;
+import org.commcare.models.NodeEntityFactory;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.List;
