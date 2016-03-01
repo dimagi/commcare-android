@@ -2,7 +2,7 @@ package org.commcare.xml;
 
 import android.content.Context;
 
-import org.commcare.android.database.AndroidSandbox;
+import org.commcare.models.database.AndroidSandbox;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.cases.model.Case;
 import org.commcare.core.parse.CommCareTransactionParserFactory;

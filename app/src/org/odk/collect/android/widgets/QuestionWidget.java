@@ -29,6 +29,7 @@ import android.widget.TextView;
 
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.dalvik.R;
+import org.commcare.utils.FileUtils;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.ShrinkingTextView;
@@ -46,7 +47,6 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.listeners.WidgetChangedListener;
 import org.odk.collect.android.preferences.FormEntryPreferences;
-import org.odk.collect.android.utilities.FileUtils;
 
 import java.io.File;
 

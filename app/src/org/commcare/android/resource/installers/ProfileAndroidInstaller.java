@@ -3,7 +3,7 @@ package org.commcare.android.resource.installers;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
-import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;

@@ -7,8 +7,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.widget.Toast;
 
-import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.models.database.global.models.ApplicationRecord;
+import org.commcare.models.database.user.models.SessionStateDescriptor;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.AndroidShortcuts;

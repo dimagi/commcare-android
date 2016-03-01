@@ -23,7 +23,7 @@ import android.view.ViewTreeObserver;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import org.commcare.android.database.user.models.ACase;
+import org.commcare.models.database.user.models.ACase;
 import org.commcare.android.fragments.ContainerFragment;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;

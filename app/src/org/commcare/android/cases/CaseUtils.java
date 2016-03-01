@@ -1,12 +1,12 @@
 package org.commcare.android.cases;
 
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.ACase;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.ledger.LedgerPurgeFilter;
 import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.models.ACase;
 import org.commcare.utils.CommCareUtil;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;

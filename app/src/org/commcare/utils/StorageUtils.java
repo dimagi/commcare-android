@@ -1,8 +1,8 @@
 package org.commcare.utils;
 
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.UserStorageClosedException;
-import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.UserStorageClosedException;
+import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.services.Logger;

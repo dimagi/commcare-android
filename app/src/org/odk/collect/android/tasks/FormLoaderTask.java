@@ -9,13 +9,14 @@ import android.util.Log;
 
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.crypt.EncryptionIO;
-import org.commcare.android.database.DbUtil;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.FormsProviderAPI;
+import org.commcare.models.database.DbUtil;
+import org.commcare.utils.FileUtils;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
 import org.javarosa.core.model.instance.TreeElement;
@@ -34,7 +35,6 @@ import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
 import org.odk.collect.android.jr.extensions.XFormExtensionUtils;
 import org.odk.collect.android.logic.FileReferenceFactory;
 import org.odk.collect.android.logic.FormController;
-import org.odk.collect.android.utilities.FileUtils;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;

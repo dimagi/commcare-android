@@ -22,11 +22,11 @@ import org.commcare.android.tasks.TemplatePrinterTask.PopulateListener;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.utils.FileUtils;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
-import org.odk.collect.android.utilities.FileUtils;
 
 import java.io.File;
 import java.io.IOException;

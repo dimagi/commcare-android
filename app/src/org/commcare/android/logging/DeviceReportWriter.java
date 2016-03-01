@@ -1,8 +1,8 @@
 package org.commcare.android.logging;
 
-import org.commcare.android.database.SqlStorage;
-import org.javarosa.core.model.User;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.models.database.SqlStorage;
+import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
 import org.kxml2.io.KXmlSerializer;
 import org.xmlpull.v1.XmlSerializer;

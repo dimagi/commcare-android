@@ -1,9 +1,9 @@
 package org.commcare.android.tests;
 
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.database.IndexSpanningIterator;
 import org.commcare.android.mocks.ExtendedTestCursor;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.models.database.IndexSpanningIterator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;

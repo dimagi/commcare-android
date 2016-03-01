@@ -7,8 +7,8 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import org.commcare.activities.AppManagerActivity;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
+import org.commcare.models.database.global.models.ApplicationRecord;
 
 /**
  * The ArrayAdapter used by AppManagerActivity to display all installed

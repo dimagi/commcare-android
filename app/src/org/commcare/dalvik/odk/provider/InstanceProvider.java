@@ -15,8 +15,8 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.commcare.android.database.UserStorageClosedException;
-import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.models.database.UserStorageClosedException;
+import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.models.logic.FormRecordProcessor;

@@ -8,10 +8,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import org.commcare.android.database.user.models.ACase;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.GeocodeCacheModel;
-import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.models.database.user.models.ACase;
+import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.models.database.user.models.GeocodeCacheModel;
+import org.commcare.models.database.user.models.SessionStateDescriptor;
 import org.javarosa.core.model.User;
 import org.commcare.android.logging.AndroidLogEntry;
 import org.commcare.android.logging.DeviceReportRecord;

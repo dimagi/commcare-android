@@ -5,12 +5,6 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.database.AndroidDbHelper;
-import org.commcare.android.database.HybridFileBackedSqlHelpers;
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.UnencryptedHybridFileBackedSqlStorage;
-import org.commcare.android.database.app.DatabaseAppOpenHelper;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.references.JavaFileRoot;
@@ -18,6 +12,12 @@ import org.commcare.android.storage.framework.Table;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.odk.provider.ProviderUtils;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.models.database.AndroidDbHelper;
+import org.commcare.models.database.HybridFileBackedSqlHelpers;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.UnencryptedHybridFileBackedSqlStorage;
+import org.commcare.models.database.app.DatabaseAppOpenHelper;
+import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.util.CommCarePlatform;

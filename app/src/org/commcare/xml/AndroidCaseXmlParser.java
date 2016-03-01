@@ -6,15 +6,15 @@ import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.database.UserStorageClosedException;
-import org.commcare.android.database.user.models.ACase;
-import org.commcare.android.database.user.models.CaseIndexTable;
-import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.references.JavaHttpReference;
 import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.models.database.UserStorageClosedException;
+import org.commcare.models.database.user.models.ACase;
+import org.commcare.models.database.user.models.CaseIndexTable;
+import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.utils.AndroidStreamUtil;
 import org.commcare.utils.FileUtil;

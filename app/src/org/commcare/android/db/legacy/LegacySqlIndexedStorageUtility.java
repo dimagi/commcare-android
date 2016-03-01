@@ -4,9 +4,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Pair;
 
-import org.commcare.android.database.AndroidTableBuilder;
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.SqlStorageIterator;
+import org.commcare.models.database.AndroidTableBuilder;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.SqlStorageIterator;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.services.storage.EntityFilter;

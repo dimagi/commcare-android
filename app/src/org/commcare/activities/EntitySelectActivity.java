@@ -69,6 +69,7 @@ import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.DetailCalloutListener;
+import org.commcare.utils.GeoUtils;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.views.EntityView;
 import org.commcare.views.TabbedDetailView;
@@ -80,7 +81,6 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.odk.collect.android.utilities.GeoUtils;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;

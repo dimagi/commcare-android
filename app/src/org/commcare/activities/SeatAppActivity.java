@@ -7,7 +7,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.widget.TextView;
 
-import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;

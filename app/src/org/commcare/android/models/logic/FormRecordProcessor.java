@@ -5,8 +5,8 @@ import android.content.Intent;
 import android.util.Pair;
 
 import org.commcare.android.cases.CaseUtils;
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.android.tasks.ExceptionReporting;
 import org.commcare.core.process.XmlFormRecordProcessor;
 import org.commcare.dalvik.application.CommCareApplication;

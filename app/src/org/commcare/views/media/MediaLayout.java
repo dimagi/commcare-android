@@ -23,11 +23,11 @@ import org.commcare.dalvik.R;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.utils.MediaUtil;
+import org.commcare.utils.QRCodeEncoder;
 import org.commcare.views.ResizingImageView;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
-import org.odk.collect.android.utilities.QRCodeEncoder;
 
 import java.io.File;
 

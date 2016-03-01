@@ -3,7 +3,7 @@ package org.commcare.utils;
 import android.content.Intent;
 import android.os.Bundle;
 
-import org.commcare.android.database.DbUtil;
+import org.commcare.models.database.DbUtil;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;

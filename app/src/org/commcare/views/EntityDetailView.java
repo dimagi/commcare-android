@@ -28,6 +28,7 @@ import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.FileUtil;
+import org.commcare.utils.GeoUtils;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.media.AudioButton;
 import org.commcare.views.media.ViewId;
@@ -35,7 +36,6 @@ import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.odk.collect.android.utilities.GeoUtils;
 
 import java.util.HashSet;
 import java.util.Hashtable;

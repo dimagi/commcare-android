@@ -13,10 +13,10 @@ import android.util.Log;
 
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.utils.GeoUtils;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.IFunctionHandler;
 import org.javarosa.core.model.data.GeoPointData;
-import org.odk.collect.android.utilities.GeoUtils;
 
 import java.util.Set;
 import java.util.Vector;

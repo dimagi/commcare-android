@@ -1,8 +1,8 @@
 package org.commcare.android.util;
 
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.database.user.DemoUserBuilder;
+import org.commcare.models.database.app.models.UserKeyRecord;
+import org.commcare.models.database.global.models.ApplicationRecord;
+import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.android.mocks.CommCareTaskConnectorFake;
 import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.tasks.ResourceEngineTask;

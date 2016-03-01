@@ -9,13 +9,13 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 
+import org.commcare.utils.IntegerSizeFilter;
 import org.javarosa.core.model.condition.pivot.IntegerRangeHint;
 import org.javarosa.core.model.condition.pivot.UnpivotableExpressionException;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.IntegerData;
 import org.javarosa.core.model.data.LongData;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.utilities.IntegerSizeFilter;
 
 /**
  * Widget that restricts values to integers.

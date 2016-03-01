@@ -3,7 +3,7 @@ package org.commcare.android.tests.application;
 import android.util.Log;
 
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.tasks.InstallStagedUpdateTask;
 import org.commcare.android.tasks.TaskListener;

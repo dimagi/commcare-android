@@ -2,9 +2,9 @@ package org.commcare.utils;
 
 import org.commcare.android.cases.AndroidCaseInstanceTreeElement;
 import org.commcare.android.cases.AndroidLedgerInstanceTreeElement;
-import org.commcare.android.database.AndroidSandbox;
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.ACase;
+import org.commcare.models.database.AndroidSandbox;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.application.CommCareApplication;

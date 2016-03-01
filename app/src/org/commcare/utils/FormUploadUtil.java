@@ -11,7 +11,7 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
-import org.commcare.android.database.UserStorageClosedException;
+import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.android.io.DataSubmissionEntity;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.tasks.DataSubmissionListener;

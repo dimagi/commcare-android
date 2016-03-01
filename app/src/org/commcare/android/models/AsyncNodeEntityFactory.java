@@ -5,12 +5,12 @@ import android.util.Log;
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.database.AndroidTableBuilder;
-import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.UserStorageClosedException;
-import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.models.database.AndroidTableBuilder;
+import org.commcare.models.database.DbUtil;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.UserStorageClosedException;
+import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.utils.SessionUnavailableException;

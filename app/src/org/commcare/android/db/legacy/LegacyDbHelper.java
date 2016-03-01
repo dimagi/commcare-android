@@ -6,8 +6,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Pair;
 
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.database.AndroidTableBuilder;
-import org.commcare.android.database.DbUtil;
+import org.commcare.models.database.AndroidTableBuilder;
+import org.commcare.models.database.DbUtil;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.utils.Base64;

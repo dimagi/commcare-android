@@ -9,8 +9,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 
 import org.commcare.activities.FormRecordListActivity.FormRecordFilter;
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.android.tasks.FormRecordLoadListener;
 import org.commcare.android.tasks.FormRecordLoaderTask;
 import org.commcare.dalvik.application.CommCareApplication;

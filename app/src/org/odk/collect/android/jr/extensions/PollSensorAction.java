@@ -15,8 +15,9 @@ import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 
 import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.model.actions.Action;
+import org.commcare.utils.GeoUtils;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.actions.Action;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.Recalculate;
 import org.javarosa.core.model.data.AnswerDataFactory;
@@ -27,7 +28,6 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.odk.collect.android.utilities.GeoUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

@@ -1,0 +1,50 @@
+package org.commcare.models.database;
+
+import android.content.ContentValues;
+
+import org.commcare.dalvik.application.AppFilePathBuilder;
+import org.javarosa.core.services.storage.Persistable;
+
+import java.io.BufferedInputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
+/**
+ * Sql logic for storing persistable objects. Uses the filesystem to store
+ * persitables in _unencrypted_ manner; useful when objects are larger than the
+ * 1mb sql row limit.
+ *
+ * @author Phillip Mates (pmates@dimagi.com).
+ */
+public class UnencryptedHybridFileBackedSqlStorage<T extends Persistable>
+        extends HybridFileBackedSqlStorage<T> {
+    public UnencryptedHybridFileBackedSqlStorage(String table,
+                                                 Class<? extends T> ctype,
+                                                 AndroidDbHelper helper,
+                                                 AppFilePathBuilder fsPathBuilder) {
+        super(table, ctype, helper, "app_level", fsPathBuilder);
+    }
+
+    @Override
+    protected InputStream getInputStreamFromFile(String filename, byte[] aesKeyBytes) {
+        try {
+            return new BufferedInputStream(new FileInputStream(filename));
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    @Override
+    protected byte[] generateKeyAndAdd(ContentValues contentValues) {
+        return null;
+    }
+
+    @Override
+    protected DataOutputStream getOutputFileStream(String filename, byte[] aesKeyBytes) throws IOException {
+        return new DataOutputStream(new FileOutputStream(filename));
+    }
+}

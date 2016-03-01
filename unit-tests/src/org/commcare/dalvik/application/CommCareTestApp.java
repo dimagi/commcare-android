@@ -1,7 +1,7 @@
 package org.commcare.dalvik.application;
 
-import org.commcare.android.database.UnencryptedHybridFileBackedSqlStorage;
-import org.commcare.android.database.UnencryptedHybridFileBackedSqlStorageMock;
+import org.commcare.models.database.UnencryptedHybridFileBackedSqlStorage;
+import org.commcare.models.database.UnencryptedHybridFileBackedSqlStorageMock;
 import org.javarosa.core.services.storage.Persistable;
 
 /**

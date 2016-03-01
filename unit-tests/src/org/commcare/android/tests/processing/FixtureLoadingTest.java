@@ -3,8 +3,8 @@ package org.commcare.android.tests.processing;
 import junit.framework.Assert;
 
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.database.HybridFileBackedSqlStorage;
-import org.commcare.android.database.StoreFixturesOnFilesystemTests;
+import org.commcare.models.database.HybridFileBackedSqlStorage;
+import org.commcare.models.database.StoreFixturesOnFilesystemTests;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.javarosa.core.model.instance.FormInstance;

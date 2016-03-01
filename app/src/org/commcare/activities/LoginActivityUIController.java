@@ -22,9 +22,9 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.app.models.UserKeyRecord;
+import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.android.framework.CommCareActivityUIController;
 import org.commcare.android.framework.ManagedUi;
 import org.commcare.android.framework.ManagedUiFramework;

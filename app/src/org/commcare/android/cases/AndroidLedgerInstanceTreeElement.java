@@ -1,8 +1,8 @@
 package org.commcare.android.cases;
 
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.SqlStorageIterator;
-import org.commcare.android.database.user.models.ACase;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.SqlStorageIterator;
+import org.commcare.models.database.user.models.ACase;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.ledger.instance.LedgerChildElement;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;

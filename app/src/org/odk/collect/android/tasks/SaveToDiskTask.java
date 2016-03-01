@@ -16,6 +16,8 @@ import org.commcare.dalvik.odk.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.utils.EncryptionUtils;
+import org.commcare.utils.EncryptionUtils.EncryptedFormInformation;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
@@ -26,8 +28,6 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.odk.collect.android.listeners.FormSavedListener;
 import org.odk.collect.android.logic.FormController;
-import org.odk.collect.android.utilities.EncryptionUtils;
-import org.odk.collect.android.utilities.EncryptionUtils.EncryptedFormInformation;
 
 import java.io.File;
 import java.io.FileNotFoundException;

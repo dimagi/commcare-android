@@ -3,11 +3,11 @@ package org.commcare.android.tasks;
 import android.content.Context;
 import android.util.Pair;
 
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.tasks.templates.ManagedAsyncTask;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.models.database.user.models.SessionStateDescriptor;
 import org.commcare.suite.model.Text;
 import org.commcare.utils.AndroidCommCarePlatform;
 

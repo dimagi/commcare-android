@@ -4,11 +4,11 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.data.xml.TransactionParser;
+import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.javarosa.core.services.storage.StorageFullException;

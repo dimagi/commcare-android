@@ -1,7 +1,7 @@
 package org.commcare.android.resource.installers;
 
 import org.commcare.activities.CommCareSetupActivity;
-import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.tasks.ResourceEngineTask;
 import org.commcare.dalvik.application.CommCareApp;

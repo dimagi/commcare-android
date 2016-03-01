@@ -13,20 +13,20 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
+import org.commcare.utils.UniversalDate;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.odk.collect.android.utilities.UniversalDate;
 
 import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.odk.collect.android.utilities.UniversalDate.MILLIS_IN_DAY;
+import static org.commcare.utils.UniversalDate.MILLIS_IN_DAY;
 
 /**
  * Universal Date Widget, extended to work with any calendar system.

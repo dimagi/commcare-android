@@ -6,9 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.GeocodeCacheModel;
-import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.models.database.user.models.GeocodeCacheModel;
+import org.commcare.models.database.user.models.SessionStateDescriptor;
 import org.commcare.android.logging.AndroidLogEntry;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logging.DeviceReportRecord;

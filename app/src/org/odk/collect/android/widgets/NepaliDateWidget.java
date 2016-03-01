@@ -4,9 +4,9 @@ import android.content.Context;
 import android.content.res.Resources;
 
 import org.commcare.dalvik.R;
+import org.commcare.utils.NepaliDateUtilities;
+import org.commcare.utils.UniversalDate;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.utilities.NepaliDateUtilities;
-import org.odk.collect.android.utilities.UniversalDate;
 
 /**
  * Nepali Date Widget.

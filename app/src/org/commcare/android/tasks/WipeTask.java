@@ -4,8 +4,8 @@ import android.content.Context;
 import android.util.Log;
 
 import org.commcare.activities.CommCareWiFiDirectActivity;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.tasks.templates.CommCareTask;
+import org.commcare.models.database.user.models.FormRecord;
 
 /**
  * @author ctsims

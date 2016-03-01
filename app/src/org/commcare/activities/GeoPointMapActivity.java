@@ -27,7 +27,7 @@ import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 
 import org.commcare.dalvik.R;
-import org.odk.collect.android.utilities.GeoUtils;
+import org.commcare.utils.GeoUtils;
 import org.odk.collect.android.widgets.GeoPointWidget;
 
 import java.text.DecimalFormat;

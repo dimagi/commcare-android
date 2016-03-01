@@ -5,8 +5,8 @@ import android.os.Environment;
 import android.util.Log;
 
 import org.commcare.activities.CommCareWiFiDirectActivity;
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.models.notifications.NotificationMessageFactory;
 import org.commcare.android.models.notifications.ProcessIssues;

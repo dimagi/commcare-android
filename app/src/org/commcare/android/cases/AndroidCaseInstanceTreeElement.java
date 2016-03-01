@@ -2,12 +2,12 @@ package org.commcare.android.cases;
 
 import android.util.Log;
 
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.ACase;
-import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.cases.instance.CaseChildElement;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.model.Case;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.models.ACase;
+import org.commcare.models.database.user.models.CaseIndexTable;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.CacheHost;
