@@ -81,7 +81,7 @@ public class FormRecordProcessor {
             }
         };
 
-        XmlFormRecordProcessor.process(null, is, factory);
+        XmlFormRecordProcessor.process(is, factory);
 
         //Let anyone who is listening know!
         Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
