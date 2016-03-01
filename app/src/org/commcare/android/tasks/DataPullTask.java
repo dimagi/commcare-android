@@ -9,15 +9,15 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
-import org.commcare.android.analytics.GoogleAnalyticsFields;
 import org.commcare.android.cases.CaseUtils;
 import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.data.xml.DataModelPullParser;
+import org.commcare.logging.AndroidLogger;
+import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.app.models.UserKeyRecord;
 import org.commcare.models.database.user.models.ACase;

@@ -7,8 +7,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 import net.sqlcipher.database.SQLiteQueryBuilder;
 import net.sqlcipher.database.SQLiteStatement;
 
-import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.tasks.ExceptionReporting;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;

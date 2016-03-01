@@ -14,8 +14,8 @@ import android.widget.Toast;
 
 import org.commcare.adapters.HierarchyListAdapter;
 import org.commcare.android.framework.SessionActivityRegistration;
-import org.commcare.android.logging.XPathErrorLogger;
 import org.commcare.dalvik.R;
+import org.commcare.logging.XPathErrorLogger;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryController;

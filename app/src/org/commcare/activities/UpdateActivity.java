@@ -15,8 +15,8 @@ import org.commcare.android.tasks.TaskListener;
 import org.commcare.android.tasks.TaskListenerRegistrationException;
 import org.commcare.android.tasks.UpdateTask;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.utils.ConnectivityStatus;
+import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 
 /**

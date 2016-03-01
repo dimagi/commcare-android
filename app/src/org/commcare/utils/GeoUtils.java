@@ -11,7 +11,7 @@ import android.support.v4.content.ContextCompat;
 
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.AlertDialogFactory;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.UncastData;
 

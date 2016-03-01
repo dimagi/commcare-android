@@ -5,12 +5,12 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.references.JavaFileRoot;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.odk.provider.ProviderUtils;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.HybridFileBackedSqlHelpers;
 import org.commcare.models.database.SqlStorage;

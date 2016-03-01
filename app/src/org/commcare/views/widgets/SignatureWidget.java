@@ -35,6 +35,7 @@ import android.widget.Toast;
 import org.commcare.activities.DrawActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
+import org.commcare.models.ODKStorage;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UrlUtils;
@@ -42,7 +43,6 @@ import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.application.ODKStorage;
 import org.odk.collect.android.logic.PendingCalloutInterface;
 
 import java.io.File;

@@ -2,11 +2,11 @@ package org.commcare.android.resource;
 
 import android.content.SharedPreferences;
 
-import org.commcare.android.logging.AndroidLogger;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;

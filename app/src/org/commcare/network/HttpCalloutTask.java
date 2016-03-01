@@ -4,10 +4,10 @@ import android.content.Context;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
-import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParserFactory;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.utils.AndroidStreamUtil;
 import org.commcare.utils.bitcache.BitCache;
 import org.commcare.utils.bitcache.BitCacheFactory;

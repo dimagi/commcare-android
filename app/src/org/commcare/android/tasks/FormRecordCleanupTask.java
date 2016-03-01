@@ -7,7 +7,6 @@ import android.database.Cursor;
 import android.util.Log;
 import android.util.Pair;
 
-import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.cases.model.Case;
@@ -16,6 +15,7 @@ import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.ACase;
 import org.commcare.models.database.user.models.FormRecord;

@@ -5,9 +5,9 @@ import android.content.Context;
 import android.os.Environment;
 
 import org.commcare.activities.CommCareFormDumpActivity;
-import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.utils.FileUtil;

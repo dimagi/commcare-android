@@ -6,7 +6,7 @@ import android.util.Pair;
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.logging.AndroidLogger;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.Logger;

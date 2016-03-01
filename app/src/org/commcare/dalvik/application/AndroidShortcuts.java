@@ -10,9 +10,9 @@ import android.view.View;
 
 import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.dialogs.DialogChoiceItem;
-import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
 import org.commcare.suite.model.Suite;
+import org.commcare.views.dialogs.DialogChoiceItem;
+import org.commcare.views.dialogs.PaneledChoiceDialog;
 
 import java.util.ArrayList;
 

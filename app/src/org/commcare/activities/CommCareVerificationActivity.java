@@ -17,8 +17,8 @@ import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.tasks.VerificationTask;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.dialogs.CustomProgressDialog;
 import org.commcare.resources.model.MissingMediaException;
+import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.SizeBoundVector;
 

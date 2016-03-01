@@ -13,8 +13,8 @@ import android.widget.TextView;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.dalvik.R;
-import org.odk.collect.android.application.ODKStorage;
-import org.odk.collect.android.preferences.FormEntryPreferences;
+import org.commcare.dalvik.preferences.FormEntryPreferences;
+import org.commcare.models.ODKStorage;
 
 /**
  * @author ctsims

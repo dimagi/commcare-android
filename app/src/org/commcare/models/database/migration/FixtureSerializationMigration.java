@@ -6,8 +6,8 @@ import android.util.Log;
 import net.sqlcipher.Cursor;
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.logging.AndroidLogger;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;

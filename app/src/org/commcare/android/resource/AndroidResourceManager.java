@@ -4,12 +4,12 @@ import android.content.Context;
 import android.os.Handler;
 import android.util.Log;
 
-import org.commcare.android.analytics.UpdateStats;
-import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.UpdateTask;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.logging.AndroidLogger;
+import org.commcare.logging.analytics.UpdateStats;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.InstallCancelledException;

@@ -27,8 +27,11 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-import org.commcare.android.logging.AndroidLogger;
 import org.commcare.dalvik.R;
+import org.commcare.dalvik.preferences.FormEntryPreferences;
+import org.commcare.interfaces.WidgetChangedListener;
+import org.commcare.logging.AndroidLogger;
+import org.commcare.models.ODKStorage;
 import org.commcare.utils.FileUtils;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.StringUtils;
@@ -44,9 +47,6 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.services.Logger;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.application.ODKStorage;
-import org.odk.collect.android.listeners.WidgetChangedListener;
-import org.odk.collect.android.preferences.FormEntryPreferences;
 
 import java.io.File;
 

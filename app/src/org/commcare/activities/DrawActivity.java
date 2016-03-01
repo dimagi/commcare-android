@@ -23,11 +23,11 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.dialogs.DialogChoiceItem;
-import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
+import org.commcare.models.ODKStorage;
 import org.commcare.utils.FileUtils;
 import org.commcare.utils.MediaUtil;
-import org.odk.collect.android.application.ODKStorage;
+import org.commcare.views.dialogs.DialogChoiceItem;
+import org.commcare.views.dialogs.PaneledChoiceDialog;
 
 import java.io.File;
 import java.io.FileNotFoundException;

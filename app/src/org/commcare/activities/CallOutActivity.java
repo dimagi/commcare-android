@@ -18,9 +18,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import org.commcare.android.framework.RuntimePermissionRequester;
-import org.commcare.dalvik.dialogs.DialogChoiceItem;
-import org.commcare.dalvik.dialogs.DialogCreationHelpers;
-import org.commcare.dalvik.dialogs.PaneledChoiceDialog;
+import org.commcare.views.dialogs.DialogChoiceItem;
+import org.commcare.views.dialogs.DialogCreationHelpers;
+import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.Date;

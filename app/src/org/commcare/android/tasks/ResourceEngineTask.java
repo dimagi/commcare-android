@@ -2,12 +2,12 @@ package org.commcare.android.tasks;
 
 import android.os.SystemClock;
 
-import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.android.resource.installers.LocalStorageUnavailableException;
 import org.commcare.android.tasks.templates.CommCareTask;
 import org.commcare.dalvik.application.CommCareApp;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;

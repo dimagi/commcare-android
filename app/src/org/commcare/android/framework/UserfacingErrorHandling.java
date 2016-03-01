@@ -3,9 +3,9 @@ package org.commcare.android.framework;
 import android.app.Activity;
 import android.content.DialogInterface;
 
-import org.commcare.android.logging.XPathErrorLogger;
-import org.commcare.dalvik.dialogs.AlertDialogFactory;
+import org.commcare.logging.XPathErrorLogger;
 import org.commcare.utils.StringUtils;
+import org.commcare.views.dialogs.AlertDialogFactory;
 import org.javarosa.xpath.XPathException;
 
 /**

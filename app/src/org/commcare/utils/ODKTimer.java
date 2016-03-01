@@ -2,7 +2,7 @@ package org.commcare.utils;
 
 import android.os.CountDownTimer;
 
-import org.odk.collect.android.listeners.TimerListener;
+import org.commcare.interfaces.TimerListener;
 
 /**
  * simple class that calls back to a TimerListener after a set amount of time

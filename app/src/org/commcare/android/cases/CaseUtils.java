@@ -1,10 +1,10 @@
 package org.commcare.android.cases;
 
-import org.commcare.android.logging.AndroidLogger;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.ledger.LedgerPurgeFilter;
 import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.ACase;
 import org.commcare.utils.CommCareUtil;

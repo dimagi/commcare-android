@@ -6,7 +6,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.AlertDialogFactory;
 import org.javarosa.core.services.locale.Localization;
 
 /**

@@ -7,12 +7,12 @@ import org.apache.http.HttpResponse;
 import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
-import org.commcare.android.logging.AndroidLogEntry;
-import org.commcare.android.logging.AndroidLogSerializer;
-import org.commcare.android.logging.DeviceReportWriter;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.preferences.CommCarePreferences;
+import org.commcare.logging.AndroidLogEntry;
+import org.commcare.logging.AndroidLogSerializer;
+import org.commcare.logging.DeviceReportWriter;
 import org.commcare.network.HttpRequestGenerator;
 import org.javarosa.core.model.User;
 

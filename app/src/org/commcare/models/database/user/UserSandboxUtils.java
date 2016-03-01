@@ -9,11 +9,11 @@ import android.net.Uri;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.logging.AndroidLogger;
-import org.commcare.android.logging.DeviceReportRecord;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.logging.AndroidLogger;
+import org.commcare.logging.DeviceReportRecord;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.app.models.UserKeyRecord;

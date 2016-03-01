@@ -16,11 +16,11 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.TimerListener;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.ODKTimer;
 import org.commcare.utils.StringUtils;
-import org.odk.collect.android.application.GeoProgressDialog;
-import org.odk.collect.android.listeners.TimerListener;
+import org.commcare.views.dialogs.GeoProgressDialog;
 
 import java.text.DecimalFormat;
 import java.util.Set;

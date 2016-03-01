@@ -16,9 +16,9 @@ import android.widget.Toast;
 import org.commcare.adapters.AppManagerAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.dialogs.AlertDialogFactory;
 import org.commcare.dalvik.services.CommCareSessionService;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.views.dialogs.AlertDialogFactory;
 import org.javarosa.core.services.locale.Localization;
 
 /**

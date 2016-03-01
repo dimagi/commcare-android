@@ -6,11 +6,11 @@ import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.logic.GlobalConstants;
 import org.commcare.android.references.JavaHttpReference;
 import org.commcare.cases.model.Case;
 import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.models.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;

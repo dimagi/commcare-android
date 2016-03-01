@@ -13,6 +13,7 @@ import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.AdvanceToNextListener;
 import org.commcare.views.media.MediaLayout;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
@@ -20,7 +21,6 @@ import org.javarosa.core.model.data.SelectOneData;
 import org.javarosa.core.model.data.helper.Selection;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.odk.collect.android.listeners.AdvanceToNextListener;
 
 import java.util.Vector;
 

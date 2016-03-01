@@ -2,19 +2,19 @@ package org.commcare.android.tasks;
 
 import android.content.Context;
 
-import org.commcare.android.logging.AndroidLogger;
 import org.commcare.android.resource.AndroidResourceManager;
 import org.commcare.android.resource.AppInstallStatus;
 import org.commcare.android.resource.ResourceInstallUtils;
 import org.commcare.dalvik.R;
 import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.dialogs.PinnedNotificationWithProgress;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.views.dialogs.PinnedNotificationWithProgress;
 import org.javarosa.core.services.Logger;
 
 import java.util.Vector;
