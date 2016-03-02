@@ -16,7 +16,7 @@
         android:layout_width="wrap_content"
         style="@style/ListContentV2"/>
 
-    <org.odk.collect.android.views.media.AudioButton
+    <org.commcare.views.media.AudioButton
         android:id="@+id/row_soundicon"
         android:layout_gravity="center_vertical|right"
         android:layout_width="wrap_content"
