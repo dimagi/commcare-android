@@ -6,7 +6,7 @@ package org.commcare.graph.model;
  * @author jschweers
  */
 public class AnnotationData extends XYPointData {
-    private String mAnnotation;
+    private final String mAnnotation;
 
     public AnnotationData(String x, String y, String annotation) {
         super(x, y);

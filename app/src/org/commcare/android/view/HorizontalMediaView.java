@@ -34,7 +34,6 @@ public class HorizontalMediaView extends RelativeLayout {
     private TextView mTextView;
     private AudioButton mAudioButton;
     private ImageView mImageView;
-    private final TextView mMissingImage;
     private final EvaluationContext ec;
     private final int iconDimension;
 
@@ -51,7 +50,6 @@ public class HorizontalMediaView extends RelativeLayout {
         mTextView = null;
         mAudioButton = null;
         mImageView = null;
-        mMissingImage = null;
         this.ec = ec;
         this.iconDimension = (int)getResources().getDimension(R.dimen.menu_icon_size);
     }
