@@ -1,6 +1,6 @@
 package org.commcare.android.nsd;
 
-import org.commcare.android.net.HttpRequestGenerator;
+import org.commcare.network.HttpRequestGenerator;
 import org.javarosa.core.io.StreamsUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
