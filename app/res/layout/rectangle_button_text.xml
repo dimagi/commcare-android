@@ -7,7 +7,7 @@
     android:orientation="horizontal"
     >
 
-    <org.commcare.android.view.ResizingTextView
+    <org.commcare.views.ResizingTextView
         android:id="@+id/text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

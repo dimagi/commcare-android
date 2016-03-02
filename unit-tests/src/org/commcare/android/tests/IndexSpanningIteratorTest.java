@@ -1,9 +1,10 @@
 package org.commcare.android.tests;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.database.IndexSpanningIterator;
 import org.commcare.android.mocks.ExtendedTestCursor;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.models.database.IndexSpanningIterator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
@@ -13,7 +14,7 @@ import java.util.Vector;
 
 import static junit.framework.Assert.assertEquals;
 
-@Config(application = org.commcare.dalvik.application.CommCareApplication.class,
+@Config(application = CommCareApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class IndexSpanningIteratorTest {
