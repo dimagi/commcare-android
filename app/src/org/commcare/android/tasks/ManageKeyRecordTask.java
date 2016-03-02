@@ -407,7 +407,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                 new String[]{UserKeyRecord.META_USERNAME},
                 new Object[]{username});
         for (UserKeyRecord r : allRecordsWithSameUsername) {
-            if (r.getUuid() != uuidOfActiveRecord) {
+            if (!r.getUuid().equals(uuidOfActiveRecord)) {
                 r.setInactive();
             }
         }

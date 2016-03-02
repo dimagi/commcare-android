@@ -131,7 +131,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
             // Started with a concrete instance (e.i. by editing an existing
             // form), so just update it.
             context.getContentResolver().update(mUri, values, null, null);
-        } else if (context.getContentResolver().getType(mUri) == FormsColumns.CONTENT_ITEM_TYPE) {
+        } else if (FormsColumns.CONTENT_ITEM_TYPE.equals(context.getContentResolver().getType(mUri))) {
             // Started with an empty form or possibly a manually saved form.
             // Try updating, and create a new instance if that fails.
             String[] whereArgs = {FormEntryActivity.mInstancePath};

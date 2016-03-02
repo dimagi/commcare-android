@@ -536,8 +536,7 @@ public class CommCareHomeActivity
                     }
                     return;
                 case CREATE_PIN:
-                    boolean choseRememberPassword = (intent == null) ? false :
-                            intent.getBooleanExtra(CreatePinActivity.CHOSE_REMEMBER_PASSWORD, false);
+                    boolean choseRememberPassword = intent != null && intent.getBooleanExtra(CreatePinActivity.CHOSE_REMEMBER_PASSWORD, false);
                     if (choseRememberPassword) {
                         CommCareApplication._().closeUserSession();
                     } else if (resultCode == RESULT_OK) {

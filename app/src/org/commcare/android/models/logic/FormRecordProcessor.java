@@ -10,9 +10,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.util.FormUploadUtil;
 import org.commcare.core.process.XmlFormRecordProcessor;
-import org.commcare.dalvik.application.CommCareApp;
 import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.preferences.CommCarePreferences;
 import org.commcare.dalvik.preferences.DeveloperPreferences;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.xml.AndroidTransactionParserFactory;
@@ -83,7 +81,7 @@ public class FormRecordProcessor {
             }
         };
 
-        XmlFormRecordProcessor.process(null, is, factory);
+        XmlFormRecordProcessor.process(is, factory);
 
         //Let anyone who is listening know!
         Intent i = new Intent("org.commcare.dalvik.api.action.data.update");

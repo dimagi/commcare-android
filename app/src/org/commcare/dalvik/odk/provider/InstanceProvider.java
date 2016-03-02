@@ -106,7 +106,7 @@ public class InstanceProvider extends ContentProvider {
 
     private void init() {
         String appId = ProviderUtils.getSandboxedAppId();
-        if (mDbHelper == null || mDbHelper.getAppId() != appId) {
+        if (mDbHelper == null || !mDbHelper.getAppId().equals(appId)) {
             String dbName = ProviderUtils.getProviderDbName(ProviderUtils.ProviderType.INSTANCES, appId);
             mDbHelper = new DatabaseHelper(CommCareApplication._(), dbName, appId);
         }
