@@ -95,4 +95,11 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-auto-purge"
         android:title="Detect and Trigger Purge on Form Save"/>
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_load_form_payload_as_labels"
+        android:entryValues="@array/pref_load_form_payload_as_vals"
+        android:defaultValue="yes"
+        android:key="cc-form-payload-status"
+        android:title="Load form payload status"/>
 </PreferenceScreen>
