@@ -1,21 +1,20 @@
 package org.commcare.android.logging;
 
 import android.content.SharedPreferences;
-import android.support.v4.util.Pair;
 
-import org.commcare.android.net.HttpRequestGenerator;
-import org.commcare.android.util.SessionStateUninitException;
-import org.commcare.dalvik.application.CommCareApp;
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.CommCareApp;
+import org.commcare.CommCareApplication;
+import org.commcare.network.HttpRequestGenerator;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Profile;
+import org.commcare.utils.SessionStateUninitException;
 
 /**
  * Created by amstone326 on 2/11/16.
  */
 public class ReportingUtils {
 
-    protected static int getAppBuildNumber() {
+    public static int getAppBuildNumber() {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         if (app != null) {
             Profile profile = app.getCommCarePlatform().getCurrentProfile();
@@ -24,7 +23,7 @@ public class ReportingUtils {
         return -1;
     }
 
-    protected static String getAppId() {
+    public static String getAppId() {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         if (app != null) {
             Profile profile = app.getCommCarePlatform().getCurrentProfile();
@@ -33,7 +32,7 @@ public class ReportingUtils {
         return "";
     }
 
-    protected static String getCurrentSession() {
+    public static String getCurrentSession() {
         CommCareSession currentSession;
         try {
             currentSession = CommCareApplication._().getCurrentSession();

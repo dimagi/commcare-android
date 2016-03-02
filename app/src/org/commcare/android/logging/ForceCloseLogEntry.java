@@ -2,7 +2,9 @@ package org.commcare.android.logging;
 
 import android.os.Build;
 
-import org.commcare.android.session.DevSessionRestorer;
+import org.commcare.logging.AndroidLogEntry;
+import org.commcare.logging.AndroidLogger;
+import org.commcare.preferences.DevSessionRestorer;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;

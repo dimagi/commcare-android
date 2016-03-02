@@ -22,12 +22,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <org.commcare.android.view.SquareImageView
+            <org.commcare.views.SquareImageView
                 android:id="@+id/card_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
 
-            <org.commcare.android.view.ResizingTextView
+            <org.commcare.views.ResizingTextView
                 android:id="@+id/card_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
