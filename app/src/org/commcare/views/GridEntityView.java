@@ -110,7 +110,7 @@ public class GridEntityView extends GridLayout {
         int defaultDensityDpi = DisplayMetrics.DENSITY_MEDIUM;
 
         // For every additional 160dpi, show one more grid view on the screen
-        double extraDensity = (densityDpi - defaultDensityDpi) / 80 * 0.5;
+        double extraDensity = (int) ((densityDpi - defaultDensityDpi) / 80) * 0.5;
         double densityRowMultiplier = 1 + extraDensity;
 
         double screenWidth, screenHeight, viewHeight, viewWidth;
