@@ -8,8 +8,8 @@ import java.util.Vector;
  * @author jschweers
  */
 public class SeriesData implements ConfigurableData {
-    private Vector<XYPointData> mPoints;
-    private Hashtable<String, String> mConfiguration;
+    private final Vector<XYPointData> mPoints;
+    private final Hashtable<String, String> mConfiguration;
 
     public SeriesData() {
         mPoints = new Vector<>();

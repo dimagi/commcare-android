@@ -88,4 +88,11 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-offer-pin-for-login"
         android:title="Give option to use PIN for login"/>
+
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-auto-purge"
+        android:title="Detect and Trigger Purge on Form Save"/>
 </PreferenceScreen>
