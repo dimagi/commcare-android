@@ -74,7 +74,7 @@
         android:visibility="gone"
         android:layout_alignParentBottom="true">
 
-        <org.commcare.android.view.TabbedDetailView
+        <org.commcare.views.TabbedDetailView
             android:id="@+id/com_tile_holder_detail_frame"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

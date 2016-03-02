@@ -2,17 +2,17 @@ package org.commcare.android.tests.application;
 
 import android.util.Log;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.resource.AppInstallStatus;
-import org.commcare.android.tasks.InstallStagedUpdateTask;
-import org.commcare.android.tasks.TaskListener;
-import org.commcare.android.tasks.TaskListenerRegistrationException;
-import org.commcare.android.tasks.UpdateTask;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.engine.resource.AppInstallStatus;
+import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.suite.model.Profile;
+import org.commcare.tasks.InstallStagedUpdateTask;
+import org.commcare.tasks.TaskListener;
+import org.commcare.tasks.TaskListenerRegistrationException;
+import org.commcare.tasks.UpdateTask;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.junit.Assert;
@@ -29,7 +29,7 @@ import static org.junit.Assert.fail;
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@Config(application = org.commcare.dalvik.application.CommCareApplication.class,
+@Config(application = CommCareApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class AppUpdateTest {
