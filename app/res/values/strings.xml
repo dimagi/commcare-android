@@ -98,6 +98,16 @@ Copyright (c) 2012 readyState Software Ltd.</string>
         <item>Enabled</item>
         <item>Disabled</item>
     </string-array>
+    <string-array name="pref_load_form_payload_as_vals">
+        <item>incomplete</item>
+        <item>unsent</item>
+        <item>saved</item>
+    </string-array>
+    <string-array name="pref_load_form_payload_as_labels">
+        <item>Incomplete</item>
+        <item>Unsent</item>
+        <item>Saved</item>
+    </string-array>
     <string-array name="target_density_labels">
         <item>DENSITY_LOW</item>
         <item>DENSITY_MEDIUM</item>

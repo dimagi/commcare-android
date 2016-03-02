@@ -168,7 +168,6 @@ public class CommCarePreferences
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-
         if (requestCode == REQUEST_TEMPLATE) {
             if (resultCode == RESULT_OK && data != null) {
                 Uri uri = data.getData();

@@ -215,7 +215,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                     Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
                     return PullTaskResult.AUTH_FAILED;
                 } else if (pullResponse.responseCode >= 200 && pullResponse.responseCode < 300) {
-
                     if (loginNeeded) {
                         //This is necessary (currently) to make sure that data
                         //is encoded. Probably a better way to do this.
