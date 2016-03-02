@@ -4,6 +4,7 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormRecordListActivity;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.util.CommCarePlatform;
@@ -33,43 +34,14 @@ public class ArchivedFormRemoteRestore {
             return;
         }
 
-
         // We should go digest auth this user on the server and see whether to pull them down.
-        DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(), u.getCachedPwd(), remoteUrl, activity) {
+        DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(),
+                u.getCachedPwd(), remoteUrl, activity) {
             @Override
             protected void deliverResult(FormRecordListActivity receiver, PullTaskResult status) {
                 switch (status) {
                     case DOWNLOAD_SUCCESS:
-                        FormRecordCleanupTask<FormRecordListActivity> task = new FormRecordCleanupTask<FormRecordListActivity>(activity, platform, CLEANUP_ID) {
-
-                            @Override
-                            protected void deliverResult(FormRecordListActivity receiver, Integer result) {
-                                receiver.refreshView();
-                            }
-
-                            @Override
-                            protected void deliverUpdate(FormRecordListActivity receiver, Integer... values) {
-                                if (values[0] < 0) {
-                                    if (values[0] == FormRecordCleanupTask.STATUS_CLEANUP) {
-                                        receiver.updateProgress("Forms Processed. "
-                                                + "Cleaning up form records...", CLEANUP_ID);
-                                    }
-                                } else {
-                                    receiver.updateProgress("Forms downloaded. Processing "
-                                            + values[0] + " of " + values[1] + "...", CLEANUP_ID);
-                                }
-
-                            }
-
-                            @Override
-                            protected void deliverError(FormRecordListActivity receiver, Exception e) {
-                                Toast.makeText(receiver, Localization.get("activity.task.error.generic", new String[]{e.getMessage()}), Toast.LENGTH_LONG).show();
-                            }
-
-
-                        };
-                        task.connect(activity);
-                        task.execute();
+                        downloadForms(activity, platform);
                         break;
                     case UNKNOWN_FAILURE:
                         Toast.makeText(receiver, "Failure retrieving or processing data, please try again later...", Toast.LENGTH_LONG).show();
@@ -110,5 +82,38 @@ public class ArchivedFormRemoteRestore {
         };
         pull.connect(activity);
         pull.execute();
+    }
+
+    private static void downloadForms(FormRecordListActivity activity, CommCarePlatform platform) {
+        FormRecordCleanupTask<FormRecordListActivity> task =
+                new FormRecordCleanupTask<FormRecordListActivity>(activity, platform, CLEANUP_ID,
+                        DeveloperPreferences.formLoadPayloadStatus()) {
+
+                    @Override
+                    protected void deliverResult(FormRecordListActivity receiver, Integer result) {
+                        receiver.refreshView();
+                    }
+
+                    @Override
+                    protected void deliverUpdate(FormRecordListActivity receiver, Integer... values) {
+                        if (values[0] < 0) {
+                            if (values[0] == FormRecordCleanupTask.STATUS_CLEANUP) {
+                                receiver.updateProgress("Forms Processed. "
+                                        + "Cleaning up form records...", CLEANUP_ID);
+                            }
+                        } else {
+                            receiver.updateProgress("Forms downloaded. Processing "
+                                    + values[0] + " of " + values[1] + "...", CLEANUP_ID);
+                        }
+
+                    }
+
+                    @Override
+                    protected void deliverError(FormRecordListActivity receiver, Exception e) {
+                        Toast.makeText(receiver, Localization.get("activity.task.error.generic", new String[]{e.getMessage()}), Toast.LENGTH_LONG).show();
+                    }
+                };
+        task.connect(activity);
+        task.execute();
     }
 }
