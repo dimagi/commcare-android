@@ -1,4 +1,4 @@
-package org.commcare.dalvik.activities.utils;
+package org.commcare.activities.components;
 
 import android.content.Context;
 import android.graphics.drawable.LayerDrawable;

@@ -1,4 +1,4 @@
-package org.commcare.dalvik.activities.utils;
+package org.commcare.activities.components;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -19,6 +19,7 @@ import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.CalloutData;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
 import java.util.Map;
@@ -78,8 +79,7 @@ public class EntitySelectCalloutSetup {
                     activity.startActivityForResult(i, EntitySelectActivity.BARCODE_FETCH);
                 } catch (ActivityNotFoundException anfe) {
                     Toast.makeText(activity,
-                            "No barcode reader available! You can install one " +
-                                    "from the android market.",
+                            Localization.get("barcode.reader.missing"),
                             Toast.LENGTH_LONG).show();
                 }
             }
@@ -108,7 +108,7 @@ public class EntitySelectCalloutSetup {
                     activity.startActivityForResult(i, EntitySelectActivity.CALLOUT);
                 } catch (ActivityNotFoundException anfe) {
                     Toast.makeText(activity,
-                            "No application found for action: " + i.getAction(),
+                            Localization.get("callout.missing", new String[]{i.getAction()}),
                             Toast.LENGTH_LONG).show();
                 }
             }

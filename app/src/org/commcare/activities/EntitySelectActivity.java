@@ -33,10 +33,10 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.components.EntitySelectCalloutSetup;
+import org.commcare.activities.components.EntitySelectViewSetup;
 import org.commcare.adapters.EntityListAdapter;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.utils.EntitySelectCalloutSetup;
-import org.commcare.dalvik.activities.utils.EntitySelectViewSetup;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.models.AndroidSessionWrapper;
