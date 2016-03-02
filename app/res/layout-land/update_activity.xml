@@ -75,7 +75,7 @@
                 android:paddingRight="@dimen/content_min_margin"
                 android:paddingTop="@dimen/content_min_margin">
 
-                <org.commcare.android.view.SquareButtonWithText
+                <org.commcare.views.SquareButtonWithText
                     android:id="@+id/check_for_update_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -84,7 +84,7 @@
                     SquareButtonWithText:subtitle=""
                     SquareButtonWithText:textColor="@color/white"/>
 
-                <org.commcare.android.view.SquareButtonWithText
+                <org.commcare.views.SquareButtonWithText
                     android:id="@+id/stop_update_download_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -93,7 +93,7 @@
                     SquareButtonWithText:subtitle=""
                     SquareButtonWithText:textColor="@color/white"/>
 
-                <org.commcare.android.view.SquareButtonWithText
+                <org.commcare.views.SquareButtonWithText
                     android:id="@+id/install_update_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

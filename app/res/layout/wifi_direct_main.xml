@@ -15,28 +15,32 @@
             android:id="@+id/frag_list"
             class="org.commcare.android.framework.DeviceListFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            class="org.commcare.fragments.DeviceListFragment">
         </fragment>
 
         <fragment
             android:id="@+id/frag_detail"
             class="org.commcare.android.framework.DeviceDetailFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            class="org.commcare.fragments.DeviceDetailFragment">
         </fragment>
 
         <fragment
             android:id="@+id/wifi_manager_fragment"
             class="org.commcare.android.framework.WiFiDirectManagementFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            class="org.commcare.fragments.WiFiDirectManagementFragment">
         </fragment>
 
         <fragment
             android:id="@+id/file_server_fragment"
             class="org.commcare.android.framework.FileServerFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            class="org.commcare.fragments.FileServerFragment">
 
             <!-- Preview: layout=@layout/file_server -->
         </fragment>

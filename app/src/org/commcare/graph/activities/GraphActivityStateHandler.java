@@ -13,7 +13,7 @@ import org.commcare.graph.view.GraphView;
  * Created by jschweers on 11/20/2015.
  */
 public class GraphActivityStateHandler {
-    protected Activity activity;
+    protected final Activity activity;
 
     public GraphActivityStateHandler(Activity a) {
         activity = a;
