@@ -13,8 +13,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import org.commcare.activities.EntitySelectActivity;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.EntitySelectActivity;
 import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.CalloutData;
 import org.javarosa.core.reference.InvalidReferenceException;
