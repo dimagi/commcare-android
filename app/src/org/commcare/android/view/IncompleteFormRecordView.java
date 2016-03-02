@@ -73,7 +73,7 @@ public class IncompleteFormRecordView extends LinearLayout {
         } else {
             mRightTextView.setText("Never");
         }
-        if (record.getStatus() == FormRecord.STATUS_UNSENT) {
+        if (FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
             mUpperRight.setText(MarkupUtil.localizeStyleSpannable(IncompleteFormRecordView.this.getContext(), "form.record.unsent"));
             mUpperRight.setTextAppearance(getContext(), R.style.WarningTextStyle);
             mUpperRight.setCompoundDrawablesWithIntrinsicBounds(null, null, rightHandSync, null);

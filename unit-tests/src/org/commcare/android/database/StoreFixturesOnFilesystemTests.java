@@ -48,10 +48,10 @@ public class StoreFixturesOnFilesystemTests {
         UnencryptedHybridFileBackedSqlStorageMock.alwaysPutInFilesystem();
         HybridFileBackedSqlStorageMock.alwaysPutInFilesystem();
 
-        sandbox = installAppWithFixtureData(this.getClass());
+        sandbox = installAppWithFixtureData(this.getClass(), "odk_level_ipm_restore.xml");
     }
 
-    public static AndroidSandbox installAppWithFixtureData(Class testClass) {
+    public static AndroidSandbox installAppWithFixtureData(Class testClass, String fixtureResource) {
         // needed to resolve "jr://resource" type references
         ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
 
@@ -66,7 +66,7 @@ public class StoreFixturesOnFilesystemTests {
         AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication._());
 
         try {
-            parseIntoSandbox(testClass.getClassLoader().getResourceAsStream("odk_level_ipm_restore.xml"), false);
+            parseIntoSandbox(testClass.getClassLoader().getResourceAsStream(fixtureResource), false);
         } catch (Exception e) {
             e.printStackTrace();
         }

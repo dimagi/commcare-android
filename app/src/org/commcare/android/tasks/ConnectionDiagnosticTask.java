@@ -157,7 +157,6 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
                     buffer.close();
                 } catch (IOException e) {
                     Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReporting.getStackTrace(e));
-                    return false;
                 }
             }
             if (reader != null) {
@@ -165,7 +164,6 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
                     reader.close();
                 } catch (IOException e) {
                     Logger.log(CONNECTION_DIAGNOSTIC_REPORT, logCCIOErrorMessage + System.getProperty("line.separator") + "Stack trace: " + ExceptionReporting.getStackTrace(e));
-                    return false;
                 }
             }
             if (stream != null) {
@@ -176,7 +174,6 @@ public abstract class ConnectionDiagnosticTask<R> extends CommCareTask<Void, Str
                             "Stack trace: " +
                             ExceptionReporting.getStackTrace(e);
                     Logger.log(CONNECTION_DIAGNOSTIC_REPORT, out);
-                    return false;
                 }
             }
         }

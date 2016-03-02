@@ -31,7 +31,7 @@ public class HybridFileBackedSqlStorageTest {
         UnencryptedHybridFileBackedSqlStorageMock.alwaysPutInFilesystem();
         HybridFileBackedSqlStorageMock.alwaysPutInFilesystem();
 
-        StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass());
+        StoreFixturesOnFilesystemTests.installAppWithFixtureData(this.getClass(), "odk_level_ipm_restore.xml");
     }
 
     /**

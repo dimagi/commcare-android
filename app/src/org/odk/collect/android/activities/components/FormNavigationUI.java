@@ -18,7 +18,6 @@ import android.widget.TextView;
 import org.commcare.android.framework.CommCareActivity;
 import org.commcare.android.framework.UserfacingErrorHandling;
 import org.commcare.dalvik.R;
-import org.javarosa.core.services.Logger;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.odk.collect.android.activities.FormEntryActivity;
 import org.odk.collect.android.logic.FormController;
