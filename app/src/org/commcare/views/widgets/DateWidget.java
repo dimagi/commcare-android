@@ -92,6 +92,7 @@ public class DateWidget extends QuestionWidget {
                     }
                 }
                 if (!isRelevancyUpdateScheduled) {
+                    isRelevancyUpdateScheduled = true;
                     mainHandler.postDelayed(updateFormRelevancyRunnable, 750);
                 }
             }
