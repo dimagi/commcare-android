@@ -191,7 +191,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 String query = getSearchText().toString();
                 if (!"".equals(query)) {
                     searchResultStatus.setText(Localization.get("select.search.status", new String[]{
-                            "" + adapter.getFullCountWithActions(),
+                            "" + adapter.getCurrentCount(),
                             "" + adapter.getFullCount(),
                             query
                     }));
