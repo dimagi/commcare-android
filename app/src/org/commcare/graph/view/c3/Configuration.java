@@ -57,7 +57,7 @@ public class Configuration {
             }
         } else {
             double daysSinceEpoch = parseDouble(value, description);
-            Date d = new Date((long)(daysSinceEpoch * 86400000l));
+            Date d = new Date((long)(daysSinceEpoch * 86400000L));
             value = mDateFormat.format(d);
         }
         return value;
