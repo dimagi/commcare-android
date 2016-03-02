@@ -1,8 +1,8 @@
 package org.commcare.android.util;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.mocks.CommCareTaskConnectorFake;
-import org.commcare.android.tasks.FormRecordCleanupTask;
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.util.CommCarePlatform;
 import org.robolectric.Robolectric;
 

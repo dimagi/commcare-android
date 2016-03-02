@@ -108,7 +108,7 @@
 
         </LinearLayout>
 
-        <org.commcare.android.view.AspectRatioLayout
+        <org.commcare.views.AspectRatioLayout
             android:id="@+id/graph"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
