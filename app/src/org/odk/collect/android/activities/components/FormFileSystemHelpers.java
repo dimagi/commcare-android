@@ -13,7 +13,7 @@ import org.odk.collect.android.activities.FormEntryActivity;
 import java.io.File;
 
 public class FormFileSystemHelpers {
-    private static String TAG = FormFileSystemHelpers.class.getSimpleName();
+    private static final String TAG = FormFileSystemHelpers.class.getSimpleName();
 
     public static String getFormPath(Context context, Uri uri) throws FormEntryActivity.FormQueryException {
         Cursor c = null;
