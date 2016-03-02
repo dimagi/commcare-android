@@ -12,7 +12,6 @@ import android.support.v4.app.FragmentManager;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
 import android.util.Pair;
-import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.Menu;
@@ -81,7 +80,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      * Activity has been put in the background. Flag prevents dialogs
      * from being shown while activity isn't active.
      */
-    private boolean areFragmentsPaused;
+    private boolean areFragmentsPaused = true;
 
     /**
      * Mark when task tried to show progress dialog before fragments have resumed,
@@ -215,21 +214,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
    }
 
-    protected int getActionBarSize() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            int actionBarHeight = getActionBar().getHeight();
-
-            if (actionBarHeight != 0) {
-                return actionBarHeight;
-            }
-            final TypedValue tv = new TypedValue();
-            if (getTheme().resolveAttribute(android.R.attr.actionBarSize, tv, true)) {
-                actionBarHeight = TypedValue.complexToDimensionPixelSize(tv.data, getResources().getDisplayMetrics());
-            }
-            return actionBarHeight;
-        } return 0;
-    }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -304,7 +288,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-
     /**
      * @return wakelock level for an activity with a running task attached to
      * it; defaults to not using wakelocks.
@@ -327,10 +310,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    /*
-     * Override these to control the UI for your task
-     */
-
     @Override
     public void startBlockingForTask(int id) {
         dialogId = id;
@@ -342,8 +321,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             showNewProgressDialog();
         }
     }
-
-
 
     private void showNewProgressDialog() {
         // Only show a new dialog if we chose to dismiss the old one; If
@@ -362,8 +339,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         if (id >= 0) {
             if (inTaskTransition) {
                 dismissLastDialogAfterTransition = true;
-            } else if (areFragmentsPaused) {
-                triedDismissingWhilePaused = true;
             } else {
                 dismissProgressDialog();
             }
@@ -416,7 +391,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     @Override
-    public void taskCancelled(int id) {
+    public void taskCancelled() {
 
     }
 
@@ -513,7 +488,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public void updateProgress(String updateText, int taskId) {
         CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
-        if (mProgressDialog != null) {
+        if (mProgressDialog != null && !areFragmentsPaused) {
             if (mProgressDialog.getTaskId() == taskId) {
                 mProgressDialog.updateMessage(updateText);
             } else {
@@ -527,7 +502,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public void updateProgressBar(int progress, int max, int taskId) {
         CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
-        if (mProgressDialog != null) {
+        if (mProgressDialog != null && !areFragmentsPaused) {
             if (mProgressDialog.getTaskId() == taskId) {
                 mProgressDialog.updateProgressBar(progress, max);
             } else {
@@ -557,8 +532,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public void dismissProgressDialog() {
         CustomProgressDialog progressDialog = getCurrentProgressDialog();
-        if (!areFragmentsPaused && progressDialog != null && progressDialog.isAdded()) {
-            progressDialog.dismiss();
+        if (progressDialog != null && progressDialog.isAdded()) {
+            if (areFragmentsPaused) {
+                triedDismissingWhilePaused = true;
+            } else {
+                progressDialog.dismiss();
+            }
         }
     }
 

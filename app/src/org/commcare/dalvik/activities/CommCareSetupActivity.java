@@ -373,8 +373,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     Toast.LENGTH_LONG).show();
             this.uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
         }
-
-        uiStateScreenTransition();
+        if (offlineInstall) {
+            onStartInstallClicked();
+        } else {
+            uiStateScreenTransition();
+        }
     }
 
     private CommCareApp getCommCareApp() {
@@ -620,11 +623,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     /**
      * Return to or launch dispatch activity.
      *
-     * @param requireRefresh should the user be logged out upon returning to
-     *                       home activity?
      * @param failed         did installation occur successfully?
      */
-    private void done(boolean requireRefresh, boolean failed) {
+    private void done(boolean failed) {
         if (Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
             //Call out to CommCare Home
             Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
@@ -670,7 +671,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
         }
 
-        done(newAppInstalled, false);
+        done(false);
     }
 
     @Override
@@ -726,8 +727,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         dialog.addProgressBar();
         return dialog;
     }
-
-    //region StartStopInstallCommands implementation
 
     @Override
     public void onStartInstallClicked() {

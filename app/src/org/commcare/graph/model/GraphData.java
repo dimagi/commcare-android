@@ -15,9 +15,9 @@ public class GraphData implements ConfigurableData {
     private Vector<AnnotationData> mAnnotations;
 
     public GraphData() {
-        mSeries = new Vector<SeriesData>();
-        mConfiguration = new Hashtable<String, String>();
-        mAnnotations = new Vector<AnnotationData>();
+        mSeries = new Vector<>();
+        mConfiguration = new Hashtable<>();
+        mAnnotations = new Vector<>();
     }
 
     public String getType() {

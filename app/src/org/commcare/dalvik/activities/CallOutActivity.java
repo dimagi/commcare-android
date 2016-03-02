@@ -37,8 +37,6 @@ public class CallOutActivity extends FragmentActivity
 
     private static final String CALLOUT_ACTION_KEY = "callout-action-key";
 
-    private static final int DIALOG_NUMBER_ACTION = 0;
-
     private static final int SMS_RESULT = 0;
     private static final int CALL_RESULT = 1;
 
@@ -68,7 +66,7 @@ public class CallOutActivity extends FragmentActivity
     }
 
     private void loadStateFromInstance(Bundle savedInstanceState) {
-        if (savedInstanceState.containsKey(CALLOUT_ACTION_KEY)) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(CALLOUT_ACTION_KEY)) {
             calloutAction = savedInstanceState.getString(CALLOUT_ACTION_KEY);
         }
     }
@@ -96,25 +94,27 @@ public class CallOutActivity extends FragmentActivity
     }
 
     private void showChoiceDialog() {
-        PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, "Select Action");
+        final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, Localization.get("select.detail.callout.title"));
 
         View.OnClickListener callListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 calloutAction = Intent.ACTION_CALL;
                 dispatchActionWithPermissions();
+                dialog.dismiss();
             }
         };
-        DialogChoiceItem item1 = new DialogChoiceItem("Call", -1, callListener);
+        DialogChoiceItem item1 = new DialogChoiceItem(Localization.get("select.detail.callout.call"), -1, callListener);
 
         View.OnClickListener smsListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 calloutAction = Intent.ACTION_SENDTO;
                 dispatchActionWithPermissions();
+                dialog.dismiss();
             }
         };
-        DialogChoiceItem item2 = new DialogChoiceItem("Send SMS", -1, smsListener);
+        DialogChoiceItem item2 = new DialogChoiceItem(Localization.get("select.detail.callout.sms"), -1, smsListener);
 
         dialog.setChoiceItems(new DialogChoiceItem[]{item1, item2});
         dialog.setOnCancelListener(new OnCancelListener() {
@@ -130,6 +130,7 @@ public class CallOutActivity extends FragmentActivity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
+
         outState.putString(CALLOUT_ACTION_KEY, calloutAction);
     }
 
@@ -150,28 +151,20 @@ public class CallOutActivity extends FragmentActivity
         }
     }
 
-    private String getPermissionForAction() {
-        if (calloutAction.equals(Intent.ACTION_CALL)) {
-            return Manifest.permission.CALL_PHONE;
-        } else if (calloutAction.equals(Intent.ACTION_SENDTO)) {
-            return Manifest.permission.RECEIVE_SMS;
-        }
-        return "";
-    }
-
     private boolean missingPhonePermission() {
-        return ContextCompat.checkSelfPermission(this, getPermissionForAction()) != PackageManager.PERMISSION_GRANTED;
+        return calloutAction.equals(Intent.ACTION_CALL) &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED;
     }
 
     private boolean shouldShowPhonePermissionRationale() {
         return ActivityCompat.shouldShowRequestPermissionRationale(this,
-                getPermissionForAction());
+                Manifest.permission.CALL_PHONE);
     }
 
     @Override
     public void requestNeededPermissions(int requestCode) {
         ActivityCompat.requestPermissions(this,
-                new String[]{getPermissionForAction()},
+                new String[]{Manifest.permission.CALL_PHONE},
                 requestCode);
     }
 
@@ -181,16 +174,18 @@ public class CallOutActivity extends FragmentActivity
                                            @NonNull int[] grantResults) {
         if (requestCode == CALL_OR_SMS_PERMISSION_REQUEST) {
             for (int i = 0; i < permissions.length; i++) {
-                if (getPermissionForAction().equals(permissions[i]) &&
+                if (Manifest.permission.CALL_PHONE.equals(permissions[i]) &&
                         grantResults[i] == PackageManager.PERMISSION_GRANTED) {
                     dispatchAction();
+                    return;
                 }
             }
         }
+        Toast.makeText(this, Localization.get("permission.case.callout.denied"), Toast.LENGTH_LONG).show();
+        finish();
     }
 
     private void dispatchAction() {
-        // using createChooser to handle any errors gracefully
         if (Intent.ACTION_CALL.equals(calloutAction)) {
             tManager.listen(listener, PhoneStateListener.LISTEN_CALL_STATE);
 

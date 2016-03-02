@@ -83,27 +83,11 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
             return;
         }
 
-        //Figure out sort keys
         Vector<Integer> sortKeys = new Vector<>();
-        DetailField[] fields = getDetail().getFields();
-
-        String validKeys = "(";
-        boolean added = false;
-        for (int i = 0; i < fields.length; ++i) {
-            //We're only gonna pull out the fields we can index/sort on
-            if (fields[i].getSort() != null) {
-                sortKeys.add(i);
-                validKeys += "?, ";
-                added = true;
-            }
-        }
-
-        //If we didn't actually find any keys to cache, get outta here
-        if (!added) {
+        String validKeys = buildValidKeys(sortKeys, getDetail().getFields());
+        if ("".equals(validKeys)) {
             return;
         }
-        validKeys = validKeys.substring(0, validKeys.length() - 2) + ")";
-
 
         //Create our full args tree. We need the elements from the cache primer
         //along with the specific keys we wanna pull out
@@ -112,19 +96,11 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
         System.arraycopy(cachePrimeKeys[1], 0, args, 0, cachePrimeKeys[1].length);
 
         for (int i = 0; i < sortKeys.size(); ++i) {
-            args[2 + i] = EntityStorageCache.getCacheKey(getDetail().getId(), String.valueOf(sortKeys.get(i)));
+            args[2 + i] = getCacheKey(getDetail().getId(), String.valueOf(sortKeys.get(i)));
         }
 
         String[] names = cachePrimeKeys[0];
-
-        //Build the where clause for the provided key names
-        String whereClause = "";
-        for (int i = 0; i < names.length; ++i) {
-            whereClause += AndroidTableBuilder.scrubName(names[i]) + " = ?";
-            if (i + 1 < names.length) {
-                whereClause += " AND ";
-            }
-        }
+        String whereClause = buildKeyNameWhereClause(names);
 
         long now = System.currentTimeMillis();
 
@@ -140,9 +116,50 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
             DbUtil.explainSql(db, sqlStatement, args);
         }
 
-        //TODO: This will _only_ query up to about a meg of data, which is an un-great limitation. 
+        populateEntitySet(db, sqlStatement, args);
+
+        if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
+            Log.d(TAG, "Sequential Cache Load: " + (System.currentTimeMillis() - now) + "ms");
+        }
+    }
+
+    private String buildValidKeys(Vector<Integer> sortKeys, DetailField[] fields) {
+        String validKeys = "(";
+        boolean added = false;
+        for (int i = 0; i < fields.length; ++i) {
+            //We're only gonna pull out the fields we can index/sort on
+            if (fields[i].getSort() != null) {
+                sortKeys.add(i);
+                validKeys += "?, ";
+                added = true;
+            }
+        }
+        if (added) {
+            return validKeys.substring(0, validKeys.length() - 2) + ")";
+        } else {
+            return "";
+        }
+    }
+
+    public static String getCacheKey(String detailId, String mFieldId) {
+        return detailId + "_" + mFieldId;
+    }
+
+    private String buildKeyNameWhereClause(String[] names) {
+        String whereClause = "";
+        for (int i = 0; i < names.length; ++i) {
+            whereClause += AndroidTableBuilder.scrubName(names[i]) + " = ?";
+            if (i + 1 < names.length) {
+                whereClause += " AND ";
+            }
+        }
+        return whereClause;
+    }
+
+    private void populateEntitySet(SQLiteDatabase db, String sqlStatement, String[] args) {
+        //TODO: This will _only_ query up to about a meg of data, which is an un-great limitation.
         //Should probably split this up SQL LIMIT based looped
-        //For reference the current limitation is about 10k rows with 1 field each. 
+        //For reference the current limitation is about 10k rows with 1 field each.
         Cursor walker = db.rawQuery(sqlStatement, args);
         while (walker.moveToNext()) {
             String entityId = walker.getString(walker.getColumnIndex("entity_key"));
@@ -153,10 +170,6 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
             }
         }
         walker.close();
-
-        if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
-            Log.d(TAG, "Sequential Cache Load: " + (System.currentTimeMillis() - now) + "ms");
-        }
     }
 
     @Override

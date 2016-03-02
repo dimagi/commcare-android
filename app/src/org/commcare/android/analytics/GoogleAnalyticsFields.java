@@ -86,6 +86,7 @@ public final class GoogleAnalyticsFields {
     public static String LABEL_IMAGE_ABOVE_TEXT = "Image Above Question Text Enabled";
     public static String LABEL_TRIGGERS_ON_SAVE = "Fire triggers on form save";
     public static String LABEL_REPORT_BUTTON_ENABLED = "Home Report Button enabled";
+    public static String LABEL_AUTO_PURGE = "Auto Purge on Save Enabled";
 
     // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_HOME_SCREEN
     public static String LABEL_SETTINGS = "Settings";
@@ -160,5 +161,4 @@ public final class GoogleAnalyticsFields {
     // Values for LABEL_ARROW and LABEL_SWIPE
     public static int VALUE_FORM_NOT_DONE = 0;
     public static int VALUE_FORM_DONE = 1;
-
 }

@@ -19,6 +19,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 
 import java.util.Vector;
+import java.lang.IllegalStateException;
 
 /**
  * @author ctsims
@@ -135,8 +136,16 @@ public abstract class ResourceEngineTask<R>
             Runnable statusUpdateCheck = new Runnable() {
                 @Override
                 public void run() {
-                    Vector<Resource> resources =
-                            ResourceManager.getResourceListFromProfile(table);
+                    Vector<Resource> resources;
+                    try {
+                        resources = ResourceManager.getResourceListFromProfile(table);
+                    } catch(IllegalStateException e) {
+                        // Since we're on a seperate thread, the db can close during the process
+                        // before we can catch the cancel when the install finishes. If so, 
+                        // we can skip the status check entirely.
+                        signalStatusCheckComplete();
+                        return;
+                    }
 
                     int score = 0;
                     boolean forceClosed = false;
@@ -163,10 +172,15 @@ public abstract class ResourceEngineTask<R>
                     if (!forceClosed) {
                         incrementProgress(score, resources.size());
                     }
+                    signalStatusCheckComplete();
+                }
+                
+                private void signalStatusCheckComplete() {
                     synchronized (statusLock) {
                         lastTime = System.currentTimeMillis();
                         statusCheckRunning = false;
                     }
+
                 }
             };
             statusCheckRunning = true;

@@ -17,10 +17,6 @@ package org.commcare.android.util;
  * Exception thrown when encountering an invalid Base64 input character.
  */
 public class Base64DecoderException extends Exception {
-    public Base64DecoderException() {
-        super();
-    }
-
     public Base64DecoderException(String s) {
         super(s);
     }

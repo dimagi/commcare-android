@@ -20,6 +20,7 @@ import org.commcare.android.database.user.models.CaseIndexTable;
 import org.commcare.android.database.user.models.EntityStorageCache;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.FormRecordV1;
+import org.commcare.android.database.user.models.GeocodeCacheModel;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.android.logging.AndroidLogEntry;
 import org.commcare.android.logging.ForceCloseLogEntry;
@@ -113,6 +114,12 @@ class UserDatabaseUpgrader {
         if (oldVersion == 11) {
             if (upgradeElevenTwelve(db)) {
                 oldVersion = 12;
+            }
+        }
+
+        if (oldVersion == 12) {
+            if (upgradeTwelveThirteen(db)) {
+                oldVersion = 13;
             }
         }
     }
@@ -342,6 +349,17 @@ class UserDatabaseUpgrader {
     }
 
     private boolean upgradeElevenTwelve(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            db.execSQL("DROP TABLE IF EXISTS " + GeocodeCacheModel.STORAGE_KEY);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+        return true;
+    }
+
+    private boolean upgradeTwelveThirteen(SQLiteDatabase db) {
         db.beginTransaction();
         try {
             AndroidTableBuilder builder = new AndroidTableBuilder(AndroidLogEntry.STORAGE_KEY);

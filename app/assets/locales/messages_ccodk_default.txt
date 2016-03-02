@@ -308,6 +308,9 @@ select.menu.map=View on Map
 
 select.detail.title=Details
 select.list.title=Select
+select.detail.callout.title=Select phone number action
+select.detail.callout.call=Call
+select.detail.callout.sms=Send SMS
 
 home.logged.in.message=Logged In: ${0}
 notification.logged.in=Logged Into ${0}
@@ -315,6 +318,8 @@ notification.logged.in=Logged Into ${0}
 title.datum.wrapper=[${0}]
 
 activity.task.error.generic=Unexpected error! Please try again.
+activity.task.cancelling.title=Cancelling: ${0}
+activity.task.cancelling.message=Cancelling...
 
 dialog.ok=OK
 
@@ -568,7 +573,6 @@ archive.install.title=Unzipping your Application Resources
 archive.install.progress=Unzipped ${0} out of ${1} resources
 archive.install.state.empty=Please select a CCZ file to begin
 archive.install.state.ready=Offline installer ready, press install to begin
-archive.install.state.done=Your CCZ file has been installed
 archive.install.state.invalid.path=The file path selected is not a valid CCZ file. Please select a valid file.
 archive.install.cancelled=Offline installation cancelled
 archive.install.bad=The selected CCZ file is not valid. Please choose a valid ccz file.
@@ -617,15 +621,15 @@ wifi.direct.wipe.task.title=Wiping Forms
 wifi.direct.wipe.task.message=Cleaning up after transfer
 
 wifi.direct.status.transfer.header=You are in Transfer Form Mode
-wifi.direct.status.transfer.count=Phone has ${0} unsent forms.
+wifi.direct.status.transfer.count=Device has ${0} unsent forms.
 wifi.direct.status.transfer.message=This will allow you to transfer forms from this device to another device via Wi-Fi Direct
 
 wifi.direct.status.receive.header=You are in Receive Form Mode
-wifi.direct.status.receive.count=SD Card has ${0} collected forms.
+wifi.direct.status.receive.count=Device has ${0} collected forms.
 wifi.direct.status.receive.message=This will allow you to receive forms on this device from another device via Wi-Fi Direct
 
 wifi.direct.status.submit.header=You are in Submit Form Mode
-wifi.direct.status.submit.count=SD Card has ${0} unsubmitted forms.
+wifi.direct.status.submit.count=Device has ${0} unsubmitted forms.
 wifi.direct.status.submit.message=This mode will allow you to submit forms to the CommCare Server if you have an internet connection.
 
 
@@ -645,6 +649,7 @@ permission.all.message=CommCare needs permissions to read/write forms to memory,
 permission.all.denial.message=CommCare doesn't have the necessary permissions. Please enable via 'Settings -> Apps'
 permission.case.callout.title=Permissions for calling & messaging
 permission.case.callout.message=CommCare needs call & messaging permissions to enable communication with cases.
+permission.case.callout.denied=Permissions denied for calling & messaging from case detail screen.
 permission.sms.install.title=Permission for obtaining SMS app code
 permission.sms.install.message=CommCare would like to scan your recent messages for an app install code.
 permission.form.gps.title=Permission to capture location during form entry

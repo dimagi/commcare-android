@@ -3,6 +3,7 @@ package org.commcare.android.tasks.templates;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import org.acra.ACRA;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -37,6 +38,9 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver> extends M
             Logger.log(TAG, e.getMessage());
             e.printStackTrace();
 
+            // Report to unified crash report dashboard
+            ACRA.getErrorReporter().handleException(e);
+
             // Save error for reporting during post-execute
             unknownError = e;
 
@@ -60,7 +64,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver> extends M
             if (connector != null) {
                 connector.startTaskTransition();
                 connector.stopBlockingForTask(getTaskId());
-                connector.taskCancelled(getTaskId());
+                connector.taskCancelled();
                 connector.stopTaskTransition();
             }
         }

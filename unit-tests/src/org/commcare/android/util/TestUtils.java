@@ -215,14 +215,12 @@ public class TestUtils {
         ExternalDataInstance edi = new ExternalDataInstance("jr://instance/casedb", "casedb");
         DataInstance specializedDataInstance = edi.initialize(iif, "casedb");
 
-        Hashtable<String, DataInstance> formInstances = new Hashtable<String, DataInstance>();
+        Hashtable<String, DataInstance> formInstances = new Hashtable<>();
         formInstances.put("casedb", specializedDataInstance);
 
         TreeReference dummy = TreeReference.rootRef().extendRef("a", TreeReference.DEFAULT_MUTLIPLICITY);
-        EvaluationContext ec = new EvaluationContext(new EvaluationContext(null), formInstances, dummy);
-        return ec;
+        return new EvaluationContext(new EvaluationContext(null), formInstances, dummy);
     }
-
 
     public static RuntimeException wrapError(Exception e, String prefix) {
         e.printStackTrace();
@@ -230,5 +228,4 @@ public class TestUtils {
         re.initCause(e);
         return re;
     }
-
 }

@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -31,29 +32,26 @@ import java.io.File;
 /**
  * @author wspride
  */
-
 @ManagedUi(R.layout.screen_multimedia_inflater)
 public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActivity> {
+    private static final String TAG = InstallArchiveActivity.class.getSimpleName();
+
     private static final int REQUEST_FILE_LOCATION = 1;
 
     @UiElement(value = R.id.screen_multimedia_inflater_prompt, locale = "archive.install.prompt")
-    TextView txtDisplayPrompt;
+    private TextView txtDisplayPrompt;
 
     @UiElement(value = R.id.screen_multimedia_install_messages, locale = "archive.install.state.empty")
-    TextView txtInteractiveMessages;
+    private TextView txtInteractiveMessages;
 
     @UiElement(R.id.screen_multimedia_inflater_location)
-    EditText editFileLocation;
+    private EditText editFileLocation;
 
     @UiElement(R.id.screen_multimedia_inflater_filefetch)
-    ImageButton btnFetchFiles;
+    private ImageButton btnFetchFiles;
 
     @UiElement(value = R.id.screen_multimedia_inflater_install, locale = "archive.install.button")
-    Button btnInstallArchive;
-
-    private final boolean done = false;
-
-    private static final String TAG = InstallArchiveActivity.class.getSimpleName();
+    private Button btnInstallArchive;
 
     public static final String ARCHIVE_REFERENCE = "archive-ref";
 
@@ -84,14 +82,15 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
                 InstallArchiveActivity.this.createArchive(editFileLocation.getText().toString());
             }
         });
+
+        // avoid keyboard pop-up
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
     }
 
     private void createArchive(String filepath) {
-
         UnzipTask<InstallArchiveActivity> mUnzipTask = new UnzipTask<InstallArchiveActivity>() {
             @Override
             protected void deliverResult(InstallArchiveActivity receiver, Integer result) {
-                Log.d(TAG, "delivering unzip result");
                 if (result > 0) {
                     receiver.onUnzipSuccessful();
                 } else {
@@ -102,28 +101,22 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
             @Override
             protected void deliverUpdate(InstallArchiveActivity receiver, String... update) {
-                Log.d(TAG, "delivering unzip upate");
-                //
                 receiver.updateProgress(update[0], UnzipTask.UNZIP_TASK_ID);
                 receiver.txtInteractiveMessages.setText(update[0]);
             }
 
             @Override
             protected void deliverError(InstallArchiveActivity receiver, Exception e) {
-                Log.d(TAG, "unzip deliver error: " + e.getMessage());
                 receiver.txtInteractiveMessages.setText(Localization.get("archive.install.error", new String[]{e.getMessage()}));
                 receiver.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
             }
         };
 
-        File mFile = new File(filepath);
         String targetDirectory = getTargetFolder();
         FileUtil.deleteFileOrDir(targetDirectory);
 
-        mUnzipTask.connect(InstallArchiveActivity.this);
-        Log.d(TAG, "executing task with: " + targetDirectory + " , " + filepath);
+        mUnzipTask.connect(this);
         mUnzipTask.execute(filepath, targetDirectory);
-
     }
 
     private void onUnzipSuccessful() {
@@ -157,17 +150,11 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     @Override
     protected void onResume() {
         super.onResume();
+
         evalState();
     }
 
     private void evalState() {
-        if (done) {
-            txtInteractiveMessages.setText(Localization.get("archive.install.state.done"));
-            this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification);
-            btnInstallArchive.setEnabled(false);
-            return;
-        }
-
         String location = editFileLocation.getText().toString();
         if ("".equals(location)) {
             txtInteractiveMessages.setText(Localization.get("archive.install.state.empty"));
@@ -188,7 +175,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     }
 
     @Override
-    public void taskCancelled(int id) {
+    public void taskCancelled() {
         txtInteractiveMessages.setText(Localization.get("archive.install.cancelled"));
         this.transplantStyle(txtInteractiveMessages, R.layout.template_text_notification_problem);
     }
@@ -202,10 +189,6 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         return targetDirectory;
     }
 
-    /**
-     * Implementation of generateProgressDialog() for DialogController -- other methods
-     * handled entirely in CommCareActivity
-     */
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (taskId == UnzipTask.UNZIP_TASK_ID) {

@@ -14,7 +14,7 @@ import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.model.xform.XFormSerializingVisitor;
 import org.javarosa.model.xform.XPathReference;
-import org.odk.collect.android.views.ODKView;
+import org.odk.collect.android.views.QuestionsView;
 import org.odk.collect.android.widgets.WidgetFactory;
 
 import java.io.IOException;
@@ -161,7 +161,7 @@ public class FormController implements PendingCalloutInterface {
         //descendant group
 
         GroupDef gd = (GroupDef)mFormEntryController.getModel().getForm().getChild(index); // exceptions?
-        return (ODKView.FIELD_LIST.equalsIgnoreCase(gd.getAppearanceAttr()));
+        return (QuestionsView.FIELD_LIST.equalsIgnoreCase(gd.getAppearanceAttr()));
     }
 
     /**
