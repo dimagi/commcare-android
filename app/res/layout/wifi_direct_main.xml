@@ -13,34 +13,30 @@
 
         <fragment
             android:id="@+id/frag_list"
-            class="org.commcare.android.framework.DeviceListFragment"
+            class="org.commcare.fragments.DeviceListFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            class="org.commcare.fragments.DeviceListFragment">
+            android:layout_height="wrap_content">
         </fragment>
 
         <fragment
             android:id="@+id/frag_detail"
-            class="org.commcare.android.framework.DeviceDetailFragment"
+            class="org.commcare.fragments.DeviceDetailFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            class="org.commcare.fragments.DeviceDetailFragment">
+            android:layout_height="wrap_content">
         </fragment>
 
         <fragment
             android:id="@+id/wifi_manager_fragment"
-            class="org.commcare.android.framework.WiFiDirectManagementFragment"
+            class="org.commcare.fragments.WiFiDirectManagementFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            class="org.commcare.fragments.WiFiDirectManagementFragment">
+            android:layout_height="wrap_content">
         </fragment>
 
         <fragment
             android:id="@+id/file_server_fragment"
-            class="org.commcare.android.framework.FileServerFragment"
+            class="org.commcare.fragments.FileServerFragment"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            class="org.commcare.fragments.FileServerFragment">
+            android:layout_height="wrap_content">
 
             <!-- Preview: layout=@layout/file_server -->
         </fragment>

@@ -2,10 +2,10 @@ package org.commcare.android.adapters;
 
 import android.view.View;
 
-import org.commcare.android.framework.CommCareActivityUIController;
-import org.commcare.android.view.SquareButtonWithText;
+import org.commcare.activities.CommCareWiFiDirectActivity;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareWiFiDirectActivity;
+import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.views.SquareButtonWithText;
 import org.javarosa.core.services.locale.Localization;
 
 public class WiFiDirectUIController implements CommCareActivityUIController {
