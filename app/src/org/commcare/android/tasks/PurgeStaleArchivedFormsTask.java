@@ -192,6 +192,10 @@ public class PurgeStaleArchivedFormsTask
 
         markFormsAsUnsent(toResend);
 
+        if(toResend.size() > 0) {
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Succesfully recovered " + toResend.size() +
+                    " forms for resubmission");
+        }
         app.getAppPreferences().edit().putBoolean(KEY_HAS_PERFORMED_HOTFIX_CHECK, true).commit();
     }
 
