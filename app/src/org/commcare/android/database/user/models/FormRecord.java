@@ -192,8 +192,8 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return String.format("Form Record[%s][Status: %s]\n[Form: %s]\n[Last Modified: %s]", this.recordId, this.status, this.xmlns, this.lastModified.toString());
     }
 
-    public void setCompleteFormToUnsent() {
-        if(STATUS_COMPLETE.equals(this.getStatus())) {
+    public void setArchivedFormToUnsent() {
+        if(STATUS_SAVED.equals(this.getStatus())) {
             this.status = STATUS_UNSENT;
         }
     }
