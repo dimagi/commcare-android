@@ -322,7 +322,7 @@ public class FormUploadUtil {
                     Log.i(TAG, "file " + f.getName() + " is too big");
                 }
             } else if (isSupportedMultimediaFile(f.getName())) {
-                fb = new FileBody(f, ContentType.DEFAULT_BINARY, f.getName());
+                fb = new FileBody(f, ContentType.APPLICATION_OCTET_STREAM, f.getName());
                 if (fb.getContentLength() <= MAX_BYTES) {
                     entity.addPart(f.getName(), fb);
                     Log.i(TAG, "added unknown file " + f.getName());
