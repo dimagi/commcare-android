@@ -8,6 +8,8 @@ import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.utils.FormUploadUtil;
 import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -181,8 +183,9 @@ public class PurgeStaleArchivedFormsTask
             return;
         }
 
-        DateTime timeWindowBegin = DateTime.parse("2016-02-22T06:00:00-05:00");
-        DateTime timeWindowEnd = DateTime.parse("2016-03-04T06:00:00-05:00");
+        DateTimeFormatter parser = ISODateTimeFormat.dateTimeParser();
+        DateTime timeWindowBegin = parser.parseDateTime("2016-02-22T06:00:00-05:00");
+        DateTime timeWindowEnd = parser.parseDateTime("2016-03-04T06:00:00-05:00");
 
         Vector<Integer> toResend = evaluateSavedFormsToResend(timeWindowBegin, timeWindowEnd);
 
@@ -258,7 +261,7 @@ public class PurgeStaleArchivedFormsTask
 
         for(int formRecordId : toResend) {
             FormRecord r = formStorage.read(formRecordId);
-            r.setCompleteFormToUnsent();
+            r.setArchivedFormToUnsent();
             formStorage.write(r);
         }
     }
