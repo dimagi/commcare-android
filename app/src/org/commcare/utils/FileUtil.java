@@ -2,8 +2,12 @@ package org.commcare.utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
+import org.commcare.CommCareApplication;
+import org.commcare.dalvik.R;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -18,11 +22,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
@@ -336,7 +342,6 @@ public class FileUtil {
         }
     }
 
-
     /*
      * if we are on KitKat we need use the new API to find the mounted roots, then append our application
      * specific path that we're allowed to write to
@@ -381,5 +386,27 @@ public class FileUtil {
             }
             return null;
         }
+    }
+
+    
+    public static Properties loadProperties(File file){
+        Properties prop = new Properties();
+        InputStream input = null;
+        try {
+            input = new FileInputStream(file);
+            prop.load(input);
+            return prop;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
     }
 }

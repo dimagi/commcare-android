@@ -1,14 +1,17 @@
 package org.commcare.tasks;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Environment;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareWiFiDirectActivity;
+import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadUtil;
@@ -28,6 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Properties;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -36,7 +40,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
- * @author ctsims
+ * @author wspride
  */
 public abstract class ZipTask extends CommCareTask<String, String, FormRecord[], CommCareWiFiDirectActivity> {
     private static final String TAG = ZipTask.class.getSimpleName();
@@ -44,6 +48,9 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     private Context c;
     private Long[] results;
     private File dumpFolder;
+
+    public final static String FORM_PROPERTIES_FILE = "form.properties";
+    public final static String FORM_PROPERTY_POST_URL = "PostURL";
 
     public static final int ZIP_TASK_ID = 72135;
 
@@ -128,7 +135,35 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                 }
             }
         }
+
+        writeProperties(myDir);
+
         return FormUploadUtil.FULL_SUCCESS;
+    }
+
+    private void writeProperties(File file) {
+        FileOutputStream outputStream = null;
+        try {
+            File formProperties = new File(file, "form.properties");
+            outputStream = new FileOutputStream(formProperties);
+            Properties properties = new Properties();
+            SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+            String postUrl = settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
+                    c.getString(R.string.PostURL));
+            properties.setProperty("PostURL", postUrl);
+            properties.store(outputStream, null);
+        } catch(IOException e){
+            // we'll just ignore this, not the end of the world
+            e.printStackTrace();
+        } finally{
+            if(outputStream != null){
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     private boolean zipTargetFolder(File targetFilePath, String zipFile) throws IOException {
@@ -197,7 +232,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
     @Override
     protected FormRecord[] doTaskBackground(String... params) {
 
-        Log.d(TAG, "doing zip task in background");
+        Log.d(TAG, "Doing zip task in background");
 
         File baseDirectory = new File(CommCareWiFiDirectActivity.baseDirectory);
         File sourceDirectory = new File(CommCareWiFiDirectActivity.sourceDirectory);
