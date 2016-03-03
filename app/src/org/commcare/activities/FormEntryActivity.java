@@ -1292,14 +1292,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
         // save current answer; if headless, don't evaluate the constraints
         // before doing so.
-        if (headless &&
-                (!saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS, complete, headless))) {
-            return;
-        } else if (!headless &&
-                !saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS, complete, headless)) {
-            Toast.makeText(this,
-                    Localization.get("form.entry.save.error"),
-                    Toast.LENGTH_SHORT).show();
+        boolean wasScreenSaved =
+                saveAnswersForCurrentScreen(headless ? DO_NOT_EVALUATE_CONSTRAINTS : EVALUATE_CONSTRAINTS,
+                        complete, headless);
+        if (!wasScreenSaved) {
             return;
         }
 
