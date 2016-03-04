@@ -96,7 +96,7 @@ public class EntityListAdapter implements ListAdapter {
             if (sort.length != 0) {
                 sort(sort);
             }
-            filterValues("");
+            applyFilter("");
         } else {
             setCurrent(new ArrayList<>(full));
         }
@@ -123,20 +123,6 @@ public class EntityListAdapter implements ListAdapter {
 
     void setCurrentSearchTerms(String[] searchTerms) {
         currentSearchTerms = searchTerms;
-    }
-
-    private void filterValues(String filterRaw) {
-        synchronized (mSyncLock) {
-            if (entitySearcher != null) {
-                entitySearcher.finish();
-            }
-            String[] searchTerms = filterRaw.split("\\s+");
-            for (int i = 0; i < searchTerms.length; ++i) {
-                searchTerms[i] = StringUtils.normalize(searchTerms[i]);
-            }
-            entitySearcher = new EntitySearcher(this, filterRaw, searchTerms, mAsyncMode, mFuzzySearchEnabled, mNodeFactory, full, context);
-            entitySearcher.start();
-        }
     }
 
     private void sort(int[] fields) {
@@ -276,8 +262,18 @@ public class EntityListAdapter implements ListAdapter {
         return getCount() > 0;
     }
 
-    public void applyFilter(String s) {
-        filterValues(s);
+    public void applyFilter(String filterRaw) {
+        synchronized (mSyncLock) {
+            if (entitySearcher != null) {
+                entitySearcher.finish();
+            }
+            String[] searchTerms = filterRaw.split("\\s+");
+            for (int i = 0; i < searchTerms.length; ++i) {
+                searchTerms[i] = StringUtils.normalize(searchTerms[i]);
+            }
+            entitySearcher = new EntitySearcher(this, filterRaw, searchTerms, mAsyncMode, mFuzzySearchEnabled, mNodeFactory, full, context);
+            entitySearcher.start();
+        }
     }
 
     void update() {
