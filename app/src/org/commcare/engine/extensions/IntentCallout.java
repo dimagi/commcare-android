@@ -194,7 +194,12 @@ public class IntentCallout implements Externalizable {
             File newFile = new File(destinationFile, src.getName());
 
             //Looks like our source file exists, so let's go grab it
-            FileUtil.copyFile(src, newFile);
+            try {
+                FileUtil.copyFile(src, newFile);
+            } catch (IOException e) {
+                Log.e(TAG, "IOExeception copying Intent binary.");
+                e.printStackTrace();
+            }
 
             //That code throws no errors, so we have to manually check whether the copy worked.
             if (newFile.exists() && newFile.length() == src.length()) {

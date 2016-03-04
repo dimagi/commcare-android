@@ -32,6 +32,7 @@ import org.commcare.views.dialogs.PaneledChoiceDialog;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * Modified from the FingerPaint example found in The Android Open Source
@@ -104,13 +105,23 @@ public class DrawActivity extends Activity {
                 savepointImage = new File(savepoint);
                 if (!savepointImage.exists() && refImage != null
                         && refImage.exists()) {
-                    FileUtil.copyFile(refImage, savepointImage);
+                    try {
+                        FileUtil.copyFile(refImage, savepointImage);
+                    }catch (IOException e) {
+                        Log.e(t, "IOExeception copying drawn image.");
+                        e.printStackTrace();
+                    }
                 }
             } else {
                 savepointImage = new File(ODKStorage.TMPDRAWFILE_PATH);
                 savepointImage.delete();
                 if (refImage != null && refImage.exists()) {
-                    FileUtil.copyFile(refImage, savepointImage);
+                    try {
+                        FileUtil.copyFile(refImage, savepointImage);
+                    } catch (IOException e) {
+                        Log.e(t, "IOExeception copying drawn image");
+                        e.printStackTrace();
+                    }
                 }
             }
             //sets where the result will be saved to
@@ -235,7 +246,12 @@ public class DrawActivity extends Activity {
         savepointImage.delete();
         if (!OPTION_SIGNATURE.equals(loadOption) && refImage != null
                 && refImage.exists()) {
-            FileUtil.copyFile(refImage, savepointImage);
+            try {
+                FileUtil.copyFile(refImage, savepointImage);
+            }catch (IOException e) {
+                Log.e(t, "IOExeception while video audio");
+                e.printStackTrace();
+            }
         }
         drawView.reset();
         drawView.invalidate();

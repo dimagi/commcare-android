@@ -27,6 +27,7 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Widget that allows user to take pictures, sounds or video and add them to the form.
@@ -206,7 +207,12 @@ public class VideoWidget extends QuestionWidget {
 
         File source = new File(binaryPath);
         File newVideo = new File(destVideoPath);
-        FileUtil.copyFile(source, newVideo);
+        try {
+            FileUtil.copyFile(source, newVideo);
+        } catch (IOException e) {
+            Log.e(t, "IOExeception while video audio");
+            e.printStackTrace();
+        }
 
         checkFileSize(newVideo);
 
