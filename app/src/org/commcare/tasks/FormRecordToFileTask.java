@@ -39,7 +39,7 @@ import javax.crypto.spec.SecretKeySpec;
  * @author wspride
  */
 public abstract class FormRecordToFileTask extends CommCareTask<String, String, Pair<Long, FormRecord[]>, CommCareWiFiDirectActivity> {
-    private static final String TAG = FormRecordToFileTask.class.getSimpleName();
+    private static final String TAG = AndroidLogger.TYPE_FORM_DUMP;
 
     private Context c;
     private Long[] results;
@@ -51,11 +51,6 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
     public FormRecordToFileTask(Context c) {
         this.c = c;
         taskId = PULL_TASK_ID;
-    }
-
-    @Override
-    protected void onProgressUpdate(String... values) {
-        super.onProgressUpdate(values);
     }
 
     @Override

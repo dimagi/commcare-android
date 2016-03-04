@@ -5,6 +5,7 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareWiFiDirectActivity;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.ProcessIssues;
@@ -21,14 +22,16 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * @author wspride
+ *
+ * This task zips the files in toBeZippedPath into the file specified by zipFilePath
+ * Returns 1 for success, -1 for failure.
  */
-public abstract class ZipTask extends CommCareTask<String, String, Integer, CommCareWiFiDirectActivity> {
-    private static final String TAG = ZipTask.class.getSimpleName();
+public abstract class ZipTask extends CommCareTask<Void, String, Integer, CommCareWiFiDirectActivity> {
+    private static final String TAG = AndroidLogger.TYPE_FORM_DUMP;
 
     public static final int RESULT_SUCCESS = 1;
     public static final int RESULT_FAILURE = -1;
 
-    private Context c;
     // this is where the forms that have been pulled from FormRecord storage to the file system live
     private File storedFormDirectory = new File(CommCareWiFiDirectActivity.toBeTransferredDirectory);
 
@@ -37,21 +40,13 @@ public abstract class ZipTask extends CommCareTask<String, String, Integer, Comm
 
     public static final int ZIP_TASK_ID = 72135;
 
-    public ZipTask(Context c) {
-        this.c = c;
+    private String toBeZippedPath;
+    private String zipFilePath;
+
+    public ZipTask(String toBeZippedPath, String zipFilePath) {
         taskId = ZIP_TASK_ID;
-    }
-
-    @Override
-    protected void onProgressUpdate(String... values) {
-        super.onProgressUpdate(values);
-    }
-
-    @Override
-    protected void onPostExecute(Integer result) {
-        super.onPostExecute(result);
-        //These will never get Zero'd otherwise
-        c = null;
+        this.toBeZippedPath = toBeZippedPath;
+        this.zipFilePath = zipFilePath;
     }
 
     private boolean zipParentFolder(File toBeZippedDirectory, String zipFilePath) throws IOException {
@@ -119,16 +114,15 @@ public abstract class ZipTask extends CommCareTask<String, String, Integer, Comm
     }
 
     @Override
-    protected Integer doTaskBackground(String... params) {
-        Log.d(TAG, "Doing zip task in background with params: " + params);
-
+    protected Integer doTaskBackground(Void... params) {
+        Log.d(TAG, "Doing UnzipTask");
         try {
-            String zipPath = CommCareWiFiDirectActivity.toBeTransferredDirectory;
+            String zipPath = toBeZippedPath;
             File nf = new File(zipPath);
             if (nf.exists()) {
                 nf.delete();
             }
-            zipParentFolder(nf, CommCareWiFiDirectActivity.sourceZipDirectory);
+            zipParentFolder(nf, zipFilePath);
             storedFormDirectory.delete();
         } catch (IOException ioe) {
             Log.d(TAG, "IOException: " + ioe.getMessage());

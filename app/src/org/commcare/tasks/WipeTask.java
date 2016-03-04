@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import org.commcare.activities.CommCareWiFiDirectActivity;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.tasks.templates.CommCareTask;
 
@@ -22,33 +23,22 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
         this.c = c;
         this.taskId = WIPE_TASK_ID;
         this.records = records;
-        TAG = WipeTask.class.getSimpleName();
-    }
-
-    @Override
-    protected void onProgressUpdate(String... values) {
-        super.onProgressUpdate(values);
-    }
-
-    @Override
-    protected void onPostExecute(Boolean result) {
-        super.onPostExecute(result);
-        //These will never get Zero'd otherwise
-        c = null;
+        TAG = AndroidLogger.TYPE_FORM_DUMP;
     }
 
     @Override
     protected Boolean doTaskBackground(String... params) {
 
         if(records == null){
-            // that's OK, might just be transferring already transferred forms.
+            // That's OK, might just be transferring already transferred forms.
             return true;
         }
 
-        Log.d(TAG, "doing wipe task in background");
+        Log.d(TAG, "Wiping sent form records");
         for (FormRecord record : records) {
             FormRecordCleanupTask.wipeRecord(c, record);
         }
+        Log.d(TAG, "Successfully wiped: " + records.length + " FormRecords.");
         return true;
     }
 }

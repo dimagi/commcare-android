@@ -87,7 +87,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     public static String baseDirectory;
     public static String toBeTransferredDirectory;
-    public static String sourceZipDirectory;
+    public static String zipFilePath;
     private static String receiveDirectory;
     private static String receiveZipDirectory;
     private static String toBeSubmittedDirectory;
@@ -122,7 +122,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
         baseDirectory = baseDir + "/" + Localization.get("wifi.direct.base.folder");
         toBeTransferredDirectory = baseDirectory + "/source";
-        sourceZipDirectory = baseDirectory + "/zipSource.zip";
+        zipFilePath = baseDirectory + "/zipSource.zip";
         receiveDirectory = baseDirectory + "/receive";
         receiveZipDirectory = receiveDirectory + "/zipDest";
         toBeSubmittedDirectory = baseDirectory + "/write";
@@ -385,9 +385,9 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         mWipeTask.execute();
 
         FileUtil.deleteFileOrDir(new File(toBeTransferredDirectory));
-        FileUtil.deleteFileOrDir(new File(sourceZipDirectory));
+        FileUtil.deleteFileOrDir(new File(zipFilePath));
 
-        Logger.log(TAG, "Deleting dirs " + toBeTransferredDirectory + " and " + sourceZipDirectory);
+        Logger.log(TAG, "Deleting dirs " + toBeTransferredDirectory + " and " + zipFilePath);
 
         this.cachedRecords = null;
 
@@ -610,7 +610,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     public void prepareFileTransfer() {
         Logger.log(TAG, "Preparing File Transfer");
 
-        CommCareWiFiDirectActivity.deleteIfExists(sourceZipDirectory);
+        CommCareWiFiDirectActivity.deleteIfExists(zipFilePath);
 
         final WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
@@ -714,7 +714,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     private void zipFiles() {
         Logger.log(TAG, "Zipping Files");
-        ZipTask mZipTask = new ZipTask(this) {
+        ZipTask mZipTask = new ZipTask(toBeTransferredDirectory, zipFilePath) {
             @Override
             protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {
                 receiver.updateProgress(update[0], taskId);
@@ -752,7 +752,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
         String address = fragment.getHostAddress();
 
-        FormTransferTask mTransferTask = new FormTransferTask(address, sourceZipDirectory, 8988) {
+        FormTransferTask mTransferTask = new FormTransferTask(address, zipFilePath, 8988) {
 
             @Override
             protected void deliverResult(CommCareWiFiDirectActivity receiver,
