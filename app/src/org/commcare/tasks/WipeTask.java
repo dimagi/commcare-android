@@ -9,7 +9,9 @@ import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.tasks.templates.CommCareTask;
 
 /**
- * @author ctsims
+ * Removes all of the form records from storage after they've been transferred.
+ *
+ * @author wspride
  */
 public abstract class WipeTask extends CommCareTask<String, String, Boolean, CommCareWiFiDirectActivity> {
 

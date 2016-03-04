@@ -36,6 +36,9 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
+ * This class transfers all of the FormRecords from form record storage and into our file system,
+ * decrypting files as necessary. This task should really be merged with DumpTask.
+ *
  * @author wspride
  */
 public abstract class FormRecordToFileTask extends CommCareTask<String, String, Pair<Long, FormRecord[]>, CommCareWiFiDirectActivity> {
