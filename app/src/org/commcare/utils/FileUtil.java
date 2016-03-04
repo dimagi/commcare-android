@@ -2,12 +2,8 @@ package org.commcare.utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.util.Log;
 
-import org.commcare.CommCareApplication;
-import org.commcare.dalvik.R;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -22,7 +18,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -388,7 +383,7 @@ public class FileUtil {
         }
     }
 
-    
+
     public static Properties loadProperties(File file){
         Properties prop = new Properties();
         InputStream input = null;
