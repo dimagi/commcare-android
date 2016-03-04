@@ -85,9 +85,9 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     private WiFiDirectAdapter adapter;
 
-    public static String baseDirectory;
-    public static String toBeTransferredDirectory;
-    public static String zipFilePath;
+    private static String baseDirectory;
+    private static String toBeTransferredDirectory;
+    private static String zipFilePath;
     private static String receiveDirectory;
     private static String receiveZipDirectory;
     private static String toBeSubmittedDirectory;
@@ -121,11 +121,13 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         String baseDir = this.getFilesDir().getAbsolutePath();
 
         baseDirectory = baseDir + "/" + Localization.get("wifi.direct.base.folder");
-        toBeTransferredDirectory = baseDirectory + "/source";
-        zipFilePath = baseDirectory + "/zipSource.zip";
+        // these are the two folders where form record folders can live.
+        toBeTransferredDirectory = baseDirectory + "/transfer";
+        toBeSubmittedDirectory = baseDirectory + "/submit";
+        // these are temporary paths for storing received and unzipped forms
+        zipFilePath = baseDirectory + "/formRecordZip.zip";
         receiveDirectory = baseDirectory + "/receive";
         receiveZipDirectory = receiveDirectory + "/zipDest";
-        toBeSubmittedDirectory = baseDirectory + "/write";
 
         mManager = (WifiP2pManager)getSystemService(Context.WIFI_P2P_SERVICE);
         mChannel = mManager.initialize(this, getMainLooper(), null);

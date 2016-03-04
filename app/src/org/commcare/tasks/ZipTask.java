@@ -7,6 +7,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareWiFiDirectActivity;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.utils.FileUtil;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.ProcessIssues;
 
@@ -33,7 +34,6 @@ public abstract class ZipTask extends CommCareTask<Void, String, Integer, CommCa
     public static final int RESULT_FAILURE = -1;
 
     // this is where the forms that have been pulled from FormRecord storage to the file system live
-    private File storedFormDirectory = new File(CommCareWiFiDirectActivity.toBeTransferredDirectory);
 
     public final static String FORM_PROPERTIES_FILE = "form.properties";
     public final static String FORM_PROPERTY_POST_URL = "PostURL";
@@ -123,7 +123,8 @@ public abstract class ZipTask extends CommCareTask<Void, String, Integer, CommCa
                 nf.delete();
             }
             zipParentFolder(nf, zipFilePath);
-            storedFormDirectory.delete();
+            File toBeZippedDir = new File(toBeZippedPath);
+            FileUtil.deleteFileOrDir(toBeZippedDir);
         } catch (IOException ioe) {
             Log.d(TAG, "IOException: " + ioe.getMessage());
             return RESULT_FAILURE;
