@@ -692,7 +692,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
     private void moveFormRecordsToFiles(){
         Logger.log(TAG, "Getting records from storage");
-        FormRecordToFileTask formRecordToFileTask = new FormRecordToFileTask(this) {
+        FormRecordToFileTask formRecordToFileTask = new FormRecordToFileTask(this, toBeTransferredDirectory) {
             @Override
             protected void deliverResult(CommCareWiFiDirectActivity receiver, Pair<Long, FormRecord[]> result) {
                 receiver.onRecordPullCompleted(result);

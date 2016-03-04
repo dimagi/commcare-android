@@ -44,12 +44,13 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
     private Context c;
     private Long[] results;
     // this is where the forms that have been pulled from FormRecord storage to the file system live
-    private File storedFormDirectory = new File(CommCareWiFiDirectActivity.toBeTransferredDirectory);
+    private File storedFormDirectory;
 
     public static final int PULL_TASK_ID = 721356;
 
-    public FormRecordToFileTask(Context c) {
+    public FormRecordToFileTask(Context c, String formStoragePath) {
         this.c = c;
+        this.storedFormDirectory = new File(formStoragePath);
         taskId = PULL_TASK_ID;
     }
 
