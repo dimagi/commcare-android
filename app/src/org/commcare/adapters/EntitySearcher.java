@@ -140,17 +140,15 @@ public class EntitySearcher {
                     if (!"".equals(field) && field.toLowerCase(currentLocale).contains(filter)) {
                         add = true;
                         continue filter;
-                    } else {
+                    } else if (isFuzzySearchEnabled) {
                         // We possibly now want to test for edit distance for
                         // fuzzy matching
-                        if (isFuzzySearchEnabled) {
-                            for (String fieldChunk : e.getSortFieldPieces(i)) {
-                                Pair<Boolean, Integer> match = StringUtils.fuzzyMatch(filter, fieldChunk);
-                                if (match.first) {
-                                    add = true;
-                                    score += match.second;
-                                    continue filter;
-                                }
+                        for (String fieldChunk : e.getSortFieldPieces(i)) {
+                            Pair<Boolean, Integer> match = StringUtils.fuzzyMatch(filter, fieldChunk);
+                            if (match.first) {
+                                add = true;
+                                score += match.second;
+                                continue filter;
                             }
                         }
                     }
@@ -160,7 +158,6 @@ public class EntitySearcher {
                 }
             }
             if (add) {
-                //matchList.add(e);
                 matchScores.add(Pair.create(index, score));
             }
         }
