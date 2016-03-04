@@ -88,7 +88,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
     public static String sourceZipDirectory;
     private static String receiveDirectory;
     private static String receiveZipDirectory;
-    private static String writeDirectory;
+    private static String toBeSubmittedDirectory;
 
     private TextView myStatusText;
     private TextView formCountText;
@@ -123,7 +123,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         sourceZipDirectory = baseDirectory + "/zipSource.zip";
         receiveDirectory = baseDirectory + "/receive";
         receiveZipDirectory = receiveDirectory + "/zipDest";
-        writeDirectory = baseDirectory + "/write";
+        toBeSubmittedDirectory = baseDirectory + "/write";
 
         mManager = (WifiP2pManager)getSystemService(Context.WIFI_P2P_SERVICE);
         mChannel = mManager.initialize(this, getMainLooper(), null);
@@ -404,7 +404,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
         final String url = this.getString(R.string.PostURL);
 
-        File receiveFolder = new File(writeDirectory);
+        File receiveFolder = new File(toBeSubmittedDirectory);
 
         if (!receiveFolder.isDirectory() || !receiveFolder.exists()) {
             myStatusText.setText(Localization.get("wifi.direct.submit.missing", new String[]{receiveFolder.getPath()}));
@@ -420,7 +420,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
 
         final int formsOnSD = files.length;
 
-        //if there're no forms to dump, just return
+        //if there're no forms to submit, just return
         if (formsOnSD == 0) {
             myStatusText.setText(Localization.get("bulk.form.no.unsynced"));
             transplantStyle(myStatusText, R.layout.template_text_notification_problem);
@@ -513,8 +513,8 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         };
 
         mUnzipTask.connect(CommCareWiFiDirectActivity.this);
-        Logger.log(TAG, "executing task with: " + fn + " , " + writeDirectory);
-        mUnzipTask.execute(fn, writeDirectory);
+        Logger.log(TAG, "executing task with: " + fn + " , " + toBeSubmittedDirectory);
+        mUnzipTask.execute(fn, toBeSubmittedDirectory);
     }
 
     /* if successful, broadcasts WIFI_P2P_Peers_CHANGED_ACTION intent with list of peers
@@ -618,7 +618,18 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
             return;
         }
 
+        moveReceivedFiles();
         zipFiles();
+    }
+
+    private void moveReceivedFiles() {
+        File receiveFolder = new File(toBeSubmittedDirectory);
+        if (!receiveFolder.isDirectory() || !receiveFolder.exists()) {
+            // we haven't received any transfers, just return.
+            return;
+        }
+        // We've received transferred forms. Move them into the to be zipped directory.
+        File[] files = receiveFolder.listFiles();
     }
 
     private void onZipSuccesful(FormRecord[] records) {
@@ -740,7 +751,7 @@ public class CommCareWiFiDirectActivity extends SessionAwareCommCareActivity<Com
         int numUnsyncedForms = ids.size();
         int numUnsubmittedForms;
 
-        File wDirectory = new File(writeDirectory);
+        File wDirectory = new File(toBeSubmittedDirectory);
 
         if (!wDirectory.exists() || !wDirectory.isDirectory()) {
             numUnsubmittedForms = 0;

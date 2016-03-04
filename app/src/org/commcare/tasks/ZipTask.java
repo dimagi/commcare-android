@@ -31,6 +31,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.zip.ZipEntry;
@@ -47,7 +48,9 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 
     private Context c;
     private Long[] results;
-    private File dumpFolder;
+    private File baseDirectory = new File(CommCareWiFiDirectActivity.baseDirectory);
+    // this is where the forms that have been pulled from FormRecord storage to the file system live
+    private File storedFormDirectory = new File(CommCareWiFiDirectActivity.sourceDirectory);
 
     public final static String FORM_PROPERTIES_FILE = "form.properties";
     public final static String FORM_PROPERTY_POST_URL = "PostURL";
@@ -74,12 +77,15 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 
     private static final String[] SUPPORTED_FILE_EXTS = {".xml", ".jpg", ".3gpp", ".3gp"};
 
-    private long dumpInstance(File folder, SecretKeySpec key) throws FileNotFoundException, SessionUnavailableException {
-        File[] files = folder.listFiles();
+    /**
+     * Turn a FormRecord folder from storage into a standard file representation in our file system.n
+     */
+    private long getFileInstanceFromStorage(File formRecordFolder, SecretKeySpec decryptionKey)
+            throws FileNotFoundException, SessionUnavailableException {
+        File[] files = formRecordFolder.listFiles();
+        Logger.log(TAG, "Trying to get instance with: " + files.length + " files.");
 
-        Logger.log(TAG, "Trying to zip: " + files.length + " files.");
-
-        File myDir = new File(dumpFolder, folder.getName());
+        File myDir = new File(storedFormDirectory, formRecordFolder.getName());
         myDir.mkdirs();
 
         if (files == null) {
@@ -89,7 +95,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                 //If so, just bail as if the user had logged out.
                 throw new SessionUnavailableException("External Storage Removed");
             } else {
-                throw new FileNotFoundException("No directory found at: " + folder.getAbsoluteFile());
+                throw new FileNotFoundException("No directory found at: " + formRecordFolder.getAbsoluteFile());
             }
         }
 
@@ -107,44 +113,49 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
             if (!supported) {
                 continue;
             }
-
             bytes += file.length();
         }
 
-        final Cipher decrypter = FormUploadUtil.getDecryptCipher(key);
+        Log.d(TAG, "Storing " + bytes + " form bytes");
+
+        final Cipher decryptCipher = FormUploadUtil.getDecryptCipher(decryptionKey);
 
         for (File file : files) {
             // This is not the ideal long term solution for determining whether we need decryption, but works
             if (file.getName().endsWith(".xml")) {
                 try {
-                    Log.d(TAG, "trying zip copy2");
-                    FileUtil.copyFile(file, new File(myDir, file.getName()), decrypter, null);
+                    FileUtil.copyFile(file, new File(myDir, file.getName()), decryptCipher, null);
                 } catch (IOException ie) {
-                    Log.d(TAG, "faield zip copywith2: " + file.getName());
+                    Log.d(TAG, "Copying file: " + file.getName() + " failed with: " + ie.getMessage());
                     publishProgress(("File writing failed: " + ie.getMessage()));
                     return FormUploadUtil.FAILURE;
                 }
             } else {
                 try {
-                    Log.d(TAG, "trying zip copy2");
                     FileUtil.copyFile(file, new File(myDir, file.getName()));
                 } catch (IOException ie) {
-                    Log.d(TAG, "faield zip copy2 " + file.getName() + "with messageL " + ie.getMessage());
+                    Log.d(TAG, "Copying file: " + file.getName() + " failed with: " + ie.getMessage());
                     publishProgress(("File writing failed: " + ie.getMessage()));
                     return FormUploadUtil.FAILURE;
                 }
             }
         }
-
+        // write any form.properties we want
         writeProperties(myDir);
-
         return FormUploadUtil.FULL_SUCCESS;
     }
 
-    private void writeProperties(File file) {
+    /**
+     * Writes any properties of this form/user the receiving tablet might want to form.properties
+     * Current properties:
+     *  PostURL:    The receiver will attempt to submit to this URL instead of its default URL.
+     *              We do this because HQ uses the receiver URL to help display forms prettily.
+     * @param formInstanceFolder: the form instance folder to write in
+     */
+    private void writeProperties(File formInstanceFolder) {
         FileOutputStream outputStream = null;
         try {
-            File formProperties = new File(file, "form.properties");
+            File formProperties = new File(formInstanceFolder, "form.properties");
             outputStream = new FileOutputStream(formProperties);
             Properties properties = new Properties();
             SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -167,22 +178,22 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
         }
     }
 
-    private boolean zipTargetFolder(File targetFilePath, String zipFile) throws IOException {
+    private boolean zipParentFolder(File toBeZippedDirectory, String zipFilePath) throws IOException {
 
-        Log.d(TAG, "827 zipTarggetFolder with tfp: " + targetFilePath.toString() + ", zipFile: " + zipFile);
+        Log.d(TAG, "Zipping directory" + toBeZippedDirectory.toString() + " to path " + zipFilePath);
 
-        ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFile)));
+        ZipOutputStream out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(zipFilePath)));
 
         try {
-            if (!targetFilePath.isDirectory()) {
-                Log.d(TAG, "827: target was not folder, bad");
+            if (!toBeZippedDirectory.isDirectory()) {
+                throw new RuntimeException("toBeZippedDirecory was not a directory. Bad.");
             }
+            // the to be zipped directory should contain a bunch of sub directories
+            File[] formInstanceFolders = toBeZippedDirectory.listFiles();
 
-            File[] fileArray = targetFilePath.listFiles();
-
-            for (File file : fileArray) {
-                File[] subFileArray = file.listFiles();
-                zipFolder(subFileArray, zipFile, out);
+            for (File formInstanceFolder : formInstanceFolders) {
+                File[] subFileArray = formInstanceFolder.listFiles();
+                zipInstanceFolder(subFileArray, zipFilePath, out);
             }
 
         } finally {
@@ -191,21 +202,24 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
         return false;
     }
 
-    private boolean zipFolder(File[] files, String zipFile, ZipOutputStream zos) throws IOException {
-        Log.d(TAG, "827 zipping folder with files: " + files[0] + ", zipFile: " + zipFile);
+    private void zipInstanceFolder(File[] toBeZippedFiles, String zipFilePath, ZipOutputStream zos)
+            throws IOException {
+        Log.d(TAG, "Zipping instance folder with files: " + Arrays.toString(toBeZippedFiles)
+                + ", zipFilePath: " + zipFilePath);
+
         int BUFFER_SIZE = 1024;
-        BufferedInputStream origin = null;
+        BufferedInputStream origin;
 
         byte data[] = new byte[BUFFER_SIZE];
 
-        for (File file : files) {
+        for (File file : toBeZippedFiles) {
             FileInputStream fi = new FileInputStream(file);
             origin = new BufferedInputStream(fi, BUFFER_SIZE);
             try {
 
                 String tempPath = file.getPath();
 
-                Log.d(TAG, "827 zipping folder with path: " + tempPath);
+                Log.d(TAG, "Zipping instance folder with path: " + tempPath);
 
                 String[] pathParts = tempPath.split("/");
 
@@ -214,7 +228,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                 String fileName = pathParts[pathPartsLength - 1];
                 String fileFolder = pathParts[pathPartsLength - 2];
 
-                Log.d(TAG, "827 zipping folder with path: " + fileFolder + "/" + fileName);
+                Log.d(TAG, "Zipping instance folder with path: " + fileFolder + "/" + fileName);
 
                 ZipEntry entry = new ZipEntry(fileFolder + "/" + fileName);
                 zos.putNextEntry(entry);
@@ -226,25 +240,18 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                 origin.close();
             }
         }
-
-        return false;
     }
 
     @Override
     protected FormRecord[] doTaskBackground(String... params) {
-
-        Log.d(TAG, "Doing zip task in background");
-
-        File baseDirectory = new File(CommCareWiFiDirectActivity.baseDirectory);
-        File sourceDirectory = new File(CommCareWiFiDirectActivity.sourceDirectory);
+        Log.d(TAG, "Doing zip task in background with params: " + params);
 
         if (baseDirectory.exists() && baseDirectory.isDirectory()) {
             baseDirectory.delete();
         }
 
         baseDirectory.mkdirs();
-
-        sourceDirectory.mkdirs();
+        storedFormDirectory.mkdirs();
 
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         Vector<Integer> ids = StorageUtils.getUnsentOrUnprocessedFormsForCurrentApp(storage);
@@ -254,8 +261,6 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
             for (int i = 0; i < ids.size(); ++i) {
                 records[i] = storage.read(ids.elementAt(i).intValue());
             }
-
-            dumpFolder = sourceDirectory;
 
             results = new Long[records.length];
             for (int i = 0; i < records.length; ++i) {
@@ -279,9 +284,9 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                         }
 
                         //Good!
-                        //Time to Send!
+                        //Time to transfer forms to storage!
                         try {
-                            results[i] = dumpInstance(folder, new SecretKeySpec(record.getAesKey(), "AES"));
+                            results[i] = getFileInstanceFromStorage(folder, new SecretKeySpec(record.getAesKey(), "AES"));
                         } catch (FileNotFoundException e) {
                             if (CommCareApplication._().isStorageAvailable()) {
                                 //If storage is available generally, this is a bug in the app design
@@ -332,8 +337,8 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                         nf.delete();
                     }
 
-                    zipTargetFolder(nf, CommCareWiFiDirectActivity.sourceZipDirectory);
-                    sourceDirectory.delete();
+                    zipParentFolder(nf, CommCareWiFiDirectActivity.sourceZipDirectory);
+                    storedFormDirectory.delete();
                 } catch (IOException ioe) {
                     Log.d(TAG, "827 IOException: " + ioe.getMessage());
                 }

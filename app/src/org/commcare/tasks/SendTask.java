@@ -21,10 +21,15 @@ import java.io.FilenameFilter;
 import java.util.Properties;
 
 /**
- * @author ctsims
+ * @author wspride
+ *
+ * This task iterates through all the form instances in dumpDirectory and attempts to
+ * submit them to the receiver at postUrl. The results array are status codes
+ * as defined in FormUploadUtil.
+ *
  */
 public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R> {
-    private String url;
+    private String postUrl;
     private Long[] results;
 
     private final File dumpDirectory;
@@ -36,7 +41,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
     // 5MB less 1KB overhead
 
     public SendTask(String url, File dumpDirectory) {
-        this.url = url;
+        this.postUrl = url;
         this.taskId = SendTask.BULK_SEND_ID;
         this.dumpDirectory = dumpDirectory;
     }
@@ -50,7 +55,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
     protected void onPostExecute(Boolean result) {
         super.onPostExecute(result);
         //These will never get Zero'd otherwise
-        url = null;
+        postUrl = null;
         results = null;
     }
 
@@ -108,15 +113,15 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
                 if(formPropertiesFile != null && formPropertiesFile.length > 0){
                     Properties properties = FileUtil.loadProperties(formPropertiesFile[0]);
                     if(properties != null && properties.getProperty(ZipTask.FORM_PROPERTY_POST_URL) != null){
-                        url = properties.getProperty(ZipTask.FORM_PROPERTY_POST_URL);
-                        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Successfully got form.property PostURL: " + url);
+                        postUrl = properties.getProperty(ZipTask.FORM_PROPERTY_POST_URL);
+                        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Successfully got form.property PostURL: " + postUrl);
                     }
                     // don't submit this file
                     FileUtil.deleteFileOrDir(formPropertiesFile[0]);
                 }
 
                 User user = CommCareApplication._().getSession().getLoggedInUser();
-                results[i] = FormUploadUtil.sendInstance(counter, formFolder, url, user);
+                results[i] = FormUploadUtil.sendInstance(counter, formFolder, postUrl, user);
 
                 if (results[i] == FormUploadUtil.FULL_SUCCESS) {
                     FileUtil.deleteFileOrDir(formFolder);
