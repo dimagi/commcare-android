@@ -74,7 +74,7 @@ import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.SaveToDiskTask;
 import org.commcare.utils.Base64Wrapper;
-import org.commcare.utils.FileUtils;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.SessionUnavailableException;
@@ -1639,7 +1639,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             String file =
                     mFormPath.substring(mFormPath.lastIndexOf('/') + 1, mFormPath.lastIndexOf('.'));
             String path = mInstanceDestination + file + "_" + time;
-            if (FileUtils.createFolder(path)) {
+            if (FileUtil.createFolder(path)) {
                 mInstancePath = path + "/" + file + "_" + time + ".xml";
             }
         } else {

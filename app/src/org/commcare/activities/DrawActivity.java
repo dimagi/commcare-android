@@ -24,7 +24,7 @@ import android.widget.RelativeLayout;
 
 import org.commcare.dalvik.R;
 import org.commcare.models.ODKStorage;
-import org.commcare.utils.FileUtils;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
@@ -104,13 +104,13 @@ public class DrawActivity extends Activity {
                 savepointImage = new File(savepoint);
                 if (!savepointImage.exists() && refImage != null
                         && refImage.exists()) {
-                    FileUtils.copyFile(refImage, savepointImage);
+                    FileUtil.copyFile(refImage, savepointImage);
                 }
             } else {
                 savepointImage = new File(ODKStorage.TMPDRAWFILE_PATH);
                 savepointImage.delete();
                 if (refImage != null && refImage.exists()) {
-                    FileUtils.copyFile(refImage, savepointImage);
+                    FileUtil.copyFile(refImage, savepointImage);
                 }
             }
             //sets where the result will be saved to
@@ -235,7 +235,7 @@ public class DrawActivity extends Activity {
         savepointImage.delete();
         if (!OPTION_SIGNATURE.equals(loadOption) && refImage != null
                 && refImage.exists()) {
-            FileUtils.copyFile(refImage, savepointImage);
+            FileUtil.copyFile(refImage, savepointImage);
         }
         drawView.reset();
         drawView.invalidate();

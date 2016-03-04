@@ -24,7 +24,7 @@ import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareUtil;
-import org.commcare.utils.FileUtils;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.commcare.utils.UriToFilePath;
 import org.javarosa.core.services.locale.Localization;
@@ -172,7 +172,7 @@ public class CommCarePreferences
             if (resultCode == RESULT_OK && data != null) {
                 Uri uri = data.getData();
                 String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(), uri);
-                String extension = FileUtils.getExtension(filePath);
+                String extension = FileUtil.getExtension(filePath);
                 if (extension.equalsIgnoreCase("html")) {
                     SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().
                             getAppPreferences().edit();

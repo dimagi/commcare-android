@@ -19,7 +19,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
-import org.commcare.utils.FileUtils;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UriToFilePath;
 import org.javarosa.core.model.data.IAnswerData;
@@ -206,7 +206,7 @@ public class VideoWidget extends QuestionWidget {
 
         File source = new File(binaryPath);
         File newVideo = new File(destVideoPath);
-        FileUtils.copyFile(source, newVideo);
+        FileUtil.copyFile(source, newVideo);
 
         checkFileSize(newVideo);
 

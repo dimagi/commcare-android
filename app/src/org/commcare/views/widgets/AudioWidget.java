@@ -18,7 +18,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
-import org.commcare.utils.FileUtils;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UriToFilePath;
 import org.javarosa.core.model.data.IAnswerData;
@@ -207,7 +207,7 @@ public class AudioWidget extends QuestionWidget {
 
         File source = new File(binaryPath);
         File newAudio = new File(destAudioPath);
-        FileUtils.copyFile(source, newAudio);
+        FileUtil.copyFile(source, newAudio);
 
         checkFileSize(newAudio);
 
