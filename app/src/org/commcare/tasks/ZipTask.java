@@ -148,6 +148,7 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
             outputStream = new FileOutputStream(formProperties);
             Properties properties = new Properties();
             SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
+            // HQ likes us to submit forms to the "correct" app and user specific URL
             String postUrl = settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
                     c.getString(R.string.PostURL));
             properties.setProperty("PostURL", postUrl);

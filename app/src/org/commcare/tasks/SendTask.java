@@ -3,6 +3,7 @@ package org.commcare.tasks;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadUtil;
@@ -108,7 +109,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
                     Properties properties = FileUtil.loadProperties(formPropertiesFile[0]);
                     if(properties != null && properties.getProperty(ZipTask.FORM_PROPERTY_POST_URL) != null){
                         url = properties.getProperty(ZipTask.FORM_PROPERTY_POST_URL);
-                        Logger.log(TAG, "Successfully got form.property PostURL: " + url);
+                        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Successfully got form.property PostURL: " + url);
                     }
                     // don't submit this file
                     FileUtil.deleteFileOrDir(formPropertiesFile[0]);
