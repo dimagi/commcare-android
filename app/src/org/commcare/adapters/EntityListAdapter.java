@@ -271,7 +271,7 @@ public class EntityListAdapter implements ListAdapter {
             for (int i = 0; i < searchTerms.length; ++i) {
                 searchTerms[i] = StringUtils.normalize(searchTerms[i]);
             }
-            entitySearcher = new EntitySearcher(this, filterRaw, searchTerms, mAsyncMode, mFuzzySearchEnabled, mNodeFactory, full, context);
+            entitySearcher = new EntitySearcher(this, searchTerms, mAsyncMode, mFuzzySearchEnabled, mNodeFactory, full, context);
             entitySearcher.start();
         }
     }

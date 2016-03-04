@@ -20,9 +20,9 @@ import java.util.List;
 import java.util.Locale;
 
 public class EntitySearcher {
-    private final String filterRaw;
+    private final boolean isFilterEmpty;
     private final String[] searchTerms;
-    private final List<Entity<TreeReference>> matchList = new ArrayList<>();
+    private final List<Entity<TreeReference>> matchList;
     private final ArrayList<Pair<Integer, Integer>> matchScores = new ArrayList<>();
     private boolean cancelled = false;
     private final boolean isAsyncMode;
@@ -33,9 +33,8 @@ public class EntitySearcher {
     private final EntityListAdapter adapter;
     private Thread thread;
 
-
     public EntitySearcher(EntityListAdapter adapter,
-                          String filterRaw, String[] searchTerms,
+                          String[] searchTerms,
                           boolean isAsyncMode, boolean isFuzzySearchEnabled,
                           NodeEntityFactory nodeFactory,
                           List<Entity<TreeReference>> full,
@@ -46,8 +45,13 @@ public class EntitySearcher {
         this.isAsyncMode = isAsyncMode;
         this.isFuzzySearchEnabled = isFuzzySearchEnabled;
         this.nodeFactory = nodeFactory;
-        this.filterRaw = filterRaw;
+        this.isFilterEmpty = searchTerms == null || searchTerms.length == 0;
         this.searchTerms = searchTerms;
+        if (isFilterEmpty) {
+            matchList = new ArrayList<>(full);
+        } else {
+            matchList = new ArrayList<>();
+        }
     }
 
     public void start() {
@@ -79,9 +83,33 @@ public class EntitySearcher {
     }
 
     private void search() {
-        Locale currentLocale = Locale.getDefault();
-
         long startTime = System.currentTimeMillis();
+
+        if (!isFilterEmpty) {
+            buildMatchList();
+        }
+
+        if (cancelled) {
+            return;
+        }
+
+        long time = System.currentTimeMillis() - startTime;
+        if (time > 1000) {
+            Logger.log("cache", "Presumably finished caching new entities, time taken: " + time + "ms");
+        }
+
+        context.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.setCurrent(matchList);
+                adapter.setCurrentSearchTerms(searchTerms);
+                adapter.update();
+            }
+        });
+    }
+
+    private void buildMatchList() {
+        Locale currentLocale = Locale.getDefault();
         //It's a bit sketchy here, because this DB lock will prevent
         //anything else from processing
         SQLiteDatabase db;
@@ -100,10 +128,6 @@ public class EntitySearcher {
             Entity<TreeReference> e = full.get(index);
             if (cancelled) {
                 break;
-            }
-            if ("".equals(filterRaw)) {
-                matchList.add(e);
-                continue;
             }
 
             boolean add = false;
@@ -155,22 +179,5 @@ public class EntitySearcher {
 
         db.setTransactionSuccessful();
         db.endTransaction();
-        if (cancelled) {
-            return;
-        }
-
-        long time = System.currentTimeMillis() - startTime;
-        if (time > 1000) {
-            Logger.log("cache", "Presumably finished caching new entities, time taken: " + time + "ms");
-        }
-
-        context.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                adapter.setCurrent(matchList);
-                adapter.setCurrentSearchTerms(searchTerms);
-                adapter.update();
-            }
-        });
     }
 }
