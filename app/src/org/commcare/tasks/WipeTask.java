@@ -40,6 +40,11 @@ public abstract class WipeTask extends CommCareTask<String, String, Boolean, Com
     @Override
     protected Boolean doTaskBackground(String... params) {
 
+        if(records == null){
+            // that's OK, might just be transferring already transferred forms.
+            return true;
+        }
+
         Log.d(TAG, "doing wipe task in background");
         for (FormRecord record : records) {
             FormRecordCleanupTask.wipeRecord(c, record);
