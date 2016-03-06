@@ -38,6 +38,8 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
 
     public static final int BULK_SEND_ID = 12335645;
 
+    private static final String TAG = SendTask.class.getSimpleName();
+
     // 5MB less 1KB overhead
 
     public SendTask(String url, File dumpDirectory) {
@@ -95,30 +97,12 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
             File formFolder = files[i];
 
             if (!(formFolder.isDirectory())) {
-                Log.e("send", "Encountered non form entry in file dump folder at path: " + formFolder.getAbsolutePath());
+                Log.e(TAG, "Encountered non form entry in file dump folder at path: " + formFolder.getAbsolutePath());
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Send_MalformedFile, new String[]{null, formFolder.getName()}, MALFORMED_FILE_CATEGORY));
                 continue;
             }
             try {
-
-                // see if we have a form.properties file to load the PostURL from
-                FilenameFilter filter = new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String filename) {
-                        return filename.equals(ZipTask.FORM_PROPERTIES_FILE);
-                    }
-                };
-                // there should only be one of these
-                File[] formPropertiesFile = formFolder.listFiles(filter);
-                if(formPropertiesFile != null && formPropertiesFile.length > 0){
-                    Properties properties = FileUtil.loadProperties(formPropertiesFile[0]);
-                    if(properties != null && properties.getProperty(ZipTask.FORM_PROPERTY_POST_URL) != null){
-                        postUrl = properties.getProperty(ZipTask.FORM_PROPERTY_POST_URL);
-                        Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Successfully got form.property PostURL: " + postUrl);
-                    }
-                    // don't submit this file
-                    FileUtil.deleteFileOrDir(formPropertiesFile[0]);
-                }
+                tryLoadPropertiesFile(formFolder);
 
                 User user = CommCareApplication._().getSession().getLoggedInUser();
                 results[i] = FormUploadUtil.sendInstance(counter, formFolder, postUrl, user);
@@ -136,11 +120,41 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
                 }
                 counter++;
             } catch (SessionUnavailableException | FileNotFoundException fe) {
-                Log.e("E", Localization.get("bulk.send.file.error", new String[]{formFolder.getAbsolutePath()}), fe);
+                Log.e(TAG, Localization.get("bulk.send.file.error", new String[]{formFolder.getAbsolutePath()}), fe);
                 publishProgress(Localization.get("bulk.send.file.error", new String[]{fe.getMessage()}));
             }
         }
         return allSuccessful;
+    }
+
+    /**
+     * See if this form submission has a properties file (which it should in 2.27+)
+     * If so, update override class's properties with the relevant fields. Fields:
+     *
+     * PostURL - the receiver URL to submit this form to (the app user is the default)
+     *
+     * @param formFolder the form instance folder currently being submitted
+     */
+    protected void tryLoadPropertiesFile(File formFolder){
+
+        // see if we have a form.properties file to load the PostURL from
+        FilenameFilter filter = new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String filename) {
+                return filename.equals(ZipTask.FORM_PROPERTIES_FILE);
+            }
+        };
+        // there should only be one of these
+        File[] formPropertiesFile = formFolder.listFiles(filter);
+        if(formPropertiesFile != null && formPropertiesFile.length > 0){
+            Properties properties = FileUtil.loadProperties(formPropertiesFile[0]);
+            if(properties != null && properties.getProperty(ZipTask.FORM_PROPERTY_POST_URL) != null){
+                postUrl = properties.getProperty(ZipTask.FORM_PROPERTY_POST_URL);
+                Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Successfully got form.property PostURL: " + postUrl);
+            }
+            // don't submit this file
+            FileUtil.deleteFileOrDir(formPropertiesFile[0]);
+        }
     }
 }
 
