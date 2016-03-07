@@ -3,3 +3,6 @@ project(':javarosa').projectDir = new File('../javarosa')
 
 include ':commcare'
 project(':commcare').projectDir = new File('../commcare')
+
+include ':simprints-lib'
+project(':simprints-lib').projectDir = new File('../libSimprints/libsimprints')

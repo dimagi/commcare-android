@@ -32,6 +32,8 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
+import com.simprints.libsimprints.Identification;
+
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
 import org.commcare.activities.components.EntitySelectViewSetup;
@@ -622,7 +624,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void handleAccuracyFilteringCallout(Intent intent) {
-        List<Object> identification = (List) intent.getParcelableArrayListExtra("identification");
+        List<Identification> identification = (List) intent.getParcelableArrayListExtra("identification");
         adapter.filterByKey(identification);
         refreshView();
     }

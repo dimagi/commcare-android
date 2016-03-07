@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
+import com.simprints.libsimprints.Identification;
+
 import org.commcare.dalvik.R;
 import org.commcare.models.AsyncNodeEntityFactory;
 import org.commcare.models.Entity;
@@ -276,7 +278,7 @@ public class EntityListAdapter implements ListAdapter {
         }
     }
 
-    public void filterByKey(List<Object> objs) {
+    public void filterByKey(List<Identification> objs) {
     }
 
     void update() {
