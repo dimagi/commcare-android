@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigInteger;
+import java.nio.channels.FileChannel;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -111,7 +112,21 @@ public class FileUtil {
     }
 
     public static void copyFile(File oldPath, File newPath) throws IOException {
-        copyFile(oldPath, newPath, null, null);
+        if (oldPath.exists()) {
+            if (newPath.isDirectory()) {
+                newPath = new File(newPath, oldPath.getName());
+            }
+
+            FileChannel src;
+            src = new FileInputStream(oldPath).getChannel();
+            FileChannel dst = new FileOutputStream(newPath).getChannel();
+            dst.transferFrom(src, 0, src.size());
+            src.close();
+            dst.close();
+        } else {
+            Log.e(LOG_TOKEN, "Source file does not exist: " + oldPath.getAbsolutePath());
+        }
+
     }
 
     public static void copyFile(File oldPath, File newPath, Cipher oldRead, Cipher newWrite) throws IOException {
