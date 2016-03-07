@@ -78,18 +78,34 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
         File myDir = new File(storedFormDirectory, formRecordFolder.getName());
         myDir.mkdirs();
 
-        if (files == null) {
-            //make sure external storage is available to begin with.
-            String state = Environment.getExternalStorageState();
-            if (!Environment.MEDIA_MOUNTED.equals(state)) {
-                //If so, just bail as if the user had logged out.
-                throw new SessionUnavailableException("External Storage Removed");
-            } else {
-                throw new FileNotFoundException("No directory found at: " + formRecordFolder.getAbsoluteFile());
-            }
+        logTransferBytes(files);
+
+        final Cipher decryptCipher = FormUploadUtil.getDecryptCipher(decryptionKey);
+        try {
+            decryptCopyFiles(files, myDir, decryptCipher);
+        } catch (IOException e){
+            Log.d(TAG, "Copying file failed with: " + e.getMessage());
+            publishProgress(("File writing failed: " + e.getMessage()));
+            return FormUploadUtil.FAILURE;
         }
 
-        //If we're listening, figure out how much (roughly) we have to send
+        // write any form.properties we want
+        writeProperties(myDir);
+        return FormUploadUtil.FULL_SUCCESS;
+    }
+
+    private void decryptCopyFiles(File[] files, File targetDirectory, Cipher decryptCipher) throws IOException{
+        for (File file : files) {
+            // This is not the ideal long term solution for determining whether we need decryption, but works
+            if (file.getName().endsWith(".xml")) {
+                FileUtil.copyFile(file, new File(targetDirectory, file.getName()), decryptCipher, null);
+            } else {
+                FileUtil.copyFile(file, new File(targetDirectory, file.getName()));
+            }
+        }
+    }
+
+    private void logTransferBytes(File[] files){
         long bytes = 0;
         for (File file : files) {
             //Make sure we'll be sending it
@@ -107,32 +123,6 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
         }
 
         Log.d(TAG, "Storing " + bytes + " form bytes");
-
-        final Cipher decryptCipher = FormUploadUtil.getDecryptCipher(decryptionKey);
-
-        for (File file : files) {
-            // This is not the ideal long term solution for determining whether we need decryption, but works
-            if (file.getName().endsWith(".xml")) {
-                try {
-                    FileUtil.copyFile(file, new File(myDir, file.getName()), decryptCipher, null);
-                } catch (IOException ie) {
-                    Log.d(TAG, "Copying file: " + file.getName() + " failed with: " + ie.getMessage());
-                    publishProgress(("File writing failed: " + ie.getMessage()));
-                    return FormUploadUtil.FAILURE;
-                }
-            } else {
-                try {
-                    FileUtil.copyFile(file, new File(myDir, file.getName()));
-                } catch (IOException ie) {
-                    Log.d(TAG, "Copying file: " + file.getName() + " failed with: " + ie.getMessage());
-                    publishProgress(("File writing failed: " + ie.getMessage()));
-                    return FormUploadUtil.FAILURE;
-                }
-            }
-        }
-        // write any form.properties we want
-        writeProperties(myDir);
-        return FormUploadUtil.FULL_SUCCESS;
     }
 
     /**
@@ -183,13 +173,9 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
 
         if (ids.size() > 0) {
             FormRecord[] records = new FormRecord[ids.size()];
-            for (int i = 0; i < ids.size(); ++i) {
-                records[i] = storage.read(ids.elementAt(i).intValue());
-            }
-
             results = new Long[records.length];
-            for (int i = 0; i < records.length; ++i) {
-                //Assume failure
+            for (int i = 0; i < ids.size(); ++i) {
+                records[i] = storage.read(ids.elementAt(i));
                 results[i] = FormUploadUtil.FAILURE;
             }
 
@@ -223,13 +209,6 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
                             }
                             continue;
                         }
-
-                        //Check for success
-                        if (results[i].intValue() == FormUploadUtil.FULL_SUCCESS) {
-                            //FormRecordCleanupTask.wipeRecord(c, platform, record);
-                            //publishProgress(Localization.get("bulk.form.dialog.progress",new String[]{""+i, ""+results[i].intValue()}));
-                        }
-
                         if (results[i].intValue() == FormUploadUtil.FAILURE) {
                             publishProgress("Failure during zipping process");
                             return null;
