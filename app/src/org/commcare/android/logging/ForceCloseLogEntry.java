@@ -15,7 +15,10 @@ import java.io.IOException;
 import java.util.Date;
 
 /**
- * Created by amstone326 on 2/11/16.
+ * Log entry for force closes, capturing the app build number, android version, device model,
+ * readable session string, and serialized session string.
+ *
+ * @author Aliza Stone
  */
 public class ForceCloseLogEntry extends AndroidLogEntry {
 

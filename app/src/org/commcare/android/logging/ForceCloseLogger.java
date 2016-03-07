@@ -57,15 +57,12 @@ public class ForceCloseLogger {
         String exceptionText = getStackTrace(exception);
         String submissionUri = getSubmissionUri();
         ForceCloseLogEntry entry = new ForceCloseLogEntry(exceptionText);
-        DeviceReportWriter reportWriter;
 
         try {
-            reportWriter = new DeviceReportWriter(streamToWriteErrorTo);
-
+            DeviceReportWriter reportWriter = new DeviceReportWriter(streamToWriteErrorTo);
             reportWriter.addReportElement(new ForceCloseLogSerializer(entry));
             // TEMPORARILY write this in the old format as well, until HQ starts parsing the new one
             reportWriter.addReportElement(new AndroidLogSerializer<ForceCloseLogEntry>(entry));
-
             reportWriter.write();
             if (!sendErrorToServer(streamToWriteErrorTo.toByteArray(), submissionUri)) {
                 writeErrorToStorage(entry);
