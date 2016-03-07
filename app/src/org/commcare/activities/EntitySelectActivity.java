@@ -406,21 +406,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
      */
     private void refreshView() {
         try {
-            //TODO: Get ec into these text's
-            String[] headers = new String[shortSelect.getFields().length];
-
-            for (int i = 0; i < headers.length; ++i) {
-                headers[i] = shortSelect.getFields()[i].getHeader().evaluate();
-            }
-
-            header.removeAllViews();
-
-            // only add headers if we're not using grid mode
-            if (!shortSelect.usesGridView()) {
-                //Hm, sadly we possibly need to rebuild this each time.
-                EntityView v = EntityView.buildHeadersEntityView(this, shortSelect, headers);
-                header.addView(v);
-            }
+            rebuildHeaders();
 
             if (adapter == null) {
                 loadEntities();
@@ -429,6 +415,24 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
         } catch (RuntimeException re) {
             UserfacingErrorHandling.createErrorDialog(this, re.getMessage(), true);
+        }
+    }
+
+    private void rebuildHeaders() {
+        //TODO: Get ec into these text's
+        String[] headers = new String[shortSelect.getFields().length];
+
+        for (int i = 0; i < headers.length; ++i) {
+            headers[i] = shortSelect.getFields()[i].getHeader().evaluate();
+        }
+
+        header.removeAllViews();
+
+        // only add headers if we're not using grid mode
+        if (!shortSelect.usesGridView()) {
+            //Hm, sadly we possibly need to rebuild this each time.
+            EntityView v = EntityView.buildHeadersEntityView(this, shortSelect, headers);
+            header.addView(v);
         }
     }
 
