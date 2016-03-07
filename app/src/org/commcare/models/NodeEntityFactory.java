@@ -38,7 +38,9 @@ public class NodeEntityFactory {
         Object entityKey = null;
         if (detail.getCallout() != null) {
             DetailField calloutResponseDetail = detail.getCallout().getResponseDetail();
-            entityKey = calloutResponseDetail.getTemplate().evaluate(nodeContext);
+            if (calloutResponseDetail != null) {
+                entityKey = calloutResponseDetail.getTemplate().evaluate(nodeContext);
+            }
         }
         Object[] details = new Object[length];
         String[] sortDetails = new String[length];
