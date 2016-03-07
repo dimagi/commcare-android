@@ -11,16 +11,24 @@ public class Entity<T> {
     private Object[] data;
     private String[] sortData;
     private boolean[] relevancyData;
+    public final Object extraKey;
 
     protected Entity(T t) {
         this.t = t;
+        this.extraKey = null;
     }
 
     public Entity(Object[] data, String[] sortData, boolean[] relevancyData, T t) {
+        this(data, sortData, relevancyData, t, null);
+    }
+
+    public Entity(Object[] data, String[] sortData, boolean[] relevancyData, T t,
+                  Object extraKey) {
         this.t = t;
         this.sortData = sortData;
         this.data = data;
         this.relevancyData = relevancyData;
+        this.extraKey = extraKey;
     }
 
     public Object getField(int i) {
