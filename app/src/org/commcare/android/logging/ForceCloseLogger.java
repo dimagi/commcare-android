@@ -9,6 +9,7 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.logging.AndroidLogSerializer;
 import org.commcare.logging.DeviceReportWriter;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.network.HttpRequestGenerator;
@@ -60,7 +61,11 @@ public class ForceCloseLogger {
 
         try {
             reportWriter = new DeviceReportWriter(streamToWriteErrorTo);
+
             reportWriter.addReportElement(new ForceCloseLogSerializer(entry));
+            // TEMPORARILY write this in the old format as well, until HQ starts parsing the new one
+            reportWriter.addReportElement(new AndroidLogSerializer<ForceCloseLogEntry>(entry));
+
             reportWriter.write();
             if (!sendErrorToServer(streamToWriteErrorTo.toByteArray(), submissionUri)) {
                 writeErrorToStorage(entry);

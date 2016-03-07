@@ -4,27 +4,29 @@ import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.log.StreamLogSerializer;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.util.SortedIntSet;
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;
 import java.util.Hashtable;
-import java.util.Vector;
 
 /**
  * @author ctsims
  */
-public class AndroidLogSerializer extends StreamLogSerializer implements DeviceReportElement {
+public class AndroidLogSerializer <T extends AndroidLogEntry>
+        extends StreamLogSerializer implements DeviceReportElement {
 
     private XmlSerializer serializer;
 
-    // The entire storage object of all log entries
-    private final SqlStorage<AndroidLogEntry> logStorage;
+    private AndroidLogEntry singleEntry;
+    private SqlStorage<T> logStorage;
 
+    public AndroidLogSerializer(AndroidLogEntry entry) {
+        this.singleEntry = entry;
+    }
 
-    public AndroidLogSerializer(final SqlStorage<AndroidLogEntry> logStorage) {
+    public AndroidLogSerializer(final SqlStorage<T> logStorage) {
         this.logStorage = logStorage;
 
         this.setPurger(new Purger() {
@@ -77,8 +79,13 @@ public class AndroidLogSerializer extends StreamLogSerializer implements DeviceR
         serializer.startTag(DeviceReportWriter.XMLNS, "log_subreport");
 
         try {
-            for (AndroidLogEntry entry : logStorage) {
-                serializeLog(entry.getID(), entry);
+            if (singleEntry != null) {
+                serializeLog(singleEntry.getID(), singleEntry);
+            }
+            else {
+                for (AndroidLogEntry entry : logStorage) {
+                    serializeLog(entry.getID(), entry);
+                }
             }
         } finally {
             serializer.endTag(DeviceReportWriter.XMLNS, "log_subreport");

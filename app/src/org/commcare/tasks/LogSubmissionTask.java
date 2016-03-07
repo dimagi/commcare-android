@@ -130,9 +130,9 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
     }
 
     /**
-     * Serialize all of the entries currently in Android logs and Xpath error logs, and write
-     * that to a DeviceReportRecord, which then gets added to the internal storage object of
-     * all DeviceReportRecords that have yet to be submitted
+     * Serialize all of the entries currently in Android logs, Xpath error logs, and Force close
+     * logs, and write that to a DeviceReportRecord, which then gets added to the internal storage
+     * object of all DeviceReportRecords that have yet to be submitted
      */
     private boolean serializeLogs(SqlStorage<DeviceReportRecord> storage) {
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -160,8 +160,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                 return false;
             }
 
-            // Serialize all logs for the current user (normal and xpath errors)
-            AndroidLogSerializer userLogSerializer = new AndroidLogSerializer(
+            // Serialize regular and xpath error logs for the current user
+            AndroidLogSerializer<AndroidLogEntry> userLogSerializer = new AndroidLogSerializer<>(
                     CommCareApplication._().getUserStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
             reporter.addReportElement(userLogSerializer);
 
@@ -176,6 +176,15 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             ForceCloseLogSerializer userForceCloseSerializer = new ForceCloseLogSerializer(
                     CommCareApplication._().getUserStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
             reporter.addReportElement(userForceCloseSerializer);
+
+            // TEMPORARILY ONLY - serialize all force close logs in the old format, so that HQ
+            // still picks them up, until we start processing the new format
+            AndroidLogSerializer<ForceCloseLogEntry> globalForceCloseSerializer_oldFormat = new AndroidLogSerializer<>(
+                    CommCareApplication._().getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+            reporter.addReportElement(globalForceCloseSerializer_oldFormat);
+            AndroidLogSerializer<ForceCloseLogEntry> userForceCloseSerializer_oldFormat = new AndroidLogSerializer<>(
+                    CommCareApplication._().getUserStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+            reporter.addReportElement(userForceCloseSerializer_oldFormat);
 
             // Serialize all logs currently in global storage, since we have no way to determine
             // which app they truly belong to
