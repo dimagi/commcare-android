@@ -276,6 +276,9 @@ public class EntityListAdapter implements ListAdapter {
         }
     }
 
+    public void filterByKey(List<Object> objs) {
+    }
+
     void update() {
         for (DataSetObserver o : observers) {
             o.onChanged();

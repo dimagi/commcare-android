@@ -598,19 +598,33 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private void processCalloutResult(int resultCode, Intent intent) {
         if (resultCode == Activity.RESULT_OK) {
-            String result = intent.getStringExtra("odk_intent_data");
-            if (result != null){
-                setSearchText(result.trim());
-            } else {
-                for (String key : shortSelect.getCallout().getResponses()) {
-                    result = intent.getExtras().getString(key);
-                    if (result != null) {
-                        setSearchText(result);
-                        return;
-                    }
+            if (intent.hasExtra("odk_intent_data")) {
+                handleSearchStringCallout(intent);
+            } else if (intent.hasExtra("identification")) {
+                handleAccuracyFilteringCallout(intent);
+            }
+        }
+    }
+
+    private void handleSearchStringCallout(Intent intent) {
+        String result = intent.getStringExtra("odk_intent_data");
+        if (result != null){
+            setSearchText(result.trim());
+        } else {
+            for (String key : shortSelect.getCallout().getResponses()) {
+                result = intent.getExtras().getString(key);
+                if (result != null) {
+                    setSearchText(result);
+                    return;
                 }
             }
         }
+    }
+
+    private void handleAccuracyFilteringCallout(Intent intent) {
+        List<Object> identification = (List) intent.getParcelableArrayListExtra("identification");
+        adapter.filterByKey(identification);
+        refreshView();
     }
 
     /**
