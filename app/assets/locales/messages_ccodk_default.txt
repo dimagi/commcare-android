@@ -409,7 +409,7 @@ pin.auth.failed.password=Entered password was incorrect. Please try again.
 pin.auth.prompt.pin=Enter your current PIN
 pin.auth.prompt.password=Enter your password
 pin.auth.enter.button=ENTER
-
+pin.primed.mode.message=You will use the PIN you create here to log into CommCare on all future log-ins.
 
 #Put these into their own file
 
