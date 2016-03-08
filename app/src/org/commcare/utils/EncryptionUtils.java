@@ -163,7 +163,7 @@ public class EncryptionUtils {
         }
 
         public void appendFileSignatureSource(File file) {
-            String md5Hash = FileUtils.getMd5Hash(file);
+            String md5Hash = FileUtil.getMd5Hash(file);
             appendElementSignatureSource(file.getName() + "::" + md5Hash);
         }
 
