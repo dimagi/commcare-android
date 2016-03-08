@@ -23,12 +23,12 @@ import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.tasks.ExceptionReporting;
 import org.commcare.tasks.FormRecordCleanupTask;
-import org.commcare.utils.InvalidStateException;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.IStorageUtilityIndexed;
+import org.javarosa.xml.util.InvalidStorageStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -105,7 +105,7 @@ public class InstanceProvider extends ContentProvider {
 
     private void init() {
         String appId = ProviderUtils.getSandboxedAppId();
-        if (mDbHelper == null || !mDbHelper.getAppId().equals(appId)) {
+        if (mDbHelper == null || !appId.equals(mDbHelper.getAppId())) {
             String dbName = ProviderUtils.getProviderDbName(ProviderUtils.ProviderType.INSTANCES, appId);
             mDbHelper = new DatabaseHelper(CommCareApplication._(), dbName, appId);
         }
@@ -137,7 +137,10 @@ public class InstanceProvider extends ContentProvider {
         Cursor c = qb.query(db, projection, selection, selectionArgs, null, null, sortOrder);
 
         // Tell the cursor what uri to watch, so it knows when its source data changes
-        c.setNotificationUri(getContext().getContentResolver(), uri);
+        Context context = getContext();
+        if (context != null) {
+            c.setNotificationUri(context.getContentResolver(), uri);
+        }
         return c;
     }
 
@@ -208,11 +211,13 @@ public class InstanceProvider extends ContentProvider {
 
         if (rowId > 0) {
             Uri instanceUri = ContentUris.withAppendedId(InstanceProviderAPI.InstanceColumns.CONTENT_URI, rowId);
-            getContext().getContentResolver().notifyChange(instanceUri, null);
+            notifyChangeSafe(getContext(), uri);
 
             if (linkToSession) {
                 try {
                     linkToSessionFormRecord(instanceUri);
+                } catch (IllegalStateException e) {
+                    throw e;
                 } catch (Exception e) {
                     throw new SQLException("Failed to insert row into " + uri);
                 }
@@ -296,12 +301,14 @@ public class InstanceProvider extends ContentProvider {
             case INSTANCES:
                 Cursor del = null;
                 try {
-                    del = this.query(uri, null, where, whereArgs, null);
-                    del.moveToPosition(-1);
-                    while (del.moveToNext()) {
-                        String instanceFile = del.getString(del.getColumnIndex(InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH));
-                        String instanceDir = (new File(instanceFile)).getParent();
-                        deleteFileOrDir(instanceDir);
+                    del = query(uri, null, where, whereArgs, null);
+                    if (del != null) {
+                        del.moveToPosition(-1);
+                        while (del.moveToNext()) {
+                            String instanceFile = del.getString(del.getColumnIndex(InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH));
+                            String instanceDir = (new File(instanceFile)).getParent();
+                            deleteFileOrDir(instanceDir);
+                        }
                     }
                 } finally {
                     if (del != null) {
@@ -316,13 +323,15 @@ public class InstanceProvider extends ContentProvider {
 
                 Cursor c = null;
                 try {
-                    c = this.query(uri, null, where, whereArgs, null);
+                    c = query(uri, null, where, whereArgs, null);
                     // This should only ever return 1 record.  I hope.
-                    c.moveToPosition(-1);
-                    while (c.moveToNext()) {
-                        String instanceFile = c.getString(c.getColumnIndex(InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH));
-                        String instanceDir = (new File(instanceFile)).getParent();
-                        deleteFileOrDir(instanceDir);
+                    if (c != null) {
+                        c.moveToPosition(-1);
+                        while (c.moveToNext()) {
+                            String instanceFile = c.getString(c.getColumnIndex(InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH));
+                            String instanceDir = (new File(instanceFile)).getParent();
+                            deleteFileOrDir(instanceDir);
+                        }
                     }
                 } finally {
                     if (c != null) {
@@ -342,16 +351,16 @@ public class InstanceProvider extends ContentProvider {
         }
         db.close();
 
-        getContext().getContentResolver().notifyChange(uri, null);
+        notifyChangeSafe(getContext(), uri);
         return count;
     }
 
+    private static void notifyChangeSafe(Context context, Uri uri) {
+        if (context != null) {
+            context.getContentResolver().notifyChange(uri, null);
+        }
+    }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @see android.content.ContentProvider#update(android.net.Uri, android.content.ContentValues, java.lang.String, java.lang.String[])
-     */
     @Override
     public int update(@NonNull Uri uri, ContentValues values, String where, String[] whereArgs) {
         int count;
@@ -397,12 +406,14 @@ public class InstanceProvider extends ContentProvider {
         if (values.containsKey(InstanceProviderAPI.InstanceColumns.STATUS) && count > 0) {
             try {
                 linkToSessionFormRecord(getInstanceRowUri(uri, where, whereArgs));
+            } catch (IllegalStateException e) {
+                throw e;
             } catch (Exception e) {
                 throw new SQLException("Failed to update row " + uri);
             }
         }
 
-        getContext().getContentResolver().notifyChange(uri, null);
+        notifyChangeSafe(getContext(), uri);
 
         return count;
     }
@@ -430,11 +441,13 @@ public class InstanceProvider extends ContentProvider {
                 Cursor c = null;
                 try {
                     c = this.query(potentialUri, null, selection, selectionArgs, null);
-                    c.moveToPosition(-1);
-                    if (c.moveToNext()) {
-                        // there should only be one result for this query
-                        String instanceId = c.getString(c.getColumnIndex("_id"));
-                        return InstanceProviderAPI.InstanceColumns.CONTENT_URI.buildUpon().appendPath(instanceId).build();
+                    if (c != null) {
+                        c.moveToPosition(-1);
+                        if (c.moveToNext()) {
+                            // there should only be one result for this query
+                            String instanceId = c.getString(c.getColumnIndex("_id"));
+                            return InstanceProviderAPI.InstanceColumns.CONTENT_URI.buildUpon().appendPath(instanceId).build();
+                        }
                     }
                 } finally {
                     if (c != null) {
@@ -457,31 +470,38 @@ public class InstanceProvider extends ContentProvider {
      * @param instanceUri points to a concrete instance we want to register
      */
     private void linkToSessionFormRecord(Uri instanceUri) {
-        if (!InstanceProviderAPI.InstanceColumns.CONTENT_ITEM_TYPE.equals(getType(instanceUri))) {
-            Log.w(t, "Tried to link a FormRecord to a URI that doesn't point " +
-                    "to a concrete instance.");
-            return;
-        }
         AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
-
         if (instanceUri == null) {
             raiseFormEntryError("Form Entry did not return a form", currentState);
             return;
         }
 
+        if (!InstanceProviderAPI.InstanceColumns.CONTENT_ITEM_TYPE.equals(getType(instanceUri))) {
+            Log.w(t, "Tried to link a FormRecord to a URI that doesn't point " +
+                    "to a concrete instance.");
+            return;
+        }
+
         String instanceStatus = null;
 
-        Cursor c = getContext().getContentResolver().query(instanceUri, null, null, null, null);
-        try {
-            c.moveToFirst();
-            instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceProviderAPI.InstanceColumns.STATUS));
-        } catch (IllegalArgumentException iae) {
-            iae.printStackTrace();
-            // TODO: Fail more hardcore here? Wipe the form record and its ties?
-            raiseFormEntryError("Unrecoverable error when trying to read form|" + iae.getMessage(),
-                    currentState);
-        } finally {
-            c.close();
+        Context context = getContext();
+        if (context != null) {
+            Cursor c = context.getContentResolver().query(instanceUri, null, null, null, null);
+            try {
+                if (c != null) {
+                    c.moveToFirst();
+                    instanceStatus = c.getString(c.getColumnIndexOrThrow(InstanceProviderAPI.InstanceColumns.STATUS));
+                }
+            } catch (IllegalArgumentException iae) {
+                iae.printStackTrace();
+                // TODO: Fail more hardcore here? Wipe the form record and its ties?
+                raiseFormEntryError("Unrecoverable error when trying to read form|" + iae.getMessage(),
+                        currentState);
+            } finally {
+                if (c != null) {
+                    c.close();
+                }
+            }
         }
 
         boolean complete = InstanceProviderAPI.STATUS_COMPLETE.equals(instanceStatus);
@@ -516,6 +536,10 @@ public class InstanceProvider extends ContentProvider {
             if (FormRecord.STATUS_COMPLETE.equals(current.getStatus())) {
                 try {
                     new FormRecordProcessor(getContext()).process(current);
+                } catch (InvalidStructureException | InvalidStorageStructureException e) {
+                    // record should be wiped when form entry is exited
+                    Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW, e.getMessage());
+                    throw new IllegalStateException(e.getMessage());
                 } catch (Exception e) {
                     NotificationMessage message =
                             NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.FormEntry_Save_Error,
@@ -600,5 +624,11 @@ public class InstanceProvider extends ContentProvider {
 
         currentState.reset();
         throw new RuntimeException(loggerText);
+    }
+
+    private static class InvalidStateException extends Exception {
+        public InvalidStateException(String message) {
+            super(message);
+        }
     }
 }

@@ -257,9 +257,4 @@ public class GoogleAnalyticsUtils {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD;
     }
 
-    // Currently unused, should remove later if it doesn't get used
-    private static void dispatchQueuedEvents() {
-        CommCareApplication._().getAnalyticsInstance().dispatchLocalHits();
-    }
-
 }
