@@ -3,9 +3,8 @@ package org.commcare.tasks;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.net.Uri;
-import android.support.v4.app.FragmentActivity;
+import android.support.v4.util.Pair;
 import android.util.Log;
 
 import org.commcare.activities.FormEntryActivity;
@@ -40,7 +39,8 @@ import javax.crypto.spec.SecretKeySpec;
  * @author Carl Hartung (carlhartung@gmail.com)
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
-public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Void, String, SaveToDiskTask.SaveStatus, R> {
+public class SaveToDiskTask extends
+        CommCareTask<Void, String, Pair<SaveToDiskTask.SaveStatus, String>, FormEntryActivity> {
     // callback to run upon saving
     private FormSavedListener mSavedListener;
     private final Boolean exitAfterSave;
@@ -65,7 +65,9 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
 
     public static final int SAVING_TASK_ID = 17;
 
-    public SaveToDiskTask(Uri mUri, Boolean saveAndExit, Boolean markCompleted, String updatedName, Context context, Uri instanceContentUri, SecretKeySpec symetricKey, boolean headless) {
+    public SaveToDiskTask(Uri mUri, Boolean saveAndExit, Boolean markCompleted,
+                          String updatedName, Context context, Uri instanceContentUri,
+                          SecretKeySpec symetricKey, boolean headless) {
         TAG = SaveToDiskTask.class.getSimpleName();
 
         this.mUri = mUri;
@@ -88,30 +90,46 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
      * an instance, it will be used to fill the {@link FormDef}.
      */
     @Override
-    protected SaveStatus doTaskBackground(Void... nothing) {
+    protected Pair<SaveStatus, String> doTaskBackground(Void... nothing) {
         if (hasInvalidAnswers(mMarkCompleted, DeveloperPreferences.shouldFireTriggersOnSave())) {
-            return SaveStatus.INVALID_ANSWER;
+            return new Pair<>(SaveStatus.INVALID_ANSWER, "");
         }
 
         FormEntryActivity.mFormController.postProcessInstance();
 
-        if (exportData(mMarkCompleted)) {
-            if (exitAfterSave) {
-                return SaveStatus.SAVED_AND_EXIT;
-            } else if (mMarkCompleted) {
-                return SaveStatus.SAVED_COMPLETE;
-            } else {
-                return SaveStatus.SAVED_INCOMPLETE;
-            }
+        try {
+            exportData(mMarkCompleted);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return new Pair<>(SaveStatus.SAVE_ERROR,
+                    "Something is blocking acesss to the submission file in " + FormEntryActivity.mInstancePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new Pair<>(SaveStatus.SAVE_ERROR,
+                    "Unable to write xml to " + FormEntryActivity.mInstancePath);
+        } catch (FormInstanceTransactionException e) {
+            // TODO PLM: send this error to HQ as a app build error, most
+            // likely a user level issue.
+            e.printStackTrace();
+            // Passing exceptions through content providers make error message strings messy.
+            String cleanedMessage = e.getMessage().replace("java.lang.IllegalStateException: ", "");
+            return new Pair<>(SaveStatus.SAVE_ERROR, cleanedMessage);
         }
 
-        return SaveStatus.SAVE_ERROR;
+        if (exitAfterSave) {
+            return new Pair<>(SaveStatus.SAVED_AND_EXIT, "");
+        } else if (mMarkCompleted) {
+            return new Pair<>(SaveStatus.SAVED_COMPLETE, "");
+        } else {
+            return new Pair<>(SaveStatus.SAVED_INCOMPLETE, "");
+        }
     }
 
     /**
      * Update or create a new entry in the form table for the
      */
-    private void updateInstanceDatabase(boolean incomplete, boolean canEditAfterCompleted) {
+    private void updateInstanceDatabase(boolean incomplete, boolean canEditAfterCompleted)
+            throws FormInstanceTransactionException {
         ContentValues values = new ContentValues();
         if (mInstanceName != null) {
             values.put(InstanceColumns.DISPLAY_NAME, mInstanceName);
@@ -126,16 +144,26 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
         values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, Boolean.toString(canEditAfterCompleted));
 
         // Insert or update the form instance into the database.
-        if (context.getContentResolver().getType(mUri) == InstanceColumns.CONTENT_ITEM_TYPE) {
+        String resolverType = context.getContentResolver().getType(mUri);
+        if (InstanceColumns.CONTENT_ITEM_TYPE.equals(resolverType)) {
             // Started with a concrete instance (e.i. by editing an existing
             // form), so just update it.
-            context.getContentResolver().update(mUri, values, null, null);
-        } else if (FormsColumns.CONTENT_ITEM_TYPE.equals(context.getContentResolver().getType(mUri))) {
+            try {
+                context.getContentResolver().update(mUri, values, null, null);
+            } catch (IllegalStateException e) {
+                throw new FormInstanceTransactionException(e);
+            }
+        } else if (FormsColumns.CONTENT_ITEM_TYPE.equals(resolverType)) {
             // Started with an empty form or possibly a manually saved form.
             // Try updating, and create a new instance if that fails.
             String[] whereArgs = {FormEntryActivity.mInstancePath};
-            int rowsUpdated = context.getContentResolver().update(instanceContentUri, values,
-                    InstanceColumns.INSTANCE_FILE_PATH + "=?", whereArgs);
+            int rowsUpdated;
+            try {
+                rowsUpdated = context.getContentResolver().update(instanceContentUri, values,
+                        InstanceColumns.INSTANCE_FILE_PATH + "=?", whereArgs);
+            } catch (IllegalStateException e) {
+                throw new FormInstanceTransactionException(e);
+            }
             if (rowsUpdated == 0) {
                 // Form instance didn't exist in the table, so create it.
                 Log.e(TAG, "No instance found, creating");
@@ -160,7 +188,11 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
                     }
                 }
                 values.put(InstanceColumns.INSTANCE_FILE_PATH, FormEntryActivity.mInstancePath);
-                mUri = context.getContentResolver().insert(instanceContentUri, values);
+                try {
+                    mUri = context.getContentResolver().insert(instanceContentUri, values);
+                } catch (IllegalStateException e) {
+                    throw new FormInstanceTransactionException(e);
+                }
             } else if (rowsUpdated == 1) {
                 Log.i(TAG, "Instance already exists, updating");
             } else{
@@ -170,80 +202,60 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
     }
 
     /**
-     * Write's the data to the sdcard, and updates the instances content provider.
-     * In theory we don't have to write to disk, and this is where you'd add
-     * other methods.
-     * @return was writing of data successful?
+     * Write's the data to the sdcard, and updates the instances content
+     * provider. In theory we don't have to write to disk, and this is where
+     * you'd add other methods.
+     *
+     * @throws IOException                      Issue serializing form and
+     *                                          storing to filesystem
+     * @throws FormInstanceTransactionException Issue performing transactions
+     *                                          associated with form saving,
+     *                                          like case updates and updating
+     *                                          the associated form record
      */
-    private boolean exportData(boolean markCompleted) {
+    private void exportData(boolean markCompleted)
+            throws IOException, FormInstanceTransactionException {
         ByteArrayPayload payload;
-        try {
+        // assume no binary data inside the model.
+        FormInstance datamodel = FormEntryActivity.mFormController.getInstance();
+        XFormSerializingVisitor serializer = new XFormSerializingVisitor(markCompleted);
+        payload = (ByteArrayPayload)serializer.createSerializedPayload(datamodel);
 
-            // assume no binary data inside the model.
-            FormInstance datamodel = FormEntryActivity.mFormController.getInstance();
-            XFormSerializingVisitor serializer = new XFormSerializingVisitor(markCompleted);
-            payload = (ByteArrayPayload) serializer.createSerializedPayload(datamodel);
-
-            // write out xml
-            exportXmlFile(payload,
-                    EncryptionIO.createFileOutputStream(FormEntryActivity.mInstancePath, symetricKey));
-
-        } catch (IOException e) {
-            Log.e(TAG, "Error creating serialized payload");
-            e.printStackTrace();
-            return false;
-        }
+        writeXmlToStream(payload,
+                EncryptionIO.createFileOutputStream(FormEntryActivity.mInstancePath, symetricKey));
 
         // update the mUri. We've saved the reloadable instance, so update status...
+        updateInstanceDatabase(true, true);
 
-        try {
-            updateInstanceDatabase(true, true);
-        } catch (SQLException e) {
-            Log.e(TAG, "Error creating database entries for form.");
-            e.printStackTrace();
-            return false;
-        }
-        
         if ( markCompleted ) {
             // now see if it is to be finalized and perhaps update everything...
             boolean canEditAfterCompleted = FormEntryActivity.mFormController.isSubmissionEntireForm();
             boolean isEncrypted = false;
-            
+
             // build a submission.xml to hold the data being submitted 
             // and (if appropriate) encrypt the files on the side
 
             // pay attention to the ref attribute of the submission profile...
-            try {
-                payload = FormEntryActivity.mFormController.getSubmissionXml();
-            } catch (IOException e) {
-                Log.e(TAG, "Error creating serialized payload");
-                e.printStackTrace();
-                return false;
-            }
+            payload = FormEntryActivity.mFormController.getSubmissionXml();
 
             File instanceXml = new File(FormEntryActivity.mInstancePath);
             File submissionXml = new File(instanceXml.getParentFile(), "submission.xml");
             // write out submission.xml -- the data to actually submit to aggregate
-            try {
-                exportXmlFile(payload,
-                        EncryptionIO.createFileOutputStream(submissionXml.getAbsolutePath(), symetricKey));
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                throw new RuntimeException("Something is blocking acesss to the file at " + submissionXml.getAbsolutePath());
-            }
-            
+            writeXmlToStream(payload,
+                    EncryptionIO.createFileOutputStream(submissionXml.getAbsolutePath(), symetricKey));
+
             // see if the form is encrypted and we can encrypt it...
             EncryptedFormInformation formInfo = EncryptionUtils.getEncryptedFormInformation(mUri, FormEntryActivity.mFormController.getSubmissionMetadata(), context, instanceContentUri);
             if ( formInfo != null ) {
                 // if we are encrypting, the form cannot be reopened afterward
                 canEditAfterCompleted = false;
                 // and encrypt the submission (this is a one-way operation)...
-                if ( !EncryptionUtils.generateEncryptedSubmission(instanceXml, submissionXml, formInfo) ) {
-                    return false;
+                if (!EncryptionUtils.generateEncryptedSubmission(instanceXml, submissionXml, formInfo)) {
+                    throw new RuntimeException("Unable to encrypt form submission.");
                 }
                 isEncrypted = true;
             }
-            
+
             // At this point, we have:
             // 1. the saved original instanceXml, 
             // 2. all the plaintext attachments
@@ -254,14 +266,7 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
             // 1. Update the instance database (with status complete).
             // 2. Overwrite the instanceXml with the submission.xml 
             //    and remove the plaintext attachments if encrypting
-            
-            try {
-                updateInstanceDatabase(false, canEditAfterCompleted);
-            } catch (SQLException e) {
-                Logger.exception("Error creating database entries for form", e);
-                e.printStackTrace();
-                return false;
-            }
+            updateInstanceDatabase(false, canEditAfterCompleted);
 
             if (  !canEditAfterCompleted ) {
                 // AT THIS POINT, there is no going back.  We are committed
@@ -272,20 +277,20 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
                 // Handle the fall-out for a failed "submission.xml" rename
                 // in the InstanceUploader task.  Leftover plaintext media
                 // files are handled during form deletion.
-    
+
                 // delete the restore Xml file.
                 if ( !instanceXml.delete() ) {
                     Log.e(TAG, "Error deleting " + instanceXml.getAbsolutePath()
                             + " prior to renaming submission.xml");
-                    return true;
+                    return;
                 }
-    
+
                 // rename the submission.xml to be the instanceXml
                 if ( !submissionXml.renameTo(instanceXml) ) {
                     Log.e(TAG, "Error renaming submission.xml to " + instanceXml.getAbsolutePath());
-                    return true;
+                    return;
                 }
-                
+
                 // if encrypted, delete all plaintext files
                 // (anything not named instanceXml or anything not ending in .enc)
                 if ( isEncrypted ) {
@@ -295,46 +300,39 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
                 }
             }
         }
-        return true;
     }
-    
-    /**
-     * This method actually writes the xml to disk.
-     */
-    private boolean exportXmlFile(ByteArrayPayload payload, OutputStream output) {
-        // create data stream
+
+    private void writeXmlToStream(ByteArrayPayload payload, OutputStream output) throws IOException {
         InputStream is = payload.getPayloadStream();
-        try {
-            StreamsUtil.writeFromInputToOutput(is, output);
-            output.close();
-            return true;
-        } catch (IOException e) {
-            Log.e(TAG, "Error reading from payload data stream");
-            e.printStackTrace();
-            return false;
-        }
+        StreamsUtil.writeFromInputToOutput(is, output);
+        output.close();
     }
 
     @Override
-    protected void onPostExecute(SaveStatus result) {
+    protected void onPostExecute(Pair<SaveStatus, String> result) {
         super.onPostExecute(result);
 
         synchronized (this) {
-            if (mSavedListener != null)
-                mSavedListener.savingComplete(result);
+            if (mSavedListener != null) {
+                if (result == null) {
+                    mSavedListener.savingComplete(SaveStatus.SAVE_ERROR, "Unknown Error");
+                } else {
+                    mSavedListener.savingComplete(result.first, result.second);
+                }
+            }
         }
     }
 
     @Override
-    protected void deliverResult(R receiver, SaveStatus result) {
+    protected void deliverResult(FormEntryActivity receiver, Pair<SaveStatus, String> result) {
     }
 
     @Override
-    protected void deliverUpdate(R receiver, String... update) {
+    protected void deliverUpdate(FormEntryActivity receiver, String... update) {
     }
 
     @Override
-    protected void deliverError(R receiver, Exception e) {
+    protected void deliverError(FormEntryActivity receiver, Exception e) {
     }
 
     public void setFormSavedListener(FormSavedListener fsl) {
@@ -383,5 +381,11 @@ public class SaveToDiskTask<R extends FragmentActivity> extends CommCareTask<Voi
 
         FormEntryActivity.mFormController.jumpToIndex(i);
         return false;
+    }
+
+    private static class FormInstanceTransactionException extends Exception {
+        FormInstanceTransactionException(Throwable throwable) {
+            super(throwable);
+        }
     }
 }

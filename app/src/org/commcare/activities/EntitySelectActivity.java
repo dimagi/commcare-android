@@ -2,17 +2,11 @@ package org.commcare.activities;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,7 +15,6 @@ import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,14 +27,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.components.EntitySelectCalloutSetup;
+import org.commcare.activities.components.EntitySelectViewSetup;
 import org.commcare.adapters.EntityListAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.ContainerFragment;
@@ -75,26 +68,20 @@ import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.media.AudioController;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author ctsims
  */
 public class EntitySelectActivity extends SaveSessionCommCareActivity
-        implements TextWatcher,
-        EntityLoaderListener,
-        OnItemClickListener,
-        DetailCalloutListener {
+        implements TextWatcher, EntityLoaderListener,
+        OnItemClickListener, DetailCalloutListener {
     private CommCareSession session;
     private AndroidSessionWrapper asw;
 
@@ -105,8 +92,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private static final int CONFIRM_SELECT = 0;
     private static final int MAP_SELECT = 2;
-    private static final int BARCODE_FETCH = 1;
-    private static final int CALLOUT = 3;
+    public static final int BARCODE_FETCH = 1;
+    public static final int CALLOUT = 3;
 
     private static final int MENU_SORT = Menu.FIRST + 1;
     private static final int MENU_MAP = Menu.FIRST + 2;
@@ -204,7 +191,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 String query = getSearchText().toString();
                 if (!"".equals(query)) {
                     searchResultStatus.setText(Localization.get("select.search.status", new String[]{
-                            "" + adapter.getFullCountWithActions(),
+                            "" + adapter.getCurrentCount(),
                             "" + adapter.getFullCount(),
                             query
                     }));
@@ -242,13 +229,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
         view.setOnItemClickListener(this);
 
-        setupDivider(view);
+        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
         setupToolbar(view);
         setupMapNav();
     }
 
     private void setupLandscapeDualPaneView() {
-        //Inflate and set up the normal view for now.
         setContentView(R.layout.screen_compound_select);
         View.inflate(this, R.layout.entity_select_layout, (ViewGroup)findViewById(R.id.screen_compound_select_left_pane));
         inAwesomeMode = true;
@@ -261,8 +247,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void restoreExistingSelection(boolean isOrientationChange) {
-        //So we're not in landscape mode anymore, but were before. If we had something selected, we
-        //need to go to the detail screen instead.
+        // Restore detail screen for selection from landscape mode as we move into portrait mode.
         if (isOrientationChange) {
             Intent intent = this.getIntent();
 
@@ -274,39 +259,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 // it being de-selected.
                 intent.removeExtra(EntityDetailActivity.CONTEXT_REFERENCE);
 
-                // attach the selected entity to the new detail intent
-                // we're launching
+                // include selected entity in the launching detail intent
                 Intent detailIntent = EntityDetailUtils.getDetailIntent(getApplicationContext(), selectedRef, null, selectDatum, asw);
 
                 isStartingDetailActivity = true;
                 startActivityForResult(detailIntent, CONFIRM_SELECT);
             }
         }
-    }
-
-    private void setupDivider(ListView view) {
-        boolean useNewDivider = shortSelect.usesGridView();
-
-        if (useNewDivider) {
-            int viewWidth = view.getWidth();
-            // sometimes viewWidth is 0, and in this case we default to a reasonable value taken from dimens.xml
-            int dividerWidth;
-            if (viewWidth == 0) {
-                dividerWidth = (int)getResources().getDimension(R.dimen.entity_select_divider_left_inset);
-            } else {
-                dividerWidth = (int)(viewWidth / 6.0);
-            }
-            dividerWidth += (int)getResources().getDimension(R.dimen.row_padding_horizontal);
-
-            LayerDrawable dividerDrawable = (LayerDrawable)getResources().getDrawable(R.drawable.divider_case_list_modern);
-            dividerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
-
-            view.setDivider(dividerDrawable);
-        } else {
-            view.setDivider(null);
-        }
-
-        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
     }
 
     private void setupToolbar(ListView view) {
@@ -337,11 +296,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         Callout callout = shortSelect.getCallout();
         if (callout ==  null) {
-            barcodeScanOnClickListener = makeBarcodeClickListener();
+            barcodeScanOnClickListener = EntitySelectCalloutSetup.makeBarcodeClickListener(this);
         } else {
-            barcodeScanOnClickListener = makeCalloutClickListener(callout);
+            barcodeScanOnClickListener = EntitySelectCalloutSetup.makeCalloutClickListener(this, callout);
             if(callout.getImage() != null){
-                setupImageLayout(barcodeButton, callout.getImage());
+                EntitySelectCalloutSetup.setupImageLayout(this, barcodeButton, callout.getImage());
             }
         }
 
@@ -374,92 +333,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             // on orientation change
             if (adapter != null) {
                 view.setAdapter(adapter);
-                setupDivider(view);
+                EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
+
                 findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
             }
         }
-    }
-
-    /**
-     * @return A click listener that launches QR code scanner
-     */
-    private View.OnClickListener makeBarcodeClickListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent("com.google.zxing.client.android.SCAN");
-                try {
-                    EntitySelectActivity.this.startActivityForResult(i, BARCODE_FETCH);
-                } catch (ActivityNotFoundException anfe) {
-                    Toast.makeText(EntitySelectActivity.this,
-                            "No barcode reader available! You can install one " +
-                                    "from the android market.",
-                            Toast.LENGTH_LONG).show();
-                }
-            }
-        };
-    }
-
-    /**
-     * Build click listener from callout: set button's image, get intent action,
-     * and copy extras into intent.
-     *
-     * @param callout contains intent action and extras, and sometimes button image
-     * @return click listener that launches the callout's activity with the
-     * associated callout extras
-     */
-    private View.OnClickListener makeCalloutClickListener(Callout callout) {
-        final CalloutData calloutData = callout.getRawCalloutData();
-
-        final Intent i = new Intent(calloutData.getActionName());
-        for (Map.Entry<String, String> keyValue : calloutData.getExtras().entrySet()) {
-            i.putExtra(keyValue.getKey(), keyValue.getValue());
-        }
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                try {
-                    EntitySelectActivity.this.startActivityForResult(i, CALLOUT);
-                } catch (ActivityNotFoundException anfe) {
-                    Toast.makeText(EntitySelectActivity.this,
-                            "No application found for action: " + i.getAction(),
-                            Toast.LENGTH_LONG).show();
-                }
-            }
-        };
-    }
-
-    private Drawable getCalloutDrawable(String imagePath){
-        Bitmap b;
-        if (!imagePath.equals("")) {
-            try {
-                b = BitmapFactory.decodeStream(ReferenceManager._().DeriveReference(imagePath).getStream());
-                if (b == null) {
-                    // Input stream could not be used to derive bitmap, so
-                    // showing error-indicating image
-                    return getResources().getDrawable(R.drawable.ic_menu_archive);
-                } else {
-                    return new BitmapDrawable(b);
-                }
-            } catch (IOException | InvalidReferenceException ex) {
-                ex.printStackTrace();
-                // Error loading image, default to folder button
-                return getResources().getDrawable(R.drawable.ic_menu_archive);
-            }
-        } else {
-            // no image passed in, draw a white background
-            return getResources().getDrawable(R.color.white);
-        }
-    }
-
-    /**
-     * Updates the ImageView layout that is passed in, based on the
-     * new id and source
-     */
-    private void setupImageLayout(View layout, final String imagePath) {
-        ImageView iv = (ImageView)layout;
-        Drawable drawable = getCalloutDrawable(imagePath);
-        iv.setImageDrawable(drawable);
     }
 
     private void setupMapNav() {
@@ -469,15 +347,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 break;
             }
         }
-    }
-
-    /**
-     * Updates the ImageView layout that is passed in, based on the
-     * new id and source
-     */
-    private void setupImageLayout(MenuItem menuItem, final String imagePath) {
-        Drawable drawable = getCalloutDrawable(imagePath);
-        menuItem.setIcon(drawable);
     }
 
     @Override
@@ -623,25 +492,24 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if (id == EntityListAdapter.SPECIAL_ACTION) {
             triggerDetailAction(adapter.getActionIndex(position));
-            return;
-        }
-
-        TreeReference selection = adapter.getItem(position);
-        if (CommCarePreferences.isEntityDetailLoggingEnabled()) {
-            Logger.log(EntityDetailActivity.class.getSimpleName(), selectDatum.getLongDetail());
-        }
-        if (inAwesomeMode) {
-            displayReferenceAwesome(selection, position);
-            updateSelectedItem(selection, false);
         } else {
-            Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(),
-                    selection, null, selectDatum, asw);
-            i.putExtra("entity_detail_index", position);
-            if (mNoDetailMode) {
-                // Not actually launching detail intent because there's no confirm detail available
-                returnWithResult(i);
+            TreeReference selection = adapter.getItem(position);
+            if (CommCarePreferences.isEntityDetailLoggingEnabled()) {
+                Logger.log(EntityDetailActivity.class.getSimpleName(), selectDatum.getLongDetail());
+            }
+            if (inAwesomeMode) {
+                displayReferenceAwesome(selection, position);
+                updateSelectedItem(selection, false);
             } else {
-                startActivityForResult(i, CONFIRM_SELECT);
+                Intent i = EntityDetailUtils.getDetailIntent(getApplicationContext(),
+                        selection, null, selectDatum, asw);
+                i.putExtra("entity_detail_index", position);
+                if (mNoDetailMode) {
+                    // Not actually launching detail intent because there's no confirm detail available
+                    returnWithResult(i);
+                } else {
+                    startActivityForResult(i, CONFIRM_SELECT);
+                }
             }
         }
     }
@@ -660,7 +528,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 if (resultCode == RESULT_OK && !mViewMode) {
                     // create intent for return and store path
                     returnWithResult(intent);
-                    return;
                 } else {
                     //Did we enter the detail from mapping mode? If so, go back to that
                     if (mResultIsMap) {
@@ -677,16 +544,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                                         EntityDetailActivity.CONTEXT_REFERENCE,
                                         TreeReference.class);
                         if (r != null && adapter != null) {
-                            // TODO: added 'adapter != null' due to a
-                            // NullPointerException, we need to figure out how to
-                            // make sure adapter is never null -- PLM
+                            // TODO PLM: adapter null check should be unnessecary
                             this.displayReferenceAwesome(r, adapter.getPosition(r));
                             updateSelectedItem(r, true);
                         }
                         AudioController.INSTANCE.releaseCurrentMediaEntity();
                     }
-                    return;
                 }
+                break;
             case MAP_SELECT:
                 if (resultCode == RESULT_OK) {
                     TreeReference r =
@@ -707,12 +572,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                             i.putExtra("entity_detail_index", adapter.getPosition(r));
                             startActivityForResult(i, CONFIRM_SELECT);
                         }
-                        return;
                     }
                 } else {
                     refreshView();
-                    return;
                 }
+                break;
             default:
                 super.onActivityResult(requestCode, resultCode, intent);
         }
@@ -838,7 +702,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 }
             }
             if(shortSelect.getCallout() != null && shortSelect.getCallout().getImage() != null){
-                setupImageLayout(barcodeItem, shortSelect.getCallout().getImage());
+                EntitySelectCalloutSetup.setupImageLayout(this, barcodeItem, shortSelect.getCallout().getImage());
             }
         }
 
@@ -990,7 +854,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         ListView view = ((ListView) this.findViewById(R.id.screen_entity_select_list));
 
-        setupDivider(view);
+        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
 
         adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, factory);
 
@@ -1039,10 +903,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void updateSelectedItem(TreeReference selected, boolean forceMove) {
-        if (adapter == null) {
-            return;
-        }
-        if (selected != null) {
+        if (adapter != null && selected != null) {
             adapter.notifyCurrentlyHighlighted(selected);
             if (forceMove) {
                 ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
@@ -1089,7 +950,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             next.setText(Localization.get("select.detail.confirm"));
             next.setOnClickListener(new OnClickListener() {
                 public void onClick(View v) {
-                    select();
+                    performEntitySelect();
                 }
             });
 
@@ -1124,8 +985,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         detailView.refresh(factory.getDetail(), selection, detailIndex);
     }
 
-    private void select() {
-        // create intent for return and store path
+    private void performEntitySelect() {
         Intent i = new Intent(EntitySelectActivity.this.getIntent());
         i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
         setResult(RESULT_OK, i);
@@ -1148,7 +1008,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
 
             if (!mViewMode) {
-                select();
+                performEntitySelect();
             }
         }
         return true;

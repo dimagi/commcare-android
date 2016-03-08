@@ -1,6 +1,7 @@
 package org.commcare.preferences;
 
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -24,9 +25,10 @@ import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareUtil;
-import org.commcare.utils.FileUtils;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.commcare.utils.UriToFilePath;
+import org.commcare.views.dialogs.AlertDialogFactory;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -89,8 +91,10 @@ public class CommCarePreferences
     private static final int CLEAR_USER_DATA = Menu.FIRST;
     private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 1;
     private static final int RECOVERY_MODE = Menu.FIRST + 2;
-    private static final int SUPERUSER_PREFS = Menu.FIRST + 3;
-    private static final int MENU_CLEAR_SAVED_SESSION = Menu.FIRST + 4;
+    private static final int MENU_DISABLE_ANALYTICS = Menu.FIRST + 3;
+    private static final int SUPERUSER_PREFS = Menu.FIRST + 4;
+    private static final int MENU_CLEAR_SAVED_SESSION = Menu.FIRST + 5;
+
 
     public static final int RESULT_DATA_RESET = RESULT_FIRST_USER + 1;
 
@@ -173,7 +177,7 @@ public class CommCarePreferences
             if (resultCode == RESULT_OK && data != null) {
                 Uri uri = data.getData();
                 String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(), uri);
-                String extension = FileUtils.getExtension(filePath);
+                String extension = FileUtil.getExtension(filePath);
                 if (extension.equalsIgnoreCase("html")) {
                     SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().
                             getAppPreferences().edit();
@@ -201,6 +205,7 @@ public class CommCarePreferences
                 android.R.drawable.ic_menu_upload);
         menu.add(0, RECOVERY_MODE, 3, "Recovery Mode").setIcon(android.R.drawable.ic_menu_report_image);
         menu.add(0, SUPERUSER_PREFS, 4, "Developer Options").setIcon(android.R.drawable.ic_menu_edit);
+        menu.add(0, MENU_DISABLE_ANALYTICS, 5, Localization.get("home.menu.disable.analytics"));
 
         return true;
     }
@@ -210,6 +215,7 @@ public class CommCarePreferences
         GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
         menu.findItem(SUPERUSER_PREFS).setVisible(DeveloperPreferences.isSuperuserEnabled());
         menu.findItem(MENU_CLEAR_SAVED_SESSION).setVisible(DevSessionRestorer.savedSessionPresent());
+        menu.findItem(MENU_DISABLE_ANALYTICS).setVisible(CommCarePreferences.isAnalyticsEnabled());
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -239,9 +245,40 @@ public class CommCarePreferences
             case MENU_CLEAR_SAVED_SESSION:
                 DevSessionRestorer.clearSession();
                 return true;
+            case MENU_DISABLE_ANALYTICS:
+                showAnalyticsOptOutDialog();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private void showAnalyticsOptOutDialog() {
+        AlertDialogFactory f = new AlertDialogFactory(this,
+                Localization.get("analytics.opt.out.title"),
+                Localization.get("analytics.opt.out.message"));
+
+        f.setPositiveButton(Localization.get("analytics.disable.button"),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        CommCarePreferences.disableAnalytics();
+                    }
+                });
+
+        f.setNegativeButton(Localization.get("option.cancel"),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        f.showDialog();
+    }
+
 
     private static Map<Integer, String> createMenuItemToEventMapping() {
         Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();

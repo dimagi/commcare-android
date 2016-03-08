@@ -132,7 +132,6 @@ public class CommCareHomeActivity
     private static final int MENU_SAVED_FORMS = Menu.FIRST + 7;
     private static final int MENU_ABOUT = Menu.FIRST + 8;
     private static final int MENU_PIN = Menu.FIRST + 9;
-    private static final int MENU_DISABLE_ANALYTICS = Menu.FIRST + 10;
 
     /**
      * Restart is a special CommCare return code which means that the session was invalidated in the
@@ -1170,7 +1169,6 @@ public class CommCareHomeActivity
         menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
                 android.R.drawable.ic_menu_help);
         menu.add(0, MENU_PIN, 0, Localization.get("home.menu.pin.set"));
-        menu.add(0, MENU_DISABLE_ANALYTICS, 0, Localization.get("home.menu.disable.analytics"));
         return true;
     }
 
@@ -1191,7 +1189,6 @@ public class CommCareHomeActivity
             menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
             menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
             menu.findItem(MENU_ABOUT).setVisible(enableMenus);
-            menu.findItem(MENU_DISABLE_ANALYTICS).setVisible(CommCarePreferences.isAnalyticsEnabled());
             if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
                 menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
             } else {
@@ -1242,9 +1239,6 @@ public class CommCareHomeActivity
             case MENU_PIN:
                 launchPinAuthentication();
                 return true;
-            case MENU_DISABLE_ANALYTICS:
-                showAnalyticsOptOutDialog();
-                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -1261,33 +1255,6 @@ public class CommCareHomeActivity
         menuIdToAnalyticsEvent.put(MENU_SAVED_FORMS, GoogleAnalyticsFields.LABEL_SAVED_FORMS);
         menuIdToAnalyticsEvent.put(MENU_ABOUT, GoogleAnalyticsFields.LABEL_ABOUT_CC);
         return menuIdToAnalyticsEvent;
-    }
-
-    private void showAnalyticsOptOutDialog() {
-        AlertDialogFactory f = new AlertDialogFactory(this,
-                Localization.get("analytics.opt.out.title"),
-                Localization.get("analytics.opt.out.message"));
-
-        f.setPositiveButton(Localization.get("analytics.disable.button"),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        CommCarePreferences.disableAnalytics();
-                    }
-                });
-
-        f.setNegativeButton(Localization.get("option.cancel"),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-
-        f.showDialog();
     }
 
     public static void createPreferencesMenu(Activity activity) {
