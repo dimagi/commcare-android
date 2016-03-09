@@ -12,13 +12,15 @@
         android:id="@+id/detail_type_text"
         style="@style/EntityItemTextView"
         android:layout_width="0dp"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:gravity="left|center_vertical"
         android:text="Text"
         android:textStyle="bold"
         android:typeface="normal"
         android:layout_weight="4"
         android:visibility="visible"/>
+
+
 
     <FrameLayout
         android:id="@+id/detail_value_pane"
