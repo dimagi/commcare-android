@@ -20,8 +20,6 @@
         android:layout_weight="4"
         android:visibility="visible"/>
 
-
-
     <FrameLayout
         android:id="@+id/detail_value_pane"
         android:layout_width="0dp"
