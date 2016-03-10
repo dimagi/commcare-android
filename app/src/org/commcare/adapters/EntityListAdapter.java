@@ -62,7 +62,7 @@ public class EntityListAdapter implements ListAdapter {
 
     private String[] currentSearchTerms;
 
-    private EntitySearcher entitySearcher = null;
+    private EntityStringSearcher entitySearcher = null;
     private final Object mSyncLock = new Object();
 
     private final CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
@@ -273,7 +273,7 @@ public class EntityListAdapter implements ListAdapter {
             for (int i = 0; i < searchTerms.length; ++i) {
                 searchTerms[i] = StringUtils.normalize(searchTerms[i]);
             }
-            entitySearcher = new EntitySearcher(this, searchTerms, mAsyncMode, mFuzzySearchEnabled, mNodeFactory, full, context);
+            entitySearcher = new EntityStringSearcher(this, searchTerms, mAsyncMode, mFuzzySearchEnabled, mNodeFactory, full, context);
             entitySearcher.start();
         }
     }

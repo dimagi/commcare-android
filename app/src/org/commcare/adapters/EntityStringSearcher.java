@@ -19,32 +19,29 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-public class EntitySearcher {
+public class EntityStringSearcher extends EntitySearcherBase {
     private final boolean isFilterEmpty;
     private final String[] searchTerms;
     private final List<Entity<TreeReference>> matchList;
     private final ArrayList<Pair<Integer, Integer>> matchScores = new ArrayList<>();
-    private boolean cancelled = false;
     private final boolean isAsyncMode;
     private final boolean isFuzzySearchEnabled;
-    private final NodeEntityFactory nodeFactory;
     private final List<Entity<TreeReference>> full;
     private final Activity context;
     private final EntityListAdapter adapter;
-    private Thread thread;
 
-    public EntitySearcher(EntityListAdapter adapter,
-                          String[] searchTerms,
-                          boolean isAsyncMode, boolean isFuzzySearchEnabled,
-                          NodeEntityFactory nodeFactory,
-                          List<Entity<TreeReference>> full,
-                          Activity context) {
+    public EntityStringSearcher(EntityListAdapter adapter,
+                                String[] searchTerms,
+                                boolean isAsyncMode, boolean isFuzzySearchEnabled,
+                                NodeEntityFactory nodeFactory,
+                                List<Entity<TreeReference>> full,
+                                Activity context) {
+        super(nodeFactory);
         this.adapter = adapter;
         this.full = full;
         this.context = context;
         this.isAsyncMode = isAsyncMode;
         this.isFuzzySearchEnabled = isFuzzySearchEnabled;
-        this.nodeFactory = nodeFactory;
         this.isFilterEmpty = searchTerms == null || searchTerms.length == 0;
         this.searchTerms = searchTerms;
         if (isFilterEmpty) {
@@ -54,42 +51,15 @@ public class EntitySearcher {
         }
     }
 
-    public void start() {
-        thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                //Make sure that we have loaded the necessary cached data
-                //before we attempt to search over it
-                while (!nodeFactory.isEntitySetReady()) {
-                    try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                }
-                search();
-            }
-        });
-        thread.start();
-    }
-
-    public void finish() {
-        this.cancelled = true;
-        try {
-            thread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void search() {
+    @Override
+    protected void search() {
         long startTime = System.currentTimeMillis();
 
         if (!isFilterEmpty) {
             buildMatchList();
         }
 
-        if (cancelled) {
+        if (isCancelled()) {
             return;
         }
 
@@ -126,7 +96,7 @@ public class EntitySearcher {
                 db.yieldIfContendedSafely();
             }
             Entity<TreeReference> e = full.get(index);
-            if (cancelled) {
+            if (isCancelled()) {
                 break;
             }
 
