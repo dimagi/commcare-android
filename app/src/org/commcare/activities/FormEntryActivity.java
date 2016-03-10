@@ -418,17 +418,19 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void saveFormEntrySession(Bundle outState) {
-        ByteArrayOutputStream objectSerialization = new ByteArrayOutputStream();
-        try {
-            formEntryRestoreSession.writeExternal(new DataOutputStream(objectSerialization));
-            outState.putByteArray(KEY_FORM_ENTRY_SESSION, objectSerialization.toByteArray());
-        } catch (IOException e) {
-            outState.putByteArray(KEY_FORM_ENTRY_SESSION, null);
-        } finally {
+        if (formEntryRestoreSession != null) {
+            ByteArrayOutputStream objectSerialization = new ByteArrayOutputStream();
             try {
-                objectSerialization.close();
+                formEntryRestoreSession.writeExternal(new DataOutputStream(objectSerialization));
+                outState.putByteArray(KEY_FORM_ENTRY_SESSION, objectSerialization.toByteArray());
             } catch (IOException e) {
-                Log.w(TAG, "failed to store form entry session in instance bundle");
+                outState.putByteArray(KEY_FORM_ENTRY_SESSION, null);
+            } finally {
+                try {
+                    objectSerialization.close();
+                } catch (IOException e) {
+                    Log.w(TAG, "failed to store form entry session in instance bundle");
+                }
             }
         }
     }
