@@ -10,7 +10,6 @@ import android.util.Log;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.interfaces.FormSavedListener;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.logic.FormController;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
@@ -359,7 +358,7 @@ public class SaveToDiskTask extends
             Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Saving form without firing triggers.");
         }
         while ((event =
-            FormEntryActivity.mFormController.stepToNextEvent(FormController.STEP_INTO_GROUP)) != FormEntryController.EVENT_END_OF_FORM) {
+            FormEntryActivity.mFormController.stepToNextEvent(FormEntryController.STEP_INTO_GROUP)) != FormEntryController.EVENT_END_OF_FORM) {
             if (event == FormEntryController.EVENT_QUESTION) {
                 int saveStatus;
                 if (fireTriggerables) {
