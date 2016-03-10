@@ -35,11 +35,14 @@ public class NodeEntityFactory {
         detail.populateEvaluationContextVariables(nodeContext);
 
         int length = detail.getHeaderForms().length;
-        Object entityKey = null;
+        String entityKey = null;
         if (detail.getCallout() != null) {
             DetailField calloutResponseDetail = detail.getCallout().getResponseDetail();
             if (calloutResponseDetail != null) {
-                entityKey = calloutResponseDetail.getTemplate().evaluate(nodeContext);
+                Object template = calloutResponseDetail.getTemplate().evaluate(nodeContext);
+                if (template instanceof String) {
+                    entityKey = (String)template;
+                }
             }
         }
         Object[] details = new Object[length];

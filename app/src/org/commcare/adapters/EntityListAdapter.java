@@ -63,7 +63,7 @@ public class EntityListAdapter implements ListAdapter {
 
     private String[] currentSearchTerms;
 
-    private EntityStringSearcher entitySearcher = null;
+    private EntitySearcherBase entitySearcher = null;
     private final Object mSyncLock = new Object();
 
     private final CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
@@ -283,14 +283,19 @@ public class EntityListAdapter implements ListAdapter {
         Collections.sort(idReadings);
         final int TOP_N_ENTRIES_COUNT = 3;
         int filteredEntryCount = Math.min(idReadings.size(), TOP_N_ENTRIES_COUNT);
+
         synchronized (mSyncLock) {
             if (entitySearcher != null) {
                 entitySearcher.finish();
             }
-            entitySearcher = new EntityResponseKeySearcher(this, mAsyncMode, mFuzzySearchEnabled, mNodeFactory, full, context);
+            Identification[] topIdentificationResults = new Identification[filteredEntryCount];
+            for (int i = 0; i <= filteredEntryCount; i++)  {
+                topIdentificationResults[i] = idReadings.get(i);
+            }
+
+            entitySearcher = new EntityResponseKeySearcher(this, mNodeFactory, full, context, topIdentificationResults);
             entitySearcher.start();
         }
-
     }
 
     void update() {
