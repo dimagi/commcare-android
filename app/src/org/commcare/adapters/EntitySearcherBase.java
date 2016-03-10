@@ -1,17 +1,29 @@
 package org.commcare.adapters;
 
+import android.app.Activity;
+
+import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;
+import org.javarosa.core.model.instance.TreeReference;
+
+import java.util.List;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public abstract class EntitySearcherBase {
     private final NodeEntityFactory nodeFactory;
+    private final EntityListAdapter adapter;
     private Thread thread;
     private boolean cancelled = false;
+    private final Activity context;
 
-    public EntitySearcherBase(NodeEntityFactory nodeFactory) {
+    public EntitySearcherBase(Activity context,
+                              NodeEntityFactory nodeFactory,
+                              EntityListAdapter adapter) {
+        this.context = context;
         this.nodeFactory = nodeFactory;
+        this.adapter = adapter;
     }
 
     public void start() {
@@ -28,13 +40,27 @@ public abstract class EntitySearcherBase {
                     }
                 }
                 search();
+
+                finishSearch();
             }
         });
         thread.start();
     }
 
-    public void finish() {
+
+    private void finishSearch() {
+        context.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                adapter.setCurrent(getMatchList());
+                adapter.update();
+            }
+        });
+    }
+
+    public void cancelSearch() {
         cancelled = true;
+        adapter.clearSearch();
         try {
             thread.join();
         } catch (InterruptedException e) {
@@ -47,4 +73,6 @@ public abstract class EntitySearcherBase {
     }
 
     protected abstract void search();
+
+    protected abstract List<Entity<TreeReference>> getMatchList();
 }

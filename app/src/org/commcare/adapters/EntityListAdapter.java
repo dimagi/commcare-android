@@ -22,6 +22,7 @@ import org.commcare.views.EntityView;
 import org.commcare.views.GridEntityView;
 import org.commcare.views.HorizontalMediaView;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,6 +44,7 @@ public class EntityListAdapter implements ListAdapter {
     private final int actionsCount;
 
     private boolean mFuzzySearchEnabled = true;
+    private boolean isFilteringByCalloutResult = false;
 
     private final Activity context;
     private final Detail detail;
@@ -62,6 +64,7 @@ public class EntityListAdapter implements ListAdapter {
     private boolean mAsyncMode = false;
 
     private String[] currentSearchTerms;
+    private String searchQuery;
 
     private EntitySearcherBase entitySearcher = null;
     private final Object mSyncLock = new Object();
@@ -124,8 +127,10 @@ public class EntityListAdapter implements ListAdapter {
         }
     }
 
-    void setCurrentSearchTerms(String[] searchTerms) {
-        currentSearchTerms = searchTerms;
+    void clearSearch() {
+        currentSearchTerms = null;
+        searchQuery = "";
+        isFilteringByCalloutResult = false;
     }
 
     private void sort(int[] fields) {
@@ -268,12 +273,15 @@ public class EntityListAdapter implements ListAdapter {
     public void applyFilter(String filterRaw) {
         synchronized (mSyncLock) {
             if (entitySearcher != null) {
-                entitySearcher.finish();
+                entitySearcher.cancelSearch();
             }
+            // split by whitespace
             String[] searchTerms = filterRaw.split("\\s+");
             for (int i = 0; i < searchTerms.length; ++i) {
                 searchTerms[i] = StringUtils.normalize(searchTerms[i]);
             }
+            currentSearchTerms = searchTerms;
+            searchQuery = filterRaw;
             entitySearcher = new EntityStringSearcher(this, searchTerms, mAsyncMode, mFuzzySearchEnabled, mNodeFactory, full, context);
             entitySearcher.start();
         }
@@ -286,13 +294,14 @@ public class EntityListAdapter implements ListAdapter {
 
         synchronized (mSyncLock) {
             if (entitySearcher != null) {
-                entitySearcher.finish();
+                entitySearcher.cancelSearch();
             }
             Identification[] topIdentificationResults = new Identification[filteredEntryCount];
-            for (int i = 0; i <= filteredEntryCount; i++)  {
+            for (int i = 0; i < filteredEntryCount; i++)  {
                 topIdentificationResults[i] = idReadings.get(i);
             }
 
+            isFilteringByCalloutResult = true;
             entitySearcher = new EntityResponseKeySearcher(this, mNodeFactory, full, context, topIdentificationResults);
             entitySearcher.start();
         }
@@ -350,7 +359,7 @@ public class EntityListAdapter implements ListAdapter {
     public void signalKilled() {
         synchronized (mSyncLock) {
             if (entitySearcher != null) {
-                entitySearcher.finish();
+                entitySearcher.cancelSearch();
             }
         }
     }
@@ -360,5 +369,26 @@ public class EntityListAdapter implements ListAdapter {
      */
     public int getActionIndex(int positionInAdapter) {
         return positionInAdapter - (getCurrentCountWithActions() - 1);
+    }
+
+    public String getSearchNotificationText() {
+        if (isFilteringByCalloutResult) {
+            return Localization.get("select.callout.search.status", new String[]{
+                    "" + getCurrentCount(),
+                    "" + getFullCount()});
+        } else {
+            return Localization.get("select.search.status", new String[]{
+                    "" + getCurrentCount(),
+                    "" + getFullCount(),
+                    searchQuery});
+        }
+    }
+
+    public String getSearchQuery() {
+        return searchQuery;
+    }
+
+    public boolean isFilteringByCalloutResult() {
+        return isFilteringByCalloutResult;
     }
 }

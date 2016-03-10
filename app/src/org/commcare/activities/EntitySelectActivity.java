@@ -189,14 +189,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             @Override
             public void onChanged() {
                 super.onChanged();
-                //update the search results box
-                String query = getSearchText().toString();
-                if (!"".equals(query)) {
-                    searchResultStatus.setText(Localization.get("select.search.status", new String[]{
-                            "" + adapter.getCurrentCount(),
-                            "" + adapter.getFullCount(),
-                            query
-                    }));
+
+                if (!"".equals(adapter.getSearchQuery()) || adapter.isFilteringByCalloutResult()) {
+                    // Show search results banner
+                    searchResultStatus.setText(adapter.getSearchNotificationText());
                     searchResultStatus.setVisibility(View.VISIBLE);
                 } else {
                     searchResultStatus.setVisibility(View.GONE);

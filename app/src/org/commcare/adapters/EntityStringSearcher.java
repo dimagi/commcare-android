@@ -27,8 +27,6 @@ public class EntityStringSearcher extends EntitySearcherBase {
     private final boolean isAsyncMode;
     private final boolean isFuzzySearchEnabled;
     private final List<Entity<TreeReference>> full;
-    private final Activity context;
-    private final EntityListAdapter adapter;
 
     public EntityStringSearcher(EntityListAdapter adapter,
                                 String[] searchTerms,
@@ -36,10 +34,8 @@ public class EntityStringSearcher extends EntitySearcherBase {
                                 NodeEntityFactory nodeFactory,
                                 List<Entity<TreeReference>> full,
                                 Activity context) {
-        super(nodeFactory);
-        this.adapter = adapter;
+        super(context, nodeFactory, adapter);
         this.full = full;
-        this.context = context;
         this.isAsyncMode = isAsyncMode;
         this.isFuzzySearchEnabled = isFuzzySearchEnabled;
         this.isFilterEmpty = searchTerms == null || searchTerms.length == 0;
@@ -67,15 +63,6 @@ public class EntityStringSearcher extends EntitySearcherBase {
         if (time > 1000) {
             Logger.log("cache", "Presumably finished caching new entities, time taken: " + time + "ms");
         }
-
-        context.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                adapter.setCurrent(matchList);
-                adapter.setCurrentSearchTerms(searchTerms);
-                adapter.update();
-            }
-        });
     }
 
     private void buildMatchList() {
@@ -86,7 +73,7 @@ public class EntityStringSearcher extends EntitySearcherBase {
         try {
             db = CommCareApplication._().getUserDbHandle();
         } catch (SessionUnavailableException e) {
-            this.finish();
+            this.cancelSearch();
             return;
         }
         db.beginTransaction();
@@ -146,5 +133,10 @@ public class EntityStringSearcher extends EntitySearcherBase {
 
         db.setTransactionSuccessful();
         db.endTransaction();
+    }
+
+    @Override
+    protected List<Entity<TreeReference>> getMatchList() {
+        return matchList;
     }
 }

@@ -16,25 +16,21 @@ import java.util.List;
  */
 public class EntityResponseKeySearcher extends EntitySearcherBase {
     private final List<Entity<TreeReference>> full;
-    private final Activity context;
-    private final EntityListAdapter adapter;
     private final Identification[] topIdResults;
+    private final List<Entity<TreeReference>> matchList = new ArrayList<>();
 
     public EntityResponseKeySearcher(EntityListAdapter adapter,
                                      NodeEntityFactory nodeFactory,
                                      List<Entity<TreeReference>> full,
                                      Activity context, Identification[] topIdResults) {
-        super(nodeFactory);
+        super(context, nodeFactory, adapter);
 
-        this.adapter = adapter;
         this.full = full;
-        this.context = context;
         this.topIdResults = topIdResults;
     }
 
     @Override
     protected void search() {
-        final List<Entity<TreeReference>> matchList = new ArrayList<>();
 
         if (isCancelled()) {
             return;
@@ -50,14 +46,10 @@ public class EntityResponseKeySearcher extends EntitySearcherBase {
                 }
             }
         }
+    }
 
-        context.runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                adapter.setCurrent(matchList);
-                adapter.setCurrentSearchTerms(null);
-                adapter.update();
-            }
-        });
+    @Override
+    protected List<Entity<TreeReference>> getMatchList() {
+        return matchList;
     }
 }
