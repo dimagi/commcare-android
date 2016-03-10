@@ -19,7 +19,6 @@ import java.util.Map;
 public class DeveloperPreferences extends SessionAwarePreferenceActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
     public final static String SUPERUSER_ENABLED = "cc-superuser-enabled";
-    public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
     public final static String NAV_UI_ENABLED = "cc-nav-ui-enabled";
     public final static String CSS_ENABLED = "cc-css-enabled";
     public final static String MARKDOWN_ENABLED = "cc-markdown-enabled";
@@ -72,8 +71,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     private static void populatePrefKeyToEventLabelMapping() {
         prefKeyToAnalyticsEvent.put(SUPERUSER_ENABLED, GoogleAnalyticsFields.LABEL_DEV_MODE);
-        prefKeyToAnalyticsEvent.put(ACTION_BAR_ENABLED, GoogleAnalyticsFields.LABEL_ACTION_BAR);
-        prefKeyToAnalyticsEvent.put(GRID_MENUS_ENABLED, GoogleAnalyticsFields.LABEL_GRID_MENUS);
+        prefKeyToAnalyticsEvent.put(ACTION_BAR_ENABLED, GoogleAnalyticsFields.LABEL_ACTION_BAR);;
         prefKeyToAnalyticsEvent.put(NAV_UI_ENABLED, GoogleAnalyticsFields.LABEL_NAV_UI);
         prefKeyToAnalyticsEvent.put(LIST_REFRESH_ENABLED, GoogleAnalyticsFields.LABEL_ENTITY_LIST_REFRESH);
         prefKeyToAnalyticsEvent.put(NEWEST_APP_VERSION_ENABLED, GoogleAnalyticsFields.LABEL_NEWEST_APP_VERSION);
@@ -174,11 +172,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     public static boolean isActionBarEnabled() {
         return doesPropertyMatch(ACTION_BAR_ENABLED, CommCarePreferences.YES, CommCarePreferences.YES);
-    }
-
-    public static boolean isGridMenuEnabled() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return properties.getString(GRID_MENUS_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
     public static boolean isNewNavEnabled() {
