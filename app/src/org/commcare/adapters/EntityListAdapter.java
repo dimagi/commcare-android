@@ -24,6 +24,7 @@ import org.commcare.views.HorizontalMediaView;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -278,7 +279,18 @@ public class EntityListAdapter implements ListAdapter {
         }
     }
 
-    public void filterByKey(List<Identification> objs) {
+    public void filterByKey(List<Identification> idReadings) {
+        Collections.sort(idReadings);
+        final int TOP_N_ENTRIES_COUNT = 3;
+        int filteredEntryCount = Math.min(idReadings.size(), TOP_N_ENTRIES_COUNT);
+        synchronized (mSyncLock) {
+            if (entitySearcher != null) {
+                entitySearcher.finish();
+            }
+            entitySearcher = new EntityResponseKeySearcher(this, mAsyncMode, mFuzzySearchEnabled, mNodeFactory, full, context);
+            entitySearcher.start();
+        }
+
     }
 
     void update() {
