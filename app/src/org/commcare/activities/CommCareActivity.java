@@ -613,7 +613,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                                            ActionBarInstantiator instantiator) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             MenuInflater inflater = act.getMenuInflater();
-            inflater.inflate(org.commcare.dalvik.R.menu.activity_report_problem, menu);
+            inflater.inflate(org.commcare.dalvik.R.menu.action_bar_search_view, menu);
 
             MenuItem searchItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
             SearchView searchView =
