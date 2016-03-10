@@ -67,6 +67,7 @@ import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.FormController;
 import org.commcare.logic.PropertyManager;
 import org.commcare.models.ODKStorage;
+import org.commcare.models.database.DbUtil;
 import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI;
@@ -98,6 +99,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
+import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.form.api.FormEntrySession;
@@ -107,7 +109,12 @@ import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -397,7 +404,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putBoolean(KEY_INCOMPLETE_ENABLED, mIncompleteEnabled);
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
-        outState.putSerializable(KEY_FORM_ENTRY_SESSION, formEntryRestoreSession);
+        saveFormEntrySession(outState);
         outState.putBoolean(KEY_RECORD_FORM_ENTRY_SESSION, recordEntrySession);
 
         if(symetricKey != null) {
@@ -406,6 +413,24 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             } catch (ClassNotFoundException e) {
                 // we can't really get here anyway, since we couldn't have decoded the string to begin with
                 throw new RuntimeException("Base 64 encoding unavailable! Can't pass storage key");
+            }
+        }
+    }
+
+    private void saveFormEntrySession(Bundle outState) {
+        if (formEntryRestoreSession != null) {
+            ByteArrayOutputStream objectSerialization = new ByteArrayOutputStream();
+            try {
+                formEntryRestoreSession.writeExternal(new DataOutputStream(objectSerialization));
+                outState.putByteArray(KEY_FORM_ENTRY_SESSION, objectSerialization.toByteArray());
+            } catch (IOException e) {
+                outState.putByteArray(KEY_FORM_ENTRY_SESSION, null);
+            } finally {
+                try {
+                    objectSerialization.close();
+                } catch (IOException e) {
+                    Log.w(TAG, "failed to store form entry session in instance bundle");
+                }
             }
         }
     }
@@ -2130,8 +2155,28 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 hasSaved = savedInstanceState.getBoolean(KEY_HAS_SAVED);
             }
 
-            formEntryRestoreSession = (FormEntrySession)savedInstanceState.getSerializable(KEY_FORM_ENTRY_SESSION);
+            restoreFormEntrySession(savedInstanceState);
+
             recordEntrySession = savedInstanceState.getBoolean(KEY_RECORD_FORM_ENTRY_SESSION, false);
+        }
+    }
+
+    private void restoreFormEntrySession(Bundle savedInstanceState) {
+        byte[] serializedObject = savedInstanceState.getByteArray(KEY_FORM_ENTRY_SESSION);
+        if (serializedObject != null) {
+            formEntryRestoreSession = new FormEntrySession();
+            DataInputStream objectInputStream = new DataInputStream(new ByteArrayInputStream(serializedObject));
+            try {
+                formEntryRestoreSession.readExternal(objectInputStream, DbUtil.getPrototypeFactory(this));
+            } catch (IOException | DeserializationException e) {
+                Log.e(TAG, "failed to deserialize form entry session during saved instance restore");
+            } finally {
+                try {
+                    objectInputStream.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "failed to close deserialization stream for form entry session during saved instance restore");
+                }
+            }
         }
     }
 
