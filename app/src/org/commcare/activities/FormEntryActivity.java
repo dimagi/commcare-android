@@ -100,6 +100,8 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.javarosa.form.api.FormEntrySession;
+import org.javarosa.form.api.FormEntrySessionReplayer;
 import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
@@ -164,6 +166,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static final String KEY_INCOMPLETE_ENABLED = "org.odk.collect.form.management";
     public static final String KEY_RESIZING_ENABLED = "org.odk.collect.resizing.enabled";
     private static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
+    public static final String KEY_FORM_ENTRY_SESSION = "form_entry_session";
+    public static final String KEY_RECORD_FORM_ENTRY_SESSION = "record_form_entry_session";
 
     /**
      * Intent extra flag to track if this form is an archive. Used to trigger
@@ -234,7 +238,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean savingFormOnKeySessionExpiration = false;
     private boolean mGroupForcedInvisible = false;
     private boolean mGroupNativeVisibility = false;
-
+    private FormEntrySession formEntryRestoreSession;
+    private boolean recordEntrySession;
     enum AnimationType {
         LEFT, RIGHT, FADE
     }
@@ -392,6 +397,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putBoolean(KEY_INCOMPLETE_ENABLED, mIncompleteEnabled);
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
+        outState.putSerializable(KEY_FORM_ENTRY_SESSION, formEntryRestoreSession);
+        outState.putBoolean(KEY_RECORD_FORM_ENTRY_SESSION, recordEntrySession);
 
         if(symetricKey != null) {
             try {
@@ -741,9 +748,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // only try to save if the current event is a question or a field-list
         // group
         boolean success = true;
-        if ((mFormController.getEvent() == FormEntryController.EVENT_QUESTION)
-                || ((mFormController.getEvent() == FormEntryController.EVENT_GROUP) &&
-                mFormController.indexIsInFieldList())) {
+        if (isEventQuestionOrListGroup()) {
             HashMap<FormIndex, IAnswerData> answers =
                     questionsView.getAnswers();
 
@@ -780,6 +785,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         }
         return success;
+    }
+
+    private boolean isEventQuestionOrListGroup() {
+        return (mFormController.getEvent() == FormEntryController.EVENT_QUESTION) ||
+                (mFormController.getEvent() == FormEntryController.EVENT_GROUP
+                        && mFormController.indexIsInFieldList());
     }
 
     /**
@@ -912,7 +923,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
             try{
             group_skip: do {
-                event = mFormController.stepToNextEvent(FormController.STEP_OVER_GROUP);
+                event = mFormController.stepToNextEvent(FormEntryController.STEP_OVER_GROUP);
                 switch (event) {
                     case FormEntryController.EVENT_QUESTION:
                         QuestionsView next = createView();
@@ -1568,7 +1579,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 return;
             }
 
-            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, isInstanceReadOnly, this) {
+            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, isInstanceReadOnly, recordEntrySession, this) {
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
                     receiver.handleFormLoadCompletion(wrapperResult.getController());
@@ -1650,6 +1661,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         reportFormEntry();
+
+        try {
+            FormEntrySessionReplayer.tryReplayingFormEntry(mFormController.getFormEntryController(),
+                    formEntryRestoreSession);
+        } catch (FormEntrySessionReplayer.ReplayError e) {
+            UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), EXIT);
+        }
+
         refreshCurrentView();
         FormNavigationUI.updateNavigationCues(this, mFormController, questionsView);
     }
@@ -2110,6 +2129,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             if(savedInstanceState.containsKey(KEY_HAS_SAVED)) {
                 hasSaved = savedInstanceState.getBoolean(KEY_HAS_SAVED);
             }
+
+            formEntryRestoreSession = (FormEntrySession)savedInstanceState.getSerializable(KEY_FORM_ENTRY_SESSION);
+            recordEntrySession = savedInstanceState.getBoolean(KEY_RECORD_FORM_ENTRY_SESSION, false);
         }
     }
 
@@ -2202,6 +2224,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if(intent.hasExtra(KEY_RESIZING_ENABLED)) {
             ResizingImageView.resizeMethod = intent.getStringExtra(KEY_RESIZING_ENABLED);
         }
+        if (intent.hasExtra(KEY_FORM_ENTRY_SESSION)) {
+            formEntryRestoreSession =
+                    FormEntrySession.fromString(intent.getStringExtra(KEY_FORM_ENTRY_SESSION));
+        }
+        recordEntrySession = intent.getBooleanExtra(KEY_RECORD_FORM_ENTRY_SESSION, false);
     }
 
     private void setTitleToLoading() {
@@ -2249,6 +2276,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return questionsView;
         } else {
             throw new RuntimeException("On principal of design, only meant for testing purposes");
+        }
+    }
+
+    public static String getFormEntrySessionString() {
+        if (mFormController == null) {
+            return "";
+        } else {
+            return mFormController.getFormEntrySessionString();
         }
     }
 }
