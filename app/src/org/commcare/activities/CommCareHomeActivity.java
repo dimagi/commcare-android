@@ -353,11 +353,13 @@ public class CommCareHomeActivity
     }
 
     private boolean useGridMenu(String menuId) {
+        // first check if this is enabled in profile
+        if(CommCarePreferences.isGridMenuEnabled()) {
+            return true;
+        }
+        // if not, check style attribute for this particular menu block
         if(menuId == null) {
             menuId = org.commcare.suite.model.Menu.ROOT_MENU_ID;
-        }
-        if(DeveloperPreferences.isGridMenuEnabled()) {
-            return true;
         }
         AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         String commonDisplayStyle = platform.getMenuDisplayStyle(menuId);
