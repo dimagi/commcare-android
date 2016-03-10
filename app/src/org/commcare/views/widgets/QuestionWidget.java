@@ -32,7 +32,7 @@ import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
-import org.commcare.utils.FileUtils;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.ShrinkingTextView;
@@ -626,8 +626,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     public void checkFileSize(File file){
-        if(FileUtils.isFileOversized(file)){
-            this.notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtils.getFileSize(file) + ""));
+        if(FileUtil.isFileOversized(file)){
+            this.notifyWarning(StringUtils.getStringRobust(getContext(), R.string.attachment_oversized, FileUtil.getFileSize(file) + ""));
         }
     }
 

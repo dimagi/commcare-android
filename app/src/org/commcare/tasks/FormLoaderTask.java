@@ -21,7 +21,7 @@ import org.commcare.models.database.DbUtil;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.tasks.templates.CommCareTask;
-import org.commcare.utils.FileUtils;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
@@ -86,7 +86,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         String formMediaPath = formAndMediaPaths.second;
 
         File formXml = new File(formPath);
-        String formHash = FileUtils.getMd5Hash(formXml);
+        String formHash = FileUtil.getMd5Hash(formXml);
         File formBin = getCachedForm(formHash);
 
         if (formBin.exists()) {
@@ -290,7 +290,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
      */
     private void serializeFormDef(FormDef fd, String formFilePath) throws IOException {
         // calculate unique md5 identifier for this form
-        String hash = FileUtils.getMd5Hash(new File(formFilePath));
+        String hash = FileUtil.getMd5Hash(new File(formFilePath));
         File formDef = getCachedForm(hash);
 
         // create a serialized form file if there isn't already one at this hash
