@@ -355,7 +355,11 @@ public class CommCareApplication extends Application {
     synchronized public Tracker getDefaultTracker() {
         if (analyticsTracker == null) {
             // TODO: AMS - Will want to set this conditionally after test release
-            analyticsTracker = analyticsInstance.newTracker(DEV_TRACKING_ID);
+            if (BuildConfig.DEBUG) {
+                analyticsTracker = analyticsInstance.newTracker(DEV_TRACKING_ID);
+            } else {
+                analyticsTracker = analyticsInstance.newTracker(LIVE_TRACKING_ID);
+            }
             analyticsTracker.enableAutoActivityTracking(true);
         }
         String userId = getCurrentUserId();

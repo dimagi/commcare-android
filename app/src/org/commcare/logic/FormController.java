@@ -37,9 +37,6 @@ public class FormController implements PendingCalloutInterface {
 
     private final boolean mReadOnly;
 
-    public static final boolean STEP_OVER_GROUP = true;
-    public static final boolean STEP_INTO_GROUP = false;
-
     /**
      * OpenRosa metadata tag names.
      */
@@ -72,7 +69,6 @@ public class FormController implements PendingCalloutInterface {
     public int getEvent() {
         return mFormEntryController.getModel().getEvent();
     }
-
 
     /**
      * returns the event for the given FormIndex.
@@ -583,5 +579,13 @@ public class FormController implements PendingCalloutInterface {
     //this ended up in the "logic" division. 
     public WidgetFactory getWidgetFactory() {
         return new WidgetFactory(mFormEntryController.getModel().getForm(), this);
+    }
+
+    public String getFormEntrySessionString() {
+        return mFormEntryController.getFormEntrySessionString();
+    }
+
+    public FormEntryController getFormEntryController() {
+        return mFormEntryController;
     }
 }

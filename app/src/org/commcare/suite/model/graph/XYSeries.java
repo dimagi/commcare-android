@@ -27,7 +27,7 @@ import java.util.Vector;
  * @author jschweers
  */
 public class XYSeries implements Externalizable, Configurable {
-    private TreeReference mNodeSet;
+    private String mNodeSet;
     private Hashtable<String, Text> mConfiguration;
 
     // List of keys that configure individual points. For these keys, the Text stored in
@@ -50,13 +50,13 @@ public class XYSeries implements Externalizable, Configurable {
     }
 
     public XYSeries(String nodeSet) {
-        mNodeSet = XPathReference.getPathExpr(nodeSet).getReference();
+        mNodeSet = nodeSet;
         mConfiguration = new Hashtable<>();
         mPointConfiguration = new Vector<>();
         mPointConfiguration.addElement("bar-color");
     }
 
-    public TreeReference getNodeSet() {
+    public String getNodeSet() {
         return mNodeSet;
     }
 
@@ -107,7 +107,7 @@ public class XYSeries implements Externalizable, Configurable {
             throws IOException, DeserializationException {
         mX = ExtUtil.readString(in);
         mY = ExtUtil.readString(in);
-        mNodeSet = (TreeReference)ExtUtil.read(in, TreeReference.class, pf);
+        mNodeSet = ExtUtil.readString(in);
         mConfiguration = (Hashtable<String, Text>)ExtUtil.read(in, new ExtWrapMap(String.class, Text.class), pf);
         mPointConfiguration =  (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
     }
@@ -119,7 +119,7 @@ public class XYSeries implements Externalizable, Configurable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, mX);
         ExtUtil.writeString(out, mY);
-        ExtUtil.write(out, mNodeSet);
+        ExtUtil.writeString(out, mNodeSet);
         ExtUtil.write(out, new ExtWrapMap(mConfiguration));
         ExtUtil.write(out, new ExtWrapList(mPointConfiguration));
     }

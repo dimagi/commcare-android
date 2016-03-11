@@ -22,7 +22,7 @@ import org.commcare.dalvik.R;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.TemplatePrinterTask;
 import org.commcare.tasks.TemplatePrinterTask.PopulateListener;
-import org.commcare.utils.FileUtils;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -99,7 +99,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
 
     private void preparePrintDoc(String inputPath) {
         generateJobName(inputPath);
-        String extension = FileUtils.getExtension(inputPath);
+        String extension = FileUtil.getExtension(inputPath);
         File templateFile = new File(inputPath);
         if (extension.equalsIgnoreCase("html") && templateFile.exists()) {
             new TemplatePrinterTask(

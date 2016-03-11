@@ -22,7 +22,7 @@ import org.commcare.models.database.DbUtil;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.tasks.templates.CommCareTask;
-import org.commcare.utils.FileUtils;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.instance.InstanceInitializationFactory;
@@ -58,6 +58,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
     private final SecretKeySpec mSymetricKey;
     private final boolean mReadOnly;
+    private final boolean recordEntrySession;
 
     private final R activity;
 
@@ -65,11 +66,13 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
     public static final int FORM_LOADER_TASK_ID = 16;
 
-    public FormLoaderTask(SecretKeySpec symetricKey, boolean readOnly, R activity) {
+    public FormLoaderTask(SecretKeySpec symetricKey, boolean readOnly,
+                          boolean recordEntrySession, R activity) {
         this.mSymetricKey = symetricKey;
         this.mReadOnly = readOnly;
         this.activity = activity;
         this.taskId = FORM_LOADER_TASK_ID;
+        this.recordEntrySession = recordEntrySession;
         TAG = FormLoaderTask.class.getSimpleName();
     }
 
@@ -87,7 +90,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         String formMediaPath = formAndMediaPaths.second;
 
         File formXml = new File(formPath);
-        String formHash = FileUtils.getMd5Hash(formXml);
+        String formHash = FileUtil.getMd5Hash(formXml);
         File formBin = getCachedForm(formHash);
 
         if (formBin.exists()) {
@@ -172,7 +175,12 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         formDef.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler((Context)activity));
         // create FormEntryController from formdef
         FormEntryModel fem = new FormEntryModel(formDef);
-        FormEntryController fec = new FormEntryController(fem);
+        FormEntryController fec;
+        if (recordEntrySession) {
+            fec = FormEntryController.buildRecordingController(fem);
+        } else {
+            fec = new FormEntryController(fem);
+        }
 
         //TODO: Get a reasonable IIF object
         // import existing data into formdef
@@ -291,7 +299,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
      */
     private void serializeFormDef(FormDef fd, String formFilePath) throws IOException {
         // calculate unique md5 identifier for this form
-        String hash = FileUtils.getMd5Hash(new File(formFilePath));
+        String hash = FileUtil.getMd5Hash(new File(formFilePath));
         File formDef = getCachedForm(hash);
 
         // create a serialized form file if there isn't already one at this hash

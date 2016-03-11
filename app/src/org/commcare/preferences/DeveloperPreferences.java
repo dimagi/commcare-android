@@ -11,6 +11,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.models.database.user.models.FormRecord;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,7 +19,6 @@ import java.util.Map;
 public class DeveloperPreferences extends SessionAwarePreferenceActivity
         implements SharedPreferences.OnSharedPreferenceChangeListener {
     public final static String SUPERUSER_ENABLED = "cc-superuser-enabled";
-    public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
     public final static String NAV_UI_ENABLED = "cc-nav-ui-enabled";
     public final static String CSS_ENABLED = "cc-css-enabled";
     public final static String MARKDOWN_ENABLED = "cc-markdown-enabled";
@@ -26,6 +26,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public final static String LIST_REFRESH_ENABLED = "cc-list-refresh";
     public final static String HOME_REPORT_ENABLED = "cc-home-report";
     public final static String AUTO_PURGE_ENABLED = "cc-auto-purge";
+    public final static String LOAD_FORM_PAYLOAD_AS = "cc-form-payload-status";
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -70,8 +71,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     private static void populatePrefKeyToEventLabelMapping() {
         prefKeyToAnalyticsEvent.put(SUPERUSER_ENABLED, GoogleAnalyticsFields.LABEL_DEV_MODE);
-        prefKeyToAnalyticsEvent.put(ACTION_BAR_ENABLED, GoogleAnalyticsFields.LABEL_ACTION_BAR);
-        prefKeyToAnalyticsEvent.put(GRID_MENUS_ENABLED, GoogleAnalyticsFields.LABEL_GRID_MENUS);
+        prefKeyToAnalyticsEvent.put(ACTION_BAR_ENABLED, GoogleAnalyticsFields.LABEL_ACTION_BAR);;
         prefKeyToAnalyticsEvent.put(NAV_UI_ENABLED, GoogleAnalyticsFields.LABEL_NAV_UI);
         prefKeyToAnalyticsEvent.put(LIST_REFRESH_ENABLED, GoogleAnalyticsFields.LABEL_ENTITY_LIST_REFRESH);
         prefKeyToAnalyticsEvent.put(NEWEST_APP_VERSION_ENABLED, GoogleAnalyticsFields.LABEL_NEWEST_APP_VERSION);
@@ -83,6 +83,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         prefKeyToAnalyticsEvent.put(FIRE_TRIGGERS_ON_SAVE, GoogleAnalyticsFields.LABEL_TRIGGERS_ON_SAVE);
         prefKeyToAnalyticsEvent.put(HOME_REPORT_ENABLED, GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED);
         prefKeyToAnalyticsEvent.put(AUTO_PURGE_ENABLED, GoogleAnalyticsFields.LABEL_AUTO_PURGE);
+        prefKeyToAnalyticsEvent.put(LOAD_FORM_PAYLOAD_AS, GoogleAnalyticsFields.LABEL_LOAD_FORM_PAYLOAD_AS);
     }
 
     @Override
@@ -98,6 +99,14 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
             case ENABLE_SAVE_SESSION:
                 if (!isSessionSavingEnabled()) {
                     DevSessionRestorer.clearSession();
+                }
+                break;
+            case LOAD_FORM_PAYLOAD_AS:
+                if (!formLoadPayloadStatus().equals(FormRecord.STATUS_SAVED)) {
+                    // clear submission server so that 'unsent' forms that are loaded don't get sent to HQ
+                    CommCareApplication._().getCurrentApp().getAppPreferences().edit()
+                            .putString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, "")
+                            .apply();
                 }
                 break;
         }
@@ -165,11 +174,6 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         return doesPropertyMatch(ACTION_BAR_ENABLED, CommCarePreferences.YES, CommCarePreferences.YES);
     }
 
-    public static boolean isGridMenuEnabled() {
-        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return properties.getString(GRID_MENUS_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
-    }
-
     public static boolean isNewNavEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(NAV_UI_ENABLED, CommCarePreferences.YES).equals(CommCarePreferences.YES);
@@ -234,4 +238,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 CommCarePreferences.YES);
     }
 
+    public static String formLoadPayloadStatus() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(LOAD_FORM_PAYLOAD_AS, FormRecord.STATUS_SAVED);
+    }
 }
