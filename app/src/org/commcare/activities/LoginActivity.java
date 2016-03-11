@@ -136,13 +136,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         String enteredUsername = uiController.getEnteredUsername();
         if (!"".equals(enteredUsername) && enteredUsername != null) {
             savedInstanceState.putString(KEY_LAST_ENTERED_USERNAME, enteredUsername);
-
-            // Only save this to prefs if it's different than the last logged in username
-            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-            String lastLoggedInUsername = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
-            if (!enteredUsername.equals(lastLoggedInUsername)) {
-                prefs.edit().putString(KEY_LAST_ENTERED_USERNAME, enteredUsername).commit();
-            }
         }
         String enteredPasswordOrPin = uiController.getEnteredPasswordOrPin();
         if (!"".equals(enteredPasswordOrPin) && enteredPasswordOrPin != null) {
@@ -276,6 +269,18 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         // Otherwise, refresh the activity for current conditions
         uiController.refreshView();
+    }
+
+    protected void onPause() {
+        super.onPause();
+
+        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        String lastLoggedInUsername = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
+        String enteredUsername = uiController.getEnteredUsername();
+        if (!enteredUsername.equals(lastLoggedInUsername)) {
+            // Only save this to prefs if it's different than the last logged in username
+            prefs.edit().putString(KEY_LAST_ENTERED_USERNAME, enteredUsername).commit();
+        }
     }
 
     @Override
