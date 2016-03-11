@@ -472,7 +472,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 boolean saved = ImageCaptureProcessing.processCaptureResponse(this, getInstanceFolder(), false);
                 if (saved) {
                     ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
-                    if (nextButton.getTag().equals(NAV_STATE_NEXT)) {
+                    if (nextButton.getTag().equals(NAV_STATE_NEXT) && !questionsView.isQuestionList()) {
                         next();
                     }
                 }
