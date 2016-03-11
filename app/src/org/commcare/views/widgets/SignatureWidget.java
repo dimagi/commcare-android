@@ -152,7 +152,6 @@ public class SignatureWidget extends QuestionWidget {
             i.putExtra(DrawActivity.REF_IMAGE, Uri.fromFile(f));
         }
 
-        // Path to output the signature file to
         i.putExtra(DrawActivity.EXTRA_OUTPUT,
                 Uri.fromFile(new File(ODKStorage.TMPFILE_PATH)));
 
