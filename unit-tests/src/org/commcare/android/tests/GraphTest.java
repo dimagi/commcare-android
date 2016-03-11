@@ -24,7 +24,7 @@ import java.util.Vector;
 @Config(application = CommCareApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
-/* TODO: don't extend XPathEvalTest, split some utils off of it */
+/* TODO: don't extend XPathEvalTest, split out a utils file */
 public class GraphTest extends XPathEvalTest {
 
     @Test
