@@ -66,7 +66,7 @@ The commcare-odk repository uses [Robolectric](http://robolectric.org/), which p
 
 ```bash
 cd commcare-odk
-gradle testDebug
+gradle testCommcareDebugUnitTest
 ```
 
 and view the results from the output file generated.
