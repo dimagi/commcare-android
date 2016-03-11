@@ -29,24 +29,25 @@ import java.util.Vector;
 public class GraphTest extends XPathEvalTest {
 
     @Test
-    private void testSeriesNodeSetExpansion() throws XPathSyntaxException {
-        EvaluationContext ec = getFunctionHandlers();
+    public void testSeriesNodeSetExpansion() throws XPathSyntaxException {
+        //EvaluationContext ec = getFunctionHandlers();
         FormInstance instance = createTestInstance();
+        EvaluationContext ec = new EvaluationContext(instance);
 
-        addDataRef(instance, "/data/flag", new IntegerData(2));
+        addDataRef(instance, "/data/flag", new IntegerData(1));
         addDataRef(instance, "/data/three[1]", new StringData("alpha"));
         addDataRef(instance, "/data/three[2]", new StringData("beta"));
         addDataRef(instance, "/data/three[3]", new StringData("delta"));
-        addDataRef(instance, "/data/two[0]", new StringData("omega"));
-        addDataRef(instance, "/data/two[1]", new StringData("psi"));
+        addDataRef(instance, "/data/two[1]", new StringData("omega"));
+        addDataRef(instance, "/data/two[2]", new StringData("psi"));
 
         XYSeries pathSeries = new XYSeries("/data/two");
         Vector<TreeReference> pathNodes = Graph.expandNodeSet(pathSeries, ec);
-        Assert.assertEquals(pathNodes.size(), 2);
+        Assert.assertEquals(2, pathNodes.size());
 
-        XYSeries expressionSeries = new XYSeries("if(/data/flag mod 2 = 1, /data/three, /data/two)");
+        XYSeries expressionSeries = new XYSeries("if(/data/flag = 1, '/data/three', '/data/two')");
         Vector<TreeReference> expressionNodes = Graph.expandNodeSet(expressionSeries, ec);
-        Assert.assertEquals(expressionNodes.size(), 3);
+        Assert.assertEquals(3, expressionNodes.size());
     }
 
 }
