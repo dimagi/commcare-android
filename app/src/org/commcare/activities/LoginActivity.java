@@ -63,7 +63,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public final static String KEY_LAST_APP = "id_of_last_selected";
-    public final static String KEY_ENTERED_USER = "entered-username";
+    public final static String KEY_LAST_ENTERED_USERNAME = "entered-username";
     public final static String KEY_ENTERED_PW_OR_PIN = "entered-password-or-pin";
 
     private static final int SEAT_APP_ACTIVITY = 0;
@@ -95,7 +95,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         } else {
             // If the screen was rotated with entered text present, we will want to restore it
             // in onResume (can't do it here b/c will get overriden by logic in refreshForNewApp())
-            usernameBeforeRotation = savedInstanceState.getString(KEY_ENTERED_USER);
+            usernameBeforeRotation = savedInstanceState.getString(KEY_LAST_ENTERED_USERNAME);
             passwordOrPinBeforeRotation = savedInstanceState.getString(KEY_ENTERED_PW_OR_PIN);
         }
 
@@ -135,7 +135,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         String enteredUsername = uiController.getEnteredUsername();
         if (!"".equals(enteredUsername) && enteredUsername != null) {
-            savedInstanceState.putString(KEY_ENTERED_USER, enteredUsername);
+            savedInstanceState.putString(KEY_LAST_ENTERED_USERNAME, enteredUsername);
+
+            // Only save this to prefs if it's different than the last logged in username
+            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+            String lastLoggedInUsername = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
+            if (!enteredUsername.equals(lastLoggedInUsername)) {
+                prefs.edit().putString(KEY_LAST_ENTERED_USERNAME, enteredUsername).commit();
+            }
         }
         String enteredPasswordOrPin = uiController.getEnteredPasswordOrPin();
         if (!"".equals(enteredPasswordOrPin) && enteredPasswordOrPin != null) {
