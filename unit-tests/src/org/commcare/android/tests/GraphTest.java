@@ -9,6 +9,7 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.xpath.test.XPathEvalTest;
+import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.CommCareTestRunner;
@@ -28,7 +29,7 @@ import java.util.Vector;
 public class GraphTest extends XPathEvalTest {
 
     @Test
-    private void testSeriesNodeSetExpansion() {
+    private void testSeriesNodeSetExpansion() throws XPathSyntaxException {
         EvaluationContext ec = getFunctionHandlers();
         FormInstance instance = createTestInstance();
 
