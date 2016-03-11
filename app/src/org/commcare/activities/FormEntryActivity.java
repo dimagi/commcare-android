@@ -469,7 +469,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 ImageCaptureProcessing.processCaptureResponse(this, getInstanceFolder(), true);
                 break;
             case SIGNATURE_CAPTURE:
-                ImageCaptureProcessing.processCaptureResponse(this, getInstanceFolder(), false);
+                boolean saved = ImageCaptureProcessing.processCaptureResponse(this, getInstanceFolder(), false);
+                if (saved) {
+                    ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
+                    if (nextButton.getTag().equals(NAV_STATE_NEXT)) {
+                        next();
+                    }
+                }
                 break;
             case IMAGE_CHOOSER:
                 ImageCaptureProcessing.processImageChooserResponse(this, getInstanceFolder(), intent);
