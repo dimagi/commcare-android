@@ -40,11 +40,11 @@ public class GraphTest extends XPathEvalTest {
 
         XYSeries pathSeries = new XYSeries("/data/two");
         Vector<TreeReference> pathNodes = Graph.expandNodeSet(pathSeries, ec);
-        Assert.assertEquals(pathNodes.length, 2);
+        Assert.assertEquals(pathNodes.size(), 2);
 
         XYSeries expressionSeries = new XYSeries("if(/data/flag mod 2 = 1, /data/three, /data/two)");
         Vector<TreeReference> expressionNodes = Graph.expandNodeSet(expressionSeries, ec);
-        Assert.assertEquals(expressionNodes.length(), 3);
+        Assert.assertEquals(expressionNodes.size(), 3);
     }
 
 }
