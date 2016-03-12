@@ -137,6 +137,7 @@ public class IntentWidget extends QuestionWidget {
             if (data != null && !"".equals(data)) {
                 intent.putExtra(IntentCallout.INTENT_RESULT_VALUE, data);
             }
+            intent.setType("text/plain");
             ((Activity)getContext()).startActivityForResult(intent, calloutId);
             pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
         } catch (ActivityNotFoundException e) {
