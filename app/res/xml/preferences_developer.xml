@@ -17,12 +17,6 @@
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
-        android:key="cc-grid-menus"
-        android:title="Grid Menus Enabled"/>
-    <ListPreference
-        android:enabled="true"
-        android:entries="@array/pref_enabled_labels"
-        android:entryValues="@array/pref_enabled_vals"
         android:key="cc-nav-ui-enabled"
         android:title="Navigation UI"
         android:defaultValue="yes"
