@@ -3,6 +3,7 @@ package org.commcare.engine.extensions;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -131,7 +132,7 @@ public class IntentCallout implements Externalizable {
     }
 
     public boolean processResponse(Intent intent, TreeReference context, File destination) {
-        if (intent == null) {
+        if (intentInvalid(intent)) {
             return false;
         }
 
@@ -161,6 +162,22 @@ public class IntentCallout implements Externalizable {
             }
         }
         return (result != null);
+    }
+
+    private boolean intentInvalid(Intent intent) {
+        if (intent == null) {
+            return true;
+        }
+        try {
+            // force unparcelling to check if we are missing classes to
+            // correctly process callout response
+            intent.hasExtra(INTENT_RESULT_VALUE);
+        } catch (BadParcelableException e) {
+            Log.w(TAG, "unable to unparcel intent: " + e.getMessage());
+            return true;
+        }
+
+        return false;
     }
 
     private void processResponseItem(TreeReference ref, String responseValue,

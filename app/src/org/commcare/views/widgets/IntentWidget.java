@@ -90,7 +90,7 @@ public class IntentWidget extends QuestionWidget {
     }
 
     protected Spannable getButtonLabel() {
-        if (mPrompt.getAnswerText() == null) {
+        if (mStringAnswer.getText() == null || "".equals(mStringAnswer.getText().toString())) {
             if (ic.getButtonLabel() != null) {
                 return new SpannableString(ic.getButtonLabel());
             } else {
@@ -132,6 +132,8 @@ public class IntentWidget extends QuestionWidget {
             if (!"".equals(data)) {
                 intent.putExtra(IntentCallout.INTENT_RESULT_VALUE, data);
             }
+
+            intent.setType("text/plain");
             ((Activity)getContext()).startActivityForResult(intent, calloutId);
             pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
         } catch (ActivityNotFoundException e) {
