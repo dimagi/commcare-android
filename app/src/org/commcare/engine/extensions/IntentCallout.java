@@ -56,7 +56,6 @@ public class IntentCallout implements Externalizable {
     private String appearance;
     private boolean isCancelled;
 
-
     // Generic Extra from intent callout extensions
     public static final String INTENT_RESULT_VALUE = "odk_intent_data";
 
@@ -280,5 +279,4 @@ public class IntentCallout implements Externalizable {
     public boolean getCancelled() {
         return isCancelled;
     }
-
 }

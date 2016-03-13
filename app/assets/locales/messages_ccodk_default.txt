@@ -661,5 +661,7 @@ permission.acquire.required=Acquire Required Permissions
 
 intent.barcode.get=Get Barcode
 intent.barcode.update=Update Barcode
-intent.intent.get=Get Data
-intent.intent.update=Update Data
+intent.callout.get=Get Data
+intent.callout.update=Update Data
+intent.callout.cancelled=Question callout cancelled
+intent.callout.unable.to.process=Unable to process callout result
