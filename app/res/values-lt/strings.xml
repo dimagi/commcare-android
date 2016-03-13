@@ -72,7 +72,6 @@
     <string name="forms">Tuščios formos</string>
     <string name="form_renamed">%1$s buvo pervadinta į %2$s.</string>
     <string name="getting_location">Įkeliama vietovė</string>
-    <string name="get_barcode">Nuskaityti brūkšninį kodą</string>
     <string name="get_forms">Atsisiųsti tuščią formą</string>
     <string name="get_location">Įrašyti vietovę</string>
     <string name="provider_disabled_error">Deja, padėties valdikliai yra išjungti!</string>

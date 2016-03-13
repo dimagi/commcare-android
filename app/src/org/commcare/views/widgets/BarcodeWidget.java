@@ -18,6 +18,7 @@ import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.text.SpannableString;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -32,6 +33,7 @@ import org.commcare.dalvik.R;
 import org.commcare.engine.extensions.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.StringUtils;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 
@@ -59,7 +61,7 @@ public class BarcodeWidget extends IntentWidget {
         setOrientation(LinearLayout.VERTICAL);
         launchIntentButton = new Button(getContext());
         WidgetUtils.setupButton(launchIntentButton,
-                StringUtils.getStringSpannableRobust(getContext(), R.string.get_barcode),
+                new SpannableString(Localization.get("intent.barcode.get")),
                 mAnswerFontsize,
                 !prompt.isReadOnly());
 
@@ -87,7 +89,7 @@ public class BarcodeWidget extends IntentWidget {
     @Override
     public void clearAnswer() {
         mStringAnswer.setText(null);
-        launchIntentButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.get_barcode));
+        launchIntentButton.setText(new SpannableString(Localization.get("intent.barcode.get")));
     }
 
     @Override

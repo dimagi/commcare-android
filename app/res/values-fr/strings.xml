@@ -71,7 +71,6 @@ License.
     <string name="forms">Formulaires vides</string>
     <string name="form_renamed">%1$s a été renommé %2$s.</string>
     <string name="getting_location">Chargement de la localisation</string>
-    <string name="get_barcode">Obtention du code-barre</string>
     <string name="get_forms">Récupération du formulaire vierge</string>
     <string name="get_location">Enregistrement du lieu</string>
     <string name="provider_disabled_error">Désolé, le fournisseur de localisation est désactivé.</string>

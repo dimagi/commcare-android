@@ -51,6 +51,7 @@ public class IntentCallout implements Externalizable {
     private String component;
     private String data;
     private String buttonLabel;
+    private String updateButtonLabel;
     private String appearance;
     private boolean isCancelled;
 
@@ -65,10 +66,15 @@ public class IntentCallout implements Externalizable {
         // for serialization
     }
 
+    /**
+     * @param buttonLabel Intent callout button text for initially calling the intent.
+     * @param updateButtonLabel Intent callout button text for re-calling the intent to update the answer
+     * @param appearance if 'quick' then intent is automatically called when question is shown, and advanced when intent answer is received
+     */
     public IntentCallout(String className, Hashtable<String, XPathExpression> refs,
                          Hashtable<String, Vector<TreeReference>> responses, String type,
-                         String component, String data, String buttonLabel, String appearance) {
-
+                         String component, String data, String buttonLabel,
+                         String updateButtonLabel, String appearance) {
         this.className = className;
         this.refs = refs;
         this.responses = responses;
@@ -76,8 +82,8 @@ public class IntentCallout implements Externalizable {
         this.component = component;
         this.data = data;
         this.buttonLabel = buttonLabel;
+        this.updateButtonLabel = updateButtonLabel;
         this.appearance = appearance;
-
     }
 
     protected void attachToForm(FormDef form) {
@@ -125,7 +131,6 @@ public class IntentCallout implements Externalizable {
     }
 
     public boolean processResponse(Intent intent, TreeReference context, File destination) {
-
         if (intent == null) {
             return false;
         }
@@ -225,6 +230,7 @@ public class IntentCallout implements Externalizable {
         appearance = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         component = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         buttonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        updateButtonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
     }
 
     @Override
@@ -235,10 +241,15 @@ public class IntentCallout implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(appearance));
         ExtUtil.write(out, new ExtWrapNullable(component));
         ExtUtil.write(out, new ExtWrapNullable(buttonLabel));
+        ExtUtil.write(out, new ExtWrapNullable(updateButtonLabel));
     }
 
     public String getButtonLabel() {
         return buttonLabel;
+    }
+
+    public String getUpdateButtonLabel() {
+        return updateButtonLabel;
     }
 
     public String getAppearance() {

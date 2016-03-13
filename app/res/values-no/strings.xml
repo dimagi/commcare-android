@@ -72,7 +72,6 @@
     <string name="forms">Blank Forms</string>
     <string name="form_renamed">%1$s fikk ny navn %2$s.</string>
     <string name="getting_location">Henter plassering</string>
-    <string name="get_barcode">Hent strekkode</string>
     <string name="get_forms">Hent blank skjema</string>
     <string name="get_location">Registrer posisjon</string>
     <string name="provider_disabled_error">Sorry, Location providers are disabled!</string>

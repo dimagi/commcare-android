@@ -30,12 +30,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.dalvik.R;
 import org.commcare.engine.extensions.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
-import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 /**
@@ -97,17 +96,19 @@ public class IntentWidget extends QuestionWidget {
     }
 
     public Spannable getButtonLabel(){
-        if (ic.getButtonLabel() != null) {
-            return new SpannableString(ic.getButtonLabel());
-        }
-        String s = prompt.getAnswerText();
-        Spannable label;
-        if (s != null) {
-            label = StringUtils.getStringSpannableRobust(getContext(), R.string.intent_callout_button_update);
+        if (prompt.getAnswerText() == null) {
+            if (ic.getButtonLabel() != null) {
+                return new SpannableString(ic.getButtonLabel());
+            } else {
+                return new SpannableString(Localization.get("intent.callout.get"));
+            }
         } else {
-            label = StringUtils.getStringSpannableRobust(getContext(), R.string.intent_callout_button);
+            if (ic.getUpdateButtonLabel() != null) {
+                return new SpannableString(ic.getUpdateButtonLabel());
+            } else {
+                return new SpannableString(Localization.get("intent.callout.update"));
+            }
         }
-        return label;
     }
 
     public void makeButton() {
