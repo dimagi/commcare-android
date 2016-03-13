@@ -37,21 +37,32 @@ public class IntentWidget extends QuestionWidget {
     private int calloutId = FormEntryActivity.INTENT_CALLOUT;
     protected final FormEntryPrompt prompt;
     protected final PendingCalloutInterface pendingCalloutInterface;
+    private final String getButtonLocalizationKey;
+    private final String updateButtonLocalizationKey;
 
     public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
                         PendingCalloutInterface pendingCalloutInterface, int calloutId) {
-        this(context, prompt, in, ic, pendingCalloutInterface);
+        this(context, prompt, in, ic, pendingCalloutInterface, "intent.barcode.get", "intent.barcode.update");
+
         this.calloutId = calloutId;
     }
 
     public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
                         PendingCalloutInterface pendingCalloutInterface) {
+        this(context, prompt, in, ic, pendingCalloutInterface, "intent.callout.get", "intent.callout.update");
+    }
+
+    public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
+                        PendingCalloutInterface pendingCalloutInterface,
+                        String getButtonLocalizationKey, String updateButtonLocalizationKey) {
         super(context, prompt);
 
         this.intent = in;
         this.ic = ic;
         this.pendingCalloutInterface = pendingCalloutInterface;
         this.prompt = prompt;
+        this.getButtonLocalizationKey = getButtonLocalizationKey;
+        this.updateButtonLocalizationKey = updateButtonLocalizationKey;
 
         makeTextView();
         makeButton();
@@ -71,7 +82,6 @@ public class IntentWidget extends QuestionWidget {
         // finish complex layout
         addView(mStringAnswer);
 
-
         //only auto advance if 1) we have no data 2) its quick 3) we weren't just cancelled
         if (s == null && "quick".equals(ic.getAppearance()) && !ic.getCancelled()) {
             performCallout();
@@ -81,18 +91,18 @@ public class IntentWidget extends QuestionWidget {
         }
     }
 
-    private Spannable getButtonLabel() {
+    protected Spannable getButtonLabel() {
         if (prompt.getAnswerText() == null) {
             if (ic.getButtonLabel() != null) {
                 return new SpannableString(ic.getButtonLabel());
             } else {
-                return new SpannableString(Localization.get("intent.callout.get"));
+                return new SpannableString(Localization.get(getButtonLocalizationKey));
             }
         } else {
             if (ic.getUpdateButtonLabel() != null) {
                 return new SpannableString(ic.getUpdateButtonLabel());
             } else {
-                return new SpannableString(Localization.get("intent.callout.update"));
+                return new SpannableString(Localization.get(updateButtonLocalizationKey));
             }
         }
     }
@@ -155,6 +165,7 @@ public class IntentWidget extends QuestionWidget {
     @Override
     public void setBinaryData(Object answer) {
         mStringAnswer.setText((String)answer);
+        setButtonLabel();
     }
 
     @Override

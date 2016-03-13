@@ -23,7 +23,6 @@ License.
     <string name="audio_file_error">Aucun fichier audio spécifié.</string>
     <string name="audio_file_invalid">%s n\'est pas un fichier audio valable.</string>
     <string name="backup">retourner à\nprevious\nprompt</string>
-    <string name="barcode_scanner_error">Aucun lecteur de Barcode n\'est installé.</string>
     <string name="cancel">Annuler</string>
     <string name="cancel_loading_form">Annuler</string>
     <string name="cancel_location">Annuler</string>

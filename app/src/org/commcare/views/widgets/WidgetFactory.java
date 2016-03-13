@@ -81,7 +81,6 @@ public class WidgetFactory {
                         questionWidget = new GeoPointWidget(context, fep, pendingCalloutInterface);
                         break;
                     case Constants.DATATYPE_BARCODE:
-
                         IntentCallout mIntentCallout = new IntentCallout("com.google.zxing.client.android.SCAN", null, null,
                                 null, null, null, Localization.get("intent.barcode.get"),
                                 Localization.get("intent.barcode.update"), appearance);

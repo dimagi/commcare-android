@@ -156,7 +156,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="audio_file_error" cc:translatable="true">No audio file was specified.</string>
     <string name="audio_file_invalid" cc:translatable="true">File: %s is not a valid audio file.</string>
     <string name="backup" cc:translatable="true">back to\nprevious\nprompt</string>
-    <string name="barcode_scanner_error" cc:translatable="true">Sorry, Barcode Scanner is not installed!</string>
     <string name="cancel" cc:translatable="true">CANCEL</string>
     <string name="cancel_loading_form" cc:translatable="true">Cancel</string>
     <string name="cancel_location" cc:translatable="true">Cancel</string>
