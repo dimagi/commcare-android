@@ -101,7 +101,6 @@ public class EntitySelectCalloutSetup {
         for (Map.Entry<String, String> keyValue : calloutData.getExtras().entrySet()) {
             i.putExtra(keyValue.getKey(), keyValue.getValue());
         }
-        i.setType("text/plain");
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
