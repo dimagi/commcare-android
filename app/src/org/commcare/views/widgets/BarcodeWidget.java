@@ -46,7 +46,7 @@ public class BarcodeWidget extends IntentWidget {
         WidgetUtils.setupButton(launchIntentButton,
                 getButtonLabel(),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // launch barcode capture intent on click
         launchIntentButton.setOnClickListener(new View.OnClickListener() {
@@ -56,7 +56,7 @@ public class BarcodeWidget extends IntentWidget {
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.BARCODE_CAPTURE);
-                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
                             Localization.get("barcode.reader.missing"),
@@ -81,7 +81,7 @@ public class BarcodeWidget extends IntentWidget {
             mStringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
             mStringAnswer.setGravity(Gravity.CENTER);
 
-            String s = prompt.getAnswerText();
+            String s = mPrompt.getAnswerText();
             if (s != null) {
                 mStringAnswer.setText(s);
             }

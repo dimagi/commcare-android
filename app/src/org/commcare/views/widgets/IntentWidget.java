@@ -35,7 +35,6 @@ public class IntentWidget extends QuestionWidget {
     private final Intent intent;
     protected final IntentCallout ic;
     private int calloutId = FormEntryActivity.INTENT_CALLOUT;
-    protected final FormEntryPrompt prompt;
     protected final PendingCalloutInterface pendingCalloutInterface;
     private final String getButtonLocalizationKey;
     private final String updateButtonLocalizationKey;
@@ -60,7 +59,6 @@ public class IntentWidget extends QuestionWidget {
         this.intent = in;
         this.ic = ic;
         this.pendingCalloutInterface = pendingCalloutInterface;
-        this.prompt = prompt;
         this.getButtonLocalizationKey = getButtonLocalizationKey;
         this.updateButtonLocalizationKey = updateButtonLocalizationKey;
 
@@ -74,7 +72,7 @@ public class IntentWidget extends QuestionWidget {
         mStringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mStringAnswer.setGravity(Gravity.CENTER);
 
-        String s = prompt.getAnswerText();
+        String s = mPrompt.getAnswerText();
         if (s != null) {
             mStringAnswer.setText(s);
         }
@@ -92,7 +90,7 @@ public class IntentWidget extends QuestionWidget {
     }
 
     protected Spannable getButtonLabel() {
-        if (prompt.getAnswerText() == null) {
+        if (mPrompt.getAnswerText() == null) {
             if (ic.getButtonLabel() != null) {
                 return new SpannableString(ic.getButtonLabel());
             } else {
@@ -115,7 +113,7 @@ public class IntentWidget extends QuestionWidget {
         WidgetUtils.setupButton(launchIntentButton,
                 getButtonLabel(),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // launch barcode capture intent on click
         launchIntentButton.setOnClickListener(new View.OnClickListener() {
@@ -135,7 +133,7 @@ public class IntentWidget extends QuestionWidget {
                 intent.putExtra(IntentCallout.INTENT_RESULT_VALUE, data);
             }
             ((Activity)getContext()).startActivityForResult(intent, calloutId);
-            pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+            pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),
                     "Couldn't find intent for callout!", Toast.LENGTH_SHORT).show();
