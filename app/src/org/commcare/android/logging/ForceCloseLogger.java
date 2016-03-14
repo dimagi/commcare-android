@@ -7,6 +7,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.StringBody;
+import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogSerializer;
@@ -136,11 +137,12 @@ public class ForceCloseLogger {
     }
 
     private static String getSubmissionUri() {
-        try {
-            SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-            return settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
+        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
+        if (currentApp != null) {
+            return currentApp.getAppPreferences().getString(
+                    CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
                     CommCareApplication._().getString(R.string.PostURL));
-        } catch (Exception e) {
+        } else {
             return CommCareApplication._().getString(R.string.PostURL);
         }
     }

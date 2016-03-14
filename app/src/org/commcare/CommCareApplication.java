@@ -236,10 +236,7 @@ public class CommCareApplication extends Application {
             throw new RuntimeException(sfe);
         } finally {
             //No matter what happens, set up our new logger, we want those logs!
-            Logger.registerLogger(new AndroidLogger(
-                    getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
-            ForceCloseLogger.registerStorage(
-                    getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+            setupLoggerStorage(false);
             pil.dumpToNewLogger();
         }
 
@@ -315,10 +312,7 @@ public class CommCareApplication extends Application {
             releaseUserResourcesAndServices();
 
             // Switch loggers back over to using global storage, now that we don't have a session
-            Logger.registerLogger(new AndroidLogger(
-                    this.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
-            ForceCloseLogger.registerStorage(
-                    this.getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+            setupLoggerStorage(false);
         }
     }
 
@@ -957,16 +951,8 @@ public class CommCareApplication extends Application {
                         }
                     }
 
-                    // Switch the regular and forece close loggers over to using user storage while
-                    // there is a session
-                    Logger.registerLogger(new AndroidLogger(getUserStorage(AndroidLogEntry.STORAGE_KEY,
-                            AndroidLogEntry.class)));
-                    ForceCloseLogger.registerStorage(getUserStorage(ForceCloseLogEntry.STORAGE_KEY,
-                            ForceCloseLogEntry.class));
-
-                    // Initialize the XPathErrorLogger with a user storage object to write to
-                    XPathErrorLogger.registerStorage(getUserStorage(XPathErrorEntry.STORAGE_KEY,
-                            XPathErrorEntry.class));
+                    // Switch all loggers over to using user storage while there is a session
+                    setupLoggerStorage(true);
 
                     //service available
                     mIsBound = true;
@@ -1459,4 +1445,21 @@ public class CommCareApplication extends Application {
         messageForUserOnDispatch = null;
         titleForUserMessage = null;
     }
+
+    private void setupLoggerStorage(boolean userStorageAvailable) {
+        if (userStorageAvailable) {
+            Logger.registerLogger(new AndroidLogger(getUserStorage(AndroidLogEntry.STORAGE_KEY,
+                    AndroidLogEntry.class)));
+            ForceCloseLogger.registerStorage(getUserStorage(ForceCloseLogEntry.STORAGE_KEY,
+                    ForceCloseLogEntry.class));
+            XPathErrorLogger.registerStorage(getUserStorage(XPathErrorEntry.STORAGE_KEY,
+                    XPathErrorEntry.class));
+        } else {
+            Logger.registerLogger(new AndroidLogger(
+                    this.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+            ForceCloseLogger.registerStorage(
+                    this.getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+        }
+    }
+
 }
