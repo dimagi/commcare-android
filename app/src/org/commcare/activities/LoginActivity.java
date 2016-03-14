@@ -148,6 +148,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      *                       upon successful login
      */
     protected void initiateLoginAttempt(boolean restoreSession) {
+        if (uiController.getEnteredPasswordOrPin().equals("")) {
+            raiseLoginMessage(StockMessages.Auth_EmptyPassword, false);
+            return;
+        }
+
         uiController.clearErrorMessage();
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
 
