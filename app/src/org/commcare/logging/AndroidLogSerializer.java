@@ -4,7 +4,6 @@ import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.log.StreamLogSerializer;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.util.SortedIntSet;
 import org.xmlpull.v1.XmlSerializer;
@@ -15,33 +14,21 @@ import java.util.Hashtable;
 /**
  * @author ctsims
  */
-public class AndroidLogSerializer extends StreamLogSerializer implements DeviceReportElement {
-    private LogEntry entry;
-    private final boolean isSingleLog;
+public class AndroidLogSerializer <T extends AndroidLogEntry>
+        extends StreamLogSerializer implements DeviceReportElement {
 
     private XmlSerializer serializer;
 
-    public AndroidLogSerializer(LogEntry entry) {
-        isSingleLog = true;
-        this.entry = entry;
+    private AndroidLogEntry singleEntry;
+    private SqlStorage<T> logStorage;
+
+    public AndroidLogSerializer(AndroidLogEntry entry) {
+        this.singleEntry = entry;
     }
 
-    public AndroidLogSerializer(final SqlStorage<AndroidLogEntry> logStorage) {
-        isSingleLog = false;
-        this.setPurger(new Purger() {
-            @Override
-            public void purge(final SortedIntSet IDs) {
-                logStorage.removeAll(new EntityFilter<LogEntry>() {
-                    public int preFilter(int id, Hashtable<String, Object> metaData) {
-                        return IDs.contains(id) ? PREFILTER_INCLUDE : PREFILTER_EXCLUDE;
-                    }
-
-                    public boolean matches(LogEntry e) {
-                        throw new RuntimeException("can't happen");
-                    }
-                });
-            }
-        });
+    public AndroidLogSerializer(final SqlStorage<T> logStorage) {
+        this.logStorage = logStorage;
+        this.setPurger(new AndroidLogPurger<>(logStorage));
     }
 
     @Override
@@ -51,8 +38,8 @@ public class AndroidLogSerializer extends StreamLogSerializer implements DeviceR
         serializer.startTag(DeviceReportWriter.XMLNS, "log");
         try {
             serializer.attribute(null, "date", dateString);
-            writeText("type", entry.getType());
-            writeText("msg", entry.getMessage());
+            writeText("type", entry.getType(), serializer);
+            writeText("msg", entry.getMessage(), serializer);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -60,7 +47,8 @@ public class AndroidLogSerializer extends StreamLogSerializer implements DeviceR
         }
     }
 
-    private void writeText(String element, String text) throws IllegalArgumentException, IllegalStateException, IOException {
+    public static void writeText(String element, String text, XmlSerializer serializer)
+            throws IllegalArgumentException, IllegalStateException, IOException {
         serializer.startTag(DeviceReportWriter.XMLNS, element);
         try {
             serializer.text(text);
@@ -78,11 +66,12 @@ public class AndroidLogSerializer extends StreamLogSerializer implements DeviceR
         serializer.startTag(DeviceReportWriter.XMLNS, "log_subreport");
 
         try {
-            if (isSingleLog) {
-                serializeLog(entry);
-            } else {
-                if (Logger._() != null) {
-                    Logger._().serializeLogs(this);
+            if (singleEntry != null) {
+                serializeLog(singleEntry.getID(), singleEntry);
+            }
+            else {
+                for (AndroidLogEntry entry : logStorage) {
+                    serializeLog(entry.getID(), entry);
                 }
             }
         } finally {

@@ -8,6 +8,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DataPullController;
 import org.commcare.activities.LoginMode;
+import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.logging.AndroidLogger;
@@ -561,7 +562,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "IO Error while migrating database: " + ioe.getMessage());
             return false;
         } catch (Exception e) {
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ExceptionReporting.getStackTrace(e));
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ForceCloseLogger.getStackTrace(e));
             return false;
         }
     }
