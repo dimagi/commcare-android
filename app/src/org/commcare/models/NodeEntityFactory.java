@@ -35,16 +35,8 @@ public class NodeEntityFactory {
         detail.populateEvaluationContextVariables(nodeContext);
 
         int length = detail.getHeaderForms().length;
-        String entityKey = null;
-        if (detail.getCallout() != null) {
-            DetailField calloutResponseDetail = detail.getCallout().getResponseDetail();
-            if (calloutResponseDetail != null) {
-                Object template = calloutResponseDetail.getTemplate().evaluate(nodeContext);
-                if (template instanceof String) {
-                    entityKey = (String)template;
-                }
-            }
-        }
+        String entityKey = loadCalloutResponseKey(nodeContext);
+
         Object[] details = new Object[length];
         String[] sortDetails = new String[length];
         boolean[] relevancyDetails = new boolean[length];
@@ -69,6 +61,19 @@ public class NodeEntityFactory {
         }
 
         return new Entity<>(details, sortDetails, relevancyDetails, data, entityKey);
+    }
+
+    private String loadCalloutResponseKey(EvaluationContext nodeContext) {
+        if (detail.getCallout() != null) {
+            DetailField calloutResponseDetail = detail.getCallout().getResponseDetail();
+            if (calloutResponseDetail != null) {
+                Object template = calloutResponseDetail.getTemplate().evaluate(nodeContext);
+                if (template instanceof String) {
+                    return (String)template;
+                }
+            }
+        }
+        return null;
     }
 
     private static void storeErrorDetails(Exception e, int index,
