@@ -91,6 +91,8 @@ public class AndroidLogger implements ILogger {
      */
     public static final String TYPE_FORM_DUMP = "form-dump";
 
+    public static final String TYPE_FORCECLOSE = "forceclose";
+
     //TODO: Currently assumes that it gets back iterated records in RecordID order.
     //when serializing a limited number of records then clearing
 
