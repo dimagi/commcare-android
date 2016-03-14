@@ -91,7 +91,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
-            uiController.restoreLastUser();
+            uiController.restoreLastUsername();
         } else {
             // If the screen was rotated with entered text present, we will want to restore it
             // in onResume (can't do it here b/c will get overriden by logic in refreshForNewApp())

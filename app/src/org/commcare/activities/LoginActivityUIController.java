@@ -211,7 +211,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         // Remove any error content from trying to log into a different app
         setStyleDefault();
 
-        if (!restoreLastUser()) {
+        if (!restoreLastUsername()) {
             // If we didn't have a username to restore for this app, clear the username text so it
             // does not show a username from a different app
             username.setText("");
@@ -440,7 +440,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
      *
      * @return if a username was restored
      */
-    protected boolean restoreLastUser() {
+    protected boolean restoreLastUsername() {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
         // First try to restore the last username that was entered, but NOT successfully logged in
