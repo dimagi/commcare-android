@@ -3,6 +3,7 @@ package org.commcare.tasks;
 import android.util.Pair;
 
 import org.commcare.activities.EntitySelectActivity;
+import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.AsyncNodeEntityFactory;
@@ -64,7 +65,7 @@ public class EntityLoaderTask
             XPathException me = new XPathException("Encountered an xpath error while trying to load and filter the list.");
             me.setSource(xe.getSource());
             xe.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, ExceptionReporting.getStackTrace(me));
+            Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, ForceCloseLogger.getStackTrace(me));
             mException = me;
             return null;
         }

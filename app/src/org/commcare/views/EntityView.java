@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.dalvik.R;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
@@ -21,7 +22,6 @@ import org.commcare.models.AsyncEntity;
 import org.commcare.models.Entity;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.tasks.ExceptionReporting;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
@@ -461,7 +461,7 @@ public class EntityView extends LinearLayout {
             }
         } catch (Exception excp) {
             removeSpans(raw);
-            Logger.log("search-hl", excp.toString() + " " + ExceptionReporting.getStackTrace(excp));
+            Logger.log("search-hl", excp.toString() + " " + ForceCloseLogger.getStackTrace(excp));
         }
 
         return raw;
