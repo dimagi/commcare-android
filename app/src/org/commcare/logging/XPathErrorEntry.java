@@ -1,12 +1,7 @@
 package org.commcare.logging;
 
-import android.support.v4.util.Pair;
-
-import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.session.CommCareSession;
-import org.commcare.suite.model.Profile;
-import org.commcare.utils.SessionStateUninitException;
+import org.commcare.android.logging.ReportingUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -41,32 +36,11 @@ public class XPathErrorEntry extends AndroidLogEntry {
         } else {
             this.expression = expression;
         }
-        this.sessionFramePath = getCurrentSession();
+
+        this.sessionFramePath = ReportingUtils.getCurrentSession();
+        this.appVersion = ReportingUtils.getAppBuildNumber();
+        this.appId = ReportingUtils.getAppId();
         this.userId = CommCareApplication._().getCurrentUserId();
-        Pair<Integer, String> appVersionAndId = lookupCurrentAppVersionAndId();
-        this.appVersion = appVersionAndId.first;
-        this.appId = appVersionAndId.second;
-    }
-
-    private static String getCurrentSession() {
-        CommCareSession currentSession;
-        try {
-            currentSession = CommCareApplication._().getCurrentSession();
-            return currentSession.getFrame().toString();
-        } catch (SessionStateUninitException e) {
-            return "";
-        }
-    }
-
-    private Pair<Integer, String> lookupCurrentAppVersionAndId() {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
-
-        if (app != null) {
-            Profile profile = app.getCommCarePlatform().getCurrentProfile();
-            return new Pair<>(profile.getVersion(), profile.getUniqueId());
-        }
-
-        return new Pair<>(-1, "");
     }
 
     public String getExpression() {
