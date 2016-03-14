@@ -297,7 +297,7 @@ public class FormUploadUtil {
                 }
                 entity.addPart("xml_submission_file", fb);
             } else if (f.getName().endsWith(".jpg")) {
-                fb = new FileBody(f, "image/jpeg");
+                fb = new FileBody(f, ContentType.create("image/jpeg"), f.getName());
                 if (fb.getContentLength() <= MAX_BYTES) {
                     entity.addPart(f.getName(), fb);
                     Log.i(TAG, "added image file " + f.getName());
@@ -305,7 +305,7 @@ public class FormUploadUtil {
                     Log.i(TAG, "file " + f.getName() + " is too big");
                 }
             } else if (f.getName().endsWith(".3gpp")) {
-                fb = new FileBody(f, "audio/3gpp");
+                fb = new FileBody(f, ContentType.create("audio/3gpp"), f.getName());
                 if (fb.getContentLength() <= MAX_BYTES) {
                     entity.addPart(f.getName(), fb);
                     Log.i(TAG, "added audio file " + f.getName());
@@ -313,7 +313,7 @@ public class FormUploadUtil {
                     Log.i(TAG, "file " + f.getName() + " is too big");
                 }
             } else if (f.getName().endsWith(".3gp")) {
-                fb = new FileBody(f, "video/3gpp");
+                fb = new FileBody(f, ContentType.create("video/3gpp"), f.getName());
                 if (fb.getContentLength() <= MAX_BYTES) {
                     entity.addPart(f.getName(), fb);
                     Log.i(TAG, "added video file " + f.getName());
@@ -321,7 +321,7 @@ public class FormUploadUtil {
                     Log.i(TAG, "file " + f.getName() + " is too big");
                 }
             } else if (isSupportedMultimediaFile(f.getName())) {
-                fb = new FileBody(f, "application/octet-stream");
+                fb = new FileBody(f, ContentType.APPLICATION_OCTET_STREAM, f.getName());
                 if (fb.getContentLength() <= MAX_BYTES) {
                     entity.addPart(f.getName(), fb);
                     Log.i(TAG, "added unknown file " + f.getName());

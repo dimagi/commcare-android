@@ -6,7 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
-import org.commcare.utils.FileUtils;
+import org.commcare.utils.FileUtil;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -194,7 +194,12 @@ public class IntentCallout implements Externalizable {
             File newFile = new File(destinationFile, src.getName());
 
             //Looks like our source file exists, so let's go grab it
-            FileUtils.copyFile(src, newFile);
+            try {
+                FileUtil.copyFile(src, newFile);
+            } catch (IOException e) {
+                Log.e(TAG, "IOExeception copying Intent binary.");
+                e.printStackTrace();
+            }
 
             //That code throws no errors, so we have to manually check whether the copy worked.
             if (newFile.exists() && newFile.length() == src.length()) {

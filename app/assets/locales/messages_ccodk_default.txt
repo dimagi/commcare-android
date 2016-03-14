@@ -28,6 +28,8 @@ verify.retry=Retry
 verify.checking=Verifying media...
 verify.check.failed=Validation failed for an unknown reason
 
+barcode.reader.missing=No barcode reader available! You can install one from the android market.
+
 install.barcode.top=Welcome to CommCare!
 install.barcode.bottom=Please choose an installation method below
 install.manual=Please enter the URL
@@ -376,6 +378,7 @@ no.file.browser=Your device does not have a file browser installed. Please downl
 
 callout.failure.dialer=Device is not currently configured to make telephone calls
 callout.failure.sms=SMS app not found
+callout.missing=No application found for action: ${0}
 
 analytics.opt.out.title=Opt out of Google Analytics?
 analytics.opt.out.message=This application uses Google Analytics to anonymously track usage data within the application. If you do not want your usage data to be tracked, you can disable it at any time.
@@ -406,7 +409,7 @@ pin.auth.failed.password=Entered password was incorrect. Please try again.
 pin.auth.prompt.pin=Enter your current PIN
 pin.auth.prompt.password=Enter your password
 pin.auth.enter.button=ENTER
-
+pin.primed.mode.message=You will use the PIN you create here to log into CommCare on all future log-ins.
 
 #Put these into their own file
 

@@ -216,7 +216,7 @@ public class QuestionsView extends ScrollView
 
         return answers;
     }
-    
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int newHeight = MeasureSpec.getSize(heightMeasureSpec);
@@ -375,7 +375,9 @@ public class QuestionsView extends ScrollView
     public void teardownView() {
         for (QuestionWidget widget : widgets) {
             widget.unsetListeners();
+            widget.setOnCreateContextMenuListener(null);
         }
+        wcListener = null;
     }
 
     @Override

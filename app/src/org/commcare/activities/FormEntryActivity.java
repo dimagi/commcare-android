@@ -67,6 +67,7 @@ import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.FormController;
 import org.commcare.logic.PropertyManager;
 import org.commcare.models.ODKStorage;
+import org.commcare.models.database.DbUtil;
 import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI;
@@ -74,7 +75,7 @@ import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.SaveToDiskTask;
 import org.commcare.utils.Base64Wrapper;
-import org.commcare.utils.FileUtils;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.GeoUtils;
 import org.commcare.utils.SessionUnavailableException;
@@ -98,14 +99,22 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
+import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.javarosa.form.api.FormEntrySession;
+import org.javarosa.form.api.FormEntrySessionReplayer;
 import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -164,6 +173,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static final String KEY_INCOMPLETE_ENABLED = "org.odk.collect.form.management";
     public static final String KEY_RESIZING_ENABLED = "org.odk.collect.resizing.enabled";
     private static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
+    public static final String KEY_FORM_ENTRY_SESSION = "form_entry_session";
+    public static final String KEY_RECORD_FORM_ENTRY_SESSION = "record_form_entry_session";
 
     /**
      * Intent extra flag to track if this form is an archive. Used to trigger
@@ -216,7 +227,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean isDialogShowing;
 
     private FormLoaderTask<FormEntryActivity> mFormLoaderTask;
-    private SaveToDiskTask<FormEntryActivity> mSaveToDiskTask;
+    private SaveToDiskTask mSaveToDiskTask;
 
     private Uri formProviderContentURI = FormsColumns.CONTENT_URI;
     private Uri instanceProviderContentURI = InstanceColumns.CONTENT_URI;
@@ -234,7 +245,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean savingFormOnKeySessionExpiration = false;
     private boolean mGroupForcedInvisible = false;
     private boolean mGroupNativeVisibility = false;
-
+    private FormEntrySession formEntryRestoreSession;
+    private boolean recordEntrySession;
     enum AnimationType {
         LEFT, RIGHT, FADE
     }
@@ -392,6 +404,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putBoolean(KEY_INCOMPLETE_ENABLED, mIncompleteEnabled);
         outState.putBoolean(KEY_HAS_SAVED, hasSaved);
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
+        saveFormEntrySession(outState);
+        outState.putBoolean(KEY_RECORD_FORM_ENTRY_SESSION, recordEntrySession);
 
         if(symetricKey != null) {
             try {
@@ -399,6 +413,24 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             } catch (ClassNotFoundException e) {
                 // we can't really get here anyway, since we couldn't have decoded the string to begin with
                 throw new RuntimeException("Base 64 encoding unavailable! Can't pass storage key");
+            }
+        }
+    }
+
+    private void saveFormEntrySession(Bundle outState) {
+        if (formEntryRestoreSession != null) {
+            ByteArrayOutputStream objectSerialization = new ByteArrayOutputStream();
+            try {
+                formEntryRestoreSession.writeExternal(new DataOutputStream(objectSerialization));
+                outState.putByteArray(KEY_FORM_ENTRY_SESSION, objectSerialization.toByteArray());
+            } catch (IOException e) {
+                outState.putByteArray(KEY_FORM_ENTRY_SESSION, null);
+            } finally {
+                try {
+                    objectSerialization.close();
+                } catch (IOException e) {
+                    Log.w(TAG, "failed to store form entry session in instance bundle");
+                }
             }
         }
     }
@@ -741,9 +773,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // only try to save if the current event is a question or a field-list
         // group
         boolean success = true;
-        if ((mFormController.getEvent() == FormEntryController.EVENT_QUESTION)
-                || ((mFormController.getEvent() == FormEntryController.EVENT_GROUP) &&
-                mFormController.indexIsInFieldList())) {
+        if (isEventQuestionOrListGroup()) {
             HashMap<FormIndex, IAnswerData> answers =
                     questionsView.getAnswers();
 
@@ -780,6 +810,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         }
         return success;
+    }
+
+    private boolean isEventQuestionOrListGroup() {
+        return (mFormController.getEvent() == FormEntryController.EVENT_QUESTION) ||
+                (mFormController.getEvent() == FormEntryController.EVENT_GROUP
+                        && mFormController.indexIsInFieldList());
     }
 
     /**
@@ -912,7 +948,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
             try{
             group_skip: do {
-                event = mFormController.stepToNextEvent(FormController.STEP_OVER_GROUP);
+                event = mFormController.stepToNextEvent(FormEntryController.STEP_OVER_GROUP);
                 switch (event) {
                     case FormEntryController.EVENT_QUESTION:
                         QuestionsView next = createView();
@@ -1292,14 +1328,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
         // save current answer; if headless, don't evaluate the constraints
         // before doing so.
-        if (headless &&
-                (!saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS, complete, headless))) {
-            return;
-        } else if (!headless &&
-                !saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS, complete, headless)) {
-            Toast.makeText(this,
-                    Localization.get("form.entry.save.error"),
-                    Toast.LENGTH_SHORT).show();
+        boolean wasScreenSaved =
+                saveAnswersForCurrentScreen(headless ? DO_NOT_EVALUATE_CONSTRAINTS : EVALUATE_CONSTRAINTS,
+                        complete, headless);
+        if (!wasScreenSaved) {
             return;
         }
 
@@ -1572,7 +1604,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 return;
             }
 
-            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, isInstanceReadOnly, this) {
+            mFormLoaderTask = new FormLoaderTask<FormEntryActivity>(symetricKey, isInstanceReadOnly, recordEntrySession, this) {
                 @Override
                 protected void deliverResult(FormEntryActivity receiver, FECWrapper wrapperResult) {
                     receiver.handleFormLoadCompletion(wrapperResult.getController());
@@ -1643,7 +1675,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             String file =
                     mFormPath.substring(mFormPath.lastIndexOf('/') + 1, mFormPath.lastIndexOf('.'));
             String path = mInstanceDestination + file + "_" + time;
-            if (FileUtils.createFolder(path)) {
+            if (FileUtil.createFolder(path)) {
                 mInstancePath = path + "/" + file + "_" + time + ".xml";
             }
         } else {
@@ -1654,6 +1686,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         reportFormEntry();
+
+        try {
+            FormEntrySessionReplayer.tryReplayingFormEntry(mFormController.getFormEntryController(),
+                    formEntryRestoreSession);
+        } catch (FormEntrySessionReplayer.ReplayError e) {
+            UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), EXIT);
+        }
+
         refreshCurrentView();
         FormNavigationUI.updateNavigationCues(this, mFormController, questionsView);
     }
@@ -1823,7 +1863,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * continue closing the session/logging out.
      */
     @Override
-    public void savingComplete(SaveToDiskTask.SaveStatus saveStatus) {
+    public void savingComplete(SaveToDiskTask.SaveStatus saveStatus, String errorMessage) {
         // Did we just save a form because the key session
         // (CommCareSessionService) is ending?
         if (savingFormOnKeySessionExpiration) {
@@ -1833,7 +1873,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // least attempted to be saved) so CommCareSessionService can
             // continue closing down key pool and user database.
             CommCareApplication._().expireUserSession();
-        } else {
+        } else if (saveStatus != null) {
             switch (saveStatus) {
                 case SAVED_COMPLETE:
                     Toast.makeText(this, Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
@@ -1848,14 +1888,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     hasSaved = true;
                     finishReturnInstance();
                     break;
-                case SAVE_ERROR:
-                    Toast.makeText(this, Localization.get("form.entry.save.error"), Toast.LENGTH_LONG).show();
-                    break;
                 case INVALID_ANSWER:
                     // an answer constraint was violated, so try to save the
                     // current question to trigger the constraint violation message
                     refreshCurrentView();
                     saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS);
+                    return;
+                case SAVE_ERROR:
+                    UserfacingErrorHandling.createErrorDialog(this, errorMessage,
+                            Localization.get("notification.formentry.save_error.title"), EXIT);
                     return;
             }
             refreshCurrentView();
@@ -2113,6 +2154,29 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             if(savedInstanceState.containsKey(KEY_HAS_SAVED)) {
                 hasSaved = savedInstanceState.getBoolean(KEY_HAS_SAVED);
             }
+
+            restoreFormEntrySession(savedInstanceState);
+
+            recordEntrySession = savedInstanceState.getBoolean(KEY_RECORD_FORM_ENTRY_SESSION, false);
+        }
+    }
+
+    private void restoreFormEntrySession(Bundle savedInstanceState) {
+        byte[] serializedObject = savedInstanceState.getByteArray(KEY_FORM_ENTRY_SESSION);
+        if (serializedObject != null) {
+            formEntryRestoreSession = new FormEntrySession();
+            DataInputStream objectInputStream = new DataInputStream(new ByteArrayInputStream(serializedObject));
+            try {
+                formEntryRestoreSession.readExternal(objectInputStream, DbUtil.getPrototypeFactory(this));
+            } catch (IOException | DeserializationException e) {
+                Log.e(TAG, "failed to deserialize form entry session during saved instance restore");
+            } finally {
+                try {
+                    objectInputStream.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "failed to close deserialization stream for form entry session during saved instance restore");
+                }
+            }
         }
     }
 
@@ -2205,6 +2269,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if(intent.hasExtra(KEY_RESIZING_ENABLED)) {
             ResizingImageView.resizeMethod = intent.getStringExtra(KEY_RESIZING_ENABLED);
         }
+        if (intent.hasExtra(KEY_FORM_ENTRY_SESSION)) {
+            formEntryRestoreSession =
+                    FormEntrySession.fromString(intent.getStringExtra(KEY_FORM_ENTRY_SESSION));
+        }
+        recordEntrySession = intent.getBooleanExtra(KEY_RECORD_FORM_ENTRY_SESSION, false);
     }
 
     private void setTitleToLoading() {
@@ -2252,6 +2321,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return questionsView;
         } else {
             throw new RuntimeException("On principal of design, only meant for testing purposes");
+        }
+    }
+
+    public static String getFormEntrySessionString() {
+        if (mFormController == null) {
+            return "";
+        } else {
+            return mFormController.getFormEntrySessionString();
         }
     }
 }
