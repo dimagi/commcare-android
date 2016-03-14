@@ -1,5 +1,7 @@
 package org.commcare.android.logging;
 
+import org.commcare.logging.AndroidLogPurger;
+import org.commcare.logging.AndroidLogSerializer;
 import org.commcare.logging.DeviceReportElement;
 import org.commcare.logging.DeviceReportWriter;
 import org.commcare.models.database.SqlStorage;
@@ -14,7 +16,7 @@ import java.io.IOException;
 import java.util.Hashtable;
 
 /**
- * Convert xpath error logs to xml.
+ * Convert force close error logs to xml.
  *
  * @author Aliza Stone
  */
@@ -30,21 +32,7 @@ public class ForceCloseLogSerializer extends StreamLogSerializer implements Devi
 
     public ForceCloseLogSerializer(final SqlStorage<ForceCloseLogEntry> logStorage) {
         this.logStorage = logStorage;
-
-        this.setPurger(new Purger() {
-            @Override
-            public void purge(final SortedIntSet IDs) {
-                logStorage.removeAll(new EntityFilter<LogEntry>() {
-                    public int preFilter(int id, Hashtable<String, Object> metaData) {
-                        return IDs.contains(id) ? PREFILTER_INCLUDE : PREFILTER_EXCLUDE;
-                    }
-
-                    public boolean matches(LogEntry e) {
-                        throw new RuntimeException("can't happen");
-                    }
-                });
-            }
-        });
+        this.setPurger(new AndroidLogPurger<>(logStorage));
     }
 
     @Override
@@ -74,13 +62,20 @@ public class ForceCloseLogSerializer extends StreamLogSerializer implements Devi
         serializer.startTag(DeviceReportWriter.XMLNS, "force_close");
         try {
             serializer.attribute(null, "date", dateString);
-            writeText("type", forceCloseEntry.getType());
-            writeText("msg", forceCloseEntry.getMessage());
-            writeText("build_number", forceCloseEntry.getAppBuildNumber() + "");
-            writeText("android_version", forceCloseEntry.getAndroidVersion());
-            writeText("device_model", forceCloseEntry.getDeviceModel());
-            writeText("session_readable", forceCloseEntry.getReadableSession());
-            writeText("session_serialized", forceCloseEntry.getSerializedSessionString());
+            AndroidLogSerializer.writeText("type",
+                    forceCloseEntry.getType(), serializer);
+            AndroidLogSerializer.writeText("msg",
+                    forceCloseEntry.getMessage(), serializer);
+            AndroidLogSerializer.writeText("build_number",
+                    forceCloseEntry.getAppBuildNumber() + "", serializer);
+            AndroidLogSerializer.writeText("android_version",
+                    forceCloseEntry.getAndroidVersion(), serializer);
+            AndroidLogSerializer.writeText("device_model",
+                    forceCloseEntry.getDeviceModel(), serializer);
+            AndroidLogSerializer.writeText("session_readable",
+                    forceCloseEntry.getReadableSession(), serializer);
+            AndroidLogSerializer.writeText("session_serialized",
+                    forceCloseEntry.getSerializedSessionString(), serializer);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -88,15 +83,4 @@ public class ForceCloseLogSerializer extends StreamLogSerializer implements Devi
         }
     }
 
-    private void writeText(String element, String text)
-            throws IllegalArgumentException, IllegalStateException, IOException {
-        serializer.startTag(DeviceReportWriter.XMLNS, element);
-        try {
-            serializer.text(text);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            serializer.endTag(DeviceReportWriter.XMLNS, element);
-        }
-    }
 }

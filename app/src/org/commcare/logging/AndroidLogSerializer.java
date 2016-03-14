@@ -28,21 +28,7 @@ public class AndroidLogSerializer <T extends AndroidLogEntry>
 
     public AndroidLogSerializer(final SqlStorage<T> logStorage) {
         this.logStorage = logStorage;
-
-        this.setPurger(new Purger() {
-            @Override
-            public void purge(final SortedIntSet IDs) {
-                logStorage.removeAll(new EntityFilter<LogEntry>() {
-                    public int preFilter(int id, Hashtable<String, Object> metaData) {
-                        return IDs.contains(id) ? PREFILTER_INCLUDE : PREFILTER_EXCLUDE;
-                    }
-
-                    public boolean matches(LogEntry e) {
-                        throw new RuntimeException("can't happen");
-                    }
-                });
-            }
-        });
+        this.setPurger(new AndroidLogPurger<>(logStorage));
     }
 
     @Override
@@ -52,8 +38,8 @@ public class AndroidLogSerializer <T extends AndroidLogEntry>
         serializer.startTag(DeviceReportWriter.XMLNS, "log");
         try {
             serializer.attribute(null, "date", dateString);
-            writeText("type", entry.getType());
-            writeText("msg", entry.getMessage());
+            writeText("type", entry.getType(), serializer);
+            writeText("msg", entry.getMessage(), serializer);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -61,7 +47,8 @@ public class AndroidLogSerializer <T extends AndroidLogEntry>
         }
     }
 
-    private void writeText(String element, String text) throws IllegalArgumentException, IllegalStateException, IOException {
+    public static void writeText(String element, String text, XmlSerializer serializer)
+            throws IllegalArgumentException, IllegalStateException, IOException {
         serializer.startTag(DeviceReportWriter.XMLNS, element);
         try {
             serializer.text(text);
