@@ -18,6 +18,10 @@ import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -157,10 +161,10 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                     }
                 }
 
-                Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
                 SeriesData seriesData = new SeriesData();
                 EvaluationContext seriesContext = new EvaluationContext(context, context.getContextRef());
 
+                Vector<TreeReference> refList = expandNodeSet(s, context);
                 Hashtable<String, Vector<String>> expandedConfiguration = new Hashtable();
                 for (Enumeration e = pointConfiguration.keys(); e.hasMoreElements();) {
                     expandedConfiguration.put((String) e.nextElement(), new Vector<String>());
@@ -216,5 +220,20 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         } catch (XPathSyntaxException e) {
             e.printStackTrace();
         }
+    }
+
+    public static Vector<TreeReference> expandNodeSet(XYSeries series, EvaluationContext context) throws XPathSyntaxException {
+        try {
+            // Attempt to evaluate the nodeSet, which will succeed if this is just a path expression
+            // (e.g., instance('casedb')/casedb/case[@case_type='point'][@status='open'][index/parent=current()/@case_id])
+            return context.expandReference(XPathReference.getPathExpr(series.getNodeSet()).getReference());
+        } catch (XPathTypeMismatchException e) {
+            // If that fails, try treating the nodeSet as a more complex expression that itself returns a path
+            // (e.g., if(true, "instance('item-list:rows1')/rows1/point", "instance('item-list:rows2')/rows2/point" ))
+            XPathExpression xpe = XPathParseTool.parseXPath(series.getNodeSet());
+            String nodeSet = (String) xpe.eval(context);
+            return context.expandReference(XPathReference.getPathExpr(nodeSet).getReference());
+        }
+
     }
 }

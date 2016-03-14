@@ -7,7 +7,7 @@ import android.provider.MediaStore.Images.Media;
 import android.widget.Toast;
 
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.utils.FileUtils;
+import org.commcare.utils.FileUtil;
 import org.commcare.views.widgets.ImageWidget;
 import org.javarosa.core.services.locale.Localization;
 
@@ -29,7 +29,7 @@ public class ImageCaptureProcessing {
     private static File moveAndScaleImage(File originalImage, boolean shouldScale,
                                          String instanceFolder,
                                          FormEntryActivity formEntryActivity) throws IOException {
-        String extension = FileUtils.getExtension(originalImage.getAbsolutePath());
+        String extension = FileUtil.getExtension(originalImage.getAbsolutePath());
         String imageFilename = System.currentTimeMillis() + "." + extension;
         String finalFilePath = instanceFolder + imageFilename;
 
@@ -40,7 +40,7 @@ public class ImageCaptureProcessing {
             if (currentWidget != null) {
                 int maxDimen = currentWidget.getMaxDimen();
                 if (maxDimen != -1) {
-                    savedScaledImage = FileUtils.scaleAndSaveImage(originalImage, finalFilePath, maxDimen);
+                    savedScaledImage = FileUtil.scaleAndSaveImage(originalImage, finalFilePath, maxDimen);
                 }
             }
         }
@@ -112,7 +112,7 @@ public class ImageCaptureProcessing {
 
         // get gp of chosen file
         Uri selectedImage = intent.getData();
-        String imagePath = FileUtils.getPath(activity, selectedImage);
+        String imagePath = FileUtil.getPath(activity, selectedImage);
 
         if (imagePath == null) {
             activity.showCustomToast(Localization.get("invalid.image.selection"), Toast.LENGTH_LONG);

@@ -19,6 +19,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -95,11 +96,10 @@ public class IntentWidget extends QuestionWidget {
         }
     }
 
-    public void makeButton() {
-        setOrientation(LinearLayout.VERTICAL);
-
-        launchIntentButton = new Button(getContext());
-
+    public Spannable getButtonLabel(){
+        if (ic.getButtonLabel() != null) {
+            return new SpannableString(ic.getButtonLabel());
+        }
         String s = prompt.getAnswerText();
         Spannable label;
         if (s != null) {
@@ -107,9 +107,16 @@ public class IntentWidget extends QuestionWidget {
         } else {
             label = StringUtils.getStringSpannableRobust(getContext(), R.string.intent_callout_button);
         }
+        return label;
+    }
+
+    public void makeButton() {
+        setOrientation(LinearLayout.VERTICAL);
+
+        launchIntentButton = new Button(getContext());
 
         WidgetUtils.setupButton(launchIntentButton,
-                label,
+                getButtonLabel(),
                 mAnswerFontsize,
                 !prompt.isReadOnly());
 
@@ -139,12 +146,7 @@ public class IntentWidget extends QuestionWidget {
     }
 
     private void setButtonLabel() {
-        if (ic.getButtonLabel() != null) {
-            launchIntentButton.setText(ic.getButtonLabel());
-        } else {
-            launchIntentButton.setText(StringUtils.getStringSpannableRobust(getContext(),
-                    R.string.intent_callout_button));
-        }
+        launchIntentButton.setText(getButtonLabel());
     }
 
 

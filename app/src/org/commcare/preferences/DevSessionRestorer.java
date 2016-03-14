@@ -7,6 +7,7 @@ import android.util.Pair;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.session.CommCareSession;
@@ -120,7 +121,9 @@ public class DevSessionRestorer {
             return;
         }
         String serializedSession = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-        prefs.edit().putString(CommCarePreferences.CURRENT_SESSION, serializedSession).commit();
+        String formEntrySession = FormEntryActivity.getFormEntrySessionString();
+        prefs.edit().putString(CommCarePreferences.CURRENT_SESSION, serializedSession)
+                .putString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, formEntrySession).apply();
         try {
             serializedStream.close();
         } catch (IOException e) {

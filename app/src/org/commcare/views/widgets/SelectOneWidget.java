@@ -49,7 +49,7 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
         //Is this safe enough from collisions?
         buttonIdBase = Math.abs(prompt.getIndex().toString().hashCode());
 
-        if (prompt.getSelectChoices() != null) {
+        if (mItems != null) {
             for (int i = 0; i < mItems.size(); i++) {
                 final RadioButton rb = new RadioButton(getContext());
                 String markdownText = prompt.getSelectItemMarkdownText(mItems.get(i));
@@ -75,21 +75,17 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
                 //problems, but I don't think it should.
                 rb.setOnCheckedChangeListener(this);
 
-                String audioURI = null;
-                audioURI =
+                String audioURI =
                         prompt.getSpecialFormSelectChoiceText(mItems.get(i),
                                 FormEntryCaption.TEXT_FORM_AUDIO);
 
-                String imageURI = null;
-                imageURI =
+                String imageURI =
                         prompt.getSpecialFormSelectChoiceText(mItems.get(i),
                                 FormEntryCaption.TEXT_FORM_IMAGE);
 
-                String videoURI = null;
-                videoURI = prompt.getSpecialFormSelectChoiceText(mItems.get(i), "video");
+                String videoURI = prompt.getSpecialFormSelectChoiceText(mItems.get(i), "video");
 
-                String bigImageURI = null;
-                bigImageURI = prompt.getSpecialFormSelectChoiceText(mItems.get(i), "big-image");
+                String bigImageURI = prompt.getSpecialFormSelectChoiceText(mItems.get(i), "big-image");
 
                 MediaLayout mediaLayout = new MediaLayout(getContext());
                 mediaLayout.setAVT(rb, audioURI, imageURI, videoURI, bigImageURI);

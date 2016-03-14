@@ -82,9 +82,9 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver> extends M
                 connector.stopBlockingForTask(taskId);
                 if (unknownError != null) {
                     deliverError(connector.getReceiver(), unknownError);
-                    return;
+                } else {
+                    deliverResult(connector.getReceiver(), result);
                 }
-                this.deliverResult(connector.getReceiver(), result);
                 connector.stopTaskTransition();
             }
         }

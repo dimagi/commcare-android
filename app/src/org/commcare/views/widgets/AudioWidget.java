@@ -18,7 +18,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
-import org.commcare.utils.FileUtils;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.utils.UriToFilePath;
 import org.javarosa.core.model.data.IAnswerData;
@@ -26,6 +26,7 @@ import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * Widget that allows user to take pictures, sounds or video and add them to
@@ -207,7 +208,12 @@ public class AudioWidget extends QuestionWidget {
 
         File source = new File(binaryPath);
         File newAudio = new File(destAudioPath);
-        FileUtils.copyFile(source, newAudio);
+        try {
+            FileUtil.copyFile(source, newAudio);
+        }catch (IOException e) {
+            Log.e(TAG, "IOExeception while copying audio");
+            e.printStackTrace();
+        }
 
         checkFileSize(newAudio);
 
