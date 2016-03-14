@@ -50,12 +50,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/nav_badge"
-        android:layout_marginTop="@dimen/badge_overlap_offset"
         android:background="@color/cc_core_bg"
-        android:gravity="center_vertical"
         android:minHeight="@dimen/new_progressbar_minheight"
         android:paddingLeft="@dimen/content_start"
-        android:paddingRight="@dimen/content_start">
+        android:paddingRight="@dimen/content_start"
+        android:layout_marginTop="@dimen/badge_overlap_offset"
+        android:gravity="center_vertical">
 
         <ImageButton
             android:id="@+id/nav_btn_prev"
@@ -100,6 +100,8 @@
             android:paddingLeft="@dimen/new_progressbar_button_padding"
             android:paddingRight="@dimen/content_start"
             android:src="@drawable/icon_chevron_right_brand"/>
+
+
     </RelativeLayout>
 
     <FrameLayout
