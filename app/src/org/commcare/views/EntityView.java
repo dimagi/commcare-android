@@ -73,17 +73,9 @@ public class EntityView extends LinearLayout {
         this.mHints = d.getTemplateSizeHints();
 
         for (int i = 0; i < views.length; ++i) {
-            if (mHints[i] == null || !mHints[i].startsWith("0")) {
-                views[i] = initView(e.getField(i), forms[i], new ViewId(rowId, i, false), e.getSortField(i));
-                views[i].setId(AndroidUtil.generateViewId());
-            }
-        }
-        refreshViewsForNewEntity(e, false, rowId);
-        for (View view : views) {
-            if (view != null) {
-                LayoutParams l = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-                addView(view, l);
-            }
+            Object field = e.getField(i);
+            String sortField = e.getSortField(i);
+            addCell(i, field, forms[i], sortField, -1, true);
         }
 
         this.mFuzzySearchEnabled = mFuzzySearchEnabled;
@@ -105,17 +97,7 @@ public class EntityView extends LinearLayout {
         }
 
         for (int i = 0; i < views.length; ++i) {
-            if (mHints[i] == null || !mHints[i].startsWith("0")) {
-                LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-                ViewId uniqueId = new ViewId(rowId, i, false);
-                views[i] = initView(headerText[i], headerForms[i], uniqueId, null);
-                views[i].setId(AndroidUtil.generateViewId());
-                if (colors[1] != -1) {
-                    TextView tv = (TextView) views[i].findViewById(R.id.entity_view_text);
-                    if (tv != null) tv.setTextColor(colors[1]);
-                }
-                addView(views[i], l);
-            }
+            addCell(i, headerText[i], headerForms[i], null, colors[1], false);
         }
     }
 
@@ -133,6 +115,26 @@ public class EntityView extends LinearLayout {
         return new EntityView(context, detail, headerText);
     }
 
+    private void addCell(int i, Object data, String headerForm,
+                         String sortField, int textColor, boolean shouldRefresh) {
+        if (mHints[i] == null || !mHints[i].startsWith("0")) {
+            ViewId uniqueId = new ViewId(rowId, i, false);
+            views[i] = initView(data, headerForm, uniqueId, sortField);
+            views[i].setId(AndroidUtil.generateViewId());
+            if (textColor != -1) {
+                TextView tv = (TextView) views[i].findViewById(R.id.entity_view_text);
+                if (tv != null) tv.setTextColor(textColor);
+            }
+
+            if (shouldRefresh) {
+                refreshViewForNewEntity(views[i], data, forms[i], sortField, i, rowId);
+            }
+
+            LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+            addView(views[i], l);
+        }
+    }
+
     /**
      * Creates up a new view in the view with ID uniqueid, based upon
      * the entity's text and form
@@ -143,13 +145,8 @@ public class EntityView extends LinearLayout {
             retVal = View.inflate(getContext(), R.layout.entity_item_image, null);
         } else if (FORM_AUDIO.equals(form)) {
             String text = (String) data;
-            AudioButton b;
-            if (text != null && text.length() > 0) {
-                b = new AudioButton(getContext(), text, uniqueId, true);
-            } else {
-                b = new AudioButton(getContext(), text, uniqueId, false);
-            }
-            retVal = b;
+            boolean isVisible = (text != null && text.length() > 0);
+            retVal = new AudioButton(getContext(), text, uniqueId, isVisible);
         } else if (FORM_GRAPH.equals(form) && data instanceof GraphData) {
             retVal = View.inflate(getContext(), R.layout.entity_item_graph, null);
         } else if (FORM_CALLLOUT.equals(form)) {
@@ -172,39 +169,8 @@ public class EntityView extends LinearLayout {
             View view = views[i];
             String form = forms[i];
 
-            if (view == null) {
-                continue;
-            }
-
-            if (FORM_AUDIO.equals(form)) {
-                ViewId uniqueId = new ViewId(rowId, i, false);
-                setupAudioLayout(view, (String) field, uniqueId);
-            } else if (FORM_IMAGE.equals(form)) {
-                setupImageLayout(view, (String) field);
-            } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
-                int orientation = getResources().getConfiguration().orientation;
-                GraphView g = new GraphView(getContext(), "", false);
-                View rendered = null;
-                if (renderedGraphsCache.get(i) != null) {
-                    rendered = renderedGraphsCache.get(i).get(orientation);
-                } else {
-                    renderedGraphsCache.put(i, new Hashtable<Integer, View>());
-                }
-                if (rendered == null) {
-                    try {
-                        rendered = g.getView(g.getHTML((GraphData) field));
-                    } catch (GraphException ex) {
-                        rendered = new TextView(getContext());
-                        ((TextView) rendered).setText(ex.getMessage());
-                    }
-                    renderedGraphsCache.get(i).put(orientation, rendered);
-                }
-                ((LinearLayout) view).removeAllViews();
-                ((LinearLayout) view).addView(rendered, GraphView.getLayoutParams());
-                view.setVisibility(VISIBLE);
-            } else {
-                //text to speech
-                setupText(view, (String) field, e.getSortField(i));
+            if (view != null) {
+                refreshViewForNewEntity(view, field, form, e.getSortField(i), i, rowId);
             }
         }
 
@@ -212,6 +178,40 @@ public class EntityView extends LinearLayout {
             this.setBackgroundResource(R.drawable.grey_bordered_box);
         } else {
             this.setBackgroundDrawable(null);
+        }
+    }
+
+    private void refreshViewForNewEntity(View view, Object field,
+                                         String form, String sortField,
+                                         int entityIndex, long rowId) {
+        if (FORM_AUDIO.equals(form)) {
+            ViewId uniqueId = new ViewId(rowId, entityIndex, false);
+            setupAudioLayout(view, (String) field, uniqueId);
+        } else if (FORM_IMAGE.equals(form)) {
+            setupImageLayout(view, (String) field);
+        } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
+            int orientation = getResources().getConfiguration().orientation;
+            GraphView g = new GraphView(getContext(), "", false);
+            View rendered = null;
+            if (renderedGraphsCache.get(entityIndex) != null) {
+                rendered = renderedGraphsCache.get(entityIndex).get(orientation);
+            } else {
+                renderedGraphsCache.put(entityIndex, new Hashtable<Integer, View>());
+            }
+            if (rendered == null) {
+                try {
+                    rendered = g.getView(g.getHTML((GraphData) field));
+                } catch (GraphException ex) {
+                    rendered = new TextView(getContext());
+                    ((TextView) rendered).setText(ex.getMessage());
+                }
+                renderedGraphsCache.get(entityIndex).put(orientation, rendered);
+            }
+            ((LinearLayout) view).removeAllViews();
+            ((LinearLayout) view).addView(rendered, GraphView.getLayoutParams());
+            view.setVisibility(VISIBLE);
+        } else {
+            setupText(view, (String) field, sortField);
         }
     }
 
