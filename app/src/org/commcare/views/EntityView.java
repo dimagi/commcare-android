@@ -167,7 +167,7 @@ public class EntityView extends LinearLayout {
     }
 
     public void refreshViewsForNewEntity(Entity e, boolean currentlySelected, long rowId) {
-        for (int i = 0; i < e.getNumFields(); ++i) {
+        for (int i = 0; i < views.length; ++i) {
             Object field = e.getField(i);
             View view = views[i];
             String form = forms[i];
