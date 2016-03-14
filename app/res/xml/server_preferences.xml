@@ -54,5 +54,10 @@
         android:enabled="true"
         android:key="print-doc-location"
         android:title="Set Print Template"/>
-
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-grid-menus"
+        android:title="Grid Menus Enabled"/>
 </PreferenceScreen>

@@ -6,7 +6,9 @@ import android.util.Log;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.cases.ledger.Ledger;
+import org.commcare.logging.AndroidLogEntry;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
@@ -102,14 +104,22 @@ class UserDatabaseUpgrader {
                 oldVersion = 10;
             }
         }
+
         if (oldVersion == 10) {
             if (upgradeTenEleven(db)) {
                 oldVersion = 11;
             }
         }
+
         if (oldVersion == 11) {
             if (upgradeElevenTwelve(db)) {
                 oldVersion = 12;
+            }
+        }
+
+        if (oldVersion == 12) {
+            if (upgradeTwelveThirteen(db)) {
+                oldVersion = 13;
             }
         }
     }
@@ -349,6 +359,25 @@ class UserDatabaseUpgrader {
         return true;
     }
 
+    private boolean upgradeTwelveThirteen(SQLiteDatabase db) {
+        db.beginTransaction();
+        try {
+            AndroidTableBuilder builder = new AndroidTableBuilder(AndroidLogEntry.STORAGE_KEY);
+            builder.addData(new AndroidLogEntry());
+            db.execSQL(builder.getTableCreateString());
+
+            builder = new AndroidTableBuilder(ForceCloseLogEntry.STORAGE_KEY);
+            builder.addData(new ForceCloseLogEntry());
+            db.execSQL(builder.getTableCreateString());
+
+            db.setTransactionSuccessful();
+            return true;
+        } catch (Exception e) {
+            return false;
+        } finally {
+            db.endTransaction();
+        }
+    }
 
     private void updateIndexes(SQLiteDatabase db) {
         db.execSQL(DatabaseAppOpenHelper.indexOnTableCommand("case_id_index", "AndroidCase", "case_id"));
