@@ -12,28 +12,15 @@ public class ViewId {
     private final long colId;
     private final boolean isDetail;
 
-    public ViewId(long a, long b, boolean isDetail) {
-        rowId = a;
-        colId = b;
+    public ViewId(long rowId, long colId, boolean isDetail) {
+        this.rowId = rowId;
+        this.colId = colId;
         this.isDetail = isDetail;
     }
 
     @Override
     public String toString() {
-        return "(" + getRow() + "," + getCol() + "," + getDetailBool() + ")";
-    }
-
-
-    private boolean getDetailBool() {
-        return isDetail;
-    }
-
-    private long getRow() {
-        return rowId;
-    }
-
-    private long getCol() {
-        return colId;
+        return "(" + rowId + "," + colId + "," + isDetail + ")";
     }
 
     @Override
@@ -55,10 +42,9 @@ public class ViewId {
         if (getClass() != obj.getClass())
             return false;
         ViewId other = (ViewId)obj;
-        if (colId != other.colId)
-            return false;
-        if (isDetail != other.isDetail)
-            return false;
-        return rowId == other.rowId;
+
+        return colId == other.colId
+                && isDetail == other.isDetail
+                && rowId == other.rowId;
     }
 }
