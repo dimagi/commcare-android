@@ -3,17 +3,14 @@ package org.commcare.views;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.speech.tts.TextToSpeech;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
@@ -40,10 +37,8 @@ import java.util.Vector;
  * @author ctsims
  */
 public class EntityView extends LinearLayout {
-
     private final View[] views;
     private String[] forms;
-    private TextToSpeech tts;
     private String[] searchTerms;
     private final String[] mHints;
     private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
@@ -64,14 +59,13 @@ public class EntityView extends LinearLayout {
     /**
      * Creates row entry for entity
      */
-    private EntityView(Context context, Detail d, Entity e, TextToSpeech tts,
+    private EntityView(Context context, Detail d, Entity e,
                        String[] searchTerms, long rowId, boolean mFuzzySearchEnabled) {
         super(context);
 
         //this is bad :(
         mIsAsynchronous = e instanceof AsyncEntity;
         this.searchTerms = searchTerms;
-        this.tts = tts;
         this.renderedGraphsCache = new Hashtable<>();
         this.rowId = rowId;
         this.views = new View[e.getNumFields()];
@@ -117,7 +111,7 @@ public class EntityView extends LinearLayout {
                 views[i] = initView(headerText[i], headerForms[i], uniqueId, null);
                 views[i].setId(AndroidUtil.generateViewId());
                 if (colors[1] != -1) {
-                    TextView tv = (TextView) views[i].findViewById(R.id.component_audio_text_txt);
+                    TextView tv = (TextView) views[i].findViewById(R.id.entity_view_text);
                     if (tv != null) tv.setTextColor(colors[1]);
                 }
                 addView(views[i], l);
@@ -126,10 +120,10 @@ public class EntityView extends LinearLayout {
     }
 
     public static EntityView buildEntryEntityView(Context context, Detail detail,
-                                                  Entity entity, TextToSpeech tts,
+                                                  Entity entity,
                                                   String[] searchTerms,
                                                   long rowId, boolean isFuzzySearchEnabled) {
-        return new EntityView(context, detail, entity, tts,
+        return new EntityView(context, detail, entity,
                 searchTerms, rowId, isFuzzySearchEnabled);
     }
 
@@ -150,7 +144,7 @@ public class EntityView extends LinearLayout {
         } else if (FORM_AUDIO.equals(form)) {
             String text = (String) data;
             AudioButton b;
-            if (text != null & text.length() > 0) {
+            if (text != null && text.length() > 0) {
                 b = new AudioButton(getContext(), text, uniqueId, true);
             } else {
                 b = new AudioButton(getContext(), text, uniqueId, false);
@@ -161,8 +155,8 @@ public class EntityView extends LinearLayout {
         } else if (FORM_CALLLOUT.equals(form)) {
             retVal = View.inflate(getContext(), R.layout.entity_item_graph, null);
         } else {
-            View layout = View.inflate(getContext(), R.layout.component_audio_text, null);
-            setupTextAndTTSLayout(layout, (String) data, sortField);
+            View layout = View.inflate(getContext(), R.layout.component_text, null);
+            setupText(layout, (String) data, sortField);
             retVal = layout;
         }
         return retVal;
@@ -210,7 +204,7 @@ public class EntityView extends LinearLayout {
                 view.setVisibility(VISIBLE);
             } else {
                 //text to speech
-                setupTextAndTTSLayout(view, (String) field, e.getSortField(i));
+                setupText(view, (String) field, e.getSortField(i));
             }
         }
 
@@ -237,31 +231,10 @@ public class EntityView extends LinearLayout {
     /**
      * Updates the text layout that is passed in, based on the new text
      */
-    private void setupTextAndTTSLayout(View layout, final String text, String searchField) {
-        TextView tv = (TextView) layout.findViewById(R.id.component_audio_text_txt);
+    private void setupText(View layout, final String text, String searchField) {
+        TextView tv = (TextView) layout.findViewById(R.id.entity_view_text);
         tv.setVisibility(View.VISIBLE);
         tv.setText(highlightSearches(searchTerms, new SpannableString(text == null ? "" : text), searchField, mFuzzySearchEnabled, mIsAsynchronous));
-        ImageButton btn = (ImageButton) layout.findViewById(R.id.component_audio_text_btn_audio);
-        btn.setFocusable(false);
-
-        btn.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-            }
-        });
-        if (tts == null || text == null || text.equals("")) {
-            btn.setVisibility(View.INVISIBLE);
-            RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
-            params.width = 0;
-            btn.setLayoutParams(params);
-        } else {
-            btn.setVisibility(View.VISIBLE);
-            RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
-            params.width = LayoutParams.WRAP_CONTENT;
-            btn.setLayoutParams(params);
-        }
     }
 
     private void addLayoutToRedrawQueue(View layout, String source) {
@@ -274,7 +247,6 @@ public class EntityView extends LinearLayout {
         }
         imageViewsToRedraw.clear();
     }
-
 
     /**
      * Updates the ImageView layout that is passed in, based on the new id and source
