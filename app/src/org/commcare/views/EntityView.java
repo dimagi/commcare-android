@@ -20,6 +20,7 @@ import org.commcare.graph.view.GraphView;
 import org.commcare.models.AsyncEntity;
 import org.commcare.models.Entity;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DetailField;
 import org.commcare.tasks.ExceptionReporting;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.MediaUtil;
@@ -84,11 +85,33 @@ public class EntityView extends LinearLayout {
     /**
      * Creates row entry for column headers
      */
-    private EntityView(Context context, Detail d, String[] headerText) {
+    private EntityView(Context context, Detail d, String[] headerText,
+                       boolean hasCalloutResponseData) {
         super(context);
-        this.views = new View[headerText.length];
-        this.mHints = d.getHeaderSizeHints();
-        String[] headerForms = d.getHeaderForms();
+
+        DetailField calloutResponseDetailField = null;
+        if (hasCalloutResponseData) {
+            if (d.getCallout() != null) {
+                calloutResponseDetailField = d.getCallout().getResponseDetail();
+            }
+        }
+
+        int viewCount = headerText.length + (calloutResponseDetailField == null ? 0 : 1);
+        this.views = new View[viewCount];
+        this.mHints = new String[viewCount];
+        String[] headerForms = new String[viewCount];
+
+        int i = 0;
+        for (DetailField field : d.getFields()) {
+            mHints[i] = field.getHeaderWidthHint();
+            headerForms[i] = field.getHeaderForm();
+            i++;
+        }
+
+        if (calloutResponseDetailField != null) {
+            mHints[viewCount] = calloutResponseDetailField.getHeaderWidthHint();
+            headerForms[viewCount] = calloutResponseDetailField.getHeaderForm();
+        }
 
         int[] colors = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.entity_view_header_background_color, R.attr.entity_view_header_text_color});
         
@@ -111,8 +134,9 @@ public class EntityView extends LinearLayout {
 
     public static EntityView buildHeadersEntityView(Context context,
                                                     Detail detail,
-                                                    String[] headerText) {
-        return new EntityView(context, detail, headerText);
+                                                    String[] headerText,
+                                                    boolean hasCalloutResponseData) {
+        return new EntityView(context, detail, headerText, hasCalloutResponseData);
     }
 
     private View addCell(int columnIndex, Object data, String form,

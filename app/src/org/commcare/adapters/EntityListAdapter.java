@@ -71,6 +71,7 @@ public class EntityListAdapter implements ListAdapter {
 
     private final CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
     private boolean usesGridView = false;  // false until we determine the Detail has at least one <grid> block
+    private boolean hasCalloutResponseData = false;
 
     public EntityListAdapter(Activity activity, Detail detail,
                              List<TreeReference> references,
@@ -131,6 +132,7 @@ public class EntityListAdapter implements ListAdapter {
         currentSearchTerms = null;
         searchQuery = "";
         isFilteringByCalloutResult = false;
+        hasCalloutResponseData = false;
     }
 
     private void sort(int[] fields) {
@@ -288,6 +290,7 @@ public class EntityListAdapter implements ListAdapter {
     }
 
     public void filterByKey(List<Identification> idReadings) {
+        hasCalloutResponseData = !idReadings.isEmpty();
         Collections.sort(idReadings);
         final int TOP_N_ENTRIES_COUNT = 3;
         int filteredEntryCount = Math.min(idReadings.size(), TOP_N_ENTRIES_COUNT);
@@ -390,5 +393,9 @@ public class EntityListAdapter implements ListAdapter {
 
     public boolean isFilteringByCalloutResult() {
         return isFilteringByCalloutResult;
+    }
+
+    public boolean hasCalloutResponseData() {
+        return hasCalloutResponseData;
     }
 }
