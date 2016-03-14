@@ -23,10 +23,6 @@ public class AndroidLogEntry extends LogEntry implements Persistable, IMetaData 
     private static final String META_TYPE = "type";
     private static final String META_DATE = "date";
 
-    private Date date;
-    private String message;
-    private String type;
-
     private int recordId = -1;
 
     /**
@@ -37,30 +33,24 @@ public class AndroidLogEntry extends LogEntry implements Persistable, IMetaData 
     }
 
     public AndroidLogEntry(String type, String message, Date date) {
-        this.type = type;
-        this.message = message;
-        this.date = date;
+        super(type, message, date);
     }
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         recordId = ExtUtil.readInt(in);
-        date = ExtUtil.readDate(in);
-        type = ExtUtil.readString(in);
-        message = ExtUtil.readString(in);
+        super.readExternal(in, pf);
     }
 
     @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, recordId);
-        ExtUtil.writeDate(out, date);
-        ExtUtil.writeString(out, type);
-        ExtUtil.writeString(out, message);
+        super.writeExternal(out);
     }
 
     public Date getTime() {
-        return date;
+        return time;
     }
 
     public String getType() {
@@ -79,7 +69,7 @@ public class AndroidLogEntry extends LogEntry implements Persistable, IMetaData 
     @Override
     public Object getMetaData(String fieldName) {
         if (META_DATE.equals(fieldName)) {
-            return DateUtils.formatDate(date, DateUtils.FORMAT_ISO8601);
+            return DateUtils.formatDate(time, DateUtils.FORMAT_ISO8601);
         } else if (META_TYPE.equals(fieldName)) {
             return type;
         }

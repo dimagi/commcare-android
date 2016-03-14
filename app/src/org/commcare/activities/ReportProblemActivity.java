@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -11,10 +10,9 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.CommCareApplication;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.network.HttpRequestGenerator;
 import org.javarosa.core.services.Logger;
 
 public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportProblemActivity> implements OnClickListener {
@@ -39,50 +37,11 @@ public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportPr
         finish();
     }
 
-    /*
-     * Helper methods for ACRA and user reporting. Catch broad exception so we never crash
-     * when trying to file a bug.
-     */
-
-    public static String getDomain() {
-        try {
-            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-            return prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX, "not found");
-        } catch (Exception e) {
-            return "Domain not set.";
-        }
-    }
-
-    public static String getPostURL() {
-        try {
-            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-            return prefs.getString(HttpRequestGenerator.USER_DOMAIN_SUFFIX, "not found");
-        } catch (Exception e) {
-            return "PostURL not set.";
-        }
-    }
-
-    public static String getUser() {
-        try {
-            return CommCareApplication._().getSession().getLoggedInUser().getUsername();
-        } catch (Exception e) {
-            return "User not logged in.";
-        }
-    }
-
-    public static String getVersion() {
-        try {
-            return CommCareApplication._().getCurrentVersionString();
-        } catch (Exception e) {
-            return "Version not set.";
-        }
-    }
-
     private static String buildMessage(String userInput) {
-        String domain = ReportProblemActivity.getDomain();
-        String postURL = ReportProblemActivity.getPostURL();
-        String version = ReportProblemActivity.getVersion();
-        String username = ReportProblemActivity.getUser();
+        String domain = ReportingUtils.getDomain();
+        String postURL = ReportingUtils.getPostURL();
+        String version = ReportingUtils.getVersion();
+        String username = ReportingUtils.getUser();
 
         return "Problem reported via CommCare. " +
                 "\n User: " + username +

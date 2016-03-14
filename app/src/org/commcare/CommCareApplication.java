@@ -43,6 +43,8 @@ import org.commcare.activities.DispatchActivity;
 import org.commcare.activities.LoginActivity;
 import org.commcare.activities.MessageActivity;
 import org.commcare.activities.UnrecoverableErrorActivity;
+import org.commcare.android.logging.ForceCloseLogEntry;
+import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.engine.references.ArchiveFileRoot;
@@ -77,7 +79,6 @@ import org.commcare.services.CommCareSessionService;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.DataSubmissionListener;
-import org.commcare.tasks.ExceptionReporting;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.UpdateTask;
@@ -235,7 +236,7 @@ public class CommCareApplication extends Application {
             throw new RuntimeException(sfe);
         } finally {
             //No matter what happens, set up our new logger, we want those logs!
-            Logger.registerLogger(new AndroidLogger(this.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+            setupLoggerStorage(false);
             pil.dumpToNewLogger();
         }
 
@@ -309,6 +310,9 @@ public class CommCareApplication extends Application {
             ManagedAsyncTask.cancelTasks();
 
             releaseUserResourcesAndServices();
+
+            // Switch loggers back over to using global storage, now that we don't have a session
+            setupLoggerStorage(false);
         }
     }
 
@@ -517,7 +521,7 @@ public class CommCareApplication extends Application {
             Log.i("FAILURE", "Problem with loading");
             Log.i("FAILURE", "E: " + e.getMessage());
             e.printStackTrace();
-            ExceptionReporting.reportExceptionInBg(e);
+            ForceCloseLogger.reportExceptionInBg(e);
             resourceState = STATE_CORRUPTED;
         }
         app.setAppResourceState(resourceState);
@@ -947,7 +951,8 @@ public class CommCareApplication extends Application {
                         }
                     }
 
-                    XPathErrorLogger.registerStorage(getUserStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
+                    // Switch all loggers over to using user storage while there is a session
+                    setupLoggerStorage(true);
 
                     //service available
                     mIsBound = true;
@@ -1008,7 +1013,6 @@ public class CommCareApplication extends Application {
     private void doReportMaintenance(boolean force) {
         //OK. So for now we're going to daily report sends and not bother with any of the frequency properties.
 
-
         //Create a new submission task no matter what. If nothing is pending, it'll see if there are unsent reports
         //and try to send them. Otherwise, it'll create the report
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -1034,7 +1038,7 @@ public class CommCareApplication extends Application {
                 dataListener,
                 url);
 
-        //Execute on a true multithreaded chain, since this is an asynchronous process
+        // Execute on a true multithreaded chain, since this is an asynchronous process
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {
@@ -1097,6 +1101,10 @@ public class CommCareApplication extends Application {
         return isPending(lastUpdateCheck, duration);
     }
 
+    /**
+     * Used to check if an update, sync, or log submission is pending, based upon the last time
+     * it occurred and the expected period between occurrences
+     */
     private boolean isPending(long last, long period) {
         long now = new Date().getTime();
 
@@ -1437,4 +1445,21 @@ public class CommCareApplication extends Application {
         messageForUserOnDispatch = null;
         titleForUserMessage = null;
     }
+
+    private void setupLoggerStorage(boolean userStorageAvailable) {
+        if (userStorageAvailable) {
+            Logger.registerLogger(new AndroidLogger(getUserStorage(AndroidLogEntry.STORAGE_KEY,
+                    AndroidLogEntry.class)));
+            ForceCloseLogger.registerStorage(getUserStorage(ForceCloseLogEntry.STORAGE_KEY,
+                    ForceCloseLogEntry.class));
+            XPathErrorLogger.registerStorage(getUserStorage(XPathErrorEntry.STORAGE_KEY,
+                    XPathErrorEntry.class));
+        } else {
+            Logger.registerLogger(new AndroidLogger(
+                    this.getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class)));
+            ForceCloseLogger.registerStorage(
+                    this.getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+        }
+    }
+
 }
