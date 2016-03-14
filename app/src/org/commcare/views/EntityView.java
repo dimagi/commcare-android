@@ -46,7 +46,6 @@ public class EntityView extends LinearLayout {
     private TextToSpeech tts;
     private String[] searchTerms;
     private final String[] mHints;
-    private final Context context;
     private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
     private long rowId;
     public static final String FORM_AUDIO = "audio";
@@ -69,7 +68,6 @@ public class EntityView extends LinearLayout {
                        String[] searchTerms, long rowId, boolean mFuzzySearchEnabled) {
         super(context);
 
-        this.context = context;
         //this is bad :(
         mIsAsynchronous = e instanceof AsyncEntity;
         this.searchTerms = searchTerms;
@@ -102,7 +100,6 @@ public class EntityView extends LinearLayout {
      */
     private EntityView(Context context, Detail d, String[] headerText) {
         super(context);
-        this.context = context;
         this.views = new View[headerText.length];
         this.mHints = d.getHeaderSizeHints();
         String[] headerForms = d.getHeaderForms();
@@ -149,22 +146,22 @@ public class EntityView extends LinearLayout {
     private View initView(Object data, String form, ViewId uniqueId, String sortField) {
         View retVal;
         if (FORM_IMAGE.equals(form)) {
-            retVal = View.inflate(context, R.layout.entity_item_image, null);
+            retVal = View.inflate(getContext(), R.layout.entity_item_image, null);
         } else if (FORM_AUDIO.equals(form)) {
             String text = (String) data;
             AudioButton b;
             if (text != null & text.length() > 0) {
-                b = new AudioButton(context, text, uniqueId, true);
+                b = new AudioButton(getContext(), text, uniqueId, true);
             } else {
-                b = new AudioButton(context, text, uniqueId, false);
+                b = new AudioButton(getContext(), text, uniqueId, false);
             }
             retVal = b;
         } else if (FORM_GRAPH.equals(form) && data instanceof GraphData) {
-            retVal = View.inflate(context, R.layout.entity_item_graph, null);
+            retVal = View.inflate(getContext(), R.layout.entity_item_graph, null);
         } else if (FORM_CALLLOUT.equals(form)) {
-            retVal = View.inflate(context, R.layout.entity_item_graph, null);
+            retVal = View.inflate(getContext(), R.layout.entity_item_graph, null);
         } else {
-            View layout = View.inflate(context, R.layout.component_audio_text, null);
+            View layout = View.inflate(getContext(), R.layout.component_audio_text, null);
             setupTextAndTTSLayout(layout, (String) data, sortField);
             retVal = layout;
         }
@@ -192,7 +189,7 @@ public class EntityView extends LinearLayout {
                 setupImageLayout(view, (String) field);
             } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
                 int orientation = getResources().getConfiguration().orientation;
-                GraphView g = new GraphView(context, "", false);
+                GraphView g = new GraphView(getContext(), "", false);
                 View rendered = null;
                 if (renderedGraphsCache.get(i) != null) {
                     rendered = renderedGraphsCache.get(i).get(orientation);
@@ -203,7 +200,7 @@ public class EntityView extends LinearLayout {
                     try {
                         rendered = g.getView(g.getHTML((GraphData) field));
                     } catch (GraphException ex) {
-                        rendered = new TextView(context);
+                        rendered = new TextView(getContext());
                         ((TextView) rendered).setText(ex.getMessage());
                     }
                     renderedGraphsCache.get(i).put(orientation, rendered);
