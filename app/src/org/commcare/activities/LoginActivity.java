@@ -277,7 +277,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         String lastLoggedInUsername = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
         String enteredUsername = uiController.getEnteredUsername();
-        if (!enteredUsername.equals(lastLoggedInUsername)) {
+        if (!enteredUsername.equals(lastLoggedInUsername) && !enteredUsername.equals("")) {
             // Only save this to prefs if it's different than the last logged in username
             prefs.edit().putString(KEY_LAST_ENTERED_USERNAME, enteredUsername).commit();
         }
