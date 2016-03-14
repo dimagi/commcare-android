@@ -71,7 +71,7 @@ public class EntityListAdapter implements ListAdapter {
 
     private final CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
     private boolean usesGridView = false;  // false until we determine the Detail has at least one <grid> block
-    private boolean hasCalloutResponseData = false;
+    private List<Identification> extraData = new ArrayList<>();
 
     public EntityListAdapter(Activity activity, Detail detail,
                              List<TreeReference> references,
@@ -132,7 +132,7 @@ public class EntityListAdapter implements ListAdapter {
         currentSearchTerms = null;
         searchQuery = "";
         isFilteringByCalloutResult = false;
-        hasCalloutResponseData = false;
+        //extraData.clear();
     }
 
     private void sort(int[] fields) {
@@ -252,6 +252,7 @@ public class EntityListAdapter implements ListAdapter {
             emv = EntityView.buildEntryEntityView(context, detail, entity, currentSearchTerms, position, mFuzzySearchEnabled);
         } else {
             emv.setSearchTerms(currentSearchTerms);
+            emv.setExtraData(getExtraData(entity.extraKey));
             emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);
         }
         return emv;
@@ -290,8 +291,8 @@ public class EntityListAdapter implements ListAdapter {
     }
 
     public void filterByKey(List<Identification> idReadings) {
-        hasCalloutResponseData = !idReadings.isEmpty();
         Collections.sort(idReadings);
+        Collections.reverse(idReadings);
         final int TOP_N_ENTRIES_COUNT = 3;
         int filteredEntryCount = Math.min(idReadings.size(), TOP_N_ENTRIES_COUNT);
 
@@ -308,6 +309,7 @@ public class EntityListAdapter implements ListAdapter {
             entitySearcher = new EntityResponseKeySearcher(this, mNodeFactory, full, context, topIdentificationResults);
             entitySearcher.start();
         }
+        extraData = new ArrayList<>(idReadings);
     }
 
     void update() {
@@ -396,6 +398,15 @@ public class EntityListAdapter implements ListAdapter {
     }
 
     public boolean hasCalloutResponseData() {
-        return hasCalloutResponseData;
+        return !extraData.isEmpty();
+    }
+
+    private String getExtraData(String id) {
+        for (Identification identification : extraData) {
+            if (identification.getGuid().equals(id)) {
+                return identification.getConfidence() + "";
+            }
+        }
+        return null;
     }
 }

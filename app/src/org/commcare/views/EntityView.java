@@ -30,6 +30,8 @@ import org.commcare.views.media.ViewId;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -38,10 +40,10 @@ import java.util.Vector;
  * @author ctsims
  */
 public class EntityView extends LinearLayout {
-    private final View[] views;
-    private String[] forms;
+    private ArrayList<View> views;
+    private ArrayList<String> forms;
     private String[] searchTerms;
-    private final String[] mHints;
+    private final ArrayList<String> mHints;
     private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
     private long rowId;
     public static final String FORM_AUDIO = "audio";
@@ -56,6 +58,7 @@ public class EntityView extends LinearLayout {
 
     private boolean mFuzzySearchEnabled = true;
     private boolean mIsAsynchronous = false;
+    private String extraData = null;
 
     /**
      * Creates row entry for entity
@@ -69,14 +72,14 @@ public class EntityView extends LinearLayout {
         this.searchTerms = searchTerms;
         this.renderedGraphsCache = new Hashtable<>();
         this.rowId = rowId;
-        this.views = new View[e.getNumFields()];
-        this.forms = d.getTemplateForms();
-        this.mHints = d.getTemplateSizeHints();
+        this.views = new ArrayList<>(e.getNumFields());
+        this.forms = new ArrayList<>(Arrays.asList(d.getTemplateForms()));
+        this.mHints = new ArrayList<>(Arrays.asList(d.getTemplateSizeHints()));
 
-        for (int col = 0; col < views.length; ++col) {
+        for (int col = 0; col < e.getNumFields(); ++col) {
             Object field = e.getField(col);
             String sortField = e.getSortField(col);
-            views[col] = addCell(col, field, forms[col], mHints[col], sortField, -1, true);
+            views.add(addCell(col, field, forms.get(col), mHints.get(col), sortField, -1, true));
         }
 
         this.mFuzzySearchEnabled = mFuzzySearchEnabled;
@@ -93,24 +96,28 @@ public class EntityView extends LinearLayout {
         if (hasCalloutResponseData) {
             if (d.getCallout() != null) {
                 calloutResponseDetailField = d.getCallout().getResponseDetail();
+                String[] headerTextWithCalloutResponse = new String[headerText.length + 1];
+                System.arraycopy(headerText, 0, headerTextWithCalloutResponse, 0, headerText.length);
+                headerText = headerTextWithCalloutResponse;
+                headerText[headerText.length - 1] = calloutResponseDetailField.getHeader().evaluate();
             }
         }
 
-        int viewCount = headerText.length + (calloutResponseDetailField == null ? 0 : 1);
-        this.views = new View[viewCount];
-        this.mHints = new String[viewCount];
+        int viewCount = headerText.length;
+        this.views = new ArrayList<>(viewCount);
+        this.mHints = new ArrayList<>(viewCount);
         String[] headerForms = new String[viewCount];
 
         int i = 0;
         for (DetailField field : d.getFields()) {
-            mHints[i] = field.getHeaderWidthHint();
+            mHints.add(field.getHeaderWidthHint());
             headerForms[i] = field.getHeaderForm();
             i++;
         }
 
         if (calloutResponseDetailField != null) {
-            mHints[viewCount] = calloutResponseDetailField.getHeaderWidthHint();
-            headerForms[viewCount] = calloutResponseDetailField.getHeaderForm();
+            mHints.add(calloutResponseDetailField.getHeaderWidthHint());
+            headerForms[viewCount-1] = calloutResponseDetailField.getHeaderForm();
         }
 
         int[] colors = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.entity_view_header_background_color, R.attr.entity_view_header_text_color});
@@ -119,8 +126,8 @@ public class EntityView extends LinearLayout {
             this.setBackgroundColor(colors[0]);
         }
 
-        for (int col = 0; col < views.length; ++col) {
-            views[col] = addCell(col, headerText[col], headerForms[col], mHints[col], null, colors[1], false);
+        for (int col = 0; col < viewCount; ++col) {
+            views.add(addCell(col, headerText[col], headerForms[col], mHints.get(col), null, colors[1], false));
         }
     }
 
@@ -190,15 +197,43 @@ public class EntityView extends LinearLayout {
         this.searchTerms = terms;
     }
 
+    public void setExtraData(String newExtraData) {
+        if (newExtraData != null && !"".equals(newExtraData)) {
+            if (extraData != null) {
+                removeExtraData();
+            }
+            extraData = newExtraData;
+            views.add(addCell(views.size(), newExtraData, "", "", "", -1, false));
+            mHints.add(null);
+            forms.add("");
+        } else {
+            removeExtraData();
+        }
+    }
+
+    private void removeExtraData() {
+        if (extraData != null) {
+            extraData = null;
+            removeView(views.get(views.size() - 1));
+            views.remove(views.size() - 1);
+            mHints.remove(mHints.size() - 1);
+            forms.remove(forms.size() - 1);
+        }
+    }
+
     public void refreshViewsForNewEntity(Entity e, boolean currentlySelected, long rowId) {
-        for (int i = 0; i < views.length; ++i) {
+        for (int i = 0; i < e.getNumFields(); ++i) {
             Object field = e.getField(i);
-            View view = views[i];
-            String form = forms[i];
+            View view = views.get(i);
 
             if (view != null) {
-                refreshViewForNewEntity(view, field, form, e.getSortField(i), i, rowId);
+                refreshViewForNewEntity(view, field, forms.get(i), e.getSortField(i), i, rowId);
             }
+        }
+
+        View extraDataView = views.get(views.size() - 1);
+        if (extraData != null && extraDataView != null) {
+            refreshViewForNewEntity(extraDataView, extraData, forms.get(forms.size() - 1), "", views.size() - 1, rowId);
         }
 
         if (currentlySelected) {
@@ -459,15 +494,17 @@ public class EntityView extends LinearLayout {
      */
     private int[] calculateDetailWidths(int fullSize) {
         // Convert any percentages to pixels. Percentage columns are treated as percentage of the entire screen width.
-        int[] widths = new int[mHints.length];
-        for (int i = 0; i < mHints.length; i++) {
-            if (mHints[i] == null) {
-                widths[i] = -1;
-            } else if (mHints[i].contains("%")) {
-                widths[i] = fullSize * Integer.parseInt(mHints[i].substring(0, mHints[i].indexOf("%"))) / 100;
+        int[] widths = new int[mHints.size()];
+        int hintIndex = 0;
+        for (String hint : mHints) {
+            if (hint == null) {
+                widths[hintIndex] = -1;
+            } else if (hint.contains("%")) {
+                widths[hintIndex] = fullSize * Integer.parseInt(hint.substring(0, hint.indexOf("%"))) / 100;
             } else {
-                widths[i] = Integer.parseInt(mHints[i]);
+                widths[hintIndex] = Integer.parseInt(hint);
             }
+            hintIndex++;
         }
 
         int claimedSpace = 0;
@@ -514,12 +551,14 @@ public class EntityView extends LinearLayout {
 
         // Adjust the children view's widths based on percentage size hints
         int[] widths = calculateDetailWidths(getMeasuredWidth());
-        for (int i = 0; i < views.length; i++) {
-            if (views[i] != null) {
-                LayoutParams params = (LinearLayout.LayoutParams) views[i].getLayoutParams();
+        int i = 0;
+        for (View view : views) {
+            if (view != null) {
+                LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
                 params.width = widths[i];
-                views[i].setLayoutParams(params);
+                view.setLayoutParams(params);
             }
+            i++;
         }
 
         onMeasureCalled = true;
