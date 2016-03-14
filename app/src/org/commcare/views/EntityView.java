@@ -72,10 +72,10 @@ public class EntityView extends LinearLayout {
         this.forms = d.getTemplateForms();
         this.mHints = d.getTemplateSizeHints();
 
-        for (int i = 0; i < views.length; ++i) {
-            Object field = e.getField(i);
-            String sortField = e.getSortField(i);
-            addCell(i, field, forms[i], sortField, -1, true);
+        for (int col = 0; col < views.length; ++col) {
+            Object field = e.getField(col);
+            String sortField = e.getSortField(col);
+            views[col] = addCell(col, field, forms[col], mHints[col], sortField, -1, true);
         }
 
         this.mFuzzySearchEnabled = mFuzzySearchEnabled;
@@ -96,8 +96,8 @@ public class EntityView extends LinearLayout {
             this.setBackgroundColor(colors[0]);
         }
 
-        for (int i = 0; i < views.length; ++i) {
-            addCell(i, headerText[i], headerForms[i], null, colors[1], false);
+        for (int col = 0; col < views.length; ++col) {
+            views[col] = addCell(col, headerText[col], headerForms[col], mHints[col], null, colors[1], false);
         }
     }
 
@@ -115,24 +115,27 @@ public class EntityView extends LinearLayout {
         return new EntityView(context, detail, headerText);
     }
 
-    private void addCell(int i, Object data, String headerForm,
-                         String sortField, int textColor, boolean shouldRefresh) {
-        if (mHints[i] == null || !mHints[i].startsWith("0")) {
-            ViewId uniqueId = new ViewId(rowId, i, false);
-            views[i] = initView(data, headerForm, uniqueId, sortField);
-            views[i].setId(AndroidUtil.generateViewId());
+    private View addCell(int columnIndex, Object data, String form,
+                         String hint, String sortField,
+                         int textColor, boolean shouldRefresh) {
+        View view = null;
+        if (hint == null || !hint.startsWith("0")) {
+            ViewId uniqueId = new ViewId(rowId, columnIndex, false);
+            view = initView(data, form, uniqueId, sortField);
+            view.setId(AndroidUtil.generateViewId());
             if (textColor != -1) {
-                TextView tv = (TextView) views[i].findViewById(R.id.entity_view_text);
+                TextView tv = (TextView) view.findViewById(R.id.entity_view_text);
                 if (tv != null) tv.setTextColor(textColor);
             }
 
             if (shouldRefresh) {
-                refreshViewForNewEntity(views[i], data, forms[i], sortField, i, rowId);
+                refreshViewForNewEntity(view, data, form, sortField, columnIndex, rowId);
             }
 
             LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-            addView(views[i], l);
+            addView(view, l);
         }
+        return view;
     }
 
     /**
@@ -183,9 +186,9 @@ public class EntityView extends LinearLayout {
 
     private void refreshViewForNewEntity(View view, Object field,
                                          String form, String sortField,
-                                         int entityIndex, long rowId) {
+                                         int columnIndex, long rowId) {
         if (FORM_AUDIO.equals(form)) {
-            ViewId uniqueId = new ViewId(rowId, entityIndex, false);
+            ViewId uniqueId = new ViewId(rowId, columnIndex, false);
             setupAudioLayout(view, (String) field, uniqueId);
         } else if (FORM_IMAGE.equals(form)) {
             setupImageLayout(view, (String) field);
@@ -193,10 +196,10 @@ public class EntityView extends LinearLayout {
             int orientation = getResources().getConfiguration().orientation;
             GraphView g = new GraphView(getContext(), "", false);
             View rendered = null;
-            if (renderedGraphsCache.get(entityIndex) != null) {
-                rendered = renderedGraphsCache.get(entityIndex).get(orientation);
+            if (renderedGraphsCache.get(columnIndex) != null) {
+                rendered = renderedGraphsCache.get(columnIndex).get(orientation);
             } else {
-                renderedGraphsCache.put(entityIndex, new Hashtable<Integer, View>());
+                renderedGraphsCache.put(columnIndex, new Hashtable<Integer, View>());
             }
             if (rendered == null) {
                 try {
@@ -205,7 +208,7 @@ public class EntityView extends LinearLayout {
                     rendered = new TextView(getContext());
                     ((TextView) rendered).setText(ex.getMessage());
                 }
-                renderedGraphsCache.get(entityIndex).put(orientation, rendered);
+                renderedGraphsCache.get(columnIndex).put(orientation, rendered);
             }
             ((LinearLayout) view).removeAllViews();
             ((LinearLayout) view).addView(rendered, GraphView.getLayoutParams());
