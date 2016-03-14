@@ -11,6 +11,10 @@ import android.widget.RelativeLayout;
 import org.commcare.dalvik.R;
 
 /**
+ * A clipping frame is a simple frame layout that allows the specification (by attribute or
+ * android property) of an area which should be clipped. This allows the view to only display a
+ * portion of its content at a time, which can be used to animate "reveal" effects.
+ *
  * Created by ctsims on 3/14/2016.
  */
 public class ClippingFrame extends FrameLayout {
@@ -44,12 +48,32 @@ public class ClippingFrame extends FrameLayout {
         }
     }
 
+    /**
+     * A property setter to be used by animations. Note that the name is sensitive and should
+     * not be changed.
+     */
     public void setClipWidth(float clipWidth) {
         this.clipWidth = clipWidth;
         recalculateClippingBounds();
         this.invalidate();
     }
 
+    /**
+     * A property setter to be used by animations. Note that the name is sensitive and should
+     * not be changed.
+     */
+    public void setClipHeight(float clipHeight) {
+        this.clipHeight = clipHeight;
+        recalculateClippingBounds();
+        this.invalidate();
+    }
+
+
+    /**
+     * Recalculates the clipping rectangle based on changes to the measured size or the requested
+     * clipping frame. Does not invalidate or request layout for the view, and assumes that
+     * the view has already been measured
+     */
     private void recalculateClippingBounds() {
         int width = this.getMeasuredWidth();
         int height = this.getMeasuredHeight();
@@ -74,13 +98,6 @@ public class ClippingFrame extends FrameLayout {
 
         mClipBounds.set(leftStart, topStart, rightEnd, bottomEnd);
     }
-
-    public void setClipHeight(float clipHeight) {
-        this.clipHeight = clipHeight;
-        recalculateClippingBounds();
-        this.invalidate();
-    }
-
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {

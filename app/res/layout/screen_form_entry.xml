@@ -103,29 +103,28 @@
             android:src="@drawable/icon_chevron_right_brand"/>
 
         <org.commcare.views.ClippingFrame
-            android:id="@+id/nav_continue_button"
+            android:id="@+id/nav_btn_finish"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignBottom="@+id/nav_btn_prev"
             android:layout_alignParentRight="true"
             android:layout_toRightOf="@+id/nav_btn_prev"
-            android:background="@drawable/button_continue_background_selector"
+            android:background="@drawable/btn_finish_background"
             android:visibility="gone"
             app:clip_start_x="0.42"
             android:clickable="true"
             android:focusable="true"
-            android:focusableInTouchMode="true"
             >
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
                 <TextView
-                    android:id="@+id/nav_btn_continue_text"
+                    android:id="@+id/nav_btn_finish_text"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_toLeftOf="@+id/nav_image_continue"
+                    android:layout_toLeftOf="@+id/nav_image_finish"
                     android:layout_alignParentTop="true"
                     android:layout_alignParentLeft="true"
                     android:text="CONTINUE"
@@ -136,7 +135,7 @@
 
 
                 <ImageView
-                    android:id="@+id/nav_image_continue"
+                    android:id="@+id/nav_image_finish"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"

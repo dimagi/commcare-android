@@ -330,9 +330,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
         ImageButton prevButton = (ImageButton)this.findViewById(R.id.nav_btn_prev);
 
-        View finishButton = this.findViewById(R.id.nav_continue_button);
+        View finishButton = this.findViewById(R.id.nav_btn_finish);
 
-        TextView finishText = (TextView)finishButton.findViewById(R.id.nav_btn_continue_text);
+        TextView finishText = (TextView)finishButton.findViewById(R.id.nav_btn_finish_text);
         finishText.setText(Localization.get("form.entry.finish.button").toUpperCase());
 
         nextButton.setOnClickListener(new OnClickListener() {

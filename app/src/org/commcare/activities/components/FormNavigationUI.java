@@ -55,7 +55,7 @@ public class FormNavigationUI {
         ImageButton prevButton = (ImageButton)activity.findViewById(R.id.nav_btn_prev);
 
         ClippingFrame finishButton = (ClippingFrame)activity.
-                findViewById(R.id.nav_continue_button);
+                findViewById(R.id.nav_btn_finish);
 
         if (!details.relevantBeforeCurrentScreen) {
             prevButton.setImageResource(R.drawable.icon_close_darkwarm);
@@ -89,13 +89,13 @@ public class FormNavigationUI {
                                      FormNavigationController.NavigationDetails details,
                                      ProgressBar progressBar) {
         if(nextButton.getTag() == null) {
-            finishButton.setVisibility(View.VISIBLE);
-            finishButton.setClipWidth(1);
-            finishButton.setClipHeight(1);
+            setFinishVisible(finishButton);
         }else if(!FormEntryActivity.NAV_STATE_DONE.equals(nextButton.getTag())) {
             nextButton.setTag(FormEntryActivity.NAV_STATE_DONE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 inflateFinishButton(context, finishButton);
+            } else {
+                setFinishVisible(finishButton);
             }
         }
 
@@ -156,7 +156,7 @@ public class FormNavigationUI {
     }
 
     public static void animateFinishArrow(final CommCareActivity activity) {
-        View finishButton = activity.findViewById(R.id.nav_image_continue);
+        View finishButton = activity.findViewById(R.id.nav_image_finish);
         final View coverView = activity.findViewById(R.id.form_entry_cover);
 
         Animation growShrinkAnimation = AnimationUtils.loadAnimation(activity, R.anim.grow_shrink);
@@ -179,6 +179,12 @@ public class FormNavigationUI {
             }
         });
         finishButton.startAnimation(growShrinkAnimation);
+    }
+
+    public static void setFinishVisible(ClippingFrame finishButton) {
+        finishButton.setVisibility(View.VISIBLE);
+        finishButton.setClipWidth(1);
+        finishButton.setClipHeight(1);
     }
 
     enum FloatingLabel {
