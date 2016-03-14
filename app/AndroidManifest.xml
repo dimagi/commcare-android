@@ -352,6 +352,13 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name="org.commcare.provider.TestNewBuildReceiver">
+            <intent-filter>
+                <action android:name="${applicationId}.api.action.TestNewBuildAction"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
+
         <activity android:name="org.commcare.activities.MultimediaInflaterActivity">
         </activity>
         <activity
