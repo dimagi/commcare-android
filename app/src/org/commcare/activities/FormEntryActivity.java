@@ -332,6 +332,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         View finishButton = this.findViewById(R.id.nav_continue_button);
 
+        TextView finishText = (TextView)finishButton.findViewById(R.id.nav_btn_continue_text);
+        finishText.setText(Localization.get("form.entry.finish.button").toUpperCase());
+
         nextButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
