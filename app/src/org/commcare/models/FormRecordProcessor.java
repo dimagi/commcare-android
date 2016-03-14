@@ -5,13 +5,13 @@ import android.content.Intent;
 import android.util.Pair;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.core.process.XmlFormRecordProcessor;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.preferences.DeveloperPreferences;
-import org.commcare.tasks.ExceptionReporting;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.xml.AndroidTransactionParserFactory;
 import org.commcare.xml.LedgerXmlParsers;
@@ -216,7 +216,7 @@ public class FormRecordProcessor {
             reporter.append("PASS: Linear scan of ").append(label).append(". ").append(accumulated).append(" bytes read in total\n");
             return true;
         } catch (Exception e) {
-            reporter.append("FAILURE: Error during linear scan of ").append(label).append("\n").append(ExceptionReporting.getStackTrace(e));
+            reporter.append("FAILURE: Error during linear scan of ").append(label).append("\n").append(ForceCloseLogger.getStackTrace(e));
             return false;
         } finally {
             try {
@@ -243,7 +243,7 @@ public class FormRecordProcessor {
             reporter.append("PASS: Instance file reads as valid XML\n");
             return true;
         } catch (Exception e) {
-            reporter.append("FAILURE: XML Instance file could not be validated\n").append(ExceptionReporting.getStackTrace(e));
+            reporter.append("FAILURE: XML Instance file could not be validated\n").append(ForceCloseLogger.getStackTrace(e));
             return false;
         } finally {
             try {

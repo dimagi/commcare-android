@@ -16,12 +16,12 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.models.database.user.models.FormRecord;
-import org.commcare.tasks.ExceptionReporting;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessage;
@@ -515,7 +515,7 @@ public class InstanceProvider extends ContentProvider {
             FormRecordCleanupTask.wipeRecord(getContext(), currentState);
 
             // Notify the server of this problem (since we aren't going to crash)
-            ExceptionReporting.reportExceptionInBg(e);
+            ForceCloseLogger.reportExceptionInBg(e);
 
             raiseFormEntryError("An error occurred: " + e.getMessage() +
                     " and your data could not be saved.", currentState);
