@@ -146,7 +146,7 @@ public class IntentCallout implements Externalizable {
 
     private boolean processOdkResponse(Intent intent, TreeReference intentQuestionRef, File destination) {
         String result = intent.getStringExtra(INTENT_RESULT_VALUE);
-        setNodeValue(intentQuestionRef, result);
+        setNodeValue(formDef, intentQuestionRef, result);
 
         //see if we have a return bundle
         Bundle response = intent.getBundleExtra(INTENT_RESULT_BUNDLE);
@@ -173,7 +173,7 @@ public class IntentCallout implements Externalizable {
         return (result != null);
     }
 
-    private void setNodeValue(TreeReference reference, String stringValue) {
+    public static void setNodeValue(FormDef formDef, TreeReference reference, String stringValue) {
         // todo: this code is very similar to SetValueAction.processAction, could be unified?
         if (stringValue != null) {
             EvaluationContext evaluationContext = new EvaluationContext(formDef.getEvaluationContext(), reference);
@@ -196,8 +196,8 @@ public class IntentCallout implements Externalizable {
 
     private void processResponseItem(TreeReference ref, String responseValue,
                                      TreeReference contextRef, File destinationFile) {
-        EvaluationContext context = new EvaluationContext(formDef.getEvaluationContext(), contextRef);
         TreeReference fullRef = ref.contextualize(contextRef);
+        EvaluationContext context = new EvaluationContext(formDef.getEvaluationContext(), contextRef);
         AbstractTreeElement node = context.resolveReference(fullRef);
 
         if (node == null) {

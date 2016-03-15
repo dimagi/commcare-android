@@ -42,6 +42,9 @@ public class SimprintsCalloutProcessing {
                                                       Hashtable<String, Vector<TreeReference>> responseToRefMap) {
         Registration registration = getRegistrationData(intent);
 
+        String result = intent.getDataString();
+        IntentCallout.setNodeValue(formDef, intentQuestionRef, "Fingerprints scanned: " + result);
+
         Vector<TreeReference> rightIndexRef = responseToRefMap.get("rightIndex");
         Vector<TreeReference> rightThumbRef = responseToRefMap.get("rightThumb");
         Vector<TreeReference> leftIndexRef = responseToRefMap.get("leftIndex");
