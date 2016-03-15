@@ -45,7 +45,7 @@ public class IntentCallout implements Externalizable {
 
     private Hashtable<String, Vector<TreeReference>> responseToRefMap;
 
-    private FormDef form;
+    private FormDef formDef;
 
     private String type;
     private String component;
@@ -79,7 +79,7 @@ public class IntentCallout implements Externalizable {
     }
 
     protected void attachToForm(FormDef form) {
-        this.form = form;
+        this.formDef = form;
     }
 
     public Intent generate(EvaluationContext ec) {
@@ -145,19 +145,19 @@ public class IntentCallout implements Externalizable {
     private void setNodeValue(TreeReference reference, String stringValue) {
         // todo: this code is very similar to SetValueAction.processAction, could be unified?
         if (stringValue != null) {
-            EvaluationContext evaluationContext = new EvaluationContext(form.getEvaluationContext(), reference);
+            EvaluationContext evaluationContext = new EvaluationContext(formDef.getEvaluationContext(), reference);
             AbstractTreeElement node = evaluationContext.resolveReference(reference);
             int dataType = node.getDataType();
             IAnswerData val = Recalculate.wrapData(stringValue, dataType);
-            form.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), reference);
+            formDef.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), reference);
         } else {
-            form.setValue(null, reference);
+            formDef.setValue(null, reference);
         }
     }
 
     private void processResponseItem(TreeReference ref, String responseValue,
                                      TreeReference contextRef, File destinationFile) {
-        EvaluationContext context = new EvaluationContext(form.getEvaluationContext(), contextRef);
+        EvaluationContext context = new EvaluationContext(formDef.getEvaluationContext(), contextRef);
         TreeReference fullRef = ref.contextualize(contextRef);
         AbstractTreeElement node = context.resolveReference(fullRef);
 
@@ -175,7 +175,7 @@ public class IntentCallout implements Externalizable {
             if (val != null) {
                 val = AnswerDataFactory.templateByDataType(dataType).cast(val.uncast());
             }
-            form.setValue(val, fullRef);
+            formDef.setValue(val, fullRef);
         }
     }
 
@@ -183,7 +183,7 @@ public class IntentCallout implements Externalizable {
         //We need to copy the binary data at this address into the appropriate location
         if (responseValue == null || responseValue.equals("")) {
             //If the response was blank, wipe out any data that was present before
-            form.setValue(null, ref);
+            formDef.setValue(null, ref);
             return;
         }
 
@@ -193,7 +193,7 @@ public class IntentCallout implements Externalizable {
             //TODO: How hard should we be failing here?
             Log.w(TAG, "CommCare received a link to a file at " + src.toString() + " to be included in the form, but it was not present on the phone!");
             //Wipe out any reference that exists
-            form.setValue(null, ref);
+            formDef.setValue(null, ref);
         } else {
 
             File newFile = new File(destinationFile, src.getName());
@@ -208,10 +208,10 @@ public class IntentCallout implements Externalizable {
 
             //That code throws no errors, so we have to manually check whether the copy worked.
             if (newFile.exists() && newFile.length() == src.length()) {
-                form.setValue(new StringData(newFile.toString()), ref);
+                formDef.setValue(new StringData(newFile.toString()), ref);
             } else {
                 Log.e(TAG, "CommCare failed to property write a file to " + newFile.toString());
-                form.setValue(null, ref);
+                formDef.setValue(null, ref);
             }
         }
     }
