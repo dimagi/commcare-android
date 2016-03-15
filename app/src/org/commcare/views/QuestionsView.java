@@ -346,7 +346,6 @@ public class QuestionsView extends ScrollView
                 "Unable to find question widget to attach pending data to.");
     }
 
-
     /**
      * @return true if the answer was cleared, false otherwise.
      */
