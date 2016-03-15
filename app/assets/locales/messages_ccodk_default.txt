@@ -142,7 +142,7 @@ form.entry.processing.title=Processing Form
 form.entry.complete.save.success=Form successfully completed
 form.entry.incomplete.save.success=Form saved as incomplete
 form.entry.save.error=Sorry, form save failed. Please contact technical support to look into the issue.
-form.entry.finish.button=CONTINUE
+form.entry.finish.button=FINISH
 
 login.attempt.badcred=Username or password are incorrect. Please try again.
 
