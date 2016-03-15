@@ -148,11 +148,19 @@ public class IntentCallout implements Externalizable {
             EvaluationContext evaluationContext = new EvaluationContext(formDef.getEvaluationContext(), reference);
             AbstractTreeElement node = evaluationContext.resolveReference(reference);
             int dataType = node.getDataType();
-            IAnswerData val = Recalculate.wrapData(stringValue, dataType);
-            formDef.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), reference);
+
+            setValueInFormDef(reference, stringValue, dataType);
         } else {
             formDef.setValue(null, reference);
         }
+    }
+
+    private void setValueInFormDef(TreeReference ref, String responseValue, int dataType) {
+        IAnswerData val = Recalculate.wrapData(responseValue, dataType);
+        if (val != null) {
+            val = AnswerDataFactory.templateByDataType(dataType).cast(val.uncast());
+        }
+        formDef.setValue(val, ref);
     }
 
     private void processResponseItem(TreeReference ref, String responseValue,
@@ -171,11 +179,7 @@ public class IntentCallout implements Externalizable {
         if (dataType == Constants.DATATYPE_BINARY) {
             storePointerToFileResponse(fullRef, responseValue, destinationFile);
         } else {
-            IAnswerData val = Recalculate.wrapData(responseValue, dataType);
-            if (val != null) {
-                val = AnswerDataFactory.templateByDataType(dataType).cast(val.uncast());
-            }
-            formDef.setValue(val, fullRef);
+            setValueInFormDef(fullRef, responseValue, dataType);
         }
     }
 
