@@ -109,19 +109,6 @@ public class IntentCallout implements Externalizable {
         return i;
     }
 
-    private void setNodeValue(TreeReference reference, String stringValue) {
-        // todo: this code is very similar to SetValueAction.processAction, could be unified?
-        if (stringValue != null) {
-            EvaluationContext evaluationContext = new EvaluationContext(form.getEvaluationContext(), reference);
-            AbstractTreeElement node = evaluationContext.resolveReference(reference);
-            int dataType = node.getDataType();
-            IAnswerData val = Recalculate.wrapData(stringValue, dataType);
-            form.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), reference);
-        } else {
-            form.setValue(null, reference);
-        }
-    }
-
     public boolean processResponse(Intent intent, TreeReference intentQuestionRef, File destination) {
         if (intent == null) {
             return false;
@@ -153,6 +140,19 @@ public class IntentCallout implements Externalizable {
             }
         }
         return (result != null);
+    }
+
+    private void setNodeValue(TreeReference reference, String stringValue) {
+        // todo: this code is very similar to SetValueAction.processAction, could be unified?
+        if (stringValue != null) {
+            EvaluationContext evaluationContext = new EvaluationContext(form.getEvaluationContext(), reference);
+            AbstractTreeElement node = evaluationContext.resolveReference(reference);
+            int dataType = node.getDataType();
+            IAnswerData val = Recalculate.wrapData(stringValue, dataType);
+            form.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), reference);
+        } else {
+            form.setValue(null, reference);
+        }
     }
 
     private void processResponseItem(TreeReference ref, String responseValue,
