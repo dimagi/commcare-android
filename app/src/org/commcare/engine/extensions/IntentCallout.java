@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 
+import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
@@ -112,8 +113,14 @@ public class IntentCallout implements Externalizable {
     public boolean processResponse(Intent intent, TreeReference intentQuestionRef, File destination) {
         if (intent == null) {
             return false;
+        } else if (SimprintsCalloutProcessing.isRegistrationResponse(intent)) {
+            return SimprintsCalloutProcessing.processRegistrationResponse(formDef, intent, intentQuestionRef, responseToRefMap);
+        } else {
+            return processOdkResponse(intent, intentQuestionRef, destination);
         }
+    }
 
+    private boolean processOdkResponse(Intent intent, TreeReference intentQuestionRef, File destination) {
         String result = intent.getStringExtra(INTENT_RESULT_VALUE);
         setNodeValue(intentQuestionRef, result);
 
@@ -149,13 +156,13 @@ public class IntentCallout implements Externalizable {
             AbstractTreeElement node = evaluationContext.resolveReference(reference);
             int dataType = node.getDataType();
 
-            setValueInFormDef(reference, stringValue, dataType);
+            setValueInFormDef(formDef, reference, stringValue, dataType);
         } else {
             formDef.setValue(null, reference);
         }
     }
 
-    private void setValueInFormDef(TreeReference ref, String responseValue, int dataType) {
+    public static void setValueInFormDef(FormDef formDef, TreeReference ref, String responseValue, int dataType) {
         IAnswerData val = Recalculate.wrapData(responseValue, dataType);
         if (val != null) {
             val = AnswerDataFactory.templateByDataType(dataType).cast(val.uncast());
@@ -179,7 +186,7 @@ public class IntentCallout implements Externalizable {
         if (dataType == Constants.DATATYPE_BINARY) {
             storePointerToFileResponse(fullRef, responseValue, destinationFile);
         } else {
-            setValueInFormDef(fullRef, responseValue, dataType);
+            setValueInFormDef(formDef, fullRef, responseValue, dataType);
         }
     }
 

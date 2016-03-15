@@ -45,6 +45,7 @@ import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Action;
@@ -598,7 +599,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (resultCode == Activity.RESULT_OK) {
             if (intent.hasExtra("odk_intent_data")) {
                 handleSearchStringCallout(intent);
-            } else if (intent.hasExtra("identification")) {
+            } else if (SimprintsCalloutProcessing.isIdentificationResponse(intent)) {
                 handleAccuracyFilteringCallout(intent);
             }
         }
@@ -620,7 +621,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void handleAccuracyFilteringCallout(Intent intent) {
-        List<Identification> identification = (List) intent.getParcelableArrayListExtra("identification");
+        List<Identification> identification = SimprintsCalloutProcessing.getIdentificationData(intent);
         adapter.filterByKey(identification);
         refreshView();
     }
