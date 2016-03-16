@@ -283,6 +283,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         tryAutoLogin();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == SEAT_APP_ACTIVITY) {
+            uiController.refreshForNewApp();
+        }
+    }
+
     private void tryAutoLogin() {
         Pair<String, String> userAndPass =
                 DevSessionRestorer.getAutoLoginCreds();
