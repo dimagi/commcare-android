@@ -270,7 +270,7 @@ public class MenuAdapter implements ListAdapter {
                 mIconView.setAdjustViewBounds(true);
             }
             else{
-                setupDefaultIcon(mIconView, menuDisplayable);
+                setupDefaultIcon(mIconView, menuDisplayable, getIconState(menuDisplayable));
             }
         }
     }
@@ -291,8 +291,8 @@ public class MenuAdapter implements ListAdapter {
         return iconChoice;
     }
 
-    protected void setupDefaultIcon(ImageView mIconView, MenuDisplayable menuDisplayable){
-        NavIconState iconChoice = getIconState(menuDisplayable);
+    protected void setupDefaultIcon(ImageView mIconView, MenuDisplayable menuDisplayable,
+                                    NavIconState iconChoice){
         if (mIconView != null) {
             switch (iconChoice) {
                 case NEXT:
