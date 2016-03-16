@@ -670,3 +670,4 @@ intent.callout.get=Get Data
 intent.callout.update=Update Data
 intent.callout.cancelled=Question callout cancelled
 intent.callout.unable.to.process=Unable to process callout result
+fingerprints.scanned=Fingerprints scanned: ${0}

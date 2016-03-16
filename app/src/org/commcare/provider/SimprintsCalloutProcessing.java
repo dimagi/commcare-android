@@ -12,6 +12,7 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.locale.Localization;
 
 import java.util.Hashtable;
 import java.util.List;
@@ -43,13 +44,17 @@ public class SimprintsCalloutProcessing {
                                                       Hashtable<String, Vector<TreeReference>> responseToRefMap) {
         Registration registration = getRegistrationData(intent);
 
-        String result = intent.getDataString();
-        IntentCallout.setNodeValue(formDef, intentQuestionRef, "Fingerprints scanned: " + result);
-
         Vector<TreeReference> rightIndexRef = responseToRefMap.get("rightIndex");
         Vector<TreeReference> rightThumbRef = responseToRefMap.get("rightThumb");
         Vector<TreeReference> leftIndexRef = responseToRefMap.get("leftIndex");
         Vector<TreeReference> leftThumbRef = responseToRefMap.get("leftThumb");
+        int numOfFingersScanned = (registration.getTemplateLeftIndex() == null || registration.getTemplateLeftIndex().length == 0 ? 0 : 1) +
+                (registration.getTemplateRightIndex() == null || registration.getTemplateRightIndex().length == 0 ? 0 : 1) +
+                (registration.getTemplateLeftThumb() == null || registration.getTemplateLeftThumb().length == 0 ? 0 : 1) +
+                (registration.getTemplateRightThumb() == null || registration.getTemplateRightThumb().length == 0 ? 0 : 1);
+
+        IntentCallout.setNodeValue(formDef, intentQuestionRef, Localization.get("fingerprints.scanned", new String[] {"" + numOfFingersScanned}));
+
         if (rightIndexRef != null && !rightIndexRef.isEmpty() &&
                 rightThumbRef != null && !rightThumbRef.isEmpty() &&
                 leftIndexRef != null && !leftIndexRef.isEmpty() &&
@@ -64,7 +69,7 @@ public class SimprintsCalloutProcessing {
         }
     }
 
-    private static void setRefs(FormDef formDef, Vector<TreeReference> refs, TreeReference contextRef,  byte[] digitTemplate) {
+    private static void setRefs(FormDef formDef, Vector<TreeReference> refs, TreeReference contextRef, byte[] digitTemplate) {
         for (TreeReference ref : refs) {
             setDigit(formDef, ref, contextRef, digitTemplate);
         }
