@@ -211,14 +211,9 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         // Remove any error content from trying to log into a different app
         setStyleDefault();
 
-        final SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
-        if (lastUser != null) {
-            // If there was a last user for this app, show it
-            username.setText(lastUser);
-            passwordOrPin.requestFocus();
-        } else {
-            // Otherwise, clear the username text so it does not show a username from a different app
+        if (!restoreLastUsername()) {
+            // If we didn't have a username to restore for this app, clear the username text so it
+            // does not show a username from a different app
             username.setText("");
             username.requestFocus();
         }
@@ -441,13 +436,31 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         loginButton.setTextColor(getResources().getColor(R.color.cc_neutral_bg));
     }
 
-    protected void restoreLastUser() {
+    /**
+     *
+     * @return if a username was restored
+     */
+    protected boolean restoreLastUsername() {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        String lastUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
-        if (lastUser != null) {
-            username.setText(lastUser);
-            passwordOrPin.requestFocus();
+
+        // First try to restore the last username that was entered, but NOT successfully logged in
+        // with (this value gets cleared upon a successful login so that that can take precedence)
+        String lastEnteredUsername = prefs.getString(LoginActivity.KEY_LAST_ENTERED_USERNAME, null);
+        if (lastEnteredUsername != null) {
+            username.setText(lastEnteredUsername);
+            username.requestFocus();
+            username.setSelection(username.getText().length());
+            return true;
         }
+
+        String lastLoggedInUser = prefs.getString(CommCarePreferences.LAST_LOGGED_IN_USER, null);
+        if (lastLoggedInUser != null) {
+            username.setText(lastLoggedInUser);
+            passwordOrPin.requestFocus();
+            return true;
+        }
+
+        return false;
     }
 
     protected boolean isRestoreSessionChecked() {

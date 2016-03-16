@@ -977,7 +977,14 @@ public class CommCareApplication extends Application {
 
                         //Register that this user was the last to successfully log in if it's a real user
                         if (!User.TYPE_DEMO.equals(user.getUserType())) {
-                            getCurrentApp().getAppPreferences().edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername()).commit();
+                            getCurrentApp().getAppPreferences().edit().putString(
+                                    CommCarePreferences.LAST_LOGGED_IN_USER, record.getUsername())
+                                    .commit();
+
+                            // Clear this value upon a successful login, so that it does not take
+                            // precedence over the last logged in username
+                            getCurrentApp().getAppPreferences().edit().putString(
+                                    LoginActivity.KEY_LAST_ENTERED_USERNAME, null).commit();
 
                             // clear any files orphaned by file-backed db transaction failures
                             HybridFileBackedSqlHelpers.removeOrphanedFiles(mBoundService.getUserDbHandle());
