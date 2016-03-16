@@ -285,7 +285,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == SEAT_APP_ACTIVITY) {
+        if (requestCode == SEAT_APP_ACTIVITY && resultCode == RESULT_OK) {
             uiController.refreshForNewApp();
         }
     }
