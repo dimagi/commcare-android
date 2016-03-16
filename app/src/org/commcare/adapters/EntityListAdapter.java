@@ -131,11 +131,13 @@ public class EntityListAdapter implements ListAdapter {
     void clearSearch() {
         currentSearchTerms = null;
         searchQuery = "";
-        isFilteringByCalloutResult = false;
     }
 
     public void clearExtraData() {
+        setCurrent(full);
+        isFilteringByCalloutResult = false;
         extraData.clear();
+        update();
     }
 
     private void sort(int[] fields) {
@@ -295,7 +297,6 @@ public class EntityListAdapter implements ListAdapter {
 
     public void filterByKey(List<Identification> idReadings) {
         Collections.sort(idReadings);
-        Collections.reverse(idReadings);
         final int TOP_N_ENTRIES_COUNT = 3;
         int filteredEntryCount = Math.min(idReadings.size(), TOP_N_ENTRIES_COUNT);
 

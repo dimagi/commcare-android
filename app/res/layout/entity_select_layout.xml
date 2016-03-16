@@ -9,6 +9,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/universal_frame_tile"
+        android:background="@color/cc_brand_bg"
         android:orientation="horizontal">
         <TextView
             android:id="@+id/no_search_results"
@@ -18,7 +19,6 @@
             android:paddingRight="@dimen/content_min_margin"
             android:paddingTop="@dimen/content_min_margin"
             android:paddingBottom="@dimen/content_min_margin"
-            android:background="@color/cc_brand_bg"
             android:textColor="@color/cc_brand_text"
             android:textSize="@dimen/font_size_medium"
             android:layout_alignParentLeft="true"

@@ -31,7 +31,6 @@ public class EntityResponseKeySearcher extends EntitySearcherBase {
 
     @Override
     protected void search() {
-
         if (isCancelled()) {
             return;
         }

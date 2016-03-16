@@ -107,6 +107,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private EditText searchbox;
     private TextView searchResultStatus;
     private ImageButton clearSearchButton;
+    private View searchBanner;
     private EntityListAdapter adapter;
     private LinearLayout header;
     private SearchView searchView;
@@ -192,15 +193,20 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             public void onChanged() {
                 super.onChanged();
 
-                if (!"".equals(adapter.getSearchQuery())){
+                if (!"".equals(adapter.getSearchQuery())) {
                     // Show search results banner
+                    searchBanner.setVisibility(View.VISIBLE);
+                    searchResultStatus.setVisibility(View.VISIBLE);
+                    searchResultStatus.setText(adapter.getSearchNotificationText());
+                    clearSearchButton.setVisibility(View.GONE);
+                } else if (adapter.isFilteringByCalloutResult()) {
                     searchResultStatus.setText(adapter.getSearchNotificationText());
                     searchResultStatus.setVisibility(View.VISIBLE);
-                    if (adapter.isFilteringByCalloutResult()) {
-                        clearSearchButton.setVisibility(View.VISIBLE);
-                    }
+                    searchBanner.setVisibility(View.VISIBLE);
+                    clearSearchButton.setVisibility(View.VISIBLE);
                 } else {
-                    searchResultStatus.setVisibility(View.GONE);
+                    searchBanner.setVisibility(View.GONE);
+                    clearSearchButton.setVisibility(View.GONE);
                 }
             }
         };
@@ -290,12 +296,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         searchbox = (EditText)findViewById(R.id.searchbox);
         searchbox.setMaxLines(3);
         searchbox.setHorizontallyScrolling(false);
+        searchBanner = findViewById(R.id.search_result_banner);
         searchResultStatus = (TextView)findViewById(R.id.no_search_results);
         clearSearchButton = (ImageButton) findViewById(R.id.clear_search_button);
         clearSearchButton.setOnClickListener(new OnClickListener() {
                                                  @Override
                                                  public void onClick(View v) {
                                                      adapter.clearExtraData();
+                                                     refreshView();
                                                  }
                                              });
                 clearSearchButton.setVisibility(View.GONE);

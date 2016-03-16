@@ -1,6 +1,7 @@
 package org.commcare.provider;
 
 import android.content.Intent;
+import android.util.Base64;
 import android.util.Log;
 
 import com.simprints.libsimprints.Identification;
@@ -80,6 +81,6 @@ public class SimprintsCalloutProcessing {
         }
         int dataType = node.getDataType();
 
-        IntentCallout.setValueInFormDef(formDef, fullRef, new String(digitTemplate), dataType);
+        IntentCallout.setValueInFormDef(formDef, fullRef, Base64.encodeToString(digitTemplate, Base64.DEFAULT), dataType);
     }
 }
