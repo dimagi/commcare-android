@@ -93,7 +93,7 @@ public class FormNavigationUI {
         }else if(!FormEntryActivity.NAV_STATE_DONE.equals(nextButton.getTag())) {
             nextButton.setTag(FormEntryActivity.NAV_STATE_DONE);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                inflateFinishButton(context, finishButton);
+                expandAndShowFinishButton(context, finishButton);
             } else {
                 setFinishVisible(finishButton);
             }
@@ -106,8 +106,8 @@ public class FormNavigationUI {
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
-    private static void inflateFinishButton(Context context,
-                                              final ClippingFrame finishButton) {
+    private static void expandAndShowFinishButton(Context context,
+                                                  final ClippingFrame finishButton) {
 
         Animator animator = AnimatorInflater.loadAnimator(context, R.animator.grow_in_visible);
 
@@ -181,7 +181,7 @@ public class FormNavigationUI {
         finishButton.startAnimation(growShrinkAnimation);
     }
 
-    public static void setFinishVisible(ClippingFrame finishButton) {
+    private static void setFinishVisible(ClippingFrame finishButton) {
         finishButton.setVisibility(View.VISIBLE);
         finishButton.setClipWidth(1);
         finishButton.setClipHeight(1);
