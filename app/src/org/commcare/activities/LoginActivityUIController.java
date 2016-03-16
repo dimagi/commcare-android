@@ -182,6 +182,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @Override
     public void refreshView() {
+        refreshForNewApp(); // In case the seated app has changed
+
         updateBanner();
 
         activity.restoreEnteredTextFromRotation();
@@ -205,7 +207,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         //refreshUsernamesAdapter();
     }
 
-    protected void refreshForNewApp() {
+    private void refreshForNewApp() {
         // Remove any error content from trying to log into a different app
         setStyleDefault();
 
