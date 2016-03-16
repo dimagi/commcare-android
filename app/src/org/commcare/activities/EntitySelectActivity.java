@@ -106,6 +106,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private EditText searchbox;
     private TextView searchResultStatus;
+    private ImageButton clearSearchButton;
     private EntityListAdapter adapter;
     private LinearLayout header;
     private SearchView searchView;
@@ -191,10 +192,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             public void onChanged() {
                 super.onChanged();
 
-                if (!"".equals(adapter.getSearchQuery()) || adapter.isFilteringByCalloutResult()) {
+                if (!"".equals(adapter.getSearchQuery())){
                     // Show search results banner
                     searchResultStatus.setText(adapter.getSearchNotificationText());
                     searchResultStatus.setVisibility(View.VISIBLE);
+                    if (adapter.isFilteringByCalloutResult()) {
+                        clearSearchButton.setVisibility(View.VISIBLE);
+                    }
                 } else {
                     searchResultStatus.setVisibility(View.GONE);
                 }
@@ -287,6 +291,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         searchbox.setMaxLines(3);
         searchbox.setHorizontallyScrolling(false);
         searchResultStatus = (TextView)findViewById(R.id.no_search_results);
+        clearSearchButton = (ImageButton) findViewById(R.id.clear_search_button);
+        clearSearchButton.setOnClickListener(new OnClickListener() {
+                                                 @Override
+                                                 public void onClick(View v) {
+                                                     adapter.clearExtraData();
+                                                 }
+                                             });
+                clearSearchButton.setVisibility(View.GONE);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
 
         mViewMode = session.isViewCommand(session.getCommand());

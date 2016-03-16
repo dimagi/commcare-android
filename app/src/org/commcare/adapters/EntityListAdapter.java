@@ -132,7 +132,10 @@ public class EntityListAdapter implements ListAdapter {
         currentSearchTerms = null;
         searchQuery = "";
         isFilteringByCalloutResult = false;
-        //extraData.clear();
+    }
+
+    public void clearExtraData() {
+        extraData.clear();
     }
 
     private void sort(int[] fields) {
