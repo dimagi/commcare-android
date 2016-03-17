@@ -1,7 +1,7 @@
 package org.commcare.android.mocks;
 
-import org.commcare.android.tasks.templates.CommCareTask;
-import org.commcare.android.tasks.templates.CommCareTaskConnector;
+import org.commcare.tasks.templates.CommCareTask;
+import org.commcare.tasks.templates.CommCareTaskConnector;
 
 /**
  * Empty implementation of CommCareTaskConnector for testing
@@ -25,7 +25,7 @@ public class CommCareTaskConnectorFake<R> implements CommCareTaskConnector<R> {
     }
 
     @Override
-    public void taskCancelled(int id) {
+    public void taskCancelled() {
 
     }
 

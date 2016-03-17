@@ -1,12 +1,12 @@
 package org.commcare.android.tests.processing;
 
+import org.commcare.CommCareApp;
+import org.commcare.CommCareApplication;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.dalvik.application.CommCareApp;
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.joda.time.DateTime;
@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@Config(application = org.commcare.dalvik.application.CommCareApplication.class,
+@Config(application = CommCareApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class ArchivedFormPurgeTest {

@@ -2,21 +2,23 @@ package org.commcare.android.util;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.commcare.android.cases.AndroidCaseInstanceTreeElement;
-import org.commcare.android.database.ConcreteAndroidDbHelper;
-import org.commcare.android.database.DbUtil;
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.DatabaseUserOpenHelper;
-import org.commcare.android.database.user.models.ACase;
-import org.commcare.android.database.user.models.CaseIndexTable;
-import org.commcare.android.database.user.models.EntityStorageCache;
-import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.storage.FormSaveUtil;
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.CommCareApplication;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
-import org.commcare.util.externalizable.AndroidClassHasher;
+import org.commcare.engine.cases.AndroidCaseInstanceTreeElement;
+import org.commcare.models.AndroidClassHasher;
+import org.commcare.models.database.ConcreteAndroidDbHelper;
+import org.commcare.models.database.DbUtil;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.DatabaseUserOpenHelper;
+import org.commcare.models.database.user.models.ACase;
+import org.commcare.models.database.user.models.CaseIndexTable;
+import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.utils.AndroidInstanceInitializer;
+import org.commcare.utils.AndroidUtil;
+import org.commcare.utils.FormSaveUtil;
+import org.commcare.utils.GlobalConstants;
 import org.commcare.xml.AndroidCaseXmlParser;
 import org.commcare.xml.AndroidTransactionParserFactory;
 import org.commcare.xml.CaseXmlParser;
@@ -215,14 +217,12 @@ public class TestUtils {
         ExternalDataInstance edi = new ExternalDataInstance("jr://instance/casedb", "casedb");
         DataInstance specializedDataInstance = edi.initialize(iif, "casedb");
 
-        Hashtable<String, DataInstance> formInstances = new Hashtable<String, DataInstance>();
+        Hashtable<String, DataInstance> formInstances = new Hashtable<>();
         formInstances.put("casedb", specializedDataInstance);
 
         TreeReference dummy = TreeReference.rootRef().extendRef("a", TreeReference.DEFAULT_MUTLIPLICITY);
-        EvaluationContext ec = new EvaluationContext(new EvaluationContext(null), formInstances, dummy);
-        return ec;
+        return new EvaluationContext(new EvaluationContext(null), formInstances, dummy);
     }
-
 
     public static RuntimeException wrapError(Exception e, String prefix) {
         e.printStackTrace();
@@ -230,5 +230,4 @@ public class TestUtils {
         re.initCause(e);
         return re;
     }
-
 }

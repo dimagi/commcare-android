@@ -1,8 +1,8 @@
 package org.commcare.android.tests.backend;
 
 import org.commcare.cases.model.Case;
-import org.commcare.util.externalizable.AndroidClassHasher;
-import org.commcare.util.externalizable.AndroidPrototypeFactory;
+import org.commcare.models.AndroidClassHasher;
+import org.commcare.models.AndroidPrototypeFactory;
 import org.junit.Before;
 import org.junit.Test;
 

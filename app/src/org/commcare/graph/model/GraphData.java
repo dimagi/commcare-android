@@ -10,14 +10,14 @@ import java.util.Vector;
  */
 public class GraphData implements ConfigurableData {
     private String mType;
-    private Vector<SeriesData> mSeries;
-    private Hashtable<String, String> mConfiguration;
-    private Vector<AnnotationData> mAnnotations;
+    private final Vector<SeriesData> mSeries;
+    private final Hashtable<String, String> mConfiguration;
+    private final Vector<AnnotationData> mAnnotations;
 
     public GraphData() {
-        mSeries = new Vector<SeriesData>();
-        mConfiguration = new Hashtable<String, String>();
-        mAnnotations = new Vector<AnnotationData>();
+        mSeries = new Vector<>();
+        mConfiguration = new Hashtable<>();
+        mAnnotations = new Vector<>();
     }
 
     public String getType() {

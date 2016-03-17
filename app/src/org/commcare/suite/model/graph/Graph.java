@@ -39,9 +39,9 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
     private Vector<Annotation> mAnnotations;
 
     public Graph() {
-        mSeries = new Vector<XYSeries>();
-        mConfiguration = new Hashtable<String, Text>();
-        mAnnotations = new Vector<Annotation>();
+        mSeries = new Vector<>();
+        mConfiguration = new Hashtable<>();
+        mAnnotations = new Vector<>();
     }
 
     public String getType() {
@@ -125,7 +125,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
      */
     private void evaluateConfiguration(Configurable template, ConfigurableData data, EvaluationContext context) {
         Enumeration e = template.getConfigurationKeys();
-        Vector<String> nonvariables = new Vector<String>();
+        Vector<String> nonvariables = new Vector<>();
         String prefix = "var-";
         while (e.hasMoreElements()) {
             String key = (String)e.nextElement();
@@ -148,7 +148,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
     private void evaluateSeries(GraphData graphData, EvaluationContext context) {
         try {
             for (XYSeries s : mSeries) {
-                Hashtable<String, Text> pointConfiguration = new Hashtable<String, Text>();
+                Hashtable<String, Text> pointConfiguration = new Hashtable<>();
                 for (Enumeration e = s.getPointConfigurationKeys(); e.hasMoreElements();) {
                     String key = (String) e.nextElement();
                     Text value = s.getConfiguration(key);

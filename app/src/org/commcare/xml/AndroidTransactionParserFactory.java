@@ -2,14 +2,14 @@ package org.commcare.xml;
 
 import android.content.Context;
 
-import org.commcare.android.database.AndroidSandbox;
-import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.net.HttpRequestGenerator;
+import org.commcare.CommCareApplication;
 import org.commcare.cases.model.Case;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
-import org.commcare.dalvik.application.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
+import org.commcare.models.database.AndroidSandbox;
+import org.commcare.network.HttpRequestGenerator;
+import org.commcare.utils.GlobalConstants;
 import org.kxml2.io.KXmlParser;
 
 import java.util.Collections;
@@ -38,6 +38,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
     final private HttpRequestGenerator generator;
 
     private TransactionParserFactory formInstanceParser;
+    private boolean caseIndexesWereDisrupted = false;
 
     /**
      * A mapping from an installed form's namespace its install path.
@@ -87,7 +88,13 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
             @Override
             public TransactionParser<Case> getParser(KXmlParser parser) {
                 if (created == null) {
-                    created = new AndroidCaseXmlParser(parser, tallies, true, sandbox.getCaseStorage(), generator);
+                    created = new AndroidCaseXmlParser(parser, tallies, true, sandbox.getCaseStorage(), generator) {
+
+                        @Override
+                        public void onIndexDisrupted(String caseId) {
+                            caseIndexesWereDisrupted = true;
+                        }
+                    };
                 }
 
                 return created;
@@ -119,5 +126,9 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
                 return created;
             }
         };
+    }
+
+    public boolean wereCaseIndexesDisrupted() {
+        return caseIndexesWereDisrupted;
     }
 }
