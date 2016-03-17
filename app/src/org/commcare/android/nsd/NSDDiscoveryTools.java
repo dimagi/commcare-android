@@ -22,7 +22,7 @@ import java.util.Set;
  */
 public class NSDDiscoveryTools {
 
-    private static final String TAG = NsdTools.class.getSimpleName();
+    private static final String TAG = NSDDiscoveryTools.class.getSimpleName();
 
     private static final String SERVICE_TYPE = "_http._tcp.";
     private static final String SERVICE_NAME = "commcare_micronode";
