@@ -1,7 +1,6 @@
 package org.commcare.android.nsd;
 
-import android.util.Log;
-import android.view.View;
+import android.support.v4.util.Pair;
 
 import org.commcare.android.net.HttpRequestGenerator;
 import org.javarosa.core.io.StreamsUtil;
@@ -19,24 +18,27 @@ import java.util.ArrayList;
 /**
  * API wrapper class for services provided by CommCare micronodes.
  *
+ * Micronodes are HTTP services which provide access to CommCare user and applicaiton level data
+ * across local networks.
+ *
  * Created by ctsims on 2/19/2016.
  */
 public class MicroNode {
-    private final String mRoot;
+    private final String serviceUrlRoot;
 
-    private ArrayList<String[]> availableApplications;
+    private ArrayList<Pair<String, String>> availableApplications;
 
     public MicroNode(String uri) {
-        mRoot = uri;
+        serviceUrlRoot = uri;
     }
 
-    public ArrayList<String[]> getAvailableApplications() {
+    public ArrayList<Pair<String, String>> getAvailableApplications() {
         if(availableApplications == null) {
             availableApplications = new ArrayList<>();
 
             try {
                 InputStream is = new BufferedInputStream(
-                        new HttpRequestGenerator().simpleGet(new URL(mRoot + "/apps/manifest")));
+                        new HttpRequestGenerator().simpleGet(new URL(serviceUrlRoot + "/apps/manifest")));
                 byte[] manifest = StreamsUtil.getStreamAsBytes(is);
 
                 JSONObject object = new JSONObject(new String(manifest));
@@ -45,7 +47,7 @@ public class MicroNode {
 
                 for (int i = 0; i < array.length(); ++i) {
                     JSONObject app = array.getJSONObject(i);
-                    String[] appRecord = new String[]{app.getString("name"), app.getString("profile_url")};
+                    Pair<String, String> appRecord = new Pair<>(app.getString("name"), app.getString("profile_url"));
                     availableApplications.add(appRecord);
                 }
             } catch (MalformedURLException e) {

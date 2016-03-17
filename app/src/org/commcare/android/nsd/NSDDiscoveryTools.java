@@ -35,9 +35,9 @@ import java.util.Set;
  *
  * Created by ctsims on 2/19/2016.
  */
-public class NsdTools {
+public class NSDDiscoveryTools {
 
-    private static final String TAG = "NsdTools";
+    private static final String TAG = "NSDDiscoveryTools";
 
     private static NsdManager.DiscoveryListener mDiscoveryListener;
     private static NsdManager mNsdManager;
@@ -69,7 +69,7 @@ public class NsdTools {
         doDiscovery(context);
     }
 
-    public static void deRegisterForNsdServices(NsdServiceListener listener) {
+    public static void unregisterForNsdServices(NsdServiceListener listener) {
         removeListener(listener);
     }
 
@@ -205,14 +205,14 @@ public class NsdTools {
         }
     }
     private static void attachMicronode(InetAddress host, int port) {
-        String node = "http://" + host.getHostAddress() + ":" + port;
+        String nodeAddress = "http://" + host.getHostAddress() + ":" + port;
 
 
-        if(mAttachedMicronodes.containsKey(node)) {
+        if(mAttachedMicronodes.containsKey(nodeAddress)) {
             //already know about this one, nothing to be done
             return;
         }
-        mAttachedMicronodes.put(node, new MicroNode(node));
+        mAttachedMicronodes.put(nodeAddress, new MicroNode(nodeAddress));
 
         updateAttachedServices();
     }

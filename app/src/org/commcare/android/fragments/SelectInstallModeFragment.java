@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.util.Pair;
 import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,8 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.android.nsd.MicroNode;
+import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
-import org.commcare.android.nsd.NsdTools;
 import org.commcare.android.view.SquareButtonWithText;
 
 import org.commcare.dalvik.R;
@@ -37,19 +38,19 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
     View mFetchHubContainer;
 
-    ArrayList<String[]> mLocalApps = new ArrayList<>();
+    ArrayList<Pair<String, String>> mLocalApps = new ArrayList<>();
 
     @Override
     public void onResume() {
         super.onResume();
 
-        NsdTools.registerForNsdServices(this.getContext(), this);
+        NSDDiscoveryTools.registerForNsdServices(this.getContext(), this);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        NsdTools.deRegisterForNsdServices(this);
+        NSDDiscoveryTools.unregisterForNsdServices(this);
     }
 
 
@@ -122,13 +123,13 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
 
         DialogChoiceItem[] items = new DialogChoiceItem[mLocalApps.size()];
         int count = 0;
-        for(final String[] app : mLocalApps) {
-            DialogChoiceItem item = new DialogChoiceItem(app[0], -1, new View.OnClickListener() {
+        for(final Pair<String, String> app : mLocalApps) {
+            DialogChoiceItem item = new DialogChoiceItem(app.first, -1, new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Activity currentActivity = getActivity();
                     if (currentActivity instanceof CommCareSetupActivity) {
-                        ((CommCareSetupActivity)currentActivity).onURLChosen(app[1]);
+                        ((CommCareSetupActivity)currentActivity).onURLChosen(app.second);
                     }
                     chooseApp.dismiss();
                 }
@@ -144,8 +145,8 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
     public synchronized void onMicronodeDiscovery() {
         boolean appsAvailable = false;
         mLocalApps = new ArrayList<>();
-        for(MicroNode node : NsdTools.getAvailableMicronodes()) {
-            for(String[] applications : node.getAvailableApplications()) {
+        for(MicroNode node : NSDDiscoveryTools.getAvailableMicronodes()) {
+            for(Pair<String, String> applications : node.getAvailableApplications()) {
                 mLocalApps.add(applications);
                 appsAvailable = true;
             }
