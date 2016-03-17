@@ -148,6 +148,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      *                       upon successful login
      */
     protected void initiateLoginAttempt(boolean restoreSession) {
+        if (uiController.getEnteredPasswordOrPin().equals("")) {
+            raiseLoginMessage(StockMessages.Auth_EmptyPassword, false);
+            return;
+        }
+
         uiController.clearErrorMessage();
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
 
@@ -276,6 +281,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         super.onResumeFragments();
 
         tryAutoLogin();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == SEAT_APP_ACTIVITY && resultCode == RESULT_OK) {
+            uiController.refreshForNewApp();
+        }
+        super.onActivityResult(requestCode, resultCode, intent);
     }
 
     private void tryAutoLogin() {
