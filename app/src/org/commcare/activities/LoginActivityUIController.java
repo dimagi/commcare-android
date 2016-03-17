@@ -203,6 +203,13 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         // Not using this for now, but may turn back on later
         //refreshUsernamesAdapter();
+
+        // Update checkbox visibility
+        if (DevSessionRestorer.savedSessionPresent()) {
+            restoreSessionCheckbox.setVisibility(View.VISIBLE);
+        } else {
+            restoreSessionCheckbox.setVisibility(View.GONE);
+        }
     }
 
     protected void refreshForNewApp() {
@@ -237,13 +244,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         // Refresh welcome msg separately bc cannot set a single locale for its UiElement
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
-
-        // Update checkbox visibility
-        if (DevSessionRestorer.savedSessionPresent()) {
-            restoreSessionCheckbox.setVisibility(View.VISIBLE);
-        } else {
-            restoreSessionCheckbox.setVisibility(View.GONE);
-        }
     }
 
     private void refreshUsernamesAdapter() {
