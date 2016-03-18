@@ -224,7 +224,9 @@ public class CommCareVerificationActivity
         if (requestCode == GET_MULTIMEDIA && resultCode == Activity.RESULT_OK) {
             // we found some media, so try validating it
             newMediaToValidate = true;
+            return;
         }
+
         super.onActivityResult(requestCode, resultCode, intent);
     }
 
