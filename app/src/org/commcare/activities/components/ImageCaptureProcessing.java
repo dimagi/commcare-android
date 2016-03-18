@@ -78,8 +78,9 @@ public class ImageCaptureProcessing {
      * SignatureWidget
      *
      * @param isImage true if this was from an ImageWidget, false if it was a SignatureWidget
+     * @return if saving the captured image was successful
      */
-    public static void processCaptureResponse(FormEntryActivity activity,
+    public static boolean processCaptureResponse(FormEntryActivity activity,
                                               String instanceFolder,
                                               boolean isImage) {
         /* We saved the image to the tempfile_path, but we really want it to be in:
@@ -94,9 +95,11 @@ public class ImageCaptureProcessing {
         try {
             File unscaledFinalImage = moveAndScaleImage(originalImage, isImage, instanceFolder, activity);
             activity.saveImageWidgetAnswer(buildImageFileContentValues(unscaledFinalImage));
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
             activity.showCustomToast(Localization.get("image.capture.not.saved"), Toast.LENGTH_LONG);
+            return false;
         }
     }
 
