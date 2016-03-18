@@ -303,19 +303,17 @@ public class DispatchActivity extends FragmentActivity {
                 if (resultCode == RESULT_CANCELED) {
                     // User pressed back button from install screen, so take them out of CommCare
                     shouldFinish = true;
-                    return;
                 }
-                break;
+                return;
             case MISSING_MEDIA_ACTIVITY:
                 if (resultCode == RESULT_CANCELED) {
                     // exit the app if media wasn't validated on automatic
                     // validation check.
                     shouldFinish = true;
-                    return;
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
-                    return;
                 }
+                return;
             case LOGIN_USER:
                 waitingForActivityResultFromLogin = false;
                 if (resultCode == RESULT_CANCELED) {
@@ -326,7 +324,7 @@ public class DispatchActivity extends FragmentActivity {
                             intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
                     startFromLogin = true;
                 }
-                break;
+                return;
             case HOME_SCREEN:
                 if (resultCode == RESULT_CANCELED) {
                     shouldFinish = true;
@@ -334,7 +332,7 @@ public class DispatchActivity extends FragmentActivity {
                 } else {
                     userTriggeredLogout = true;
                 }
-                break;
+                return;
         }
         super.onActivityResult(requestCode, resultCode, intent);
     }

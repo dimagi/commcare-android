@@ -225,6 +225,7 @@ public class CommCareVerificationActivity
             // we found some media, so try validating it
             newMediaToValidate = true;
         }
+        super.onActivityResult(requestCode, resultCode, intent);
     }
 
     private void handleVerificationSuccess() {
@@ -290,8 +291,8 @@ public class CommCareVerificationActivity
                 break;
             case R.id.screen_multimedia_retry:
                 verifyResourceInstall();
+                break;
         }
-
     }
 
     private String prettyString(String rawString) {
