@@ -288,6 +288,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (requestCode == SEAT_APP_ACTIVITY && resultCode == RESULT_OK) {
             uiController.refreshForNewApp();
         }
+
         super.onActivityResult(requestCode, resultCode, intent);
     }
 
