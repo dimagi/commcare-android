@@ -18,7 +18,9 @@ public class ReportingUtils {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         if (app != null) {
             Profile profile = app.getCommCarePlatform().getCurrentProfile();
-            return profile.getVersion();
+            if (profile != null) {
+                return profile.getVersion();
+            }
         }
         return -1;
     }
