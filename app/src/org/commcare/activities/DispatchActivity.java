@@ -320,12 +320,12 @@ public class DispatchActivity extends FragmentActivity {
                 waitingForActivityResultFromLogin = false;
                 if (resultCode == RESULT_CANCELED) {
                     shouldFinish = true;
-                    return;
+                } else if (intent != null) {
+                    lastLoginMode = (LoginMode)intent.getSerializableExtra(LoginActivity.LOGIN_MODE);
+                    userManuallyEnteredPasswordMode =
+                            intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
+                    startFromLogin = true;
                 }
-                lastLoginMode = (LoginMode)intent.getSerializableExtra(LoginActivity.LOGIN_MODE);
-                userManuallyEnteredPasswordMode =
-                        intent.getBooleanExtra(LoginActivity.MANUAL_SWITCH_TO_PW_MODE, false);
-                startFromLogin = true;
                 break;
             case HOME_SCREEN:
                 if (resultCode == RESULT_CANCELED) {
