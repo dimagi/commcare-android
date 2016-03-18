@@ -357,7 +357,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (result == null) {
             return;
         }
-        incomingRef = result;
+
+        setReadyToInstall(result);
+    }
+
+    public void setReadyToInstall(String reference) {
+        incomingRef = reference;
         this.uiState = UiState.READY_TO_INSTALL;
 
         try {
@@ -372,6 +377,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     Toast.LENGTH_LONG).show();
             this.uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
         }
+
         if (offlineInstall) {
             onStartInstallClicked();
         } else {

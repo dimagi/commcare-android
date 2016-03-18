@@ -6,7 +6,6 @@ import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 
 import org.commcare.dalvik.R;
 
@@ -19,7 +18,7 @@ import org.commcare.dalvik.R;
  */
 public class ClippingFrame extends FrameLayout {
 
-    private Rect mClipBounds= new Rect(0,0,1,1);
+    final private Rect mClipBounds= new Rect(0,0,1,1);
 
     private float startX;
     private float startY;

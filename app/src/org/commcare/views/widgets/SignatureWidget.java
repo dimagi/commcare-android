@@ -145,19 +145,17 @@ public class SignatureWidget extends QuestionWidget {
         mErrorTextView.setVisibility(View.GONE);
         Intent i = new Intent(getContext(), DrawActivity.class);
         i.putExtra(DrawActivity.OPTION, DrawActivity.OPTION_SIGNATURE);
-        // copy...
-        //mBinaryName would be a preexisting signature that is getting displayed when the activity starts
+
+        // If a signature has already been captured for this question, will want to display it
         if (mBinaryName != null) {
             File f = new File(mInstanceFolder + File.separator + mBinaryName);
             i.putExtra(DrawActivity.REF_IMAGE, Uri.fromFile(f));
         }
-        //path to output the signature file to
+
         i.putExtra(DrawActivity.EXTRA_OUTPUT,
                 Uri.fromFile(new File(ODKStorage.TMPFILE_PATH)));
 
         try {
-            //tells the form controller that when onActivityResult is called (when the DrawActivity)
-            //finishes, the requestCode is SIGNATURE_CAPTURE
             ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.SIGNATURE_CAPTURE);
             pendingCalloutInterface.setPendingCalloutFormIndex(questionIndex);
         } catch (ActivityNotFoundException e) {
