@@ -616,6 +616,11 @@ wifi.direct.connect.failed=Connecting failed, please retry
 wifi.direct.error.wiping.forms=Error wiping forms: ${0}
 wifi.direct.connect.success=Successfully connected to peer
 
+wifi.direct.submit.button=Submit
+wifi.direct.send.button=Send
+wifi.direct.discover.button=Discover
+wifi.direct.change.mode.button=Change Mode
+
 wifi.direct.zip.task.title=Zipping Forms...
 wifi.direct.zip.task.message=CommCare is compressing your data for transfer
 wifi.direct.unzip.task.title=Unzipping Forms...
