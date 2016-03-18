@@ -216,7 +216,7 @@ public class ResourceInstallUtils {
         // If we want to be using/updating to the latest build of the
         // app (instead of latest release), add it to the query tags of
         // the profile reference
-        if (DeveloperPreferences.isNewestAppVersionEnabled()) {
+        if (DeveloperPreferences.isNewestAppBuildEnabled()) {
             if (profileUrl.getQuery() != null) {
                 // url already has query strings, so add a new one to the end
                 return profileRef + "&target=build";
