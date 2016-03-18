@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
@@ -50,12 +51,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/nav_badge"
-        android:layout_marginTop="@dimen/badge_overlap_offset"
         android:background="@color/cc_core_bg"
-        android:gravity="center_vertical"
         android:minHeight="@dimen/new_progressbar_minheight"
         android:paddingLeft="@dimen/content_start"
-        android:paddingRight="@dimen/content_start">
+        android:paddingRight="@dimen/content_start"
+        android:layout_marginTop="@dimen/badge_overlap_offset"
+        android:gravity="center_vertical">
 
         <ImageButton
             android:id="@+id/nav_btn_prev"
@@ -100,7 +101,54 @@
             android:paddingLeft="@dimen/new_progressbar_button_padding"
             android:paddingRight="@dimen/content_start"
             android:src="@drawable/icon_chevron_right_brand"/>
-    </RelativeLayout>
+
+        <org.commcare.views.ClippingFrame
+            android:id="@+id/nav_btn_finish"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignBottom="@+id/nav_btn_prev"
+            android:layout_alignParentRight="true"
+            android:layout_toRightOf="@+id/nav_btn_prev"
+            android:background="@drawable/btn_finish_background"
+            android:visibility="gone"
+            app:clip_start_x="0.42"
+            android:clickable="true"
+            android:focusable="true"
+            >
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/nav_btn_finish_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_toLeftOf="@+id/nav_image_finish"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentLeft="true"
+                    android:text="CONTINUE"
+                    android:textColor="@color/white"
+                    android:gravity="center"
+                    android:clickable="false"
+                    />
+
+
+                <ImageView
+                    android:id="@+id/nav_image_finish"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:paddingRight="@dimen/content_start"
+                    android:minHeight="@dimen/new_progressbar_button_minheight"
+                    android:src="@drawable/icon_chevron_right_finish"/>
+
+
+            </RelativeLayout>
+        </org.commcare.views.ClippingFrame>
+
+
+        </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/form_entry_header"

@@ -46,6 +46,8 @@ install.appprofile=Enter your app code
 install.perms.rationale.message=CommCare requires at least external storage read & write permissions in order to store form submissions.
 install.perms.denied.message=Crucial permissions denied ${0} times.\n\n If requesting permissions here fails, please enable permissions under Android's 'Settings -> Apps -> CommCare -> Permissions'.
 
+install.choose.local.app=Available Apps
+
 upgrade.button.retry=Retry Upgrade
 upgrade.button.startover=Restart Upgrade
 
@@ -142,6 +144,7 @@ form.entry.processing.title=Processing Form
 form.entry.complete.save.success=Form successfully completed
 form.entry.incomplete.save.success=Form saved as incomplete
 form.entry.save.error=Sorry, form save failed. Please contact technical support to look into the issue.
+form.entry.finish.button=FINISH
 
 login.attempt.badcred=Username or password are incorrect. Please try again.
 
