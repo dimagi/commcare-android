@@ -342,20 +342,18 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
         ImageButton prevButton = (ImageButton)this.findViewById(R.id.nav_btn_prev);
 
+        View finishButton = this.findViewById(R.id.nav_btn_finish);
+
+        TextView finishText = (TextView)finishButton.findViewById(R.id.nav_btn_finish_text);
+        finishText.setText(Localization.get("form.entry.finish.button").toUpperCase());
+
         nextButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!NAV_STATE_DONE.equals(v.getTag())) {
-                    GoogleAnalyticsUtils.reportFormNavForward(
-                            GoogleAnalyticsFields.LABEL_ARROW,
-                            GoogleAnalyticsFields.VALUE_FORM_NOT_DONE);
-                    FormEntryActivity.this.showNextView();
-                } else {
-                    GoogleAnalyticsUtils.reportFormNavForward(
-                            GoogleAnalyticsFields.LABEL_ARROW,
-                            GoogleAnalyticsFields.VALUE_FORM_DONE);
-                    triggerUserFormComplete();
-                }
+                GoogleAnalyticsUtils.reportFormNavForward(
+                        GoogleAnalyticsFields.LABEL_ARROW,
+                        GoogleAnalyticsFields.VALUE_FORM_NOT_DONE);
+                FormEntryActivity.this.showNextView();
             }
         });
 
@@ -371,6 +369,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 }
             }
         });
+
+        finishButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GoogleAnalyticsUtils.reportFormNavForward(
+                        GoogleAnalyticsFields.LABEL_ARROW,
+                        GoogleAnalyticsFields.VALUE_FORM_DONE);
+                triggerUserFormComplete();
+            }
+        });
+
 
         mViewPane = (ViewGroup)findViewById(R.id.form_entry_pane);
 
@@ -469,7 +478,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 ImageCaptureProcessing.processCaptureResponse(this, getInstanceFolder(), true);
                 break;
             case SIGNATURE_CAPTURE:
-                ImageCaptureProcessing.processCaptureResponse(this, getInstanceFolder(), false);
+                boolean saved = ImageCaptureProcessing.processCaptureResponse(this, getInstanceFolder(), false);
+                if (saved) {
+                    // attempt to auto-advance if a signature was captured
+                    advance();
+                }
                 break;
             case IMAGE_CHOOSER:
                 ImageCaptureProcessing.processImageChooserResponse(this, getInstanceFolder(), intent);
@@ -2031,11 +2044,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     protected boolean onForwardSwipe() {
-        //We've already computed the "is there more coming" stuff intensely in the the nav details
-        //and set the forward button tag appropriately, so use that to determine whether we can
-        //swipe forward.
-        ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
-        if(nextButton.getTag().equals(NAV_STATE_NEXT)) {
+        if (canNavigateForward()) {
             GoogleAnalyticsUtils.reportFormNavForward(
                     GoogleAnalyticsFields.LABEL_SWIPE,
                     GoogleAnalyticsFields.VALUE_FORM_NOT_DONE);
@@ -2062,7 +2071,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     public void advance() {
-        next();
+        if (!questionsView.isQuestionList() && canNavigateForward()) {
+            next();
+        }
     }
 
     @Override
@@ -2075,6 +2086,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         FormNavigationUI.updateNavigationCues(this, mFormController, questionsView);
+    }
+
+    private boolean canNavigateForward() {
+        ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
+        return nextButton.getTag().equals(NAV_STATE_NEXT);
     }
 
     /**

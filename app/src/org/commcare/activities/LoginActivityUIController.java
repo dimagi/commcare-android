@@ -182,8 +182,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
     @Override
     public void refreshView() {
-        refreshForNewApp(); // In case the seated app has changed
-
         updateBanner();
 
         activity.restoreEnteredTextFromRotation();
@@ -205,9 +203,16 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         // Not using this for now, but may turn back on later
         //refreshUsernamesAdapter();
+
+        // Update checkbox visibility
+        if (DevSessionRestorer.savedSessionPresent()) {
+            restoreSessionCheckbox.setVisibility(View.VISIBLE);
+        } else {
+            restoreSessionCheckbox.setVisibility(View.GONE);
+        }
     }
 
-    private void refreshForNewApp() {
+    protected void refreshForNewApp() {
         // Remove any error content from trying to log into a different app
         setStyleDefault();
 
@@ -239,13 +244,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         // Refresh welcome msg separately bc cannot set a single locale for its UiElement
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
-
-        // Update checkbox visibility
-        if (DevSessionRestorer.savedSessionPresent()) {
-            restoreSessionCheckbox.setVisibility(View.VISIBLE);
-        } else {
-            restoreSessionCheckbox.setVisibility(View.GONE);
-        }
     }
 
     private void refreshUsernamesAdapter() {
