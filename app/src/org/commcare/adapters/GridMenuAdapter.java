@@ -59,7 +59,7 @@ public class GridMenuAdapter extends MenuAdapter {
                     mIconView.setImageResource(R.drawable.avatar_module_grid);
                     break;
                 case JUMP:
-                    mIconView.setImageResource(R.drawable.avator_form_grid);
+                    mIconView.setImageResource(R.drawable.avatar_form_grid);
                     break;
                 case NONE:
                     mIconView.setVisibility(View.GONE);
