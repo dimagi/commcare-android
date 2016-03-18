@@ -342,20 +342,18 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
         ImageButton prevButton = (ImageButton)this.findViewById(R.id.nav_btn_prev);
 
+        View finishButton = this.findViewById(R.id.nav_btn_finish);
+
+        TextView finishText = (TextView)finishButton.findViewById(R.id.nav_btn_finish_text);
+        finishText.setText(Localization.get("form.entry.finish.button").toUpperCase());
+
         nextButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!NAV_STATE_DONE.equals(v.getTag())) {
-                    GoogleAnalyticsUtils.reportFormNavForward(
-                            GoogleAnalyticsFields.LABEL_ARROW,
-                            GoogleAnalyticsFields.VALUE_FORM_NOT_DONE);
-                    FormEntryActivity.this.showNextView();
-                } else {
-                    GoogleAnalyticsUtils.reportFormNavForward(
-                            GoogleAnalyticsFields.LABEL_ARROW,
-                            GoogleAnalyticsFields.VALUE_FORM_DONE);
-                    triggerUserFormComplete();
-                }
+                GoogleAnalyticsUtils.reportFormNavForward(
+                        GoogleAnalyticsFields.LABEL_ARROW,
+                        GoogleAnalyticsFields.VALUE_FORM_NOT_DONE);
+                FormEntryActivity.this.showNextView();
             }
         });
 
@@ -371,6 +369,17 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 }
             }
         });
+
+        finishButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GoogleAnalyticsUtils.reportFormNavForward(
+                        GoogleAnalyticsFields.LABEL_ARROW,
+                        GoogleAnalyticsFields.VALUE_FORM_DONE);
+                triggerUserFormComplete();
+            }
+        });
+
 
         mViewPane = (ViewGroup)findViewById(R.id.form_entry_pane);
 
