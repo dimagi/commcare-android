@@ -37,4 +37,12 @@
         <attr name="even_row_color" format="reference|color"/>
         <attr name="odd_row_color" format="reference|color"/>
     </declare-styleable>
+
+    <declare-styleable name="ClippingView">
+        <attr name="clip_start_x" format="reference|float"/>
+        <attr name="clip_start_y" format="reference|float"/>
+        <attr name="clip_width" format="reference|float"/>
+        <attr name="clip_height" format="reference|float"/>
+    </declare-styleable>
+
 </resources>

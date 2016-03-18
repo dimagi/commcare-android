@@ -364,6 +364,10 @@ public class QuestionsView extends ScrollView
         return widgets;
     }
 
+    public boolean isQuestionList() {
+        return widgets.size() > 1;
+    }
+
     @Override
     public void setOnFocusChangeListener(OnFocusChangeListener l) {
         for (QuestionWidget qw : widgets) {
