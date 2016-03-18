@@ -190,6 +190,7 @@ public class CommCareApplication extends Application {
     private String messageForUserOnDispatch;
     private String titleForUserMessage;
 
+    private boolean isRefreshingToLatestBuild;
 
     @Override
     public void onCreate() {
@@ -1460,6 +1461,14 @@ public class CommCareApplication extends Application {
             ForceCloseLogger.registerStorage(
                     this.getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
         }
+    }
+
+    public void setRefreshingToLatestBuild(boolean b) {
+        this.isRefreshingToLatestBuild = b;
+    }
+
+    public boolean isRefreshingToLatestBuild() {
+        return this.isRefreshingToLatestBuild;
     }
 
 }

@@ -157,7 +157,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
 
         if (uiController.getLoginMode() == LoginMode.PASSWORD) {
-            DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPasswordOrPin());
+            DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPasswordOrPin(), false);
         }
 
         if (ResourceInstallUtils.isUpdateReadyToInstall()) {
@@ -293,7 +293,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private void tryAutoLogin() {
         Pair<String, String> userAndPass =
-                DevSessionRestorer.getAutoLoginCreds();
+                DevSessionRestorer.getAutoLoginCreds(forceAutoLogin());
         if (userAndPass != null) {
             uiController.setUsername(userAndPass.first);
             uiController.setPasswordOrPin(userAndPass.second);
@@ -305,6 +305,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 initiateLoginAttempt(true);
             }
         }
+    }
+
+    private boolean forceAutoLogin() {
+        return CommCareApplication._().isRefreshingToLatestBuild();
     }
 
     private String getUniformUsername() {

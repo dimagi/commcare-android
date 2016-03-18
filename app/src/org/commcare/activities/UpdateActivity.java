@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,6 +40,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private UpdateTask updateTask;
     private UpdateUIController uiController;
 
+    private boolean proceedAutomatically;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +52,12 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         boolean isRotation = savedInstanceState != null;
         setupUpdateTask(isRotation);
+
+        proceedAutomatically = getIntent().getBooleanExtra(
+                RefreshToLatestBuildActivity.FROM_LATEST_BUILD_UTIL, false);
+        if (proceedAutomatically) {
+            startUpdateCheck();
+        }
     }
 
     private void loadSaveInstanceState(Bundle savedInstanceState) {
@@ -170,12 +179,26 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     public void handleTaskCompletion(AppInstallStatus result) {
         if (result == AppInstallStatus.UpdateStaged) {
             uiController.unappliedUpdateAvailableUiState();
+            if (proceedAutomatically) {
+                launchUpdateInstallTask();
+            }
         } else if (result == AppInstallStatus.UpToDate) {
             uiController.upToDateUiState();
+            if (proceedAutomatically) {
+                Intent i = new Intent();
+                i.putExtra(RefreshToLatestBuildActivity.UPDATE_OCCURRED, false);
+                setResult(RESULT_OK, i);
+                finish();
+            }
         } else {
             // Gives user generic failure warning; even if update staging
             // failed for a specific reason like xml syntax
             uiController.checkFailedUiState();
+            if (proceedAutomatically) {
+                Intent i = new Intent();
+                setResult(RESULT_CANCELED, i);
+                finish();
+            }
         }
 
         unregisterTask();
@@ -234,19 +257,23 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     /**
      * Block the user with a dialog while the update is finalized.
      */
-    protected void lauchUpdateInstallTask() {
+    protected void launchUpdateInstallTask() {
         InstallStagedUpdateTask<UpdateActivity> task =
                 new InstallStagedUpdateTask<UpdateActivity>(DIALOG_UPGRADE_INSTALL) {
 
                     @Override
                     protected void deliverResult(UpdateActivity receiver,
                                                  AppInstallStatus result) {
-                        if (result == AppInstallStatus.Installed) {
-                            receiver.logoutOnSuccessfulUpdate();
+                        if (proceedAutomatically) {
+                            //TODO: finish() to go back to RefreshLatestBuildActivity
                         } else {
-                            receiver.uiController.errorUiState();
+                            if (result == AppInstallStatus.Installed) {
+                                receiver.logoutOnSuccessfulUpdate();
+                            } else {
+                                receiver.uiController.errorUiState();
+                            }
+                            receiver.isApplyingUpdate = false;
                         }
-                        receiver.isApplyingUpdate = false;
                     }
 
                     @Override
