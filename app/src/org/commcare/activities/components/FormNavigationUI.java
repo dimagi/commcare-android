@@ -1,7 +1,11 @@
 package org.commcare.activities.components;
 
+import android.animation.Animator;
+import android.animation.AnimatorInflater;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Build;
 import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -19,6 +23,7 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logic.FormController;
+import org.commcare.views.ClippingFrame;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.widgets.QuestionWidget;
@@ -49,6 +54,9 @@ public class FormNavigationUI {
         ImageButton nextButton = (ImageButton)activity.findViewById(R.id.nav_btn_next);
         ImageButton prevButton = (ImageButton)activity.findViewById(R.id.nav_btn_prev);
 
+        ClippingFrame finishButton = (ClippingFrame)activity.
+                findViewById(R.id.nav_btn_finish);
+
         if (!details.relevantBeforeCurrentScreen) {
             prevButton.setImageResource(R.drawable.icon_close_darkwarm);
             prevButton.setTag(FormEntryActivity.NAV_STATE_QUIT);
@@ -67,9 +75,9 @@ public class FormNavigationUI {
         progressBar.setMax(details.totalQuestions);
 
         if (details.isFormDone()) {
-            setDoneState(nextButton, activity, progressBar, details.totalQuestions);
+            setDoneState(nextButton, activity, finishButton, details, progressBar);
         } else {
-            setMoreQuestionsState(nextButton, activity, progressBar, details.completedQuestions);
+            setMoreQuestionsState(nextButton, activity, finishButton, details, progressBar);
         }
 
         progressBar.getProgressDrawable().setBounds(bounds);  //Set the bounds to the saved value
@@ -77,30 +85,78 @@ public class FormNavigationUI {
 
     private static void setDoneState(ImageButton nextButton,
                                      Context context,
-                                     ProgressBar progressBar,
-                                     int totalQuestions) {
-        nextButton.setImageResource(R.drawable.icon_chevron_right_attnpos);
-        nextButton.setTag(FormEntryActivity.NAV_STATE_DONE);
+                                     final ClippingFrame finishButton,
+                                     FormNavigationController.NavigationDetails details,
+                                     ProgressBar progressBar) {
+        if(nextButton.getTag() == null) {
+            setFinishVisible(finishButton);
+        }else if(!FormEntryActivity.NAV_STATE_DONE.equals(nextButton.getTag())) {
+            nextButton.setTag(FormEntryActivity.NAV_STATE_DONE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                expandAndShowFinishButton(context, finishButton);
+            } else {
+                setFinishVisible(finishButton);
+            }
+        }
 
         progressBar.setProgressDrawable(context.getResources().getDrawable(R.drawable.progressbar_full));
-        progressBar.setProgress(totalQuestions);
+        progressBar.setProgress(details.totalQuestions);
 
         Log.i("Questions", "Form complete");
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private static void expandAndShowFinishButton(Context context,
+                                                  final ClippingFrame finishButton) {
+
+        Animator animator = AnimatorInflater.loadAnimator(context, R.animator.grow_in_visible);
+
+        animator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                finishButton.setVisibility(View.VISIBLE);
+                finishButton.setClipHeight(0);
+                finishButton.setClipWidth(0);
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                finishButton.setClipHeight(1);
+                finishButton.setClipWidth(1);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        });
+        animator.setTarget(finishButton);
+        animator.start();
+    }
+
     private static void setMoreQuestionsState(ImageButton nextButton,
                                               Context context,
-                                              ProgressBar progressBar,
-                                              int completedQuestiosn) {
-        nextButton.setImageResource(R.drawable.icon_chevron_right_brand);
-        nextButton.setTag(FormEntryActivity.NAV_STATE_NEXT);
+                                              ClippingFrame finishButton,
+                                              FormNavigationController.NavigationDetails details,
+                                              ProgressBar progressBar) {
+        if(!FormEntryActivity.NAV_STATE_NEXT.equals(nextButton.getTag())) {
+            nextButton.setTag(FormEntryActivity.NAV_STATE_NEXT);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                finishButton.setVisibility(View.GONE);
+            }
+        }
 
         progressBar.setProgressDrawable(context.getResources().getDrawable(R.drawable.progressbar_modern));
-        progressBar.setProgress(completedQuestiosn);
+        progressBar.setProgress(details.completedQuestions);
     }
 
     public static void animateFinishArrow(final CommCareActivity activity) {
-        ImageButton nextButton = (ImageButton)activity.findViewById(R.id.nav_btn_next);
+        View finishButton = activity.findViewById(R.id.nav_image_finish);
         final View coverView = activity.findViewById(R.id.form_entry_cover);
 
         Animation growShrinkAnimation = AnimationUtils.loadAnimation(activity, R.anim.grow_shrink);
@@ -122,7 +178,13 @@ public class FormNavigationUI {
 
             }
         });
-        nextButton.startAnimation(growShrinkAnimation);
+        finishButton.startAnimation(growShrinkAnimation);
+    }
+
+    private static void setFinishVisible(ClippingFrame finishButton) {
+        finishButton.setVisibility(View.VISIBLE);
+        finishButton.setClipWidth(1);
+        finishButton.setClipHeight(1);
     }
 
     enum FloatingLabel {
