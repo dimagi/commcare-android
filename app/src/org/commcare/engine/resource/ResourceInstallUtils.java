@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.UpdateActivity;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DeveloperPreferences;
@@ -235,5 +236,14 @@ public class ResourceInstallUtils {
         SharedPreferences prefs = app.getAppPreferences();
 
         return prefs.getString(DEFAULT_APP_SERVER_KEY, null);
+    }
+
+    public static String getLatestProfileRef(){
+        String defaultProfileReference = getDefaultProfileRef();
+        String appId = CommCareApplication._().getCurrentApp().getUniqueId();
+        String pattern = "(?<=download\\/)(.*)(?=\\/)";
+        String latestProfileReference = defaultProfileReference.replaceFirst(pattern, appId);
+        Logger.log(UpdateActivity.class.getSimpleName(), "Got latest profile reference: " + latestProfileReference);
+        return latestProfileReference;
     }
 }
