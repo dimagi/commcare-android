@@ -107,7 +107,7 @@ public class EntityListAdapter implements ListAdapter {
             if (sort.length != 0) {
                 sort(sort);
             }
-            applyFilter("");
+            applyStringFilter("");
         } else {
             setCurrent(new ArrayList<>(full));
         }
@@ -282,7 +282,7 @@ public class EntityListAdapter implements ListAdapter {
         return getCount() > 0;
     }
 
-    public void applyFilter(String filterRaw) {
+    public void applyStringFilter(String filterRaw) {
         synchronized (mSyncLock) {
             if (entitySearcher != null) {
                 entitySearcher.cancelSearch();
@@ -300,7 +300,7 @@ public class EntityListAdapter implements ListAdapter {
         }
     }
 
-    public void filterByKey(LinkedHashMap<String, String> idReadings) {
+    public void applyCalloutResultFilter(LinkedHashMap<String, String> idReadings) {
         extraData = idReadings;
         final int TOP_N_ENTRIES_COUNT = 3;
         int filteredEntryCount = Math.min(idReadings.size(), TOP_N_ENTRIES_COUNT);
