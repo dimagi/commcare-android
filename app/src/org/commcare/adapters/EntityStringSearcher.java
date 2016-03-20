@@ -19,6 +19,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Filter entity list via all string-representable entity fields
+ */
 public class EntityStringSearcher extends EntitySearcherBase {
     private final boolean isFilterEmpty;
     private final String[] searchTerms;
@@ -26,22 +29,20 @@ public class EntityStringSearcher extends EntitySearcherBase {
     private final ArrayList<Pair<Integer, Integer>> matchScores = new ArrayList<>();
     private final boolean isAsyncMode;
     private final boolean isFuzzySearchEnabled;
-    private final List<Entity<TreeReference>> full;
 
     public EntityStringSearcher(EntityListAdapter adapter,
                                 String[] searchTerms,
                                 boolean isAsyncMode, boolean isFuzzySearchEnabled,
                                 NodeEntityFactory nodeFactory,
-                                List<Entity<TreeReference>> full,
+                                List<Entity<TreeReference>> fullEntityList,
                                 Activity context) {
-        super(context, nodeFactory, adapter);
-        this.full = full;
+        super(context, nodeFactory, adapter, fullEntityList);
         this.isAsyncMode = isAsyncMode;
         this.isFuzzySearchEnabled = isFuzzySearchEnabled;
         this.isFilterEmpty = searchTerms == null || searchTerms.length == 0;
         this.searchTerms = searchTerms;
         if (isFilterEmpty) {
-            matchList = new ArrayList<>(full);
+            matchList = new ArrayList<>(fullEntityList);
         } else {
             matchList = new ArrayList<>();
         }
@@ -77,12 +78,12 @@ public class EntityStringSearcher extends EntitySearcherBase {
             return;
         }
         db.beginTransaction();
-        for (int index = 0; index < full.size(); ++index) {
+        for (int index = 0; index < fullEntityList.size(); ++index) {
             //Every once and a while we should make sure we're not blocking anything with the database
             if (index % 500 == 0) {
                 db.yieldIfContendedSafely();
             }
-            Entity<TreeReference> e = full.get(index);
+            Entity<TreeReference> e = fullEntityList.get(index);
             if (isCancelled()) {
                 break;
             }
@@ -128,7 +129,7 @@ public class EntityStringSearcher extends EntitySearcherBase {
         }
 
         for (Pair<Integer, Integer> match : matchScores) {
-            matchList.add(full.get(match.first));
+            matchList.add(fullEntityList.get(match.first));
         }
 
         db.setTransactionSuccessful();

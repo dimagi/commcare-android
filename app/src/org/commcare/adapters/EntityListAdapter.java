@@ -6,14 +6,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
-import com.simprints.libsimprints.Identification;
-
 import org.commcare.dalvik.R;
 import org.commcare.models.AsyncNodeEntityFactory;
 import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;
 import org.commcare.preferences.CommCarePreferences;
-import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.utils.AndroidUtil;
@@ -26,9 +23,10 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This adapter class handles displaying the cases for a CommCareODK user.
@@ -76,7 +74,7 @@ public class EntityListAdapter implements ListAdapter {
 
     // false until we determine the Detail has at least one <grid> block
     private boolean usesGridView = false;
-    private Hashtable<String, String> extraData = new Hashtable<>();
+    private LinkedHashMap<String, String> extraData = new LinkedHashMap<>();
 
     public EntityListAdapter(Activity activity, Detail detail,
                              List<TreeReference> references,
@@ -301,8 +299,8 @@ public class EntityListAdapter implements ListAdapter {
         }
     }
 
-    public void filterByKey(List<Identification> idReadings) {
-        Collections.sort(idReadings);
+    public void filterByKey(LinkedHashMap<String, String> idReadings) {
+        extraData = idReadings;
         final int TOP_N_ENTRIES_COUNT = 3;
         int filteredEntryCount = Math.min(idReadings.size(), TOP_N_ENTRIES_COUNT);
 
@@ -310,9 +308,13 @@ public class EntityListAdapter implements ListAdapter {
             if (entitySearcher != null) {
                 entitySearcher.cancelSearch();
             }
-            Identification[] topIdentificationResults = new Identification[filteredEntryCount];
-            for (int i = 0; i < filteredEntryCount; i++)  {
-                topIdentificationResults[i] = idReadings.get(i);
+            Hashtable<String, String> topIdentificationResults = new Hashtable<>();
+            for (Map.Entry<String, String> kv : extraData.entrySet())  {
+                topIdentificationResults.put(kv.getKey(), kv.getValue());
+
+                if (topIdentificationResults.size() >= filteredEntryCount) {
+                    break;
+                }
             }
 
             isFilteringByCalloutResult = true;
@@ -320,7 +322,6 @@ public class EntityListAdapter implements ListAdapter {
                     new EntityResponseKeySearcher(this, mNodeFactory, full, context, topIdentificationResults);
             entitySearcher.start();
         }
-        extraData = SimprintsCalloutProcessing.getIdentificationsAsExtraData(idReadings);
     }
 
     void update() {

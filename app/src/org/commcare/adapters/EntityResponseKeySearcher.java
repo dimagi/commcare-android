@@ -2,47 +2,46 @@ package org.commcare.adapters;
 
 import android.app.Activity;
 
-import com.simprints.libsimprints.Identification;
-
 import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
 import java.util.List;
 
 /**
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class EntityResponseKeySearcher extends EntitySearcherBase {
-    private final List<Entity<TreeReference>> full;
-    private final Identification[] topIdResults;
+    private final Hashtable<String, String> topIdResults;
     private final List<Entity<TreeReference>> matchList = new ArrayList<>();
 
     public EntityResponseKeySearcher(EntityListAdapter adapter,
                                      NodeEntityFactory nodeFactory,
-                                     List<Entity<TreeReference>> full,
-                                     Activity context, Identification[] topIdResults) {
-        super(context, nodeFactory, adapter);
+                                     List<Entity<TreeReference>> fullEntityList,
+                                     Activity context, Hashtable<String, String> topIdResults) {
+        super(context, nodeFactory, adapter, fullEntityList);
 
-        this.full = full;
         this.topIdResults = topIdResults;
     }
 
     @Override
     protected void search() {
+        // TODO PLM: make work in async mode
+
         if (isCancelled()) {
             return;
         }
 
-        for (Entity<TreeReference> entity : full) {
-            for (Identification idReading : topIdResults) {
-                if (idReading.getGuid().equals(entity.extraKey)) {
-                    matchList.add(entity);
-                }
-                if (matchList.size() >= topIdResults.length) {
-                    break;
-                }
+        for (Entity<TreeReference> entity : fullEntityList) {
+            String entityExtraData = topIdResults.get(entity.extraKey);
+            if (entityExtraData != null) {
+                matchList.add(entity);
+            }
+            if (matchList.size() >= topIdResults.size()) {
+                break;
             }
         }
     }

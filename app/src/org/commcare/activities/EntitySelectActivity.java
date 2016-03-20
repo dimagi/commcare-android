@@ -32,8 +32,6 @@ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import com.simprints.libsimprints.Identification;
-
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
 import org.commcare.activities.components.EntitySelectViewSetup;
@@ -78,6 +76,7 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -645,7 +644,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void handleAccuracyFilteringCallout(Intent intent) {
-        List<Identification> identification =
+        LinkedHashMap<String, String> identification  =
                 SimprintsCalloutProcessing.getIdentificationData(intent);
         adapter.filterByKey(identification);
         refreshView();

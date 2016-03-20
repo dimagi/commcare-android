@@ -14,7 +14,9 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 
+import java.util.Collections;
 import java.util.Hashtable;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -32,8 +34,17 @@ public class SimprintsCalloutProcessing {
         return intent.hasExtra("registration");
     }
 
-    public static List<Identification> getIdentificationData(Intent intent) {
-        return (List)intent.getParcelableArrayListExtra("identification");
+    public static LinkedHashMap<String, String> getIdentificationData(Intent intent) {
+        List<Identification> idReadings = (List)intent.getParcelableArrayListExtra("identification");
+
+        Collections.sort(idReadings);
+
+        LinkedHashMap<String, String> guidToDataMap = new LinkedHashMap<>();
+        for (Identification id : idReadings) {
+            guidToDataMap.put(id.getGuid(), id.getConfidence() + "");
+        }
+
+        return guidToDataMap;
     }
 
     public static Registration getRegistrationData(Intent intent) {
@@ -87,14 +98,5 @@ public class SimprintsCalloutProcessing {
         int dataType = node.getDataType();
 
         IntentCallout.setValueInFormDef(formDef, fullRef, Base64.encodeToString(digitTemplate, Base64.DEFAULT), dataType);
-    }
-
-    public static Hashtable<String, String> getIdentificationsAsExtraData(List<Identification> idReadings) {
-        Hashtable<String, String> guidToDataMap = new Hashtable<>();
-        for (Identification id : idReadings) {
-            guidToDataMap.put(id.getGuid(), id.getConfidence() + "");
-        }
-
-        return guidToDataMap;
     }
 }
