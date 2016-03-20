@@ -21,6 +21,8 @@ import java.util.List;
 import java.util.Vector;
 
 /**
+ * Process simprints fingerprint registration and identification callout results.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class SimprintsCalloutProcessing {

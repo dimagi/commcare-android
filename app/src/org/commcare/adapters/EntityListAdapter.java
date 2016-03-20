@@ -23,10 +23,11 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This adapter class handles displaying the cases for a CommCareODK user.
@@ -66,7 +67,7 @@ public class EntityListAdapter implements ListAdapter {
     private String[] currentSearchTerms;
     private String searchQuery;
 
-    private EntitySearcherBase entitySearcher = null;
+    private EntityFiltererBase entitySearcher = null;
     private final Object mSyncLock = new Object();
 
     // Asyncronous image loader, allows rows with images to scroll smoothly
@@ -294,7 +295,7 @@ public class EntityListAdapter implements ListAdapter {
             currentSearchTerms = searchTerms;
             searchQuery = filterRaw;
             entitySearcher =
-                    new EntityStringSearcher(this, searchTerms, mAsyncMode, mFuzzySearchEnabled, mNodeFactory, full, context);
+                    new EntityStringFilterer(this, searchTerms, mAsyncMode, mFuzzySearchEnabled, mNodeFactory, full, context);
             entitySearcher.start();
         }
     }
@@ -308,18 +309,18 @@ public class EntityListAdapter implements ListAdapter {
             if (entitySearcher != null) {
                 entitySearcher.cancelSearch();
             }
-            Hashtable<String, String> topIdentificationResults = new Hashtable<>();
+            Set<String> topMatchingCaseIds = new HashSet<>();
             for (Map.Entry<String, String> kv : extraData.entrySet())  {
-                topIdentificationResults.put(kv.getKey(), kv.getValue());
+                topMatchingCaseIds.add(kv.getKey());
 
-                if (topIdentificationResults.size() >= filteredEntryCount) {
+                if (topMatchingCaseIds.size() >= filteredEntryCount) {
                     break;
                 }
             }
 
             isFilteringByCalloutResult = true;
             entitySearcher =
-                    new EntityResponseKeySearcher(this, mNodeFactory, full, context, topIdentificationResults);
+                    new EntityGuidFilterer(this, mNodeFactory, full, context, topMatchingCaseIds);
             entitySearcher.start();
         }
     }

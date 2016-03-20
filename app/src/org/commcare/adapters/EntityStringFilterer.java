@@ -22,7 +22,7 @@ import java.util.Locale;
 /**
  * Filter entity list via all string-representable entity fields
  */
-public class EntityStringSearcher extends EntitySearcherBase {
+public class EntityStringFilterer extends EntityFiltererBase {
     private final boolean isFilterEmpty;
     private final String[] searchTerms;
     private final List<Entity<TreeReference>> matchList;
@@ -30,7 +30,7 @@ public class EntityStringSearcher extends EntitySearcherBase {
     private final boolean isAsyncMode;
     private final boolean isFuzzySearchEnabled;
 
-    public EntityStringSearcher(EntityListAdapter adapter,
+    public EntityStringFilterer(EntityListAdapter adapter,
                                 String[] searchTerms,
                                 boolean isAsyncMode, boolean isFuzzySearchEnabled,
                                 NodeEntityFactory nodeFactory,
@@ -49,7 +49,7 @@ public class EntityStringSearcher extends EntitySearcherBase {
     }
 
     @Override
-    protected void search() {
+    protected void filter() {
         long startTime = System.currentTimeMillis();
 
         if (!isFilterEmpty) {

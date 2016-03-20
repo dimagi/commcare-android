@@ -9,11 +9,11 @@ import org.javarosa.core.model.instance.TreeReference;
 import java.util.List;
 
 /**
- * Filtering the entity select list using pluggable search logic
+ * Filtering the entity select list using pluggable filter logic
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public abstract class EntitySearcherBase {
+public abstract class EntityFiltererBase {
     private final NodeEntityFactory nodeFactory;
     private final EntityListAdapter adapter;
     protected final List<Entity<TreeReference>> fullEntityList;
@@ -21,7 +21,7 @@ public abstract class EntitySearcherBase {
     private boolean cancelled = false;
     private final Activity context;
 
-    public EntitySearcherBase(Activity context,
+    public EntityFiltererBase(Activity context,
                               NodeEntityFactory nodeFactory,
                               EntityListAdapter adapter,
                               List<Entity<TreeReference>> fullEntityList) {
@@ -44,7 +44,7 @@ public abstract class EntitySearcherBase {
                         e.printStackTrace();
                     }
                 }
-                search();
+                filter();
 
                 finishSearch();
             }
@@ -77,13 +77,13 @@ public abstract class EntitySearcherBase {
     }
 
     /**
-     * Uses the provided search logic to build the list of matching
+     * Uses the provided filter logic to build the list of matching
      * entities from the full list of entities
      */
-    protected abstract void search();
+    protected abstract void filter();
 
     /**
-     * @return search results; those entities from the full list that fulfill the search conditions
+     * @return filter results; those entities from the full list that fulfill the filterconditions
      */
     protected abstract List<Entity<TreeReference>> getMatchList();
 }

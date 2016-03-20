@@ -7,41 +7,42 @@ import org.commcare.models.NodeEntityFactory;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
 import java.util.List;
+import java.util.Set;
 
 /**
+ * Filter entities by those whose guid (case id) is present in the provided set
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class EntityResponseKeySearcher extends EntitySearcherBase {
-    private final Hashtable<String, String> topIdResults;
+public class EntityGuidFilterer extends EntityFiltererBase {
+    private final Set<String> guidSet;
     private final List<Entity<TreeReference>> matchList = new ArrayList<>();
 
-    public EntityResponseKeySearcher(EntityListAdapter adapter,
-                                     NodeEntityFactory nodeFactory,
-                                     List<Entity<TreeReference>> fullEntityList,
-                                     Activity context, Hashtable<String, String> topIdResults) {
+    public EntityGuidFilterer(EntityListAdapter adapter,
+                              NodeEntityFactory nodeFactory,
+                              List<Entity<TreeReference>> fullEntityList,
+                              Activity context, Set<String> guidSet) {
         super(context, nodeFactory, adapter, fullEntityList);
 
-        this.topIdResults = topIdResults;
+        this.guidSet = guidSet;
     }
 
     @Override
-    protected void search() {
+    protected void filter() {
         // TODO PLM: make work in async mode
 
-        if (isCancelled()) {
+        if (isCancelled() || guidSet.isEmpty()) {
             return;
         }
 
         for (Entity<TreeReference> entity : fullEntityList) {
-            String entityExtraData = topIdResults.get(entity.extraKey);
-            if (entityExtraData != null) {
+            if (guidSet.contains(entity.extraKey)) {
                 matchList.add(entity);
-            }
-            if (matchList.size() >= topIdResults.size()) {
-                break;
+
+                if (matchList.size() >= guidSet.size()) {
+                    break;
+                }
             }
         }
     }
