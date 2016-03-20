@@ -88,4 +88,13 @@ public class SimprintsCalloutProcessing {
 
         IntentCallout.setValueInFormDef(formDef, fullRef, Base64.encodeToString(digitTemplate, Base64.DEFAULT), dataType);
     }
+
+    public static Hashtable<String, String> getIdentificationsAsExtraData(List<Identification> idReadings) {
+        Hashtable<String, String> guidToDataMap = new Hashtable<>();
+        for (Identification id : idReadings) {
+            guidToDataMap.put(id.getGuid(), id.getConfidence() + "");
+        }
+
+        return guidToDataMap;
+    }
 }

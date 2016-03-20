@@ -39,6 +39,7 @@ import org.commcare.activities.components.EntitySelectCalloutSetup;
 import org.commcare.activities.components.EntitySelectViewSetup;
 import org.commcare.adapters.EntityListAdapter;
 import org.commcare.dalvik.R;
+import org.commcare.engine.extensions.IntentCallout;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.models.AndroidSessionWrapper;
@@ -194,22 +195,23 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 super.onChanged();
 
                 if (!"".equals(adapter.getSearchQuery())) {
-                    // Show search results banner
-                    searchBanner.setVisibility(View.VISIBLE);
-                    searchResultStatus.setVisibility(View.VISIBLE);
-                    searchResultStatus.setText(adapter.getSearchNotificationText());
-                    clearSearchButton.setVisibility(View.GONE);
+                    showSearchBanner(false);
                 } else if (adapter.isFilteringByCalloutResult()) {
-                    searchResultStatus.setText(adapter.getSearchNotificationText());
-                    searchResultStatus.setVisibility(View.VISIBLE);
-                    searchBanner.setVisibility(View.VISIBLE);
-                    clearSearchButton.setVisibility(View.VISIBLE);
+                    showSearchBanner(true);
                 } else {
                     searchBanner.setVisibility(View.GONE);
                     clearSearchButton.setVisibility(View.GONE);
                 }
             }
         };
+    }
+
+    private void showSearchBanner(boolean hasClearResultsButton) {
+        searchResultStatus.setText(adapter.getSearchNotificationText());
+        searchResultStatus.setVisibility(View.VISIBLE);
+        searchBanner.setVisibility(View.VISIBLE);
+
+        clearSearchButton.setVisibility(hasClearResultsButton ? View.VISIBLE : View.GONE);
     }
 
     private void restoreSavedState(Bundle savedInstanceState) {
@@ -306,7 +308,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                                                      refreshView();
                                                  }
                                              });
-                clearSearchButton.setVisibility(View.GONE);
+        clearSearchButton.setVisibility(View.GONE);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
 
         mViewMode = session.isViewCommand(session.getCommand());
@@ -449,8 +451,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         // only add headers if we're not using grid mode
         if (!shortSelect.usesGridView()) {
+            boolean hasCalloutResponseData = (adapter != null && adapter.hasCalloutResponseData());
             //Hm, sadly we possibly need to rebuild this each time.
-            EntityView v = EntityView.buildHeadersEntityView(this, shortSelect, headers, adapter != null && adapter.hasCalloutResponseData());
+            EntityView v =
+                    EntityView.buildHeadersEntityView(this, shortSelect, headers, hasCalloutResponseData);
             header.addView(v);
         }
     }
@@ -617,7 +621,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private void processCalloutResult(int resultCode, Intent intent) {
         if (resultCode == Activity.RESULT_OK) {
-            if (intent.hasExtra("odk_intent_data")) {
+            if (intent.hasExtra(IntentCallout.INTENT_RESULT_VALUE)) {
                 handleSearchStringCallout(intent);
             } else if (SimprintsCalloutProcessing.isIdentificationResponse(intent)) {
                 handleAccuracyFilteringCallout(intent);
@@ -626,7 +630,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void handleSearchStringCallout(Intent intent) {
-        String result = intent.getStringExtra("odk_intent_data");
+        String result = intent.getStringExtra(IntentCallout.INTENT_RESULT_VALUE);
         if (result != null){
             setSearchText(result.trim());
         } else {
@@ -641,7 +645,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void handleAccuracyFilteringCallout(Intent intent) {
-        List<Identification> identification = SimprintsCalloutProcessing.getIdentificationData(intent);
+        List<Identification> identification =
+                SimprintsCalloutProcessing.getIdentificationData(intent);
         adapter.filterByKey(identification);
         refreshView();
     }

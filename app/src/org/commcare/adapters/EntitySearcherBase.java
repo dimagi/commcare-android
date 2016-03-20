@@ -47,7 +47,6 @@ public abstract class EntitySearcherBase {
         thread.start();
     }
 
-
     private void finishSearch() {
         context.runOnUiThread(new Runnable() {
             @Override

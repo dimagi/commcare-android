@@ -44,7 +44,10 @@ public class EntityView extends LinearLayout {
     private ArrayList<String> forms;
     private String[] searchTerms;
     private final ArrayList<String> mHints;
-    private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
+
+    // index => { orientation => GraphView }
+    private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;
+
     private long rowId;
     public static final String FORM_AUDIO = "audio";
     public static final String FORM_IMAGE = "image";
@@ -64,7 +67,8 @@ public class EntityView extends LinearLayout {
      * Creates row entry for entity
      */
     private EntityView(Context context, Detail d, Entity e,
-                       String[] searchTerms, long rowId, boolean mFuzzySearchEnabled) {
+                       String[] searchTerms, long rowId,
+                       boolean mFuzzySearchEnabled) {
         super(context);
 
         //this is bad :(
@@ -296,7 +300,8 @@ public class EntityView extends LinearLayout {
     private void setupText(View layout, final String text, String searchField) {
         TextView tv = (TextView) layout.findViewById(R.id.entity_view_text);
         tv.setVisibility(View.VISIBLE);
-        tv.setText(highlightSearches(searchTerms, new SpannableString(text == null ? "" : text), searchField, mFuzzySearchEnabled, mIsAsynchronous));
+        Spannable rawText = new SpannableString(text == null ? "" : text);
+        tv.setText(highlightSearches(searchTerms, rawText, searchField, mFuzzySearchEnabled, mIsAsynchronous));
     }
 
     private void addLayoutToRedrawQueue(View layout, String source) {
@@ -344,7 +349,9 @@ public class EntityView extends LinearLayout {
      * match. A background string can be provided which provides the exact data that is being
      * matched.
      */
-    public static Spannable highlightSearches(String[] searchTerms, Spannable raw, String backgroundString, boolean fuzzySearchEnabled, boolean strictMode) {
+    public static Spannable highlightSearches(String[] searchTerms, Spannable raw,
+                                              String backgroundString, boolean fuzzySearchEnabled,
+                                              boolean strictMode) {
         if (searchTerms == null) {
             return raw;
         }

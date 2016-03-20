@@ -29,7 +29,8 @@ public class EntitySelectCalloutSetup {
      * Updates the ImageView layout that is passed in, based on the
      * new id and source
      */
-    public static void setupImageLayout(Context context, MenuItem menuItem, final String imagePath) {
+    public static void setupImageLayout(Context context, MenuItem menuItem,
+                                        final String imagePath) {
         Drawable drawable = getCalloutDrawable(context, imagePath);
         menuItem.setIcon(drawable);
     }
@@ -101,7 +102,9 @@ public class EntitySelectCalloutSetup {
         for (Map.Entry<String, String> keyValue : calloutData.getExtras().entrySet()) {
             i.putExtra(keyValue.getKey(), keyValue.getValue());
         }
-        i.setType("text/plain");
+        if (calloutData.getType() != null && !"".equals(calloutData.getType())) {
+            i.setType(calloutData.getType());
+        }
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {

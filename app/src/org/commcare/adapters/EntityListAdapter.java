@@ -13,6 +13,7 @@ import org.commcare.models.AsyncNodeEntityFactory;
 import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.utils.AndroidUtil;
@@ -26,6 +27,7 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
 
 /**
@@ -69,9 +71,12 @@ public class EntityListAdapter implements ListAdapter {
     private EntitySearcherBase entitySearcher = null;
     private final Object mSyncLock = new Object();
 
-    private final CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
-    private boolean usesGridView = false;  // false until we determine the Detail has at least one <grid> block
-    private List<Identification> extraData = new ArrayList<>();
+    // Asyncronous image loader, allows rows with images to scroll smoothly
+    private final CachingAsyncImageLoader mImageLoader;
+
+    // false until we determine the Detail has at least one <grid> block
+    private boolean usesGridView = false;
+    private Hashtable<String, String> extraData = new Hashtable<>();
 
     public EntityListAdapter(Activity activity, Detail detail,
                              List<TreeReference> references,
@@ -257,7 +262,7 @@ public class EntityListAdapter implements ListAdapter {
             emv = EntityView.buildEntryEntityView(context, detail, entity, currentSearchTerms, position, mFuzzySearchEnabled);
         } else {
             emv.setSearchTerms(currentSearchTerms);
-            emv.setExtraData(getExtraData(entity.extraKey));
+            emv.setExtraData(extraData.get(entity.extraKey));
             emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);
         }
         return emv;
@@ -290,7 +295,8 @@ public class EntityListAdapter implements ListAdapter {
             }
             currentSearchTerms = searchTerms;
             searchQuery = filterRaw;
-            entitySearcher = new EntityStringSearcher(this, searchTerms, mAsyncMode, mFuzzySearchEnabled, mNodeFactory, full, context);
+            entitySearcher =
+                    new EntityStringSearcher(this, searchTerms, mAsyncMode, mFuzzySearchEnabled, mNodeFactory, full, context);
             entitySearcher.start();
         }
     }
@@ -310,10 +316,11 @@ public class EntityListAdapter implements ListAdapter {
             }
 
             isFilteringByCalloutResult = true;
-            entitySearcher = new EntityResponseKeySearcher(this, mNodeFactory, full, context, topIdentificationResults);
+            entitySearcher =
+                    new EntityResponseKeySearcher(this, mNodeFactory, full, context, topIdentificationResults);
             entitySearcher.start();
         }
-        extraData = new ArrayList<>(idReadings);
+        extraData = SimprintsCalloutProcessing.getIdentificationsAsExtraData(idReadings);
     }
 
     void update() {
@@ -403,14 +410,5 @@ public class EntityListAdapter implements ListAdapter {
 
     public boolean hasCalloutResponseData() {
         return !extraData.isEmpty();
-    }
-
-    private String getExtraData(String id) {
-        for (Identification identification : extraData) {
-            if (identification.getGuid().equals(id)) {
-                return identification.getConfidence() + "";
-            }
-        }
-        return null;
     }
 }
