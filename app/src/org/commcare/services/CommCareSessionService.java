@@ -6,12 +6,10 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.text.format.DateFormat;
 import android.util.Log;
-import android.widget.RemoteViews;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -473,7 +471,7 @@ public class CommCareSessionService extends Service {
             // START - Submission Listening Hooks
             int totalItems = -1;
             long currentSize = -1;
-            Notification submissionNotification;
+            NotificationCompat.Builder submissionNotification;
 
             int lastUpdate = 0;
 
@@ -492,45 +490,28 @@ public class CommCareSessionService extends Service {
                 //TODO: Put something here that will, I dunno, cancel submission or something? Maybe show it live? 
                 PendingIntent contentIntent = PendingIntent.getActivity(CommCareSessionService.this, 0, callable, 0);
 
-                RemoteViews contentView = new RemoteViews(getPackageName(), R.layout.submit_notification);
-                contentView.setImageViewResource(R.id.image, R.drawable.notification);
-                contentView.setTextViewText(R.id.submitTitle, getString(notificationId));
-                contentView.setTextViewText(R.id.progressText, text);
-                contentView.setTextViewText(R.id.submissionDetails, "0b transmitted");
-
-                NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(CommCareSessionService.this)
+                submissionNotification = new NotificationCompat.Builder(CommCareSessionService.this)
                         .setContentTitle(getString(notificationId))
                         .setContentText(text)
+                        .setContentInfo("0b transmitted")
                         .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
                         .setContentIntent(contentIntent)
                         .setOngoing(true)
                         .setWhen(System.currentTimeMillis())
                         .setTicker(getTickerText(totalItems));
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    notificationBuilder.setContent(contentView);
-                    submissionNotification = notificationBuilder.build();
-                } else {
-                    // It would be nice if Google would fix bugs that are, you know, from 2012...
-                    // bug: https://code.google.com/p/android/issues/detail?id=30495
-                    submissionNotification = notificationBuilder.build();
-                    submissionNotification.contentView = contentView;
-                }
-
                 if (user != null) {
-                    //Send the notification.
-                    mNM.notify(notificationId, submissionNotification);
+                    mNM.notify(notificationId, submissionNotification.build());
                 }
-
             }
 
             @Override
             public void startSubmission(int itemNumber, long length) {
                 currentSize = length;
 
-                submissionNotification.contentView.setTextViewText(R.id.progressText, getSubmissionText(itemNumber + 1, totalItems));
-                submissionNotification.contentView.setProgressBar(R.id.submissionProgress, 100, 0, false);
-                mNM.notify(notificationId, submissionNotification);
+                submissionNotification.setContentInfo(getSubmissionText(itemNumber + 1, totalItems));
+                submissionNotification.setProgress(100, 0, false);
+                mNM.notify(notificationId, submissionNotification.build());
             }
 
             @Override
@@ -550,12 +531,12 @@ public class CommCareSessionService extends Service {
 
                     int pending = ProcessAndSendTask.pending();
                     if (pending > 1) {
-                        submissionNotification.contentView.setTextViewText(R.id.submissionsPending, pending - 1 + " Pending");
+                        submissionNotification.setContentInfo(pending - 1 + " Pending");
                     }
 
-                    submissionNotification.contentView.setTextViewText(R.id.submissionDetails, progressDetails);
-                    submissionNotification.contentView.setProgressBar(R.id.submissionProgress, 100, progressPercent, false);
-                    mNM.notify(notificationId, submissionNotification);
+                    submissionNotification.setContentText(progressDetails);
+                    submissionNotification.setProgress(100, progressPercent, false);
+                    mNM.notify(notificationId, submissionNotification.build());
                     lastUpdate = progressPercent;
                 }
             }
@@ -576,9 +557,6 @@ public class CommCareSessionService extends Service {
             private String getTickerText(int total) {
                 return "CommCare submitting " + total + " forms";
             }
-
-            // END - Submission Listening Hooks
-
         };
     }
 
