@@ -9,10 +9,11 @@ import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
 import java.util.Calendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 /**
+ * Test casting from Nepali calendar day to universal date representation.
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareApplication.class,
@@ -20,21 +21,55 @@ import java.util.TimeZone;
 @RunWith(CommCareTestRunner.class)
 public class NepaliDateUtilitiesTests {
     @Test
-    public void testDateCasting() {
-        Calendar nepalCal = Calendar.getInstance(TimeZone.getTimeZone("GMT+05:45"));
+    public void testTimesFallOnSameDate() {
+        TimeZone nepaliTimeZone = TimeZone.getTimeZone("GMT+05:45");
+
+        Calendar nepaliMiddleOfDayDate = Calendar.getInstance(nepaliTimeZone);
+        nepaliMiddleOfDayDate.set(2007, 10, 7, 18, 46);
+
+        Calendar nepaliBeginningOfDayDate = Calendar.getInstance(nepaliTimeZone);
+        nepaliBeginningOfDayDate.set(2007, 10, 7, 0, 0);
+
+        UniversalDate middleOfDay = NepaliDateUtilities.fromMillis(nepaliMiddleOfDayDate.getTimeInMillis(), nepaliTimeZone);
+        UniversalDate beginningOfDay = NepaliDateUtilities.fromMillis(nepaliBeginningOfDayDate.getTimeInMillis(), nepaliTimeZone);
+        assertSameDate(middleOfDay, beginningOfDay);
+
+        Calendar nepaliEndOfDayDate = Calendar.getInstance(nepaliTimeZone);
+        nepaliEndOfDayDate.set(2007, 10, 7, 23, 59, 59);
+        UniversalDate endOfDay = NepaliDateUtilities.fromMillis(nepaliEndOfDayDate.getTimeInMillis(), nepaliTimeZone);
+        assertSameDate(endOfDay, beginningOfDay);
+    }
+
+    private static void assertSameDate(UniversalDate a, UniversalDate b) {
+        Assert.assertEquals(a.day, b.day);
+        Assert.assertEquals(a.month, b.month);
+        Assert.assertEquals(a.year, b.year);
+    }
+
+    @Test
+    public void testDateCalcsAreSensitiveToCurrentTimezone() {
+        TimeZone nepaliTimeZone = TimeZone.getTimeZone("GMT+05:45");
+        TimeZone mexicanTimeZone = TimeZone.getTimeZone("GMT-06:00");
+        Calendar nepalCal = Calendar.getInstance(nepaliTimeZone);
         nepalCal.set(2007, 10, 7, 18, 46);
-        Calendar nepalCalRound = Calendar.getInstance(TimeZone.getTimeZone("GMT+05:45"));
-        nepalCalRound.set(2007, 10, 7, 0, 0);
-        Date foo = nepalCal.getTime();
-        Date bar = nepalCalRound.getTime();
-        System.out.print(foo);
-        System.out.print(bar);
+        Calendar mexicoCal = Calendar.getInstance(mexicanTimeZone);
+        mexicoCal.set(2007, 10, 7, 18, 46);
 
-        UniversalDate nepalRoundedUniversalDate = NepaliDateUtilities.fromMillis(nepalCalRound.getTimeInMillis());
-        UniversalDate universalDate = NepaliDateUtilities.fromMillis(nepalCal.getTimeInMillis());
+        UniversalDate mexicanDate = NepaliDateUtilities.fromMillis(mexicoCal.getTimeInMillis(), mexicanTimeZone);
+        UniversalDate nepaliDate = NepaliDateUtilities.fromMillis(nepalCal.getTimeInMillis(), nepaliTimeZone);
+        assertSameDate(nepaliDate, mexicanDate);
+    }
 
-        Assert.assertEquals(nepalRoundedUniversalDate.day, universalDate.day);
-        Assert.assertEquals(nepalRoundedUniversalDate.month, universalDate.month);
-        Assert.assertEquals(nepalRoundedUniversalDate.year, universalDate.year);
+    @Test
+    public void testUnpackingDateInDifferentTimezone() {
+        TimeZone nepaliTimeZone = TimeZone.getTimeZone("GMT+05:45");
+        TimeZone mexicanTimeZone = TimeZone.getTimeZone("GMT-06:00");
+        Calendar mexicoCal = Calendar.getInstance(mexicanTimeZone);
+        mexicoCal.set(2007, 10, 7, 18, 46);
+
+        UniversalDate mexicanDate = NepaliDateUtilities.fromMillis(mexicoCal.getTimeInMillis(), mexicanTimeZone);
+        long time = NepaliDateUtilities.toMillisFromJavaEpoch(mexicanDate.year, mexicanDate.month, mexicanDate.day, 0);
+        UniversalDate rebuiltDateInUsingDifferentTimezone = NepaliDateUtilities.fromMillis(time, nepaliTimeZone);
+        assertSameDate(rebuiltDateInUsingDifferentTimezone, mexicanDate);
     }
 }
