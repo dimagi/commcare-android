@@ -479,8 +479,6 @@ public class CommCareSessionService extends Service {
             public void beginSubmissionProcess(int totalItems) {
                 this.totalItems = totalItems;
 
-                String text = getSubmissionText(1, totalItems);
-
                 //We always want this click to simply bring the live stack back to the top
                 Intent callable = new Intent(CommCareSessionService.this, DispatchActivity.class);
                 callable.setAction("android.intent.action.MAIN");
@@ -492,8 +490,8 @@ public class CommCareSessionService extends Service {
 
                 submissionNotification = new NotificationCompat.Builder(CommCareSessionService.this)
                         .setContentTitle(getString(notificationId))
-                        .setContentText(text)
-                        .setContentInfo("0b transmitted")
+                        .setContentInfo(getSubmittedFormCount(1, totalItems))
+                        .setContentText("0b transmitted")
                         .setSmallIcon(org.commcare.dalvik.R.drawable.notification)
                         .setContentIntent(contentIntent)
                         .setOngoing(true)
@@ -509,7 +507,7 @@ public class CommCareSessionService extends Service {
             public void startSubmission(int itemNumber, long length) {
                 currentSize = length;
 
-                submissionNotification.setContentInfo(getSubmissionText(itemNumber + 1, totalItems));
+                submissionNotification.setContentInfo(getSubmittedFormCount(itemNumber + 1, totalItems));
                 submissionNotification.setProgress(100, 0, false);
                 mNM.notify(notificationId, submissionNotification.build());
             }
@@ -550,7 +548,7 @@ public class CommCareSessionService extends Service {
                 lastUpdate = 0;
             }
 
-            private String getSubmissionText(int current, int total) {
+            private String getSubmittedFormCount(int current, int total) {
                 return current + "/" + total;
             }
 
