@@ -468,7 +468,6 @@ public class CommCareSessionService extends Service {
 
     public DataSubmissionListener startDataSubmissionListener(final int notificationId) {
         return new DataSubmissionListener() {
-            // START - Submission Listening Hooks
             int totalItems = -1;
             long currentSize = -1;
             NotificationCompat.Builder submissionNotification;
