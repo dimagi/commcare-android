@@ -1,7 +1,5 @@
 package org.commcare.engine.cases;
 
-import android.content.Intent;
-
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
@@ -109,7 +107,8 @@ public class CaseUtils {
         long taken = System.currentTimeMillis() - start;
 
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format(
-                "Purged [%d Case, %d Ledger] records in %dms", removedCaseCount, removedLedgers, taken));
+                "Purged [%d Case, %d Ledger] records in %dms",
+                removedCaseCount, removedLedgers, taken));
 
     }
 }
