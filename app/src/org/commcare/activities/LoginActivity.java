@@ -266,13 +266,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected void onResume() {
         super.onResume();
 
-        // It is possible that we left off at the LoginActivity last time we were on the main CC
-        // screen, but have since done something in the app manager to either leave no seated app
-        // at all, or to render the seated app unusable. Redirect to dispatch activity if we
-        // encounter either case
         if (shouldFinish()) {
-            setResult(RESULT_OK);
-            this.finish();
             return;
         }
 
@@ -299,6 +293,16 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     protected void onResumeFragments() {
         super.onResumeFragments();
+
+        // It is possible that we left off at the LoginActivity last time we were on the main CC
+        // screen, but have since done something in the app manager to either leave no seated app
+        // at all, or to render the seated app unusable. Redirect to dispatch activity if we
+        // encounter either case
+        if (shouldFinish()) {
+            setResult(RESULT_OK);
+            this.finish();
+            return;
+        }
 
         tryAutoLogin();
     }
