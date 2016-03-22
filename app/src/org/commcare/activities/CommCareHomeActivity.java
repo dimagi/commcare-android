@@ -164,9 +164,7 @@ public class CommCareHomeActivity
     protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
         super.onCreateSessionSafe(savedInstanceState);
 
-        if (savedInstanceState != null) {
-            loginExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
-        }
+        loadInstanceState(savedInstanceState);
 
         ACRAUtil.registerAppData();
         uiController.setupUI();
@@ -178,17 +176,20 @@ public class CommCareHomeActivity
         processFromLoginLaunch();
     }
 
+    private void loadInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            loginExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
+            wasExternal = savedInstanceState.getBoolean(WAS_EXTERNAL_KEY);
+        }
+    }
+
     /**
      * Set state that signifies activity was launch from external app.
      */
     private void processFromExternalLaunch(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            wasExternal = savedInstanceState.getBoolean(WAS_EXTERNAL_KEY);
-        } else {
-            if (getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
-                wasExternal = true;
-                sessionNavigator.startNextSessionStep();
-            }
+        if (savedInstanceState == null && getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
+            wasExternal = true;
+            sessionNavigator.startNextSessionStep();
         }
     }
 
