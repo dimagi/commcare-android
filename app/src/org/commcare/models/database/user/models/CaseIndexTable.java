@@ -119,8 +119,7 @@ public class CaseIndexTable {
             DbUtil.explainSql(db, query, args);
         }
         Cursor c = db.query(TABLE_NAME, new String[]{COL_CASE_RECORD_ID}, COL_INDEX_NAME + " = ? AND " + COL_INDEX_TARGET + " =  ?", args, null, null, null);
-        Vector<Integer> result = SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID);
-        return result;
+        return SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID);
     }
 
 }
