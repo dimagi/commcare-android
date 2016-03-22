@@ -62,7 +62,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private static final int MENU_PASSWORD_MODE = Menu.FIRST + 3;
 
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
-    public final static String KEY_LAST_APP = "id_of_last_selected";
+    public final static String KEY_LAST_APP = "id-last-seated-app";
     public final static String KEY_ENTERED_USER = "entered-username";
     public final static String KEY_ENTERED_PW_OR_PIN = "entered-password-or-pin";
 
@@ -274,6 +274,17 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         // Otherwise, refresh the activity for current conditions
         uiController.refreshView();
+    }
+
+    protected boolean checkForSeatedAppChange() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String lastSeatedId = prefs.getString(KEY_LAST_APP, "");
+        String currentSeatedId = CommCareApplication._().getCurrentApp().getUniqueId();
+        if (!lastSeatedId.equals(currentSeatedId)) {
+            prefs.edit().putString(KEY_LAST_APP, currentSeatedId).commit();
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -490,8 +501,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         // Retrieve the app record corresponding to the app selected
         String appId = appIdDropdownList.get(position);
 
-        boolean appChanged = !appId.equals(CommCareApplication._().getCurrentApp().getUniqueId());
-        if (appChanged) {
+        boolean selectedNewApp = !appId.equals(CommCareApplication._().getCurrentApp().getUniqueId());
+        if (selectedNewApp) {
             // Set the id of the last selected app
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             prefs.edit().putString(KEY_LAST_APP, appId).commit();
