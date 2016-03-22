@@ -87,6 +87,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (shouldFinish()) {
+            // If we're going to finish in onResume() because there is no usable seated app,
+            // don't bother with all of the setup here
+            return;
+        }
+
         uiController.setupUI();
 
         if (savedInstanceState == null) {
@@ -262,11 +268,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         // It is possible that we left off at the LoginActivity last time we were on the main CC
         // screen, but have since done something in the app manager to either leave no seated app
-        // at all, or to render the seated app unusable. Redirect to CCHomeActivity if we encounter
-        // either case
-        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
-        if (currentApp == null || !currentApp.getAppRecord().isUsable()) {
-            // send back to dispatch activity
+        // at all, or to render the seated app unusable. Redirect to dispatch activity if we
+        // encounter either case
+        if (shouldFinish()) {
             setResult(RESULT_OK);
             this.finish();
             return;
@@ -285,6 +289,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             return true;
         }
         return false;
+    }
+
+    private static boolean shouldFinish() {
+        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
+        return currentApp == null || !currentApp.getAppRecord().isUsable();
     }
 
     @Override
