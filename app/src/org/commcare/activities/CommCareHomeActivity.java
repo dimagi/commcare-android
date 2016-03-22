@@ -619,6 +619,7 @@ public class CommCareHomeActivity
             // regardless of the exit code
             currentState.reset();
             if (wasExternal) {
+                setResult(RESULT_CANCELED);
                 this.finish();
             } else {
                 // Return to where we started
@@ -669,6 +670,7 @@ public class CommCareHomeActivity
                 uiController.refreshView();
 
                 if (wasExternal) {
+                    setResult(RESULT_CANCELED);
                     this.finish();
                     return false;
                 }
@@ -707,6 +709,7 @@ public class CommCareHomeActivity
 
             if (wasExternal) {
                 currentState.reset();
+                setResult(RESULT_CANCELED);
                 this.finish();
                 return false;
             } else if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
@@ -728,6 +731,7 @@ public class CommCareHomeActivity
     private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
         currentState.reset();
         if (wasExternal) {
+            setResult(RESULT_CANCELED);
             this.finish();
         }
         uiController.refreshView();
