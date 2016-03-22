@@ -86,13 +86,18 @@ public class CaseIndexTable {
     }
 
     public void clearCaseIndices(Case c) {
+        clearCaseIndices(c.getID());
+    }
+
+    public void clearCaseIndices(int recordId) {
+        String recordIdString = String.valueOf(recordId);
         db.beginTransaction();
         try {
             if (SqlStorage.STORAGE_OUTPUT_DEBUG) {
-                String sqlStatement = String.format("DELETE FROM %s WHERE %s = ?", TABLE_NAME, COL_CASE_RECORD_ID);
-                DbUtil.explainSql(db, sqlStatement, new String[]{String.valueOf(c.getID())});
+                String sqlStatement = String.format("DELETE FROM %s WHERE %s = CAST(? as INT)", TABLE_NAME, COL_CASE_RECORD_ID);
+                DbUtil.explainSql(db, sqlStatement, new String[]{recordIdString});
             }
-            db.delete(TABLE_NAME, COL_CASE_RECORD_ID + " = ?", new String[]{String.valueOf(c.getID())});
+            db.delete(TABLE_NAME, COL_CASE_RECORD_ID + "= CAST(? as INT)", new String[]{recordIdString});
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
@@ -114,7 +119,8 @@ public class CaseIndexTable {
             DbUtil.explainSql(db, query, args);
         }
         Cursor c = db.query(TABLE_NAME, new String[]{COL_CASE_RECORD_ID}, COL_INDEX_NAME + " = ? AND " + COL_INDEX_TARGET + " =  ?", args, null, null, null);
-        return SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID);
+        Vector<Integer> result = SqlStorage.fillIdWindow(c, COL_CASE_RECORD_ID);
+        return result;
     }
 
 }

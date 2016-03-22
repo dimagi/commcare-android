@@ -1,13 +1,20 @@
 package org.commcare.engine.cases;
 
+import android.content.Intent;
+
+import net.sqlcipher.database.SQLiteDatabase;
+
 import org.commcare.CommCareApplication;
 import org.commcare.cases.ledger.Ledger;
 import org.commcare.cases.ledger.LedgerPurgeFilter;
 import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.models.database.user.models.ACase;
+import org.commcare.models.database.user.models.CaseIndexTable;
 import org.commcare.utils.CommCareUtil;
+import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
@@ -58,25 +65,51 @@ public class CaseUtils {
             }
         }
 
-        SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
-        CasePurgeFilter filter = new CasePurgeFilter(storage, owners);
-        if (filter.invalidEdgesWereRemoved()) {
-            Logger.log(AndroidLogger.SOFT_ASSERT, "An invalid edge was created in the internal " +
-                    "case DAG of a case purge filter, meaning that at least 1 case on the " +
-                    "device had an index into another case that no longer exists on the device");
-            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Case lists on the server and device" +
-                    " were out of sync. The following cases were expected to be on the device, " +
-                    "but were missing: " + filter.getMissingCasesString() + ". As a result, the " +
-                    "following cases were also removed from the device: " + filter.getRemovedCasesString());
+        SQLiteDatabase db;
+        try {
+            db = CommCareApplication._().getUserDbHandle();
+        } catch (SessionUnavailableException e) {
+            throw new UserStorageClosedException(e.getMessage());
         }
-        int removedCases = storage.removeAll(filter).size();
 
-        SqlStorage<Ledger> stockStorage = CommCareApplication._().getUserStorage(Ledger.STORAGE_KEY, Ledger.class);
-        LedgerPurgeFilter stockFilter = new LedgerPurgeFilter(stockStorage, storage);
-        int removedLedgers = stockStorage.removeAll(stockFilter).size();
+        db.beginTransaction();
+        int removedCaseCount;
+        int removedLedgers;
+        try {
+            SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
+
+            CasePurgeFilter filter = new CasePurgeFilter(storage, owners);
+            if (filter.invalidEdgesWereRemoved()) {
+                Logger.log(AndroidLogger.SOFT_ASSERT, "An invalid edge was created in the internal " +
+                        "case DAG of a case purge filter, meaning that at least 1 case on the " +
+                        "device had an index into another case that no longer exists on the device");
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Case lists on the server and device" +
+                        " were out of sync. The following cases were expected to be on the device, " +
+                        "but were missing: " + filter.getMissingCasesString() + ". As a result, the " +
+                        "following cases were also removed from the device: " + filter.getRemovedCasesString());
+            }
+
+            Vector<Integer> casesRemoved = storage.removeAll(filter);
+            removedCaseCount = casesRemoved.size();
+            CaseIndexTable indexTable = new CaseIndexTable(db);
+            for (int recordId : casesRemoved) {
+                indexTable.clearCaseIndices(recordId);
+            }
+
+
+            SqlStorage<Ledger> stockStorage = CommCareApplication._().getUserStorage(Ledger.STORAGE_KEY, Ledger.class);
+            LedgerPurgeFilter stockFilter = new LedgerPurgeFilter(stockStorage, storage);
+            removedLedgers = stockStorage.removeAll(stockFilter).size();
+            db.setTransactionSuccessful();
+
+        } finally {
+            db.endTransaction();
+        }
 
         long taken = System.currentTimeMillis() - start;
 
-        Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format("Purged [%d Case, %d Ledger] records in %dms", removedCases, removedLedgers, taken));
+        Logger.log(AndroidLogger.TYPE_MAINTENANCE, String.format(
+                "Purged [%d Case, %d Ledger] records in %dms", removedCaseCount, removedLedgers, taken));
+
     }
 }
