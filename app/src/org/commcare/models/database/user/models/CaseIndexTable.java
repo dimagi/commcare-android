@@ -97,6 +97,8 @@ public class CaseIndexTable {
                 String sqlStatement = String.format("DELETE FROM %s WHERE %s = CAST(? as INT)", TABLE_NAME, COL_CASE_RECORD_ID);
                 DbUtil.explainSql(db, sqlStatement, new String[]{recordIdString});
             }
+            //NOTE: The cast is very necessary, SQLite's type coercion has problems here because
+            //we can't provide arguments in any format other than a string
             db.delete(TABLE_NAME, COL_CASE_RECORD_ID + "= CAST(? as INT)", new String[]{recordIdString});
             db.setTransactionSuccessful();
         } finally {
