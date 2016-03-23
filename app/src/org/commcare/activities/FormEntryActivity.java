@@ -26,6 +26,7 @@ import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ContextThemeWrapper;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -1160,7 +1161,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         if (!displayed) {
-            Toast.makeText(this, constraintText, Toast.LENGTH_SHORT).show();
+            Toast popupMessage = Toast.makeText(this, constraintText, Toast.LENGTH_SHORT);
+            // center message to avoid overlapping with keyboard
+            popupMessage.setGravity(Gravity.CENTER, 0, 0);
+            popupMessage.show();
         }
         isAnimatingSwipe = false;
     }
