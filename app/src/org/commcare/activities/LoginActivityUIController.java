@@ -210,6 +210,10 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         } else {
             restoreSessionCheckbox.setVisibility(View.GONE);
         }
+
+        if (activity.checkForSeatedAppChange()) {
+            refreshForNewApp();
+        }
     }
 
     protected void refreshForNewApp() {

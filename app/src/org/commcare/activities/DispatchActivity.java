@@ -265,7 +265,7 @@ public class DispatchActivity extends FragmentActivity {
         CommCareApplication._().getCurrentSessionWrapper().loadFromStateDescription(ssd);
         Intent i = new Intent(this, CommCareHomeActivity.class);
         i.putExtra(WAS_EXTERNAL, true);
-        startActivity(i);
+        startActivityForResult(i, HOME_SCREEN);
     }
 
     private void handleShortcutLaunch() {
