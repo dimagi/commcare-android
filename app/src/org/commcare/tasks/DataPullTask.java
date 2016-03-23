@@ -36,6 +36,7 @@ import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
+import org.javarosa.xml.util.ActionableInvalidStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
@@ -256,10 +257,14 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Pair<D
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
                         return new Pair<>(PullTaskResult.BAD_DATA, e.getMessage());
+                    } catch (ActionableInvalidStructureException e) {
+                        e.printStackTrace();
+                        Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
+                        return new Pair<>(PullTaskResult.BAD_DATA_REQUIRES_INTERVENTION, e.getLocalizedMessage());
                     } catch (InvalidStructureException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
-                        return new Pair<>(PullTaskResult.BAD_DATA, e.getLocalizedMessage());
+                        return new Pair<>(PullTaskResult.BAD_DATA, e.getMessage());
                     } catch (UnfullfilledRequirementsException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, unfulfilled reqs |" + e.getMessage());
@@ -395,9 +400,12 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Pair<D
             updateUserSyncToken(syncToken);
             Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Succesful");
             return new Pair<>(PROGRESS_DONE, "");
-        } catch (InvalidStructureException e) {
+        } catch (ActionableInvalidStructureException e) {
             e.printStackTrace();
             failureReason = e.getLocalizedMessage();
+        } catch (InvalidStructureException e) {
+            e.printStackTrace();
+            failureReason = e.getMessage();
         } catch (XmlPullParserException e) {
             e.printStackTrace();
             failureReason = e.getMessage();
@@ -523,6 +531,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Pair<D
         DOWNLOAD_SUCCESS(-1),
         AUTH_FAILED(GoogleAnalyticsFields.VALUE_AUTH_FAILED),
         BAD_DATA(GoogleAnalyticsFields.VALUE_BAD_DATA),
+        BAD_DATA_REQUIRES_INTERVENTION(GoogleAnalyticsFields.VALUE_BAD_DATA_REQUIRES_INTERVENTION),
         UNKNOWN_FAILURE(GoogleAnalyticsFields.VALUE_UNKNOWN_FAILURE),
         UNREACHABLE_HOST(GoogleAnalyticsFields.VALUE_UNREACHABLE_HOST),
         CONNECTION_TIMEOUT(GoogleAnalyticsFields.VALUE_CONNECTION_TIMEOUT),

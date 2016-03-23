@@ -145,6 +145,7 @@ public class FormAndDataSyncer {
                         receiver.displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
                         break;
                     case BAD_DATA:
+                    case BAD_DATA_REQUIRES_INTERVENTION:
                         receiver.displayMessage(Localization.get("sync.fail.bad.data"), true);
                         break;
                     case DOWNLOAD_SUCCESS:

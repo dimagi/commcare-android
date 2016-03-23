@@ -207,6 +207,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                             case AUTH_FAILED:
                                 receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                                 break;
+                            case BAD_DATA_REQUIRES_INTERVENTION:
+                                receiver.raiseLoginMessageWithInfo(StockMessages.Remote_BadRestoreRequiresIntervention, resultAndErrorMessage.second, true);
+                                break;
                             case BAD_DATA:
                                 receiver.raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore, resultAndErrorMessage.second, true);
                                 break;

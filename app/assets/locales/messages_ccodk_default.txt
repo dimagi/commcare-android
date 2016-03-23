@@ -457,7 +457,10 @@ notification.restore.unknown.detail=CommCare had trouble dealing with something 
 notification.restore.unknown.action=Try to log in again. If you receive this message again, force close the application from the Manage Applications menu on the phone. If the error persists, contact technical support.
 
 notification.restore.baddata.title=Bad Server Response
-notification.restore.baddata.detail=CommCare had trouble processing the network response. Please try again. 
+notification.restore.baddata.detail=CommCare had trouble processing the network response. Please try again.
+
+notification.restore.data.requires.intervention.title=Bad Server Response
+notification.restore.data.requires.intervention.detail=CommCare tried to restore invalid data from the server. This may have been caused by a misconfiguration in your app and must be fixed in order to log in. Please contact your supervisor or CommCare support.
 
 notification.install.installed.title=App Succesfully Installed
 notification.install.installed.detail=Your app install is up to date.

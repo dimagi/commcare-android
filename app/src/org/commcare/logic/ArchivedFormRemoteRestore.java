@@ -52,6 +52,7 @@ public class ArchivedFormRemoteRestore {
                         Toast.makeText(receiver, "Authentication failure. Please logout and resync with the server and try again.", Toast.LENGTH_LONG).show();
                         break;
                     case BAD_DATA:
+                    case BAD_DATA_REQUIRES_INTERVENTION:
                         Toast.makeText(receiver, "Bad data from server. Please talk with your supervisor.", Toast.LENGTH_LONG).show();
                         break;
                     case CONNECTION_TIMEOUT:
