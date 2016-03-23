@@ -199,9 +199,9 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     private void notifyOnScreen(String text, boolean strong, boolean requestFocus){
         int warningBackdropId;
         if (strong) {
-            warningBackdropId = R.drawable.bubble_invalid_modern;
+            warningBackdropId = R.drawable.strong_warning_backdrop;
         } else {
-            warningBackdropId = R.drawable.bubble_warn;
+            warningBackdropId = R.drawable.weak_warning_backdrop;
         }
         ViewUtil.setBackgroundRetainPadding(this,
                 this.getContext().getResources().getDrawable(warningBackdropId));
