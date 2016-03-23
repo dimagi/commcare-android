@@ -142,7 +142,7 @@ public class GridWidget extends QuestionWidget {
                 imageViews[position].setBackgroundColor(Color.rgb(orangeRedVal, orangeGreenVal,
                         orangeBlueVal));
                 if (quickAdvance) {
-                    listener.advance();
+                    listener.advance(true);
                 }
             }
         });

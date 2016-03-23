@@ -481,7 +481,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 boolean saved = ImageCaptureProcessing.processCaptureResponse(this, getInstanceFolder(), false);
                 if (saved) {
                     // attempt to auto-advance if a signature was captured
-                    advance();
+                    advance(false);
                 }
                 break;
             case IMAGE_CHOOSER:
@@ -2070,8 +2070,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    public void advance() {
-        if (!questionsView.isQuestionList() && canNavigateForward()) {
+    public void advance(boolean allowAutoSubmission) {
+        if (!questionsView.isQuestionList() && (allowAutoSubmission || canNavigateForward())) {
             next();
         }
     }

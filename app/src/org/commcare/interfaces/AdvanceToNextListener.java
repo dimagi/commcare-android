@@ -2,5 +2,5 @@ package org.commcare.interfaces;
 
 public interface AdvanceToNextListener {
 
-    void advance(); //Move on to the next question
+    void advance(boolean allowAutoSubmission); //Move on to the next question
 }
