@@ -69,7 +69,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     protected TextView mQuestionText;
     private FrameLayout helpPlaceholder;
     private ShrinkingTextView mHintText;
-    private View toastView;
+    private View warningView;
 
     //Whether this question widget needs to request focus on
     //its next draw, due to a new element having been added (which couldn't have
@@ -197,29 +197,32 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      * @param requestFocus If true, bring focus to this question.
      */
     private void notifyOnScreen(String text, boolean strong, boolean requestFocus){
+        int warningBackdropId;
         if (strong) {
-            ViewUtil.setBackgroundRetainPadding(this, this.getContext().getResources().getDrawable(R.drawable.bubble_invalid_modern));
+            warningBackdropId = R.drawable.bubble_invalid_modern;
         } else {
-            ViewUtil.setBackgroundRetainPadding(this, this.getContext().getResources().getDrawable(R.drawable.bubble_warn));
+            warningBackdropId = R.drawable.bubble_warn;
         }
+        ViewUtil.setBackgroundRetainPadding(this,
+                this.getContext().getResources().getDrawable(warningBackdropId));
 
-        if (this.toastView == null) {
+        if (this.warningView == null) {
             // note: this is lame, but we bleed out the margins on the left and right here to make this overlap.
             // We could accomplish the same thing by having two backgrounds, one for the widget as a whole, and 
             // one for the internals (or splitting up the layout), but this'll do for now 
-            this.toastView = View.inflate(this.getContext(), R.layout.toast_view_modern, this).findViewById(R.id.toast_view_root);
+            this.warningView = View.inflate(this.getContext(), R.layout.toast_view_modern, this).findViewById(R.id.toast_view_root);
 
             focusPending = requestFocus;
         } else {
-            if (this.toastView.getVisibility() != View.VISIBLE) {
-                this.toastView.setVisibility(View.VISIBLE);
+            if (this.warningView.getVisibility() != View.VISIBLE) {
+                this.warningView.setVisibility(View.VISIBLE);
                 focusPending = requestFocus;
             }
         }
-        TextView messageView = (TextView)this.toastView.findViewById(R.id.message);
+        TextView messageView = (TextView)this.warningView.findViewById(R.id.message);
         messageView.setText(text);
 
-        //If the toastView already exists, we can just scroll to it right now
+        //If the warningView already exists, we can just scroll to it right now
         //if not, we actually have to do it later, when we lay this all back out
         if (!focusPending && requestFocus) {
             requestChildViewOnScreen(messageView);
@@ -313,14 +316,10 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
         //If we're coming back in after we just laid out adding a new element that needs
         //focus, we can now scroll to it, since it's actually had its spacing declared.
-        if(changed && focusPending) {
+        if (changed && focusPending) {
             focusPending = false;
-            if(this.toastView == null) {
-                //NOTE: This shouldn't be possible, but if it doesn't happen
-                //we don't wanna crash. Look here if focus isn't getting grabbed
-                //for some reason (there's no other negative consequence)
-            } else {
-                TextView messageView = (TextView)this.toastView.findViewById(R.id.message);
+            if (this.warningView != null) {
+                TextView messageView = (TextView)this.warningView.findViewById(R.id.message);
                 requestChildViewOnScreen(messageView);
             }
         }
@@ -607,8 +606,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
     }
 
     public void widgetEntryChanged(){
-        if (this.toastView != null) {
-            this.toastView.setVisibility(View.GONE);
+        if (this.warningView != null) {
+            this.warningView.setVisibility(View.GONE);
             ViewUtil.setBackgroundRetainPadding(this, null);
         }
         if (hasListener()) {
