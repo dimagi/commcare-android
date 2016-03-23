@@ -267,7 +267,7 @@ public class MediaUtil {
         double widthScaleDownFactor =  (double)boundingWidth / originalWidth;
         // Choosing the larger of the scale down factors, so that the image still fills the entire
         // container
-        double dominantScaleDownFactor = Math.max(heightScaleDownFactor, heightScaleDownFactor);
+        double dominantScaleDownFactor = Math.max(widthScaleDownFactor, heightScaleDownFactor);
 
         int widthImposedByContainer = (int)Math.round(originalWidth * dominantScaleDownFactor);
         int heightImposedByContainer = (int)Math.round(originalHeight * dominantScaleDownFactor);
