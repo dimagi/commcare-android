@@ -210,7 +210,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
             // note: this is lame, but we bleed out the margins on the left and right here to make this overlap.
             // We could accomplish the same thing by having two backgrounds, one for the widget as a whole, and 
             // one for the internals (or splitting up the layout), but this'll do for now 
-            this.warningView = View.inflate(this.getContext(), R.layout.toast_view_modern, this).findViewById(R.id.toast_view_root);
+            this.warningView = View.inflate(this.getContext(), R.layout.question_warning_text_view, this).findViewById(R.id.warning_root);
 
             focusPending = requestFocus;
         } else {
