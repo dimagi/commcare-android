@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.support.v4.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -52,7 +53,7 @@ import javax.crypto.SecretKey;
 /**
  * @author ctsims
  */
-public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPullTask.PullTaskResult, R>
+public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Pair<DataPullTask.PullTaskResult, String>, R>
         implements CommCareOTARestoreListener {
     private final String server;
     private final String username;
@@ -110,13 +111,13 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
     }
 
     @Override
-    protected PullTaskResult doTaskBackground(Void... params) {
+    protected Pair<PullTaskResult, String> doTaskBackground(Void... params) {
         // Don't try to sync if logging out is occuring
         if (!CommCareSessionService.sessionAliveLock.tryLock()) {
             // TODO PLM: once this task is refactored into manageable
             // components, it should use the ManagedAsyncTask pattern of
             // checking for isCancelled() and aborting at safe places.
-            return PullTaskResult.UNKNOWN_FAILURE;
+            return new Pair<>(PullTaskResult.UNKNOWN_FAILURE, "Cannot sync while a logout is in process");
         }
 
 
@@ -175,7 +176,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
 
                         if (newKey == null) {
                             this.publishProgress(PROGRESS_DONE);
-                            return PullTaskResult.UNKNOWN_FAILURE;
+                            return new Pair<>(PullTaskResult.UNKNOWN_FAILURE, "Unable to generate encryption key");
                         }
                         String sandboxId = PropertyUtils.genUUID().replace("-", "");
                         ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password),
@@ -187,7 +188,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                         if (ukr == null) {
                             Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Shouldn't be able to not have a valid key record when OTA restoring with a key server");
                             this.publishProgress(PROGRESS_DONE);
-                            return PullTaskResult.UNKNOWN_FAILURE;
+                            return new Pair<>(PullTaskResult.UNKNOWN_FAILURE, "Unable to generate encryption key");
                         }
                     }
 
@@ -213,7 +214,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                         CommCareApplication._().releaseUserResourcesAndServices();
                     }
                     Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
-                    return PullTaskResult.AUTH_FAILED;
+                    return new Pair<>(PullTaskResult.AUTH_FAILED, "");
                 } else if (pullResponse.responseCode >= 200 && pullResponse.responseCode < 300) {
                     if (loginNeeded) {
                         //This is necessary (currently) to make sure that data
@@ -223,7 +224,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                                 ukr, restoreSession);
                         wasKeyLoggedIn = true;
                     }
-
 
                     this.publishProgress(PROGRESS_AUTHED, 0);
                     Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
@@ -251,17 +251,15 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                         Logger.log(AndroidLogger.TYPE_USER, "User Sync Successful|" + username);
                         updateCurrentUser(password);
                         this.publishProgress(PROGRESS_DONE);
-                        return PullTaskResult.DOWNLOAD_SUCCESS;
-                    } catch (InvalidStructureException e) {
-                        e.printStackTrace();
-
-                        //TODO: Dump more details!!!
-                        Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
-                        return PullTaskResult.BAD_DATA;
+                        return new Pair<>(PullTaskResult.DOWNLOAD_SUCCESS, "");
                     } catch (XmlPullParserException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
-                        return PullTaskResult.BAD_DATA;
+                        return new Pair<>(PullTaskResult.BAD_DATA, e.getMessage());
+                    } catch (InvalidStructureException e) {
+                        e.printStackTrace();
+                        Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
+                        return new Pair<>(PullTaskResult.BAD_DATA, e.getLocalizedMessage());
                     } catch (UnfullfilledRequirementsException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, unfulfilled reqs |" + e.getMessage());
@@ -271,16 +269,18 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                     } catch (RecordTooLargeException e) {
                         e.printStackTrace();
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Storage Full during user sync |" + e.getMessage());
-                        return PullTaskResult.STORAGE_FULL;
+                        return new Pair<>(PullTaskResult.STORAGE_FULL, "");
                     }
                 } else if (pullResponse.responseCode == 412) {
                     //Our local state is bad. We need to do a full restore.
-                    int returnCode = recover(requestor, factory);
+                    Pair<Integer, String> returnCodeAndMessage = recover(requestor, factory);
+                    int returnCode = returnCodeAndMessage.first;
+                    String failureReason = returnCodeAndMessage.second;
 
                     if (returnCode == PROGRESS_DONE) {
                         //All set! Awesome recovery
                         this.publishProgress(PROGRESS_DONE);
-                        return PullTaskResult.DOWNLOAD_SUCCESS;
+                        return new Pair<>(PullTaskResult.DOWNLOAD_SUCCESS, "");
                     } else if (returnCode == PROGRESS_RECOVERY_FAIL_SAFE) {
                         //Things didn't go super well, but they might next time!
 
@@ -289,7 +289,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                             CommCareApplication._().releaseUserResourcesAndServices();
                         }
                         this.publishProgress(PROGRESS_DONE);
-                        return PullTaskResult.UNKNOWN_FAILURE;
+                        return new Pair<>(PullTaskResult.UNKNOWN_FAILURE, failureReason);
                     } else if (returnCode == PROGRESS_RECOVERY_FAIL_BAD) {
                         //WELL! That wasn't so good. TODO: Is there anything 
                         //we can do about this?
@@ -299,7 +299,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                             CommCareApplication._().releaseUserResourcesAndServices();
                         }
                         this.publishProgress(PROGRESS_DONE);
-                        return PullTaskResult.UNKNOWN_FAILURE;
+                        return new Pair<>(PullTaskResult.UNKNOWN_FAILURE, failureReason);
                     }
 
                     if (loginNeeded) {
@@ -310,15 +310,9 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                         CommCareApplication._().releaseUserResourcesAndServices();
                     }
                     Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
-                    return PullTaskResult.SERVER_ERROR;
+                    return new Pair<>(PullTaskResult.SERVER_ERROR, "");
                 }
-
-
-            } catch (SocketTimeoutException e) {
-                e.printStackTrace();
-                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
-                responseError = PullTaskResult.CONNECTION_TIMEOUT;
-            } catch (ConnectTimeoutException e) {
+            } catch (SocketTimeoutException | ConnectTimeoutException e) {
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
                 responseError = PullTaskResult.CONNECTION_TIMEOUT;
@@ -342,14 +336,14 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                 CommCareApplication._().releaseUserResourcesAndServices();
             }
             this.publishProgress(PROGRESS_DONE);
-            return responseError;
+            return new Pair<>(responseError, "");
         } finally {
             CommCareSessionService.sessionAliveLock.unlock();
         }
     }
 
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
-    private int recover(HttpRequestGenerator requestor, AndroidTransactionParserFactory factory) {
+    private Pair<Integer, String> recover(HttpRequestGenerator requestor, AndroidTransactionParserFactory factory) {
         this.publishProgress(PROGRESS_RECOVERY_NEEDED);
 
         Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Triggered");
@@ -366,7 +360,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
 
             //We basically only care about a positive response, here. Anything else would have been caught by the other request.
             if (!(pullResponse.responseCode >= 200 && pullResponse.responseCode < 300)) {
-                return PROGRESS_RECOVERY_FAIL_SAFE;
+                return new Pair<>(PROGRESS_RECOVERY_FAIL_SAFE, "");
             }
 
             //Grab a cache. The plan is to download the incoming data, wipe (move) the existing db, and then
@@ -377,7 +371,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
             e.printStackTrace();
             //Ok, well, we're bailing here, but we didn't make any changes
             Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Failed due to IOException|" + e.getMessage());
-            return PROGRESS_RECOVERY_FAIL_SAFE;
+            return new Pair<>(PROGRESS_RECOVERY_FAIL_SAFE, "");
         }
 
 
@@ -394,17 +388,16 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
         //TODO: move table instead. Should be straightforward with sandboxed db's
         CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
 
-
         String failureReason = "";
         try {
             //Get new data
             String syncToken = readInput(cache.retrieveCache(), factory);
             updateUserSyncToken(syncToken);
             Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Succesful");
-            return PROGRESS_DONE;
+            return new Pair<>(PROGRESS_DONE, "");
         } catch (InvalidStructureException e) {
             e.printStackTrace();
-            failureReason = e.getMessage();
+            failureReason = e.getLocalizedMessage();
         } catch (XmlPullParserException e) {
             e.printStackTrace();
             failureReason = e.getMessage();
@@ -434,7 +427,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
 
         //TODO: Roll back changes
         Logger.log(AndroidLogger.TYPE_USER, "Sync recovery failed|" + failureReason);
-        return PROGRESS_RECOVERY_FAIL_BAD;
+        return new Pair<>(PROGRESS_RECOVERY_FAIL_BAD, failureReason);
     }
 
     private void updateCurrentUser(String password) throws SessionUnavailableException {

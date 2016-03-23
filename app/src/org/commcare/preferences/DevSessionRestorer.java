@@ -1,9 +1,9 @@
 package org.commcare.preferences;
 
 import android.content.SharedPreferences;
+import android.support.v4.util.Pair;
 import android.util.Base64;
 import android.util.Log;
-import android.util.Pair;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;

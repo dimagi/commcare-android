@@ -1,5 +1,6 @@
 package org.commcare.logic;
 
+import android.support.v4.util.Pair;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -38,7 +39,8 @@ public class ArchivedFormRemoteRestore {
         DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(),
                 u.getCachedPwd(), remoteUrl, activity) {
             @Override
-            protected void deliverResult(FormRecordListActivity receiver, PullTaskResult status) {
+            protected void deliverResult(FormRecordListActivity receiver, Pair<PullTaskResult, String> statusAndErrorMessage) {
+                PullTaskResult status = statusAndErrorMessage.first;
                 switch (status) {
                     case DOWNLOAD_SUCCESS:
                         downloadForms(activity, platform);

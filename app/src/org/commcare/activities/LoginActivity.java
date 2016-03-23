@@ -9,8 +9,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.util.Pair;
 import android.util.Log;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -195,7 +195,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                 LoginActivity.this.getString(R.string.ota_restore_url)),
                         LoginActivity.this) {
                     @Override
-                    protected void deliverResult(LoginActivity receiver, PullTaskResult result) {
+                    protected void deliverResult(LoginActivity receiver, Pair<PullTaskResult, String> resultAndErrorMessage) {
+                        PullTaskResult result = resultAndErrorMessage.first;
                         if (result == null) {
                             // The task crashed unexpectedly
                             receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
