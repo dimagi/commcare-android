@@ -216,10 +216,8 @@ public class MediaUtil {
             newHeight = Math.min(dimensImposedByContainer.second, targetHeight);
         }
 
-        int approximateScaleFactor = originalWidth / newWidth;
-        if (approximateScaleFactor == 0) {
-            approximateScaleFactor = 1;
-        }
+        int approximateScaleFactor = getApproxScaleFactor(newWidth, originalWidth);
+
         try {
             BitmapFactory.Options o = new BitmapFactory.Options();
             o.inSampleSize = approximateScaleFactor;
@@ -237,6 +235,18 @@ public class MediaUtil {
             // OOM encountered trying to decode the bitmap, so we know we need to scale down by
             // a larger factor
             return performSafeScaleDown(imageFilepath, approximateScaleFactor + 1, 0);
+        }
+    }
+
+    private static int getApproxScaleFactor(int newWidth, int originalWidth) {
+        if (newWidth == 0) {
+            return 1;
+        } else {
+            int scale = originalWidth / newWidth;
+            if (scale == 0) {
+                return 1;
+            }
+            return scale;
         }
     }
 
