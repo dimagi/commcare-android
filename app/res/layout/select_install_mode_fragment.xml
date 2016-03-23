@@ -107,7 +107,7 @@
                         android:background="@drawable/tile_drop_shadow_small_margins"
                         android:visibility="gone">
 
-                        <org.commcare.android.view.SquareButtonWithText
+                        <org.commcare.views.SquareButtonWithText
                             android:id="@+id/btn_fetch_hub"
                             android:layout_width="wrap_content"
                             android:layout_height="match_parent"

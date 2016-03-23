@@ -166,9 +166,7 @@ public class CommCareHomeActivity
     protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
         super.onCreateSessionSafe(savedInstanceState);
 
-        if (savedInstanceState != null) {
-            loginExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
-        }
+        loadInstanceState(savedInstanceState);
 
         ACRAUtil.registerAppData();
         uiController.setupUI();
@@ -180,17 +178,20 @@ public class CommCareHomeActivity
         processFromLoginLaunch();
     }
 
+    private void loadInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            loginExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
+            wasExternal = savedInstanceState.getBoolean(WAS_EXTERNAL_KEY);
+        }
+    }
+
     /**
      * Set state that signifies activity was launch from external app.
      */
     private void processFromExternalLaunch(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            wasExternal = savedInstanceState.getBoolean(WAS_EXTERNAL_KEY);
-        } else {
-            if (getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
-                wasExternal = true;
-                sessionNavigator.startNextSessionStep();
-            }
+        if (savedInstanceState == null && getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
+            wasExternal = true;
+            sessionNavigator.startNextSessionStep();
         }
     }
 
@@ -623,6 +624,7 @@ public class CommCareHomeActivity
             // regardless of the exit code
             currentState.reset();
             if (wasExternal) {
+                setResult(RESULT_CANCELED);
                 this.finish();
             } else {
                 // Return to where we started
@@ -673,6 +675,7 @@ public class CommCareHomeActivity
                 uiController.refreshView();
 
                 if (wasExternal) {
+                    setResult(RESULT_CANCELED);
                     this.finish();
                     return false;
                 }
@@ -711,6 +714,7 @@ public class CommCareHomeActivity
 
             if (wasExternal) {
                 currentState.reset();
+                setResult(RESULT_CANCELED);
                 this.finish();
                 return false;
             } else if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
@@ -732,6 +736,7 @@ public class CommCareHomeActivity
     private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
         currentState.reset();
         if (wasExternal) {
+            setResult(RESULT_CANCELED);
             this.finish();
         }
         uiController.refreshView();
