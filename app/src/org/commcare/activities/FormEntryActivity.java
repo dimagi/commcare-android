@@ -26,9 +26,7 @@ import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ContextThemeWrapper;
 import android.view.GestureDetector;
-import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -1161,27 +1159,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         }
 
-        if(!displayed) {
-            showCustomToast(constraintText, Toast.LENGTH_SHORT);
+        if (!displayed) {
+            Toast.makeText(this, constraintText, Toast.LENGTH_SHORT).show();
         }
         isAnimatingSwipe = false;
-    }
-
-    public void showCustomToast(String message, int duration) {
-        LayoutInflater inflater =
-            (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        View view = inflater.inflate(R.layout.toast_view, null);
-
-        // set the text in the view
-        TextView tv = (TextView) view.findViewById(R.id.message);
-        tv.setText(message);
-
-        Toast t = new Toast(this);
-        t.setView(view);
-        t.setDuration(duration);
-        t.setGravity(Gravity.CENTER, 0, 0);
-        t.show();
     }
 
     /**
