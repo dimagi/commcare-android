@@ -208,7 +208,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                 receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                                 break;
                             case BAD_DATA:
-                                receiver.raiseLoginMessage(StockMessages.Remote_BadRestore, true);
+                                receiver.raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore, resultAndErrorMessage.second, true);
                                 break;
                             case STORAGE_FULL:
                                 receiver.raiseLoginMessage(StockMessages.Storage_Full, true);
@@ -228,7 +228,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                 receiver.raiseLoginMessage(StockMessages.Remote_ServerError, true);
                                 break;
                             case UNKNOWN_FAILURE:
-                                receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
+                                receiver.raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.second, true);
                                 break;
                         }
                     }
@@ -434,6 +434,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             default:
                 return otherResult;
         }
+    }
+
+    @Override
+    public void raiseLoginMessageWithInfo(MessageTag messageTag, String additionalInfo, boolean showTop) {
+        NotificationMessage message = NotificationMessageFactory.message(messageTag,
+                NOTIFICATION_MESSAGE_LOGIN, additionalInfo);
+        raiseMessage(message, showTop);
     }
 
     @Override

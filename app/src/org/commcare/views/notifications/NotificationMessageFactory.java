@@ -149,12 +149,19 @@ public class NotificationMessageFactory {
         return message(message, new String[3], customCategory);
     }
 
+    public static NotificationMessage message(MessageTag message, String customCategory, String additionalInfo) {
+        return message(message, new String[3], customCategory, additionalInfo);
+    }
+
     public static NotificationMessage message(MessageTag message, String[] parameters) {
         return message(message, parameters, message.getCategory());
     }
 
     public static NotificationMessage message(MessageTag message, String[] parameters, String customCategory) {
+        return message(message, parameters, customCategory, null);
+    }
 
+    public static NotificationMessage message(MessageTag message, String[] parameters, String customCategory, String additionalInfo) {
         String base = message.getLocaleKeyBase();
         if (base == null) {
             throw new NullPointerException("No Locale Key base for message tag!");
@@ -163,6 +170,9 @@ public class NotificationMessageFactory {
         try {
             String title = parameters[0] == null ? Localization.get(base + ".title") : Localization.get(base + ".title", new String[]{parameters[0]});
             String detail = parameters[1] == null ? Localization.get(base + ".detail") : Localization.get(base + ".detail", new String[]{parameters[1]});
+            if (additionalInfo != null) {
+                detail += "\n\n" + additionalInfo;
+            }
 
             String action = null;
             try {
