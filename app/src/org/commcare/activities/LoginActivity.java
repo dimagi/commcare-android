@@ -441,8 +441,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void raiseLoginMessageWithInfo(MessageTag messageTag, String additionalInfo, boolean showTop) {
-        NotificationMessage message = NotificationMessageFactory.message(messageTag,
-                NOTIFICATION_MESSAGE_LOGIN, additionalInfo);
+        NotificationMessage message =
+                NotificationMessageFactory.message(messageTag,
+                        new String[]{null, null, additionalInfo},
+                        NOTIFICATION_MESSAGE_LOGIN);
         raiseMessage(message, showTop);
     }
 
