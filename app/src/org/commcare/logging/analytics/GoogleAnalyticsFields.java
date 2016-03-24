@@ -88,6 +88,7 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_REPORT_BUTTON_ENABLED = "Home Report Button enabled";
     public static final String LABEL_AUTO_PURGE = "Auto Purge on Save Enabled";
     public static final String LABEL_LOAD_FORM_PAYLOAD_AS = "Load form payload as";
+    public static final String LABEL_DETAIL_TAB_SWIPE_ACTION = "Detail tab final swipe action enabled";
 
     // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_HOME_SCREEN
     public static final String LABEL_SETTINGS = "Settings";
