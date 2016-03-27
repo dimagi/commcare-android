@@ -40,20 +40,15 @@ public class RefreshToLatestBuildActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == PERFORM_UPDATE) {
-            switch(intent.getStringExtra(UPDATE_ATTEMPT_RESULT)) {
-                case UPDATE_SUCCESS:
-                    // UpdateActivity should have just logged us out, so finishing will land us on
-                    // login screen
-                    finish();
-                    return;
-                case ALREADY_UP_TO_DATE:
-                    //TODO: some sort of warning that no update actually happened
-                    return;
-                case UPDATE_ERROR:
-                    //TODO: warning that the update tried and failed
-                    return;
-            }
+            finishWithResult(intent.getStringExtra(UPDATE_ATTEMPT_RESULT));
         }
+    }
+
+    private void finishWithResult(String result) {
+        Intent i = new Intent();
+        setResult(RESULT_OK, i);
+        i.putExtra(RefreshToLatestBuildActivity.UPDATE_ATTEMPT_RESULT, result);
+        finish();
     }
 
     private String getCurrentUserPassword() throws SessionUnavailableException {
