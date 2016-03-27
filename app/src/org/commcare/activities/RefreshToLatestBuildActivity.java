@@ -3,7 +3,6 @@ package org.commcare.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.preferences.DevSessionRestorer;
@@ -17,7 +16,11 @@ public class RefreshToLatestBuildActivity extends Activity {
     private static final String TAG = RefreshToLatestBuildActivity.class.getSimpleName();
 
     public static final String FROM_LATEST_BUILD_UTIL = "from-test-latest-build-util";
-    public static final String UPDATE_OCCURRED = "update-occurred";
+
+    public static final String UPDATE_ATTEMPT_RESULT = "result-of-update-attempt";
+    public static final String UPDATE_SUCCESS = "update-successful";
+    public static final String ALREADY_UP_TO_DATE = "already-up-to-date";
+    public static final String UPDATE_ERROR = "update-error";
 
     private int PERFORM_UPDATE = 0;
 
@@ -25,7 +28,7 @@ public class RefreshToLatestBuildActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
-            CommCareApplication._().setRefreshingToLatestBuild(true);
+            CommCareApplication._().setPendingRefreshToLatestBuild();
             DevSessionRestorer.tryAutoLoginPasswordSave(getCurrentUserPassword(), true);
             DevSessionRestorer.saveSessionToPrefs();
             performUpdate();
@@ -37,15 +40,18 @@ public class RefreshToLatestBuildActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (requestCode == PERFORM_UPDATE) {
-            if (resultCode == RESULT_OK) {
-                if (!intent.getBooleanExtra(UPDATE_OCCURRED, true)) {
-                    //TODO: some sort of warning that no update actually happened
-                } else {
-                    CommCareApplication._().expireUserSession();
+            switch(intent.getStringExtra(UPDATE_ATTEMPT_RESULT)) {
+                case UPDATE_SUCCESS:
+                    // UpdateActivity should have just logged us out, so finishing will land us on
+                    // login screen
                     finish();
-                }
-            } else {
-
+                    return;
+                case ALREADY_UP_TO_DATE:
+                    //TODO: some sort of warning that no update actually happened
+                    return;
+                case UPDATE_ERROR:
+                    //TODO: warning that the update tried and failed
+                    return;
             }
         }
     }

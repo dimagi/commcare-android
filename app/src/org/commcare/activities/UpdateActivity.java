@@ -181,29 +181,33 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             uiController.unappliedUpdateAvailableUiState();
             if (proceedAutomatically) {
                 launchUpdateInstallTask();
+                return;
             }
         } else if (result == AppInstallStatus.UpToDate) {
             uiController.upToDateUiState();
             if (proceedAutomatically) {
-                Intent i = new Intent();
-                i.putExtra(RefreshToLatestBuildActivity.UPDATE_OCCURRED, false);
-                setResult(RESULT_OK, i);
-                finish();
+                finishWithResult(RefreshToLatestBuildActivity.ALREADY_UP_TO_DATE);
+                return;
             }
         } else {
             // Gives user generic failure warning; even if update staging
             // failed for a specific reason like xml syntax
             uiController.checkFailedUiState();
             if (proceedAutomatically) {
-                Intent i = new Intent();
-                setResult(RESULT_CANCELED, i);
-                finish();
+                finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
+                return;
             }
         }
 
         unregisterTask();
-
         uiController.refreshView();
+    }
+
+    private void finishWithResult(String result) {
+        Intent i = new Intent();
+        setResult(RESULT_OK, i);
+        i.putExtra(RefreshToLatestBuildActivity.UPDATE_ATTEMPT_RESULT, result);
+        finish();
     }
 
     @Override
@@ -264,16 +268,16 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     @Override
                     protected void deliverResult(UpdateActivity receiver,
                                                  AppInstallStatus result) {
-                        if (proceedAutomatically) {
-                            //TODO: finish() to go back to RefreshLatestBuildActivity
+                        if (result == AppInstallStatus.Installed) {
+                            receiver.logoutOnSuccessfulUpdate();
                         } else {
-                            if (result == AppInstallStatus.Installed) {
-                                receiver.logoutOnSuccessfulUpdate();
-                            } else {
-                                receiver.uiController.errorUiState();
+                            if (proceedAutomatically) {
+                                finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
+                                return;
                             }
-                            receiver.isApplyingUpdate = false;
+                            receiver.uiController.errorUiState();
                         }
+                        receiver.isApplyingUpdate = false;
                     }
 
                     @Override
@@ -314,8 +318,12 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 Localization.get("updates.install.finished");
         Toast.makeText(this, upgradeFinishedText, Toast.LENGTH_LONG).show();
         CommCareApplication._().expireUserSession();
-        setResult(RESULT_OK);
-        this.finish();
+        if (proceedAutomatically) {
+            finishWithResult(RefreshToLatestBuildActivity.UPDATE_SUCCESS);
+        } else {
+            setResult(RESULT_OK);
+            this.finish();
+        }
     }
 
     @Override

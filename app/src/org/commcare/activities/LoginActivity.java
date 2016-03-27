@@ -333,7 +333,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     private boolean forceAutoLogin() {
-        return CommCareApplication._().isRefreshingToLatestBuild();
+        return CommCareApplication._().checkPendingBuildRefresh();
     }
 
     private String getUniformUsername() {

@@ -190,7 +190,7 @@ public class CommCareApplication extends Application {
     private String messageForUserOnDispatch;
     private String titleForUserMessage;
 
-    private boolean isRefreshingToLatestBuild;
+    private boolean latestBuildRefreshPending;
 
     @Override
     public void onCreate() {
@@ -1463,12 +1463,16 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public void setRefreshingToLatestBuild(boolean b) {
-        this.isRefreshingToLatestBuild = b;
+    public void setPendingRefreshToLatestBuild() {
+        this.latestBuildRefreshPending = true;
     }
 
-    public boolean isRefreshingToLatestBuild() {
-        return this.isRefreshingToLatestBuild;
+    public boolean checkPendingBuildRefresh() {
+        if (this.latestBuildRefreshPending) {
+            this.latestBuildRefreshPending = false;
+            return true;
+        }
+        return false;
     }
 
 }

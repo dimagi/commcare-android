@@ -9,6 +9,9 @@ import org.commcare.activities.RefreshToLatestBuildActivity;
 
 /**
  * Created by amstone326 on 3/14/16.
+ *
+ * Trigger from command line with:
+ * adb shell am broadcast -a org.commcare.dalvik.api.action.TestLatestBuildAction
  */
 
 public class TestLatestBuildReceiver extends BroadcastReceiver {
