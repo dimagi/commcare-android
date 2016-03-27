@@ -18,7 +18,7 @@ import android.widget.ImageView;
  */
 @SuppressLint("NewApi")
 public class CachingAsyncImageLoader implements ComponentCallbacks2 {
-    private final TCLruCache cache;
+    private final LruCache<String, Bitmap> cache;
     private static final int CACHE_DIVISOR = 2;
     private final Context context;
 
@@ -27,7 +27,7 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
                 Context.ACTIVITY_SERVICE);
         int memoryClass = (am.getMemoryClass() * 1024 * 1024) / CACHE_DIVISOR;        //basically, set the heap to be everything we can get
         this.context = context;
-        this.cache = new TCLruCache(memoryClass);
+        this.cache = new LruCache<>(memoryClass);
     }
 
     public void display(String url, ImageView imageView, int defaultResource,
@@ -44,14 +44,6 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
         }
     }
 
-    @SuppressLint("NewApi")
-    private class TCLruCache extends LruCache<String, Bitmap> {
-
-        public TCLruCache(int maxSize) {
-            super(maxSize);
-        }
-    }
-
     /**
      * Simple member class used for asyncronously loading and setting ImageView bitmaps
      *
@@ -63,7 +55,8 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
         private final int mBoundingWidth;
         private final int mBoundingHeight;
 
-        public SetImageTask(ImageView imageView, Context context, int maxWidth, int maxHeight) {
+        public SetImageTask(ImageView imageView, Context context,
+                            int maxWidth, int maxHeight) {
             mImageView = imageView;
             mContext = context;
             mBoundingWidth = maxWidth;
@@ -75,7 +68,6 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
         }
 
         protected void onPostExecute(Bitmap result) {
-
             if (result != null && mImageView != null) {
                 mImageView.setImageBitmap(result);
             }
@@ -92,7 +84,6 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
 
             return bitmap;
         }
-
     }
 
     /*
@@ -110,6 +101,8 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
 
     @Override
     public void onTrimMemory(int level) {
+        // TODO PLM: this is probably never called because Context.registerComponentCallbacks
+        // is never used to register instances of CachingAsyncImageLoader
         if (level >= TRIM_MEMORY_MODERATE) {
             cache.evictAll();
         }

@@ -62,7 +62,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private static final int MENU_PASSWORD_MODE = Menu.FIRST + 3;
 
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
-    public final static String KEY_LAST_APP = "id_of_last_selected";
+    public final static String KEY_LAST_APP = "id-last-seated-app";
     public final static String KEY_ENTERED_USER = "entered-username";
     public final static String KEY_ENTERED_PW_OR_PIN = "entered-password-or-pin";
 
@@ -86,6 +86,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (shouldFinish()) {
+            // If we're going to finish in onResume() because there is no usable seated app,
+            // don't bother with all of the setup here
+            return;
+        }
 
         uiController.setupUI();
 
@@ -260,15 +266,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected void onResume() {
         super.onResume();
 
-        // It is possible that we left off at the LoginActivity last time we were on the main CC
-        // screen, but have since done something in the app manager to either leave no seated app
-        // at all, or to render the seated app unusable. Redirect to CCHomeActivity if we encounter
-        // either case
-        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
-        if (currentApp == null || !currentApp.getAppRecord().isUsable()) {
-            // send back to dispatch activity
-            setResult(RESULT_OK);
-            this.finish();
+        if (shouldFinish()) {
             return;
         }
 
@@ -276,9 +274,35 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         uiController.refreshView();
     }
 
+    protected boolean checkForSeatedAppChange() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String lastSeatedId = prefs.getString(KEY_LAST_APP, "");
+        String currentSeatedId = CommCareApplication._().getCurrentApp().getUniqueId();
+        if (!lastSeatedId.equals(currentSeatedId)) {
+            prefs.edit().putString(KEY_LAST_APP, currentSeatedId).commit();
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean shouldFinish() {
+        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
+        return currentApp == null || !currentApp.getAppRecord().isUsable();
+    }
+
     @Override
     protected void onResumeFragments() {
         super.onResumeFragments();
+
+        // It is possible that we left off at the LoginActivity last time we were on the main CC
+        // screen, but have since done something in the app manager to either leave no seated app
+        // at all, or to render the seated app unusable. Redirect to dispatch activity if we
+        // encounter either case
+        if (shouldFinish()) {
+            setResult(RESULT_OK);
+            this.finish();
+            return;
+        }
 
         tryAutoLogin();
     }
@@ -288,6 +312,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (requestCode == SEAT_APP_ACTIVITY && resultCode == RESULT_OK) {
             uiController.refreshForNewApp();
         }
+
         super.onActivityResult(requestCode, resultCode, intent);
     }
 
@@ -493,8 +518,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         // Retrieve the app record corresponding to the app selected
         String appId = appIdDropdownList.get(position);
 
-        boolean appChanged = !appId.equals(CommCareApplication._().getCurrentApp().getUniqueId());
-        if (appChanged) {
+        boolean selectedNewApp = !appId.equals(CommCareApplication._().getCurrentApp().getUniqueId());
+        if (selectedNewApp) {
             // Set the id of the last selected app
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             prefs.edit().putString(KEY_LAST_APP, appId).commit();

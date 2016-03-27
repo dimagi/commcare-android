@@ -192,19 +192,20 @@ public class MediaUtil {
      *                             isn't way bigger than necessary, rather than creating a bitmap
      *                             of an exact size based on a target width and height. In this
      *                             case, targetWidth and targetHeight are ignored and the 2nd case
-     *                             above is used.
-     * @return A bitmap representation of the given image file, scaled down such that the new
+     *                             below is used.
+     * @return A bitmap representation of the given image file, scaled such that the new
      * dimensions of the image are the SMALLER of the following 2 options:
      * 1) targetHeight and targetWidth
      * 2) the largest dimensions for which the original aspect ratio is maintained, without
-     * exceeding either boundingWidth or boundingHeight
+     * exceeding either boundingWidth or boundingHeight (or just the original dimensions if the
+     * image already roughly fits in the bounds)
      */
     private static Bitmap getBitmapScaledByTargetOrContainer(String imageFilepath,
                                                              int originalHeight, int originalWidth,
                                                              int targetHeight, int targetWidth,
                                                              int boundingHeight, int boundingWidth,
                                                              boolean scaleByContainerOnly) {
-        Pair<Integer, Integer> dimensImposedByContainer = getDimensImposedByContainer(
+        Pair<Integer, Integer> dimensImposedByContainer = getRoughDimensImposedByContainer(
                 originalHeight, originalWidth, boundingHeight, boundingWidth);
 
         int newWidth, newHeight;
@@ -216,10 +217,8 @@ public class MediaUtil {
             newHeight = Math.min(dimensImposedByContainer.second, targetHeight);
         }
 
-        int approximateScaleFactor = originalWidth / newWidth;
-        if (approximateScaleFactor == 0) {
-            approximateScaleFactor = 1;
-        }
+        int approximateScaleFactor = getApproxScaleFactor(newWidth, originalWidth);
+
         try {
             BitmapFactory.Options o = new BitmapFactory.Options();
             o.inSampleSize = approximateScaleFactor;
@@ -240,16 +239,31 @@ public class MediaUtil {
         }
     }
 
+    private static int getApproxScaleFactor(int newWidth, int originalWidth) {
+        if (newWidth == 0) {
+            return 1;
+        } else {
+            int scale = originalWidth / newWidth;
+            if (scale == 0) {
+                return 1;
+            }
+            return scale;
+        }
+    }
+
     /**
-     * @return The original dimens if they both fit within the bounds. Otherwise, return the
-     * smallest dimensions that both preserve the original aspect ratio, and still fill the
-     * container
+     * @return The smallest dimensions that both preserve the original aspect ratio, and mean
+     * that the image still fills the container. It is unimportant to scale down exactly to the
+     * container size; we just don't want to be creating a bitmap that is way bigger than necessary.
      */
-    private static Pair<Integer, Integer> getDimensImposedByContainer(int originalHeight,
-                                                                      int originalWidth,
-                                                                      int boundingHeight,
-                                                                      int boundingWidth) {
-        if (originalHeight < boundingHeight && originalWidth < boundingWidth) {
+    private static Pair<Integer, Integer> getRoughDimensImposedByContainer(int originalHeight,
+                                                                           int originalWidth,
+                                                                           int boundingHeight,
+                                                                           int boundingWidth) {
+        if (originalHeight < boundingHeight || originalWidth < boundingWidth) {
+            // Since this is only meant to be a rough scale-down to keep the image from being way
+            // too large, we only want to scale down if both dimensions are currently exceeding
+            // their bounds
             return new Pair<>(originalWidth, originalHeight);
         }
 
@@ -257,12 +271,12 @@ public class MediaUtil {
         double widthScaleDownFactor =  (double)boundingWidth / originalWidth;
         // Choosing the larger of the scale down factors, so that the image still fills the entire
         // container
-        double dominantScaleDownFactor = Math.max(heightScaleDownFactor, heightScaleDownFactor);
+        double dominantScaleDownFactor = Math.max(widthScaleDownFactor, heightScaleDownFactor);
 
         int widthImposedByContainer = (int)Math.round(originalWidth * dominantScaleDownFactor);
         int heightImposedByContainer = (int)Math.round(originalHeight * dominantScaleDownFactor);
         return new Pair<>(widthImposedByContainer, heightImposedByContainer);
-
+        
     }
 
     /**
