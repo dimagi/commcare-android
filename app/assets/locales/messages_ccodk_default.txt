@@ -419,6 +419,7 @@ refresh.build.up.to.date=Your app is already up to date, so no refresh occurred.
 refresh.build.update.error=An error occurred while attempting to update, so no refresh occurred.
 refresh.build.update.canceled=The update was canceled, so no refresh occurred.
 refresh.build.session.error=The refresh build utility cannot be used when you are not logged in, so no refresh occurred.
+refresh.build.settings.error=No refresh occurred. In order to use this utility, please turn on the "Enable Session Saving" setting in the Developer Preferences menu.
 
 #Put these into their own file
 

@@ -9,6 +9,7 @@ import android.widget.TextView;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.AlertDialogFactory;
 import org.javarosa.core.services.locale.Localization;
@@ -29,7 +30,8 @@ public class RefreshToLatestBuildActivity extends Activity {
     public static final String ALREADY_UP_TO_DATE = "already-up-to-date";
     public static final String UPDATE_ERROR = "update-error";
     public static final String UPDATE_CANCELED = "update-canceled";
-    public static final String NO_SESSION_ERROR = "no-session-error";
+    private static final String NO_SESSION_ERROR = "no-session-error";
+    private static final String SAVING_NOT_ENABLED_ERROR = "session-saving-not-enabled";
 
     // Activity request code
     private int PERFORM_UPDATE = 0;
@@ -40,6 +42,11 @@ public class RefreshToLatestBuildActivity extends Activity {
         setContentView(R.layout.refresh_latest_build_view);
         ((TextView)findViewById(R.id.status_message))
                 .setText(Localization.get("refresh.build.base.message"));
+
+        if (!DeveloperPreferences.isSessionSavingEnabled()) {
+            showErrorAlertDialog(SAVING_NOT_ENABLED_ERROR);
+            return;
+        }
 
         try {
             DevSessionRestorer.tryAutoLoginPasswordSave(getCurrentUserPassword(), true);
@@ -78,6 +85,9 @@ public class RefreshToLatestBuildActivity extends Activity {
                 break;
             case UPDATE_CANCELED:
                 message = Localization.get("refresh.build.update.canceled");
+                break;
+            case SAVING_NOT_ENABLED_ERROR:
+                message = Localization.get("refresh.build.settings.error");
                 break;
             case UPDATE_ERROR:
             default:
