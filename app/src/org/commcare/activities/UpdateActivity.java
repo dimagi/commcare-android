@@ -54,7 +54,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         setupUpdateTask(isRotation);
 
         proceedAutomatically = getIntent().getBooleanExtra(
-                RefreshToLatestBuildActivity.FROM_LATEST_BUILD_UTIL, false);
+                RefreshToLatestBuildActivity.KEY_FROM_LATEST_BUILD_ACTIVITY, false);
         if (proceedAutomatically) {
             startUpdateCheck();
         }

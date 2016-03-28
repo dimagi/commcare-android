@@ -8,17 +8,17 @@ import android.util.Log;
 import org.commcare.activities.RefreshToLatestBuildActivity;
 
 /**
- * Created by amstone326 on 3/14/16.
+ * Receiver for the RefreshToLatestBuildAction broadcast. Trigger from command line with:
+ * adb shell am broadcast -a org.commcare.dalvik.api.action.RefreshToLatestBuildAction
  *
  * IMPORTANT: At least for now, session saving must be enabled for this to work properly
  *
- * Trigger from command line with:
- * adb shell am broadcast -a org.commcare.dalvik.api.action.TestLatestBuildAction
+ * @author Aliza Stone (astone@dimagi.com)
  */
 
-public class TestLatestBuildReceiver extends BroadcastReceiver {
+public class RefreshToLatestBuildReceiver extends BroadcastReceiver {
 
-    private static final String TAG = TestLatestBuildReceiver.class.getSimpleName();
+    private static final String TAG = RefreshToLatestBuildReceiver.class.getSimpleName();
 
     @Override
     public void onReceive(Context context, Intent intent) {

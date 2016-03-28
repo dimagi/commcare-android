@@ -14,23 +14,24 @@ import org.commcare.views.dialogs.AlertDialogFactory;
 import org.javarosa.core.services.locale.Localization;
 
 /**
- * Created by amstone326 on 3/18/16.
+ * Activity that is launched immediately upon reception of a RefreshToLatestBuildAction broadcast,
+ * triggering the necessary action sequence.
+ *
+ * @author Aliza Stone (astone@dimagi.com)
  */
 public class RefreshToLatestBuildActivity extends Activity {
 
-    private static final String TAG = RefreshToLatestBuildActivity.class.getSimpleName();
-
-    public static final String FROM_LATEST_BUILD_UTIL = "from-test-latest-build-util";
-
+    public static final String KEY_FROM_LATEST_BUILD_ACTIVITY = "from-test-latest-build-util";
     public static final String KEY_UPDATE_ATTEMPT_RESULT = "result-of-update-attempt";
 
-    // status codes
+    // Action status codes
     public static final String UPDATE_SUCCESS = "update-successful";
     public static final String ALREADY_UP_TO_DATE = "already-up-to-date";
     public static final String UPDATE_ERROR = "update-error";
     public static final String UPDATE_CANCELED = "update-canceled";
     public static final String NO_SESSION_ERROR = "no-session-error";
 
+    // Activity request code
     private int PERFORM_UPDATE = 0;
 
     @Override
@@ -44,7 +45,7 @@ public class RefreshToLatestBuildActivity extends Activity {
             DevSessionRestorer.tryAutoLoginPasswordSave(getCurrentUserPassword(), true);
             CommCareApplication._().setPendingRefreshToLatestBuild();
             DevSessionRestorer.saveSessionToPrefs();
-            performUpdate();
+            attemptUpdate();
         } catch (SessionUnavailableException e) {
             showErrorAlertDialog(NO_SESSION_ERROR);
         }
@@ -84,7 +85,6 @@ public class RefreshToLatestBuildActivity extends Activity {
                 break;
         }
 
-
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -101,9 +101,9 @@ public class RefreshToLatestBuildActivity extends Activity {
         return CommCareApplication._().getSession().getLoggedInUser().getCachedPwd();
     }
 
-    private void performUpdate() {
+    private void attemptUpdate() {
         Intent i = new Intent(this, UpdateActivity.class);
-        i.putExtra(FROM_LATEST_BUILD_UTIL, true);
+        i.putExtra(KEY_FROM_LATEST_BUILD_ACTIVITY, true);
         startActivityForResult(i, PERFORM_UPDATE);
     }
 

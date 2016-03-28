@@ -346,11 +346,11 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="org.commcare.provider.TestLatestBuildReceiver"
+        <receiver android:name="org.commcare.provider.RefreshToLatestBuildReceiver"
             android:enabled="true"
             android:exported="true" >
             <intent-filter>
-                <action android:name="${applicationId}.api.action.TestLatestBuildAction"/>
+                <action android:name="${applicationId}.api.action.RefreshToLatestBuildAction"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
