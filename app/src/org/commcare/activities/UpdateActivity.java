@@ -206,7 +206,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private void finishWithResult(String result) {
         Intent i = new Intent();
         setResult(RESULT_OK, i);
-        i.putExtra(RefreshToLatestBuildActivity.UPDATE_ATTEMPT_RESULT, result);
+        i.putExtra(RefreshToLatestBuildActivity.KEY_UPDATE_ATTEMPT_RESULT, result);
         finish();
     }
 
