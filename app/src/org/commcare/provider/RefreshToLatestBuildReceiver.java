@@ -11,8 +11,6 @@ import org.commcare.activities.RefreshToLatestBuildActivity;
  * Receiver for the RefreshToLatestBuildAction broadcast. Trigger from command line with:
  * adb shell am broadcast -a org.commcare.dalvik.api.action.RefreshToLatestBuildAction
  *
- * IMPORTANT: At least for now, session saving must be enabled for this to work properly
- *
  * @author Aliza Stone (astone@dimagi.com)
  */
 

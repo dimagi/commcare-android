@@ -66,6 +66,8 @@ public class RefreshToLatestBuildActivity extends Activity {
         else {
             String status = intent.getStringExtra(KEY_UPDATE_ATTEMPT_RESULT);
             if (UPDATE_SUCCESS.equals(status)) {
+                // UpdateActivity will have expired the session after the successful update,
+                // so finishing will take us to the login screen and allow auto-login to proceed
                 finish();
             } else {
                 showErrorAlertDialog(status);
