@@ -28,6 +28,7 @@ public class RefreshToLatestBuildActivity extends Activity {
     public static final String UPDATE_SUCCESS = "update-successful";
     public static final String ALREADY_UP_TO_DATE = "already-up-to-date";
     public static final String UPDATE_ERROR = "update-error";
+    public static final String UPDATE_CANCELED = "update-canceled";
     public static final String NO_SESSION_ERROR = "no-session-error";
 
     private int PERFORM_UPDATE = 0;
@@ -51,7 +52,10 @@ public class RefreshToLatestBuildActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == PERFORM_UPDATE) {
+        if (resultCode == RESULT_CANCELED) {
+            showErrorAlertDialog(UPDATE_CANCELED);
+        }
+        else {
             String status = intent.getStringExtra(KEY_UPDATE_ATTEMPT_RESULT);
             if (UPDATE_SUCCESS.equals(status)) {
                 finish();
@@ -64,13 +68,22 @@ public class RefreshToLatestBuildActivity extends Activity {
     private void showErrorAlertDialog(String status) {
         String title = "No Refresh Occurred";
         String message;
-        if (UPDATE_ERROR.equals(status)) {
-            message = Localization.get("refresh.build.update.error");
-        } else if (ALREADY_UP_TO_DATE.equals(status)) {
-            message = Localization.get("refresh.build.up.to.date");
-        } else {
-            message = Localization.get("refresh.build.session.error");
+        switch(status) {
+            case ALREADY_UP_TO_DATE:
+                message = Localization.get("refresh.build.up.to.date");
+                break;
+            case NO_SESSION_ERROR:
+                message = Localization.get("refresh.build.session.error");
+                break;
+            case UPDATE_CANCELED:
+                message = Localization.get("refresh.build.update.canceled");
+                break;
+            case UPDATE_ERROR:
+            default:
+                message = Localization.get("refresh.build.update.error");
+                break;
         }
+
 
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override

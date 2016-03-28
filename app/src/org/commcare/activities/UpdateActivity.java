@@ -256,6 +256,10 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         } else {
             uiController.idleUiState();
         }
+
+        if (proceedAutomatically) {
+            finishWithResult(RefreshToLatestBuildActivity.UPDATE_CANCELED);
+        }
     }
 
     /**
@@ -341,4 +345,5 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     public CommCareActivityUIController getUIController() {
         return this.uiController;
     }
+
 }

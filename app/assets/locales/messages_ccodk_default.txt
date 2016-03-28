@@ -417,6 +417,7 @@ pin.primed.mode.message=You will use the PIN you create here to log into CommCar
 refresh.build.base.message=Refreshing to your latest build...
 refresh.build.up.to.date=Your app is already up to date, so no refresh occurred.
 refresh.build.update.error=An error occurred while attempting to update, so no refresh occurred.
+refresh.build.update.canceled=The update was canceled, so no refresh occurred.
 refresh.build.session.error=The refresh build utility cannot be used when you are not logged in, so no refresh occurred.
 
 #Put these into their own file
