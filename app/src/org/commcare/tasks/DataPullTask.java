@@ -314,7 +314,11 @@ public abstract class DataPullTask<R>
                     Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
                     return PullTaskResult.SERVER_ERROR;
                 }
-            } catch (SocketTimeoutException | ConnectTimeoutException e) {
+            } catch (SocketTimeoutException e) {
+                e.printStackTrace();
+                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
+                responseError = PullTaskResult.CONNECTION_TIMEOUT;
+            } catch (ConnectTimeoutException e) {
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
                 responseError = PullTaskResult.CONNECTION_TIMEOUT;
