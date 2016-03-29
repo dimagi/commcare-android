@@ -95,9 +95,13 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
             for (Enumeration en = s.getEntries().elements(); en.hasMoreElements(); ) {
                 Entry entry = (Entry) en.nextElement();
                 if (!entry.isView()) {
-                    // Ensure that entry is actually <entry> and not a <view>,
-                    // which can't define a form
-                    names.put(((FormEntry)entry).getXFormNamespace(), entry.getText());
+                    String namespace = ((FormEntry)entry).getXFormNamespace();
+                    //Some of our old definitions for views still come in as entries with dead
+                    //namespaces for now, so check. Can clean up when FormEntry's enforce a
+                    //namespace invariant
+                    if(namespace != null) {
+                        names.put(namespace, entry.getText());
+                    }
                 }
             }
         }
