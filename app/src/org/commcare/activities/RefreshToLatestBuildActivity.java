@@ -15,8 +15,12 @@ import org.commcare.views.dialogs.AlertDialogFactory;
 import org.javarosa.core.services.locale.Localization;
 
 /**
- * Activity that is launched immediately upon reception of a RefreshToLatestBuildAction broadcast,
- * triggering the necessary action sequence.
+ * Triggers the following action sequence upon launching, which proceeds automatically from
+ * start to finish:
+ * -Save the current session, including any form entry progress
+ * -Attempt to automatically update to the latest build
+ * -If the update is successful, log out and log back in as the last user, and then restore the
+ * saved session
  *
  * @author Aliza Stone (astone@dimagi.com)
  */

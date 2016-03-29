@@ -33,6 +33,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private static final String TAG = UpdateActivity.class.getSimpleName();
     private static final String TASK_CANCELLING_KEY = "update_task_cancelling";
     private static final String IS_APPLYING_UPDATE_KEY = "applying_update_task_running";
+    private static final String IS_IN_AUTO_PROCEED_MODE = "in-proceed-automatically-mode";
+
     private static final int DIALOG_UPGRADE_INSTALL = 6;
 
     private boolean taskIsCancelling;
@@ -66,6 +68,8 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     savedInstanceState.getBoolean(TASK_CANCELLING_KEY, false);
             isApplyingUpdate =
                     savedInstanceState.getBoolean(IS_APPLYING_UPDATE_KEY, false);
+            proceedAutomatically =
+                    savedInstanceState.getBoolean(IS_IN_AUTO_PROCEED_MODE, false);
             uiController.loadSavedUIState(savedInstanceState);
         }
     }
@@ -162,6 +166,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         outState.putBoolean(TASK_CANCELLING_KEY, taskIsCancelling);
         outState.putBoolean(IS_APPLYING_UPDATE_KEY, isApplyingUpdate);
+        outState.putBoolean(IS_IN_AUTO_PROCEED_MODE, proceedAutomatically);
         uiController.saveCurrentUIState(outState);
     }
 
