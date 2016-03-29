@@ -52,7 +52,6 @@
         android:name="org.commcare.CommCareApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/application_name"
-        android:hardwareAccelerated="true"
         android:theme="@style/AppBaseTheme">
         <activity
             android:name="org.commcare.activities.DispatchActivity"
