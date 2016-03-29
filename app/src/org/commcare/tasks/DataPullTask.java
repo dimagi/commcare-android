@@ -236,9 +236,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                         updateUserSyncToken(syncToken);
 
                         //record when we last synced
-                        Editor e = prefs.edit();
-                        e.putLong("last-succesful-sync", new Date().getTime());
-                        e.commit();
+                        storeSuccessfulSyncTime(prefs);
 
                         if (loginNeeded) {
                             CommCareApplication._().getAppStorage(UserKeyRecord.class).write(ukr);
@@ -279,6 +277,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
 
                     if (returnCode == PROGRESS_DONE) {
                         //All set! Awesome recovery
+                        storeSuccessfulSyncTime(prefs);
                         this.publishProgress(PROGRESS_DONE);
                         return PullTaskResult.DOWNLOAD_SUCCESS;
                     } else if (returnCode == PROGRESS_RECOVERY_FAIL_SAFE) {
@@ -312,8 +311,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                     Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
                     return PullTaskResult.SERVER_ERROR;
                 }
-
-
             } catch (SocketTimeoutException e) {
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
@@ -346,6 +343,12 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
         } finally {
             CommCareSessionService.sessionAliveLock.unlock();
         }
+    }
+
+    private void storeSuccessfulSyncTime(SharedPreferences prefs) {
+        Editor e = prefs.edit();
+        e.putLong("last-succesful-sync", new Date().getTime());
+        e.commit();
     }
 
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
