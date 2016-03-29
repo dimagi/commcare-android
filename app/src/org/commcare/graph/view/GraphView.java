@@ -77,6 +77,14 @@ public class GraphView {
 
         // Improve performance
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webView.getSettings().setRenderPriority(WebSettings.RenderPriority.HIGH);
+        if (Build.VERSION.SDK_INT >= 19) {
+            // chromium, enable hardware acceleration
+            webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        } else {
+            // older android version, disable hardware acceleration
+            webView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        }
 
         webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
         return webView;
