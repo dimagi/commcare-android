@@ -237,9 +237,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Pair<D
                         updateUserSyncToken(syncToken);
 
                         //record when we last synced
-                        Editor e = prefs.edit();
-                        e.putLong("last-succesful-sync", new Date().getTime());
-                        e.commit();
+                        storeSuccessfulSyncTime(prefs);
 
                         if (loginNeeded) {
                             CommCareApplication._().getAppStorage(UserKeyRecord.class).write(ukr);
@@ -284,6 +282,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Pair<D
 
                     if (returnCode == PROGRESS_DONE) {
                         //All set! Awesome recovery
+                        storeSuccessfulSyncTime(prefs);
                         this.publishProgress(PROGRESS_DONE);
                         return new Pair<>(PullTaskResult.DOWNLOAD_SUCCESS, "");
                     } else if (returnCode == PROGRESS_RECOVERY_FAIL_SAFE) {
@@ -317,7 +316,11 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Pair<D
                     Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
                     return new Pair<>(PullTaskResult.SERVER_ERROR, "");
                 }
-            } catch (SocketTimeoutException | ConnectTimeoutException e) {
+            } catch (SocketTimeoutException e) {
+                e.printStackTrace();
+                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
+                responseError = PullTaskResult.CONNECTION_TIMEOUT;
+            } catch (ConnectTimeoutException e) {
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
                 responseError = PullTaskResult.CONNECTION_TIMEOUT;
@@ -345,6 +348,12 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, Pair<D
         } finally {
             CommCareSessionService.sessionAliveLock.unlock();
         }
+    }
+
+    private void storeSuccessfulSyncTime(SharedPreferences prefs) {
+        Editor e = prefs.edit();
+        e.putLong("last-succesful-sync", new Date().getTime());
+        e.commit();
     }
 
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 

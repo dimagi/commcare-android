@@ -13,6 +13,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.utils.MarkupUtil;
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -38,6 +39,12 @@ public class DialogCreationHelpers {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setView(view);
+        builder.setPositiveButton(Localization.get("dialog.ok"), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
         return builder.create();
     }
 
