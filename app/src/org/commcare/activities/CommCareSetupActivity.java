@@ -705,7 +705,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void updateResourceProgress(int done, int total, int phase) {
-        updateProgress(Localization.get("profile.found", new String[]{"" + done, "" + total}), DIALOG_INSTALL_PROGRESS);
+        // perform safe localization because the localization dictionary might
+        // be the resource currently being installed.
+        String installProgressText =
+                Localization.getWithDefault("profile.found",
+                        new String[]{"" + done, "" + total},
+                        "Application found. Loading resources...");
+        updateProgress(installProgressText, DIALOG_INSTALL_PROGRESS);
         updateProgressBar(done, total, DIALOG_INSTALL_PROGRESS);
     }
 
