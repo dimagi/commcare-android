@@ -60,7 +60,7 @@
                 android:id="@+id/check_for_update_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
+                SquareButtonWithText:backgroundColor="@color/cc_brand_color"
                 SquareButtonWithText:img="@drawable/install_start"
                 SquareButtonWithText:subtitle=""
                 SquareButtonWithText:textColor="@color/white"/>
