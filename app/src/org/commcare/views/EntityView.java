@@ -47,7 +47,7 @@ public class EntityView extends LinearLayout {
     private String[] searchTerms;
     private final String[] mHints;
     private final Context context;
-    private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
+    private Hashtable<Long, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
     private long rowId;
     public static final String FORM_AUDIO = "audio";
     public static final String FORM_IMAGE = "image";
@@ -194,10 +194,10 @@ public class EntityView extends LinearLayout {
                 int orientation = getResources().getConfiguration().orientation;
                 GraphView g = new GraphView(context, "", false);
                 View rendered = null;
-                if (renderedGraphsCache.get(i) != null) {
-                    rendered = renderedGraphsCache.get(i).get(orientation);
+                if (renderedGraphsCache.get(rowId) != null) {
+                    rendered = renderedGraphsCache.get(rowId).get(orientation);
                 } else {
-                    renderedGraphsCache.put(i, new Hashtable<Integer, View>());
+                    renderedGraphsCache.put(rowId, new Hashtable<Integer, View>());
                 }
                 if (rendered == null) {
                     try {
@@ -206,7 +206,7 @@ public class EntityView extends LinearLayout {
                         rendered = new TextView(context);
                         ((TextView) rendered).setText(ex.getMessage());
                     }
-                    renderedGraphsCache.get(i).put(orientation, rendered);
+                    renderedGraphsCache.get(rowId).put(orientation, rendered);
                 }
                 ((LinearLayout) view).removeAllViews();
                 ((LinearLayout) view).addView(rendered, GraphView.getLayoutParams());
