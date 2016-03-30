@@ -36,8 +36,6 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
     private final Vector<SelectChoice> mItems;
 
     private final Vector<RadioButton> buttons;
-    private final Vector<MediaLayout> mediaLayouts;
-    private final Vector<RelativeLayout> parentLayout;
 
     private final AdvanceToNextListener listener;
 
@@ -50,8 +48,6 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
 
         mItems = prompt.getSelectChoices();
         buttons = new Vector<>();
-        mediaLayouts = new Vector<>();
-        parentLayout = new Vector<>();
         listener = (AdvanceToNextListener)context;
 
         String s = null;
@@ -67,7 +63,6 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
 
                 RelativeLayout thisParentLayout =
                         (RelativeLayout)inflater.inflate(R.layout.quick_select_layout, null);
-                parentLayout.add(thisParentLayout);
 
                 LinearLayout questionLayout = (LinearLayout)thisParentLayout.getChildAt(0);
                 ImageView rightArrow = (ImageView)thisParentLayout.getChildAt(1);
@@ -113,7 +108,6 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
                 MediaLayout mediaLayout = new MediaLayout(getContext());
                 mediaLayout.setAVT(r, audioURI, imageURI, videoURI, bigImageURI);
                 questionLayout.addView(mediaLayout);
-                mediaLayouts.add(mediaLayout);
 
                 // Last, add the dividing line (except for the last element)
                 ImageView divider = new ImageView(getContext());
