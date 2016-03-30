@@ -23,10 +23,7 @@ public class AndroidGraphParser extends GraphParser {
         super(parser);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.xml.ElementParser#parse()
-     */
+    @Override
     public Graph parse() throws InvalidStructureException, IOException, XmlPullParserException {
         Graph graph = new Graph();
         String type = parser.getAttributeValue(null, "type");
