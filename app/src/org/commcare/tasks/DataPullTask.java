@@ -78,6 +78,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
     private static final int PROGRESS_RECOVERY_FAIL_BAD = 64;
     public static final int PROGRESS_PROCESSING = 128;
     public static final int PROGRESS_DOWNLOADING = 256;
+    public static final int PROGRESS_DOWNLOADING_COMPLETE = 512;
     private DataPullRequester dataPullRequester;
 
     private DataPullTask(String username, String password, String server, Context context, boolean restoreOldSession) {
@@ -226,6 +227,11 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
 
 
                     this.publishProgress(PROGRESS_AUTHED, 0);
+                    this.publishProgress(PROGRESS_DOWNLOADING_COMPLETE, 0);
+                    if (isCancelled()) {
+                        return PullTaskResult.UNKNOWN_FAILURE;
+                    }
+
                     Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
 
                     try {

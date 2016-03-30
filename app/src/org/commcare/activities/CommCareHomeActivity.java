@@ -1346,6 +1346,9 @@ public class CommCareHomeActivity
         if (taskId == ProcessAndSendTask.PROCESSING_PHASE_ID) {
             dialog.addProgressBar();
         }
+        if (taskId == DataPullTask.DATA_PULL_TASK_ID) {
+            dialog.addCancelButton();
+        }
         return dialog;
     }
 

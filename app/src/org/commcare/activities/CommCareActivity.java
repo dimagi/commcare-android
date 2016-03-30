@@ -502,6 +502,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             }
         }
     }
+    public void removeDisableFromProgressDialog() {
+        CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
+        if (mProgressDialog != null && !areFragmentsPaused) {
+            mProgressDialog.removeCancelButton();
+        }
+    }
 
     @Override
     public void updateProgressBar(int progress, int max, int taskId) {
