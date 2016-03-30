@@ -52,7 +52,7 @@ public class MenuAdapter implements ListAdapter {
 
     private final AndroidSessionWrapper asw;
     final Context context;
-    MenuDisplayable[] displayableData;
+    final MenuDisplayable[] displayableData;
 
     public MenuAdapter(Context context, CommCarePlatform platform, String menuID) {
         this.context = context;
@@ -219,8 +219,7 @@ public class MenuAdapter implements ListAdapter {
         return menuListItem;
     }
 
-    public void setupAudioButton(AudioButton mAudioButton, MenuDisplayable menuDisplayable){
-
+    private void setupAudioButton(AudioButton mAudioButton, MenuDisplayable menuDisplayable){
         // set up audio
         final String audioURI = menuDisplayable.getAudioURI();
         String audioFilename = "";
@@ -275,7 +274,7 @@ public class MenuAdapter implements ListAdapter {
         }
     }
 
-    protected NavIconState getIconState(MenuDisplayable menuDisplayable){
+    private NavIconState getIconState(MenuDisplayable menuDisplayable){
         NavIconState iconChoice = NavIconState.NEXT;
 
         //figure out some icons
@@ -311,7 +310,7 @@ public class MenuAdapter implements ListAdapter {
     /*
      * Helper to build the TextView for the HorizontalMediaView constructor
      */
-    String textViewHelper(MenuDisplayable e) {
+    private static String textViewHelper(MenuDisplayable e) {
         return e.getDisplayText();
     }
 

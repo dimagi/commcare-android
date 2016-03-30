@@ -159,7 +159,7 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
     }
 
 
-    public int getCheckedId() {
+    private int getCheckedId() {
         for (RadioButton button : this.buttons) {
             if (button.isChecked()) {
                 return button.getId();
