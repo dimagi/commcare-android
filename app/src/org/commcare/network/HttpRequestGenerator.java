@@ -68,15 +68,25 @@ public class HttpRequestGenerator {
      */
     public static final String AUTH_REQUEST_TYPE_NO_AUTH = "noauth";
 
+    private static final String SUBMIT_MODE = "submit_mode";
+
+    private static final String SUBMIT_MODE_DEMO = "demo";
+
     private Credentials credentials;
     PasswordAuthentication passwordAuthentication;
     private String username;
+    private String userType;
 
     public HttpRequestGenerator(User user) {
-        this(user.getUsername(), user.getCachedPwd());
+        this(user.getUsername(), user.getCachedPwd(), user.getUserType());
     }
 
+
     public HttpRequestGenerator(String username, String password) {
+        this(username, password, null);
+    }
+
+    public HttpRequestGenerator(String username, String password, String userType) {
         String domainedUsername = username;
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -86,11 +96,13 @@ public class HttpRequestGenerator {
             domainedUsername += "@" + prefs.getString(USER_DOMAIN_SUFFIX, null);
         }
 
+        if (!User.TYPE_DEMO.equals(userType)) {
+            this.credentials = new UsernamePasswordCredentials(domainedUsername, password);
+            passwordAuthentication = new PasswordAuthentication(domainedUsername, password.toCharArray());
+            this.username = username;
+        }
 
-        this.credentials = new UsernamePasswordCredentials(domainedUsername, password);
-
-        passwordAuthentication = new PasswordAuthentication(domainedUsername, password.toCharArray());
-        this.username = username;
+        this.userType = userType;
     }
 
     public HttpRequestGenerator() {
@@ -204,6 +216,10 @@ public class HttpRequestGenerator {
         //not ready 
         if (credentials == null) {
             url = Uri.parse(url).buildUpon().appendQueryParameter(AUTH_REQUEST_TYPE, AUTH_REQUEST_TYPE_NO_AUTH).build().toString();
+        }
+
+        if (User.TYPE_DEMO.equals(userType)) {
+            url = Uri.parse(url).buildUpon().appendQueryParameter(SUBMIT_MODE, SUBMIT_MODE_DEMO).build().toString();
         }
 
         HttpPost httppost = new HttpPost(url);
