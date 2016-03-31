@@ -17,6 +17,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.adapters.AppManagerAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.services.CommCareSessionService;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.AlertDialogFactory;
 import org.javarosa.core.services.locale.Localization;
@@ -73,7 +74,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
     private void refreshView() {
         ListView lv = (ListView)findViewById(R.id.apps_list_view);
         lv.setAdapter(new AppManagerAdapter(this, android.R.layout.simple_list_item_1,
-                CommCareApplication._().appRecordArray()));
+                MultipleAppsUtil.appRecordArray()));
     }
 
     /**

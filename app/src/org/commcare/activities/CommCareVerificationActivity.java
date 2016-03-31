@@ -17,6 +17,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.tasks.VerificationTask;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.SizeBoundVector;
@@ -121,7 +122,7 @@ public class CommCareVerificationActivity
         // then something was done on the Manager screen that means we no longer want to be here --
         // VerificationActivity should be displayed to a user only if we were explicitly sent from
         // the manager, or if the state of installed apps calls for it
-        boolean shouldBeHere = fromManager || fromSettings || CommCareApplication._().shouldSeeMMVerification();
+        boolean shouldBeHere = fromManager || fromSettings || MultipleAppsUtil.shouldSeeMMVerification();
         if (!shouldBeHere) {
             // send back to dispatch activity
             setResult(RESULT_OK);

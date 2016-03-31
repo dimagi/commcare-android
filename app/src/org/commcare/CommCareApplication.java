@@ -482,7 +482,7 @@ public class CommCareApplication extends Application {
         String lastAppId = prefs.getString(LoginActivity.KEY_LAST_APP, "");
         if (!"".equals(lastAppId)) {
             // If there is a 'last app' set in shared preferences, try to initialize that application.
-            ApplicationRecord lastApp = getAppById(lastAppId);
+            ApplicationRecord lastApp = MultipleAppsUtil.getAppById(lastAppId);
             if (lastApp == null || !lastApp.isUsable()) {
                 // This app record could be null if it has since been uninstalled, or unusable if
                 // it has since been archived, etc. In either case, just revert to picking the
@@ -502,7 +502,7 @@ public class CommCareApplication extends Application {
      * if there is one
      */
     public void initFirstUsableAppRecord() {
-        for (ApplicationRecord record : getUsableAppRecords()) {
+        for (ApplicationRecord record : MultipleAppsUtil.getUsableAppRecords()) {
             initializeAppResources(new CommCareApp(record));
             break;
         }
@@ -552,73 +552,6 @@ public class CommCareApplication extends Application {
 
         });
         return records;
-    }
-
-    /**
-     * @return all ApplicationRecords that have status installed and are NOT archived
-     */
-    private ArrayList<ApplicationRecord> getVisibleAppRecords() {
-        ArrayList<ApplicationRecord> visible = new ArrayList<>();
-        for (ApplicationRecord r : getInstalledAppRecords()) {
-            if (r.isVisible()) {
-                visible.add(r);
-            }
-        }
-        return visible;
-    }
-
-    /**
-     * @return all ApplicationRecords that are installed AND are not archived AND have MM verified
-     */
-    public ArrayList<ApplicationRecord> getUsableAppRecords() {
-        ArrayList<ApplicationRecord> ready = new ArrayList<>();
-        for (ApplicationRecord r : getInstalledAppRecords()) {
-            if (r.isUsable()) {
-                ready.add(r);
-            }
-        }
-        return ready;
-    }
-
-    /**
-     * @return whether the user should be sent to CommCareVerificationActivity. Current logic is
-     * that this should occur only if there is exactly one visible app and it is missing its MM
-     * (because we are then assuming the user is not currently using multiple apps functionality)
-     */
-    public boolean shouldSeeMMVerification() {
-        return (CommCareApplication._().getVisibleAppRecords().size() == 1 &&
-                CommCareApplication._().getUsableAppRecords().size() == 0);
-    }
-
-    public boolean usableAppsPresent() {
-        return getUsableAppRecords().size() > 0;
-    }
-
-    /**
-     * @return the list of all installed apps as an array
-     */
-    public ApplicationRecord[] appRecordArray() {
-        ArrayList<ApplicationRecord> appList = getInstalledAppRecords();
-        ApplicationRecord[] appArray = new ApplicationRecord[appList.size()];
-        int index = 0;
-        for (ApplicationRecord r : appList) {
-            appArray[index++] = r;
-        }
-        return appArray;
-    }
-
-    /**
-     * @param uniqueId - the uniqueId of the ApplicationRecord being sought
-     * @return the ApplicationRecord corresponding to the given id, if it exists. Otherwise,
-     * return null
-     */
-    public ApplicationRecord getAppById(String uniqueId) {
-        for (ApplicationRecord r : getInstalledAppRecords()) {
-            if (r.getUniqueId().equals(uniqueId)) {
-                return r;
-            }
-        }
-        return null;
     }
 
     /**

@@ -16,6 +16,7 @@ import org.commcare.dalvik.R;
 import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.UpdateTask;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.AlertDialogFactory;
 
@@ -70,7 +71,7 @@ public class SingleAppManagerActivity extends Activity {
      * activity, based upon the position
      */
     private ApplicationRecord getAppForPosition(int position) {
-        ApplicationRecord[] currentApps = CommCareApplication._().appRecordArray();
+        ApplicationRecord[] currentApps = MultipleAppsUtil.appRecordArray();
         if (position < 0 || position >= currentApps.length) {
             return null;
         } else {

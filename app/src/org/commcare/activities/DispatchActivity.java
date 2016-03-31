@@ -14,6 +14,7 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.models.SessionStateDescriptor;
 import org.commcare.utils.AndroidShortcuts;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.AlertDialogFactory;
 import org.javarosa.core.services.Logger;
@@ -114,7 +115,7 @@ public class DispatchActivity extends FragmentActivity {
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
 
         if (currentApp == null) {
-            if (CommCareApplication._().usableAppsPresent()) {
+            if (MultipleAppsUtil.usableAppsPresent()) {
                 CommCareApplication._().initFirstUsableAppRecord();
                 // Recurse in order to make the correct decision based on the new state
                 dispatch();
@@ -229,7 +230,7 @@ public class DispatchActivity extends FragmentActivity {
             return true;
         } else {
             // This app has unvalidated MM
-            if (CommCareApplication._().usableAppsPresent()) {
+            if (MultipleAppsUtil.usableAppsPresent()) {
                 // If there are other usable apps, unseat it and seat another one
                 CommCareApplication._().unseat(record);
                 CommCareApplication._().initFirstUsableAppRecord();
@@ -246,7 +247,7 @@ public class DispatchActivity extends FragmentActivity {
      * to seat instead -- Either calls out to verification activity or quits out of the app
      */
     private void handleUnvalidatedApp() {
-        if (CommCareApplication._().shouldSeeMMVerification()) {
+        if (MultipleAppsUtil.shouldSeeMMVerification()) {
             Intent i = new Intent(this, CommCareVerificationActivity.class);
             this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
         } else {

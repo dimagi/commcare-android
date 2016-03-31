@@ -11,6 +11,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.global.models.ApplicationRecord;
+import org.commcare.utils.MultipleAppsUtil;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -36,7 +37,7 @@ public class SeatAppActivity extends Activity {
         if (!inProgress) {
 
             String idOfAppToSeat = getIntent().getStringExtra(LoginActivity.KEY_APP_TO_SEAT);
-            ApplicationRecord record = CommCareApplication._().getAppById(idOfAppToSeat);
+            ApplicationRecord record = MultipleAppsUtil.getAppById(idOfAppToSeat);
 
             if (record == null) {
                 // No record was found for the given id

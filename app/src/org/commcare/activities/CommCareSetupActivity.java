@@ -43,6 +43,7 @@ import org.commcare.tasks.ResourceEngineTask;
 import org.commcare.tasks.RetrieveParseVerifyMessageListener;
 import org.commcare.tasks.RetrieveParseVerifyMessageTask;
 import org.commcare.utils.GlobalConstants;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -233,7 +234,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     protected void onResume() {
         super.onResume();
 
-        if (!fromManager && !fromExternal && CommCareApplication._().usableAppsPresent()) {
+        if (!fromManager && !fromExternal && MultipleAppsUtil.usableAppsPresent()) {
             // If clicking the regular app icon brought us to CommCareSetupActivity
             // (because that's where we were last time the app was up), but there are now
             // 1 or more available apps, we want to fall back to dispatch activity
