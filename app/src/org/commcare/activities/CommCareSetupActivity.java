@@ -448,6 +448,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                                 case DuplicateApp:
                                     receiver.failWithNotification(AppInstallStatus.DuplicateApp);
                                     break;
+                                case MultipleAppsViolation_Existing:
+                                    receiver.failWithNotification(AppInstallStatus.MultipleAppsViolation_Existing);
+                                    break;
+                                case MultipleAppsViolation_New:
+                                    receiver.failWithNotification(AppInstallStatus.MultipleAppsViolation_New);
                                 default:
                                     receiver.failUnknown(AppInstallStatus.UnknownFailure);
                                     break;

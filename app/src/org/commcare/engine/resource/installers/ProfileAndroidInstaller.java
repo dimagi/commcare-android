@@ -52,9 +52,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
             ProfileParser parser =
                     new ProfileParser(local.getStream(), instance, instance.getGlobalResourceTable(),
-                            null, Resource.RESOURCE_STATUS_INSTALLED, false,
-                            MultipleAppsUtil.appInstallationAllowed(),
-                            MultipleAppsUtil.multipleAppsCompatibilityRequired());
+                            null, Resource.RESOURCE_STATUS_INSTALLED, false);
 
             Profile p = parser.parse();
             instance.setProfile(p);
@@ -80,15 +78,14 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
             ProfileParser parser =
                     new ProfileParser(local.getStream(), instance, table, r.getRecordGuid(),
-                    Resource.RESOURCE_STATUS_UNINITIALIZED, false,
-                    MultipleAppsUtil.appInstallationAllowed(),
-                    MultipleAppsUtil.multipleAppsCompatibilityRequired());
+                    Resource.RESOURCE_STATUS_UNINITIALIZED, false);
 
             Profile p = parser.parse();
 
             if (!upgrade) {
                 initProperties(p);
                 checkDuplicate(p);
+                verifyMultipleAppsCompliance(p);
             }
 
             table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
@@ -102,11 +99,34 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         return false;
     }
 
+    private static void verifyMultipleAppsCompliance(Profile profile)
+            throws UnfullfilledRequirementsException {
+
+        String compatibilityValue = profile.getMultipleAppsCompatibility();
+        if (Profile.MULT_APPS_IGNORE_VALUE.equals(compatibilityValue)) {
+            // If the new app is set to "ignore", we can install no matter what
+            return;
+        } else if (!MultipleAppsUtil.appInstallationAllowed()) {
+            throw new UnfullfilledRequirementsException("One or more of your currently installed" +
+                    "apps are not compatible with multiple apps. In order to install additional" +
+                    "apps, you must uninstall or upgrade that app first",
+                    UnfullfilledRequirementsException.SEVERITY_PROMPT,
+                    UnfullfilledRequirementsException.REQUIREMENT_MULTIPLE_APPS_COMPAT_EXISTING);
+        } else if (!compatibilityValue.equals(Profile.MULT_APPS_ENABLED_VALUE) &&
+                MultipleAppsUtil.multipleAppsCompatibilityRequired()) {
+            throw new UnfullfilledRequirementsException("The app you are trying to install is not" +
+                    "compatible with multiple apps, and you already have 1 or more apps installed " +
+                    "on your device. In order to install this app, you must uninstall all apps " +
+                    "currently on your device, or upgrade the project space for this app.",
+                    UnfullfilledRequirementsException.SEVERITY_PROMPT,
+                    UnfullfilledRequirementsException.REQUIREMENT_MULTIPLE_APPS_COMPAT_NEW);
+        }
+    }
+
     // Check that this app is not already installed on the phone
-    private void checkDuplicate(Profile p) throws UnfullfilledRequirementsException {
+    private static void checkDuplicate(Profile p) throws UnfullfilledRequirementsException {
         String newAppId = p.getUniqueId();
-        ArrayList<ApplicationRecord> installedApps = CommCareApplication._().
-                getInstalledAppRecords();
+        ArrayList<ApplicationRecord> installedApps = CommCareApplication._().getInstalledAppRecords();
         for (ApplicationRecord record : installedApps) {
             if (record.getUniqueId().equals(newAppId)) {
                 throw new UnfullfilledRequirementsException(
@@ -139,9 +159,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             //Create a parser with no side effects
             ProfileParser parser =
                     new ProfileParser(local.getStream(), null, new DummyResourceTable(), null,
-                            Resource.RESOURCE_STATUS_INSTALLED, false,
-                            MultipleAppsUtil.appInstallationAllowed(),
-                            MultipleAppsUtil.multipleAppsCompatibilityRequired());
+                            Resource.RESOURCE_STATUS_INSTALLED, false);
 
             //Parse just the file (for the properties)
             Profile p = parser.parse();
