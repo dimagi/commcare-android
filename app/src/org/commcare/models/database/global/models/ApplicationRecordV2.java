@@ -7,6 +7,7 @@ import org.commcare.models.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;
 import org.commcare.modern.models.MetaField;
+import org.commcare.suite.model.Profile;
 
 /**
  * An Application Record tracks an individual CommCare app on the current
@@ -19,20 +20,7 @@ import org.commcare.modern.models.MetaField;
 @Table(ApplicationRecord.STORAGE_KEY)
 public class ApplicationRecordV2 extends Persisted {
 
-    /**
-     * Name of database that stores application records
-     */
-    public static final String STORAGE_KEY = "app_record";
     private static final String META_STATUS = "status";
-
-    public static final int STATUS_UNINITIALIZED = 0;
-    public static final int STATUS_INSTALLED = 1;
-    public static final int STATUS_DELETE_REQUESTED = 2;
-
-    /**
-     * The app needs to be upgraded from an old version
-     */
-    public static final int STATUS_SPECIAL_LEGACY = 2;
 
     @Persisting(1)
     protected String applicationId;
@@ -54,11 +42,54 @@ public class ApplicationRecordV2 extends Persisted {
     @Persisting(9)
     protected int versionNumber;
 
+    public ApplicationRecordV2(String applicationId, int status) {
+        this.applicationId = applicationId;
+        this.status = status;
+    }
+
     /**
      * Deserialization only
      */
     public ApplicationRecordV2() {
 
     }
+
+    public String getApplicationId() {
+        return applicationId;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setResourcesStatus(boolean b) {
+        this.resourcesValidated = b;
+    }
+
+    public void setArchiveStatus(boolean b) {
+        this.isArchived = b;
+    }
+
+    public void setUniqueId(String s) {
+        this.uniqueId = s;
+    }
+
+    public void setDisplayName(String s) {
+        this.displayName = s;
+    }
+
+    public void setVersionNumber(int version) {
+        this.versionNumber = version;
+    }
+
+    public void setConvertedByDbUpgrader(boolean b) {
+        this.convertedViaDbUpgrader = b;
+    }
+
+    public void setPreMultipleAppsProfile(boolean b) {
+        this.preMultipleAppsProfile = b;
+    }
+
+
 
 }

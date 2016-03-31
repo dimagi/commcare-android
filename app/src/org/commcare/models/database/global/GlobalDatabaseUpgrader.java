@@ -66,7 +66,7 @@ class GlobalDatabaseUpgrader {
     private boolean upgradeTwoThree(SQLiteDatabase db) {
         db.beginTransaction();
 
-        //First, migrate the old ApplicationRecord in storage to the new version being used for
+        // First, migrate the old ApplicationRecord in storage to the new version being used for
         // multiple apps.
         try {
             SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
@@ -82,8 +82,8 @@ class GlobalDatabaseUpgrader {
 
             for (Persistable r : storage) {
                 ApplicationRecordV1 oldRecord = (ApplicationRecordV1) r;
-                ApplicationRecord newRecord =
-                        new ApplicationRecord(oldRecord.getApplicationId(), oldRecord.getStatus());
+                ApplicationRecordV2 newRecord =
+                        new ApplicationRecordV2(oldRecord.getApplicationId(), oldRecord.getStatus());
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 //set default values for the new fields
@@ -182,13 +182,13 @@ class GlobalDatabaseUpgrader {
         return (count > 1);
     }
 
-    private static ApplicationRecord getInstalledAppRecord(Context c, SQLiteDatabase db) {
+    private static ApplicationRecordV2 getInstalledAppRecord(Context c, SQLiteDatabase db) {
         SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
                 ApplicationRecord.STORAGE_KEY,
-                ApplicationRecord.class,
+                ApplicationRecordV2.class,
                 new ConcreteAndroidDbHelper(c, db));
         for (Persistable p : storage) {
-            ApplicationRecord r = (ApplicationRecord) p;
+            ApplicationRecordV2 r = (ApplicationRecordV2) p;
             if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
                 return r;
             }

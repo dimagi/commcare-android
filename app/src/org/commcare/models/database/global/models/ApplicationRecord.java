@@ -90,24 +90,12 @@ public class ApplicationRecord extends Persisted {
         return uniqueId;
     }
 
-    public void setUniqueId(String id) {
-        this.uniqueId = id;
-    }
-
     public String getDisplayName() {
         return this.displayName;
     }
 
-    public void setDisplayName(String appName) {
-        this.displayName = appName;
-    }
-
     public int getVersionNumber() {
         return this.versionNumber;
-    }
-
-    public void setVersionNumber(int version) {
-        this.versionNumber = version;
     }
 
     public void setArchiveStatus(boolean b) {
@@ -162,10 +150,6 @@ public class ApplicationRecord extends Persisted {
      */
     public boolean wasConvertedByDbUpgrader() {
         return this.convertedViaDbUpgrader;
-    }
-
-    private void setMultipleAppsCompatibility(String value) {
-        this.multipleAppsCompatibility = value;
     }
 
     public String getMultipleAppsCompatibility() {
