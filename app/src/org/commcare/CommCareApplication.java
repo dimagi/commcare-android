@@ -89,6 +89,7 @@ import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.ODKPropertyManager;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionStateUninitException;
@@ -597,7 +598,7 @@ public class CommCareApplication extends Application {
      * @return the list of all installed apps as an array
      */
     public ApplicationRecord[] appRecordArray() {
-        ArrayList<ApplicationRecord> appList = CommCareApplication._().getInstalledAppRecords();
+        ArrayList<ApplicationRecord> appList = getInstalledAppRecords();
         ApplicationRecord[] appArray = new ApplicationRecord[appList.size()];
         int index = 0;
         for (ApplicationRecord r : appList) {

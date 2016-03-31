@@ -16,6 +16,7 @@ import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.PropertySetter;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.DummyResourceTable;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.xml.CommCareElementParser;
 import org.commcare.xml.ProfileParser;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -47,11 +48,13 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     @Override
     public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
         try {
-
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
-            ProfileParser parser = new ProfileParser(local.getStream(), instance, instance.getGlobalResourceTable(), null,
-                    Resource.RESOURCE_STATUS_INSTALLED, false);
+            ProfileParser parser =
+                    new ProfileParser(local.getStream(), instance, instance.getGlobalResourceTable(),
+                            null, Resource.RESOURCE_STATUS_INSTALLED, false,
+                            MultipleAppsUtil.appInstallationAllowed(),
+                            MultipleAppsUtil.multipleAppsCompatibilityRequired());
 
             Profile p = parser.parse();
             instance.setProfile(p);
@@ -75,8 +78,11 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
 
-            ProfileParser parser = new ProfileParser(local.getStream(), instance, table, r.getRecordGuid(),
-                    Resource.RESOURCE_STATUS_UNINITIALIZED, false);
+            ProfileParser parser =
+                    new ProfileParser(local.getStream(), instance, table, r.getRecordGuid(),
+                    Resource.RESOURCE_STATUS_UNINITIALIZED, false,
+                    MultipleAppsUtil.appInstallationAllowed(),
+                    MultipleAppsUtil.multipleAppsCompatibilityRequired());
 
             Profile p = parser.parse();
 
@@ -105,7 +111,8 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             if (record.getUniqueId().equals(newAppId)) {
                 throw new UnfullfilledRequirementsException(
                         "The app you are trying to install already exists on this device",
-                        CommCareElementParser.SEVERITY_PROMPT, true);
+                        UnfullfilledRequirementsException.SEVERITY_PROMPT,
+                        UnfullfilledRequirementsException.REQUIREMENT_NO_DUPLICATE_APPS);
             }
         }
     }
@@ -130,7 +137,11 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
             //Create a parser with no side effects
-            ProfileParser parser = new ProfileParser(local.getStream(), null, new DummyResourceTable(), null, Resource.RESOURCE_STATUS_INSTALLED, false);
+            ProfileParser parser =
+                    new ProfileParser(local.getStream(), null, new DummyResourceTable(), null,
+                            Resource.RESOURCE_STATUS_INSTALLED, false,
+                            MultipleAppsUtil.appInstallationAllowed(),
+                            MultipleAppsUtil.multipleAppsCompatibilityRequired());
 
             //Parse just the file (for the properties)
             Profile p = parser.parse();

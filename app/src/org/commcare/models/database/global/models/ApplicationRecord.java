@@ -8,6 +8,7 @@ import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.suite.model.Profile;
+import org.commcare.xml.ProfileParser;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -56,6 +57,8 @@ public class ApplicationRecord extends Persisted {
     private boolean preMultipleAppsProfile;
     @Persisting(9)
     private int versionNumber;
+    @Persisting(10)
+    private String multipleAppsCompatibility;
 
     /**
      * Deserialization only
@@ -161,6 +164,13 @@ public class ApplicationRecord extends Persisted {
         return this.convertedViaDbUpgrader;
     }
 
+    public String getMultipleAppsCompatibility() {
+        if (multipleAppsCompatibility == null) {
+            return Profile.MULT_APPS_DISABLED_VALUE;
+        }
+        return multipleAppsCompatibility;
+    }
+
     /**
      * Used when this record is either first installed, or upgraded from an old version, to set all
      * properties of the record that come from its profile file
@@ -179,6 +189,7 @@ public class ApplicationRecord extends Persisted {
         }
         this.versionNumber = p.getVersion();
         this.preMultipleAppsProfile = p.isOldVersion();
+        this.multipleAppsCompatibility = p.getMultipleAppsCompatibility();
     }
 
 
@@ -192,6 +203,7 @@ public class ApplicationRecord extends Persisted {
     public void setConvertedByDbUpgrader(boolean b) {
         this.convertedViaDbUpgrader = b;
     }
+
 
     // endregion
 

@@ -118,7 +118,6 @@ public class CommCarePreferences
 
     public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
 
-
     public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
 
     @Override
@@ -474,4 +473,5 @@ public class CommCarePreferences
                     Localization.get("no.file.browser"), false);
         }
     }
+
 }
