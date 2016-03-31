@@ -164,6 +164,10 @@ public class ApplicationRecord extends Persisted {
         return this.convertedViaDbUpgrader;
     }
 
+    private void setMultipleAppsCompatibility(String value) {
+        this.multipleAppsCompatibility = value;
+    }
+
     public String getMultipleAppsCompatibility() {
         if (multipleAppsCompatibility == null) {
             return Profile.MULT_APPS_DISABLED_VALUE;
@@ -192,7 +196,6 @@ public class ApplicationRecord extends Persisted {
         this.multipleAppsCompatibility = p.getMultipleAppsCompatibility();
     }
 
-
     // region: methods used only in the upgrade process for an ApplicationRecord, should not be
     // touched otherwise
 
@@ -204,7 +207,31 @@ public class ApplicationRecord extends Persisted {
         this.convertedViaDbUpgrader = b;
     }
 
-
     // endregion
+
+    public static ApplicationRecord fromV2Record(ApplicationRecordV2 v2record) {
+        ApplicationRecord newRecord = new ApplicationRecord(
+                v2record.applicationId, v2record.status, v2record.uniqueId, v2record.displayName,
+                v2record.resourcesValidated, v2record.isArchived, v2record.convertedViaDbUpgrader,
+                v2record.preMultipleAppsProfile, v2record.versionNumber);
+        newRecord.multipleAppsCompatibility = Profile.MULT_APPS_DISABLED_VALUE;
+        return newRecord;
+    }
+
+    // For conversion on upgrade only
+    private ApplicationRecord(String applicationId, int status, String uniqueId, String displayName,
+                              boolean resourcesValidated, boolean isArchived,
+                              boolean convertedViaDbUpgrader, boolean preMultipleAppsProfile,
+                              int versionNumber) {
+        this.applicationId = applicationId;
+        this.status = status;
+        this.uniqueId = uniqueId;
+        this.displayName = displayName;
+        this.resourcesValidated = resourcesValidated;
+        this.isArchived = isArchived;
+        this.convertedViaDbUpgrader = convertedViaDbUpgrader;
+        this.preMultipleAppsProfile = preMultipleAppsProfile;
+        this.versionNumber = versionNumber;
+    }
 
 }

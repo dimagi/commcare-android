@@ -13,6 +13,7 @@ import org.commcare.models.database.MigrationException;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.models.database.global.models.ApplicationRecordV1;
+import org.commcare.models.database.global.models.ApplicationRecordV2;
 import org.commcare.provider.ProviderUtils;
 import org.javarosa.core.services.storage.Persistable;
 
@@ -42,6 +43,11 @@ class GlobalDatabaseUpgrader {
         if (oldVersion == 3) {
             if (upgradeThreeFour(db)) {
                 oldVersion = 4;
+            }
+        }
+        if (oldVersion == 4) {
+            if (upgradeFourFive(db)) {
+                oldVersion = 5;
             }
         }
     }
@@ -115,6 +121,31 @@ class GlobalDatabaseUpgrader {
         } catch (Exception e) {
             return false;
         } finally {
+            db.endTransaction();
+        }
+    }
+
+    /**
+     * Add field to ApplicationRecord to support making multiple apps a paid feature
+     */
+    private boolean upgradeFourFive(SQLiteDatabase db) {
+        db.beginTransaction();
+
+        try {
+            SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
+                    ApplicationRecord.STORAGE_KEY,
+                    ApplicationRecordV2.class,
+                    new ConcreteAndroidDbHelper(c, db));
+            for (Persistable r : storage) {
+                ApplicationRecordV2 oldRecord = (ApplicationRecordV2) r;
+                ApplicationRecord newRecord = ApplicationRecord.fromV2Record(oldRecord);
+                newRecord.setID(oldRecord.getID());
+                storage.write(newRecord);
+            }
+            db.setTransactionSuccessful();
+            return true;
+        }
+        finally {
             db.endTransaction();
         }
     }
