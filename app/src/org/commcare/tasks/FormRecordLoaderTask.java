@@ -117,14 +117,15 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
     protected Integer doInBackground(FormRecord... params) {
         // Load text information for every FormRecord passed in, unless task is
         // cancelled before that.
-        for (FormRecord current : params) {
-            if (isCancelled()) {
-                break;
-            }
+        FormRecord current;
+        int loadedFormCount = 0;
+        while (loadedFormCount < params.length && !isCancelled()) {
             synchronized (priorityQueue) {
                 //If we have one to do immediately, grab it
                 if (!priorityQueue.isEmpty()) {
                     current = priorityQueue.poll();
+                } else {
+                    current = params[loadedFormCount++];
                 }
                 if (loaded.contains(current.getID())) {
                     // skip if we already loaded this record due to priority queue
