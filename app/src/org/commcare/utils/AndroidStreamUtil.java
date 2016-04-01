@@ -53,7 +53,11 @@ public class AndroidStreamUtil {
         void notifyCurrentCount(long bytesRead);
     }
 
-    public static void writeFromInputToOutputPlain(InputStream is, OutputStream os) throws IOException {
+    /**
+     * Writes input stream to output stream in a buffered fasion
+     * Closing only the input stream upon completion
+     */
+    public static void writeFromInputToOutputUnmanaged(InputStream is, OutputStream os) throws IOException {
         byte[] buffer = new byte[8192];
 
         try {
