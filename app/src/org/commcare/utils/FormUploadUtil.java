@@ -150,7 +150,7 @@ public class FormUploadUtil {
 
         // mime post
         MultipartEntity entity =
-                new DataSubmissionEntity(myListener, submissionNumber);
+                new MultipartEntity();
         if (!buildMultipartEntity(entity, key, files)) {
             return RECORD_FAILURE;
         }
