@@ -252,7 +252,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
 
         generator = new HttpRequestGenerator(user);
 
-        MultipartEntity entity = new MultipartEntity();
+        MultipartEntity entity = new DataSubmissionEntity(listener, index);
 
         EncryptedFileBody fb = new EncryptedFileBody(f, getDecryptCipher(new SecretKeySpec(slr.getKey(), "AES")), ContentType.TEXT_XML);
         entity.addPart("xml_submission_file", fb);

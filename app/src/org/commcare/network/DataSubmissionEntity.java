@@ -30,6 +30,7 @@ public class DataSubmissionEntity extends MultipartEntity {
         return true;
     }
 
+    /*
     @Override
     public void writeTo(OutputStream outstream) throws IOException {
         if (attempt != 1) {
@@ -69,6 +70,7 @@ public class DataSubmissionEntity extends MultipartEntity {
             }
         }
     }
+    */
 
 
 }
