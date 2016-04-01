@@ -30,7 +30,6 @@ public class DataSubmissionEntity extends MultipartEntity {
         return true;
     }
 
-    /*
     @Override
     public void writeTo(OutputStream outstream) throws IOException {
         if (attempt != 1) {
@@ -44,33 +43,40 @@ public class DataSubmissionEntity extends MultipartEntity {
 
         private final DataSubmissionListener listener;
         private long transferred;
+        private long lastNumberReported;
         private final int submissionId;
+        private final static int REPORT_WHEN_PROGRESS_OVER = 50;
 
         public CountingOutputStream(final OutputStream out, final DataSubmissionListener listener, int submissionId) {
             super(out);
             this.listener = listener;
             this.transferred = 0;
             this.submissionId = submissionId;
+            this.lastNumberReported = 0;
         }
 
 
         public void write(@NonNull byte[] b, int off, int len) throws IOException {
             out.write(b, off, len);
             this.transferred += len;
-            if (listener != null) {
+            reportProgress();
+        }
+
+        private void reportProgress() {
+            if (listener != null && hasProgressedEnoughToReport()) {
+                lastNumberReported = transferred;
                 this.listener.notifyProgress(submissionId, this.transferred);
             }
+        }
+
+        private boolean hasProgressedEnoughToReport() {
+            return (transferred - lastNumberReported) > REPORT_WHEN_PROGRESS_OVER;
         }
 
         public void write(int b) throws IOException {
             out.write(b);
             this.transferred++;
-            if (listener != null) {
-                this.listener.notifyProgress(submissionId, this.transferred);
-            }
+            reportProgress();
         }
     }
-    */
-
-
 }
