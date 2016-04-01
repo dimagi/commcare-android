@@ -109,7 +109,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      */
     @Override
     public void notifyPriorityLoaded(FormRecord record, boolean isLoaded) {
-        if (isLoaded && satisfiesQuery(record) && !current.contains(record)) {
+        if (isLoaded && satisfiesQuery(record)) {
             current.add(record);
             notifyDataSetChanged();
         }
