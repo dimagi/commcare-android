@@ -78,9 +78,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     public static final String KEY_INITIAL_RECORD_ID = "cc_initial_rec_id";
 
     private AndroidCommCarePlatform platform;
-
     private IncompleteFormListAdapter adapter;
-
     private PurgeStaleArchivedFormsTask purgeTask;
 
     private int initialSelection = -1;
@@ -182,6 +180,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 incompleteMode = true;
                 //special case, no special filtering options
                 adapter.setFormFilter(FormRecordFilter.Incomplete);
+                adapter.resetRecords();
             }
         } else {
             FormRecordFilter[] filters = FormRecordFilter.values();
@@ -260,7 +259,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
     }
 
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -290,7 +288,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     public String getActivityTitle() {
-
         if (adapter == null) {
             return Localization.get("app.workflow.saved.heading");
         }
@@ -307,7 +304,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
      */
     public void refreshView() {
         disableSearch();
-        adapter.resetRecords();
         listView.setAdapter(adapter);
     }
 

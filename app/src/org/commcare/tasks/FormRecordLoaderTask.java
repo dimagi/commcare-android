@@ -1,6 +1,7 @@
 package org.commcare.tasks;
 
 import android.content.Context;
+import android.text.format.DateUtils;
 import android.util.Pair;
 
 import org.commcare.models.AndroidSessionWrapper;
@@ -15,12 +16,14 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Queue;
+import java.util.Set;
 
 /**
  * Loads textual information for a list of FormRecords.
- *
+ * <p/>
  * This text currently includes the form name, record title, and last modified
  * date
  *
@@ -40,10 +43,10 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
     private final ArrayList<FormRecordLoadListener> listeners = new ArrayList<>();
 
     // These are all synchronized together
-    private Queue<FormRecord> priorityQueue;
+    final private Queue<FormRecord> priorityQueue = new LinkedList<>();
 
     // The IDs of FormRecords that have been loaded
-    private HashSet<Integer> loaded;
+    private final Set<Integer> loaded = new HashSet<>();
 
     // Maps form namespace (unique id for forms) to their form title
     // (entry-point text). Needed because FormRecords don't have form title
@@ -86,8 +89,8 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
             descriptorCache = new Hashtable<>();
         }
 
-        priorityQueue = new LinkedList<>();
-        loaded = new HashSet<>();
+        priorityQueue.clear();
+        loaded.clear();
         this.formNames = formNames;
     }
 
@@ -112,86 +115,78 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
 
     @Override
     protected Integer doInBackground(FormRecord... params) {
-        int loadedFormCount = 0;
-
         // Load text information for every FormRecord passed in, unless task is
         // cancelled before that.
-        while (loadedFormCount < params.length && !isCancelled()) {
-            FormRecord current = null;
+        for (FormRecord current : params) {
+            if (isCancelled()) {
+                break;
+            }
             synchronized (priorityQueue) {
                 //If we have one to do immediately, grab it
                 if (!priorityQueue.isEmpty()) {
                     current = priorityQueue.poll();
-                    loaded.add(current.getID());
-
-                    //Don't increment progress yet, we'll do so
-                    //when we get to this record later.
-                    // XXX: PLM: ^^ it is _very_ indirect how this occurs (by
-                    // deffering to the conditional below). Instead of using
-                    // loadedFormCount in the while-condition we should use
-                    // loaded.size()
                 }
-
-                //If we don't need to jump the queue, grab the next one.
-                if (current == null) {
-                    current = params[loadedFormCount++];
-                    // If we already loaded this record (due to priority),
-                    // we don't need to go through this
-                    if (loaded.contains(current.getID())) {
-                        continue;
-                    } else {
-                        loaded.add(current.getID());
-                    }
+                if (loaded.contains(current.getID())) {
+                    // skip if we already loaded this record due to priority queue
+                    continue;
                 }
             }
-            // Otherwise, let's try to load some text about this record: last
-            // modified date, title of the record, and form name
-            ArrayList<String> recordTextDesc = new ArrayList<>();
+            // load text about this record: last modified date, title of the record, and form name
+            ArrayList<String> recordTextDesc = loadRecordText(current);
 
-            // Get the date in a searchable format.
-            recordTextDesc.add(android.text.format.DateUtils.formatDateTime(context, current.lastModified().getTime(), android.text.format.DateUtils.FORMAT_NO_MONTH_DAY | android.text.format.DateUtils.FORMAT_NO_YEAR).toLowerCase());
-
-            // Grab our record hash
-            SessionStateDescriptor ssd = null;
-            try {
-                ssd = descriptorStorage.getRecordForValue(SessionStateDescriptor.META_FORM_RECORD_ID, current.getID());
-            } catch (NoSuchElementException nsee) {
-                //s'all good
-            }
-            String dataTitle = "";
-            if (ssd != null) {
-                String descriptor = ssd.getSessionDescriptor();
-                if (!descriptorCache.containsKey(descriptor)) {
-                    AndroidSessionWrapper asw = new AndroidSessionWrapper(platform);
-                    asw.loadFromStateDescription(ssd);
-                    try {
-                        dataTitle = asw.getTitle();
-                    } catch (RuntimeException e) {
-                        dataTitle = "[Unavailable]";
-                    }
-
-                    if (dataTitle == null) {
-                        dataTitle = "";
-                    }
-
-                    descriptorCache.put(descriptor, dataTitle);
-                } else {
-                    dataTitle = descriptorCache.get(descriptor);
-                }
-            }
-
-            recordTextDesc.add(dataTitle);
-
-            if (formNames.containsKey(current.getFormNamespace())) {
-                Text name = formNames.get(current.getFormNamespace());
-                recordTextDesc.add(name.evaluate());
-            }
-
+            loaded.add(current.getID());
             // Copy data into search task and notify anything waiting on this
             // record.
             this.publishProgress(new Pair<>(current, recordTextDesc));
         }
         return 1;
+    }
+
+    private ArrayList<String> loadRecordText(FormRecord current) {
+        ArrayList<String> recordTextDesc = new ArrayList<>();
+        // Get the date in a searchable format.
+        recordTextDesc.add(DateUtils.formatDateTime(context, current.lastModified().getTime(), DateUtils.FORMAT_NO_MONTH_DAY | DateUtils.FORMAT_NO_YEAR).toLowerCase());
+
+        String dataTitle = loadDataTitle(current.getID());
+        recordTextDesc.add(dataTitle);
+
+        if (formNames.containsKey(current.getFormNamespace())) {
+            Text name = formNames.get(current.getFormNamespace());
+            recordTextDesc.add(name.evaluate());
+        }
+        return recordTextDesc;
+    }
+
+    private String loadDataTitle(int formRecordId) {
+        // Grab our record hash
+        SessionStateDescriptor ssd = null;
+        try {
+            ssd = descriptorStorage.getRecordForValue(SessionStateDescriptor.META_FORM_RECORD_ID, formRecordId);
+        } catch (NoSuchElementException nsee) {
+            //s'all good
+        }
+        String dataTitle = "";
+        if (ssd != null) {
+            String descriptor = ssd.getSessionDescriptor();
+            if (!descriptorCache.containsKey(descriptor)) {
+                AndroidSessionWrapper asw = new AndroidSessionWrapper(platform);
+                asw.loadFromStateDescription(ssd);
+                try {
+                    dataTitle = asw.getTitle();
+                } catch (RuntimeException e) {
+                    dataTitle = "[Unavailable]";
+                }
+
+                if (dataTitle == null) {
+                    dataTitle = "";
+                }
+
+                descriptorCache.put(descriptor, dataTitle);
+            } else {
+                return descriptorCache.get(descriptor);
+            }
+        }
+        return dataTitle;
     }
 
     @Override
@@ -221,8 +216,8 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         }
 
         // free up things we don't need to spawn new tasks
-        priorityQueue = null;
-        loaded = null;
+        priorityQueue.clear();
+        loaded.clear();
         formNames = null;
     }
 
@@ -254,9 +249,8 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         synchronized (priorityQueue) {
             if (loaded.contains(record.getID())) {
                 return false;
-            }
-            //Otherwise, if we already have it in the queue, just move along
-            else if (priorityQueue.contains(record)) {
+            } else if (priorityQueue.contains(record)) {
+                // if we already have it in the queue, just move along
                 return true;
             } else {
                 priorityQueue.add(record);
