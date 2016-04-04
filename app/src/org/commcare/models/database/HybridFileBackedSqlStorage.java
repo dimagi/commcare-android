@@ -10,10 +10,10 @@ import org.commcare.CommCareApplication;
 import org.commcare.interfaces.AppFilePathBuilder;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.modern.database.DatabaseHelper;
+import org.commcare.utils.AndroidStreamUtil;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
-import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.services.storage.Persistable;
@@ -225,7 +225,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
                 byte[] aesKeyBlob = cur.getBlob(cur.getColumnIndexOrThrow(DatabaseHelper.AES_COL));
                 is = getInputStreamFromFile(filename, aesKeyBlob);
 
-                return StreamsUtil.getStreamAsBytes(is);
+                return AndroidStreamUtil.inputStreamToByteArray(is);
             }
         } catch (IOException e) {
             throw new RuntimeException("Unable to read serialized object from file.", e);
