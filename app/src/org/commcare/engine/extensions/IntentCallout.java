@@ -128,7 +128,7 @@ public class IntentCallout implements Externalizable {
         }
     }
 
-    private boolean intentInvalid(Intent intent) {
+    private static boolean intentInvalid(Intent intent) {
         if (intent == null) {
             return true;
         }

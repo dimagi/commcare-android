@@ -1,8 +1,9 @@
 package org.commcare.android.nsd;
 
 import android.support.v4.util.Pair;
+
 import org.commcare.network.HttpRequestGenerator;
-import org.javarosa.core.io.StreamsUtil;
+import org.commcare.utils.AndroidStreamUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,7 +38,7 @@ public class MicroNode {
             try {
                 InputStream is = new BufferedInputStream(
                         new HttpRequestGenerator().simpleGet(new URL(serviceUrlRoot + "/apps/manifest")));
-                byte[] manifest = StreamsUtil.getStreamAsBytes(is);
+                byte[] manifest = AndroidStreamUtil.inputStreamToByteArray(is);
 
                 JSONObject object = new JSONObject(new String(manifest));
 
