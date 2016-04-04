@@ -2092,7 +2092,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private boolean canNavigateForward() {
         ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
-        return nextButton.getTag().equals(NAV_STATE_NEXT);
+        return NAV_STATE_NEXT.equals(nextButton.getTag());
     }
 
     /**

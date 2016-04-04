@@ -93,7 +93,7 @@ class UpdateUIController implements CommCareActivityUIController {
         installUpdateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.lauchUpdateInstallTask();
+                activity.launchUpdateInstallTask();
             }
         });
         String updateVersionPlaceholderMsg =

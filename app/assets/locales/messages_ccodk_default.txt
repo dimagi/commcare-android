@@ -415,6 +415,13 @@ pin.auth.prompt.password=Enter your password
 pin.auth.enter.button=ENTER
 pin.primed.mode.message=You will use the PIN you create here to log into CommCare on all future log-ins.
 
+refresh.build.base.message=Refreshing to your latest build...
+refresh.build.up.to.date=Your app is already up to date, so no refresh occurred.
+refresh.build.update.error=An error occurred while attempting to update, so no refresh occurred.
+refresh.build.update.canceled=The update was canceled, so no refresh occurred.
+refresh.build.session.error=The refresh build utility cannot be used when you are not logged in, so no refresh occurred.
+refresh.build.settings.error=No refresh occurred. In order to use this utility, please turn on the "Enable Session Saving" setting in the Developer Preferences menu.
+
 #Put these into their own file
 
 login.attempt.fail.auth.title=Invalid Username or Password
@@ -616,6 +623,11 @@ wifi.direct.discovery.failed.specific=Discovery failed with reason code ${0}
 wifi.direct.connect.failed=Connecting failed, please retry
 wifi.direct.error.wiping.forms=Error wiping forms: ${0}
 wifi.direct.connect.success=Successfully connected to peer
+
+wifi.direct.submit.button=Submit
+wifi.direct.send.button=Send
+wifi.direct.discover.button=Discover
+wifi.direct.change.mode.button=Change Mode
 
 wifi.direct.zip.task.title=Zipping Forms...
 wifi.direct.zip.task.message=CommCare is compressing your data for transfer
