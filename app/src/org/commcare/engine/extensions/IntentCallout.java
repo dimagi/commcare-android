@@ -44,9 +44,9 @@ public class IntentCallout implements Externalizable {
     private String className;
     private Hashtable<String, XPathExpression> refs;
 
-    private Hashtable<String, Vector<TreeReference>> responses;
+    private Hashtable<String, Vector<TreeReference>> responseToRefMap;
 
-    private FormDef form;
+    private FormDef formDef;
 
     private String type;
     private String component;
@@ -72,12 +72,12 @@ public class IntentCallout implements Externalizable {
      * @param appearance if 'quick' then intent is automatically called when question is shown, and advanced when intent answer is received
      */
     public IntentCallout(String className, Hashtable<String, XPathExpression> refs,
-                         Hashtable<String, Vector<TreeReference>> responses, String type,
-                         String component, String data, String buttonLabel,
+                         Hashtable<String, Vector<TreeReference>> responseToRefMap, String type,
+                         String component, String data, String buttonLabel, 
                          String updateButtonLabel, String appearance) {
         this.className = className;
         this.refs = refs;
-        this.responses = responses;
+        this.responseToRefMap = responseToRefMap;
         this.type = type;
         this.component = component;
         this.data = data;
@@ -87,7 +87,7 @@ public class IntentCallout implements Externalizable {
     }
 
     protected void attachToForm(FormDef form) {
-        this.form = form;
+        this.formDef = form;
     }
 
     public Intent generate(EvaluationContext ec) {
@@ -117,33 +117,20 @@ public class IntentCallout implements Externalizable {
         return i;
     }
 
-    private void setNodeValue(TreeReference reference, String stringValue) {
-        // todo: this code is very similar to SetValueAction.processAction, could be unified?
-        if (stringValue != null) {
-            EvaluationContext evaluationContext = new EvaluationContext(form.getEvaluationContext(), reference);
-            AbstractTreeElement node = evaluationContext.resolveReference(reference);
-            int dataType = node.getDataType();
-            IAnswerData val = Recalculate.wrapData(stringValue, dataType);
-            form.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), reference);
-        } else {
-            form.setValue(null, reference);
-        }
-    }
-
-    public boolean processResponse(Intent intent, TreeReference context, File destination) {
+    public boolean processResponse(Intent intent, TreeReference intentQuestionRef, File destination) {
         if (intentInvalid(intent)) {
             return false;
         }
 
         String result = intent.getStringExtra(INTENT_RESULT_VALUE);
-        setNodeValue(context, result);
+        setNodeValue(intentQuestionRef, result);
 
         //see if we have a return bundle
         Bundle response = intent.getBundleExtra(INTENT_RESULT_BUNDLE);
 
         //Load all of the data from the incoming bundle
-        if (responses != null && response != null) {
-            for (String key : responses.keySet()) {
+        if (responseToRefMap != null && response != null) {
+            for (String key : responseToRefMap.keySet()) {
                 //See if the value exists at all, if not, skip it
                 if (!response.containsKey(key)) {
                     continue;
@@ -155,15 +142,36 @@ public class IntentCallout implements Externalizable {
                     key = "";
                 }
 
-                for (TreeReference ref : responses.get(key)) {
-                    processResponseItem(ref, responseValue, context, destination);
+                for (TreeReference ref : responseToRefMap.get(key)) {
+                    processResponseItem(ref, responseValue, intentQuestionRef, destination);
                 }
             }
         }
         return (result != null);
     }
 
-    private boolean intentInvalid(Intent intent) {
+    private void setNodeValue(TreeReference reference, String stringValue) {
+        // todo: this code is very similar to SetValueAction.processAction, could be unified?
+        if (stringValue != null) {
+            EvaluationContext evaluationContext = new EvaluationContext(formDef.getEvaluationContext(), reference);
+            AbstractTreeElement node = evaluationContext.resolveReference(reference);
+            int dataType = node.getDataType();
+
+            setValueInFormDef(reference, stringValue, dataType);
+        } else {
+            formDef.setValue(null, reference);
+        }
+    }
+
+    private void setValueInFormDef(TreeReference ref, String responseValue, int dataType) {
+        IAnswerData val = Recalculate.wrapData(responseValue, dataType);
+        if (val != null) {
+            val = AnswerDataFactory.templateByDataType(dataType).cast(val.uncast());
+        }
+        formDef.setValue(val, ref);
+    }
+
+    private static boolean intentInvalid(Intent intent) {
         if (intent == null) {
             return true;
         }
@@ -181,7 +189,7 @@ public class IntentCallout implements Externalizable {
 
     private void processResponseItem(TreeReference ref, String responseValue,
                                      TreeReference contextRef, File destinationFile) {
-        EvaluationContext context = new EvaluationContext(form.getEvaluationContext(), contextRef);
+        EvaluationContext context = new EvaluationContext(formDef.getEvaluationContext(), contextRef);
         TreeReference fullRef = ref.contextualize(contextRef);
         AbstractTreeElement node = context.resolveReference(fullRef);
 
@@ -192,25 +200,29 @@ public class IntentCallout implements Externalizable {
         int dataType = node.getDataType();
 
         //TODO: Handle file system errors in a way that is more visible to the user
-
-        //See if this is binary data and we'll have to do something complex...
         if (dataType == Constants.DATATYPE_BINARY) {
-            //We need to copy the binary data at this address into the appropriate location
-            if (responseValue == null || responseValue.equals("")) {
-                //If the response was blank, wipe out any data that was present before
-                form.setValue(null, fullRef);
-                return;
-            }
+            storePointerToFileResponse(fullRef, responseValue, destinationFile);
+        } else {
+            setValueInFormDef(fullRef, responseValue, dataType);
+        }
+    }
 
-            //Otherwise, grab that file
-            File src = new File(responseValue);
-            if (!src.exists()) {
-                //TODO: How hard should we be failing here?
-                Log.w(TAG, "CommCare received a link to a file at " + src.toString() + " to be included in the form, but it was not present on the phone!");
-                //Wipe out any reference that exists
-                form.setValue(null, fullRef);
-                return;
-            }
+    private void storePointerToFileResponse(TreeReference ref, String responseValue, File destinationFile) {
+        //We need to copy the binary data at this address into the appropriate location
+        if (responseValue == null || responseValue.equals("")) {
+            //If the response was blank, wipe out any data that was present before
+            formDef.setValue(null, ref);
+            return;
+        }
+
+        //Otherwise, grab that file
+        File src = new File(responseValue);
+        if (!src.exists()) {
+            //TODO: How hard should we be failing here?
+            Log.w(TAG, "CommCare received a link to a file at " + src.toString() + " to be included in the form, but it was not present on the phone!");
+            //Wipe out any reference that exists
+            formDef.setValue(null, ref);
+        } else {
 
             File newFile = new File(destinationFile, src.getName());
 
@@ -224,25 +236,19 @@ public class IntentCallout implements Externalizable {
 
             //That code throws no errors, so we have to manually check whether the copy worked.
             if (newFile.exists() && newFile.length() == src.length()) {
-                form.setValue(new StringData(newFile.toString()), fullRef);
-                return;
+                formDef.setValue(new StringData(newFile.toString()), ref);
             } else {
                 Log.e(TAG, "CommCare failed to property write a file to " + newFile.toString());
-                form.setValue(null, fullRef);
-                return;
+                formDef.setValue(null, ref);
             }
         }
-
-        //otherwise, just load it up
-        IAnswerData val = Recalculate.wrapData(responseValue, dataType);
-        form.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), fullRef);
     }
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         className = ExtUtil.readString(in);
         refs = (Hashtable<String, XPathExpression>)ExtUtil.read(in, new ExtWrapMapPoly(String.class, true), pf);
-        responses = (Hashtable<String, Vector<TreeReference>>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapList(TreeReference.class)), pf);
+        responseToRefMap = (Hashtable<String, Vector<TreeReference>>)ExtUtil.read(in, new ExtWrapMap(String.class, new ExtWrapList(TreeReference.class)), pf);
         appearance = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         component = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         buttonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
@@ -253,7 +259,7 @@ public class IntentCallout implements Externalizable {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, className);
         ExtUtil.write(out, new ExtWrapMapPoly(refs));
-        ExtUtil.write(out, new ExtWrapMap(responses, new ExtWrapList()));
+        ExtUtil.write(out, new ExtWrapMap(responseToRefMap, new ExtWrapList()));
         ExtUtil.write(out, new ExtWrapNullable(appearance));
         ExtUtil.write(out, new ExtWrapNullable(component));
         ExtUtil.write(out, new ExtWrapNullable(buttonLabel));
