@@ -83,7 +83,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                                     return;
                                 }
 
-                                int successfulSends = this.getSuccesfulSends();
+                                int successfulSends = this.getSuccessfulSends();
 
                                 if (result == FormUploadUtil.FULL_SUCCESS) {
                                     receiver.displayMessage("Send succesful. All  " + successfulSends + " forms were submitted");
