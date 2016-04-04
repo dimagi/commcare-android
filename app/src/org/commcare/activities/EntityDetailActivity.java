@@ -118,7 +118,7 @@ public class EntityDetailActivity
 
         next.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-                GoogleAnalyticsUtils.reportEntityDetailContinue(false, mDetailView.getTabCount() > 1);
+                GoogleAnalyticsUtils.reportEntityDetailContinue(false, mDetailView.getTabCount() == 1);
                 select();
             }
         });
@@ -202,7 +202,7 @@ public class EntityDetailActivity
         if (isFinalSwipeActionEnabled &&
                 mDetailView.getCurrentTab() >= mDetailView.getTabCount() - 1) {
             select();
-            GoogleAnalyticsUtils.reportEntityDetailContinue(true, mDetailView.getTabCount() > 1);
+            GoogleAnalyticsUtils.reportEntityDetailContinue(true, mDetailView.getTabCount() == 1);
             return true;
         }
         return false;
@@ -214,7 +214,7 @@ public class EntityDetailActivity
         if (isFinalSwipeActionEnabled &&
                 mDetailView.getCurrentTab() < 1) {
             finish();
-            GoogleAnalyticsUtils.reportEntityDetailExit(true, mDetailView.getTabCount() > 1);
+            GoogleAnalyticsUtils.reportEntityDetailExit(true, mDetailView.getTabCount() == 1);
             return true;
         }
         return false;
@@ -233,6 +233,6 @@ public class EntityDetailActivity
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        GoogleAnalyticsUtils.reportEntityDetailExit(false, mDetailView.getTabCount() > 1);
+        GoogleAnalyticsUtils.reportEntityDetailExit(false, mDetailView.getTabCount() == 1);
     }
 }
