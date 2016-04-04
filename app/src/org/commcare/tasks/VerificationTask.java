@@ -1,6 +1,7 @@
 package org.commcare.tasks;
 
 import org.commcare.CommCareApplication;
+import org.commcare.resources.model.InstallCancelled;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.TableStateListener;
@@ -16,7 +17,7 @@ import org.javarosa.core.util.SizeBoundVector;
  */
 public abstract class VerificationTask<Reciever>
         extends CommCareTask<String, int[], SizeBoundVector<MissingMediaException>, Reciever>
-        implements TableStateListener {
+        implements TableStateListener, InstallCancelled {
 
     public VerificationTask(int taskId) {
         this.taskId = taskId;
@@ -31,8 +32,11 @@ public abstract class VerificationTask<Reciever>
             ResourceTable global = platform.getGlobalResourceTable();
             SizeBoundUniqueVector<MissingMediaException> problems =
                     new SizeBoundUniqueVector<>(10);
-            global.setStateListener(this);
+
+            setTableListeners(global);
             global.verifyInstallation(problems);
+            unsetTableListeners(global);
+
             if (problems.size() > 0) {
                 return problems;
             }
@@ -43,6 +47,16 @@ public abstract class VerificationTask<Reciever>
         }
     }
 
+    private void setTableListeners(ResourceTable table) {
+        table.setStateListener(this);
+        table.setInstallCancellationChecker(this);
+    }
+
+    private static void unsetTableListeners(ResourceTable table) {
+        table.setInstallCancellationChecker(null);
+        table.setStateListener(null);
+    }
+
     @Override
     public void incrementProgress(int complete, int total) {
         this.publishProgress(new int[]{complete, total});
@@ -50,5 +64,10 @@ public abstract class VerificationTask<Reciever>
 
     @Override
     public void resourceStateUpdated(ResourceTable table) {
+    }
+
+    @Override
+    public boolean wasInstallCancelled() {
+        return isCancelled();
     }
 }
