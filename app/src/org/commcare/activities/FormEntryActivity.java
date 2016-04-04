@@ -460,6 +460,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 finishReturnInstance(false);
             } else if (requestCode == INTENT_CALLOUT){
                 processIntentResponse(intent, true);
+                Toast.makeText(this, Localization.get("intent.callout.cancelled"), Toast.LENGTH_SHORT).show();
             }
             // request was canceled, so do nothing
             return;
@@ -472,7 +473,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 break;
             case INTENT_CALLOUT:
-                processIntentResponse(intent);
+                if (!processIntentResponse(intent, false)) {
+                    Toast.makeText(this, Localization.get("intent.callout.unable.to.process"), Toast.LENGTH_SHORT).show();
+                }
                 break;
             case IMAGE_CAPTURE:
                 ImageCaptureProcessing.processCaptureResponse(this, getInstanceFolder(), true);
@@ -561,43 +564,42 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         return null;
     }
 
-    private void processIntentResponse(Intent response){
-        processIntentResponse(response, false);
-    }
-
-    private void processIntentResponse(Intent response, boolean cancelled) {
+    /**
+     * @return Was answer set from intent?
+     */
+    private boolean processIntentResponse(Intent response, boolean wasIntentCancelled) {
         // keep track of whether we should auto advance
-        boolean advance = false;
+        boolean wasAnswerSet = false;
         boolean quick = false;
 
         IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
-        TreeReference context;
-        if (mFormController.getPendingCalloutFormIndex() != null) {
-            context = mFormController.getPendingCalloutFormIndex().getReference();
-        } else {
-            context = null;
-        }
-        if(pendingIntentWidget != null) {
-            //Set our instance destination for binary data if needed
+        if (pendingIntentWidget != null) {
+            // Set our instance destination for binary data if needed
             String destination = mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
 
-            //get the original intent callout
+            // get the original intent callout
             IntentCallout ic = pendingIntentWidget.getIntentCallout();
 
-            quick = "quick".equals(ic.getAppearance());
+            if (!wasIntentCancelled) {
+                quick = "quick".equals(ic.getAppearance());
+                TreeReference context = null;
+                if (mFormController.getPendingCalloutFormIndex() != null) {
+                    context = mFormController.getPendingCalloutFormIndex().getReference();
+                }
+                wasAnswerSet = ic.processResponse(response, context, new File(destination));
+            }
 
-            //And process it 
-            advance = ic.processResponse(response, context, new File(destination));
-
-            ic.setCancelled(cancelled);
+            ic.setCancelled(wasIntentCancelled);
         }
-
-        refreshCurrentView();
 
         // auto advance if we got a good result and are in quick mode
-        if(advance && quick){
+        if (wasAnswerSet && quick) {
             showNextView();
+        } else {
+            refreshCurrentView();
         }
+
+        return wasAnswerSet;
     }
 
     private void updateFormRelevancies() {
@@ -2090,7 +2092,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private boolean canNavigateForward() {
         ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
-        return nextButton.getTag().equals(NAV_STATE_NEXT);
+        return NAV_STATE_NEXT.equals(nextButton.getTag());
     }
 
     /**

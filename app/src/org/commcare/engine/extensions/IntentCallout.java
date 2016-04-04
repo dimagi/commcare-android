@@ -3,6 +3,7 @@ package org.commcare.engine.extensions;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -51,6 +52,7 @@ public class IntentCallout implements Externalizable {
     private String component;
     private String data;
     private String buttonLabel;
+    private String updateButtonLabel;
     private String appearance;
     private boolean isCancelled;
 
@@ -64,10 +66,15 @@ public class IntentCallout implements Externalizable {
         // for serialization
     }
 
+    /**
+     * @param buttonLabel Intent callout button text for initially calling the intent.
+     * @param updateButtonLabel Intent callout button text for re-calling the intent to update the answer
+     * @param appearance if 'quick' then intent is automatically called when question is shown, and advanced when intent answer is received
+     */
     public IntentCallout(String className, Hashtable<String, XPathExpression> refs,
                          Hashtable<String, Vector<TreeReference>> responseToRefMap, String type,
-                         String component, String data, String buttonLabel, String appearance) {
-
+                         String component, String data, String buttonLabel, 
+                         String updateButtonLabel, String appearance) {
         this.className = className;
         this.refs = refs;
         this.responseToRefMap = responseToRefMap;
@@ -75,6 +82,7 @@ public class IntentCallout implements Externalizable {
         this.component = component;
         this.data = data;
         this.buttonLabel = buttonLabel;
+        this.updateButtonLabel = updateButtonLabel;
         this.appearance = appearance;
     }
 
@@ -110,7 +118,7 @@ public class IntentCallout implements Externalizable {
     }
 
     public boolean processResponse(Intent intent, TreeReference intentQuestionRef, File destination) {
-        if (intent == null) {
+        if (intentInvalid(intent)) {
             return false;
         }
 
@@ -161,6 +169,22 @@ public class IntentCallout implements Externalizable {
             val = AnswerDataFactory.templateByDataType(dataType).cast(val.uncast());
         }
         formDef.setValue(val, ref);
+    }
+
+    private boolean intentInvalid(Intent intent) {
+        if (intent == null) {
+            return true;
+        }
+        try {
+            // force unparcelling to check if we are missing classes to
+            // correctly process callout response
+            intent.hasExtra(INTENT_RESULT_VALUE);
+        } catch (BadParcelableException e) {
+            Log.w(TAG, "unable to unparcel intent: " + e.getMessage());
+            return true;
+        }
+
+        return false;
     }
 
     private void processResponseItem(TreeReference ref, String responseValue,
@@ -228,6 +252,7 @@ public class IntentCallout implements Externalizable {
         appearance = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         component = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         buttonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        updateButtonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
     }
 
     @Override
@@ -238,10 +263,15 @@ public class IntentCallout implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(appearance));
         ExtUtil.write(out, new ExtWrapNullable(component));
         ExtUtil.write(out, new ExtWrapNullable(buttonLabel));
+        ExtUtil.write(out, new ExtWrapNullable(updateButtonLabel));
     }
 
     public String getButtonLabel() {
         return buttonLabel;
+    }
+
+    public String getUpdateButtonLabel() {
+        return updateButtonLabel;
     }
 
     public String getAppearance() {

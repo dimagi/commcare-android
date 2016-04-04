@@ -4,14 +4,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import org.commcare.dalvik.R;
 import org.commcare.engine.extensions.AndroidXFormExtensions;
 import org.commcare.engine.extensions.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
-import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.QuestionDataExtension;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 /**
@@ -82,9 +81,9 @@ public class WidgetFactory {
                         questionWidget = new GeoPointWidget(context, fep, pendingCalloutInterface);
                         break;
                     case Constants.DATATYPE_BARCODE:
-
                         IntentCallout mIntentCallout = new IntentCallout("com.google.zxing.client.android.SCAN", null, null,
-                                null, null, null, StringUtils.getStringRobust(context, R.string.get_barcode), appearance);
+                                null, null, null, Localization.get("intent.barcode.get"),
+                                Localization.get("intent.barcode.update"), appearance);
                         Intent mIntent = mIntentCallout.generate(form.getEvaluationContext());
                         questionWidget = new BarcodeWidget(context, fep, mIntent, mIntentCallout, pendingCalloutInterface);
                         break;

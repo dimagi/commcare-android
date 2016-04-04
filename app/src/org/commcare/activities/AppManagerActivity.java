@@ -122,7 +122,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                     Toast.makeText(this, R.string.no_installation,
                             Toast.LENGTH_LONG).show();
                 }
-                break;
+                return;
             case DispatchActivity.MISSING_MEDIA_ACTIVITY:
                 if (resultCode == RESULT_CANCELED) {
                     String title = getString(R.string.media_not_verified);
@@ -138,8 +138,9 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
-                break;
+                return;
         }
+        super.onActivityResult(requestCode, resultCode, intent);
     }
 
     /**
