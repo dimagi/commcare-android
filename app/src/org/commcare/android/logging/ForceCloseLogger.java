@@ -1,6 +1,5 @@
 package org.commcare.android.logging;
 
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import org.apache.http.HttpResponse;

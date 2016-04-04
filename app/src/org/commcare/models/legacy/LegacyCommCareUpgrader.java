@@ -23,7 +23,7 @@ import org.javarosa.core.services.Logger;
  */
 public class LegacyCommCareUpgrader {
 
-    final Context context;
+    private final Context context;
 
     public LegacyCommCareUpgrader(Context c) {
         this.context = c;
@@ -83,7 +83,7 @@ public class LegacyCommCareUpgrader {
         return true;
     }
 
-    public boolean upgradeOneTwo(SQLiteDatabase database) {
+    private boolean upgradeOneTwo(SQLiteDatabase database) {
         database.beginTransaction();
         LegacyTableBuilder builder = new LegacyTableBuilder("UPGRADE_RESOURCE_TABLE");
         builder.addData(new Resource());
