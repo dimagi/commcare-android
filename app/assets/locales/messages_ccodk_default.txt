@@ -421,7 +421,7 @@ login.attempt.fail.auth.title=Invalid Username or Password
 login.attempt.fail.auth.detail=Your username or password was not recognized, please type them again and retry.
 
 login.attempt.fail.pin.title=Invalid PIN
-login.attempt.fail.pin.detail=You entered an incorrect PIN for the given username.
+login.attempt.fail.pin.detail=Please enter the 4 digit PIN number that you chose, or select "Forgot PIN?" in the options menu to login with your password instead.
 
 login.attempt.fail.empty.pw.title=Empty Password
 login.attempt.fail.empty.pw.detail=You did not enter a password.
