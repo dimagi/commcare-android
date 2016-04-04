@@ -156,7 +156,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected void initiateLoginAttempt(boolean restoreSession) {
         LoginMode loginMode = uiController.getLoginMode();
 
-        if (uiController.getEnteredPasswordOrPin().equals("") &&
+        if ("".equals(uiController.getEnteredPasswordOrPin()) &&
                 loginMode != LoginMode.PRIMED) {
             if (loginMode == LoginMode.PASSWORD) {
                 raiseLoginMessage(StockMessages.Auth_EmptyPassword, false);
