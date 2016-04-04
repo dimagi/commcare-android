@@ -209,6 +209,31 @@ public class GoogleAnalyticsUtils {
                 CommCareApplication._().getCurrentVersionString());
     }
 
+
+    /**
+     * Report a user event of navigating backward out of the entity detail screen
+     *
+     * @param isSwipe - Toggles user's method of navigation to swipe or arrow press
+     */
+    public static void reportEntityDetailExit(boolean isSwipe) {
+        reportEvent(
+                GoogleAnalyticsFields.CATEGORY_MODULE_NAVIGATION,
+                GoogleAnalyticsFields.ACTION_EXIT_FROM_DETAIL,
+                isSwipe ? GoogleAnalyticsFields.LABEL_SWIPE : GoogleAnalyticsFields.LABEL_ARROW);
+    }
+
+    /**
+     * Report a user event of continuing forward out of the entity detail screen
+     *
+     * @param isSwipe - Toggles user's method of navigation to swipe or arrow press
+     */
+    public static void reportEntityDetailContinue(boolean isSwipe) {
+        reportEvent(
+                GoogleAnalyticsFields.CATEGORY_MODULE_NAVIGATION,
+                GoogleAnalyticsFields.ACTION_CONTINUE_FROM_DETAIL,
+                isSwipe ? GoogleAnalyticsFields.LABEL_SWIPE : GoogleAnalyticsFields.LABEL_ARROW);
+    }
+
     /**
      * Report the length of a certain user event/action/concept
      *

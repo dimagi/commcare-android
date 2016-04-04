@@ -12,6 +12,7 @@ import android.widget.RelativeLayout;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
@@ -117,6 +118,7 @@ public class EntityDetailActivity
 
         next.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
+                GoogleAnalyticsUtils.reportEntityDetailContinue(false);
                 select();
             }
         });
@@ -200,6 +202,7 @@ public class EntityDetailActivity
         if (isFinalSwipeActionEnabled &&
                 mDetailView.getCurrentTab() >= mDetailView.getTabCount() - 1) {
             select();
+            GoogleAnalyticsUtils.reportEntityDetailContinue(true);
             return true;
         }
         return false;
@@ -211,6 +214,7 @@ public class EntityDetailActivity
         if (isFinalSwipeActionEnabled &&
                 mDetailView.getCurrentTab() < 1) {
             finish();
+            GoogleAnalyticsUtils.reportEntityDetailExit(true);
             return true;
         }
         return false;
@@ -224,5 +228,11 @@ public class EntityDetailActivity
         loadOutgoingIntent(i);
         setResult(RESULT_OK, i);
         finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        GoogleAnalyticsUtils.reportEntityDetailExit(false);
     }
 }

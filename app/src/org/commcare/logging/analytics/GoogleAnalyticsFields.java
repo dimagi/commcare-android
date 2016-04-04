@@ -17,6 +17,7 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_ARCHIVED_FORMS = "Archived Forms";
     public static final String CATEGORY_TIMED_EVENTS = "Timed Events";
     public static final String CATEGORY_PRE_LOGIN_STATS = "Pre-Login Stats";
+    public static final String CATEGORY_MODULE_NAVIGATION = "Module Navigation";
 
     // Actions for CATEGORY_HOME_SCREEN only
     public static final String ACTION_BUTTON = "Button Press";
@@ -48,6 +49,10 @@ public final class GoogleAnalyticsFields {
 
     // Actions for CATEGORY_PRE_LOGIN_STATS
     public static final String ACTION_APP_INSTALL = "New App Install";
+
+    // Actions for CATEGORY_MODULE_NAVIGATION
+    public static final String ACTION_CONTINUE_FROM_DETAIL = "Continue Forward from Detail View";
+    public static final String ACTION_EXIT_FROM_DETAIL = "Exit Detail View";
 
     // Labels for ACTION_BUTTON
     public static final String LABEL_START_BUTTON = "Start Button";
@@ -115,6 +120,7 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_DEVELOPER_OPTIONS = "Developer Options";
 
     // Labels for ACTION_FORWARD and ACTION_BACKWARD (in CATEGORY_FORM_ENTRY)
+    // and also ACTION_CONTINUE_FROM_DETAIL and ACTION_EXIT_FROM_DETAIL (in CATEGORY_MODULE_NAVIGATION)
     public static final String LABEL_ARROW = "Press Arrow";
     public static final String LABEL_SWIPE = "Swipe";
 
@@ -133,7 +139,7 @@ public final class GoogleAnalyticsFields {
     public static String LABEL_SYNC_SUCCESS;
     public static String LABEL_SYNC_FAILURE;
 
-    // Labels for ACTION_VIEW_SAVED_FORMS and ACTION_OPEN_SAVED_FORM
+    // Labels for ACTION_VIEW_FORMS_LIST and ACTION_OPEN_ARCHIVED_FORM
     public static final String LABEL_INCOMPLETE = "Incomplete";
     public static final String LABEL_COMPLETE = "Complete (Saved)";
 
