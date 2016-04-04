@@ -255,10 +255,8 @@ public class QuestionsView extends ScrollView
                 Spannable markdownSpannable = MarkupUtil.returnMarkdown(getContext(), m);
                 s.append(markdownSpannable);
             }
-            else if (t != null && !t.trim().equals("")) {
+            else if (t != null) {
                 s.append(t);
-            } else {
-                continue;
             }
 
             if (g.repeats() && i > 0) {
