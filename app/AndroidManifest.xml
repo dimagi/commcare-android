@@ -296,6 +296,8 @@
 
         <activity android:name="org.commcare.activities.EntityMapActivity">
         </activity>
+        <activity android:name="org.commcare.activities.RefreshToLatestBuildActivity">
+        </activity>
 
         <uses-library
             android:name="org.javarosa"
@@ -340,7 +342,15 @@
         <receiver android:name="org.commcare.provider.ExternalApiReceiver">
             <intent-filter>
                 <action android:name="${applicationId}.api.action.ExternalAction"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </receiver>
 
+        <receiver android:name="org.commcare.provider.RefreshToLatestBuildReceiver"
+            android:enabled="true"
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="${applicationId}.api.action.RefreshToLatestBuildAction"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>

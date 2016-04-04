@@ -28,7 +28,6 @@ import android.view.ContextThemeWrapper;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -460,6 +459,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 finishReturnInstance(false);
             } else if (requestCode == INTENT_CALLOUT){
                 processIntentResponse(intent, true);
+                Toast.makeText(this, Localization.get("intent.callout.cancelled"), Toast.LENGTH_SHORT).show();
             }
             // request was canceled, so do nothing
             return;
@@ -472,7 +472,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 break;
             case INTENT_CALLOUT:
-                processIntentResponse(intent);
+                if (!processIntentResponse(intent, false)) {
+                    Toast.makeText(this, Localization.get("intent.callout.unable.to.process"), Toast.LENGTH_SHORT).show();
+                }
                 break;
             case IMAGE_CAPTURE:
                 ImageCaptureProcessing.processCaptureResponse(this, getInstanceFolder(), true);
@@ -561,43 +563,42 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         return null;
     }
 
-    private void processIntentResponse(Intent response){
-        processIntentResponse(response, false);
-    }
-
-    private void processIntentResponse(Intent response, boolean cancelled) {
+    /**
+     * @return Was answer set from intent?
+     */
+    private boolean processIntentResponse(Intent response, boolean wasIntentCancelled) {
         // keep track of whether we should auto advance
-        boolean advance = false;
+        boolean wasAnswerSet = false;
         boolean quick = false;
 
         IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
-        TreeReference context;
-        if (mFormController.getPendingCalloutFormIndex() != null) {
-            context = mFormController.getPendingCalloutFormIndex().getReference();
-        } else {
-            context = null;
-        }
-        if(pendingIntentWidget != null) {
-            //Set our instance destination for binary data if needed
+        if (pendingIntentWidget != null) {
+            // Set our instance destination for binary data if needed
             String destination = mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
 
-            //get the original intent callout
+            // get the original intent callout
             IntentCallout ic = pendingIntentWidget.getIntentCallout();
 
-            quick = "quick".equals(ic.getAppearance());
+            if (!wasIntentCancelled) {
+                quick = "quick".equals(ic.getAppearance());
+                TreeReference context = null;
+                if (mFormController.getPendingCalloutFormIndex() != null) {
+                    context = mFormController.getPendingCalloutFormIndex().getReference();
+                }
+                wasAnswerSet = ic.processResponse(response, context, new File(destination));
+            }
 
-            //And process it 
-            advance = ic.processResponse(response, context, new File(destination));
-
-            ic.setCancelled(cancelled);
+            ic.setCancelled(wasIntentCancelled);
         }
-
-        refreshCurrentView();
 
         // auto advance if we got a good result and are in quick mode
-        if(advance && quick){
+        if (wasAnswerSet && quick) {
             showNextView();
+        } else {
+            refreshCurrentView();
         }
+
+        return wasAnswerSet;
     }
 
     private void updateFormRelevancies() {
@@ -1161,27 +1162,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         }
 
-        if(!displayed) {
-            showCustomToast(constraintText, Toast.LENGTH_SHORT);
+        if (!displayed) {
+            Toast popupMessage = Toast.makeText(this, constraintText, Toast.LENGTH_SHORT);
+            // center message to avoid overlapping with keyboard
+            popupMessage.setGravity(Gravity.CENTER, 0, 0);
+            popupMessage.show();
         }
         isAnimatingSwipe = false;
-    }
-
-    public void showCustomToast(String message, int duration) {
-        LayoutInflater inflater =
-            (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        View view = inflater.inflate(R.layout.toast_view, null);
-
-        // set the text in the view
-        TextView tv = (TextView) view.findViewById(R.id.message);
-        tv.setText(message);
-
-        Toast t = new Toast(this);
-        t.setView(view);
-        t.setDuration(duration);
-        t.setGravity(Gravity.CENTER, 0, 0);
-        t.show();
     }
 
     /**
@@ -2090,7 +2077,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private boolean canNavigateForward() {
         ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
-        return nextButton.getTag().equals(NAV_STATE_NEXT);
+        return NAV_STATE_NEXT.equals(nextButton.getTag());
     }
 
     /**

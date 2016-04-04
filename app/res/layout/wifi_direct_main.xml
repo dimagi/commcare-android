@@ -93,7 +93,7 @@
                 android:orientation="horizontal"
                 android:padding="4dp">
 
-                <org.commcare.android.view.SquareButtonWithText
+                <org.commcare.views.SquareButtonWithText
                     android:id="@+id/send"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -105,7 +105,7 @@
                     SquareButtonWithText:subtitle=""
                     SquareButtonWithText:textColor="@color/white"/>
 
-                <org.commcare.android.view.SquareButtonWithText
+                <org.commcare.views.SquareButtonWithText
                     android:id="@+id/discover"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -117,7 +117,7 @@
                     SquareButtonWithText:subtitle=""
                     SquareButtonWithText:textColor="@color/white"/>
 
-                <org.commcare.android.view.SquareButtonWithText
+                <org.commcare.views.SquareButtonWithText
                     android:id="@+id/submit"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -129,7 +129,7 @@
                     SquareButtonWithText:subtitle=""
                     SquareButtonWithText:textColor="@color/white"/>
 
-                <org.commcare.android.view.SquareButtonWithText
+                <org.commcare.views.SquareButtonWithText
                     android:id="@+id/mode"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

@@ -23,14 +23,14 @@ import java.util.Hashtable;
 public class IncompleteFormRecordView extends LinearLayout {
 
     public final TextView mPrimaryTextView;
-    public final TextView mLowerTextView;
+    private final TextView mLowerTextView;
     public final TextView mRightTextView;
-    public final TextView mUpperRight;
+    private final TextView mUpperRight;
 
-    final Hashtable<String, Text> names;
-    final Date start;
+    private final Hashtable<String, Text> names;
+    private final Date start;
 
-    final Drawable rightHandSync;
+    private final Drawable rightHandSync;
 
     public IncompleteFormRecordView(Context context, Hashtable<String, Text> names) {
         super(context);

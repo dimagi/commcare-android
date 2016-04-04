@@ -152,7 +152,7 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         }
     }
 
-    public static GeoPointData toGeoPointData(Location location) {
+    private static GeoPointData toGeoPointData(Location location) {
         return new GeoPointData(new double[]{
                 location.getLatitude(),
                 location.getLongitude(),
