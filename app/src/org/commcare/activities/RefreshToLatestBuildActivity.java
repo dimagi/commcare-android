@@ -48,24 +48,24 @@ public class RefreshToLatestBuildActivity extends Activity {
                 .setText(Localization.get("refresh.build.base.message"));
 
         if (!DeveloperPreferences.isSessionSavingEnabled()) {
-            showErrorAlertDialog(SAVING_NOT_ENABLED_ERROR);
+            errorOccurred(SAVING_NOT_ENABLED_ERROR);
             return;
         }
 
         try {
             DevSessionRestorer.tryAutoLoginPasswordSave(getCurrentUserPassword(), true);
-            CommCareApplication._().setPendingRefreshToLatestBuild();
+            CommCareApplication._().setPendingRefreshToLatestBuild(true);
             DevSessionRestorer.saveSessionToPrefs();
             attemptUpdate();
         } catch (SessionUnavailableException e) {
-            showErrorAlertDialog(NO_SESSION_ERROR);
+            errorOccurred(NO_SESSION_ERROR);
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (resultCode == RESULT_CANCELED) {
-            showErrorAlertDialog(UPDATE_CANCELED);
+            errorOccurred(UPDATE_CANCELED);
         }
         else {
             String status = intent.getStringExtra(KEY_UPDATE_ATTEMPT_RESULT);
@@ -74,12 +74,16 @@ public class RefreshToLatestBuildActivity extends Activity {
                 // so finishing will take us to the login screen and allow auto-login to proceed
                 finish();
             } else {
-                showErrorAlertDialog(status);
+                errorOccurred(status);
             }
         }
     }
 
-    private void showErrorAlertDialog(String status) {
+    private void errorOccurred(String status) {
+        // Reset this flag to false, since an error occurred and the refresh process is being halted
+        CommCareApplication._().setPendingRefreshToLatestBuild(false);
+
+        // Construct an error dialog
         String title = "No Refresh Occurred";
         String message;
         switch(status) {

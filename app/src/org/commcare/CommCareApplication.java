@@ -190,6 +190,7 @@ public class CommCareApplication extends Application {
     private String messageForUserOnDispatch;
     private String titleForUserMessage;
 
+    // Indicates that a build refresh action has been triggered, but not yet completed
     private boolean latestBuildRefreshPending;
 
     @Override
@@ -1463,8 +1464,8 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public void setPendingRefreshToLatestBuild() {
-        this.latestBuildRefreshPending = true;
+    public void setPendingRefreshToLatestBuild(boolean b) {
+        this.latestBuildRefreshPending = b;
     }
 
     public boolean checkPendingBuildRefresh() {

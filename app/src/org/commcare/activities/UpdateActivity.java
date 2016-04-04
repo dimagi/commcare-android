@@ -50,26 +50,21 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         uiController.setupUI();
 
-        loadSaveInstanceState(savedInstanceState);
+        proceedAutomatically = getIntent().getBooleanExtra(
+                RefreshToLatestBuildActivity.KEY_FROM_LATEST_BUILD_ACTIVITY, false);
+
+        loadSavedInstanceState(savedInstanceState);
 
         boolean isRotation = savedInstanceState != null;
         setupUpdateTask(isRotation);
-
-        proceedAutomatically = getIntent().getBooleanExtra(
-                RefreshToLatestBuildActivity.KEY_FROM_LATEST_BUILD_ACTIVITY, false);
-        if (proceedAutomatically) {
-            startUpdateCheck();
-        }
     }
 
-    private void loadSaveInstanceState(Bundle savedInstanceState) {
+    private void loadSavedInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             taskIsCancelling =
                     savedInstanceState.getBoolean(TASK_CANCELLING_KEY, false);
             isApplyingUpdate =
                     savedInstanceState.getBoolean(IS_APPLYING_UPDATE_KEY, false);
-            proceedAutomatically =
-                    savedInstanceState.getBoolean(IS_IN_AUTO_PROCEED_MODE, false);
             uiController.loadSavedUIState(savedInstanceState);
         }
     }
