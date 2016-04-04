@@ -160,11 +160,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 loginMode != LoginMode.PRIMED) {
             if (loginMode == LoginMode.PASSWORD) {
                 raiseLoginMessage(StockMessages.Auth_EmptyPassword, false);
-                return;
             } else {
                 raiseLoginMessage(StockMessages.Auth_EmptyPin, false);
-                return;
             }
+            return;
         }
 
         uiController.clearErrorMessage();
