@@ -169,4 +169,8 @@ public final class GoogleAnalyticsFields {
     // Values for LABEL_ARROW and LABEL_SWIPE
     public static final int VALUE_FORM_NOT_DONE = 0;
     public static final int VALUE_FORM_DONE = 1;
+
+    // Values for ACTION_CONTINUE_FROM_DETAIL/ACTION_EXIT_FROM_DETAIL : LABEL_ARROW/LABEL_SWIPE
+    public static final int VALUE_DOESNT_HAVE_TABS = 0;
+    public static final int VALUE_HAS_TABS = 1;
 }

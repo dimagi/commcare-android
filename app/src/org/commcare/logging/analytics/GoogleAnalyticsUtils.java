@@ -215,11 +215,9 @@ public class GoogleAnalyticsUtils {
      *
      * @param isSwipe - Toggles user's method of navigation to swipe or arrow press
      */
-    public static void reportEntityDetailExit(boolean isSwipe) {
-        reportEvent(
-                GoogleAnalyticsFields.CATEGORY_MODULE_NAVIGATION,
-                GoogleAnalyticsFields.ACTION_EXIT_FROM_DETAIL,
-                isSwipe ? GoogleAnalyticsFields.LABEL_SWIPE : GoogleAnalyticsFields.LABEL_ARROW);
+    public static void reportEntityDetailExit(boolean isSwipe, boolean isSingleTab) {
+        reportEntityDetailNavigation(
+                GoogleAnalyticsFields.ACTION_EXIT_FROM_DETAIL, isSwipe, isSingleTab);
     }
 
     /**
@@ -227,11 +225,17 @@ public class GoogleAnalyticsUtils {
      *
      * @param isSwipe - Toggles user's method of navigation to swipe or arrow press
      */
-    public static void reportEntityDetailContinue(boolean isSwipe) {
+    public static void reportEntityDetailContinue(boolean isSwipe, boolean isSingleTab) {
+        reportEntityDetailNavigation(
+                GoogleAnalyticsFields.ACTION_CONTINUE_FROM_DETAIL, isSwipe, isSingleTab);
+    }
+
+    private static void reportEntityDetailNavigation(String action, boolean isSwipe, boolean isSingleTab) {
         reportEvent(
                 GoogleAnalyticsFields.CATEGORY_MODULE_NAVIGATION,
-                GoogleAnalyticsFields.ACTION_CONTINUE_FROM_DETAIL,
-                isSwipe ? GoogleAnalyticsFields.LABEL_SWIPE : GoogleAnalyticsFields.LABEL_ARROW);
+                action,
+                isSwipe ? GoogleAnalyticsFields.LABEL_SWIPE : GoogleAnalyticsFields.LABEL_ARROW,
+                isSingleTab ? GoogleAnalyticsFields.VALUE_DOESNT_HAVE_TABS : GoogleAnalyticsFields.VALUE_HAS_TABS);
     }
 
     /**
