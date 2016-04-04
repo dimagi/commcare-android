@@ -154,15 +154,23 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      *                       upon successful login
      */
     protected void initiateLoginAttempt(boolean restoreSession) {
-        if (uiController.getEnteredPasswordOrPin().equals("")) {
-            raiseLoginMessage(StockMessages.Auth_EmptyPassword, false);
-            return;
+        LoginMode loginMode = uiController.getLoginMode();
+
+        if (uiController.getEnteredPasswordOrPin().equals("") &&
+                loginMode != LoginMode.PRIMED) {
+            if (loginMode == LoginMode.PASSWORD) {
+                raiseLoginMessage(StockMessages.Auth_EmptyPassword, false);
+                return;
+            } else {
+                raiseLoginMessage(StockMessages.Auth_EmptyPin, false);
+                return;
+            }
         }
 
         uiController.clearErrorMessage();
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
 
-        if (uiController.getLoginMode() == LoginMode.PASSWORD) {
+        if (loginMode == LoginMode.PASSWORD) {
             DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPasswordOrPin());
         }
 
