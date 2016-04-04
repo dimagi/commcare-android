@@ -186,6 +186,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         } else if (result == AppInstallStatus.UpToDate) {
             uiController.upToDateUiState();
             if (proceedAutomatically) {
+                unregisterTask();
                 finishWithResult(RefreshToLatestBuildActivity.ALREADY_UP_TO_DATE);
                 return;
             }
@@ -194,6 +195,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             // failed for a specific reason like xml syntax
             uiController.checkFailedUiState();
             if (proceedAutomatically) {
+                unregisterTask();
                 finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
                 return;
             }
