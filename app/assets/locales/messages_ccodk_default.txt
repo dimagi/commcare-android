@@ -283,7 +283,8 @@ bulk.form.dump.success=${1} forms dumped successfully
 mult.install.error=Unexpected Error installing the multimedia! Please try again. Error Text: ${0}  
 
 login.menu.demo=Enter as Demo User
-login.menu.password.mode=Switch to Password Login Mode
+login.menu.password.mode=Forgot PIN?
+
 main.sync.demo=You cannot sync data down from the server when logged in in demo mode
 
 main.sync.demo.has.forms=Your forms have been submitted to the server; however, you cannot retrieve forms from the server in Demo mode.
