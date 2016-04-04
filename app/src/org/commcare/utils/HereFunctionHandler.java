@@ -100,7 +100,7 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         }
 
 
-        if (shouldRefreshEntityList()) {
+        if (entitySelectActivity != null && shouldRefreshEntityList()) {
             lastDisplayedLocation = location;
             entitySelectActivity.onEvalLocationChanged();
         }
@@ -114,7 +114,7 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
             isDistanceDeltaSufficient = distanceFromLastLocation > REFRESH_METER_DELTA;
         }
 
-        return entitySelectActivity != null && isDistanceDeltaSufficient;
+        return isDistanceDeltaSufficient;
     }
 
     public boolean locationProvidersFound() {
