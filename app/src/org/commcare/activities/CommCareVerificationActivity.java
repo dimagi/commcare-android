@@ -186,8 +186,6 @@ public class CommCareVerificationActivity
 
     @Override
     public void taskCancelled() {
-        setResult(RESULT_CANCELED);
-        finish();
     }
 
     private void handleVerificationProblems(SizeBoundVector<MissingMediaException> problems) {
