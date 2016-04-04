@@ -27,6 +27,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public final static String HOME_REPORT_ENABLED = "cc-home-report";
     public final static String AUTO_PURGE_ENABLED = "cc-auto-purge";
     public final static String LOAD_FORM_PAYLOAD_AS = "cc-form-payload-status";
+    public final static String DETAIL_TAB_SWIPE_ACTION_ENABLED = "cc-detail-final-swipe-enabled";
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -84,6 +85,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         prefKeyToAnalyticsEvent.put(HOME_REPORT_ENABLED, GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED);
         prefKeyToAnalyticsEvent.put(AUTO_PURGE_ENABLED, GoogleAnalyticsFields.LABEL_AUTO_PURGE);
         prefKeyToAnalyticsEvent.put(LOAD_FORM_PAYLOAD_AS, GoogleAnalyticsFields.LABEL_LOAD_FORM_PAYLOAD_AS);
+        prefKeyToAnalyticsEvent.put(DETAIL_TAB_SWIPE_ACTION_ENABLED, GoogleAnalyticsFields.LABEL_DETAIL_TAB_SWIPE_ACTION);
     }
 
     @Override
@@ -241,5 +243,13 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static String formLoadPayloadStatus() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(LOAD_FORM_PAYLOAD_AS, FormRecord.STATUS_SAVED);
+    }
+
+    /**
+     * Feature flag to control whether swiping in case detail tabs can trigger
+     * exit from the case detail screen
+     */
+    public static boolean isDetailTabSwipeActionEnabled() {
+        return doesPropertyMatch(DETAIL_TAB_SWIPE_ACTION_ENABLED, CommCarePreferences.YES, CommCarePreferences.YES);
     }
 }
