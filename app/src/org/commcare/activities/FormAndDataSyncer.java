@@ -47,7 +47,7 @@ public class FormAndDataSyncer {
                 }
                 activity.getUIController().refreshView();
 
-                int successfulSends = this.getSuccessfulSends();
+                int successfulSends = this.getSuccesfulSends();
 
                 if (result == FormUploadUtil.FULL_SUCCESS) {
                     String label = Localization.get("sync.success.sent.singular",
