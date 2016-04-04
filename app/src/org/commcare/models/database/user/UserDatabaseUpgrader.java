@@ -432,7 +432,7 @@ class UserDatabaseUpgrader {
         return (count > 1);
     }
 
-    public static ApplicationRecord getInstalledAppRecord() {
+    private static ApplicationRecord getInstalledAppRecord() {
         SqlStorage<ApplicationRecord> storage =
                 CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
         for (Persistable p : storage) {

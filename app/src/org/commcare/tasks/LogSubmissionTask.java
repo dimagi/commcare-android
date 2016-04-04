@@ -229,8 +229,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         }
     }
 
-    public static boolean submitDeviceReportRecord(DeviceReportRecord slr, String submissionUrl,
-                                                   DataSubmissionListener listener, int index) {
+    private static boolean submitDeviceReportRecord(DeviceReportRecord slr, String submissionUrl,
+                                                    DataSubmissionListener listener, int index) {
         //Get our file pointer
         File f = new File(slr.getFilePath());
 
