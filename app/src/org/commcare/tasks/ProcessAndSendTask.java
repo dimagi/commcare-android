@@ -372,7 +372,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         results = null;
     }
 
-    protected int getSuccesfulSends() {
+    protected int getSuccessfulSends() {
         int successes = 0;
         for (Long formResult : results) {
             if (formResult != null && FormUploadUtil.FULL_SUCCESS == formResult.intValue()) {
