@@ -1128,7 +1128,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         SpannableStringBuilder groupLabelText = questionsView.getGroupLabel();
 
-        // don't consider '>' char when evaluating whether there's a group label
         if (groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
             groupLabel.setText(groupLabelText);
             this.mGroupNativeVisibility = true;
