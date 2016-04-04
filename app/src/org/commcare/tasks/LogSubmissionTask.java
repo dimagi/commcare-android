@@ -250,11 +250,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             return false;
         }
 
-        if (User.TYPE_DEMO.equals(user.getUserType())) {
-            generator = new HttpRequestGenerator();
-        } else {
-            generator = new HttpRequestGenerator(user);
-        }
+        generator = new HttpRequestGenerator(user);
 
         MultipartEntity entity = new DataSubmissionEntity(listener, index);
 

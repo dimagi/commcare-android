@@ -1342,8 +1342,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // save current answer; if headless, don't evaluate the constraints
         // before doing so.
         boolean wasScreenSaved =
-                saveAnswersForCurrentScreen(headless ? DO_NOT_EVALUATE_CONSTRAINTS : EVALUATE_CONSTRAINTS,
-                        complete, headless);
+                saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS, complete, headless);
         if (!wasScreenSaved) {
             return;
         }
@@ -2090,7 +2089,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private boolean canNavigateForward() {
         ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
-        return nextButton.getTag().equals(NAV_STATE_NEXT);
+        return NAV_STATE_NEXT.equals(nextButton.getTag());
     }
 
     /**
