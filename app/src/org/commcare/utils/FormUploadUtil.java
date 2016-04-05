@@ -155,12 +155,7 @@ public class FormUploadUtil {
             return RECORD_FAILURE;
         }
 
-        HttpRequestGenerator generator;
-        if (user.getUserType().equals(User.TYPE_DEMO)) {
-            generator = new HttpRequestGenerator();
-        } else {
-            generator = new HttpRequestGenerator(user);
-        }
+        HttpRequestGenerator generator = new HttpRequestGenerator(user);
         return submitEntity(entity, url, generator);
     }
 

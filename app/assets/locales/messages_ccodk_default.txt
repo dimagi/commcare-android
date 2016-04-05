@@ -283,7 +283,8 @@ bulk.form.dump.success=${1} forms dumped successfully
 mult.install.error=Unexpected Error installing the multimedia! Please try again. Error Text: ${0}  
 
 login.menu.demo=Enter as Demo User
-login.menu.password.mode=Switch to Password Login Mode
+login.menu.password.mode=Forgot PIN?
+
 main.sync.demo=You cannot sync data down from the server when logged in in demo mode
 login.menu.app.manager=Go To App Manager
 
@@ -399,7 +400,7 @@ pin.dialog.not.now=No, but ask again on next login
 pin.dialog.never=No, and don't ask again
 pin.dialog.extra.info=After creating a PIN, you will be prompted to log in with that instead of your full password, on all future log-ins. If you ever forget your PIN, you can always revert to logging in with your normal password.
 pin.dialog.set.later.title=Setting A PIN Later
-pin.dialog.set.later.message=You access the PIN create screen at any time from the home screen options menu.
+pin.dialog.set.later.message=You can access the PIN create screen at any time from the home screen options menu.
 pin.continue.button=CONTINUE
 pin.confirm.button=CONFIRM
 pin.directive.new=Enter a 4-digit PIN
@@ -428,10 +429,13 @@ login.attempt.fail.auth.title=Invalid Username or Password
 login.attempt.fail.auth.detail=Your username or password was not recognized, please type them again and retry.
 
 login.attempt.fail.pin.title=Invalid PIN
-login.attempt.fail.pin.detail=You entered an incorrect PIN for the given username.
+login.attempt.fail.pin.detail=Please enter the 4 digit PIN number that you chose, or select "Forgot PIN?" in the options menu to login with your password instead.
 
 login.attempt.fail.empty.pw.title=Empty Password
 login.attempt.fail.empty.pw.detail=You did not enter a password.
+
+login.attempt.fail.empty.pin.title=Empty PIN
+login.attempt.fail.empty.pin.detail=You did not enter a PIN.
 
 login.attempt.fail.changed.title=Password Changed since Last Login
 login.attempt.fail.changed.detail=You've logged in with a new password since you're last login. You may need to log in with your old credentials to ensure you have no unsent data.

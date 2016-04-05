@@ -49,6 +49,11 @@ public class NotificationMessageFactory {
         Auth_EmptyPassword("login.attempt.fail.empty.pw"),
 
         /**
+         * No PIN was entered
+         */
+        Auth_EmptyPin("login.attempt.fail.empty.pin"),
+
+        /**
          * Server 500 when retrieving data.
          */
         Restore_RemoteError("notification.restore.remote.error"),
