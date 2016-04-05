@@ -9,6 +9,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.ACase;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.models.database.user.models.SessionStateDescriptor;
+import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Text;
@@ -280,8 +281,8 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         //TODO: Most of this mimicks what we need to do in entrydetail activity, remove it from there
         //and generalize the walking
 
-        //TODO: This manipulates the state of the session. We should instead grab and make a copy of the frame, and make a new session to
-        //investigate this.
+        // get a copy of the session
+        CommCareSession session = new CommCareSession(androidSessionWrapper.getSession());
 
         // Walk backwards until we find something with a long detail
         while (session.getFrame().getSteps().size() > 0 &&
