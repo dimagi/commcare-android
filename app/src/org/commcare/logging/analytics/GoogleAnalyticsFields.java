@@ -17,11 +17,8 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_ARCHIVED_FORMS = "Archived Forms";
     public static final String CATEGORY_TIMED_EVENTS = "Timed Events";
     public static final String CATEGORY_PRE_LOGIN_STATS = "Pre-Login Stats";
-<<<<<<< HEAD
-    public static final String CATEGORY_ADVANCED_USAGE = "Advanced CommCare Usage";
-=======
     public static final String CATEGORY_MODULE_NAVIGATION = "Module Navigation";
->>>>>>> master
+    public static final String CATEGORY_ADVANCED_USAGE = "Advanced CommCare Usage";
 
     // Actions for CATEGORY_HOME_SCREEN only
     public static final String ACTION_BUTTON = "Button Press";
