@@ -191,12 +191,14 @@ public class CommCareApplication extends Application {
     private String messageForUserOnDispatch;
     private String titleForUserMessage;
 
+    private boolean superUserEnabled;
+
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        //Sets the static strategy for the deserializtion code to be
+        //Sets the static strategy for the deserialization code to be
         //based on an optimized md5 hasher. Major speed improvements.
         AndroidClassHasher.registerAndroidClassHashStrategy();
         AndroidUtil.initializeStaticHandlers();
@@ -1385,6 +1387,14 @@ public class CommCareApplication extends Application {
     public void clearPendingUserMessage() {
         messageForUserOnDispatch = null;
         titleForUserMessage = null;
+    }
+
+    public void enableSuperUserMode() {
+        superUserEnabled = true;
+    }
+
+    public boolean superUserEnabled() {
+        return superUserEnabled;
     }
 
     private void setupLoggerStorage(boolean userStorageAvailable) {
