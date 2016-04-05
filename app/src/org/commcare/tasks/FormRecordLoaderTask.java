@@ -277,7 +277,7 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         }
     }
 
-    public static String getTitleFromSession(AndroidSessionWrapper androidSessionWrapper) {
+    private static String getTitleFromSession(AndroidSessionWrapper androidSessionWrapper) {
         //TODO: Most of this mimicks what we need to do in entrydetail activity, remove it from there
         //and generalize the walking
 
