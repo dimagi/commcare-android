@@ -253,7 +253,7 @@ public class EntityListAdapter implements ListAdapter {
 
     private View getEntityView(Entity<TreeReference> entity, EntityView emv, int position) {
         if (emv == null) {
-            emv = EntityView.buildEntryEntityView(context, detail, entity, null, currentSearchTerms, position, mFuzzySearchEnabled);
+            emv = EntityView.buildEntryEntityView(context, detail, entity, currentSearchTerms, position, mFuzzySearchEnabled);
         } else {
             emv.setSearchTerms(currentSearchTerms);
             emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);

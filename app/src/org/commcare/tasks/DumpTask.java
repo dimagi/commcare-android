@@ -185,7 +185,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
         if(ids.size() > 0) {
             FormRecord[] records = new FormRecord[ids.size()];
             for(int i = 0 ; i < ids.size() ; ++i) {
-                records[i] = storage.read(ids.elementAt(i).intValue());
+                records[i] = storage.read(ids.elementAt(i));
             }
 
             dumpFolder = dumpDirectory;

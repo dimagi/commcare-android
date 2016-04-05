@@ -52,7 +52,8 @@ import javax.crypto.SecretKey;
 /**
  * @author ctsims
  */
-public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPullTask.PullTaskResult, R>
+public abstract class DataPullTask<R>
+        extends CommCareTask<Void, Integer, DataPullTask.PullTaskResult, R>
         implements CommCareOTARestoreListener {
     private final String server;
     private final String username;
@@ -80,7 +81,9 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
     public static final int PROGRESS_DOWNLOADING = 256;
     private DataPullRequester dataPullRequester;
 
-    private DataPullTask(String username, String password, String server, Context context, boolean restoreOldSession) {
+    private DataPullTask(String username, String password,
+                         String server, Context context,
+                         boolean restoreOldSession) {
         this.server = server;
         this.username = username;
         this.password = password;
@@ -92,11 +95,14 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
         TAG = DataPullTask.class.getSimpleName();
     }
 
-    public DataPullTask(String username, String password, String server, Context context) {
+    public DataPullTask(String username, String password,
+                        String server, Context context) {
         this(username, password, server, context, false);
     }
 
-    private DataPullTask(String username, String password, String server, Context context, DataPullRequester dataPullRequester) {
+    private DataPullTask(String username, String password,
+                         String server, Context context,
+                         DataPullRequester dataPullRequester) {
         this(username, password, server, context);
         this.dataPullRequester = dataPullRequester;
     }
@@ -118,7 +124,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
             // checking for isCancelled() and aborting at safe places.
             return PullTaskResult.UNKNOWN_FAILURE;
         }
-
 
         // Wrap in a 'try' to enable a 'finally' close that releases the
         // sessionAliveLock.
@@ -162,7 +167,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                 }
             };
             Logger.log(AndroidLogger.TYPE_USER, "Starting Sync");
-            long bytesRead = -1;
 
             UserKeyRecord ukr = null;
 
@@ -224,7 +228,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                         wasKeyLoggedIn = true;
                     }
 
-
                     this.publishProgress(PROGRESS_AUTHED, 0);
                     Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
 
@@ -236,9 +239,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                         updateUserSyncToken(syncToken);
 
                         //record when we last synced
-                        Editor e = prefs.edit();
-                        e.putLong("last-succesful-sync", new Date().getTime());
-                        e.commit();
+                        storeSuccessfulSyncTime(prefs);
 
                         if (loginNeeded) {
                             CommCareApplication._().getAppStorage(UserKeyRecord.class).write(ukr);
@@ -279,6 +280,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
 
                     if (returnCode == PROGRESS_DONE) {
                         //All set! Awesome recovery
+                        storeSuccessfulSyncTime(prefs);
                         this.publishProgress(PROGRESS_DONE);
                         return PullTaskResult.DOWNLOAD_SUCCESS;
                     } else if (returnCode == PROGRESS_RECOVERY_FAIL_SAFE) {
@@ -312,8 +314,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                     Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
                     return PullTaskResult.SERVER_ERROR;
                 }
-
-
             } catch (SocketTimeoutException e) {
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
@@ -348,14 +348,19 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
         }
     }
 
+    private void storeSuccessfulSyncTime(SharedPreferences prefs) {
+        Editor e = prefs.edit();
+        e.putLong("last-succesful-sync", new Date().getTime());
+        e.commit();
+    }
+
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
     private int recover(HttpRequestGenerator requestor, AndroidTransactionParserFactory factory) {
         this.publishProgress(PROGRESS_RECOVERY_NEEDED);
 
         Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Triggered");
 
-
-        BitCache cache = null;
+        BitCache cache;
 
         //This chunk is the safe field of operations which can all fail in IO in such a way that we can
         //just report back that things didn't work and don't need to attempt any recovery or additional
@@ -372,14 +377,12 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
             //Grab a cache. The plan is to download the incoming data, wipe (move) the existing db, and then
             //restore fresh from the downloaded file
             cache = pullResponse.writeResponseToCache(context);
-
         } catch (IOException e) {
             e.printStackTrace();
             //Ok, well, we're bailing here, but we didn't make any changes
             Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Failed due to IOException|" + e.getMessage());
             return PROGRESS_RECOVERY_FAIL_SAFE;
         }
-
 
         this.publishProgress(PROGRESS_RECOVERY_STARTED);
         Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery payload downloaded");
@@ -394,7 +397,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
         //TODO: move table instead. Should be straightforward with sandboxed db's
         CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class).removeAll();
 
-
         String failureReason = "";
         try {
             //Get new data
@@ -402,26 +404,9 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
             updateUserSyncToken(syncToken);
             Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Succesful");
             return PROGRESS_DONE;
-        } catch (InvalidStructureException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        } catch (UnfullfilledRequirementsException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        }
-
-        //These last two aren't a sign that the incoming data is bad, but
-        //we still can't recover from them usefully
-        catch (SessionUnavailableException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        } catch (IOException e) {
+        } catch (InvalidStructureException | XmlPullParserException
+                | UnfullfilledRequirementsException | StorageFullException
+                | SessionUnavailableException | IOException e) {
             e.printStackTrace();
             failureReason = e.getMessage();
         } finally {
@@ -485,9 +470,9 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
     @Override
     public void onUpdate(int numberCompleted) {
         mCurrentProgress = numberCompleted;
-        int miliSecElapsed = (int)(System.currentTimeMillis() - mSyncStartTime);
+        int millisecondsElapsed = (int)(System.currentTimeMillis() - mSyncStartTime);
 
-        this.publishProgress(PROGRESS_PROCESSING, mCurrentProgress, mTotalItems, miliSecElapsed);
+        this.publishProgress(PROGRESS_PROCESSING, mCurrentProgress, mTotalItems, millisecondsElapsed);
     }
 
     @Override
