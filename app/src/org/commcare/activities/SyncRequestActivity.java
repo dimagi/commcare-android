@@ -1,9 +1,7 @@
-package org.commcare.dalvik.activities;
+package org.commcare.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import org.commcare.android.framework.CommCareActivity;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
@@ -25,7 +23,8 @@ public class SyncRequestActivity extends CommCareActivity<SyncRequestActivity> {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         if (resultCode == RESULT_OK) {
-            if requestCode
+            if (requestCode==1) {
+            }
         } else {
         }
     }
