@@ -823,7 +823,7 @@ public class CommCareHomeActivity
             case SessionNavigator.LAUNCH_CONFIRM_DETAIL:
                 launchConfirmDetail(asw);
                 break;
-            case SessionNavigator.START_REMOTE_QUERY:
+            case SessionNavigator.START_SYNC_REQUEST:
                 launchRemoteSync(asw);
                 break;
             case SessionNavigator.EXCEPTION_THROWN:
