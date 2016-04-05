@@ -182,6 +182,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 incompleteMode = true;
                 //special case, no special filtering options
                 adapter.setFormFilter(FormRecordFilter.Incomplete);
+                adapter.resetRecords();
             }
         } else {
             FormRecordFilter[] filters = FormRecordFilter.values();
@@ -307,7 +308,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
      */
     public void refreshView() {
         disableSearch();
-        adapter.resetRecords();
         listView.setAdapter(adapter);
     }
 

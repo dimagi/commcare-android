@@ -107,11 +107,7 @@ public class ForceCloseLogger {
         HttpRequestGenerator generator;
         try {
             User user = CommCareApplication._().getSession().getLoggedInUser();
-            if (user.getUserType().equals(User.TYPE_DEMO)) {
-                generator = new HttpRequestGenerator();
-            } else {
-                generator = new HttpRequestGenerator(user);
-            }
+            generator = new HttpRequestGenerator(user);
         } catch (Exception e) {
             generator = new HttpRequestGenerator();
         }
