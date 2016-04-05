@@ -3,13 +3,23 @@ package org.commcare.tasks;
 import android.content.Context;
 import android.util.Pair;
 
+import org.commcare.CommCareApplication;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.models.database.user.models.ACase;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.models.database.user.models.SessionStateDescriptor;
+import org.commcare.session.SessionFrame;
+import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Text;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.expr.XPathEqExpr;
+import org.javarosa.xpath.expr.XPathExpression;
+import org.javarosa.xpath.expr.XPathStringLiteral;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,6 +27,7 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
+import java.util.Vector;
 
 /**
  * Loads textual information for a list of FormRecords.
@@ -165,7 +176,7 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
                     AndroidSessionWrapper asw = new AndroidSessionWrapper(platform);
                     asw.loadFromStateDescription(ssd);
                     try {
-                        dataTitle = asw.getTitle();
+                        dataTitle = getTitleFromSession(asw);
                     } catch (RuntimeException e) {
                         dataTitle = "[Unavailable]";
                     }
@@ -264,5 +275,82 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
             }
         }
     }
+
+    public static String getTitleFromSession(AndroidSessionWrapper androidSessionWrapper) {
+        //TODO: Most of this mimicks what we need to do in entrydetail activity, remove it from there
+        //and generalize the walking
+
+        //TODO: This manipulates the state of the session. We should instead grab and make a copy of the frame, and make a new session to
+        //investigate this.
+
+        // Walk backwards until we find something with a long detail
+        while (session.getFrame().getSteps().size() > 0 &&
+                (!SessionFrame.STATE_DATUM_VAL.equals(session.getNeededData()) ||
+                        session.getNeededDatum().getLongDetail() == null)) {
+            session.stepBack();
+        }
+        if (session.getFrame().getSteps().size() == 0) {
+            return null;
+        }
+
+        EvaluationContext ec = androidSessionWrapper.getEvaluationContext();
+
+        //Get the value that was chosen for this item
+        String value = session.getPoppedStep().getValue();
+
+        SessionDatum datum = session.getNeededDatum();
+
+        //Now determine what nodeset that was going to be used to load this select
+        TreeReference nodesetRef = datum.getNodeset().clone();
+        Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() - 1);
+        predicates.add(new XPathEqExpr(XPathEqExpr.EQ, XPathReference.getPathExpr(datum.getValue()), new XPathStringLiteral(value)));
+
+        Vector<TreeReference> elements = ec.expandReference(nodesetRef);
+
+        //If we got our ref, awesome. Otherwise we need to bail.
+        if (elements.size() != 1) {
+            return null;
+        }
+
+        //Now generate a context for our element
+        EvaluationContext element = new EvaluationContext(ec, elements.firstElement());
+
+
+        //Ok, so get our Text.
+        Text t = session.getDetail(datum.getLongDetail()).getTitle().getText();
+        boolean isPrettyPrint = true;
+
+        //CTS: this is... not awesome.
+        //But we're going to use this to test whether we _need_ an evaluation context
+        //for this. (If not, the title doesn't have prettyprint for us)
+        try {
+            String outcome = t.evaluate();
+            if (outcome != null) {
+                isPrettyPrint = false;
+            }
+        } catch (Exception e) {
+            //Cool. Got us a fancy string.
+        }
+
+        if (isPrettyPrint) {
+            //Now just get the detail title for that element
+            return t.evaluate(element);
+        } else {
+            //Otherwise, this is _almost certainly_ a case. See if it is, and
+            //if so, grab the case name. otherwise, who knows?
+            SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
+            try {
+                ACase ourCase = storage.getRecordForValue(ACase.INDEX_CASE_ID, value);
+                if (ourCase != null) {
+                    return ourCase.getName();
+                } else {
+                    return null;
+                }
+            } catch (Exception e) {
+                return null;
+            }
+        }
+    }
+
 
 }
