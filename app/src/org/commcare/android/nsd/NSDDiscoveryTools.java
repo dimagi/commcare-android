@@ -130,6 +130,7 @@ public class NSDDiscoveryTools {
                     manager = (NsdManager)context.getSystemService(Context.NSD_SERVICE);
                 }
 
+                @Override
                 public void commit() {
                     mNsdManager = manager;
                 }

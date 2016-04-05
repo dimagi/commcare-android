@@ -1,7 +1,7 @@
 package org.commcare.utils;
 
 /**
- * A time bound operation will run a synchronized operation in the background, with the confidence
+ * A time bound operation will run a synchronized operation on a blocking thread with the confidence
  * that it will either execute within the time frame provided, or it will not fire its resolution
  * method, and will return control to the main thead after the timeout has expired.
  *
@@ -18,7 +18,6 @@ public abstract class TimeBoundOperation {
 
     final private long timeout;
 
-    private Thread thread;
     private boolean hasExecuted;
 
     public TimeBoundOperation(long timeout) {
@@ -53,7 +52,7 @@ public abstract class TimeBoundOperation {
         }
         hasExecuted = true;
 
-        thread = new Thread(new Runnable() {
+        Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
                 TimeBoundOperation.this.run();
@@ -66,7 +65,7 @@ public abstract class TimeBoundOperation {
         }catch (InterruptedException e) {
             //Execution failed
             return false;
-        };
+        }
 
         commit();
         return true;
