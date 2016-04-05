@@ -185,6 +185,10 @@ public class CommCareVerificationActivity
         task.execute((String[])null);
     }
 
+    @Override
+    public void taskCancelled() {
+    }
+
     private void handleVerificationProblems(SizeBoundVector<MissingMediaException> problems) {
         String message = Localization.get("verification.fail.message");
 
@@ -277,6 +281,9 @@ public class CommCareVerificationActivity
                             Localization.get("verification.checking"),
                             taskId);
             dialog.addProgressBar();
+            if (fromSettings || fromManager) {
+                dialog.addCancelButton();
+            }
             return dialog;
         }
         Log.w(TAG, "taskId passed to generateProgressDialog does not match "

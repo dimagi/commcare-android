@@ -118,7 +118,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         if (ids.size() > 0) {
             FormRecord[] records = new FormRecord[ids.size()];
             for (int i = 0; i < ids.size(); ++i) {
-                records[i] = storage.read(ids.elementAt(i).intValue());
+                records[i] = storage.read(ids.elementAt(i));
             }
             SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
             ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(

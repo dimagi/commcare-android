@@ -191,8 +191,11 @@ public class CommCareApplication extends Application {
     private String messageForUserOnDispatch;
     private String titleForUserMessage;
 
-    private boolean superUserEnabled;
+    // Indicates that a build refresh action has been triggered, but not yet completed
+    private boolean latestBuildRefreshPending;
 
+    // Indicates that authentication as
+    private boolean superUserEnabled;
 
     @Override
     public void onCreate() {
@@ -1411,6 +1414,18 @@ public class CommCareApplication extends Application {
             ForceCloseLogger.registerStorage(
                     this.getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
         }
+    }
+
+    public void setPendingRefreshToLatestBuild(boolean b) {
+        this.latestBuildRefreshPending = b;
+    }
+
+    public boolean checkPendingBuildRefresh() {
+        if (this.latestBuildRefreshPending) {
+            this.latestBuildRefreshPending = false;
+            return true;
+        }
+        return false;
     }
 
 }
