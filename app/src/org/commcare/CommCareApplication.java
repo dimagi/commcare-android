@@ -194,7 +194,8 @@ public class CommCareApplication extends Application {
     // Indicates that a build refresh action has been triggered, but not yet completed
     private boolean latestBuildRefreshPending;
 
-    // Indicates that authentication as
+    //TODO: Will probably move this flag to be stored in whatever activity is created to actually
+    // perform the superuser authentication
     private boolean superUserEnabled;
 
     @Override
@@ -1392,11 +1393,15 @@ public class CommCareApplication extends Application {
         titleForUserMessage = null;
     }
 
-    public void enableSuperUserMode() {
+    public void enableSuperUserMode(String usernameOfSuperuserAuthenticated) {
+        GoogleAnalyticsUtils.reportSuperUserEnabled(usernameOfSuperuserAuthenticated);
+        Logger.log(AndroidLogger.TYPE_USER,
+                "Superuser mode was enabled using username " + usernameOfSuperuserAuthenticated);
+
         superUserEnabled = true;
     }
 
-    public boolean superUserEnabled() {
+    public boolean isSuperUserEnabled() {
         return superUserEnabled;
     }
 

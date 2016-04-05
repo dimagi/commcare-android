@@ -17,6 +17,7 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_ARCHIVED_FORMS = "Archived Forms";
     public static final String CATEGORY_TIMED_EVENTS = "Timed Events";
     public static final String CATEGORY_PRE_LOGIN_STATS = "Pre-Login Stats";
+    public static final String CATEGORY_ADVANCED_USAGE = "Advanced CommCare Usage";
 
     // Actions for CATEGORY_HOME_SCREEN only
     public static final String ACTION_BUTTON = "Button Press";
@@ -48,6 +49,9 @@ public final class GoogleAnalyticsFields {
 
     // Actions for CATEGORY_PRE_LOGIN_STATS
     public static final String ACTION_APP_INSTALL = "New App Install";
+
+    // Actions for CATEGORY_ADVANCED_USAGE
+    public static final String ACTION_SUPER_USER_ENABLED = "Enabled Super-User Mode";
 
     // Labels for ACTION_BUTTON
     public static final String LABEL_START_BUTTON = "Start Button";
@@ -135,6 +139,7 @@ public final class GoogleAnalyticsFields {
     // Labels for ACTION_VIEW_SAVED_FORMS and ACTION_OPEN_SAVED_FORM
     public static final String LABEL_INCOMPLETE = "Incomplete";
     public static final String LABEL_COMPLETE = "Complete (Saved)";
+
 
     // Values for LABEL_SYNC_SUCCESS
     public static final int VALUE_JUST_PULL_DATA = 0;
