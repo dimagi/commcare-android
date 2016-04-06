@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.v4.util.Pair;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
@@ -131,9 +132,10 @@ public class FormAndDataSyncer {
                 activity) {
 
             @Override
-            protected void deliverResult(CommCareHomeActivity receiver, PullTaskResult result) {
+            protected void deliverResult(CommCareHomeActivity receiver, Pair<PullTaskResult, String> resultAndErrorMessage) {
                 receiver.getUIController().refreshView();
 
+                PullTaskResult result = resultAndErrorMessage.first;
                 String reportSyncLabel = result.getCorrespondingGoogleAnalyticsLabel();
                 int reportSyncValue = result.getCorrespondingGoogleAnalyticsValue();
 
@@ -143,6 +145,7 @@ public class FormAndDataSyncer {
                         receiver.displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
                         break;
                     case BAD_DATA:
+                    case BAD_DATA_REQUIRES_INTERVENTION:
                         receiver.displayMessage(Localization.get("sync.fail.bad.data"), true);
                         break;
                     case DOWNLOAD_SUCCESS:

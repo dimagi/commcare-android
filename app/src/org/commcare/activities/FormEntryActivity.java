@@ -1328,8 +1328,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // save current answer; if headless, don't evaluate the constraints
         // before doing so.
         boolean wasScreenSaved =
-                saveAnswersForCurrentScreen(headless ? DO_NOT_EVALUATE_CONSTRAINTS : EVALUATE_CONSTRAINTS,
-                        complete, headless);
+                saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS, complete, headless);
         if (!wasScreenSaved) {
             return;
         }
