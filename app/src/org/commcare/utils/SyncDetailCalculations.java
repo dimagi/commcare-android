@@ -33,7 +33,7 @@ public class SyncDetailCalculations {
         int numUnsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
         if (numUnsentForms > 0) {
             Spannable syncIndicator = (activity.localize("home.sync.indicator",
-                    new String[]{String.valueOf(numUnsentForms), cardDisplayData.text}));
+                    new String[]{String.valueOf(numUnsentForms)}));
             squareButtonViewHolder.subTextView.setText(syncIndicator);
             squareButtonViewHolder.subTextView.setTextColor(activity.getResources().getColor(cardDisplayData.subTextColor));
         } else {
