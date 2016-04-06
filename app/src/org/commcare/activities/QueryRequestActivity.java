@@ -6,28 +6,18 @@ import android.os.Bundle;
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class SyncRequestActivity extends CommCareActivity<SyncRequestActivity> {
-    private static final int SELECT_QUERY_RESULT = 0;
+public class QueryRequestActivity extends CommCareActivity<QueryRequestActivity> {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // trigger sync
-        // go to next session stack frame
+        // prompt user for input
+        // submit query
+        // forward to entity list
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (resultCode == RESULT_OK) {
-            if (requestCode==1) {
-            }
-        } else {
-        }
-    }
-
-    private void launchEntitySelctionActivity() {
-        Intent i = new Intent(this, EntitySelectActivity.class);
-        startActivityForResult(i, SELECT_QUERY_RESULT);
     }
 
     @Override

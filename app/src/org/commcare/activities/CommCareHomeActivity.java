@@ -823,6 +823,9 @@ public class CommCareHomeActivity
             case SessionNavigator.LAUNCH_CONFIRM_DETAIL:
                 launchConfirmDetail(asw);
                 break;
+            case SessionNavigator.PROCESS_QUERY_REQUEST:
+                launchQueryMaker(asw);
+                break;
             case SessionNavigator.START_SYNC_REQUEST:
                 launchRemoteSync(asw);
                 break;
@@ -886,6 +889,13 @@ public class CommCareHomeActivity
     }
 
     private void launchRemoteSync(AndroidSessionWrapper asw) {
+        String command = asw.getSession().getCommand();
+        Entry commandEntry = CommCareApplication._().getCommCarePlatform().getEntry(command);
+        Intent i = new Intent(getApplicationContext(), SyncRequestActivity.class);
+        startActivityForResult(i, GET_REMOTE_DATA);
+    }
+
+    private void launchQueryMaker(AndroidSessionWrapper asw) {
         String command = asw.getSession().getCommand();
         Entry commandEntry = CommCareApplication._().getCommCarePlatform().getEntry(command);
         Intent i = new Intent(getApplicationContext(), SyncRequestActivity.class);
