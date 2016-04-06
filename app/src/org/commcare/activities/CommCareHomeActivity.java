@@ -518,9 +518,12 @@ public class CommCareHomeActivity
                         currentSession.stepBack();
                     } else if (resultCode == RESULT_OK) {
                         if (sessionStateUnchangedSinceCallout(currentSession, intent)) {
-                            String sessionDatumId = currentSession.getNeededDatum().getDataId();
-                            String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
-                            currentSession.setDatum(sessionDatumId, chosenCaseId);
+                            SessionDatum datum = currentSession.getNeededDatum();
+                            if (datum instanceof EntityDatum) {
+                                String sessionDatumId = ((EntityDatum)datum).getDataId();
+                                String chosenCaseId = intent.getStringExtra(SessionFrame.STATE_DATUM_VAL);
+                                currentSession.setDatum(sessionDatumId, chosenCaseId);
+                            }
                         } else {
                             clearSessionAndExit(asw, true);
                             return;
