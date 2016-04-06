@@ -345,15 +345,13 @@ public class FileUtil {
         }
     }
 
-    public static Properties loadProperties(File file) {
+    public static Properties loadProperties(File file) throws IOException{
         Properties prop = new Properties();
         InputStream input = null;
         try {
             input = new FileInputStream(file);
             prop.load(input);
             return prop;
-        } catch (IOException ex) {
-            ex.printStackTrace();
         } finally {
             if (input != null) {
                 try {
@@ -363,7 +361,6 @@ public class FileUtil {
                 }
             }
         }
-        return null;
     }
 
 
