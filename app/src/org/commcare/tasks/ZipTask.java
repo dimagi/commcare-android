@@ -81,6 +81,13 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
 
         File myDir = new File(dumpFolder, folder.getName());
         myDir.mkdirs();
+        try {
+            writeProperties(myDir);
+        } catch(IOException e){
+            Log.e(TAG, e.getMessage());
+            publishProgress("Writing properties file failed with error: " + e.getMessage());
+            return FormUploadUtil.FAILURE;
+        }
 
         if (files == null) {
             //make sure external storage is available to begin with.
@@ -136,12 +143,17 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
             }
         }
 
-        writeProperties(myDir);
-
         return FormUploadUtil.FULL_SUCCESS;
     }
 
-    private void writeProperties(File file) {
+    /**
+     * Write a properties file for inclusion in the transfer payload in WiFi Direct/ SD Dump
+     * Properties:
+     *  PostURL - The PostURL of the original form. By submitting to this (instead of the receiver's
+     *            PostURL) HQ is able to determine the meta data about the form.
+     * @param file
+     */
+    private void writeProperties(File file) throws IOException{
         FileOutputStream outputStream = null;
         try {
             File formProperties = new File(file, "form.properties");
@@ -153,9 +165,6 @@ public abstract class ZipTask extends CommCareTask<String, String, FormRecord[],
                     c.getString(R.string.PostURL));
             properties.setProperty("PostURL", postUrl);
             properties.store(outputStream, null);
-        } catch(IOException e){
-            // we'll just ignore this, not the end of the world
-            e.printStackTrace();
         } finally{
             if(outputStream != null){
                 try {
