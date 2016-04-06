@@ -709,7 +709,7 @@ public class CommCareWiFiDirectActivity
 
             @Override
             protected void deliverResult(CommCareWiFiDirectActivity receiver, Integer result) {
-                if (result == ZipTask.RESULT_SUCCESS) {
+                if (result.intValue() == ZipTask.RESULT_SUCCESS) {
                     receiver.onZipSuccesful();
                 } else {
                     receiver.onZipError();

@@ -104,19 +104,19 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
             }
         }
     }
-
+    private boolean isSupportedFiletype(File file){
+        for (String ext : SUPPORTED_FILE_EXTS) {
+            if (file.getName().endsWith(ext)) {
+                return true;
+            }
+        }
+        return false;
+    }
     private void logTransferBytes(File[] files){
         long bytes = 0;
         for (File file : files) {
             //Make sure we'll be sending it
-            boolean supported = false;
-            for (String ext : SUPPORTED_FILE_EXTS) {
-                if (file.getName().endsWith(ext)) {
-                    supported = true;
-                    break;
-                }
-            }
-            if (!supported) {
+            if (!isSupportedFiletype(file)) {
                 continue;
             }
             bytes += file.length();
