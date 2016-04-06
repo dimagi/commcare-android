@@ -62,7 +62,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private static final String KEY_PROGRESS_DIALOG_FRAG = "progress-dialog-fragment";
     private static final String KEY_ALERT_DIALOG_FRAG = "alert-dialog-fragment";
 
-    TaskConnectorFragment<R> stateHolder;
+    private TaskConnectorFragment<R> stateHolder;
 
     // Fields for implementing task transitions for CommCareTaskConnector
     private boolean inTaskTransition;
@@ -73,7 +73,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      */
     private boolean dismissLastDialogAfterTransition = true;
 
-    protected AlertDialogFragment alertDialogToShowOnResume;
+    private AlertDialogFragment alertDialogToShowOnResume;
 
     private GestureDetector mGestureDetector;
 

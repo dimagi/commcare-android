@@ -138,7 +138,7 @@ public abstract class ResourceEngineTask<R>
                     Vector<Resource> resources;
                     try {
                         resources = ResourceManager.getResourceListFromProfile(table);
-                    } catch(IllegalStateException e) {
+                    } catch(Exception e) {
                         // Since we're on a seperate thread, the db can close during the process
                         // before we can catch the cancel when the install finishes. If so, 
                         // we can skip the status check entirely.

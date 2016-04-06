@@ -7,7 +7,7 @@ import android.provider.MediaStore.Images.Media;
 import android.widget.Toast;
 
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.utils.FileUtils;
+import org.commcare.utils.FileUtil;
 import org.commcare.views.widgets.ImageWidget;
 import org.javarosa.core.services.locale.Localization;
 
@@ -29,7 +29,7 @@ public class ImageCaptureProcessing {
     private static File moveAndScaleImage(File originalImage, boolean shouldScale,
                                          String instanceFolder,
                                          FormEntryActivity formEntryActivity) throws IOException {
-        String extension = FileUtils.getExtension(originalImage.getAbsolutePath());
+        String extension = FileUtil.getExtension(originalImage.getAbsolutePath());
         String imageFilename = System.currentTimeMillis() + "." + extension;
         String finalFilePath = instanceFolder + imageFilename;
 
@@ -40,7 +40,7 @@ public class ImageCaptureProcessing {
             if (currentWidget != null) {
                 int maxDimen = currentWidget.getMaxDimen();
                 if (maxDimen != -1) {
-                    savedScaledImage = FileUtils.scaleAndSaveImage(originalImage, finalFilePath, maxDimen);
+                    savedScaledImage = FileUtil.scaleAndSaveImage(originalImage, finalFilePath, maxDimen);
                 }
             }
         }
@@ -78,8 +78,9 @@ public class ImageCaptureProcessing {
      * SignatureWidget
      *
      * @param isImage true if this was from an ImageWidget, false if it was a SignatureWidget
+     * @return if saving the captured image was successful
      */
-    public static void processCaptureResponse(FormEntryActivity activity,
+    public static boolean processCaptureResponse(FormEntryActivity activity,
                                               String instanceFolder,
                                               boolean isImage) {
         /* We saved the image to the tempfile_path, but we really want it to be in:
@@ -94,9 +95,11 @@ public class ImageCaptureProcessing {
         try {
             File unscaledFinalImage = moveAndScaleImage(originalImage, isImage, instanceFolder, activity);
             activity.saveImageWidgetAnswer(buildImageFileContentValues(unscaledFinalImage));
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
-            activity.showCustomToast(Localization.get("image.capture.not.saved"), Toast.LENGTH_LONG);
+            Toast.makeText(activity, Localization.get("image.capture.not.saved"), Toast.LENGTH_LONG).show();
+            return false;
         }
     }
 
@@ -112,10 +115,10 @@ public class ImageCaptureProcessing {
 
         // get gp of chosen file
         Uri selectedImage = intent.getData();
-        String imagePath = FileUtils.getPath(activity, selectedImage);
+        String imagePath = FileUtil.getPath(activity, selectedImage);
 
         if (imagePath == null) {
-            activity.showCustomToast(Localization.get("invalid.image.selection"), Toast.LENGTH_LONG);
+            Toast.makeText(activity, Localization.get("invalid.image.selection"), Toast.LENGTH_LONG).show();
             return;
         }
 
@@ -127,12 +130,12 @@ public class ImageCaptureProcessing {
                 activity.saveImageWidgetAnswer(buildImageFileContentValues(unscaledFinalImage));
             } catch (IOException e) {
                 e.printStackTrace();
-                activity.showCustomToast(Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG);
+                Toast.makeText(activity, Localization.get("image.selection.not.saved"), Toast.LENGTH_LONG).show();
             }
         } else {
             // The user has managed to select a file from the image browser that doesn't actually
             // exist on the file system anymore
-            activity.showCustomToast(Localization.get("invalid.image.selection"), Toast.LENGTH_LONG);
+            Toast.makeText(activity, Localization.get("invalid.image.selection"), Toast.LENGTH_LONG).show();
         }
     }
 

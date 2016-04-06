@@ -23,7 +23,6 @@
     <string name="audio_file_error">Nebuvo nurodytas joks audio failas.</string>
     <string name="audio_file_invalid">Failas: %s nėra tinkamas audio failas.</string>
     <string name="backup">atgal į\nankstesnį\npuslapį</string>
-    <string name="barcode_scanner_error">Deja brūkšninio kodo skeneris nėra įdiegtas!</string>
     <string name="cancel">Atšaukti</string>
     <string name="cancel_loading_form">Atšaukti</string>
     <string name="cancel_location">Atšaukti</string>
@@ -72,7 +71,6 @@
     <string name="forms">Tuščios formos</string>
     <string name="form_renamed">%1$s buvo pervadinta į %2$s.</string>
     <string name="getting_location">Įkeliama vietovė</string>
-    <string name="get_barcode">Nuskaityti brūkšninį kodą</string>
     <string name="get_forms">Atsisiųsti tuščią formą</string>
     <string name="get_location">Įrašyti vietovę</string>
     <string name="provider_disabled_error">Deja, padėties valdikliai yra išjungti!</string>

@@ -124,7 +124,7 @@ public class SingleAppManagerActivity extends Activity {
                         task.cancel(true);
                     }
                 }
-                break;
+                return;
             case DispatchActivity.MISSING_MEDIA_ACTIVITY:
                 refresh();
                 if (resultCode == RESULT_CANCELED) {
@@ -134,7 +134,9 @@ public class SingleAppManagerActivity extends Activity {
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
+                return;
         }
+        super.onActivityResult(requestCode, resultCode, intent);
     }
 
     /**

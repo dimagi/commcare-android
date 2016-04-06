@@ -33,7 +33,12 @@ import java.util.Vector;
  */
 public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     public static final String HERE_NAME = "here";
-    private GeoPointData location;
+    // only trigger entity list refresh if distance has changed by this amount
+    private static final int REFRESH_METER_DELTA = 30;
+
+    private Location location;
+    // last location used to render the distance properties of the entity list
+    private Location lastDisplayedLocation;
 
     private boolean requestingLocationUpdates;
     private boolean locationGoodEnough;
@@ -65,7 +70,7 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         if (location == null) {
             return "";
         }
-        return location.getDisplayText();
+        return toGeoPointData(location).getDisplayText();
     }
 
     public void allowGpsUse() {
@@ -85,18 +90,31 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
     }
 
     @Override
-    public void onLocationChanged(Location location) {
-        this.location = toGeoPointData(location);
-        Log.i("HereFunctionHandler", "location has been set to " + this.location.getDisplayText());
+    public void onLocationChanged(Location updatedLocation) {
+        this.location = updatedLocation;
+        Log.i("HereFunctionHandler", "location has been set to " + this.location);
 
         if (this.location.getAccuracy() <= GeoUtils.ACCEPTABLE_ACCURACY) {
             locationGoodEnough = true;
             forbidGpsUse();
         }
 
-        if (entitySelectActivity != null) {
+
+        if (entitySelectActivity != null && shouldRefreshEntityList()) {
+            lastDisplayedLocation = location;
             entitySelectActivity.onEvalLocationChanged();
         }
+    }
+
+    private boolean shouldRefreshEntityList() {
+        boolean isDistanceDeltaSufficient = true;
+
+        if (lastDisplayedLocation != null) {
+            float distanceFromLastLocation = lastDisplayedLocation.distanceTo(location);
+            isDistanceDeltaSufficient = distanceFromLastLocation > REFRESH_METER_DELTA;
+        }
+
+        return isDistanceDeltaSufficient;
     }
 
     public boolean locationProvidersFound() {
@@ -111,8 +129,9 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
             if (location == null) {
                 Location lastKnownLocation = mLocationManager.getLastKnownLocation(provider);
                 if (lastKnownLocation != null) {
-                    this.location = toGeoPointData(lastKnownLocation);
-                    Log.i("HereFunctionHandler", "last known location: " + this.location.getDisplayText());
+                    this.location = lastKnownLocation;
+                    this.lastDisplayedLocation = lastKnownLocation;
+                    Log.i("HereFunctionHandler", "last known location: " + this.location);
                 }
             }
 
@@ -133,7 +152,7 @@ public class HereFunctionHandler implements IFunctionHandler, LocationListener {
         }
     }
 
-    public static GeoPointData toGeoPointData(Location location) {
+    private static GeoPointData toGeoPointData(Location location) {
         return new GeoPointData(new double[]{
                 location.getLatitude(),
                 location.getLongitude(),

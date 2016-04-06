@@ -1,6 +1,7 @@
 package org.commcare.preferences;
 
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -24,9 +25,10 @@ import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareUtil;
-import org.commcare.utils.FileUtils;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.commcare.utils.UriToFilePath;
+import org.commcare.views.dialogs.AlertDialogFactory;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -67,6 +69,7 @@ public class CommCarePreferences
     public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
     public final static String LAST_PASSWORD = "last_password";
     public final static String CURRENT_SESSION = "current_user_session";
+    public final static String CURRENT_FORM_ENTRY_SESSION = "current_form_entry_session";
     public final static String CONTENT_VALIDATED = "cc-content-valid";
 
     public final static String YES = "yes";
@@ -88,8 +91,10 @@ public class CommCarePreferences
     private static final int CLEAR_USER_DATA = Menu.FIRST;
     private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 1;
     private static final int RECOVERY_MODE = Menu.FIRST + 2;
-    private static final int SUPERUSER_PREFS = Menu.FIRST + 3;
-    private static final int MENU_CLEAR_SAVED_SESSION = Menu.FIRST + 4;
+    private static final int MENU_DISABLE_ANALYTICS = Menu.FIRST + 3;
+    private static final int SUPERUSER_PREFS = Menu.FIRST + 4;
+    private static final int MENU_CLEAR_SAVED_SESSION = Menu.FIRST + 5;
+
 
     public static final int RESULT_DATA_RESET = RESULT_FIRST_USER + 1;
 
@@ -112,6 +117,9 @@ public class CommCarePreferences
     private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
 
     public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
+
+
+    public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -149,6 +157,7 @@ public class CommCarePreferences
         prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
         prefKeyToAnalyticsEvent.put(PREFS_LOCALE_KEY, GoogleAnalyticsFields.LABEL_LOCALE);
         prefKeyToAnalyticsEvent.put(PREFS_PRINT_DOC_LOCATION, GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
+        prefKeyToAnalyticsEvent.put(GRID_MENUS_ENABLED, GoogleAnalyticsFields.LABEL_GRID_MENUS);
     }
 
     private void createPrintPrefOnClickListener(PreferenceManager prefManager) {
@@ -172,7 +181,7 @@ public class CommCarePreferences
             if (resultCode == RESULT_OK && data != null) {
                 Uri uri = data.getData();
                 String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(), uri);
-                String extension = FileUtils.getExtension(filePath);
+                String extension = FileUtil.getExtension(filePath);
                 if (extension.equalsIgnoreCase("html")) {
                     SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().
                             getAppPreferences().edit();
@@ -200,6 +209,7 @@ public class CommCarePreferences
                 android.R.drawable.ic_menu_upload);
         menu.add(0, RECOVERY_MODE, 3, "Recovery Mode").setIcon(android.R.drawable.ic_menu_report_image);
         menu.add(0, SUPERUSER_PREFS, 4, "Developer Options").setIcon(android.R.drawable.ic_menu_edit);
+        menu.add(0, MENU_DISABLE_ANALYTICS, 5, Localization.get("home.menu.disable.analytics"));
 
         return true;
     }
@@ -209,6 +219,7 @@ public class CommCarePreferences
         GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
         menu.findItem(SUPERUSER_PREFS).setVisible(DeveloperPreferences.isSuperuserEnabled());
         menu.findItem(MENU_CLEAR_SAVED_SESSION).setVisible(DevSessionRestorer.savedSessionPresent());
+        menu.findItem(MENU_DISABLE_ANALYTICS).setVisible(CommCarePreferences.isAnalyticsEnabled());
         return super.onPrepareOptionsMenu(menu);
     }
 
@@ -238,9 +249,40 @@ public class CommCarePreferences
             case MENU_CLEAR_SAVED_SESSION:
                 DevSessionRestorer.clearSession();
                 return true;
+            case MENU_DISABLE_ANALYTICS:
+                showAnalyticsOptOutDialog();
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private void showAnalyticsOptOutDialog() {
+        AlertDialogFactory f = new AlertDialogFactory(this,
+                Localization.get("analytics.opt.out.title"),
+                Localization.get("analytics.opt.out.message"));
+
+        f.setPositiveButton(Localization.get("analytics.disable.button"),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        CommCarePreferences.disableAnalytics();
+                    }
+                });
+
+        f.setNegativeButton(Localization.get("option.cancel"),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        f.showDialog();
+    }
+
 
     private static Map<Integer, String> createMenuItemToEventMapping() {
         Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
@@ -279,6 +321,12 @@ public class CommCarePreferences
         //otherwise, see if we're in sense mode
         return !isInSenseMode();
     }
+
+    public static boolean isGridMenuEnabled() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(GRID_MENUS_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+
 
     public static boolean isFuzzySearchEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();

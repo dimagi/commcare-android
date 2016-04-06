@@ -44,14 +44,29 @@ public class NotificationMessageFactory {
         Auth_InvalidPin("login.attempt.fail.pin"),
 
         /**
+         * No password was entered
+         */
+        Auth_EmptyPassword("login.attempt.fail.empty.pw"),
+
+        /**
+         * No PIN was entered
+         */
+        Auth_EmptyPin("login.attempt.fail.empty.pin"),
+
+        /**
          * Server 500 when retrieving data.
          */
         Restore_RemoteError("notification.restore.remote.error"),
 
         /**
-         * The phone had a problem parsing the data from the server *
+         * The phone had a problem parsing the data from the server
          */
         Remote_BadRestore("notification.restore.baddata"),
+
+        /**
+         * Data sent from server needs to be fixed manually
+         */
+        Remote_BadRestoreRequiresIntervention("notification.restore.data.requires.intervention"),
 
         /**
          * No network connectivity *
@@ -149,7 +164,6 @@ public class NotificationMessageFactory {
     }
 
     public static NotificationMessage message(MessageTag message, String[] parameters, String customCategory) {
-
         String base = message.getLocaleKeyBase();
         if (base == null) {
             throw new NullPointerException("No Locale Key base for message tag!");

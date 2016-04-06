@@ -8,6 +8,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MultipartEntity;
 import org.commcare.CommCareApplication;
+import org.commcare.android.logging.ForceCloseLogEntry;
+import org.commcare.android.logging.ForceCloseLogSerializer;
 import org.commcare.logging.AndroidLogEntry;
 import org.commcare.logging.AndroidLogSerializer;
 import org.commcare.logging.AndroidLogger;
@@ -103,7 +105,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                 return LogSubmitOutcomes.Error;
             }
 
-            // See how many we have pending to submit.
+            // See how many we have pending to submit
             int numberOfLogsToSubmit = storage.getNumRecords();
             if (numberOfLogsToSubmit == 0) {
                 return LogSubmitOutcomes.Submitted;
@@ -127,6 +129,11 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         }
     }
 
+    /**
+     * Serialize all of the entries currently in Android logs, Xpath error logs, and Force close
+     * logs, and write that to a DeviceReportRecord, which then gets added to the internal storage
+     * object of all DeviceReportRecords that have yet to be submitted
+     */
     private boolean serializeLogs(SqlStorage<DeviceReportRecord> storage) {
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
 
@@ -137,7 +144,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         try {
             record = DeviceReportRecord.generateNewRecordStub();
         } catch (SessionUnavailableException e) {
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "User database closed while trying to submit logs");
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "User database closed while trying to submit");
             return false;
         }
 
@@ -153,22 +160,50 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
                 return false;
             }
 
-            //Add the logs as the primary payload
-            AndroidLogSerializer logSerializer = new AndroidLogSerializer(CommCareApplication._().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
-            reporter.addReportElement(logSerializer);
+            // Serialize regular and xpath error logs for the current user
+            AndroidLogSerializer<AndroidLogEntry> userLogSerializer = new AndroidLogSerializer<>(
+                    CommCareApplication._().getUserStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
+            reporter.addReportElement(userLogSerializer);
 
-            XPathErrorSerializer xpathErrorSerializer = new XPathErrorSerializer(CommCareApplication._().getUserStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
+            XPathErrorSerializer xpathErrorSerializer = new XPathErrorSerializer(
+                    CommCareApplication._().getUserStorage(XPathErrorEntry.STORAGE_KEY, XPathErrorEntry.class));
             reporter.addReportElement(xpathErrorSerializer);
 
-            //serialize logs
+            // Serialize all force close logs -- these can exist in both user and global storage
+            ForceCloseLogSerializer globalForceCloseSerializer = new ForceCloseLogSerializer(
+                    CommCareApplication._().getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+            reporter.addReportElement(globalForceCloseSerializer);
+            ForceCloseLogSerializer userForceCloseSerializer = new ForceCloseLogSerializer(
+                    CommCareApplication._().getUserStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+            reporter.addReportElement(userForceCloseSerializer);
+
+            // TEMPORARILY ONLY - serialize all force close logs in the old format, so that HQ
+            // still picks them up, until we start processing the new format
+            AndroidLogSerializer<ForceCloseLogEntry> globalForceCloseSerializer_oldFormat = new AndroidLogSerializer<>(
+                    CommCareApplication._().getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+            reporter.addReportElement(globalForceCloseSerializer_oldFormat);
+            AndroidLogSerializer<ForceCloseLogEntry> userForceCloseSerializer_oldFormat = new AndroidLogSerializer<>(
+                    CommCareApplication._().getUserStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
+            reporter.addReportElement(userForceCloseSerializer_oldFormat);
+
+            // Serialize all logs currently in global storage, since we have no way to determine
+            // which app they truly belong to
+            AndroidLogSerializer globalLogSerializer = new AndroidLogSerializer(
+                    CommCareApplication._().getGlobalStorage(AndroidLogEntry.STORAGE_KEY, AndroidLogEntry.class));
+            reporter.addReportElement(globalLogSerializer);
+
+            // Write serialized logs to the record
             reporter.write();
 
-            //Write the record for where the logs are now saved to.
+            // Write this DeviceReportRecord to where all logs are saved to
             storage.write(record);
 
-            //The logs are saved and recorded, so we can feel safe clearing the logs we serialized.
-            logSerializer.purge();
+            // The logs are saved and recorded, so we can feel safe clearing the logs we serialized.
+            userLogSerializer.purge();
+            globalLogSerializer.purge();
             xpathErrorSerializer.purge();
+            globalForceCloseSerializer.purge();
+            userForceCloseSerializer.purge();
         } catch (Exception e) {
             //Bad times!
             e.printStackTrace();
@@ -183,7 +218,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         int index = 0;
         for (DeviceReportRecord slr : storage) {
             try {
-                if (submit(slr, index)) {
+                if (submitDeviceReportRecord(slr, submissionUrl, this, index)) {
                     submittedSuccesfullyIds.add(slr.getID());
                     submittedSuccesfully.add(slr);
                 }
@@ -194,7 +229,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         }
     }
 
-    private boolean submit(DeviceReportRecord slr, int index) {
+    private static boolean submitDeviceReportRecord(DeviceReportRecord slr, String submissionUrl,
+                                                    DataSubmissionListener listener, int index) {
         //Get our file pointer
         File f = new File(slr.getFilePath());
 
@@ -203,8 +239,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             return true;
         }
 
-        //signal that it's time to start submitting the file
-        this.startSubmission(index, f.length());
+        listener.startSubmission(index, f.length());
+
         HttpRequestGenerator generator;
         User user;
         try {
@@ -214,14 +250,9 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             return false;
         }
 
-        if (User.TYPE_DEMO.equals(user.getUserType())) {
-            generator = new HttpRequestGenerator();
-        } else {
-            generator = new HttpRequestGenerator(user);
-        }
+        generator = new HttpRequestGenerator(user);
 
-        // mime post
-        MultipartEntity entity = new DataSubmissionEntity(this, index);
+        MultipartEntity entity = new DataSubmissionEntity(listener, index);
 
         EncryptedFileBody fb = new EncryptedFileBody(f, getDecryptCipher(new SecretKeySpec(slr.getKey(), "AES")), ContentType.TEXT_XML);
         entity.addPart("xml_submission_file", fb);
@@ -245,7 +276,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         return (responseCode >= 200 && responseCode < 300);
     }
 
-    private boolean removeLocalReports(SqlStorage<DeviceReportRecord> storage,
+    private static boolean removeLocalReports(SqlStorage<DeviceReportRecord> storage,
                                        ArrayList<Integer> submittedSuccesfullyIds,
                                        ArrayList<DeviceReportRecord> submittedSuccesfully) {
         try {

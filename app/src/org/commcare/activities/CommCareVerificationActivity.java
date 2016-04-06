@@ -184,6 +184,10 @@ public class CommCareVerificationActivity
         task.execute((String[])null);
     }
 
+    @Override
+    public void taskCancelled() {
+    }
+
     private void handleVerificationProblems(SizeBoundVector<MissingMediaException> problems) {
         String message = Localization.get("verification.fail.message");
 
@@ -224,7 +228,10 @@ public class CommCareVerificationActivity
         if (requestCode == GET_MULTIMEDIA && resultCode == Activity.RESULT_OK) {
             // we found some media, so try validating it
             newMediaToValidate = true;
+            return;
         }
+
+        super.onActivityResult(requestCode, resultCode, intent);
     }
 
     private void handleVerificationSuccess() {
@@ -273,6 +280,9 @@ public class CommCareVerificationActivity
                             Localization.get("verification.checking"),
                             taskId);
             dialog.addProgressBar();
+            if (fromSettings || fromManager) {
+                dialog.addCancelButton();
+            }
             return dialog;
         }
         Log.w(TAG, "taskId passed to generateProgressDialog does not match "
@@ -290,8 +300,8 @@ public class CommCareVerificationActivity
                 break;
             case R.id.screen_multimedia_retry:
                 verifyResourceInstall();
+                break;
         }
-
     }
 
     private String prettyString(String rawString) {

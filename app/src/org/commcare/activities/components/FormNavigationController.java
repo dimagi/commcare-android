@@ -124,7 +124,7 @@ public class FormNavigationController {
                     // affects the count
                 }
             }
-            currentFormIndex = formEntryController.getNextFormIndex(currentFormIndex, FormController.STEP_INTO_GROUP, false);
+            currentFormIndex = formEntryController.getNextFormIndex(currentFormIndex, FormEntryController.STEP_INTO_GROUP, false);
             event = formEntryController.getEvent(currentFormIndex);
         }
 

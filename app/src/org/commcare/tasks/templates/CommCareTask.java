@@ -25,7 +25,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver> extends M
     //Wait for 2 seconds for something to reconnnect for now (very high)
     private static final int ALLOWABLE_CONNECTOR_ACQUISITION_DELAY = 2000;
 
-    public CommCareTask() {
+    protected CommCareTask() {
         TAG = CommCareTask.class.getSimpleName();
     }
 
@@ -82,9 +82,9 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver> extends M
                 connector.stopBlockingForTask(taskId);
                 if (unknownError != null) {
                     deliverError(connector.getReceiver(), unknownError);
-                    return;
+                } else {
+                    deliverResult(connector.getReceiver(), result);
                 }
-                this.deliverResult(connector.getReceiver(), result);
                 connector.stopTaskTransition();
             }
         }

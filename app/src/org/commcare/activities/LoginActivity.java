@@ -9,8 +9,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.util.Pair;
 import android.util.Log;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -62,7 +62,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private static final int MENU_PASSWORD_MODE = Menu.FIRST + 3;
 
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
-    public final static String KEY_LAST_APP = "id_of_last_selected";
+    public final static String KEY_LAST_APP = "id-last-seated-app";
     public final static String KEY_ENTERED_USER = "entered-username";
     public final static String KEY_ENTERED_PW_OR_PIN = "entered-password-or-pin";
 
@@ -86,6 +86,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (shouldFinish()) {
+            // If we're going to finish in onResume() because there is no usable seated app,
+            // don't bother with all of the setup here
+            return;
+        }
 
         uiController.setupUI();
 
@@ -148,11 +154,23 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      *                       upon successful login
      */
     protected void initiateLoginAttempt(boolean restoreSession) {
+        LoginMode loginMode = uiController.getLoginMode();
+
+        if ("".equals(uiController.getEnteredPasswordOrPin()) &&
+                loginMode != LoginMode.PRIMED) {
+            if (loginMode == LoginMode.PASSWORD) {
+                raiseLoginMessage(StockMessages.Auth_EmptyPassword, false);
+            } else {
+                raiseLoginMessage(StockMessages.Auth_EmptyPin, false);
+            }
+            return;
+        }
+
         uiController.clearErrorMessage();
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
 
-        if (uiController.getLoginMode() == LoginMode.PASSWORD) {
-            DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPasswordOrPin());
+        if (loginMode == LoginMode.PASSWORD) {
+            DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPasswordOrPin(), false);
         }
 
         if (ResourceInstallUtils.isUpdateReadyToInstall()) {
@@ -184,7 +202,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                 LoginActivity.this.getString(R.string.ota_restore_url)),
                         LoginActivity.this) {
                     @Override
-                    protected void deliverResult(LoginActivity receiver, PullTaskResult result) {
+                    protected void deliverResult(LoginActivity receiver, Pair<PullTaskResult, String> resultAndErrorMessage) {
+                        PullTaskResult result = resultAndErrorMessage.first;
                         if (result == null) {
                             // The task crashed unexpectedly
                             receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
@@ -195,8 +214,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                             case AUTH_FAILED:
                                 receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                                 break;
+                            case BAD_DATA_REQUIRES_INTERVENTION:
+                                receiver.raiseLoginMessageWithInfo(StockMessages.Remote_BadRestoreRequiresIntervention, resultAndErrorMessage.second, true);
+                                break;
                             case BAD_DATA:
-                                receiver.raiseLoginMessage(StockMessages.Remote_BadRestore, true);
+                                receiver.raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore, resultAndErrorMessage.second, true);
                                 break;
                             case STORAGE_FULL:
                                 receiver.raiseLoginMessage(StockMessages.Storage_Full, true);
@@ -216,7 +238,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                 receiver.raiseLoginMessage(StockMessages.Remote_ServerError, true);
                                 break;
                             case UNKNOWN_FAILURE:
-                                receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
+                                receiver.raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.second, true);
                                 break;
                         }
                     }
@@ -255,15 +277,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     protected void onResume() {
         super.onResume();
 
-        // It is possible that we left off at the LoginActivity last time we were on the main CC
-        // screen, but have since done something in the app manager to either leave no seated app
-        // at all, or to render the seated app unusable. Redirect to CCHomeActivity if we encounter
-        // either case
-        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
-        if (currentApp == null || !currentApp.getAppRecord().isUsable()) {
-            // send back to dispatch activity
-            setResult(RESULT_OK);
-            this.finish();
+        if (shouldFinish()) {
             return;
         }
 
@@ -271,16 +285,51 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         uiController.refreshView();
     }
 
+    protected boolean checkForSeatedAppChange() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String lastSeatedId = prefs.getString(KEY_LAST_APP, "");
+        String currentSeatedId = CommCareApplication._().getCurrentApp().getUniqueId();
+        if (!lastSeatedId.equals(currentSeatedId)) {
+            prefs.edit().putString(KEY_LAST_APP, currentSeatedId).commit();
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean shouldFinish() {
+        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
+        return currentApp == null || !currentApp.getAppRecord().isUsable();
+    }
+
     @Override
     protected void onResumeFragments() {
         super.onResumeFragments();
 
+        // It is possible that we left off at the LoginActivity last time we were on the main CC
+        // screen, but have since done something in the app manager to either leave no seated app
+        // at all, or to render the seated app unusable. Redirect to dispatch activity if we
+        // encounter either case
+        if (shouldFinish()) {
+            setResult(RESULT_OK);
+            this.finish();
+            return;
+        }
+
         tryAutoLogin();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == SEAT_APP_ACTIVITY && resultCode == RESULT_OK) {
+            uiController.refreshForNewApp();
+        }
+
+        super.onActivityResult(requestCode, resultCode, intent);
     }
 
     private void tryAutoLogin() {
         Pair<String, String> userAndPass =
-                DevSessionRestorer.getAutoLoginCreds();
+                DevSessionRestorer.getAutoLoginCreds(forceAutoLogin());
         if (userAndPass != null) {
             uiController.setUsername(userAndPass.first);
             uiController.setPasswordOrPin(userAndPass.second);
@@ -292,6 +341,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 initiateLoginAttempt(true);
             }
         }
+    }
+
+    private boolean forceAutoLogin() {
+        return CommCareApplication._().checkPendingBuildRefresh();
     }
 
     private String getUniformUsername() {
@@ -398,6 +451,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     @Override
+    public void raiseLoginMessageWithInfo(MessageTag messageTag, String additionalInfo, boolean showTop) {
+        NotificationMessage message =
+                NotificationMessageFactory.message(messageTag,
+                        new String[]{null, null, additionalInfo},
+                        NOTIFICATION_MESSAGE_LOGIN);
+        raiseMessage(message, showTop);
+    }
+
+    @Override
     public void raiseLoginMessage(MessageTag messageTag, boolean showTop) {
         NotificationMessage message = NotificationMessageFactory.message(messageTag,
                 NOTIFICATION_MESSAGE_LOGIN);
@@ -476,8 +538,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         // Retrieve the app record corresponding to the app selected
         String appId = appIdDropdownList.get(position);
 
-        boolean appChanged = !appId.equals(CommCareApplication._().getCurrentApp().getUniqueId());
-        if (appChanged) {
+        boolean selectedNewApp = !appId.equals(CommCareApplication._().getCurrentApp().getUniqueId());
+        if (selectedNewApp) {
             // Set the id of the last selected app
             SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
             prefs.edit().putString(KEY_LAST_APP, appId).commit();

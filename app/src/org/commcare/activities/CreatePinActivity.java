@@ -44,6 +44,9 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     @UiElement(value = R.id.pin_confirm_button)
     private Button continueButton;
 
+    @UiElement(value = R.id.extra_msg, locale = "pin.primed.mode.message")
+    private TextView primedModeMessage;
+
     public static final String CHOSE_REMEMBER_PASSWORD = "chose-remember-password";
 
     private static final String WAS_IN_CONFIRM_MODE = "was-in-confirm-mode";
@@ -67,6 +70,10 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
         if (loginMode == LoginMode.PRIMED) {
             // Make user unable to cancel this activity if they were brought here by primed login
             cancelButton.setEnabled(false);
+
+            // Show an explanatory message, since the user will have been brought here automatically
+            // after logging in
+            primedModeMessage.setVisibility(View.VISIBLE);
 
             // Clear the primed password
             userRecord.clearPrimedPassword();
@@ -164,7 +171,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
         return super.onOptionsItemSelected(item);
     }
 
-    public void launchRememberPasswordConfirmDialog() {
+    private void launchRememberPasswordConfirmDialog() {
         AlertDialogFactory factory = new AlertDialogFactory(this,
                 Localization.get("remember.password.confirm.title"),
                 Localization.get("remember.password.confirm.message"));

@@ -206,7 +206,7 @@ public class HomeButtons {
         };
     }
 
-    public static void reportButtonClick(String buttonLabel) {
+    private static void reportButtonClick(String buttonLabel) {
         GoogleAnalyticsUtils.reportHomeButtonClick(buttonLabel);
     }
 

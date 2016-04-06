@@ -357,7 +357,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (result == null) {
             return;
         }
-        incomingRef = result;
+
+        setReadyToInstall(result);
+    }
+
+    private void setReadyToInstall(String reference) {
+        incomingRef = reference;
         this.uiState = UiState.READY_TO_INSTALL;
 
         try {
@@ -372,6 +377,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     Toast.LENGTH_LONG).show();
             this.uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
         }
+
         if (offlineInstall) {
             onStartInstallClicked();
         } else {
@@ -699,7 +705,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void updateResourceProgress(int done, int total, int phase) {
-        updateProgress(Localization.get("profile.found", new String[]{"" + done, "" + total}), DIALOG_INSTALL_PROGRESS);
+        // perform safe localization because the localization dictionary might
+        // be the resource currently being installed.
+        String installProgressText =
+                Localization.getWithDefault("profile.found",
+                        new String[]{"" + done, "" + total},
+                        "Application found. Loading resources...");
+        updateProgress(installProgressText, DIALOG_INSTALL_PROGRESS);
         updateProgressBar(done, total, DIALOG_INSTALL_PROGRESS);
     }
 

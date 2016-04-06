@@ -51,8 +51,7 @@
                     android:id="@+id/screen_first_start_bottom"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:paddingBottom="@dimen/content_min_margin">
+                    android:orientation="horizontal">
 
                     <FrameLayout
                         android:id="@+id/btn_fetch_uri_container"
@@ -91,6 +90,35 @@
                             SquareButtonWithText:textColor="@color/white"/>
                     </FrameLayout>
                 </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/screen_first_start_second_row"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingBottom="@dimen/content_min_margin"
+                    android:weightSum="2">
+
+                    <FrameLayout
+                        android:id="@+id/btn_fetch_hub_container"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="@dimen/standard_spacer"
+                        android:layout_weight="1"
+                        android:background="@drawable/tile_drop_shadow_small_margins"
+                        android:visibility="gone">
+
+                        <org.commcare.views.SquareButtonWithText
+                            android:id="@+id/btn_fetch_hub"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            SquareButtonWithText:backgroundColor="@color/cc_neutral_color"
+                            SquareButtonWithText:img="@drawable/startup_micronode"
+                            SquareButtonWithText:subtitle="Install From Local"
+                            SquareButtonWithText:textColor="@color/white"/>
+                    </FrameLayout>
+
+                </LinearLayout>
+
             </LinearLayout>
         </LinearLayout>
     </ScrollView>
