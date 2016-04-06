@@ -8,6 +8,7 @@ import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.suite.model.Profile;
+import org.commcare.suite.model.SignedPermission;
 import org.commcare.xml.ProfileParser;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
@@ -154,7 +155,7 @@ public class ApplicationRecord extends Persisted {
 
     public String getMultipleAppsCompatibility() {
         if (multipleAppsCompatibility == null) {
-            return Profile.MULT_APPS_DISABLED_VALUE;
+            return SignedPermission.MULT_APPS_DISABLED_VALUE;
         }
         return multipleAppsCompatibility;
     }
@@ -198,7 +199,7 @@ public class ApplicationRecord extends Persisted {
                 v2record.applicationId, v2record.status, v2record.uniqueId, v2record.displayName,
                 v2record.resourcesValidated, v2record.isArchived, v2record.convertedViaDbUpgrader,
                 v2record.preMultipleAppsProfile, v2record.versionNumber);
-        newRecord.multipleAppsCompatibility = Profile.MULT_APPS_DISABLED_VALUE;
+        newRecord.multipleAppsCompatibility = SignedPermission.MULT_APPS_DISABLED_VALUE;
         return newRecord;
     }
 

@@ -3,6 +3,7 @@ package org.commcare.utils;
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.suite.model.Profile;
+import org.commcare.suite.model.SignedPermission;
 
 import java.util.ArrayList;
 
@@ -88,7 +89,7 @@ public class MultipleAppsUtil {
             // TODO: This check is a bit overkill in the present state, because currently it's not
             // possible that an installed app would have this value, unless it were the only app
             // installed. However, if/once we are pinging the server for this value, it could have changed
-            if (record.getMultipleAppsCompatibility().equals(Profile.MULT_APPS_DISABLED_VALUE)) {
+            if (record.getMultipleAppsCompatibility().equals(SignedPermission.MULT_APPS_DISABLED_VALUE)) {
                 return false;
             }
         }
@@ -104,7 +105,7 @@ public class MultipleAppsUtil {
             // TODO: in all likelihood we will change this so that for each app, we first ping
             // something on the server to check if there is an updated value, and then fall
             // back to the value that's already in the ApplicationRecord if that's unavailable
-            if (!record.getMultipleAppsCompatibility().equals(Profile.MULT_APPS_IGNORE_VALUE)) {
+            if (!record.getMultipleAppsCompatibility().equals(SignedPermission.MULT_APPS_IGNORE_VALUE)) {
                 return true;
             }
         }

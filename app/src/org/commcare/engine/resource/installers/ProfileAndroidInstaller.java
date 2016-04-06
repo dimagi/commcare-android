@@ -7,7 +7,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.global.models.ApplicationRecord;
-import org.commcare.models.encryption.AndroidProfileSignatureVerifier;
+import org.commcare.models.encryption.AndroidSignedPermissionVerifier;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
@@ -15,11 +15,10 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.PropertySetter;
-import org.commcare.util.SignatureVerifier;
+import org.commcare.suite.model.SignedPermission;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.DummyResourceTable;
 import org.commcare.utils.MultipleAppsUtil;
-import org.commcare.models.encryption.SigningUtil;
 import org.commcare.xml.ProfileParser;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -86,6 +85,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
             if (!upgrade) {
                 initProperties(p);
+                p.verifySignedPermissions(new AndroidSignedPermissionVerifier());
                 checkDuplicate(p);
                 verifyMultipleAppsCompliance(p);
             }
@@ -105,7 +105,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             throws UnfullfilledRequirementsException {
 
         String compatibilityValue = profile.getMultipleAppsCompatibility();
-        if (Profile.MULT_APPS_IGNORE_VALUE.equals(compatibilityValue)) {
+        if (SignedPermission.MULT_APPS_IGNORE_VALUE.equals(compatibilityValue)) {
             // If the new app is set to "ignore", we can install no matter what
             return;
         } else if (!MultipleAppsUtil.appInstallationAllowed()) {
@@ -114,7 +114,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
                     "apps, you must uninstall or upgrade that app first",
                     UnfullfilledRequirementsException.SEVERITY_PROMPT,
                     UnfullfilledRequirementsException.REQUIREMENT_MULTIPLE_APPS_COMPAT_EXISTING);
-        } else if (!compatibilityValue.equals(Profile.MULT_APPS_ENABLED_VALUE) &&
+        } else if (!compatibilityValue.equals(SignedPermission.MULT_APPS_ENABLED_VALUE) &&
                 MultipleAppsUtil.multipleAppsCompatibilityRequired()) {
             throw new UnfullfilledRequirementsException("The app you are trying to install is not" +
                     "compatible with multiple apps, and you already have 1 or more apps installed " +
@@ -139,14 +139,13 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         }
     }
 
-    private void initProperties(Profile profile) {
+    private static void initProperties(Profile profile) {
         // TODO Baaaaaad. Encapsulate this better!!!
         SharedPreferences prefs = CommCareApp.currentSandbox.getAppPreferences();
         Editor editor = prefs.edit();
         for (PropertySetter p : profile.getPropertySetters()) {
-            String verifiedValue = p.getValueWithSignatureCheck(new AndroidProfileSignatureVerifier());
             editor.putString(p.getKey(), p.isForce() ?
-                    verifiedValue : prefs.getString(p.getKey(), verifiedValue));
+                    p.getValue() : prefs.getString(p.getKey(), p.getValue()));
         }
         editor.commit();
     }

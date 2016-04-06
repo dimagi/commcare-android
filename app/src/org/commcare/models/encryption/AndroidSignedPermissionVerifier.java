@@ -5,7 +5,11 @@ import org.commcare.util.SignatureVerifier;
 /**
  * Created by amstone326 on 4/6/16.
  */
-public class AndroidProfileSignatureVerifier extends SignatureVerifier {
+public class AndroidSignedPermissionVerifier extends SignatureVerifier {
+
+    public AndroidSignedPermissionVerifier() {
+
+    }
 
     @Override
     public boolean verify(String message, String signature) {
