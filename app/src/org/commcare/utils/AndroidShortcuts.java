@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.View;
+import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DispatchActivity;
@@ -36,7 +37,13 @@ public class AndroidShortcuts extends Activity {
 
         // The Android needs to know what shortcuts are available, generate the list
         if (Intent.ACTION_CREATE_SHORTCUT.equals(action)) {
-            buildMenuList();
+            if (CommCareApplication._().getCurrentApp() == null) {
+                Toast.makeText(this, "Please install a CommCare app first.", Toast.LENGTH_LONG).show();
+                setResult(RESULT_CANCELED);
+                finish();
+            } else {
+                buildMenuList();
+            }
         }
     }
 

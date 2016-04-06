@@ -9,6 +9,7 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.engine.extensions.CalendaredDateFormatHandler;
 import org.commcare.engine.extensions.IntentExtensionParser;
 import org.commcare.engine.extensions.PollSensorAction;
@@ -57,6 +58,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
     private final SecretKeySpec mSymetricKey;
     private final boolean mReadOnly;
+    private final boolean recordEntrySession;
 
     private final R activity;
 
@@ -64,11 +66,13 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
     public static final int FORM_LOADER_TASK_ID = 16;
 
-    public FormLoaderTask(SecretKeySpec symetricKey, boolean readOnly, R activity) {
+    public FormLoaderTask(SecretKeySpec symetricKey, boolean readOnly,
+                          boolean recordEntrySession, R activity) {
         this.mSymetricKey = symetricKey;
         this.mReadOnly = readOnly;
         this.activity = activity;
         this.taskId = FORM_LOADER_TASK_ID;
+        this.recordEntrySession = recordEntrySession;
         TAG = FormLoaderTask.class.getSimpleName();
     }
 
@@ -114,7 +118,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             // The cache is a bonus, so if we can't write it, don't crash, but log 
             // it so we can clean up whatever is preventing the cached version from
             // working
-            Logger.log(AndroidLogger.TYPE_RESOURCES, "XForm could not be serialized. Error trace:\n" + ExceptionReporting.getStackTrace(e));
+            Logger.log(AndroidLogger.TYPE_RESOURCES, "XForm could not be serialized. Error trace:\n" + ForceCloseLogger.getStackTrace(e));
         }
 
         FormEntryController fec = initFormDef(fd);
@@ -171,7 +175,12 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         formDef.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler((Context)activity));
         // create FormEntryController from formdef
         FormEntryModel fem = new FormEntryModel(formDef);
-        FormEntryController fec = new FormEntryController(fem);
+        FormEntryController fec;
+        if (recordEntrySession) {
+            fec = FormEntryController.buildRecordingController(fem);
+        } else {
+            fec = new FormEntryController(fem);
+        }
 
         //TODO: Get a reasonable IIF object
         // import existing data into formdef

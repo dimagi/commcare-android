@@ -3,6 +3,7 @@ package org.commcare.utils;
 import android.util.SparseArray;
 
 import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Date manipulation utility functions for the Nepali calendar system.
@@ -198,7 +199,6 @@ public class NepaliDateUtilities {
      * @return Nepali date string in 'd MMMM yyyy' format
      */
     public static String convertToNepaliString(String[] monthNames, Date date) {
-
         UniversalDate dateUniv = NepaliDateUtilities.fromMillis(date.getTime());
 
         return dateUniv.day + " " + monthNames[dateUniv.month - 1] + " " + dateUniv.year;
@@ -253,8 +253,12 @@ public class NepaliDateUtilities {
         );
     }
 
-    public static UniversalDate fromMillis(long millisFromJavaEpoch) {
-        long millisFromMinDay = millisFromJavaEpoch - MIN_MILLIS_FROM_JAVA_EPOCH;
+    public static UniversalDate fromMillis(long millisFromJavaEpoch, TimeZone currentTimeZone) {
+        // Since epoch calculations are relative to GMT, take current timezone
+        // into account. This prevents two time values that lie on the same day
+        // in the given timezone from falling on different GMT days.
+        int timezoneOffsetFromGMT = currentTimeZone.getOffset(millisFromJavaEpoch);
+        long millisFromMinDay = timezoneOffsetFromGMT + millisFromJavaEpoch - MIN_MILLIS_FROM_JAVA_EPOCH;
         long daysFromMinDay = millisFromMinDay / UniversalDate.MILLIS_IN_DAY;
 
         int days = -1;
@@ -281,6 +285,10 @@ public class NepaliDateUtilities {
         }
 
         throw new RuntimeException("Date out of bounds");
+    }
+
+    public static UniversalDate fromMillis(long millisFromJavaEpoch) {
+        return fromMillis(millisFromJavaEpoch, TimeZone.getDefault());
     }
 
     public static UniversalDate incrementMonth(UniversalDate date) {

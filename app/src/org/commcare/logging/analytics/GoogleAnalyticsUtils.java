@@ -8,6 +8,7 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.logging.ReportingUtils;
 import org.commcare.preferences.CommCarePreferences;
 
 import java.util.Map;
@@ -28,6 +29,7 @@ public class GoogleAnalyticsUtils {
         }
         getTracker().send(new HitBuilders.EventBuilder()
                 .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
+                .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCategory(category)
                 .setAction(action)
                 .build());
@@ -42,6 +44,7 @@ public class GoogleAnalyticsUtils {
         }
         getTracker().send(new HitBuilders.EventBuilder()
                 .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
+                .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCategory(category)
                 .setAction(action)
                 .setLabel(label)
@@ -57,6 +60,7 @@ public class GoogleAnalyticsUtils {
         }
         getTracker().send(new HitBuilders.EventBuilder()
                 .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
+                .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCategory(category)
                 .setAction(action)
                 .setLabel(label)
@@ -154,6 +158,7 @@ public class GoogleAnalyticsUtils {
         HitBuilders.EventBuilder builder = new HitBuilders.EventBuilder();
         builder.setCategory(category)
                 .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
+                .setCustomDimension(2, ReportingUtils.getDomain())
                 .setAction(GoogleAnalyticsFields.ACTION_EDIT_PREF)
                 .setLabel(label);
         if (value != -1) {
@@ -204,6 +209,35 @@ public class GoogleAnalyticsUtils {
                 CommCareApplication._().getCurrentVersionString());
     }
 
+
+    /**
+     * Report a user event of navigating backward out of the entity detail screen
+     *
+     * @param isSwipe - Toggles user's method of navigation to swipe or arrow press
+     */
+    public static void reportEntityDetailExit(boolean isSwipe, boolean isSingleTab) {
+        reportEntityDetailNavigation(
+                GoogleAnalyticsFields.ACTION_EXIT_FROM_DETAIL, isSwipe, isSingleTab);
+    }
+
+    /**
+     * Report a user event of continuing forward out of the entity detail screen
+     *
+     * @param isSwipe - Toggles user's method of navigation to swipe or arrow press
+     */
+    public static void reportEntityDetailContinue(boolean isSwipe, boolean isSingleTab) {
+        reportEntityDetailNavigation(
+                GoogleAnalyticsFields.ACTION_CONTINUE_FROM_DETAIL, isSwipe, isSingleTab);
+    }
+
+    private static void reportEntityDetailNavigation(String action, boolean isSwipe, boolean isSingleTab) {
+        reportEvent(
+                GoogleAnalyticsFields.CATEGORY_MODULE_NAVIGATION,
+                action,
+                isSwipe ? GoogleAnalyticsFields.LABEL_SWIPE : GoogleAnalyticsFields.LABEL_ARROW,
+                isSingleTab ? GoogleAnalyticsFields.VALUE_DOESNT_HAVE_TABS : GoogleAnalyticsFields.VALUE_HAS_TABS);
+    }
+
     /**
      * Report the length of a certain user event/action/concept
      *
@@ -216,6 +250,7 @@ public class GoogleAnalyticsUtils {
         }
         getTracker().send(new HitBuilders.EventBuilder()
                 .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
+                .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCategory(GoogleAnalyticsFields.CATEGORY_TIMED_EVENTS)
                 .setAction(action)
                 .setValue(value)

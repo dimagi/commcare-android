@@ -208,10 +208,10 @@ public class BreadcrumbBarFragment extends Fragment {
     private View findAndLoadCaseTile(final Activity activity) {
         final View holder = LayoutInflater.from(activity).inflate(R.layout.com_tile_holder, null);
         final Pair<View, TreeReference> tileData = this.loadTile(activity);
-        View tile = tileData == null ? null : tileData.first;
-        if (tile == null) {
+        if (tileData == null || tileData.first == null) {
             return null;
         }
+        View tile = tileData.first;
 
         final String inlineDetail = (String)tile.getTag();
 

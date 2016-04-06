@@ -216,7 +216,7 @@ public class QuestionsView extends ScrollView
 
         return answers;
     }
-    
+
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         int newHeight = MeasureSpec.getSize(heightMeasureSpec);
@@ -255,8 +255,10 @@ public class QuestionsView extends ScrollView
                 Spannable markdownSpannable = MarkupUtil.returnMarkdown(getContext(), m);
                 s.append(markdownSpannable);
             }
-            else if (t != null) {
+            else if (t != null && !t.trim().equals("")) {
                 s.append(t);
+            } else {
+                continue;
             }
 
             if (g.repeats() && i > 0) {
@@ -346,7 +348,6 @@ public class QuestionsView extends ScrollView
                 "Unable to find question widget to attach pending data to.");
     }
 
-
     /**
      * @return true if the answer was cleared, false otherwise.
      */
@@ -365,6 +366,10 @@ public class QuestionsView extends ScrollView
         return widgets;
     }
 
+    public boolean isQuestionList() {
+        return widgets.size() > 1;
+    }
+
     @Override
     public void setOnFocusChangeListener(OnFocusChangeListener l) {
         for (QuestionWidget qw : widgets) {
@@ -375,7 +380,9 @@ public class QuestionsView extends ScrollView
     public void teardownView() {
         for (QuestionWidget widget : widgets) {
             widget.unsetListeners();
+            widget.setOnCreateContextMenuListener(null);
         }
+        wcListener = null;
     }
 
     @Override

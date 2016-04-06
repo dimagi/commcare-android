@@ -157,5 +157,4 @@ public class IntegerWidget extends StringWidget {
         setFocus(getContext());
         // don't revert click behavior in this case since it might be customized.
     }
-
 }

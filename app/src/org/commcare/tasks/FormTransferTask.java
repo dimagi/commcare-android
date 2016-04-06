@@ -19,9 +19,9 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
 
     public static final int BULK_TRANSFER_ID = 9575922;
 
-    final String host;
-    final String filepath;
-    final int port;
+    private final String host;
+    private final String filepath;
+    private final int port;
 
     public FormTransferTask(String host, String filepath, int port) {
         this.taskId = BULK_TRANSFER_ID;
@@ -31,7 +31,7 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
         TAG = AndroidLogger.TYPE_FORM_DUMP;
     }
 
-    public InputStream getFormInputStream(String fPath) throws FileNotFoundException {
+    private InputStream getFormInputStream(String fPath) throws FileNotFoundException {
         Log.d(TAG, "Getting form input stream");
         InputStream is;
         Log.d(TAG, " fileinptutstream  with filepath: " + fPath);

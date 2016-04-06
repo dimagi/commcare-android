@@ -394,21 +394,11 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
      * Initial date display
      */
     private void setAnswer() {
-
         if (mPrompt.getAnswerValue() != null) {
-            // setup date object
             Date date = (Date)mPrompt.getAnswerValue().getValue();
 
-            // find out what the same instant is using the other chronology
-            long millisFromJavaEpoch = date.getTime();
-            UniversalDate dateUniv = fromMillis(millisFromJavaEpoch);
-
-            txtDay.setText(Integer.toString(dateUniv.day));
-            txtMonth.setText(monthsArray[dateUniv.month - 1]);
-            monthArrayPointer = dateUniv.month - 1;
-            txtYear.setText(Integer.toString(dateUniv.year));
+            updateDateDisplay(date.getTime());
             updateGregorianDateHelperDisplay();
-
         } else {
             // create date widget with current date
             clearAnswer();

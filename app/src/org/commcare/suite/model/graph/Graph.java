@@ -18,6 +18,10 @@ import org.javarosa.core.util.externalizable.ExtWrapListPoly;
 import org.javarosa.core.util.externalizable.ExtWrapMap;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
+import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 
 import java.io.DataInputStream;
@@ -72,10 +76,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         return mConfiguration.keys();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         mType = ExtUtil.readString(in);
         mConfiguration = (Hashtable<String, Text>)ExtUtil.read(in, new ExtWrapMap(String.class, Text.class), pf);
@@ -83,10 +84,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         mAnnotations = (Vector<Annotation>)ExtUtil.read(in, new ExtWrapList(Annotation.class), pf);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, mType);
         ExtUtil.write(out, new ExtWrapMap(mConfiguration));
@@ -94,10 +92,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         ExtUtil.write(out, new ExtWrapList(mAnnotations));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.suite.model.DetailTemplate#evaluate(org.javarosa.core.model.condition.EvaluationContext)
-     */
+    @Override
     public GraphData evaluate(EvaluationContext context) {
         GraphData data = new GraphData();
         data.setType(mType);
@@ -107,7 +102,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         return data;
     }
 
-    /*
+    /**
      * Helper for evaluate. Looks at annotations only.
      */
     private void evaluateAnnotations(GraphData graphData, EvaluationContext context) {
@@ -120,7 +115,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         }
     }
 
-    /*
+    /**
      * Helper for evaluate. Looks at configuration only.
      */
     private void evaluateConfiguration(Configurable template, ConfigurableData data, EvaluationContext context) {
@@ -142,7 +137,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         }
     }
 
-    /*
+    /**
      * Helper for evaluate. Looks at all series.
      */
     private void evaluateSeries(GraphData graphData, EvaluationContext context) {
@@ -157,10 +152,10 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
                     }
                 }
 
-                Vector<TreeReference> refList = context.expandReference(s.getNodeSet());
                 SeriesData seriesData = new SeriesData();
                 EvaluationContext seriesContext = new EvaluationContext(context, context.getContextRef());
 
+                Vector<TreeReference> refList = expandNodeSet(s, context);
                 Hashtable<String, Vector<String>> expandedConfiguration = new Hashtable();
                 for (Enumeration e = pointConfiguration.keys(); e.hasMoreElements();) {
                     expandedConfiguration.put((String) e.nextElement(), new Vector<String>());
@@ -216,5 +211,20 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         } catch (XPathSyntaxException e) {
             e.printStackTrace();
         }
+    }
+
+    public static Vector<TreeReference> expandNodeSet(XYSeries series, EvaluationContext context) throws XPathSyntaxException {
+        try {
+            // Attempt to evaluate the nodeSet, which will succeed if this is just a path expression
+            // (e.g., instance('casedb')/casedb/case[@case_type='point'][@status='open'][index/parent=current()/@case_id])
+            return context.expandReference(XPathReference.getPathExpr(series.getNodeSet()).getReference());
+        } catch (XPathTypeMismatchException e) {
+            // If that fails, try treating the nodeSet as a more complex expression that itself returns a path
+            // (e.g., if(true, "instance('item-list:rows1')/rows1/point", "instance('item-list:rows2')/rows2/point" ))
+            XPathExpression xpe = XPathParseTool.parseXPath(series.getNodeSet());
+            String nodeSet = (String) xpe.eval(context);
+            return context.expandReference(XPathReference.getPathExpr(nodeSet).getReference());
+        }
+
     }
 }

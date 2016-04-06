@@ -19,8 +19,8 @@ import javax.crypto.CipherInputStream;
  * @author ctsims
  */
 public class EncryptedFileBody extends AbstractContentBody {
-    final File file;
-    final Cipher cipher;
+    private final File file;
+    private final Cipher cipher;
 
     public EncryptedFileBody(File file, Cipher cipher, ContentType contentType) {
         super(contentType);

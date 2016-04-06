@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
@@ -157,14 +158,13 @@ public class CommCareHomeActivity
 
     private boolean loginExtraWasConsumed;
     private static final String EXTRA_CONSUMED_KEY = "login_extra_was_consumed";
+    private boolean isRestoringSession = false;
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
         super.onCreateSessionSafe(savedInstanceState);
 
-        if (savedInstanceState != null) {
-            loginExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
-        }
+        loadInstanceState(savedInstanceState);
 
         ACRAUtil.registerAppData();
         uiController.setupUI();
@@ -176,17 +176,20 @@ public class CommCareHomeActivity
         processFromLoginLaunch();
     }
 
+    private void loadInstanceState(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            loginExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
+            wasExternal = savedInstanceState.getBoolean(WAS_EXTERNAL_KEY);
+        }
+    }
+
     /**
      * Set state that signifies activity was launch from external app.
      */
     private void processFromExternalLaunch(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            wasExternal = savedInstanceState.getBoolean(WAS_EXTERNAL_KEY);
-        } else {
-            if (getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
-                wasExternal = true;
-                sessionNavigator.startNextSessionStep();
-            }
+        if (savedInstanceState == null && getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
+            wasExternal = true;
+            sessionNavigator.startNextSessionStep();
         }
     }
 
@@ -208,6 +211,7 @@ public class CommCareHomeActivity
                 // restore the session state if there is a command.
                 // For debugging and occurs when a serialized
                 // session is stored upon login
+                isRestoringSession = true;
                 sessionNavigator.startNextSessionStep();
                 return;
             }
@@ -350,11 +354,13 @@ public class CommCareHomeActivity
     }
 
     private boolean useGridMenu(String menuId) {
+        // first check if this is enabled in profile
+        if(CommCarePreferences.isGridMenuEnabled()) {
+            return true;
+        }
+        // if not, check style attribute for this particular menu block
         if(menuId == null) {
             menuId = org.commcare.suite.model.Menu.ROOT_MENU_ID;
-        }
-        if(DeveloperPreferences.isGridMenuEnabled()) {
-            return true;
         }
         AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         String commonDisplayStyle = platform.getMenuDisplayStyle(menuId);
@@ -614,6 +620,7 @@ public class CommCareHomeActivity
             // regardless of the exit code
             currentState.reset();
             if (wasExternal) {
+                setResult(RESULT_CANCELED);
                 this.finish();
             } else {
                 // Return to where we started
@@ -664,6 +671,7 @@ public class CommCareHomeActivity
                 uiController.refreshView();
 
                 if (wasExternal) {
+                    setResult(RESULT_CANCELED);
                     this.finish();
                     return false;
                 }
@@ -702,6 +710,7 @@ public class CommCareHomeActivity
 
             if (wasExternal) {
                 currentState.reset();
+                setResult(RESULT_CANCELED);
                 this.finish();
                 return false;
             } else if (current.getStatus().equals(FormRecord.STATUS_INCOMPLETE)) {
@@ -723,6 +732,7 @@ public class CommCareHomeActivity
     private void clearSessionAndExit(AndroidSessionWrapper currentState, boolean shouldWarnUser) {
         currentState.reset();
         if (wasExternal) {
+            setResult(RESULT_CANCELED);
             this.finish();
         }
         uiController.refreshView();
@@ -946,7 +956,8 @@ public class CommCareHomeActivity
 
         FormRecord record = state.getFormRecord();
         AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
-        formEntry(platform.getFormContentUri(record.getFormNamespace()), record, CommCareActivity.getTitle(this, null));
+        formEntry(platform.getFormContentUri(record.getFormNamespace()), record,
+                CommCareActivity.getTitle(this, null));
     }
 
     private void formEntry(Uri formUri, FormRecord r) {
@@ -979,8 +990,18 @@ public class CommCareHomeActivity
         i.putExtra(FormEntryActivity.KEY_AES_STORAGE_KEY, Base64.encodeToString(r.getAesKey(), Base64.DEFAULT));
         i.putExtra(FormEntryActivity.KEY_FORM_CONTENT_URI, FormsProviderAPI.FormsColumns.CONTENT_URI.toString());
         i.putExtra(FormEntryActivity.KEY_INSTANCE_CONTENT_URI, InstanceProviderAPI.InstanceColumns.CONTENT_URI.toString());
+        i.putExtra(FormEntryActivity.KEY_RECORD_FORM_ENTRY_SESSION, DeveloperPreferences.isSessionSavingEnabled());
         if (headerTitle != null) {
             i.putExtra(FormEntryActivity.KEY_HEADER_STRING, headerTitle);
+        }
+        if (isRestoringSession) {
+            isRestoringSession = false;
+            SharedPreferences prefs =
+                    CommCareApplication._().getCurrentApp().getAppPreferences();
+            String formEntrySession = prefs.getString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, "");
+            if (!"".equals(formEntrySession)) {
+                i.putExtra(FormEntryActivity.KEY_FORM_ENTRY_SESSION, formEntrySession);
+            }
         }
 
         startActivityForResult(i, MODEL_RESULT);

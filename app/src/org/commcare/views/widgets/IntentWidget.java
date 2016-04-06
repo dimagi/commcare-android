@@ -1,17 +1,3 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.commcare.views.widgets;
 
 import android.app.Activity;
@@ -19,6 +5,7 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -29,12 +16,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.dalvik.R;
 import org.commcare.engine.extensions.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
-import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 /**
@@ -49,23 +35,32 @@ public class IntentWidget extends QuestionWidget {
     private final Intent intent;
     protected final IntentCallout ic;
     private int calloutId = FormEntryActivity.INTENT_CALLOUT;
-    protected final FormEntryPrompt prompt;
     protected final PendingCalloutInterface pendingCalloutInterface;
+    private final String getButtonLocalizationKey;
+    private final String updateButtonLocalizationKey;
 
     public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
                         PendingCalloutInterface pendingCalloutInterface, int calloutId) {
-        this(context, prompt, in, ic, pendingCalloutInterface);
+        this(context, prompt, in, ic, pendingCalloutInterface, "intent.barcode.get", "intent.barcode.update");
+
         this.calloutId = calloutId;
     }
 
     public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
                         PendingCalloutInterface pendingCalloutInterface) {
+        this(context, prompt, in, ic, pendingCalloutInterface, "intent.callout.get", "intent.callout.update");
+    }
+
+    public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
+                        PendingCalloutInterface pendingCalloutInterface,
+                        String getButtonLocalizationKey, String updateButtonLocalizationKey) {
         super(context, prompt);
 
         this.intent = in;
         this.ic = ic;
         this.pendingCalloutInterface = pendingCalloutInterface;
-        this.prompt = prompt;
+        this.getButtonLocalizationKey = getButtonLocalizationKey;
+        this.updateButtonLocalizationKey = updateButtonLocalizationKey;
 
         makeTextView();
         makeButton();
@@ -77,14 +72,13 @@ public class IntentWidget extends QuestionWidget {
         mStringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mStringAnswer.setGravity(Gravity.CENTER);
 
-        String s = prompt.getAnswerText();
+        String s = mPrompt.getAnswerText();
         if (s != null) {
             mStringAnswer.setText(s);
         }
 
         // finish complex layout
         addView(mStringAnswer);
-
 
         //only auto advance if 1) we have no data 2) its quick 3) we weren't just cancelled
         if (s == null && "quick".equals(ic.getAppearance()) && !ic.getCancelled()) {
@@ -95,23 +89,31 @@ public class IntentWidget extends QuestionWidget {
         }
     }
 
+    protected Spannable getButtonLabel() {
+        if (mStringAnswer.getText() == null || "".equals(mStringAnswer.getText().toString())) {
+            if (ic.getButtonLabel() != null) {
+                return new SpannableString(ic.getButtonLabel());
+            } else {
+                return new SpannableString(Localization.get(getButtonLocalizationKey));
+            }
+        } else {
+            if (ic.getUpdateButtonLabel() != null) {
+                return new SpannableString(ic.getUpdateButtonLabel());
+            } else {
+                return new SpannableString(Localization.get(updateButtonLocalizationKey));
+            }
+        }
+    }
+
     public void makeButton() {
         setOrientation(LinearLayout.VERTICAL);
 
         launchIntentButton = new Button(getContext());
 
-        String s = prompt.getAnswerText();
-        Spannable label;
-        if (s != null) {
-            label = StringUtils.getStringSpannableRobust(getContext(), R.string.intent_callout_button_update);
-        } else {
-            label = StringUtils.getStringSpannableRobust(getContext(), R.string.intent_callout_button);
-        }
-
         WidgetUtils.setupButton(launchIntentButton,
-                label,
+                getButtonLabel(),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // launch barcode capture intent on click
         launchIntentButton.setOnClickListener(new View.OnClickListener() {
@@ -127,11 +129,12 @@ public class IntentWidget extends QuestionWidget {
         try {
             //Set Data
             String data = mStringAnswer.getText().toString();
-            if (data != null && !"".equals(data)) {
+            if (!"".equals(data)) {
                 intent.putExtra(IntentCallout.INTENT_RESULT_VALUE, data);
             }
+
             ((Activity)getContext()).startActivityForResult(intent, calloutId);
-            pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+            pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),
                     "Couldn't find intent for callout!", Toast.LENGTH_SHORT).show();
@@ -139,14 +142,8 @@ public class IntentWidget extends QuestionWidget {
     }
 
     private void setButtonLabel() {
-        if (ic.getButtonLabel() != null) {
-            launchIntentButton.setText(ic.getButtonLabel());
-        } else {
-            launchIntentButton.setText(StringUtils.getStringSpannableRobust(getContext(),
-                    R.string.intent_callout_button));
-        }
+        launchIntentButton.setText(getButtonLabel());
     }
-
 
     @Override
     public void clearAnswer() {
@@ -154,11 +151,10 @@ public class IntentWidget extends QuestionWidget {
         setButtonLabel();
     }
 
-
     @Override
     public IAnswerData getAnswer() {
         String s = mStringAnswer.getText().toString();
-        if (s == null || s.equals("")) {
+        if (s.equals("")) {
             return null;
         } else {
             return new StringData(s);
@@ -168,6 +164,7 @@ public class IntentWidget extends QuestionWidget {
     @Override
     public void setBinaryData(Object answer) {
         mStringAnswer.setText((String)answer);
+        setButtonLabel();
     }
 
     @Override

@@ -69,6 +69,7 @@ public class CommCarePreferences
     public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
     public final static String LAST_PASSWORD = "last_password";
     public final static String CURRENT_SESSION = "current_user_session";
+    public final static String CURRENT_FORM_ENTRY_SESSION = "current_form_entry_session";
     public final static String CONTENT_VALIDATED = "cc-content-valid";
 
     public final static String YES = "yes";
@@ -117,6 +118,9 @@ public class CommCarePreferences
 
     public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
 
+
+    public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -153,6 +157,7 @@ public class CommCarePreferences
         prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
         prefKeyToAnalyticsEvent.put(PREFS_LOCALE_KEY, GoogleAnalyticsFields.LABEL_LOCALE);
         prefKeyToAnalyticsEvent.put(PREFS_PRINT_DOC_LOCATION, GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
+        prefKeyToAnalyticsEvent.put(GRID_MENUS_ENABLED, GoogleAnalyticsFields.LABEL_GRID_MENUS);
     }
 
     private void createPrintPrefOnClickListener(PreferenceManager prefManager) {
@@ -316,6 +321,12 @@ public class CommCarePreferences
         //otherwise, see if we're in sense mode
         return !isInSenseMode();
     }
+
+    public static boolean isGridMenuEnabled() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(GRID_MENUS_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+
 
     public static boolean isFuzzySearchEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();

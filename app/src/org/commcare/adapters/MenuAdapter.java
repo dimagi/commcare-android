@@ -191,7 +191,7 @@ public class MenuAdapter implements ListAdapter {
         return 0;
     }
 
-    private enum NavIconState {
+    enum NavIconState {
         NONE, NEXT, JUMP
     }
 
@@ -219,8 +219,7 @@ public class MenuAdapter implements ListAdapter {
         return menuListItem;
     }
 
-    public void setupAudioButton(AudioButton mAudioButton, MenuDisplayable menuDisplayable){
-
+    private void setupAudioButton(AudioButton mAudioButton, MenuDisplayable menuDisplayable){
         // set up audio
         final String audioURI = menuDisplayable.getAudioURI();
         String audioFilename = "";
@@ -262,6 +261,20 @@ public class MenuAdapter implements ListAdapter {
     }
 
     public void setupImageView(ImageView mIconView, MenuDisplayable menuDisplayable){
+        String imageURI = menuDisplayable.getImageURI();
+        Bitmap image = MediaUtil.inflateDisplayImage(context, imageURI);
+        if (mIconView != null) {
+            if(image != null) {
+                mIconView.setImageBitmap(image);
+                mIconView.setAdjustViewBounds(true);
+            }
+            else{
+                setupDefaultIcon(mIconView, menuDisplayable, getIconState(menuDisplayable));
+            }
+        }
+    }
+
+    private NavIconState getIconState(MenuDisplayable menuDisplayable){
         NavIconState iconChoice = NavIconState.NEXT;
 
         //figure out some icons
@@ -274,7 +287,11 @@ public class MenuAdapter implements ListAdapter {
         if (!DeveloperPreferences.isNewNavEnabled()) {
             iconChoice = NavIconState.NONE;
         }
+        return iconChoice;
+    }
 
+    protected void setupDefaultIcon(ImageView mIconView, MenuDisplayable menuDisplayable,
+                                    NavIconState iconChoice){
         if (mIconView != null) {
             switch (iconChoice) {
                 case NEXT:
@@ -288,18 +305,12 @@ public class MenuAdapter implements ListAdapter {
                     break;
             }
         }
-        String imageURI = menuDisplayable.getImageURI();
-        Bitmap image = MediaUtil.inflateDisplayImage(context, imageURI);
-        if (image != null && mIconView != null) {
-            mIconView.setImageBitmap(image);
-            mIconView.setAdjustViewBounds(true);
-        }
     }
 
     /*
      * Helper to build the TextView for the HorizontalMediaView constructor
      */
-    String textViewHelper(MenuDisplayable e) {
+    private static String textViewHelper(MenuDisplayable e) {
         return e.getDisplayText();
     }
 

@@ -120,7 +120,7 @@ public abstract class ZipTask extends CommCareTask<Void, String, Integer, CommCa
             File nf = new File(zipPath);
             if (nf.exists()) {
                 nf.delete();
-            }
+           }
             zipParentFolder(nf, zipFilePath);
             File toBeZippedDir = new File(toBeZippedPath);
             FileUtil.deleteFileOrDir(toBeZippedDir);

@@ -1,12 +1,13 @@
 package org.commcare.preferences;
 
 import android.content.SharedPreferences;
+import android.support.v4.util.Pair;
 import android.util.Base64;
 import android.util.Log;
-import android.util.Pair;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.session.CommCareSession;
@@ -32,8 +33,8 @@ public class DevSessionRestorer {
      * @return Username and password of last login; null if auto-login not
      * enabled
      */
-    public static Pair<String, String> getAutoLoginCreds() {
-        if (autoLoginEnabled()) {
+    public static Pair<String, String> getAutoLoginCreds(boolean force) {
+        if (force || autoLoginEnabled()) {
             SharedPreferences prefs =
                     CommCareApplication._().getCurrentApp().getAppPreferences();
             String lastUser =
@@ -52,8 +53,8 @@ public class DevSessionRestorer {
     /**
      * Save password into app preferences if auto-login is enabled
      */
-    public static void tryAutoLoginPasswordSave(String password) {
-        if (autoLoginEnabled()) {
+    public static void tryAutoLoginPasswordSave(String password, boolean force) {
+        if (force || autoLoginEnabled()) {
             SharedPreferences prefs =
                     CommCareApplication._().getCurrentApp().getAppPreferences();
             prefs.edit().putString(CommCarePreferences.LAST_PASSWORD, password).commit();
@@ -107,25 +108,37 @@ public class DevSessionRestorer {
             return;
         }
 
-        SharedPreferences prefs = ccApp.getAppPreferences();
+        String serializedSession = getSerializedSessionString();
+        String formEntrySession = FormEntryActivity.getFormEntrySessionString();
+
+        ccApp.getAppPreferences().edit()
+                .putString(CommCarePreferences.CURRENT_SESSION, serializedSession)
+                .putString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, formEntrySession)
+                .apply();
+    }
+
+    public static String getSerializedSessionString() {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream serializedStream = new DataOutputStream(baos);
+
         try {
             CommCareApplication._().getCurrentSession().serializeSessionState(serializedStream);
         } catch (IOException e) {
             Log.w(TAG, "Failed to serialize session");
-            return;
+            return "";
         } catch (SessionStateUninitException e) {
             Log.w(TAG, "Attempting to save a non-existent session");
-            return;
+            return "";
         }
+
         String serializedSession = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-        prefs.edit().putString(CommCarePreferences.CURRENT_SESSION, serializedSession).commit();
         try {
             serializedStream.close();
         } catch (IOException e) {
             Log.d(TAG, "Failed to close session serialization stream.");
         }
+
+        return serializedSession;
     }
 
     public static boolean savedSessionPresent() {
