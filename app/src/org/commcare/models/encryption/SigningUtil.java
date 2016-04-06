@@ -1,7 +1,10 @@
-package org.commcare.utils;
+package org.commcare.models.encryption;
 
 import android.util.Pair;
 
+import org.commcare.utils.Base64;
+import org.commcare.utils.Base64DecoderException;
+import org.commcare.utils.GlobalConstants;
 import org.spongycastle.jce.provider.BouncyCastleProvider;
 
 import java.io.BufferedReader;
@@ -75,7 +78,9 @@ public class SigningUtil {
      * @return valid download link if verified, null if not verified
      * @throws SignatureException if we have an internal error during verification
      */
-    public static String verifyMessageAndBytes(String message, byte[] signature) throws Exception {
+    public static String verifySignatureAgainstMessage(String message, byte[] signature)
+            throws NoSuchAlgorithmException, InvalidKeySpecException, Base64DecoderException,
+            SignatureException, InvalidKeyException {
         String keyString = GlobalConstants.TRUSTED_SOURCE_PUBLIC_KEY;
         boolean success = verifyMessageSignatureHelper(keyString, message, signature);
 
@@ -140,7 +145,7 @@ public class SigningUtil {
     }
 
     // given a text message, return the raw Base64 bytes
-    public static byte[] getBytesFromString(String stringMessage) throws Exception {
+    public static byte[] getBytesFromString(String stringMessage) throws Base64DecoderException {
         return Base64.decode(stringMessage);
     }
 
@@ -170,11 +175,11 @@ public class SigningUtil {
     }
 
     private static boolean verifyMessageSignature(PublicKey publicKey, String messageString, byte[] signature) throws SignatureException, NoSuchAlgorithmException, InvalidKeyException {
-        Signature sign = Signature.getInstance("SHA256withRSA/PSS", new BouncyCastleProvider());
+        Signature signatureVerifier = Signature.getInstance("SHA256withRSA/PSS", new BouncyCastleProvider());
         byte[] message = messageString.getBytes();
-        sign.initVerify(publicKey);
-        sign.update(message);
-        return sign.verify(signature);
+        signatureVerifier.initVerify(publicKey);
+        signatureVerifier.update(message);
+        return signatureVerifier.verify(signature);
     }
 
     /**

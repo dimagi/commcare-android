@@ -7,6 +7,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.global.models.ApplicationRecord;
+import org.commcare.models.encryption.AndroidProfileSignatureVerifier;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceLocation;
@@ -14,10 +15,11 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.PropertySetter;
+import org.commcare.util.SignatureVerifier;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.DummyResourceTable;
 import org.commcare.utils.MultipleAppsUtil;
-import org.commcare.xml.CommCareElementParser;
+import org.commcare.models.encryption.SigningUtil;
 import org.commcare.xml.ProfileParser;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -142,7 +144,9 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         SharedPreferences prefs = CommCareApp.currentSandbox.getAppPreferences();
         Editor editor = prefs.edit();
         for (PropertySetter p : profile.getPropertySetters()) {
-            editor.putString(p.getKey(), p.isForce() ? p.getValue() : prefs.getString(p.getKey(), p.getValue()));
+            String verifiedValue = p.getValueWithSignatureCheck(new AndroidProfileSignatureVerifier());
+            editor.putString(p.getKey(), p.isForce() ?
+                    verifiedValue : prefs.getString(p.getKey(), verifiedValue));
         }
         editor.commit();
     }
@@ -194,4 +198,5 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     public boolean requiresRuntimeInitialization() {
         return true;
     }
+
 }

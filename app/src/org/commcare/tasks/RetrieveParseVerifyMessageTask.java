@@ -3,7 +3,7 @@ package org.commcare.tasks;
 import android.util.Pair;
 
 import org.commcare.tasks.templates.CommCareTask;
-import org.commcare.utils.SigningUtil;
+import org.commcare.models.encryption.SigningUtil;
 
 public abstract class RetrieveParseVerifyMessageTask<R> extends CommCareTask<String, Void, String, R> {
 
@@ -24,7 +24,7 @@ public abstract class RetrieveParseVerifyMessageTask<R> extends CommCareTask<Str
             String messagePayload = SigningUtil.convertUrlToPayload(url);
             byte[] messagePayloadBytes = SigningUtil.getBytesFromString(messagePayload);
             Pair<String, byte[]> messageAndBytes = SigningUtil.getUrlAndSignatureFromPayload(messagePayloadBytes);
-            return SigningUtil.verifyMessageAndBytes(messageAndBytes.first, messageAndBytes.second);
+            return SigningUtil.verifySignatureAgainstMessage(messageAndBytes.first, messageAndBytes.second);
         } catch (Exception e) {
             this.exception = e;
             return null;
