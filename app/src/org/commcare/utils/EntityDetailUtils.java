@@ -41,19 +41,19 @@ public class EntityDetailUtils {
      */
     public static Intent populateDetailIntent(Intent detailIntent,
                                               TreeReference contextRef,
-                                              EntityDatum selectDatum,
+                                              EntityDatum entityDatum,
                                               AndroidSessionWrapper asw) {
 
         String caseId = EntityDatum.getCaseIdFromReference(
-                contextRef, selectDatum, asw.getEvaluationContext());
+                contextRef, entityDatum, asw.getEvaluationContext());
         detailIntent.putExtra(SessionFrame.STATE_DATUM_VAL, caseId);
 
         // Include long datum info if present
-        if (selectDatum.getLongDetail() != null) {
+        if (entityDatum.getLongDetail() != null) {
             detailIntent.putExtra(EntityDetailActivity.DETAIL_ID,
-                    selectDatum.getLongDetail());
+                    entityDatum.getLongDetail());
             detailIntent.putExtra(EntityDetailActivity.DETAIL_PERSISTENT_ID,
-                    selectDatum.getPersistentDetail());
+                    entityDatum.getPersistentDetail());
         }
 
         SerializationUtil.serializeToIntent(detailIntent,

@@ -279,8 +279,8 @@ public class BreadcrumbBarFragment extends Fragment {
 
             if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                 //Only add steps which have a tile.
-                SessionDatum d = asw.getSession().findDatumDefinition(step.getId());
-                if (d != null && d.getPersistentDetail() != null) {
+                EntityDatum entityDatum = asw.getSession().findDatumDefinition(step.getId());
+                if (entityDatum != null && entityDatum.getPersistentDetail() != null) {
                     stepToFrame = step;
                 }
             }
@@ -386,13 +386,8 @@ public class BreadcrumbBarFragment extends Fragment {
         }
 
         //check to make sure we can look up this child
-        SessionDatum d = asw.getSession().findDatumDefinition(stepToFrame.getId());
-        if (!(d instanceof EntityDatum)) {
-            return null;
-        }
-
-        EntityDatum entityDatum = (EntityDatum)d;
-        if (entityDatum.getPersistentDetail() == null) {
+        EntityDatum entityDatum = asw.getSession().findDatumDefinition(stepToFrame.getId());
+        if (entityDatum == null || entityDatum.getPersistentDetail() == null) {
             return null;
         }
 
