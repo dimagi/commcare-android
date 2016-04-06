@@ -1128,8 +1128,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         SpannableStringBuilder groupLabelText = questionsView.getGroupLabel();
 
-        // don't consider '>' char when evaluating whether there's a group label
-        if (groupLabelText != null && !groupLabelText.toString().replace(">","").trim().equals("")) {
+        if (groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
             groupLabel.setText(groupLabelText);
             this.mGroupNativeVisibility = true;
             FormLayoutHelpers.updateGroupViewVisibility(this, mGroupNativeVisibility, mGroupForcedInvisible);
@@ -1329,8 +1328,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // save current answer; if headless, don't evaluate the constraints
         // before doing so.
         boolean wasScreenSaved =
-                saveAnswersForCurrentScreen(headless ? DO_NOT_EVALUATE_CONSTRAINTS : EVALUATE_CONSTRAINTS,
-                        complete, headless);
+                saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS, complete, headless);
         if (!wasScreenSaved) {
             return;
         }
