@@ -12,8 +12,10 @@ import android.widget.RelativeLayout;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.logic.DetailCalloutListenerDefaultImpl;
 import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.CalloutData;
@@ -44,6 +46,9 @@ public class EntityDetailActivity
     private Pair<Detail, TreeReference> mEntityContext;
     private TreeReference mTreeReference;
     private int detailIndex;
+
+    // controls whether swiping can toggle exit from case detail screen
+    private boolean isFinalSwipeActionEnabled = false;
 
     @UiElement(value = R.id.entity_detail)
     private RelativeLayout container;
@@ -113,6 +118,7 @@ public class EntityDetailActivity
 
         next.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
+                GoogleAnalyticsUtils.reportEntityDetailContinue(false, mDetailView.getTabCount() == 1);
                 select();
             }
         });
@@ -126,6 +132,7 @@ public class EntityDetailActivity
         mDetailView.refresh(detail, mTreeReference, detailIndex);
 
         mDetailView.showMenu();
+        isFinalSwipeActionEnabled = DeveloperPreferences.isDetailTabSwipeActionEnabled();
     }
 
     public Pair<Detail, TreeReference> requestEntityContext() {
@@ -192,8 +199,10 @@ public class EntityDetailActivity
     @Override
     protected boolean onForwardSwipe() {
         // Move along, provided we're on the last tab of tabbed case details
-        if (mDetailView.getCurrentTab() >= mDetailView.getTabCount() - 1) {
+        if (isFinalSwipeActionEnabled &&
+                mDetailView.getCurrentTab() >= mDetailView.getTabCount() - 1) {
             select();
+            GoogleAnalyticsUtils.reportEntityDetailContinue(true, mDetailView.getTabCount() == 1);
             return true;
         }
         return false;
@@ -202,8 +211,10 @@ public class EntityDetailActivity
     @Override
     protected boolean onBackwardSwipe() {
         // Move back, provided we're on the first screen of tabbed case details
-        if (mDetailView.getCurrentTab() < 1) {
+        if (isFinalSwipeActionEnabled &&
+                mDetailView.getCurrentTab() < 1) {
             finish();
+            GoogleAnalyticsUtils.reportEntityDetailExit(true, mDetailView.getTabCount() == 1);
             return true;
         }
         return false;
@@ -217,5 +228,11 @@ public class EntityDetailActivity
         loadOutgoingIntent(i);
         setResult(RESULT_OK, i);
         finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        GoogleAnalyticsUtils.reportEntityDetailExit(false, mDetailView.getTabCount() == 1);
     }
 }
