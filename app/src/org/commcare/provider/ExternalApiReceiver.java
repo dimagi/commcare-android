@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.util.Pair;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -181,7 +182,8 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 context) {
 
             @Override
-            protected void deliverResult(Object receiver, PullTaskResult result) {
+            protected void deliverResult(Object receiver, Pair<PullTaskResult, String> resultAndErrorMessage) {
+                PullTaskResult result = resultAndErrorMessage.first;
                 if (result != PullTaskResult.DOWNLOAD_SUCCESS) {
                     Toast.makeText(context, "CommCare couldn't sync. Please try to sync from CommCare directly for more information", Toast.LENGTH_LONG).show();
                 } else {
