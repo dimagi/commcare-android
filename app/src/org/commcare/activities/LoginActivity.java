@@ -9,8 +9,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.util.Pair;
 import android.util.Log;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -203,7 +203,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                 LoginActivity.this.getString(R.string.ota_restore_url)),
                         LoginActivity.this) {
                     @Override
-                    protected void deliverResult(LoginActivity receiver, PullTaskResult result) {
+                    protected void deliverResult(LoginActivity receiver, Pair<PullTaskResult, String> resultAndErrorMessage) {
+                        PullTaskResult result = resultAndErrorMessage.first;
                         if (result == null) {
                             // The task crashed unexpectedly
                             receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
@@ -214,8 +215,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                             case AUTH_FAILED:
                                 receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                                 break;
+                            case BAD_DATA_REQUIRES_INTERVENTION:
+                                receiver.raiseLoginMessageWithInfo(StockMessages.Remote_BadRestoreRequiresIntervention, resultAndErrorMessage.second, true);
+                                break;
                             case BAD_DATA:
-                                receiver.raiseLoginMessage(StockMessages.Remote_BadRestore, true);
+                                receiver.raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore, resultAndErrorMessage.second, true);
                                 break;
                             case STORAGE_FULL:
                                 receiver.raiseLoginMessage(StockMessages.Storage_Full, true);
@@ -235,7 +239,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                 receiver.raiseLoginMessage(StockMessages.Remote_ServerError, true);
                                 break;
                             case UNKNOWN_FAILURE:
-                                receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
+                                receiver.raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.second, true);
                                 break;
                         }
                     }
@@ -450,6 +454,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             default:
                 return otherResult;
         }
+    }
+
+    @Override
+    public void raiseLoginMessageWithInfo(MessageTag messageTag, String additionalInfo, boolean showTop) {
+        NotificationMessage message =
+                NotificationMessageFactory.message(messageTag,
+                        new String[]{null, null, additionalInfo},
+                        NOTIFICATION_MESSAGE_LOGIN);
+        raiseMessage(message, showTop);
     }
 
     @Override
