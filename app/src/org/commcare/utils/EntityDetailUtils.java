@@ -6,6 +6,7 @@ import android.content.Intent;
 import org.commcare.activities.EntityDetailActivity;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.session.SessionFrame;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.javarosa.core.model.instance.TreeReference;
 
@@ -26,7 +27,7 @@ public class EntityDetailUtils {
     public static Intent getDetailIntent(Context context,
                                          TreeReference contextRef,
                                          Intent detailIntent,
-                                         SessionDatum selectDatum,
+                                         EntityDatum selectDatum,
                                          AndroidSessionWrapper asw) {
         if (detailIntent == null) {
             detailIntent = new Intent(context, EntityDetailActivity.class);
@@ -40,10 +41,10 @@ public class EntityDetailUtils {
      */
     public static Intent populateDetailIntent(Intent detailIntent,
                                               TreeReference contextRef,
-                                              SessionDatum selectDatum,
+                                              EntityDatum selectDatum,
                                               AndroidSessionWrapper asw) {
 
-        String caseId = SessionDatum.getCaseIdFromReference(
+        String caseId = EntityDatum.getCaseIdFromReference(
                 contextRef, selectDatum, asw.getEvaluationContext());
         detailIntent.putExtra(SessionFrame.STATE_DATUM_VAL, caseId);
 
