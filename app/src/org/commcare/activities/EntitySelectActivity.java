@@ -790,8 +790,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private DialogChoiceItem[] getSortOptionsList(final PaneledChoiceDialog dialog) {
-        SessionDatum datum = session.getNeededDatum();
-        DetailField[] fields = session.getDetail(datum.getShortDetail()).getFields();
+        DetailField[] fields = session.getDetail(selectDatum.getShortDetail()).getFields();
         List<String> namesList = new ArrayList<>();
 
         final int[] keyArray = new int[fields.length];
