@@ -79,7 +79,7 @@ home.forms.incomplete=Incomplete
 home.forms.incomplete.indicator=${1} (${0})  
 home.forms.saved=Saved
 home.sync=Sync with Server
-home.sync.indicator=Unsent Forms: ${0}
+home.unsent.forms.indicator=Unsent Forms: ${0}
 home.logout=Log out of CommCare
 home.report=Report an Issue
 

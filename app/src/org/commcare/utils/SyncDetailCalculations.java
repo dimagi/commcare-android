@@ -37,7 +37,7 @@ public class SyncDetailCalculations {
         Pair<Long, String> lastSyncTimeAndMessage = getLastSyncTimeAndMessage();
 
         if (numUnsentForms > 0) {
-            Spannable syncIndicator = (activity.localize("home.sync.indicator",
+            Spannable syncIndicator = (activity.localize("home.unsent.forms.indicator",
                     new String[]{String.valueOf(numUnsentForms)}));
             squareButtonViewHolder.subTextView.setText(syncIndicator);
         } else {
