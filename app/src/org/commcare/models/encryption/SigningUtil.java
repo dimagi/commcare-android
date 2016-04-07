@@ -90,6 +90,8 @@ public class SigningUtil {
         return null;
     }
 
+
+
     /**
      * Given the raw message bytes not including the signature, convert to UTF-8 and parse out
      * the download link
@@ -174,12 +176,16 @@ public class SigningUtil {
         return kf.generatePublic(spec);
     }
 
-    private static boolean verifyMessageSignature(PublicKey publicKey, String messageString, byte[] signature) throws SignatureException, NoSuchAlgorithmException, InvalidKeyException {
-        Signature signatureVerifier = Signature.getInstance("SHA256withRSA/PSS", new BouncyCastleProvider());
+    public static boolean verifyMessageSignature(PublicKey publicKey, String messageString, byte[] signature) throws SignatureException, NoSuchAlgorithmException, InvalidKeyException {
+        Signature signatureVerifier = getRSASignatureInstanceWithProvider();
         byte[] message = messageString.getBytes();
         signatureVerifier.initVerify(publicKey);
         signatureVerifier.update(message);
         return signatureVerifier.verify(signature);
+    }
+
+    public static Signature getRSASignatureInstanceWithProvider() throws NoSuchAlgorithmException {
+        return Signature.getInstance("SHA256withRSA/PSS", new BouncyCastleProvider());
     }
 
     /**
