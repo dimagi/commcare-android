@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.util.Pair;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;

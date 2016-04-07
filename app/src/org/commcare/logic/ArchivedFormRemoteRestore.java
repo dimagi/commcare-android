@@ -1,6 +1,5 @@
 package org.commcare.logic;
 
-import android.support.v4.util.Pair;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;

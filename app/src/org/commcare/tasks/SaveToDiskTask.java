@@ -4,7 +4,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.v4.util.Pair;
 import android.util.Log;
 
 import org.commcare.activities.FormEntryActivity;

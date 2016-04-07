@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.v4.util.Pair;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
