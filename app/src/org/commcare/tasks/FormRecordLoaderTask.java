@@ -6,12 +6,14 @@ import android.util.Pair;
 
 import org.commcare.CommCareApplication;
 import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.models.Entity;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.ACase;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.models.database.user.models.SessionStateDescriptor;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Text;
 import org.commcare.tasks.templates.ManagedAsyncTask;
@@ -280,12 +282,16 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         CommCareSession session = new CommCareSession(androidSessionWrapper.getSession());
 
         // Walk backwards until we find something with a long detail
-        while (session.getFrame().getSteps().size() > 0 &&
-                (!SessionFrame.STATE_DATUM_VAL.equals(session.getNeededData()) ||
-                        session.getNeededDatum().getLongDetail() == null)) {
+        EntityDatum entityDatum = null;
+        while (session.getFrame().getSteps().size() > 0) {
+            SessionDatum datum = session.getNeededDatum();
+            if (datum instanceof EntityDatum && ((EntityDatum)datum).getLongDetail() != null) {
+                entityDatum = (EntityDatum)datum;
+                break;
+            }
             session.stepBack();
         }
-        if (session.getFrame().getSteps().size() == 0) {
+        if (entityDatum == null || session.getFrame().getSteps().size() == 0) {
             return null;
         }
 
@@ -294,12 +300,10 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         //Get the value that was chosen for this item
         String value = session.getPoppedStep().getValue();
 
-        SessionDatum datum = session.getNeededDatum();
-
         //Now determine what nodeset that was going to be used to load this select
-        TreeReference nodesetRef = datum.getNodeset().clone();
+        TreeReference nodesetRef = entityDatum.getNodeset().clone();
         Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() - 1);
-        predicates.add(new XPathEqExpr(XPathEqExpr.EQ, XPathReference.getPathExpr(datum.getValue()), new XPathStringLiteral(value)));
+        predicates.add(new XPathEqExpr(XPathEqExpr.EQ, XPathReference.getPathExpr(entityDatum.getValue()), new XPathStringLiteral(value)));
 
         Vector<TreeReference> elements = ec.expandReference(nodesetRef);
 
@@ -313,7 +317,7 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
 
 
         //Ok, so get our Text.
-        Text t = session.getDetail(datum.getLongDetail()).getTitle().getText();
+        Text t = session.getDetail(entityDatum.getLongDetail()).getTitle().getText();
         boolean isPrettyPrint = true;
 
         //CTS: this is... not awesome.

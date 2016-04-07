@@ -43,6 +43,7 @@ import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigationResponder;
 import org.commcare.session.SessionNavigator;
 import org.commcare.suite.model.Entry;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
@@ -922,24 +923,27 @@ public class CommCareHomeActivity
     private void launchConfirmDetail(AndroidSessionWrapper asw) {
         CommCareSession session = asw.getSession();
         SessionDatum selectDatum = session.getNeededDatum();
-        TreeReference contextRef = sessionNavigator.getCurrentAutoSelection();
-        if (this.getString(R.string.panes).equals("two")
-                && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            // Large tablet in landscape: send to entity select activity
-            // (awesome mode, with case pre-selected) instead of entity detail
-            Intent i = getSelectIntent(session);
-            String caseId = SessionDatum.getCaseIdFromReference(
-                    contextRef, selectDatum, asw.getEvaluationContext());
-            i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, caseId);
-            startActivityForResult(i, GET_CASE);
-        } else {
-            // Launch entity detail activity
-            Intent detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
-            EntityDetailUtils.populateDetailIntent(
-                    detailIntent, contextRef, selectDatum, asw);
-            addPendingDataExtra(detailIntent, session);
-            addPendingDatumIdExtra(detailIntent, session);
-            startActivityForResult(detailIntent, GET_CASE);
+        if (selectDatum instanceof EntityDatum) {
+            EntityDatum entityDatum = (EntityDatum) selectDatum;
+            TreeReference contextRef = sessionNavigator.getCurrentAutoSelection();
+            if (this.getString(R.string.panes).equals("two")
+                    && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                // Large tablet in landscape: send to entity select activity
+                // (awesome mode, with case pre-selected) instead of entity detail
+                Intent i = getSelectIntent(session);
+                String caseId = EntityDatum.getCaseIdFromReference(
+                        contextRef, entityDatum, asw.getEvaluationContext());
+                i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, caseId);
+                startActivityForResult(i, GET_CASE);
+            } else {
+                // Launch entity detail activity
+                Intent detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
+                EntityDetailUtils.populateDetailIntent(
+                        detailIntent, contextRef, entityDatum, asw);
+                addPendingDataExtra(detailIntent, session);
+                addPendingDatumIdExtra(detailIntent, session);
+                startActivityForResult(detailIntent, GET_CASE);
+            }
         }
     }
 

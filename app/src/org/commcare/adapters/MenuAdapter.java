@@ -18,6 +18,7 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
@@ -280,7 +281,7 @@ public class MenuAdapter implements ListAdapter {
         //figure out some icons
         if (menuDisplayable instanceof FormEntry) {
             SessionDatum datum = asw.getSession().getNeededDatum((FormEntry) menuDisplayable);
-            if (datum == null || datum.getNodeset() == null) {
+            if (datum == null || !(datum instanceof EntityDatum)) {
                 iconChoice = NavIconState.JUMP;
             }
         }
