@@ -3,7 +3,7 @@ package org.commcare.network;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.mime.MIME;
 import org.apache.http.entity.mime.content.AbstractContentBody;
-import org.javarosa.core.io.StreamsUtil;
+import org.commcare.utils.AndroidStreamUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.io.StreamsUtil.OutputIOException;
 
@@ -51,7 +51,7 @@ public class EncryptedFileBody extends AbstractContentBody {
         CipherInputStream cis = new CipherInputStream(new FileInputStream(file), cipher);
 
         try {
-            StreamsUtil.writeFromInputToOutputSpecific(cis, out);
+            AndroidStreamUtil.writeFromInputToOutputUnmanaged(cis, out);
         } catch (InputIOException iioe) {
             //Here we want to retain the fundamental problem of the _input_ being responsible for the issue
             //so we can differentiate between bad reads and bad network
