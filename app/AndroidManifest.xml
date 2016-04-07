@@ -399,6 +399,7 @@
             android:name="org.commcare.activities.PinAuthenticationActivity"
             android:windowSoftInputMode="stateVisible|adjustResize">
         </activity>
+        <activity android:name="org.commcare.activities.SuperuserAuthActivity"></activity>
 
         <!-- Start Collect Manifest -->
 

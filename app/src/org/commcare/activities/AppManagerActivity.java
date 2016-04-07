@@ -34,7 +34,11 @@ import org.javarosa.core.services.locale.Localization;
 public class AppManagerActivity extends Activity implements OnItemClickListener {
 
     public static final String KEY_LAUNCH_FROM_MANAGER = "from_manager";
+
+    private static final int SUPERUSER_AUTH = 1;
+
     private static final int MENU_CONNECTION_DIAGNOSTIC = 0;
+    private static final int MENU_SUPERUSER_AUTH = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +56,8 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, Localization.get("home.menu.connection.diagnostic")).setIcon(android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, Localization.get("home.menu.connection.diagnostic"));
+        menu.add(0, MENU_SUPERUSER_AUTH, 1, Localization.get("app.manager.menu.superuser"));
         return true;
     }
 
@@ -63,10 +68,13 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                 Intent i = new Intent(this, ConnectionDiagnosticActivity.class);
                 startActivity(i);
                 return true;
+            case MENU_SUPERUSER_AUTH:
+                i = new Intent(this, SuperuserAuthActivity.class);
+                startActivityForResult(i, SUPERUSER_AUTH);
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     /**
      * Refresh the list of installed apps
@@ -138,6 +146,11 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                     }).showDialog();
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
+                }
+                return;
+            case SUPERUSER_AUTH:
+                if (resultCode == RESULT_OK) {
+                    Toast.makeText(this, "Authentication Succeeded!", Toast.LENGTH_LONG).show();
                 }
                 return;
         }

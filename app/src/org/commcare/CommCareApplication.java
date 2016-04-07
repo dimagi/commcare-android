@@ -145,6 +145,9 @@ public class CommCareApplication extends Application {
     public static final int STATE_MIGRATION_FAILED = 16;
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
 
+    private static final String KEY_SUPERUSER_ENABLED = "superuser-mode-enabled";
+    private static final String KEY_AUTHENTICATED_SUPERUSER_USERNAME = "username-of-authenticated-superuser";
+
     private static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
 
     private int dbState;
@@ -193,10 +196,6 @@ public class CommCareApplication extends Application {
 
     // Indicates that a build refresh action has been triggered, but not yet completed
     private boolean latestBuildRefreshPending;
-
-    //TODO: Will probably move this flag to be stored in whatever activity is created to actually
-    // perform the superuser authentication
-    private boolean superUserEnabled;
 
     @Override
     public void onCreate() {
@@ -1393,18 +1392,6 @@ public class CommCareApplication extends Application {
         titleForUserMessage = null;
     }
 
-    public void enableSuperUserMode(String usernameOfSuperuserAuthenticated) {
-        GoogleAnalyticsUtils.reportSuperUserEnabled(usernameOfSuperuserAuthenticated);
-        Logger.log(AndroidLogger.TYPE_USER,
-                "Superuser mode was enabled using username " + usernameOfSuperuserAuthenticated);
-
-        superUserEnabled = true;
-    }
-
-    public boolean isSuperUserEnabled() {
-        return superUserEnabled;
-    }
-
     private void setupLoggerStorage(boolean userStorageAvailable) {
         if (userStorageAvailable) {
             Logger.registerLogger(new AndroidLogger(getUserStorage(AndroidLogEntry.STORAGE_KEY,
@@ -1431,6 +1418,27 @@ public class CommCareApplication extends Application {
             return true;
         }
         return false;
+    }
+
+    public void enableSuperUserMode(String usernameOfSuperuserAuthenticated) {
+        GoogleAnalyticsUtils.reportSuperUserEnabled(usernameOfSuperuserAuthenticated);
+        Logger.log(AndroidLogger.TYPE_USER,
+                "Superuser mode was enabled using username " + usernameOfSuperuserAuthenticated);
+
+        PreferenceManager.getDefaultSharedPreferences(this).edit()
+                .putBoolean(KEY_SUPERUSER_ENABLED, true).commit();
+        PreferenceManager.getDefaultSharedPreferences(this).edit()
+                .putString(KEY_AUTHENTICATED_SUPERUSER_USERNAME, usernameOfSuperuserAuthenticated).commit();
+    }
+
+    public boolean isSuperUserEnabled() {
+        return PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(KEY_SUPERUSER_ENABLED, false);
+    }
+
+    public String getAuthenticatedSuperuserUsername() {
+        return PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(KEY_AUTHENTICATED_SUPERUSER_USERNAME, "");
     }
 
 }

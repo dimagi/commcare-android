@@ -102,6 +102,8 @@ home.menu.disable.analytics=Opt Out of Analytics
 home.menu.pin.set=Set My PIN
 home.menu.pin.change=Change My PIN
 
+app.manager.menu.superuser=Authenticate as Superuser
+
 home.developer.options.enabled=Developer Mode Enabled
 
 menu.save.session=Save Your Session
