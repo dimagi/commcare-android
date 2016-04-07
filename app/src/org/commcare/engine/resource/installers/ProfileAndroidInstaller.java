@@ -103,6 +103,9 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
     private static void verifyMultipleAppsCompliance(Profile profile)
             throws UnfullfilledRequirementsException {
+        if (CommCareApplication._().isSuperUserEnabled()) {
+            return;
+        }
 
         String compatibilityValue = profile.getMultipleAppsCompatibility();
         if (SignedPermission.MULT_APPS_IGNORE_VALUE.equals(compatibilityValue)) {
