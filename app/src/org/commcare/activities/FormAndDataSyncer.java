@@ -15,6 +15,7 @@ import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
@@ -132,10 +133,10 @@ public class FormAndDataSyncer {
                 activity) {
 
             @Override
-            protected void deliverResult(CommCareHomeActivity receiver, Pair<PullTaskResult, String> resultAndErrorMessage) {
+            protected void deliverResult(CommCareHomeActivity receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
                 receiver.getUIController().refreshView();
 
-                PullTaskResult result = resultAndErrorMessage.first;
+                PullTaskResult result = resultAndErrorMessage.data;
                 String reportSyncLabel = result.getCorrespondingGoogleAnalyticsLabel();
                 int reportSyncValue = result.getCorrespondingGoogleAnalyticsValue();
 

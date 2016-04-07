@@ -21,6 +21,7 @@ import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ExternalManageKeyRecordTask;
 import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.FormUploadUtil;
@@ -182,8 +183,8 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 context) {
 
             @Override
-            protected void deliverResult(Object receiver, Pair<PullTaskResult, String> resultAndErrorMessage) {
-                PullTaskResult result = resultAndErrorMessage.first;
+            protected void deliverResult(Object receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
+                PullTaskResult result = resultAndErrorMessage.data;
                 if (result != PullTaskResult.DOWNLOAD_SUCCESS) {
                     Toast.makeText(context, "CommCare couldn't sync. Please try to sync from CommCare directly for more information", Toast.LENGTH_LONG).show();
                 } else {
