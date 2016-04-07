@@ -34,6 +34,7 @@ import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ManageKeyRecordTask;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ViewUtil;
@@ -203,8 +204,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                 LoginActivity.this.getString(R.string.ota_restore_url)),
                         LoginActivity.this) {
                     @Override
-                    protected void deliverResult(LoginActivity receiver, Pair<PullTaskResult, String> resultAndErrorMessage) {
-                        PullTaskResult result = resultAndErrorMessage.first;
+                    protected void deliverResult(LoginActivity receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
+                        PullTaskResult result = resultAndErrorMessage.data;
                         if (result == null) {
                             // The task crashed unexpectedly
                             receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
@@ -216,10 +217,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                 receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
                                 break;
                             case BAD_DATA_REQUIRES_INTERVENTION:
-                                receiver.raiseLoginMessageWithInfo(StockMessages.Remote_BadRestoreRequiresIntervention, resultAndErrorMessage.second, true);
+                                receiver.raiseLoginMessageWithInfo(StockMessages.Remote_BadRestoreRequiresIntervention, resultAndErrorMessage.errorMessage, true);
                                 break;
                             case BAD_DATA:
-                                receiver.raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore, resultAndErrorMessage.second, true);
+                                receiver.raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore, resultAndErrorMessage.errorMessage, true);
                                 break;
                             case STORAGE_FULL:
                                 receiver.raiseLoginMessage(StockMessages.Storage_Full, true);
@@ -239,7 +240,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                                 receiver.raiseLoginMessage(StockMessages.Remote_ServerError, true);
                                 break;
                             case UNKNOWN_FAILURE:
-                                receiver.raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.second, true);
+                                receiver.raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
                                 break;
                         }
                     }
