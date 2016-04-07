@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.UpdateActivity;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DeveloperPreferences;
@@ -215,7 +216,7 @@ public class ResourceInstallUtils {
         // If we want to be using/updating to the latest build of the
         // app (instead of latest release), add it to the query tags of
         // the profile reference
-        if (DeveloperPreferences.isNewestAppVersionEnabled()) {
+        if (DeveloperPreferences.isNewestAppBuildEnabled()) {
             if (profileUrl.getQuery() != null) {
                 // url already has query strings, so add a new one to the end
                 return profileRef + "&target=build";
@@ -235,5 +236,14 @@ public class ResourceInstallUtils {
         SharedPreferences prefs = app.getAppPreferences();
 
         return prefs.getString(DEFAULT_APP_SERVER_KEY, null);
+    }
+
+    public static String getLatestProfileRef(){
+        String defaultProfileReference = getDefaultProfileRef();
+        String appId = CommCareApplication._().getCurrentApp().getUniqueId();
+        String pattern = "(?<=download\\/)(.*)(?=\\/)";
+        String latestProfileReference = defaultProfileReference.replaceFirst(pattern, appId);
+        Logger.log(UpdateActivity.class.getSimpleName(), "Got latest profile reference: " + latestProfileReference);
+        return latestProfileReference;
     }
 }

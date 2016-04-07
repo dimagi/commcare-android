@@ -11,6 +11,8 @@ import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
+import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
@@ -232,6 +234,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         }
 
         String ref = ResourceInstallUtils.getDefaultProfileRef();
+        if(DeveloperPreferences.isUseDevFormsEnabled()) {
+            ref = ResourceInstallUtils.getLatestProfileRef();
+        }
         updateTask.execute(ref);
         uiController.downloadingUiState();
     }

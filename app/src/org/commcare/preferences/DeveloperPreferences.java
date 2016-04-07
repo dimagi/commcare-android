@@ -39,6 +39,13 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      * not just the latest app version released (starred)?
      */
     public final static String NEWEST_APP_VERSION_ENABLED = "cc-newest-version-from-hq";
+
+    /**
+     * Does the user want to download the latest version of the forms,
+     * even those not yet built? (Wipes out all current resources)
+     */
+    public final static String LATEST_DEV_FORMS_ENABLED = "cc-newest-forms-from-hq";
+
     /**
      * The current default for constraint checking during form saving (as of
      * CommCare 2.24) is to re-answer all the questions, causing a lot of
@@ -195,9 +202,18 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      * deployed (built) is enabled.  Otherwise the latest released (starred)
      * app version will be downloaded on upgrade.
      */
-    public static boolean isNewestAppVersionEnabled() {
+    public static boolean isNewestAppBuildEnabled() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(NEWEST_APP_VERSION_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+
+    /**
+     * @return true if developer option to download the very latest version of the forms -
+     * including not yet deployed changes. Will wipe out all resources to override.
+     */
+    public static boolean isUseDevFormsEnabled() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(LATEST_DEV_FORMS_ENABLED, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
     public static boolean shouldFireTriggersOnSave() {
