@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout android:id="@+id/warning_root"
+             xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="fill_parent"
+             android:layout_height="wrap_content"
+             android:layout_marginBottom="1dp"
+             android:layout_marginLeft="@dimen/question_widget_side_inv"
+             android:layout_marginRight="@dimen/question_widget_side_inv"
+             android:background="@color/cc_attention_negative_color">
+
+    <LinearLayout
+        style="@style/DefaultHorizontalPadding"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/message"
+            style="@style/DefaultPadding"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textColor="@color/white"/>
+    </LinearLayout>
+</FrameLayout>

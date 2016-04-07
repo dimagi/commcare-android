@@ -15,10 +15,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
 import org.commcare.android.nsd.NsdServiceListener;
-import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.dalvik.R;
 import org.commcare.views.SquareButtonWithText;
 import org.commcare.views.dialogs.DialogChoiceItem;
@@ -35,7 +35,7 @@ import java.util.ArrayList;
 public class SelectInstallModeFragment extends Fragment implements NsdServiceListener {
 
     private View mFetchHubContainer;
-    ArrayList<Pair<String, String>> mLocalApps = new ArrayList<>();
+    private ArrayList<Pair<String, String>> mLocalApps = new ArrayList<>();
 
     @Override
     public void onResume() {

@@ -1,9 +1,9 @@
 package org.commcare.preferences;
 
 import android.content.SharedPreferences;
+import android.support.v4.util.Pair;
 import android.util.Base64;
 import android.util.Log;
-import android.util.Pair;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -33,8 +33,8 @@ public class DevSessionRestorer {
      * @return Username and password of last login; null if auto-login not
      * enabled
      */
-    public static Pair<String, String> getAutoLoginCreds() {
-        if (autoLoginEnabled()) {
+    public static Pair<String, String> getAutoLoginCreds(boolean force) {
+        if (force || autoLoginEnabled()) {
             SharedPreferences prefs =
                     CommCareApplication._().getCurrentApp().getAppPreferences();
             String lastUser =
@@ -53,8 +53,8 @@ public class DevSessionRestorer {
     /**
      * Save password into app preferences if auto-login is enabled
      */
-    public static void tryAutoLoginPasswordSave(String password) {
-        if (autoLoginEnabled()) {
+    public static void tryAutoLoginPasswordSave(String password, boolean force) {
+        if (force || autoLoginEnabled()) {
             SharedPreferences prefs =
                     CommCareApplication._().getCurrentApp().getAppPreferences();
             prefs.edit().putString(CommCarePreferences.LAST_PASSWORD, password).commit();

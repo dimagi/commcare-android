@@ -175,8 +175,6 @@ public class PurgeStaleArchivedFormsTask
      *
      * The method identifies forms saved in a specific date window that need to be resubmitted
      * and performs the resubmission.
-     *
-     * @param app
      */
     private static void performUnsentAttachmentHotfix(CommCareApp app) {
         if(app.getAppPreferences().getBoolean(KEY_HAS_PERFORMED_HOTFIX_CHECK, false)) {

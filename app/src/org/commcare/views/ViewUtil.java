@@ -1,6 +1,5 @@
 package org.commcare.views;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
@@ -64,7 +63,6 @@ public final class ViewUtil {
      * @param v          The view whose background will be updated
      * @param background A background drawable (can be null to clear the background)
      */
-    @SuppressLint("NewApi")
     public static void setBackgroundRetainPadding(View v, Drawable background) {
         //Need to transplant the padding due to background affecting it
         int[] padding = {v.getPaddingLeft(), v.getPaddingTop(), v.getPaddingRight(), v.getPaddingBottom()};

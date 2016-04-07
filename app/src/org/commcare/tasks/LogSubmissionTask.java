@@ -229,8 +229,8 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         }
     }
 
-    public static boolean submitDeviceReportRecord(DeviceReportRecord slr, String submissionUrl,
-                                                   DataSubmissionListener listener, int index) {
+    private static boolean submitDeviceReportRecord(DeviceReportRecord slr, String submissionUrl,
+                                                    DataSubmissionListener listener, int index) {
         //Get our file pointer
         File f = new File(slr.getFilePath());
 
@@ -250,11 +250,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             return false;
         }
 
-        if (User.TYPE_DEMO.equals(user.getUserType())) {
-            generator = new HttpRequestGenerator();
-        } else {
-            generator = new HttpRequestGenerator(user);
-        }
+        generator = new HttpRequestGenerator(user);
 
         MultipartEntity entity = new DataSubmissionEntity(listener, index);
 

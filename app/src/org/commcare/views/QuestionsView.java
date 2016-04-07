@@ -255,8 +255,10 @@ public class QuestionsView extends ScrollView
                 Spannable markdownSpannable = MarkupUtil.returnMarkdown(getContext(), m);
                 s.append(markdownSpannable);
             }
-            else if (t != null) {
+            else if (t != null && !t.trim().equals("")) {
                 s.append(t);
+            } else {
+                continue;
             }
 
             if (g.repeats() && i > 0) {
@@ -345,7 +347,6 @@ public class QuestionsView extends ScrollView
         Logger.log(AndroidLogger.SOFT_ASSERT,
                 "Unable to find question widget to attach pending data to.");
     }
-
 
     /**
      * @return true if the answer was cleared, false otherwise.

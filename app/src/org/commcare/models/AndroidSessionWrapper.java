@@ -43,8 +43,8 @@ public class AndroidSessionWrapper {
     private static final String TAG = AndroidSessionWrapper.class.getSimpleName();
     //The state descriptor will need these 
     private final CommCareSession session;
-    protected int formRecordId = -1;
-    protected int sessionStateRecordId = -1;
+    private int formRecordId = -1;
+    private int sessionStateRecordId = -1;
 
     public AndroidSessionWrapper(CommCarePlatform platform) {
         session = new CommCareSession(platform);
@@ -285,8 +285,8 @@ public class AndroidSessionWrapper {
         return session.getEvaluationContext(getIIF(), commandId);
     }
     
-    AndroidInstanceInitializer initializer;
-    protected AndroidInstanceInitializer getIIF() {
+    private AndroidInstanceInitializer initializer;
+    private AndroidInstanceInitializer getIIF() {
         if(initializer == null) {
             initializer = new AndroidInstanceInitializer(session);
         } 

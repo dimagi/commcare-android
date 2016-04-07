@@ -57,7 +57,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
     @UiElement(value = R.id.screen_multimedia_inflater_install, locale = "mult.install.button")
     Button btnInstallMultimedia;
 
-    boolean done = false;
+    private boolean done = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
