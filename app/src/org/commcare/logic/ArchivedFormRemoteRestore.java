@@ -1,6 +1,5 @@
 package org.commcare.logic;
 
-import android.support.v4.util.Pair;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -8,6 +7,7 @@ import org.commcare.activities.FormRecordListActivity;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormRecordCleanupTask;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
@@ -39,8 +39,8 @@ public class ArchivedFormRemoteRestore {
         DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(),
                 u.getCachedPwd(), remoteUrl, activity) {
             @Override
-            protected void deliverResult(FormRecordListActivity receiver, Pair<PullTaskResult, String> statusAndErrorMessage) {
-                PullTaskResult status = statusAndErrorMessage.first;
+            protected void deliverResult(FormRecordListActivity receiver, ResultAndError<PullTaskResult> statusAndErrorMessage) {
+                PullTaskResult status = statusAndErrorMessage.data;
                 switch (status) {
                     case DOWNLOAD_SUCCESS:
                         downloadForms(activity, platform);
