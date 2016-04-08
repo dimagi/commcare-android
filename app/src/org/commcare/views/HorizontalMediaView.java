@@ -39,20 +39,26 @@ public class HorizontalMediaView extends RelativeLayout {
 
     public void setDisplay(DisplayUnit display) {
         DisplayData mData = display.evaluate();
-        setAVT(Localizer.processArguments(mData.getName(), new String[]{""}).trim(), mData.getAudioURI(), mData.getImageURI());
+        String displayText =
+                Localizer.processArguments(mData.getName(), new String[]{""}).trim();
+
+        setAVT(displayText, mData.getAudioURI(), mData.getImageURI());
     }
 
     public void setAVT(String displayText, String audioURI, String imageURI) {
         removeAllViews();
 
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        TextView mTextView = (TextView) inflater.inflate(R.layout.menu_list_item, null);
-        mTextView.setText(displayText);
+        RelativeLayout.LayoutParams audioParams =
+                new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        audioButton = setupAudioButton(audioURI, audioParams);
 
+        ImageView imageView = setupImageView(imageURI, audioParams);
+
+        setupText(displayText, imageView);
+    }
+
+    private AudioButton setupAudioButton(String audioURI, RelativeLayout.LayoutParams audioParams) {
         // Layout configurations for our elements in the relative layout
-        RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        RelativeLayout.LayoutParams audioParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(iconDimension, iconDimension);
 
         String audioFilename = "";
         if (audioURI != null && !audioURI.equals("")) {
@@ -66,22 +72,28 @@ public class HorizontalMediaView extends RelativeLayout {
 
         File audioFile = new File(audioFilename);
 
+        AudioButton tmpAudioButton = null;
         // First set up the audio button
         if (!"".equals(audioFilename) && audioFile.exists()) {
             // An audio file is specified
-            audioButton = new AudioButton(getContext(), audioURI, true);
-            audioButton.setId(3245345); // random ID to be used by the relative layout.
+            tmpAudioButton = new AudioButton(getContext(), audioURI, true);
+            tmpAudioButton.setId(3245345); // random ID to be used by the relative layout.
             // Set not focusable so that list onclick will work
-            audioButton.setFocusable(false);
-            audioButton.setFocusableInTouchMode(false);
+            tmpAudioButton.setFocusable(false);
+            tmpAudioButton.setFocusableInTouchMode(false);
             audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             audioParams.addRule(CENTER_VERTICAL);
-            addView(audioButton, audioParams);
+            addView(tmpAudioButton, audioParams);
         }
+        return tmpAudioButton;
+    }
 
+    private ImageView setupImageView(String imageURI, RelativeLayout.LayoutParams audioParams) {
         ImageView imageView = null;
         Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI, iconDimension, iconDimension);
         if (b != null) {
+            RelativeLayout.LayoutParams imageParams =
+                    new RelativeLayout.LayoutParams(iconDimension, iconDimension);
             imageView = new ImageView(getContext());
             imageView.setPadding(10, 10, 10, 10);
             imageView.setAdjustViewBounds(true);
@@ -91,10 +103,15 @@ public class HorizontalMediaView extends RelativeLayout {
             audioParams.addRule(CENTER_VERTICAL);
             addView(imageView, imageParams);
         }
+        return imageView;
+    }
 
+    private void setupText(String displayText, ImageView imageView) {
+        RelativeLayout.LayoutParams textParams =
+                new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         textParams.addRule(RelativeLayout.CENTER_VERTICAL);
         textParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        if (imageURI != null && !imageURI.equals("") && imageView != null) {
+        if (imageView != null) {
             textParams.addRule(RelativeLayout.RIGHT_OF, imageView.getId());
         } else {
             textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
@@ -103,16 +120,20 @@ public class HorizontalMediaView extends RelativeLayout {
         if (audioButton != null) {
             textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
         }
+        LayoutInflater inflater =
+                (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        TextView mTextView = (TextView) inflater.inflate(R.layout.menu_list_item, null);
+        mTextView.setText(displayText);
         addView(mTextView, textParams);
     }
 
     @Override
     protected void onWindowVisibilityChanged(int visibility) {
         super.onWindowVisibilityChanged(visibility);
-        if (visibility != View.VISIBLE) {
-            if (audioButton != null) {
-                audioButton.endPlaying();
-            }
+
+        if (visibility != View.VISIBLE && audioButton != null) {
+            audioButton.endPlaying();
         }
     }
 }
