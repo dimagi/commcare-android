@@ -345,25 +345,22 @@ public class FileUtil {
         }
     }
 
-    public static Properties loadProperties(File file) {
+    public static Properties loadProperties(File file) throws IOException{
         Properties prop = new Properties();
         InputStream input = null;
         try {
             input = new FileInputStream(file);
             prop.load(input);
             return prop;
-        } catch (IOException ex) {
-            ex.printStackTrace();
         } finally {
             if (input != null) {
                 try {
                     input.close();
-                } catch (IOException e){
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
-        return null;
     }
 
     public static boolean createFolder(String path) {

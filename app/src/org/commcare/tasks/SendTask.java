@@ -18,6 +18,7 @@ import org.javarosa.core.services.locale.Localization;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.util.Properties;
 
 /**
@@ -103,7 +104,14 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
             }
             try {
                 tryLoadPropertiesFile(formFolder);
+            } catch(IOException e){
+                Log.e(TAG, "Could not load properties file in folder: " + formFolder +
+                        " with error: " + e.getMessage());
+                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(StockMessages.Send_MalformedFile, new String[]{null, formFolder.getName()}, MALFORMED_FILE_CATEGORY));
+                continue;
+            }
 
+            try {
                 User user = CommCareApplication._().getSession().getLoggedInUser();
                 results[i] = FormUploadUtil.sendInstance(counter, formFolder, postUrl, user);
 
@@ -135,7 +143,7 @@ public abstract class SendTask<R> extends CommCareTask<Void, String, Boolean, R>
      *
      * @param formFolder the form instance folder currently being submitted
      */
-    protected void tryLoadPropertiesFile(File formFolder){
+    protected void tryLoadPropertiesFile(File formFolder) throws IOException{
 
         // see if we have a form.properties file to load the PostURL from
         FilenameFilter filter = new FilenameFilter() {
