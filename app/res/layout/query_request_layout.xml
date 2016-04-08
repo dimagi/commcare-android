@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+    <LinearLayout
+        android:id="@+id/query_prompts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/content_start"
+        android:paddingLeft="@dimen/login_box_margins"
+        android:paddingRight="@dimen/login_box_margins">
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/query_button"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/cc_brand_color"
+        android:paddingBottom="@dimen/content_start"
+        android:paddingTop="@dimen/content_start"
+        android:textColor="@color/cc_neutral_bg"/>
+</LinearLayout>
