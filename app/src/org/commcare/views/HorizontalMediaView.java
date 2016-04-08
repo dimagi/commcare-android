@@ -82,8 +82,8 @@ public class HorizontalMediaView extends RelativeLayout {
                 Log.e(TAG, "Invalid reference exception");
                 e.printStackTrace();
             }
-            return false;
         }
+        return false;
     }
 
     private ImageView setupImageView(String imageURI, RelativeLayout.LayoutParams audioParams) {
