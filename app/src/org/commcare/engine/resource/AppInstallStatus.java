@@ -22,6 +22,8 @@ public enum AppInstallStatus implements MessageTag {
      */
     MultipleAppsViolation_Existing("notification.install.multapp.violation.existing"),
 
+    MultipleAppsViolation_Upgrade("notification.install.multapp.violation.upgrade"),
+
     // Statuses unique to app updating
     /**
      * Update has been downloaded into update table

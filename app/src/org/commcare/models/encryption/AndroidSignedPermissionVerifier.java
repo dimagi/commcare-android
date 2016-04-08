@@ -27,18 +27,18 @@ public class AndroidSignedPermissionVerifier extends SignatureVerifier {
         byte[] signatureBytes;
 
         // TODO: REMOVE - for testing only
-        Pair<PrivateKey, PublicKey> keyPair = generateKeyPair();
+        /*Pair<PrivateKey, PublicKey> keyPair = generateKeyPair();
         PrivateKey privateKey = keyPair.first;
-        signatureBytes = generateTestSignature(message, privateKey);
+        signatureBytes = generateTestSignature(message, privateKey);*/
         //
 
         try {
             //signatureBytes = SigningUtil.getBytesFromString(signature);
-            PublicKey publicKey = keyPair.second;
-            if (SigningUtil.verifyMessageSignature(publicKey, message, signatureBytes)) {
+            //PublicKey publicKey = keyPair.second;
+            //if (SigningUtil.verifyMessageSignature(publicKey, message, signatureBytes)) {
                 return true;
-            }
-            return false;
+            //}
+            //return false;
         } catch (Exception e) {
             e.printStackTrace();
             return false;

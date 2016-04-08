@@ -1431,6 +1431,11 @@ public class CommCareApplication extends Application {
                 .putString(KEY_AUTHENTICATED_SUPERUSER_USERNAME, usernameOfSuperuserAuthenticated).commit();
     }
 
+    public void disableSuperUserMode() {
+        PreferenceManager.getDefaultSharedPreferences(this).edit()
+                .putBoolean(KEY_SUPERUSER_ENABLED, false).commit();
+    }
+
     public boolean isSuperUserEnabled() {
         return PreferenceManager.getDefaultSharedPreferences(this)
                 .getBoolean(KEY_SUPERUSER_ENABLED, false);

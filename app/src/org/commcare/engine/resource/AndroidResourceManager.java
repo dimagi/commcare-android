@@ -93,6 +93,9 @@ public class AndroidResourceManager extends ResourceManager {
             } catch (UnfullfilledRequirementsException e) {
                 ResourceInstallUtils.logInstallError(e,
                         "App resources are incompatible with this device|");
+                if (e.isMultipleAppsViolationOnUpgrade()) {
+                    return AppInstallStatus.MultipleAppsViolation_Upgrade;
+                }
                 return AppInstallStatus.IncompatibleReqs;
             } catch (UnresolvedResourceException e) {
                 return ResourceInstallUtils.processUnresolvedResource(e);

@@ -3,6 +3,8 @@ package org.commcare.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -10,6 +12,7 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.utils.StringUtils;
+import org.javarosa.core.services.locale.Localization;
 
 
 /**
@@ -19,6 +22,7 @@ public class SuperuserAuthActivity extends Activity {
 
     public static final int BARCODE_CAPTURE = 1;
 
+    private static final int REVOKE_AUTH = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +39,10 @@ public class SuperuserAuthActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        refreshUI();
+    }
+
+    private void refreshUI() {
         TextView authenticatedTextView = (TextView)this.findViewById(R.id.authenticated_text);
         TextView notAuthenticatedTextView = (TextView)this.findViewById(R.id.not_authenticated_text);
         if (CommCareApplication._().isSuperUserEnabled()) {
@@ -68,6 +76,24 @@ public class SuperuserAuthActivity extends Activity {
                 }
                 break;
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        menu.add(0, REVOKE_AUTH, 0, Localization.get("superuser.auth.menu.revoke"));
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case REVOKE_AUTH:
+                CommCareApplication._().disableSuperUserMode();
+                refreshUI();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void callOutToBarcodeScanner() {

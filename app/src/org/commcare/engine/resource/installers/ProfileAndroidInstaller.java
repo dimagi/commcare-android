@@ -56,6 +56,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
                             null, Resource.RESOURCE_STATUS_INSTALLED, false);
 
             Profile p = parser.parse();
+            p.verifySignedPermissions(new AndroidSignedPermissionVerifier());
             instance.setProfile(p);
 
             return true;
@@ -87,7 +88,10 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
                 initProperties(p);
                 p.verifySignedPermissions(new AndroidSignedPermissionVerifier());
                 checkDuplicate(p);
-                verifyMultipleAppsCompliance(p);
+                verifyMultipleAppsComplianceOnInstall(p);
+            } else {
+                p.verifySignedPermissions(new AndroidSignedPermissionVerifier());
+                verifyMultipleAppsComplianceOnUpgrade(p);
             }
 
             table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
@@ -101,7 +105,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         return false;
     }
 
-    private static void verifyMultipleAppsCompliance(Profile profile)
+    private static void verifyMultipleAppsComplianceOnInstall(Profile profile)
             throws UnfullfilledRequirementsException {
         if (CommCareApplication._().isSuperUserEnabled()) {
             return;
@@ -111,20 +115,41 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         if (SignedPermission.MULT_APPS_IGNORE_VALUE.equals(compatibilityValue)) {
             // If the new app is set to "ignore", we can install no matter what
             return;
-        } else if (!MultipleAppsUtil.appInstallationAllowed()) {
+        }
+        if (!MultipleAppsUtil.appInstallationAllowed()) {
             throw new UnfullfilledRequirementsException("One or more of your currently installed" +
                     "apps are not compatible with multiple apps. In order to install additional" +
                     "apps, you must uninstall or upgrade that app first",
                     UnfullfilledRequirementsException.SEVERITY_PROMPT,
                     UnfullfilledRequirementsException.REQUIREMENT_MULTIPLE_APPS_COMPAT_EXISTING);
         } else if (!compatibilityValue.equals(SignedPermission.MULT_APPS_ENABLED_VALUE) &&
-                MultipleAppsUtil.multipleAppsCompatibilityRequired()) {
+                MultipleAppsUtil.multipleAppsCompatibilityRequiredForInstall()) {
             throw new UnfullfilledRequirementsException("The app you are trying to install is not" +
                     "compatible with multiple apps, and you already have 1 or more apps installed " +
                     "on your device. In order to install this app, you must uninstall all apps " +
                     "currently on your device, or upgrade the project space for this app.",
                     UnfullfilledRequirementsException.SEVERITY_PROMPT,
                     UnfullfilledRequirementsException.REQUIREMENT_MULTIPLE_APPS_COMPAT_NEW);
+        }
+    }
+
+    private static void verifyMultipleAppsComplianceOnUpgrade(Profile profile)
+            throws UnfullfilledRequirementsException {
+        if (CommCareApplication._().isSuperUserEnabled()) {
+            return;
+        }
+
+        String compatibilityValue = profile.getMultipleAppsCompatibility();
+        if (SignedPermission.MULT_APPS_IGNORE_VALUE.equals(compatibilityValue)) {
+            // If the new version is set to "ignore", we can update no matter what
+            return;
+        }
+        if (!compatibilityValue.equals(SignedPermission.MULT_APPS_ENABLED_VALUE) &&
+                MultipleAppsUtil.multipleAppsCompatibilityRequiredForUpgrade(profile.getUniqueId())) {
+            throw new UnfullfilledRequirementsException("Your app has been downgraded and is no " +
+                    "longer compatible with multiple apps",
+                    UnfullfilledRequirementsException.SEVERITY_PROMPT,
+                    UnfullfilledRequirementsException.REQUIREMENT_MULTIPLE_APPS_COMPAT_UPGRADE);
         }
     }
 

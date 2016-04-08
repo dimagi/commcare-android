@@ -100,12 +100,26 @@ public class MultipleAppsUtil {
      * @return Would an app that we are attempting to install need to be multiple-apps compatible
      * in order to be installable in the current environment?
      */
-    public static boolean multipleAppsCompatibilityRequired() {
+    public static boolean multipleAppsCompatibilityRequiredForInstall() {
         for (ApplicationRecord record : CommCareApplication._().getInstalledAppRecords()) {
             // TODO: in all likelihood we will change this so that for each app, we first ping
             // something on the server to check if there is an updated value, and then fall
             // back to the value that's already in the ApplicationRecord if that's unavailable
             if (!record.getMultipleAppsCompatibility().equals(SignedPermission.MULT_APPS_IGNORE_VALUE)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @return Does the new version of an app that we are attempting to upgrade need to be
+     * multiple-apps compatible in order for the update to be allowed?
+     */
+    public static boolean multipleAppsCompatibilityRequiredForUpgrade(String idOfAppBeingUpgraded) {
+        for (ApplicationRecord record : CommCareApplication._().getInstalledAppRecords()) {
+            if (!record.getUniqueId().equals(idOfAppBeingUpgraded) &&
+                    !record.getMultipleAppsCompatibility().equals(SignedPermission.MULT_APPS_IGNORE_VALUE)) {
                 return true;
             }
         }

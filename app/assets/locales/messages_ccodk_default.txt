@@ -103,6 +103,7 @@ home.menu.pin.set=Set My PIN
 home.menu.pin.change=Change My PIN
 
 app.manager.menu.superuser=Authenticate as Superuser
+superuser.auth.menu.revoke=Revoke Authentication
 
 home.developer.options.enabled=Developer Mode Enabled
 
@@ -522,6 +523,10 @@ notification.install.multapp.violation.new.action=In order to install this app, 
 notification.install.multapp.violation.existing.title=Multiple App Installation Not Allowed
 notification.install.multapp.violation.existing.detail=One or more of your currently installed apps are not compatible with multiple apps.
 notification.install.multapp.violation.existing.action=In order to install additional apps, you must uninstall or upgrade that app first.
+
+notification.install.multapp.violation.upgrade.title=Upgrade not allowed
+notification.install.multapp.violation.upgrade.detail=Your app has been downgraded and is no longer compatible with multiple apps.
+notification.install.multapp.violation.upgrade.action=In order to update this app, you must uninstall any other apps that require multiple apps compatibility, or upgrade the pricing plan for this app's domain.
 
 notification.install.uptodate.title=The App is Up to Date
 notification.install.uptodate.detail=A newer version of the app is not available

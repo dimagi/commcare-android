@@ -189,9 +189,13 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 return;
             }
         } else {
-            // Gives user generic failure warning; even if update staging
-            // failed for a specific reason like xml syntax
-            uiController.checkFailedUiState();
+            if (result == AppInstallStatus.MultipleAppsViolation_Upgrade) {
+                uiController.checkFailedUiState(AppInstallStatus.MultipleAppsViolation_Upgrade);
+            } else {
+                // Gives user generic failure warning; even if update staging
+                // failed for a specific reason like xml syntax
+                uiController.checkFailedUiState();
+            }
             if (proceedAutomatically) {
                 unregisterTask();
                 finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
