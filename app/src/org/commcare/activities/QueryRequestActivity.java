@@ -139,11 +139,13 @@ public class QueryRequestActivity extends CommCareActivity<QueryRequestActivity>
     }
 
     private void resetQuerySessionFromBundle(Bundle savedInstanceState) {
-        Hashtable<String, String> answeredPrompts =
-                (Hashtable<String, String>) savedInstanceState.getSerializable(ANSWERED_USER_PROMPTS_KEY);
-        if (answeredPrompts != null) {
-            for (Map.Entry<String, String> entry : answeredPrompts.entrySet()) {
-                remoteQuerySessionManager.answerUserPrompt(entry.getKey(), entry.getValue());
+        if (savedInstanceState != null) {
+            Hashtable<String, String> answeredPrompts =
+                    (Hashtable<String, String>) savedInstanceState.getSerializable(ANSWERED_USER_PROMPTS_KEY);
+            if (answeredPrompts != null) {
+                for (Map.Entry<String, String> entry : answeredPrompts.entrySet()) {
+                    remoteQuerySessionManager.answerUserPrompt(entry.getKey(), entry.getValue());
+                }
             }
         }
     }

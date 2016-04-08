@@ -897,7 +897,7 @@ public class CommCareHomeActivity
     }
 
     private void launchQueryMaker(AndroidSessionWrapper asw) {
-        Intent i = new Intent(getApplicationContext(), SyncRequestActivity.class);
+        Intent i = new Intent(getApplicationContext(), QueryRequestActivity.class);
         startActivityForResult(i, GET_REMOTE_DATA);
     }
 
