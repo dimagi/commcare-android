@@ -22,8 +22,18 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.media.MediaLayout;
+import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.TreeElement;
 import org.javarosa.core.services.locale.Localizer;
+import org.javarosa.xml.ElementParser;
+import org.javarosa.xml.TreeElementParser;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.List;
@@ -77,6 +87,18 @@ public class QueryRequestActivity extends CommCareActivity<QueryRequestActivity>
 
     private void makeQueryRequest() {
         Log.d(TAG, remoteQuerySessionManager.buildQueryUrl());
+        TreeElement root = null;
+        String instanceId = "";
+        try {
+            InputStream is = getAssets().open("patients.xml");
+            root = new TreeElementParser(ElementParser.instantiateParser(is), 0, instanceId).parse();
+        } catch (InvalidStructureException | IOException
+                | XmlPullParserException | UnfullfilledRequirementsException e ){
+
+        }
+        ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(instanceId, root);
+        CommCareApplication._().getCurrentSession().setQueryDatum(instance);
+        finish();
     }
 
     @Override

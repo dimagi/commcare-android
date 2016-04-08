@@ -1,0 +1,14 @@
+<patients>
+    <patient>
+        <name>Albert</name>
+        <id>123</id>
+    </patient>
+    <patient>
+        <name>Calbert</name>
+        <id>321</id>
+    </patient>
+    <patient>
+        <name>Halbert</name>
+        <id>333</id>
+    </patient>
+</patients>

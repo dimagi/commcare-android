@@ -15,7 +15,7 @@ import java.net.URL;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ModernHttpRequest {
-    private PasswordAuthentication passwordAuthentication;
+    private final PasswordAuthentication passwordAuthentication;
 
     public ModernHttpRequest(String username, String password) {
         passwordAuthentication =
