@@ -87,7 +87,7 @@ public class HttpRequestGenerator {
         this.password = password;
         this.userType = userType;
 
-        if (userType != null && !User.TYPE_DEMO.equals(userType)) {
+        if (username != null && !User.TYPE_DEMO.equals(userType)) {
             this.credentials = new UsernamePasswordCredentials(domainedUsername, password);
             this.username = username;
         } else {
