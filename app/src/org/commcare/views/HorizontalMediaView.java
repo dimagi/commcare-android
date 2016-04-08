@@ -58,23 +58,9 @@ public class HorizontalMediaView extends RelativeLayout {
     }
 
     private AudioButton setupAudioButton(String audioURI, RelativeLayout.LayoutParams audioParams) {
-        // Layout configurations for our elements in the relative layout
-
-        String audioFilename = "";
-        if (audioURI != null && !audioURI.equals("")) {
-            try {
-                audioFilename = ReferenceManager._().DeriveReference(audioURI).getLocalURI();
-            } catch (InvalidReferenceException e) {
-                Log.e(TAG, "Invalid reference exception");
-                e.printStackTrace();
-            }
-        }
-
-        File audioFile = new File(audioFilename);
-
         AudioButton tmpAudioButton = null;
         // First set up the audio button
-        if (!"".equals(audioFilename) && audioFile.exists()) {
+        if (audioFileExists(audioURI)) {
             // An audio file is specified
             tmpAudioButton = new AudioButton(getContext(), audioURI, true);
             tmpAudioButton.setId(3245345); // random ID to be used by the relative layout.
@@ -86,6 +72,18 @@ public class HorizontalMediaView extends RelativeLayout {
             addView(tmpAudioButton, audioParams);
         }
         return tmpAudioButton;
+    }
+
+    private static boolean audioFileExists(String audioURI) {
+        if (audioURI != null && !audioURI.equals("")) {
+            try {
+                return new File(ReferenceManager._().DeriveReference(audioURI).getLocalURI()).exists();
+            } catch (InvalidReferenceException e) {
+                Log.e(TAG, "Invalid reference exception");
+                e.printStackTrace();
+            }
+            return false;
+        }
     }
 
     private ImageView setupImageView(String imageURI, RelativeLayout.LayoutParams audioParams) {
