@@ -27,11 +27,10 @@ import java.io.File;
  * @author wspride
  */
 public class HorizontalMediaView extends RelativeLayout {
-    private static final String t = "AVTLayout";
+    private static final String TAG = HorizontalMediaView.class.getSimpleName();
 
-    private AudioButton mAudioButton;
-    private ImageView mImageView;
     private final int iconDimension;
+    private AudioButton audioButton;
 
     public HorizontalMediaView(Context c) {
         super(c);
@@ -39,7 +38,7 @@ public class HorizontalMediaView extends RelativeLayout {
     }
 
     public void setDisplay(DisplayUnit display) {
-        DisplayData mData = display.evaluate(null);
+        DisplayData mData = display.evaluate();
         setAVT(Localizer.processArguments(mData.getName(), new String[]{""}).trim(), mData.getAudioURI(), mData.getImageURI());
     }
 
@@ -60,7 +59,7 @@ public class HorizontalMediaView extends RelativeLayout {
             try {
                 audioFilename = ReferenceManager._().DeriveReference(audioURI).getLocalURI();
             } catch (InvalidReferenceException e) {
-                Log.e(t, "Invalid reference exception");
+                Log.e(TAG, "Invalid reference exception");
                 e.printStackTrace();
             }
         }
@@ -70,38 +69,39 @@ public class HorizontalMediaView extends RelativeLayout {
         // First set up the audio button
         if (!"".equals(audioFilename) && audioFile.exists()) {
             // An audio file is specified
-            mAudioButton = new AudioButton(getContext(), audioURI, true);
-            mAudioButton.setId(3245345); // random ID to be used by the relative layout.
+            audioButton = new AudioButton(getContext(), audioURI, true);
+            audioButton.setId(3245345); // random ID to be used by the relative layout.
             // Set not focusable so that list onclick will work
-            mAudioButton.setFocusable(false);
-            mAudioButton.setFocusableInTouchMode(false);
+            audioButton.setFocusable(false);
+            audioButton.setFocusableInTouchMode(false);
             audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             audioParams.addRule(CENTER_VERTICAL);
-            addView(mAudioButton, audioParams);
+            addView(audioButton, audioParams);
         }
 
+        ImageView imageView = null;
         Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI, iconDimension, iconDimension);
         if (b != null) {
-            mImageView = new ImageView(getContext());
-            mImageView.setPadding(10, 10, 10, 10);
-            mImageView.setAdjustViewBounds(true);
-            mImageView.setImageBitmap(b);
-            mImageView.setId(23422634);
+            imageView = new ImageView(getContext());
+            imageView.setPadding(10, 10, 10, 10);
+            imageView.setAdjustViewBounds(true);
+            imageView.setImageBitmap(b);
+            imageView.setId(23422634);
             imageParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             audioParams.addRule(CENTER_VERTICAL);
-            addView(mImageView, imageParams);
+            addView(imageView, imageParams);
         }
 
         textParams.addRule(RelativeLayout.CENTER_VERTICAL);
         textParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        if (imageURI != null && !imageURI.equals("") && mImageView != null) {
-            textParams.addRule(RelativeLayout.RIGHT_OF, mImageView.getId());
+        if (imageURI != null && !imageURI.equals("") && imageView != null) {
+            textParams.addRule(RelativeLayout.RIGHT_OF, imageView.getId());
         } else {
             textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
         }
 
-        if (mAudioButton != null) {
-            textParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
+        if (audioButton != null) {
+            textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
         }
         addView(mTextView, textParams);
     }
@@ -110,8 +110,8 @@ public class HorizontalMediaView extends RelativeLayout {
     protected void onWindowVisibilityChanged(int visibility) {
         super.onWindowVisibilityChanged(visibility);
         if (visibility != View.VISIBLE) {
-            if (mAudioButton != null) {
-                mAudioButton.endPlaying();
+            if (audioButton != null) {
+                audioButton.endPlaying();
             }
         }
     }
