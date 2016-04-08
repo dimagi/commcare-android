@@ -2,9 +2,7 @@ package org.commcare.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.method.LinkMovementMethod;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -21,9 +19,11 @@ import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
+import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.media.MediaLayout;
 import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.javarosa.core.model.instance.TreeElement;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.TreeElementParser;
@@ -31,12 +31,9 @@ import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -165,5 +162,21 @@ public class QueryRequestActivity extends CommCareActivity<QueryRequestActivity>
         helpLayout.setPadding(padding, padding, padding, padding);
 
         return helpLayout;
+    }
+
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        String title, message;
+        switch (taskId) {
+            case 1:
+                title = Localization.get("sync.progress.title");
+                message = Localization.get("sync.progress.purge");
+                break;
+            default:
+                Log.w(TAG, "taskId passed to generateProgressDialog does not match "
+                        + "any valid possibilities in CommCareHomeActivity");
+                return null;
+        }
+        return CustomProgressDialog.newInstance(title, message, taskId);
     }
 }
