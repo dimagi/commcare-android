@@ -2,20 +2,27 @@ package org.commcare.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.session.RemoteQuerySessionManager;
+import org.commcare.suite.model.DisplayData;
+import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
+import org.commcare.views.media.MediaLayout;
+import org.javarosa.core.services.locale.Localizer;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -92,20 +99,15 @@ public class QueryRequestActivity extends CommCareActivity<QueryRequestActivity>
     }
 
     private void buildPromptUI() {
-        LinearLayout item = (LinearLayout) findViewById(R.id.query_prompts);
-        for (String promptKey : remoteQuerySessionManager.getNeededUserInputDisplays().keySet()) {
-            EditText prompt = new EditText(getApplicationContext());
-            prompt.setHint(promptKey);
-            item.addView(prompt);
+        LinearLayout promptsLayout = (LinearLayout) findViewById(R.id.query_prompts);
+        for (Map.Entry<String, DisplayUnit> displayEntry : remoteQuerySessionManager.getNeededUserInputDisplays().entrySet()) {
+            promptsLayout.addView(createPromptEntry(displayEntry.getValue()));
 
-            promptsBoxes.put(promptKey, prompt);
+            EditText promptEditText= new EditText(this);
+            promptsLayout.addView(promptEditText);
+            promptsBoxes.put(displayEntry.getKey(), promptEditText);
         }
 
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
     }
 
     private static RemoteQuerySessionManager buildQuerySessionManager(AndroidSessionWrapper sessionWrapper) {
@@ -125,5 +127,21 @@ public class QueryRequestActivity extends CommCareActivity<QueryRequestActivity>
                 remoteQuerySessionManager.answerUserPrompt(entry.getKey(), entry.getValue());
             }
         }
+    }
+
+    private MediaLayout createPromptEntry(DisplayUnit display) {
+        DisplayData mData = display.evaluate();
+        String str = Localizer.processArguments(mData.getName(), new String[]{""}).trim();
+        TextView text = new TextView(getApplicationContext());
+        text.setText(str);
+
+        int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
+        text.setPadding(0, 0, 0, 7);
+
+        MediaLayout helpLayout = new MediaLayout(this);
+        helpLayout.setAVT(text, mData.getAudioURI(), mData.getImageURI(), null, null);
+        helpLayout.setPadding(padding, padding, padding, padding);
+
+        return helpLayout;
     }
 }
