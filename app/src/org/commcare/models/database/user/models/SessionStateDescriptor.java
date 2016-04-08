@@ -96,6 +96,12 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
                 descriptor += step.getId() + " ";
             } else if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) || SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType())) {
                 descriptor += step.getId() + " " + step.getValue() + " ";
+            } else if (SessionFrame.STATE_QUERY_REQUEST.equals(step.getType())) {
+                // for now, don't support restoring sessions that make remote server requests
+                descriptor += SessionFrame.STATE_QUERY_REQUEST;
+            } else if (SessionFrame.STATE_SYNC_REQUEST.equals(step.getType())) {
+                // for now, don't support restoring sessions that make remote server requests
+                descriptor += SessionFrame.STATE_SYNC_REQUEST;
             }
         }
         return descriptor.trim();
@@ -111,6 +117,13 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
                 session.setCommand(tokenStream[++current]);
             } else if (action.equals(SessionFrame.STATE_DATUM_VAL) || action.equals(SessionFrame.STATE_DATUM_COMPUTED)) {
                 session.setDatum(tokenStream[++current], tokenStream[++current]);
+            } else if (action.equals(SessionFrame.STATE_SYNC_REQUEST)
+                    || action.equals(SessionFrame.STATE_QUERY_REQUEST)) {
+                // Since restoring sessions with remote requests isn't support,
+                // break when encountered and force the user to proceed manually.
+                // Shouldn't come up in practice until we build workflows with
+                // remote query datums that end in form entry
+                break;
             }
             current++;
         }
