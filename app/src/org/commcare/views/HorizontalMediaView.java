@@ -14,7 +14,6 @@ import org.commcare.suite.model.DisplayData;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.media.AudioButton;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localizer;
@@ -27,55 +26,34 @@ import java.io.File;
  *
  * @author wspride
  */
-
 public class HorizontalMediaView extends RelativeLayout {
     private static final String t = "AVTLayout";
 
-    private TextView mTextView;
     private AudioButton mAudioButton;
     private ImageView mImageView;
-    private final EvaluationContext ec;
     private final int iconDimension;
 
-    public static final int NAVIGATION_NONE = 0;
-    public static final int NAVIGATION_NEXT = 1;
-
-
     public HorizontalMediaView(Context c) {
-        this(c, null);
-    }
-
-    private HorizontalMediaView(Context c, EvaluationContext ec) {
         super(c);
-        mTextView = null;
-        mAudioButton = null;
-        mImageView = null;
-        this.ec = ec;
-        this.iconDimension = (int)getResources().getDimension(R.dimen.menu_icon_size);
+        this.iconDimension = (int) getResources().getDimension(R.dimen.menu_icon_size);
     }
 
     public void setDisplay(DisplayUnit display) {
-        DisplayData mData = display.evaluate(ec);
+        DisplayData mData = display.evaluate(null);
         setAVT(Localizer.processArguments(mData.getName(), new String[]{""}).trim(), mData.getAudioURI(), mData.getImageURI());
     }
 
     public void setAVT(String displayText, String audioURI, String imageURI) {
-        this.setAVT(displayText, audioURI, imageURI, NAVIGATION_NONE);
-    }
+        removeAllViews();
 
-    private void setAVT(String displayText, String audioURI, String imageURI, int navStyle) {
-        this.removeAllViews();
-
-        LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mTextView = (TextView)inflater.inflate(R.layout.menu_list_item, null);
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        TextView mTextView = (TextView) inflater.inflate(R.layout.menu_list_item, null);
         mTextView.setText(displayText);
 
         // Layout configurations for our elements in the relative layout
         RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         RelativeLayout.LayoutParams audioParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(iconDimension, iconDimension);
-
-        RelativeLayout.LayoutParams iconParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
         String audioFilename = "";
         if (audioURI != null && !audioURI.equals("")) {
@@ -85,23 +63,6 @@ public class HorizontalMediaView extends RelativeLayout {
                 Log.e(t, "Invalid reference exception");
                 e.printStackTrace();
             }
-        }
-
-
-        if (navStyle != NAVIGATION_NONE) {
-            ImageView iconRight = new ImageView(this.getContext());
-            if (navStyle == NAVIGATION_NEXT) {
-                iconRight.setImageResource(R.drawable.icon_next);
-            } else {
-                iconRight.setImageResource(R.drawable.icon_done);
-            }
-            iconRight.setId(2345345);
-            iconParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            iconParams.addRule(CENTER_VERTICAL);
-
-            iconParams.rightMargin = 5;
-            //iconRight.setPadding(20, iconRight.getPaddingTop(), iconRight.getPaddingRight(), iconRight.getPaddingBottom());
-            this.addView(iconRight, iconParams);
         }
 
         File audioFile = new File(audioFilename);
@@ -114,11 +75,7 @@ public class HorizontalMediaView extends RelativeLayout {
             // Set not focusable so that list onclick will work
             mAudioButton.setFocusable(false);
             mAudioButton.setFocusableInTouchMode(false);
-            if (navStyle != NAVIGATION_NONE) {
-                audioParams.addRule(RelativeLayout.LEFT_OF, 2345345);
-            } else {
-                audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            }
+            audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             audioParams.addRule(CENTER_VERTICAL);
             addView(mAudioButton, audioParams);
         }
@@ -143,9 +100,7 @@ public class HorizontalMediaView extends RelativeLayout {
             textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
         }
 
-        if (navStyle != NAVIGATION_NONE) {
-            textParams.addRule(RelativeLayout.LEFT_OF, 2345345);
-        } else if (mAudioButton != null) {
+        if (mAudioButton != null) {
             textParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
         }
         addView(mTextView, textParams);
