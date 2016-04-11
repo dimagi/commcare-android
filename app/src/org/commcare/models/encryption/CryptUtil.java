@@ -34,7 +34,7 @@ public class CryptUtil {
 
     private static final String PBE_PROVIDER = "PBEWITHSHA-256AND256BITAES-CBC-BC";
 
-    private static Cipher encodingCipher(String passwordOrPin)
+    protected static Cipher encodingCipher(String passwordOrPin)
             throws NoSuchAlgorithmException, InvalidKeyException,
             NoSuchPaddingException, InvalidKeySpecException {
 
@@ -48,7 +48,7 @@ public class CryptUtil {
         return cipher;
     }
 
-    private static Cipher decodingCipher(String password)
+    protected static Cipher decodingCipher(String password)
             throws NoSuchAlgorithmException, InvalidKeySpecException,
             NoSuchPaddingException, InvalidKeyException {
         KeySpec spec = new PBEKeySpec(password.toCharArray(), "SFDWFDCF".getBytes(), 10);
@@ -83,27 +83,6 @@ public class CryptUtil {
             e.printStackTrace();
         }
         return null;
-    }
-
-    public static byte[] wrapByteArrayWithString(byte[] bytes, String wrappingString) {
-        try {
-            return encrypt(bytes, encodingCipher(wrappingString));
-        } catch (InvalidKeySpecException | NoSuchAlgorithmException | InvalidKeyException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchPaddingException e) {
-            return null;
-        }
-    }
-
-    public static byte[] unwrapByteArrayWithString(byte[] wrapped, String wrappingString) {
-        try {
-            Cipher cipher = decodingCipher(wrappingString);
-            return decrypt(wrapped, cipher);
-        } catch (NoSuchAlgorithmException | InvalidKeySpecException | InvalidKeyException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchPaddingException e) {
-            return null;
-        }
     }
 
     private static byte[] append(byte[] one, byte[] two) {
