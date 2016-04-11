@@ -78,7 +78,7 @@ public class DemoUserBuilder {
     }
 
     private UserKeyRecord writeNewKeyRecord() {
-        byte[] encryptedKey = (new StringWrapper()).wrapByteArrayWithString(randomKey, password);
+        byte[] encryptedKey = StringWrapper.wrapByteArrayWithString(randomKey, password);
 
         UserKeyRecord keyRecord =
                 new UserKeyRecord(username, passwordHash, encryptedKey,

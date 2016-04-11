@@ -69,7 +69,7 @@ public abstract class KeyRecordParser extends TransactionParser<ArrayList<UserKe
                 throw new InvalidStructureException("Invalid AES key in key record", parser);
             }
 
-            byte[] wrappedKey = (new StringWrapper()).wrapByteArrayWithString(theKey, currentpwd);
+            byte[] wrappedKey = StringWrapper.wrapByteArrayWithString(theKey, currentpwd);
             UserKeyRecord record = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(currentpwd), wrappedKey, valid, expires, uuid, UserKeyRecord.TYPE_NEW);
 
             keyRecords.add(record);

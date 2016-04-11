@@ -11,8 +11,17 @@ import javax.crypto.NoSuchPaddingException;
  * Created by amstone326 on 4/11/16.
  */
 public class StringWrapper {
+    private StringWrapper() {
 
-    public byte[] wrapByteArrayWithString(byte[] bytes, String wrappingString) {
+    }
+
+    public static byte[] wrapByteArrayWithString(byte[] bytes, String wrappingString) {
+        return (new StringWrapper()).wrap(bytes, wrappingString);
+    }
+
+    public byte[] wrap(byte[] bytes, String wrappingString) {
+        // NOTE: implementation is exposed for overriding in test harness due
+        // to java encryption limitations (JCE)
         try {
             return CryptUtil.encrypt(bytes, CryptUtil.encodingCipher(wrappingString));
         } catch (InvalidKeySpecException | NoSuchAlgorithmException | InvalidKeyException e) {
@@ -22,7 +31,13 @@ public class StringWrapper {
         }
     }
 
-    public byte[] unwrapByteArrayWithString(byte[] wrapped, String wrappingString) {
+    public static byte[] unwrapByteArrayWithString(byte[] wrapped, String wrappingString) {
+        return (new StringWrapper()).unwrap(wrapped, wrappingString);
+    }
+
+    public byte[] unwrap(byte[] wrapped, String wrappingString) {
+        // NOTE: implementation is exposed for overriding in test harness due
+        // to java encryption limitations (JCE)
         try {
             Cipher cipher = CryptUtil.decodingCipher(wrappingString);
             return CryptUtil.decrypt(wrapped, cipher);

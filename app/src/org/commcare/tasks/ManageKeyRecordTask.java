@@ -555,7 +555,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         try {
             //Otherwise we need to copy the old sandbox to a new location atomically (in case we fail).
             UserSandboxUtils.migrateData(this.getContext(), app, oldSandboxToMigrate, oldKey, newRecord,
-                    (new StringWrapper()).unwrapByteArrayWithString(newRecord.getEncryptedKey(), password));
+                    StringWrapper.unwrapByteArrayWithString(newRecord.getEncryptedKey(), password));
             publishProgress(Localization.get("key.manage.migrate"));
             return true;
         } catch (IOException ioe) {

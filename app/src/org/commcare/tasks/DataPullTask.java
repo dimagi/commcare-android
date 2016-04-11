@@ -186,7 +186,7 @@ public abstract class DataPullTask<R>
                         }
                         String sandboxId = PropertyUtils.genUUID().replace("-", "");
                         ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password),
-                                (new StringWrapper()).wrapByteArrayWithString(newKey.getEncoded(), password),
+                                StringWrapper.wrapByteArrayWithString(newKey.getEncoded(), password),
                                 new Date(), new Date(Long.MAX_VALUE), sandboxId);
 
                     } else {
@@ -199,7 +199,7 @@ public abstract class DataPullTask<R>
                     }
 
                     //add to transaction parser factory
-                    byte[] wrappedKey = (new StringWrapper()).wrapByteArrayWithString(ukr.getEncryptedKey(), password);
+                    byte[] wrappedKey = StringWrapper.wrapByteArrayWithString(ukr.getEncryptedKey(), password);
                     factory.initUserParser(wrappedKey);
                 } else {
                     factory.initUserParser(CommCareApplication._().getSession().getLoggedInUser().getWrappedKey());
@@ -226,7 +226,7 @@ public abstract class DataPullTask<R>
                         //This is necessary (currently) to make sure that data
                         //is encoded. Probably a better way to do this.
                         CommCareApplication._().startUserSession(
-                                (new StringWrapper()).unwrapByteArrayWithString(ukr.getEncryptedKey(), password),
+                                StringWrapper.unwrapByteArrayWithString(ukr.getEncryptedKey(), password),
                                 ukr, restoreSession);
                         wasKeyLoggedIn = true;
                     }
