@@ -26,8 +26,7 @@ import static org.junit.Assert.assertEquals;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareApplication.class,
-        constants = BuildConfig.class,
-        shadows = StringWrapperShadow.class)
+        constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class ArchivedFormPurgeTest {
 
