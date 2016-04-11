@@ -11,7 +11,7 @@ import javax.crypto.NoSuchPaddingException;
  * Created by amstone326 on 4/11/16.
  */
 public class ByteEncrypter {
-    
+
     private ByteEncrypter() {
     }
 
