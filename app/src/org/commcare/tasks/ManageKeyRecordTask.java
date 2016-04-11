@@ -16,6 +16,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.app.models.UserKeyRecord;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.CryptUtil;
+import org.commcare.models.encryption.StringWrapper;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.network.HttpCalloutTask;
 import org.commcare.network.HttpRequestGenerator;
@@ -554,7 +555,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         try {
             //Otherwise we need to copy the old sandbox to a new location atomically (in case we fail).
             UserSandboxUtils.migrateData(this.getContext(), app, oldSandboxToMigrate, oldKey, newRecord,
-                    CryptUtil.unwrapByteArrayWithString(newRecord.getEncryptedKey(), password));
+                    (new StringWrapper()).unwrapByteArrayWithString(newRecord.getEncryptedKey(), password));
             publishProgress(Localization.get("key.manage.migrate"));
             return true;
         } catch (IOException ioe) {

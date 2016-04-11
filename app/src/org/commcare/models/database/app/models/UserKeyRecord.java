@@ -6,6 +6,7 @@ package org.commcare.models.database.app.models;
 import org.commcare.CommCareApp;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.encryption.CryptUtil;
+import org.commcare.models.encryption.StringWrapper;
 import org.commcare.models.framework.Persisted;
 import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;
@@ -276,7 +277,7 @@ public class UserKeyRecord extends Persisted {
     }
 
     public void assignPinToRecord(String pin, String password) {
-        this.passwordWrappedByPin = CryptUtil.wrapByteArrayWithString(password.getBytes(), pin);
+        this.passwordWrappedByPin = (new StringWrapper()).wrapByteArrayWithString(password.getBytes(), pin);
     }
 
     public byte[] getWrappedPassword() {
@@ -297,7 +298,7 @@ public class UserKeyRecord extends Persisted {
      * is not valid to unwrap the wrapped password
      */
     public String getUnhashedPasswordViaPin(String pin) {
-        byte[] unwrapped = CryptUtil.unwrapByteArrayWithString(this.passwordWrappedByPin, pin);
+        byte[] unwrapped = (new StringWrapper()).unwrapByteArrayWithString(this.passwordWrappedByPin, pin);
         if (unwrapped == null) {
             // If the pin could not unwrap the password, just return null
             return null;
@@ -319,7 +320,7 @@ public class UserKeyRecord extends Persisted {
 
     public byte[] unWrapKey(String password) {
         if (isPasswordValid(password)) {
-            return CryptUtil.unwrapByteArrayWithString(getEncryptedKey(), password);
+            return (new StringWrapper()).unwrapByteArrayWithString(getEncryptedKey(), password);
         } else {
             //throw exception?
             return null;

@@ -3,6 +3,7 @@ package org.commcare.android.tests.processing;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.shadows.StringWrapperShadow;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
@@ -25,7 +26,8 @@ import static org.junit.Assert.assertEquals;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @Config(application = CommCareApplication.class,
-        constants = BuildConfig.class)
+        constants = BuildConfig.class,
+        shadows = StringWrapperShadow.class)
 @RunWith(CommCareTestRunner.class)
 public class ArchivedFormPurgeTest {
 

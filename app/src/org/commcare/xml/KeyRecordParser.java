@@ -3,6 +3,7 @@ package org.commcare.xml;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.models.database.app.models.UserKeyRecord;
 import org.commcare.models.encryption.CryptUtil;
+import org.commcare.models.encryption.StringWrapper;
 import org.commcare.utils.Base64;
 import org.commcare.utils.Base64DecoderException;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -68,7 +69,7 @@ public abstract class KeyRecordParser extends TransactionParser<ArrayList<UserKe
                 throw new InvalidStructureException("Invalid AES key in key record", parser);
             }
 
-            byte[] wrappedKey = CryptUtil.wrapByteArrayWithString(theKey, currentpwd);
+            byte[] wrappedKey = (new StringWrapper()).wrapByteArrayWithString(theKey, currentpwd);
             UserKeyRecord record = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(currentpwd), wrappedKey, valid, expires, uuid, UserKeyRecord.TYPE_NEW);
 
             keyRecords.add(record);

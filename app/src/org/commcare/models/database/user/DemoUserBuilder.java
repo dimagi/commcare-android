@@ -10,6 +10,7 @@ import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.app.models.UserKeyRecord;
 import org.commcare.models.encryption.CryptUtil;
+import org.commcare.models.encryption.StringWrapper;
 import org.javarosa.core.model.User;
 import org.javarosa.core.util.PropertyUtils;
 
@@ -77,7 +78,7 @@ public class DemoUserBuilder {
     }
 
     private UserKeyRecord writeNewKeyRecord() {
-        byte[] encryptedKey = CryptUtil.wrapByteArrayWithString(randomKey, password);
+        byte[] encryptedKey = (new StringWrapper()).wrapByteArrayWithString(randomKey, password);
 
         UserKeyRecord keyRecord =
                 new UserKeyRecord(username, passwordHash, encryptedKey,
