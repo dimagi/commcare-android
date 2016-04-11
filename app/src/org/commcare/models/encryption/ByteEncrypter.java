@@ -10,13 +10,13 @@ import javax.crypto.NoSuchPaddingException;
 /**
  * Created by amstone326 on 4/11/16.
  */
-public class StringWrapper {
-    private StringWrapper() {
-
+public class ByteEncrypter {
+    
+    private ByteEncrypter() {
     }
 
     public static byte[] wrapByteArrayWithString(byte[] bytes, String wrappingString) {
-        return (new StringWrapper()).wrap(bytes, wrappingString);
+        return (new ByteEncrypter()).wrap(bytes, wrappingString);
     }
 
     public byte[] wrap(byte[] bytes, String wrappingString) {
@@ -32,7 +32,7 @@ public class StringWrapper {
     }
 
     public static byte[] unwrapByteArrayWithString(byte[] wrapped, String wrappingString) {
-        return (new StringWrapper()).unwrap(wrapped, wrappingString);
+        return (new ByteEncrypter()).unwrap(wrapped, wrappingString);
     }
 
     public byte[] unwrap(byte[] wrapped, String wrappingString) {

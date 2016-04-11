@@ -20,7 +20,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.app.models.UserKeyRecord;
 import org.commcare.models.database.user.models.ACase;
 import org.commcare.models.encryption.CryptUtil;
-import org.commcare.models.encryption.StringWrapper;
+import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
@@ -186,7 +186,7 @@ public abstract class DataPullTask<R>
                         }
                         String sandboxId = PropertyUtils.genUUID().replace("-", "");
                         ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password),
-                                StringWrapper.wrapByteArrayWithString(newKey.getEncoded(), password),
+                                ByteEncrypter.wrapByteArrayWithString(newKey.getEncoded(), password),
                                 new Date(), new Date(Long.MAX_VALUE), sandboxId);
 
                     } else {
@@ -199,7 +199,7 @@ public abstract class DataPullTask<R>
                     }
 
                     //add to transaction parser factory
-                    byte[] wrappedKey = StringWrapper.wrapByteArrayWithString(ukr.getEncryptedKey(), password);
+                    byte[] wrappedKey = ByteEncrypter.wrapByteArrayWithString(ukr.getEncryptedKey(), password);
                     factory.initUserParser(wrappedKey);
                 } else {
                     factory.initUserParser(CommCareApplication._().getSession().getLoggedInUser().getWrappedKey());
@@ -226,7 +226,7 @@ public abstract class DataPullTask<R>
                         //This is necessary (currently) to make sure that data
                         //is encoded. Probably a better way to do this.
                         CommCareApplication._().startUserSession(
-                                StringWrapper.unwrapByteArrayWithString(ukr.getEncryptedKey(), password),
+                                ByteEncrypter.unwrapByteArrayWithString(ukr.getEncryptedKey(), password),
                                 ukr, restoreSession);
                         wasKeyLoggedIn = true;
                     }
