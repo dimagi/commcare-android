@@ -59,6 +59,7 @@ public class QueryRequestActivity extends CommCareActivity<QueryRequestActivity>
 
         if (remoteQuerySessionManager == null) {
             Log.e(TAG, "Tried to launch remote query activity at wrong time in session.");
+            setResult(RESULT_CANCELED);
             finish();
         } else {
             resetQuerySessionFromBundle(savedInstanceState);
@@ -85,7 +86,7 @@ public class QueryRequestActivity extends CommCareActivity<QueryRequestActivity>
     private void makeQueryRequest() {
         Log.d(TAG, remoteQuerySessionManager.buildQueryUrl());
         TreeElement root = null;
-        String instanceId = "";
+        String instanceId = "patients";
         try {
             InputStream is = getAssets().open("patients.xml");
             root = new TreeElementParser(ElementParser.instantiateParser(is), 0, instanceId).parse();
@@ -95,6 +96,7 @@ public class QueryRequestActivity extends CommCareActivity<QueryRequestActivity>
         }
         ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(instanceId, root);
         CommCareApplication._().getCurrentSession().setQueryDatum(instance);
+        setResult(RESULT_OK);
         finish();
     }
 

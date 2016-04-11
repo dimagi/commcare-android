@@ -39,4 +39,9 @@ public class SyncRequestActivity extends CommCareActivity<SyncRequestActivity> {
     protected void onPause() {
         super.onPause();
     }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
 }

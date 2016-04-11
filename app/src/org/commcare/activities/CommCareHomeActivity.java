@@ -100,6 +100,7 @@ public class CommCareHomeActivity
      */
     private static final int GET_CASE = 2;
     private static final int GET_REMOTE_DATA = 3;
+    private static final int MAKE_REMOTE_POST = 5;
 
     /**
      * Request code for launching FormEntryActivity
@@ -109,6 +110,7 @@ public class CommCareHomeActivity
     private static final int GET_INCOMPLETE_FORM = 16;
     public static final int UPGRADE_APP = 32;
     public static final int REPORT_PROBLEM_ACTIVITY = 64;
+    public static final int QUERY = 128;
 
     private static final int DUMP_FORMS_ACTIVITY=512;
     private static final int WIFI_DIRECT_ACTIVITY=1024;
@@ -529,8 +531,6 @@ public class CommCareHomeActivity
                         }
                     }
                     break;
-                case GET_REMOTE_DATA:
-                    break;
                 case MODEL_RESULT:
                     boolean fetchNext = processReturnFromFormEntry(resultCode, intent);
                     if (!fetchNext) {
@@ -552,6 +552,14 @@ public class CommCareHomeActivity
                         Toast.makeText(this, Localization.get("pin.not.set"), Toast.LENGTH_SHORT).show();
                     }
                     return;
+                case MAKE_REMOTE_POST:
+                case GET_REMOTE_DATA:
+                    if (resultCode == RESULT_CANCELED) {
+                        asw = CommCareApplication._().getCurrentSessionWrapper();
+                        currentSession = asw.getSession();
+                        currentSession.stepBack();
+                    }
+                    break;
             }
             startNextSessionStepSafe();
         }
@@ -893,7 +901,7 @@ public class CommCareHomeActivity
         String command = asw.getSession().getCommand();
         Entry commandEntry = CommCareApplication._().getCommCarePlatform().getEntry(command);
         Intent i = new Intent(getApplicationContext(), SyncRequestActivity.class);
-        startActivityForResult(i, GET_REMOTE_DATA);
+        startActivityForResult(i, MAKE_REMOTE_POST);
     }
 
     private void launchQueryMaker(AndroidSessionWrapper asw) {
