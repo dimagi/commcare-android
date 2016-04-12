@@ -1013,10 +1013,10 @@ public class CommCareHomeActivity
     void syncButtonPressed() {
         if (!ConnectivityStatus.isNetworkAvailable(CommCareHomeActivity.this)) {
             if (ConnectivityStatus.isAirplaneModeOn(CommCareHomeActivity.this)) {
-                displayMessage(Localization.get("notification.sync.airplane.action"), true, true);
+                displayBadMessageWithoutToast(Localization.get("notification.sync.airplane.action"));
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
             } else {
-                displayMessage(Localization.get("notification.sync.connections.action"), true, true);
+                displayBadMessageWithoutToast(Localization.get("notification.sync.connections.action"));
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_NoConnections, AIRPLANE_MODE_CATEGORY));
             }
             GoogleAnalyticsUtils.reportSyncAttempt(
@@ -1132,12 +1132,16 @@ public class CommCareHomeActivity
         showAlertDialog(factory);
     }
 
-    void displayMessage(String message) {
+    public void displayMessage(String message) {
         displayMessage(message, false, false);
     }
 
-    void displayBadMessage(String message) {
+    public void displayBadMessage(String message) {
         displayMessage(message, true, false);
+    }
+
+    public void displayBadMessageWithoutToast(String message) {
+        displayMessage(message, true, true);
     }
 
     void displayMessage(String message, boolean bad, boolean suppressToast) {

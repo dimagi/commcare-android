@@ -115,9 +115,9 @@ public class FormAndDataSyncer {
             if (userTriggeredSync) {
                 // Remind the user that there's no syncing in demo mode.
                 if (formsToSend) {
-                    activity.displayMessage(Localization.get("main.sync.demo.has.forms"), true, true);
+                    activity.displayBadMessageWithoutToast(Localization.get("main.sync.demo.has.forms"));
                 } else {
-                    activity.displayMessage(Localization.get("main.sync.demo.no.forms"), true, true);
+                    activity.displayBadMessageWithoutToast(Localization.get("main.sync.demo.no.forms"));
                 }
             }
             return;
