@@ -1133,11 +1133,11 @@ public class CommCareHomeActivity
     }
 
     void displayMessage(String message) {
-        displayBadMessage(message, false);
+        displayMessage(message, false, false);
     }
 
-    void displayBadMessage(String message, boolean bad) {
-        displayMessage(message, bad, false);
+    void displayBadMessage(String message) {
+        displayMessage(message, true, false);
     }
 
     void displayMessage(String message, boolean bad, boolean suppressToast) {
