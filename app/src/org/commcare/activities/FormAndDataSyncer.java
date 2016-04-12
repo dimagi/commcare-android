@@ -1,22 +1,27 @@
 package org.commcare.activities;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.ResultAndError;
+import org.commcare.tasks.UpdatePropertiesTask;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
 
@@ -124,7 +129,7 @@ public class FormAndDataSyncer {
         }
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        DataPullTask<CommCareHomeActivity> mDataPullTask = new DataPullTask<CommCareHomeActivity>(
+        DataPullTask<CommCareHomeActivity> dataPullTask = new DataPullTask<CommCareHomeActivity>(
                 u.getUsername(),
                 u.getCachedPwd(),
                 prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY,
@@ -155,6 +160,8 @@ public class FormAndDataSyncer {
                             reportSyncValue = GoogleAnalyticsFields.VALUE_JUST_PULL_DATA;
                         }
                         receiver.displayMessage(Localization.get("sync.success.synced"));
+
+                        refreshPropertiesFromServer(receiver);
                         break;
                     case SERVER_ERROR:
                         receiver.displayMessage(Localization.get("sync.fail.server.error"));
@@ -209,7 +216,41 @@ public class FormAndDataSyncer {
             }
         };
 
-        mDataPullTask.connect(activity);
-        mDataPullTask.execute();
+        dataPullTask.connect(activity);
+        dataPullTask.execute();
+    }
+
+    public static void refreshPropertiesFromServer(CommCareActivity activity) {
+        refreshPropertiesFromServer(activity, null);
+    }
+
+    public static void refreshPropertiesFromServer(CommCareActivity activity, ApplicationRecord appRecord) {
+        UpdatePropertiesTask<CommCareActivity> updatePropertiesTask = new UpdatePropertiesTask<CommCareActivity>() {
+
+            @Override
+            protected void deliverResult(CommCareActivity receiver, UpdatePropertiesResult result) {
+                if (result == UpdatePropertiesResult.SUCCESS) {
+                    Toast.makeText(receiver, "Properties updated successfully!", Toast.LENGTH_LONG).show();
+                } else {
+                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(result));
+                    Toast.makeText(receiver,
+                            Localization.get("notification.for.details.wrapper",
+                                    new String[]{Localization.get("notification.properties.update.error.endpoint.title")}),
+                            Toast.LENGTH_LONG)
+                            .show();
+                }
+            }
+
+            @Override
+            protected void deliverUpdate(CommCareActivity receiver, Void... update) {
+            }
+
+            @Override
+            protected void deliverError(CommCareActivity receiver, Exception e) {
+            }
+        };
+
+        updatePropertiesTask.connect(activity);
+        updatePropertiesTask.execute(appRecord);
     }
 }

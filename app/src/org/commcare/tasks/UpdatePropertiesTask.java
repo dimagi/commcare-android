@@ -19,11 +19,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringBufferInputStream;
 
 /**
  * Created by amstone326 on 4/10/16.
  */
-public abstract class UpdatePropertiesTask<R> extends CommCareTask<Void, Void, UpdatePropertiesTask.UpdatePropertiesResult, R> {
+public abstract class UpdatePropertiesTask<R> extends CommCareTask<ApplicationRecord, Void, UpdatePropertiesTask.UpdatePropertiesResult, R> {
 
     public static final int UPDATE_PROPERTIES_TASK_ID = 11;
 
@@ -32,30 +33,19 @@ public abstract class UpdatePropertiesTask<R> extends CommCareTask<Void, Void, U
             "\t<property key=\"multiple-apps-compatible\" value=\"enabled\" signature=\"test-signature\" />\n" +
             "</AppProperties>";
 
-    private String propertyUpdateEndpoint;
-    private ApplicationRecord appRecord;
-
-    // Used when the app for which we want to perform the update is already seated, and we can
-    // just pass in its update endpoint
-    public UpdatePropertiesTask(String propertyUpdateUrl) {
-        this.propertyUpdateEndpoint = propertyUpdateUrl;
-        this.taskId = UPDATE_PROPERTIES_TASK_ID;
-    }
-
-    // Used when the app for which we want to perform the update may not yet be seated
-    public UpdatePropertiesTask(ApplicationRecord record) {
-        this.appRecord = record;
+    public UpdatePropertiesTask() {
         this.taskId = UPDATE_PROPERTIES_TASK_ID;
     }
 
     @Override
-    protected UpdatePropertiesResult doTaskBackground(Void... params) {
+    protected UpdatePropertiesResult doTaskBackground(ApplicationRecord... params) {
+        ApplicationRecord appRecord = params[0];
         if (appRecord != null) {
             CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
-            propertyUpdateEndpoint = CommCareApplication._().getCurrentApp().getAppPreferences()
-                    .getString("properties-url", null);
         }
 
+        String propertyUpdateEndpoint = CommCareApplication._().getCurrentApp().getAppPreferences()
+                .getString("properties-url", null);
         if (propertyUpdateEndpoint == null) {
             return UpdatePropertiesResult.ENDPOINT_NOT_SET;
         }

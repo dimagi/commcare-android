@@ -51,6 +51,7 @@ import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.SendTask;
+import org.commcare.tasks.UpdatePropertiesTask;
 import org.commcare.tasks.WipeTask;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -1336,6 +1337,10 @@ public class CommCareHomeActivity
             case DataPullTask.DATA_PULL_TASK_ID:
                 title = Localization.get("sync.progress.title");
                 message = Localization.get("sync.progress.purge");
+                break;
+            case UpdatePropertiesTask.UPDATE_PROPERTIES_TASK_ID:
+                title = Localization.get("properties.update.dialog.title");
+                message = Localization.get("properties.update.dialog.message");
                 break;
             default:
                 Log.w(TAG, "taskId passed to generateProgressDialog does not match "

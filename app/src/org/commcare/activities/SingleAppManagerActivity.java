@@ -254,44 +254,11 @@ public class SingleAppManagerActivity extends CommCareActivity {
             if (s.isActive()) {
                 triggerLogoutWarning(LOGOUT_FOR_UPDATE);
             } else {
-                update();
+                FormAndDataSyncer.refreshPropertiesFromServer(this, appRecord);
             }
         } catch (SessionUnavailableException e) {
-            refreshPropertiesFromServer();
+            FormAndDataSyncer.refreshPropertiesFromServer(this, appRecord);
         }
-    }
-
-    private void refreshPropertiesFromServer() {
-        UpdatePropertiesTask<SingleAppManagerActivity> updatePropertiesTask =
-                new UpdatePropertiesTask<SingleAppManagerActivity>(appRecord) {
-
-                    @Override
-                    protected void deliverResult(SingleAppManagerActivity receiver, UpdatePropertiesResult result) {
-                        if (result == UpdatePropertiesResult.SUCCESS) {
-                            Toast.makeText(receiver, "Properties updated successfully!", Toast.LENGTH_LONG).show();
-                        } else {
-                            CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(result));
-                            Toast.makeText(receiver,
-                                    Localization.get("notification.for.details.wrapper",
-                                            new String[]{Localization.get("notification.properties.update.error.endpoint.title")}),
-                                    Toast.LENGTH_LONG)
-                                    .show();
-                        }
-                    }
-
-                    @Override
-                    protected void deliverUpdate(SingleAppManagerActivity receiver, Void... update) {
-
-                    }
-
-                    @Override
-                    protected void deliverError(SingleAppManagerActivity receiver, Exception e) {
-
-                    }
-                };
-
-        updatePropertiesTask.connect(this);
-        updatePropertiesTask.execute();
     }
 
     @Override
