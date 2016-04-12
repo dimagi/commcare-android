@@ -8,6 +8,7 @@ import android.os.Build;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.ConnectorWithMessaging;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.models.database.user.models.FormRecord;
@@ -124,7 +125,7 @@ public class FormAndDataSyncer {
         }
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        DataPullTask<CommCareHomeActivity> mDataPullTask = new DataPullTask<CommCareHomeActivity>(
+        DataPullTask<ConnectorWithMessaging> mDataPullTask = new DataPullTask<ConnectorWithMessaging>(
                 u.getUsername(),
                 u.getCachedPwd(),
                 prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY,
@@ -132,9 +133,7 @@ public class FormAndDataSyncer {
                 activity) {
 
             @Override
-            protected void deliverResult(CommCareHomeActivity receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
-                receiver.getUIController().refreshView();
-
+            protected void deliverResult(ConnectorWithMessaging receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
                 PullTaskResult result = resultAndErrorMessage.data;
                 String reportSyncLabel = result.getCorrespondingGoogleAnalyticsLabel();
                 int reportSyncValue = result.getCorrespondingGoogleAnalyticsValue();
@@ -183,7 +182,7 @@ public class FormAndDataSyncer {
             }
 
             @Override
-            protected void deliverUpdate(CommCareHomeActivity receiver, Integer... update) {
+            protected void deliverUpdate(ConnectorWithMessaging receiver, Integer... update) {
                 if (update[0] == DataPullTask.PROGRESS_STARTED) {
                     receiver.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
                 } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
@@ -203,13 +202,13 @@ public class FormAndDataSyncer {
             }
 
             @Override
-            protected void deliverError(CommCareHomeActivity receiver,
+            protected void deliverError(ConnectorWithMessaging receiver,
                                         Exception e) {
                 receiver.displayBadMessage(Localization.get("sync.fail.unknown"));
             }
         };
 
-        mDataPullTask.connect(activity);
+        mDataPullTask.connect((ConnectorWithMessaging)activity);
         mDataPullTask.execute();
     }
 }

@@ -25,6 +25,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.interfaces.ConnectorWithMessaging;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
@@ -83,7 +84,8 @@ import java.util.Vector;
 
 public class CommCareHomeActivity
         extends SessionAwareCommCareActivity<CommCareHomeActivity>
-        implements SessionNavigationResponder, WithUIController {
+        implements SessionNavigationResponder, WithUIController,
+        ConnectorWithMessaging<CommCareHomeActivity> {
 
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
