@@ -1134,14 +1134,17 @@ public class CommCareHomeActivity
         showAlertDialog(factory);
     }
 
+    @Override
     public void displayMessage(String message) {
         displayMessage(message, false, false);
     }
 
+    @Override
     public void displayBadMessage(String message) {
         displayMessage(message, true, false);
     }
 
+    @Override
     public void displayBadMessageWithoutToast(String message) {
         displayMessage(message, true, true);
     }
