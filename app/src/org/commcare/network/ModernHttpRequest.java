@@ -15,24 +15,28 @@ import java.net.URL;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ModernHttpRequest {
-    private PasswordAuthentication passwordAuthentication;
 
-    public ModernHttpRequest(String username, String password) {
-        passwordAuthentication =
-                new PasswordAuthentication(HttpRequestGenerator.buildDomainUser(username),
-                        password.toCharArray());
-    }
-
-    public InputStream makeModernRequest(URL url) throws IOException {
-        if (passwordAuthentication != null) {
+    public static InputStream makeRequest(final String username,
+                                          final String password,
+                                          URL url) throws IOException {
+        if (username == null || password == null) {
+            // clear any prior set authenticator to make unauthed requests
+            Authenticator.setDefault(null);
+        } else {
+            // make authenticated requests
             Authenticator.setDefault(new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    return passwordAuthentication;
+                    return new PasswordAuthentication(
+                            HttpRequestGenerator.buildDomainUser(username),
+                            password.toCharArray());
                 }
             });
         }
+        return makeModernRequest(url);
+    }
 
+    private static InputStream makeModernRequest(URL url) throws IOException {
         int responseCode = -1;
         HttpURLConnection con = (HttpURLConnection)url.openConnection();
         setupGetConnection(con);

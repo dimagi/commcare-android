@@ -285,7 +285,7 @@ public class HttpRequestGenerator {
 
     public InputStream simpleGet(URL url) throws IOException {
         if (android.os.Build.VERSION.SDK_INT > 11) {
-            InputStream requestResult = new ModernHttpRequest(username, password).makeModernRequest(url);
+            InputStream requestResult = ModernHttpRequest.makeRequest(username, password, url);
 
             if (requestResult != null) {
                 return requestResult;
