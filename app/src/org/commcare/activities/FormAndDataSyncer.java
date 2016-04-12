@@ -64,7 +64,7 @@ public class FormAndDataSyncer {
                     }
                 } else if (result != FormUploadUtil.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
-                    receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
+                    receiver.displayBadMessage(Localization.get("sync.fail.unsent"), true);
                 }
             }
 
@@ -74,7 +74,7 @@ public class FormAndDataSyncer {
 
             @Override
             protected void deliverError(CommCareHomeActivity receiver, Exception e) {
-                receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
+                receiver.displayBadMessage(Localization.get("sync.fail.unsent"), true);
             }
         };
 
@@ -142,11 +142,11 @@ public class FormAndDataSyncer {
                 //TODO: SHARES _A LOT_ with login activity. Unify into service
                 switch (result) {
                     case AUTH_FAILED:
-                        receiver.displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
+                        receiver.displayBadMessage(Localization.get("sync.fail.auth.loggedin"), true);
                         break;
                     case BAD_DATA:
                     case BAD_DATA_REQUIRES_INTERVENTION:
-                        receiver.displayMessage(Localization.get("sync.fail.bad.data"), true);
+                        receiver.displayBadMessage(Localization.get("sync.fail.bad.data"), true);
                         break;
                     case DOWNLOAD_SUCCESS:
                         if (formsToSend) {
@@ -160,13 +160,13 @@ public class FormAndDataSyncer {
                         receiver.displayMessage(Localization.get("sync.fail.server.error"));
                         break;
                     case UNREACHABLE_HOST:
-                        receiver.displayMessage(Localization.get("sync.fail.bad.network"), true);
+                        receiver.displayBadMessage(Localization.get("sync.fail.bad.network"), true);
                         break;
                     case CONNECTION_TIMEOUT:
-                        receiver.displayMessage(Localization.get("sync.fail.timeout"), true);
+                        receiver.displayBadMessage(Localization.get("sync.fail.timeout"), true);
                         break;
                     case UNKNOWN_FAILURE:
-                        receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
+                        receiver.displayBadMessage(Localization.get("sync.fail.unknown"), true);
                         break;
                 }
 
@@ -205,7 +205,7 @@ public class FormAndDataSyncer {
             @Override
             protected void deliverError(CommCareHomeActivity receiver,
                                         Exception e) {
-                receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
+                receiver.displayBadMessage(Localization.get("sync.fail.unknown"), true);
             }
         };
 
