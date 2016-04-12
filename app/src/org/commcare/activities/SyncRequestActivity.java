@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
+import org.commcare.interfaces.ConnectorWithMessaging;
+import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.SimpleHttpTask;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
@@ -15,7 +17,9 @@ import java.io.InputStream;
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class SyncRequestActivity extends CommCareActivity<SyncRequestActivity> {
+public class SyncRequestActivity
+        extends CommCareActivity<SyncRequestActivity>
+        implements ConnectorWithMessaging<SyncRequestActivity>{
     private static final String TAG = SyncRequestActivity.class.getSimpleName();
     private static final int SELECT_QUERY_RESULT = 0;
 
@@ -61,7 +65,7 @@ public class SyncRequestActivity extends CommCareActivity<SyncRequestActivity> {
     private void performSync() {
         Log.d(TAG, "perform sync");
 
-        FormAndDataSyncer formAndDataSyncer = new FormAndDataSyncer(this);
+        FormAndDataSyncer formAndDataSyncer = new FormAndDataSyncer(this, this);
         formAndDataSyncer.syncData(false, false);
         // TODO PLM: launch sync task; run following upon successful completion
         complete();
@@ -119,7 +123,11 @@ public class SyncRequestActivity extends CommCareActivity<SyncRequestActivity> {
     public CustomProgressDialog generateProgressDialog(int taskId) {
         String title, message;
         switch (taskId) {
-            case 1:
+            case DataPullTask.DATA_PULL_TASK_ID:
+                title = Localization.get("sync.progress.title");
+                message = Localization.get("sync.progress.purge");
+                break;
+            case SimpleHttpTask.SIMPLE_HTTP_TASK_ID:
                 title = Localization.get("sync.progress.title");
                 message = Localization.get("sync.progress.purge");
                 break;
@@ -129,5 +137,21 @@ public class SyncRequestActivity extends CommCareActivity<SyncRequestActivity> {
                 return null;
         }
         return CustomProgressDialog.newInstance(title, message, taskId);
+    }
+
+    @Override
+    public void displayMessage(String message) {
+        Log.d(TAG, message);
+    }
+
+    @Override
+    public void displayBadMessage(String message) {
+        Log.d(TAG, "BAD: " + message);
+
+    }
+
+    @Override
+    public void displayBadMessageWithoutToast(String message) {
+        Log.d(TAG, "BAD NO TOAST: " + message);
     }
 }

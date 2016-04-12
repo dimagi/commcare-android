@@ -13,10 +13,12 @@ import java.net.URL;
 public abstract class SimpleHttpTask<R>
         extends CommCareTask<URL, Integer, InputStream, R> {
 
+    public static final int SIMPLE_HTTP_TASK_ID = 11;
 
     private final ModernHttpRequest requestor;
 
     public SimpleHttpTask(String username, String password) {
+        taskId = SIMPLE_HTTP_TASK_ID;
         requestor = new ModernHttpRequest(username, password);
     }
 
