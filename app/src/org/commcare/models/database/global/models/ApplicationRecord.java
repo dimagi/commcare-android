@@ -160,6 +160,10 @@ public class ApplicationRecord extends Persisted {
         return multipleAppsCompatibility;
     }
 
+    public void setMultipleAppsCompatibility(String value) {
+        multipleAppsCompatibility = value;
+    }
+
     /**
      * Used when this record is either first installed, or upgraded from an old version, to set all
      * properties of the record that come from its profile file

@@ -1,82 +1,117 @@
 package org.commcare.tasks;
 
-import android.content.SharedPreferences;
 
 import org.apache.http.HttpResponse;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.views.notifications.MessageTag;
+import org.commcare.xml.AppPropertiesXmlParser;
 import org.javarosa.core.model.User;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.javarosa.xml.util.InvalidStructureException;
+import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Created by amstone326 on 4/10/16.
  */
-public class UpdatePropertiesTask<R> extends CommCareTask<String, Integer, UpdatePropertiesTask.UpdatePropertiesResult, R> {
+public abstract class UpdatePropertiesTask<R> extends CommCareTask<Void, Void, UpdatePropertiesTask.UpdatePropertiesResult, R> {
+
+    public static final int UPDATE_PROPERTIES_TASK_ID = 11;
+
+    // FOR TESTING, REMOVE
+    private static final String xml_string = "<AppProperties appId=\"\" domain=\"\">\n" +
+            "\t<property key=\"multiple-apps-compatible\" value=\"enabled\" signature=\"test-signature\" />\n" +
+            "</AppProperties>";
+
+    private String propertyUpdateEndpoint;
+    private ApplicationRecord appRecord;
+
+    // Used when the app for which we want to perform the update is already seated, and we can
+    // just pass in its update endpoint
+    public UpdatePropertiesTask(String propertyUpdateUrl) {
+        this.propertyUpdateEndpoint = propertyUpdateUrl;
+        this.taskId = UPDATE_PROPERTIES_TASK_ID;
+    }
+
+    // Used when the app for which we want to perform the update may not yet be seated
+    public UpdatePropertiesTask(ApplicationRecord record) {
+        this.appRecord = record;
+        this.taskId = UPDATE_PROPERTIES_TASK_ID;
+    }
 
     @Override
-    protected UpdatePropertiesResult doTaskBackground(String... params) {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
-        SharedPreferences prefs = app.getAppPreferences();
-        String propertyUpdateEndpoint = prefs.getString("properties-url", null);
+    protected UpdatePropertiesResult doTaskBackground(Void... params) {
+        if (appRecord != null) {
+            CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
+            propertyUpdateEndpoint = CommCareApplication._().getCurrentApp().getAppPreferences()
+                    .getString("properties-url", null);
+        }
+
         if (propertyUpdateEndpoint == null) {
             return UpdatePropertiesResult.ENDPOINT_NOT_SET;
         }
 
-        HttpRequestGenerator generator;
+        HttpRequestGenerator requestGenerator;
         try {
             User user = CommCareApplication._().getSession().getLoggedInUser();
-            generator = new HttpRequestGenerator(user);
+            requestGenerator = new HttpRequestGenerator(user);
         } catch (SessionUnavailableException e) {
-            generator = new HttpRequestGenerator();
+            requestGenerator = new HttpRequestGenerator();
         }
 
         try {
-            HttpResponse response = generator.get(propertyUpdateEndpoint);
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            response.getEntity().writeTo(bos);
-            return processResponse(new String(bos.toByteArray()));
+            HttpResponse response = requestGenerator.get(propertyUpdateEndpoint);
+            int responseCode = response.getStatusLine().getStatusCode();
+            if (responseCode >= 200 && responseCode < 300) {
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                response.getEntity().writeTo(bos);
+                return parseAndSaveResponse(new ByteArrayInputStream(bos.toByteArray()));
+            } else {
+                return UpdatePropertiesResult.REQUEST_ERROR;
+            }
         } catch (IOException e) {
             e.printStackTrace();
-            return UpdatePropertiesResult.ERROR_WRITING_RESULT;
+            return UpdatePropertiesResult.ERROR_PARSING_RESPONSE;
         }
     }
 
-    private static UpdatePropertiesResult processResponse(String response) {
+    private static UpdatePropertiesResult parseAndSaveResponse(InputStream responseBody) {
         try {
-            JSONObject json = new JSONObject(response);
-
+            AppPropertiesXmlParser parser = new AppPropertiesXmlParser(responseBody);
+            parser.commit(parser.parse());
             return UpdatePropertiesResult.SUCCESS;
-        } catch (JSONException e) {
-            return UpdatePropertiesResult.ERROR_PARSING_RESULT;
+        } catch (IOException | InvalidStructureException | XmlPullParserException | UnfullfilledRequirementsException e) {
+            return UpdatePropertiesResult.ERROR_PARSING_RESPONSE;
         }
     }
 
-    @Override
-    protected void deliverResult(R r, UpdatePropertiesResult error) {
+    public enum UpdatePropertiesResult implements MessageTag {
+        SUCCESS(""),
+        ENDPOINT_NOT_SET("notification.properties.update.error.endpoint"),
+        REQUEST_ERROR("notification.properties.update.error.request"),
+        ERROR_PARSING_RESPONSE("notification.properties.update.error.parsing");
 
-    }
+        UpdatePropertiesResult(String root) {
+            this.root = root;
+        }
 
-    @Override
-    protected void deliverUpdate(R r, Integer... update) {
+        private final String root;
 
-    }
+        public String getLocaleKeyBase() {
+            return root;
+        }
 
-    @Override
-    protected void deliverError(R r, Exception e) {
-
-    }
-
-    public enum UpdatePropertiesResult {
-        SUCCESS,
-        ENDPOINT_NOT_SET,
-        ERROR_WRITING_RESULT,
-        ERROR_PARSING_RESULT
+        public String getCategory() {
+            return "update_properties";
+        }
     }
 }

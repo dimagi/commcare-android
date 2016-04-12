@@ -589,6 +589,21 @@ notification.server.error.title=Server Error
 notification.server.error.detail=The server had an error processing your data
 notification.server.error.action=Please try again later. If the problem persists, contact technical support.
 
+notification.properties.update.error.request.title=Could not perform property update
+notification.properties.update.error.request.detail=There was a problem submitting your request to the server.
+notification.properties.update.error.request.action=Please verify that you have a valid internet connection and then try again. If the problem persists, try again later or contact technical support.
+
+notification.properties.update.error.parsing.title=Could not perform property update
+notification.properties.update.error.parsing.detail=There was a problem processing the property update.
+notification.properties.update.error.parsing.action=Please try again later, or contact technical support if the problem persists.
+
+notification.properties.update.error.endpoint.title=Could not perform property update
+notification.properties.update.error.endpoint.detail=This app is from an outdated build that is not compatible with this feature.
+notification.properties.update.error.endpoint.action=To use this feature, please make a new build of your app.
+
+properties.update.dialog.title=Property Update in Progress
+properties.update.dialog.message=Refreshing your app's properties from the server
+
 crash.warning.button=Restart CommCare
 crash.warning.header=CommCare crashed and needs to restart.
 crash.warning.detail=The following error was likely caused by a misconfiguration in your app:

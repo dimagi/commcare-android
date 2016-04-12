@@ -19,6 +19,7 @@
     <string name="archive_app">Archive</string>
     <string name="unarchive_app">Unarchive</string>
     <string name="update_app">Update</string>
+    <string name="refresh_properties">Refresh Properties</string>
     <string name="update_canceled">Your update was paused</string>
     <string name="update_pinned_notification">Update downloading</string>
     <string name="verify_resources">Validate Multimedia</string>

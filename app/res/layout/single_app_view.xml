@@ -68,6 +68,17 @@
         android:paddingTop="@dimen/standard_spacer"/>
 
     <Button
+        android:id="@+id/refresh_properties_button"
+        android:text="@string/refresh_properties"
+        android:textSize="@dimen/font_size_xlargest"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="refreshPropertiesClicked"
+        android:textColor="@color/darkest_grey"
+        android:paddingBottom="@dimen/standard_spacer"
+        android:paddingTop="@dimen/standard_spacer"/>
+
+    <Button
         android:id="@+id/verify_button"
         android:text="@string/verify_resources"
         android:textSize="@dimen/font_size_xlargest"
