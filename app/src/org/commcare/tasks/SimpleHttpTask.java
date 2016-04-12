@@ -10,7 +10,7 @@ import java.net.URL;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class SimpleHttpTask<R>
+public abstract class SimpleHttpTask<R>
         extends CommCareTask<URL, Integer, InputStream, R> {
 
 
@@ -29,18 +29,4 @@ public class SimpleHttpTask<R>
         }
     }
 
-    @Override
-    protected void deliverResult(R r, InputStream stream) {
-
-    }
-
-    @Override
-    protected void deliverUpdate(R r, Integer... update) {
-
-    }
-
-    @Override
-    protected void deliverError(R r, Exception e) {
-
-    }
 }
