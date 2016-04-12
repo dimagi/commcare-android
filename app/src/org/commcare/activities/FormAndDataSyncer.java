@@ -8,7 +8,7 @@ import android.os.Build;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.interfaces.ConnectorWithMessaging;
+import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.models.database.user.models.FormRecord;
@@ -26,10 +26,10 @@ import org.javarosa.core.services.locale.Localization;
  * Processes and submits forms and syncs data with server
  */
 public class FormAndDataSyncer {
-    private final ConnectorWithMessaging activity;
+    private final ConnectorWithResultCallback activity;
     private final Context context;
 
-    public FormAndDataSyncer(Context context, ConnectorWithMessaging activity) {
+    public FormAndDataSyncer(Context context, ConnectorWithResultCallback activity) {
         this.context = context;
         this.activity = activity;
     }
@@ -60,14 +60,14 @@ public class FormAndDataSyncer {
                         label = Localization.get("sync.success.sent",
                                 new String[]{String.valueOf(successfulSends)});
                     }
-                    receiver.displayMessage(label);
+                    receiver.reportSuccess(label);
 
                     if (syncAfterwards) {
                         syncData(true, userTriggered);
                     }
                 } else if (result != FormUploadUtil.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
-                    receiver.displayBadMessage(Localization.get("sync.fail.unsent"));
+                    receiver.reportFailure(Localization.get("sync.fail.unsent"), true);
                 }
             }
 
@@ -77,7 +77,7 @@ public class FormAndDataSyncer {
 
             @Override
             protected void deliverError(CommCareHomeActivity receiver, Exception e) {
-                receiver.displayBadMessage(Localization.get("sync.fail.unsent"));
+                receiver.reportFailure(Localization.get("sync.fail.unsent"), true);
             }
         };
 
@@ -118,16 +118,16 @@ public class FormAndDataSyncer {
             if (userTriggeredSync) {
                 // Remind the user that there's no syncing in demo mode.
                 if (formsToSend) {
-                    activity.displayBadMessageWithoutToast(Localization.get("main.sync.demo.has.forms"));
+                    activity.reportFailure(Localization.get("main.sync.demo.has.forms"), false);
                 } else {
-                    activity.displayBadMessageWithoutToast(Localization.get("main.sync.demo.no.forms"));
+                    activity.reportFailure(Localization.get("main.sync.demo.no.forms"), false);
                 }
             }
             return;
         }
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        DataPullTask<ConnectorWithMessaging> mDataPullTask = new DataPullTask<ConnectorWithMessaging>(
+        DataPullTask<ConnectorWithResultCallback> mDataPullTask = new DataPullTask<ConnectorWithResultCallback>(
                 u.getUsername(),
                 u.getCachedPwd(),
                 prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY,
@@ -135,7 +135,7 @@ public class FormAndDataSyncer {
                 context) {
 
             @Override
-            protected void deliverResult(ConnectorWithMessaging receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
+            protected void deliverResult(ConnectorWithResultCallback receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
                 PullTaskResult result = resultAndErrorMessage.data;
                 String reportSyncLabel = result.getCorrespondingGoogleAnalyticsLabel();
                 int reportSyncValue = result.getCorrespondingGoogleAnalyticsValue();
@@ -143,11 +143,11 @@ public class FormAndDataSyncer {
                 //TODO: SHARES _A LOT_ with login activity. Unify into service
                 switch (result) {
                     case AUTH_FAILED:
-                        receiver.displayBadMessage(Localization.get("sync.fail.auth.loggedin"));
+                        receiver.reportFailure(Localization.get("sync.fail.auth.loggedin"), true);
                         break;
                     case BAD_DATA:
                     case BAD_DATA_REQUIRES_INTERVENTION:
-                        receiver.displayBadMessage(Localization.get("sync.fail.bad.data"));
+                        receiver.reportFailure(Localization.get("sync.fail.bad.data"), true);
                         break;
                     case DOWNLOAD_SUCCESS:
                         if (formsToSend) {
@@ -155,19 +155,19 @@ public class FormAndDataSyncer {
                         } else {
                             reportSyncValue = GoogleAnalyticsFields.VALUE_JUST_PULL_DATA;
                         }
-                        receiver.displayMessage(Localization.get("sync.success.synced"));
+                        receiver.reportSuccess(Localization.get("sync.success.synced"));
                         break;
                     case SERVER_ERROR:
-                        receiver.displayMessage(Localization.get("sync.fail.server.error"));
+                        receiver.reportFailure(Localization.get("sync.fail.server.error"), true);
                         break;
                     case UNREACHABLE_HOST:
-                        receiver.displayBadMessage(Localization.get("sync.fail.bad.network"));
+                        receiver.reportFailure(Localization.get("sync.fail.bad.network"), true);
                         break;
                     case CONNECTION_TIMEOUT:
-                        receiver.displayBadMessage(Localization.get("sync.fail.timeout"));
+                        receiver.reportFailure(Localization.get("sync.fail.timeout"), true);
                         break;
                     case UNKNOWN_FAILURE:
-                        receiver.displayBadMessage(Localization.get("sync.fail.unknown"));
+                        receiver.reportFailure(Localization.get("sync.fail.unknown"), true);
                         break;
                 }
 
@@ -184,7 +184,7 @@ public class FormAndDataSyncer {
             }
 
             @Override
-            protected void deliverUpdate(ConnectorWithMessaging receiver, Integer... update) {
+            protected void deliverUpdate(ConnectorWithResultCallback receiver, Integer... update) {
                 if (update[0] == DataPullTask.PROGRESS_STARTED) {
                     receiver.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
                 } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
@@ -204,13 +204,13 @@ public class FormAndDataSyncer {
             }
 
             @Override
-            protected void deliverError(ConnectorWithMessaging receiver,
+            protected void deliverError(ConnectorWithResultCallback receiver,
                                         Exception e) {
-                receiver.displayBadMessage(Localization.get("sync.fail.unknown"));
+                receiver.reportFailure(Localization.get("sync.fail.unknown"), true);
             }
         };
 
-        mDataPullTask.connect((CommCareTaskConnector<ConnectorWithMessaging>)activity);
+        mDataPullTask.connect((CommCareTaskConnector<ConnectorWithResultCallback>)activity);
         mDataPullTask.execute();
     }
 }

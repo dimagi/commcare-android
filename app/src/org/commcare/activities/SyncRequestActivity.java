@@ -6,7 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
-import org.commcare.interfaces.ConnectorWithMessaging;
+import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.SimpleHttpTask;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -19,9 +19,8 @@ import java.io.InputStream;
  */
 public class SyncRequestActivity
         extends CommCareActivity<SyncRequestActivity>
-        implements ConnectorWithMessaging<SyncRequestActivity>{
+        implements ConnectorWithResultCallback<SyncRequestActivity> {
     private static final String TAG = SyncRequestActivity.class.getSimpleName();
-    private static final int SELECT_QUERY_RESULT = 0;
 
     private static final String TASK_LAUNCHED_KEY = "task-launched-key";
     private static final String IN_ERROR_STATE_KEY = "in-error-state-key";
@@ -67,8 +66,6 @@ public class SyncRequestActivity
 
         FormAndDataSyncer formAndDataSyncer = new FormAndDataSyncer(this, this);
         formAndDataSyncer.syncData(false, false);
-        // TODO PLM: launch sync task; run following upon successful completion
-        complete();
     }
 
     private void showErrorState() {
@@ -79,10 +76,6 @@ public class SyncRequestActivity
         inErrorState = false;
         hasTaskLaunched = false;
         makePostRequest();
-    }
-
-    private void complete() {
-        CommCareApplication._().getCurrentSessionWrapper().terminateSession();
     }
 
     private SimpleHttpTask<SyncRequestActivity> buildSyncTask() {
@@ -128,8 +121,8 @@ public class SyncRequestActivity
                 message = Localization.get("sync.progress.purge");
                 break;
             case SimpleHttpTask.SIMPLE_HTTP_TASK_ID:
-                title = Localization.get("sync.progress.title");
-                message = Localization.get("sync.progress.purge");
+                title = "sending post";
+                message = "sending post";
                 break;
             default:
                 Log.w(TAG, "taskId passed to generateProgressDialog does not match "
@@ -140,18 +133,22 @@ public class SyncRequestActivity
     }
 
     @Override
-    public void displayMessage(String message) {
+    public void reportSuccess(String message) {
         Log.d(TAG, message);
+
+        CommCareApplication._().getCurrentSessionWrapper().terminateSession();
+
+        setResult(RESULT_OK);
+        finish();
     }
 
     @Override
-    public void displayBadMessage(String message) {
-        Log.d(TAG, "BAD: " + message);
-
-    }
-
-    @Override
-    public void displayBadMessageWithoutToast(String message) {
-        Log.d(TAG, "BAD NO TOAST: " + message);
+    public void reportFailure(String message, boolean showPopupNotification) {
+        if (showPopupNotification) {
+            Log.d(TAG, "BAD: " + message);
+        } else {
+            Log.d(TAG, "BAD NO TOAST: " + message);
+        }
+        showErrorState();
     }
 }

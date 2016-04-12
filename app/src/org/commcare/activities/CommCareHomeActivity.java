@@ -25,7 +25,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.interfaces.CommCareActivityUIController;
-import org.commcare.interfaces.ConnectorWithMessaging;
+import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
@@ -87,7 +87,7 @@ import java.util.Vector;
 public class CommCareHomeActivity
         extends SessionAwareCommCareActivity<CommCareHomeActivity>
         implements SessionNavigationResponder, WithUIController,
-        ConnectorWithMessaging<CommCareHomeActivity> {
+        ConnectorWithResultCallback<CommCareHomeActivity> {
 
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
@@ -1050,10 +1050,10 @@ public class CommCareHomeActivity
     void syncButtonPressed() {
         if (!ConnectivityStatus.isNetworkAvailable(CommCareHomeActivity.this)) {
             if (ConnectivityStatus.isAirplaneModeOn(CommCareHomeActivity.this)) {
-                displayBadMessageWithoutToast(Localization.get("notification.sync.airplane.action"));
+                displayMessage(Localization.get("notification.sync.airplane.action"), true, true);
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
             } else {
-                displayBadMessageWithoutToast(Localization.get("notification.sync.connections.action"));
+                displayMessage(Localization.get("notification.sync.connections.action"), true, true);
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_NoConnections, AIRPLANE_MODE_CATEGORY));
             }
             GoogleAnalyticsUtils.reportSyncAttempt(
@@ -1170,18 +1170,13 @@ public class CommCareHomeActivity
     }
 
     @Override
-    public void displayMessage(String message) {
+    public void reportSuccess(String message) {
         displayMessage(message, false, false);
     }
 
     @Override
-    public void displayBadMessage(String message) {
-        displayMessage(message, true, false);
-    }
-
-    @Override
-    public void displayBadMessageWithoutToast(String message) {
-        displayMessage(message, true, true);
+    public void reportFailure(String message, boolean showPopupNotification) {
+        displayMessage(message, true, !showPopupNotification);
     }
 
     void displayMessage(String message, boolean bad, boolean suppressToast) {

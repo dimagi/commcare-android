@@ -8,10 +8,7 @@ import org.commcare.views.dialogs.DialogController;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public interface ConnectorWithMessaging<R> extends DialogController, CommCareTaskConnector<R> {
-    void displayMessage(String message);
-
-    void displayBadMessage(String message);
-
-    void displayBadMessageWithoutToast(String message);
+public interface ConnectorWithResultCallback<R> extends DialogController, CommCareTaskConnector<R> {
+    void reportSuccess(String message);
+    void reportFailure(String message, boolean showPopupNotification);
 }
