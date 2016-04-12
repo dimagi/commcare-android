@@ -171,7 +171,7 @@ public class CommCareHomeActivity
         ACRAUtil.registerAppData();
         uiController.setupUI();
         sessionNavigator = new SessionNavigator(this);
-        formAndDataSyncer = new FormAndDataSyncer(this);
+        formAndDataSyncer = new FormAndDataSyncer(this, this);
 
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();

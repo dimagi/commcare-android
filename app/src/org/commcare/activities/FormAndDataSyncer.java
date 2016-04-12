@@ -16,6 +16,7 @@ import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.ResultAndError;
+import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
@@ -25,9 +26,11 @@ import org.javarosa.core.services.locale.Localization;
  * Processes and submits forms and syncs data with server
  */
 public class FormAndDataSyncer {
-    private final CommCareHomeActivity activity;
+    private final ConnectorWithMessaging activity;
+    private final Context context;
 
-    public FormAndDataSyncer(CommCareHomeActivity activity) {
+    public FormAndDataSyncer(Context context, ConnectorWithMessaging activity) {
+        this.context = context;
         this.activity = activity;
     }
 
@@ -37,8 +40,8 @@ public class FormAndDataSyncer {
                                     final boolean userTriggered) {
 
         ProcessAndSendTask<CommCareHomeActivity> mProcess = new ProcessAndSendTask<CommCareHomeActivity>(
-                activity,
-                getFormPostURL(activity),
+                context,
+                getFormPostURL(context),
                 syncAfterwards) {
 
             @Override
@@ -47,7 +50,6 @@ public class FormAndDataSyncer {
                     receiver.finish();
                     return;
                 }
-                activity.getUIController().refreshView();
 
                 int successfulSends = this.getSuccesfulSends();
 
@@ -85,7 +87,7 @@ public class FormAndDataSyncer {
             // abort since it looks like the session expired
             return;
         }
-        mProcess.connect(activity);
+        mProcess.connect((CommCareTaskConnector<CommCareHomeActivity>)activity);
 
         //Execute on a true multithreaded chain. We should probably replace all of our calls with this
         //but this is the big one for now.
@@ -129,8 +131,8 @@ public class FormAndDataSyncer {
                 u.getUsername(),
                 u.getCachedPwd(),
                 prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY,
-                        activity.getString(R.string.ota_restore_url)),
-                activity) {
+                        context.getString(R.string.ota_restore_url)),
+                context) {
 
             @Override
             protected void deliverResult(ConnectorWithMessaging receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
@@ -208,7 +210,7 @@ public class FormAndDataSyncer {
             }
         };
 
-        mDataPullTask.connect((ConnectorWithMessaging)activity);
+        mDataPullTask.connect((CommCareTaskConnector<ConnectorWithMessaging>)activity);
         mDataPullTask.execute();
     }
 }

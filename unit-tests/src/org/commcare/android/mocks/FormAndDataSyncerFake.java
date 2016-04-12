@@ -1,5 +1,6 @@
 package org.commcare.android.mocks;
 
+import android.content.Context;
 import android.util.Log;
 
 import org.commcare.activities.CommCareHomeActivity;
@@ -15,7 +16,7 @@ public class FormAndDataSyncerFake extends FormAndDataSyncer {
     private final String TAG = FormAndDataSyncerFake.class.getSimpleName();
 
     public FormAndDataSyncerFake(CommCareHomeActivity activity) {
-        super(activity);
+        super((Context)activity, activity);
     }
 
     @Override
