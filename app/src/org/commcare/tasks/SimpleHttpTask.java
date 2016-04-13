@@ -16,7 +16,7 @@ import java.util.List;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class SimpleHttpTask
-        extends CommCareTask<URL, Void, Void, HttpResponseProcessor>
+        extends CommCareTask<Void, Void, Void, HttpResponseProcessor>
         implements HttpResponseProcessor {
 
     public static final int SIMPLE_HTTP_TASK_ID = 11;
@@ -34,7 +34,7 @@ public class SimpleHttpTask
     }
 
     @Override
-    protected Void doTaskBackground(URL... urls) {
+    protected Void doTaskBackground(Void... params) {
         requestor.request();
         return null;
     }

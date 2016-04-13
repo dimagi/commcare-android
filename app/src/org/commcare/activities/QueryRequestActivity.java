@@ -1,7 +1,8 @@
 package org.commcare.activities;
 
-import android.content.Intent;
 import android.graphics.Color;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.util.Pair;
 import android.util.Log;
@@ -111,12 +112,17 @@ public class QueryRequestActivity
         if (url != null) {
             SimpleHttpTask httpTask =
                     new SimpleHttpTask(this, url, params, false);
-            httpTask.connect((ConnectorWithHttpResponseProcessor)this);
+            httpTask.connect((ConnectorWithHttpResponseProcessor) this);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                httpTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+            } else {
+                httpTask.execute();
+            }
         }
     }
 
     private void enterErrorState(String message) {
-
+        Log.e(TAG, message);
     }
 
     @Override
