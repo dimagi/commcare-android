@@ -219,7 +219,11 @@ public class FormAndDataSyncer {
         };
 
         dataPullTask.connect(activity);
-        dataPullTask.execute();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            dataPullTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            dataPullTask.execute();
+        }
     }
 
     public static void refreshPropertiesFromServer(CommCareActivity receiver) {
