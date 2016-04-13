@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -164,6 +165,7 @@ public class QueryRequestActivity extends CommCareActivity<QueryRequestActivity>
         MediaLayout helpLayout = new MediaLayout(this);
         helpLayout.setAVT(text, mData.getAudioURI(), mData.getImageURI(), null, null);
         helpLayout.setPadding(padding, padding, padding, padding);
+        text.setTextColor(Color.BLACK);
 
         return helpLayout;
     }

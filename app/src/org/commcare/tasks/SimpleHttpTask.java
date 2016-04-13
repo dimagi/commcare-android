@@ -15,20 +15,23 @@ public abstract class SimpleHttpTask<R>
 
     public static final int SIMPLE_HTTP_TASK_ID = 11;
 
-    private final ModernHttpRequest requestor;
+    //private final ModernHttpRequest requestor;
 
     public SimpleHttpTask(String username, String password) {
         taskId = SIMPLE_HTTP_TASK_ID;
-        requestor = new ModernHttpRequest(username, password);
+        //requestor = new ModernHttpRequest(username, password);
     }
 
     @Override
     protected InputStream doTaskBackground(URL... urls) {
+        /*
         try {
             return requestor.makeModernRequest(urls[0]);
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
         }
+        */
+        return null;
     }
 
 }
