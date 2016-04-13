@@ -83,18 +83,20 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
                     Resource.RESOURCE_STATUS_UNINITIALIZED, false);
 
             Profile p = parser.parse();
+            p.verifySignedPermissions(new AndroidSignedPermissionVerifier());
 
             if (!upgrade) {
                 initProperties(p);
-                p.verifySignedPermissions(new AndroidSignedPermissionVerifier());
                 checkDuplicate(p);
-                verifyMultipleAppsComplianceOnInstall(p);
-            } else {
-                p.verifySignedPermissions(new AndroidSignedPermissionVerifier());
-                verifyMultipleAppsComplianceOnUpgrade(p);
             }
 
             table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
+
+            if (upgrade) {
+                verifyMultipleAppsComplianceOnUpgrade(p);
+            } else {
+                verifyMultipleAppsComplianceOnInstall(p);
+            }
             return true;
         } catch (XmlPullParserException | InvalidReferenceException | IOException e) {
             e.printStackTrace();

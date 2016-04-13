@@ -94,7 +94,13 @@ public class AndroidResourceManager extends ResourceManager {
                 ResourceInstallUtils.logInstallError(e,
                         "App resources are incompatible with this device|");
                 if (e.isMultipleAppsViolationOnUpgrade()) {
-                    return AppInstallStatus.MultipleAppsViolation_Upgrade;
+                    if (updateNotNewer(getMasterProfile())) {
+                        Logger.log(AndroidLogger.TYPE_RESOURCES, "App Resources up to Date");
+                        upgradeTable.clear();
+                        return AppInstallStatus.UpToDate;
+                    } else {
+                        return AppInstallStatus.MultipleAppsViolation_Upgrade;
+                    }
                 }
                 return AppInstallStatus.IncompatibleReqs;
             } catch (UnresolvedResourceException e) {
@@ -104,6 +110,8 @@ public class AndroidResourceManager extends ResourceManager {
             return AppInstallStatus.UpdateStaged;
         }
     }
+
+
 
     /**
      * Load the latest profile into the upgrade table. Clears the upgrade table
