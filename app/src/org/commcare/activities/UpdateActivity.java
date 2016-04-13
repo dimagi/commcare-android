@@ -309,9 +309,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (taskId != DIALOG_UPGRADE_INSTALL) {
-            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                    + "any valid possibilities in CommCareSetupActivity");
-            return null;
+            return super.generateProgressDialog(taskId);
         }
         String title = Localization.get("updates.installing.title");
         String message = Localization.get("updates.installing.message");

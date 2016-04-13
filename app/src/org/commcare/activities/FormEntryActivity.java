@@ -1499,22 +1499,24 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    public CustomProgressDialog generateProgressDialog(int id) {
-        CustomProgressDialog dialog = null;
-        switch (id) {
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        CustomProgressDialog dialog;
+        switch (taskId) {
             case FormLoaderTask.FORM_LOADER_TASK_ID:
                 dialog = CustomProgressDialog.newInstance(
                         StringUtils.getStringRobust(this, R.string.loading_form),
                         StringUtils.getStringRobust(this, R.string.please_wait),
-                        id);
+                        taskId);
                 dialog.addCancelButton();
                 break;
             case SaveToDiskTask.SAVING_TASK_ID:
                 dialog = CustomProgressDialog.newInstance(
                         StringUtils.getStringRobust(this, R.string.saving_form),
                         StringUtils.getStringRobust(this, R.string.please_wait),
-                        id);
+                        taskId);
                 break;
+            default:
+                return super.generateProgressDialog(taskId);
         }
         return dialog;
     }

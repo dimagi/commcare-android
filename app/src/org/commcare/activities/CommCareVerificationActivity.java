@@ -32,7 +32,6 @@ import java.util.Vector;
 public class CommCareVerificationActivity
         extends CommCareActivity<CommCareVerificationActivity>
         implements OnClickListener {
-    private static final String TAG = CommCareVerificationActivity.class.getSimpleName();
 
     private TextView missingMediaPrompt;
     private static final int MENU_UNZIP = Menu.FIRST;
@@ -286,9 +285,7 @@ public class CommCareVerificationActivity
             }
             return dialog;
         }
-        Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                + "any valid possibilities in CommCareVerificationActivity");
-        return null;
+        return super.generateProgressDialog(taskId);
     }
 
     @Override

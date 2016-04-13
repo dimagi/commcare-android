@@ -55,8 +55,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
         RuntimePermissionRequester, WithUIController {
 
-    private static final String TAG = LoginActivity.class.getSimpleName();
-
     private static final int MENU_DEMO = Menu.FIRST;
     private static final int MENU_ABOUT = Menu.FIRST + 1;
     private static final int MENU_PERMISSIONS = Menu.FIRST + 2;
@@ -508,9 +506,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                         Localization.get("updates.installing.message"), taskId);
                 break;
             default:
-                Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                        + "any valid possibilities in LoginActivity");
-                return null;
+                return super.generateProgressDialog(taskId);
         }
         return dialog;
     }

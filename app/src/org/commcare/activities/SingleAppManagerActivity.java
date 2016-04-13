@@ -21,7 +21,6 @@ import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.AlertDialogFactory;
 import org.commcare.views.dialogs.CustomProgressDialog;
-import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
 
 
@@ -259,23 +258,6 @@ public class SingleAppManagerActivity extends CommCareActivity {
         } catch (SessionUnavailableException e) {
             FormAndDataSyncer.refreshPropertiesFromServer(this, appRecord);
         }
-    }
-
-    @Override
-    public CustomProgressDialog generateProgressDialog(int taskId) {
-        String title, message;
-        switch (taskId) {
-            case UpdatePropertiesTask.UPDATE_PROPERTIES_TASK_ID:
-                title = Localization.get("properties.update.dialog.title");
-                message = Localization.get("properties.update.dialog.message");
-                break;
-            default:
-                Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                        + "any valid possibilities in CommCareHomeActivity");
-                return null;
-        }
-        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
-        return dialog;
     }
 
     /**

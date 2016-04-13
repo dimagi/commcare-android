@@ -34,7 +34,6 @@ import java.util.ArrayList;
 
 @ManagedUi(R.layout.screen_multimedia_inflater)
 public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<MultimediaInflaterActivity> {
-    private static final String TAG = MultimediaInflaterActivity.class.getSimpleName();
 
     private static final String LOG_TAG = "CC-MultimediaInflator";
 
@@ -269,8 +268,6 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
             String message = Localization.get("mult.install.progress", new String[]{"0"});
             return CustomProgressDialog.newInstance(title, message, taskId);
         }
-        Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                + "any valid possibilities in MultiMediaInflaterActivity");
-        return null;
+        return super.generateProgressDialog(taskId);
     }
 }

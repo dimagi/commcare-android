@@ -127,16 +127,15 @@ class UpdateUIController implements CommCareActivityUIController {
         checkFailedUiState(null);
     }
 
-    protected void checkFailedUiState(MessageTag notificationMessage) {
+    protected void checkFailedUiState(AppInstallStatus installStatus) {
         idleUiState();
         currentUIState = UIState.FailedCheck;
-        if (notificationMessage == null) {
+        if (installStatus == null) {
             updateProgressText(Localization.get("updates.check.failed"));
         } else {
-            CommCareApplication._().reportNotificationMessage(NotificationMessageFactory
-                    .message(notificationMessage));
             updateProgressText(Localization.get("notification.for.details.wrapper",
                     new String[]{Localization.get("updates.check.failed")}));
+            activity.showMultipleAppsCompatErrorDialog(installStatus);
         }
 
     }

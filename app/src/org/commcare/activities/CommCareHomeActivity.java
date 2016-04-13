@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
-import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -85,8 +84,6 @@ import java.util.Vector;
 public class CommCareHomeActivity
         extends SessionAwareCommCareActivity<CommCareHomeActivity>
         implements SessionNavigationResponder, WithUIController {
-
-    private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
     /**
      * Request code for launching a menu list or menu grid
@@ -1338,14 +1335,8 @@ public class CommCareHomeActivity
                 title = Localization.get("sync.progress.title");
                 message = Localization.get("sync.progress.purge");
                 break;
-            case UpdatePropertiesTask.UPDATE_PROPERTIES_TASK_ID:
-                title = Localization.get("properties.update.dialog.title");
-                message = Localization.get("properties.update.dialog.message");
-                break;
             default:
-                Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                        + "any valid possibilities in CommCareHomeActivity");
-                return null;
+                return super.generateProgressDialog(taskId);
         }
         CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
         if (taskId == ProcessAndSendTask.PROCESSING_PHASE_ID) {

@@ -19,10 +19,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringBufferInputStream;
 
 /**
- * Created by amstone326 on 4/10/16.
+ * Performs a refresh of certain app properties based on their current values on the server
  */
 public abstract class UpdatePropertiesTask<R> extends CommCareTask<ApplicationRecord, Void, UpdatePropertiesTask.UpdatePropertiesResult, R> {
 
@@ -41,6 +40,9 @@ public abstract class UpdatePropertiesTask<R> extends CommCareTask<ApplicationRe
     protected UpdatePropertiesResult doTaskBackground(ApplicationRecord... params) {
         ApplicationRecord appRecord = params[0];
         if (appRecord != null) {
+            // If an app record is passed to the execute method, seats that app first and performs
+            // a property update for it. If no app record is passed, assumes that it is acting
+            // upon the currently seated app.
             CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
         }
 

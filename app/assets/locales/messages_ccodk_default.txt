@@ -103,6 +103,7 @@ home.menu.pin.set=Set My PIN
 home.menu.pin.change=Change My PIN
 
 app.manager.menu.superuser=Authenticate as Superuser
+app.manager.menu.refresh.properties=Refresh Properties for All Apps
 superuser.auth.menu.revoke=Revoke Authentication
 
 home.developer.options.enabled=Developer Mode Enabled
@@ -528,6 +529,8 @@ notification.install.multapp.violation.upgrade.title=Upgrade not allowed
 notification.install.multapp.violation.upgrade.detail=Your app has been downgraded and is no longer compatible with multiple apps.
 notification.install.multapp.violation.upgrade.action=In order to update this app, you must uninstall any other apps that require multiple apps compatibility, or upgrade the pricing plan for this app's domain.
 
+notification.install.multapp.refresh.option.message=If you have recently upgraded the pricing plan for one or more of your apps to a plan that supports multiple apps, and believe you have received this message in error, select "Refresh" below and then try again.
+
 notification.install.uptodate.title=The App is Up to Date
 notification.install.uptodate.detail=A newer version of the app is not available
 
@@ -603,6 +606,7 @@ notification.properties.update.error.endpoint.action=To use this feature, please
 
 properties.update.dialog.title=Property Update in Progress
 properties.update.dialog.message=Refreshing your app's properties from the server
+properties.update.error.toast=Could not perform property update for app ${0}
 
 crash.warning.button=Restart CommCare
 crash.warning.header=CommCare crashed and needs to restart.

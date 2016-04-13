@@ -620,9 +620,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 message = Localization.get("form.archive.purge.message");
                 break;
             default:
-                Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                        + "any valid possibilities in FormRecordListActivity");
-                return null;
+                return super.generateProgressDialog(taskId);
         }
         return CustomProgressDialog.newInstance(title, message, taskId);
     }

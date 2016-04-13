@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -24,6 +23,8 @@ import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
+
+import java.util.ArrayList;
 
 /**
  * Processes and submits forms and syncs data with server
@@ -220,11 +221,20 @@ public class FormAndDataSyncer {
         dataPullTask.execute();
     }
 
-    public static void refreshPropertiesFromServer(CommCareActivity activity) {
-        refreshPropertiesFromServer(activity, null);
+    public static void refreshPropertiesFromServer(CommCareActivity receiver) {
+        refreshPropertiesFromServer(receiver, null, -1);
     }
 
-    public static void refreshPropertiesFromServer(CommCareActivity activity, ApplicationRecord appRecord) {
+    public static void refreshPropertiesFromServer(CommCareActivity receiver, ApplicationRecord record) {
+        ArrayList<ApplicationRecord> list = new ArrayList<>();
+        list.add(record);
+        refreshPropertiesFromServer(receiver, list, 0);
+    }
+
+    private static void refreshPropertiesFromServer(CommCareActivity receiver,
+                                                   final ArrayList<ApplicationRecord> appsToRefresh,
+                                                   final int index) {
+
         UpdatePropertiesTask<CommCareActivity> updatePropertiesTask = new UpdatePropertiesTask<CommCareActivity>() {
 
             @Override
@@ -233,12 +243,19 @@ public class FormAndDataSyncer {
                     Toast.makeText(receiver, "Properties updated successfully!", Toast.LENGTH_LONG).show();
                 } else {
                     CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(result));
+                    String appDisplayName = appsToRefresh.get(index).getDisplayName();
                     Toast.makeText(receiver,
                             Localization.get("notification.for.details.wrapper",
-                                    new String[]{Localization.get("notification.properties.update.error.endpoint.title")}),
+                                    new String[]{Localization.get("properties.update.error.toast",
+                                            new String[]{appDisplayName})}),
                             Toast.LENGTH_LONG)
                             .show();
                 }
+
+                if (appsToRefresh != null && index < appsToRefresh.size()-1) {
+                    refreshPropertiesFromServer(receiver, appsToRefresh, index+1);
+                }
+
             }
 
             @Override
@@ -250,7 +267,15 @@ public class FormAndDataSyncer {
             }
         };
 
-        updatePropertiesTask.connect(activity);
-        updatePropertiesTask.execute(appRecord);
+        updatePropertiesTask.connect(receiver);
+        if (appsToRefresh != null) {
+            updatePropertiesTask.execute(appsToRefresh.get(index));
+        } else {
+            updatePropertiesTask.execute();
+        }
+    }
+
+    public static void refreshPropertiesForAllInstalledApps(CommCareActivity receiver) {
+        refreshPropertiesFromServer(receiver, CommCareApplication._().getInstalledAppRecords(), 0);
     }
 }

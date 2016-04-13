@@ -449,10 +449,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                                     receiver.failWithNotification(AppInstallStatus.DuplicateApp);
                                     break;
                                 case MultipleAppsViolation_Existing:
-                                    receiver.failWithNotification(AppInstallStatus.MultipleAppsViolation_Existing);
+                                    receiver.showMultipleAppsCompatErrorDialog(AppInstallStatus.MultipleAppsViolation_Existing);
                                     break;
                                 case MultipleAppsViolation_New:
-                                    receiver.failWithNotification(AppInstallStatus.MultipleAppsViolation_New);
+                                    receiver.showMultipleAppsCompatErrorDialog(AppInstallStatus.MultipleAppsViolation_New);
+                                    break;
                                 default:
                                     receiver.failUnknown(AppInstallStatus.UnknownFailure);
                                     break;
@@ -729,9 +730,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (taskId != DIALOG_INSTALL_PROGRESS) {
-            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                    + "any valid possibilities in CommCareSetupActivity");
-            return null;
+            return super.generateProgressDialog(taskId);
         }
         String title = Localization.get("updates.resources.initialization");
         String message = Localization.get("updates.resources.profile");
