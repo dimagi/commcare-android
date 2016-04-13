@@ -11,6 +11,8 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.models.encryption.AndroidSignedPermissionVerifier;
+import org.commcare.suite.model.SignedPermission;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.locale.Localization;
 
@@ -63,19 +65,41 @@ public class SuperuserAuthActivity extends Activity {
         switch(requestCode) {
             case BARCODE_CAPTURE:
                 if (resultCode == RESULT_OK) {
-                    // TODO: I think we decided it makes sense to not worry about doing any sort
-                    // of encryption of this on the first go-around, since it's even more unlikely
-                    // that anyone would try to reverse engineer this, but will double-check
-                    String usernameAuthenticatedWith = data.getStringExtra("SCAN_RESULT");
-                    CommCareApplication._().enableSuperUserMode(usernameAuthenticatedWith);
-                    setResult(RESULT_OK);
-                    finish();
+                    String usernameAuthenticatedWith = processScanResult(data.getStringExtra("SCAN_RESULT"));
+                    if (usernameAuthenticatedWith != null) {
+                        CommCareApplication._().enableSuperUserMode(usernameAuthenticatedWith);
+                        setResult(RESULT_OK);
+                        finish();
+                    } else {
+                        Toast.makeText(this, "Authentication Failed", Toast.LENGTH_LONG).show();
+                    }
                 }
                 else {
                     Toast.makeText(this, "Authentication Failed", Toast.LENGTH_LONG).show();
                 }
                 break;
         }
+    }
+
+    /**
+     *
+     * @param scanResult the string returned by the barcode scan callout
+     * @return the username authenticated with if superuser auth was successful, or null if it was
+     * not successful
+     */
+    private static String processScanResult(String scanResult) {
+        String[] valueAndSignature = scanResult.split(" ");
+        if (valueAndSignature.length != 2) {
+            return null;
+        }
+        SignedPermission superuserPermission = new SignedPermission(
+                SignedPermission.KEY_SUPERUSER_AUTHENTICATION,
+                valueAndSignature[0],
+                valueAndSignature[1]);
+        if (superuserPermission.verifyValue(new AndroidSignedPermissionVerifier())) {
+            return valueAndSignature[0];
+        }
+        return null;
     }
 
     @Override
