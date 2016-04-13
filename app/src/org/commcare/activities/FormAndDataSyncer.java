@@ -7,6 +7,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.widget.Toast;
 
+import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
@@ -239,11 +240,20 @@ public class FormAndDataSyncer {
 
             @Override
             protected void deliverResult(CommCareActivity receiver, UpdatePropertiesResult result) {
+                String appDisplayName;
+                if (appsToRefresh != null) {
+                    appDisplayName = appsToRefresh.get(index).getDisplayName();
+                } else {
+                    appDisplayName = CommCareApplication._().getCurrentApp().getAppRecord().getDisplayName();
+                }
+
                 if (result == UpdatePropertiesResult.SUCCESS) {
-                    Toast.makeText(receiver, "Properties updated successfully!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(receiver,
+                            Localization.get("properties.update.success.toast", new String[]{appDisplayName}),
+                            Toast.LENGTH_LONG)
+                            .show();
                 } else {
                     CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(result));
-                    String appDisplayName = appsToRefresh.get(index).getDisplayName();
                     Toast.makeText(receiver,
                             Localization.get("notification.for.details.wrapper",
                                     new String[]{Localization.get("properties.update.error.toast",
@@ -255,7 +265,6 @@ public class FormAndDataSyncer {
                 if (appsToRefresh != null && index < appsToRefresh.size()-1) {
                     refreshPropertiesFromServer(receiver, appsToRefresh, index+1);
                 }
-
             }
 
             @Override

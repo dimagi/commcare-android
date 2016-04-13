@@ -38,12 +38,11 @@ public abstract class UpdatePropertiesTask<R> extends CommCareTask<ApplicationRe
 
     @Override
     protected UpdatePropertiesResult doTaskBackground(ApplicationRecord... params) {
-        ApplicationRecord appRecord = params[0];
-        if (appRecord != null) {
+        if (params.length > 0) {
             // If an app record is passed to the execute method, seats that app first and performs
             // a property update for it. If no app record is passed, assumes that it is acting
             // upon the currently seated app.
-            CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
+            CommCareApplication._().initializeAppResources(new CommCareApp(params[0]));
         }
 
         String propertyUpdateEndpoint = CommCareApplication._().getCurrentApp().getAppPreferences()

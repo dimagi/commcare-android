@@ -606,7 +606,8 @@ notification.properties.update.error.endpoint.action=To use this feature, please
 
 properties.update.dialog.title=Property Update in Progress
 properties.update.dialog.message=Refreshing your app's properties from the server
-properties.update.error.toast=Could not perform property update for app ${0}
+properties.update.error.toast=Could not perform property update for ${0}
+properties.update.success.toast=Properties updated successfully for ${0}!
 
 crash.warning.button=Restart CommCare
 crash.warning.header=CommCare crashed and needs to restart.
