@@ -6,12 +6,14 @@ import android.os.Bundle;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
+import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.SimpleHttpTask;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -19,7 +21,8 @@ import java.io.InputStream;
  */
 public class SyncRequestActivity
         extends CommCareActivity<SyncRequestActivity>
-        implements ConnectorWithResultCallback<SyncRequestActivity> {
+        implements ConnectorWithHttpResponseProcessor<SyncRequestActivity>,
+        ConnectorWithResultCallback<SyncRequestActivity> {
     private static final String TAG = SyncRequestActivity.class.getSimpleName();
 
     private static final String TASK_LAUNCHED_KEY = "task-launched-key";
@@ -50,8 +53,10 @@ public class SyncRequestActivity
 
     private void makePostRequest() {
         if (!hasTaskLaunched && !inErrorState) {
-            SimpleHttpTask<SyncRequestActivity> syncTask = buildSyncTask();
-            syncTask.connect(this);
+            // TODO PLM: get post params
+            // TODO PLM: get url
+            SimpleHttpTask syncTask = new SimpleHttpTask(this, null, null, true);
+            syncTask.connect((ConnectorWithHttpResponseProcessor)this);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 syncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             } else {
@@ -76,25 +81,6 @@ public class SyncRequestActivity
         inErrorState = false;
         hasTaskLaunched = false;
         makePostRequest();
-    }
-
-    private SimpleHttpTask<SyncRequestActivity> buildSyncTask() {
-        return new SimpleHttpTask<SyncRequestActivity>("", "") {
-            @Override
-            protected void deliverResult(SyncRequestActivity receiver, InputStream result) {
-                receiver.performSync();
-            }
-
-            @Override
-            protected void deliverUpdate(SyncRequestActivity receiver, Integer[] updates) {
-
-            }
-
-            @Override
-            protected void deliverError(SyncRequestActivity receiver, Exception e) {
-                showErrorState();
-            }
-        };
     }
 
     @Override
@@ -149,6 +135,36 @@ public class SyncRequestActivity
         } else {
             Log.d(TAG, "BAD NO TOAST: " + message);
         }
+        showErrorState();
+    }
+
+    @Override
+    public void processSuccess(int responseCode, InputStream responseData) {
+        performSync();
+    }
+
+    @Override
+    public void processRedirection(int responseCode) {
+        showErrorState();
+    }
+
+    @Override
+    public void processClientError(int responseCode) {
+        showErrorState();
+    }
+
+    @Override
+    public void processServerError(int responseCode) {
+        showErrorState();
+    }
+
+    @Override
+    public void processOther(int responseCode) {
+        showErrorState();
+    }
+
+    @Override
+    public void handleIOException(IOException exception) {
         showErrorState();
     }
 }
