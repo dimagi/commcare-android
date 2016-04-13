@@ -5,9 +5,11 @@ import android.net.Uri;
 import android.os.Build;
 import android.support.v4.util.Pair;
 
+import org.commcare.CommCareApplication;
 import org.commcare.interfaces.HttpResponseProcessor;
 import org.commcare.utils.AndroidStreamUtil;
 import org.commcare.utils.GlobalConstants;
+import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.bitcache.BitCache;
 import org.commcare.utils.bitcache.BitCacheFactory;
 import org.javarosa.core.model.User;
@@ -34,37 +36,51 @@ public class ModernHttpRequester {
     private final URL url;
     private final List<Pair<String, String>> params;
 
-    private ModernHttpRequester(String username, String password,
-                                Context context, URL url,
-                                HttpResponseProcessor responseProcessor,
-                                List<Pair<String, String>> params,
-                                String userType, boolean isPostRequest) {
+    public ModernHttpRequester(Context context, URL url,
+                               HttpResponseProcessor responseProcessor,
+                               List<Pair<String, String>> params,
+                               boolean isAuth,
+                               boolean isPostRequest) {
         this.isPostRequest = isPostRequest;
         this.context = context;
         this.responseProcessor = responseProcessor;
         this.params = params;
         this.url = url;
 
-        setupAuthentication(username, password, userType);
+        setupAuthentication(isAuth);
     }
 
-    private void setupAuthentication(final String username, final String password,
-                                     final String userType) {
-        if (username == null || password == null || User.TYPE_DEMO.equals(userType)) {
+    private void setupAuthentication(boolean isAuth) {
+        if (isAuth) {
+            User u = getCurrentUser();
+            final String username = u.getUsername();
+            final String password = u.getCachedPwd();
+            if (username == null || password == null || User.TYPE_DEMO.equals(u.getUserType())) {
+                throw new RuntimeException("Trying to make authenticated http request without proper credentials");
+            } else if (!"https".equals(url.getProtocol())) {
+                throw new RuntimeException("Don't transmit credentials in plain text");
+            } else {
+                // make authenticated requests
+                Authenticator.setDefault(new Authenticator() {
+                    @Override
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(
+                                HttpRequestGenerator.buildDomainUser(username),
+                                password.toCharArray());
+                    }
+                });
+            }
+        } else {
             // clear any prior set authenticator to make unauthed requests
             Authenticator.setDefault(null);
-        } else if (!"https".equals(url.getProtocol())) {
-            throw new RuntimeException("Don't transmit credentials in plain text");
-        } else {
-            // make authenticated requests
-            Authenticator.setDefault(new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(
-                            HttpRequestGenerator.buildDomainUser(username),
-                            password.toCharArray());
-                }
-            });
+        }
+    }
+
+    private static User getCurrentUser() {
+        try {
+            return CommCareApplication._().getSession().getLoggedInUser();
+        } catch (SessionUnavailableException sue) {
+            throw new RuntimeException("Can't find user to make authenticated http request.");
         }
     }
 
@@ -126,8 +142,14 @@ public class ModernHttpRequester {
 
     private void processResponse(HttpURLConnection con) throws IOException {
         int responseCode = con.getResponseCode();
+        processResponse(responseProcessor, responseCode, getResponseStream(con));
+    }
+
+    public static void processResponse(HttpResponseProcessor responseProcessor,
+                                       int responseCode,
+                                       InputStream responseStream) {
         if (responseCode >= 200 && responseCode < 300) {
-            responseProcessor.processSuccess(responseCode, getResponseStream(con));
+            responseProcessor.processSuccess(responseCode, responseStream);
         } else if (responseCode >= 300 && responseCode < 400) {
             responseProcessor.processRedirection(responseCode);
         } else if (responseCode >= 400 && responseCode < 500) {

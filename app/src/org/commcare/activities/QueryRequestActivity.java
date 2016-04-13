@@ -3,6 +3,7 @@ package org.commcare.activities;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -12,12 +13,15 @@ import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
+import org.commcare.interfaces.HttpResponseProcessor;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.DisplayData;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
+import org.commcare.tasks.SimpleHttpTask;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -34,14 +38,20 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @ManagedUi(R.layout.query_request_layout)
-public class QueryRequestActivity extends CommCareActivity<QueryRequestActivity> {
+public class QueryRequestActivity
+        extends CommCareActivity<QueryRequestActivity>
+        implements HttpResponseProcessor {
     private static final String TAG = QueryRequestActivity.class.getSimpleName();
     private static final String ANSWERED_USER_PROMPTS_KEY = "answered_user_prompts";
 
@@ -66,6 +76,7 @@ public class QueryRequestActivity extends CommCareActivity<QueryRequestActivity>
             resetQuerySessionFromBundle(savedInstanceState);
         }
 
+        buildPromptUI();
         queryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,20 +96,27 @@ public class QueryRequestActivity extends CommCareActivity<QueryRequestActivity>
     }
 
     private void makeQueryRequest() {
-        Log.d(TAG, remoteQuerySessionManager.buildQueryUrl());
-        TreeElement root = null;
-        String instanceId = "patients";
-        try {
-            InputStream is = getAssets().open("patients.xml");
-            root = new TreeElementParser(ElementParser.instantiateParser(is), 0, instanceId).parse();
-        } catch (InvalidStructureException | IOException
-                | XmlPullParserException | UnfullfilledRequirementsException e ){
+        List<Pair<String, String>> params = new ArrayList<>();
 
+        for (String[] keyValuePair : remoteQuerySessionManager.getRawQueryParams()) {
+            params.add(new Pair<>(keyValuePair[0], keyValuePair[1]));
         }
-        ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(instanceId, root);
-        CommCareApplication._().getCurrentSession().setQueryDatum(instance);
-        setResult(RESULT_OK);
-        finish();
+        URL url = null;
+        try {
+            url = new URL(remoteQuerySessionManager.getBaseUrl());
+        } catch (MalformedURLException e) {
+            enterErrorState(e.getMessage());
+        }
+
+        if (url != null) {
+            SimpleHttpTask httpTask =
+                    new SimpleHttpTask(this, url, params, false);
+            httpTask.connect((ConnectorWithHttpResponseProcessor)this);
+        }
+    }
+
+    private void enterErrorState(String message) {
+
     }
 
     @Override
@@ -109,23 +127,12 @@ public class QueryRequestActivity extends CommCareActivity<QueryRequestActivity>
                 remoteQuerySessionManager.getUserAnswers());
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        buildPromptUI();
-    }
-
     private void buildPromptUI() {
         LinearLayout promptsLayout = (LinearLayout) findViewById(R.id.query_prompts);
         for (Map.Entry<String, DisplayUnit> displayEntry : remoteQuerySessionManager.getNeededUserInputDisplays().entrySet()) {
             promptsLayout.addView(createPromptEntry(displayEntry.getValue()));
 
-            EditText promptEditText= new EditText(this);
+            EditText promptEditText = new EditText(this);
             promptsLayout.addView(promptEditText);
             promptsBoxes.put(displayEntry.getKey(), promptEditText);
         }
@@ -159,7 +166,7 @@ public class QueryRequestActivity extends CommCareActivity<QueryRequestActivity>
         TextView text = new TextView(getApplicationContext());
         text.setText(str);
 
-        int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
+        int padding = (int) getResources().getDimension(R.dimen.help_text_padding);
         text.setPadding(0, 0, 0, 7);
 
         MediaLayout helpLayout = new MediaLayout(this);
@@ -184,5 +191,48 @@ public class QueryRequestActivity extends CommCareActivity<QueryRequestActivity>
                 return null;
         }
         return CustomProgressDialog.newInstance(title, message, taskId);
+    }
+
+    @Override
+    public void processSuccess(int responseCode, InputStream responseData) {
+        TreeElement root = null;
+        String instanceId = "patients";
+        try {
+            //InputStream is = getAssets().open("patients.xml");
+            root = new TreeElementParser(ElementParser.instantiateParser(responseData), 0, instanceId).parse();
+        } catch (InvalidStructureException | IOException
+                | XmlPullParserException | UnfullfilledRequirementsException e) {
+
+        }
+        ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(instanceId, root);
+        CommCareApplication._().getCurrentSession().setQueryDatum(instance);
+        setResult(RESULT_OK);
+        finish();
+
+    }
+
+    @Override
+    public void processRedirection(int responseCode) {
+
+    }
+
+    @Override
+    public void processClientError(int responseCode) {
+
+    }
+
+    @Override
+    public void processServerError(int responseCode) {
+
+    }
+
+    @Override
+    public void processOther(int responseCode) {
+
+    }
+
+    @Override
+    public void handleIOException(IOException exception) {
+
     }
 }
