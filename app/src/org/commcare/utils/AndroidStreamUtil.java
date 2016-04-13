@@ -1,5 +1,6 @@
 package org.commcare.utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,6 +9,16 @@ import java.io.OutputStream;
  * @author ctsims
  */
 public class AndroidStreamUtil {
+
+    public static byte[] inputStreamToByteArray(InputStream input) throws IOException {
+        byte[] buffer = new byte[8192];
+        int bytesRead;
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        while ((bytesRead = input.read(buffer)) != -1) {
+            output.write(buffer, 0, bytesRead);
+        }
+        return output.toByteArray();
+    }
 
     /**
      * Write is to os and close both
