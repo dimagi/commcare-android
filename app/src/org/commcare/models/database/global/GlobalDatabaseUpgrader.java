@@ -63,6 +63,9 @@ class GlobalDatabaseUpgrader {
         }
     }
 
+    /**
+     * Convert ApplicationRecord db from ApplicationRecordV1 to ApplicationRecordV2
+     */
     private boolean upgradeTwoThree(SQLiteDatabase db) {
         db.beginTransaction();
 
@@ -74,7 +77,7 @@ class GlobalDatabaseUpgrader {
                     ApplicationRecordV1.class,
                     new ConcreteAndroidDbHelper(c, db));
 
-            if (multipleInstalledAppRecords(storage)) {
+            if (multipleInstalledAppRecordsBeforeMultipleApps(storage)) {
                 // If a device has multiple installed ApplicationRecords before the multiple apps
                 // db upgrade has occurred, something has definitely gone wrong
                 throw new MigrationException(true);
@@ -137,7 +140,7 @@ class GlobalDatabaseUpgrader {
                     ApplicationRecordV2.class,
                     new ConcreteAndroidDbHelper(c, db));
             for (Persistable r : storage) {
-                ApplicationRecordV2 oldRecord = (ApplicationRecordV2) r;
+                ApplicationRecordV2 oldRecord = (ApplicationRecordV2)r;
                 ApplicationRecord newRecord = ApplicationRecord.fromV2Record(oldRecord);
                 newRecord.setID(oldRecord.getID());
                 storage.write(newRecord);
@@ -171,7 +174,7 @@ class GlobalDatabaseUpgrader {
         return true;
     }
 
-    private static boolean multipleInstalledAppRecords(SqlStorage<Persistable> storage) {
+    private static boolean multipleInstalledAppRecordsBeforeMultipleApps(SqlStorage<Persistable> storage) {
         int count = 0;
         for (Persistable p : storage) {
             ApplicationRecordV1 r = (ApplicationRecordV1) p;

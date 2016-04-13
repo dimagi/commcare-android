@@ -10,10 +10,11 @@ import org.commcare.modern.models.MetaField;
 import org.commcare.suite.model.Profile;
 
 /**
- * An Application Record tracks an individual CommCare app on the current
- * install.
+ * The version of ApplicationRecord that exists in databases on CommCare versions 2.23 through 2.27
+ * (after multiple apps was introduced but before it was put under a pricing plan).
+ * This class is used to read and make available an ApplicationRecord that exists in such
+ * a database (for database upgrade purposes).
  *
- * @author ctsims
  * @author amstone
  */
 
@@ -89,7 +90,5 @@ public class ApplicationRecordV2 extends Persisted {
     public void setPreMultipleAppsProfile(boolean b) {
         this.preMultipleAppsProfile = b;
     }
-
-
 
 }

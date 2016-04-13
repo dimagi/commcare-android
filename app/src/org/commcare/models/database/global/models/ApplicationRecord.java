@@ -14,8 +14,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
 /**
- * An Application Record tracks an individual CommCare app on the current
- * install.
+ * An Application Record tracks an individual CommCare app on the current install.
  *
  * @author ctsims
  * @author amstone
