@@ -1,7 +1,7 @@
 package org.commcare.android.util;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.mocks.CommCareTaskConnectorFake;
+import org.commcare.android.mocks.MockCommCareTaskConnector;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.util.CommCarePlatform;
@@ -15,8 +15,8 @@ import static org.junit.Assert.fail;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class SavedFormLoader {
-    private static final CommCareTaskConnectorFake<Object> fakeConnector =
-            new CommCareTaskConnectorFake<>();
+    private static final MockCommCareTaskConnector<Object> fakeConnector =
+            new MockCommCareTaskConnector<>();
 
     /**
      * Load saved forms into CommCare app via local payload file.

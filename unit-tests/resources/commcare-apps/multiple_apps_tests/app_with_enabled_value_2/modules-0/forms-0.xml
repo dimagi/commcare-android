@@ -1,0 +1,33 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Test</h:title>
+		<model>
+			<instance>
+				<data2 xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/8DBEB075-C73F-4547-9A81-31D8CA19DCC8" uiVersion="1" version="9" name="Test">
+					<q1/>
+					<q2/>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/><cc:location/></orx:meta></data2>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data2/q1" type="xsd:string"/>
+			<bind nodeset="/data2/q2" type="xsd:string"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="q1-label">
+						<value>q1</value>
+					</text>
+					<text id="q2-label">
+						<value>q2</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data2/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data2/meta/timeStart" value="now()"/><bind nodeset="/data2/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data2/meta/timeEnd" value="now()"/><bind nodeset="/data2/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data2/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data2/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data2/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data2/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/><orx:pollsensor event="xforms-ready" ref="/data2/meta/location"/><bind nodeset="/data2/meta/location" type="geopoint"/></model>
+	</h:head>
+	<h:body>
+		<input ref="/data2/q1">
+			<label ref="jr:itext('q1-label')"/>
+		</input>
+		<input ref="/data2/q2">
+			<label ref="jr:itext('q2-label')"/>
+		</input>
+	</h:body>
+</h:html>

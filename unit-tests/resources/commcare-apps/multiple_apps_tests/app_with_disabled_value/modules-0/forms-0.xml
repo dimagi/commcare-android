@@ -1,0 +1,43 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Actions Test</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="undefined" uiVersion="1" version="7" name="Actions Test">
+					<text_question time=""/>
+					<birthday/>
+					<age/>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/text_question" type="xsd:string"/>
+			<bind nodeset="/data/birthday" type="xsd:date"/>
+			<bind nodeset="/data/age" type="xsd:int"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="text_question-label">
+						<value>Enter some text</value>
+					</text>
+					<text id="birthday-label">
+						<value>Birthday</value>
+					</text>
+					<text id="age-label">
+						<value>Age</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<input ref="/data/text_question">
+			<label ref="jr:itext('text_question-label')"/>
+            <setvalue event="xforms-value-changed" ref="/data/text_question/@time" value="now()"/>
+		</input>
+		<input ref="/data/birthday">
+			<label ref="jr:itext('birthday-label')"/>
+            <setvalue event="xforms-value-changed" ref="/data/age" value="if(/data/age = '', int((today() - date(/data/birthday)) div 365), /data/age)"/>
+		</input>
+		<input ref="/data/age">
+			<label ref="jr:itext('age-label')"/>
+		</input>
+	</h:body>
+</h:html>

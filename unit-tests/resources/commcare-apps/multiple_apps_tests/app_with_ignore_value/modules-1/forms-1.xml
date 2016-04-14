@@ -1,0 +1,100 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Test Repeats</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/551a2567eeff274fd715932bc9da0a8c1b3c9f0e" uiVersion="1" version="35" name="Test Repeats">
+					<start/>
+					<type/>
+					<repeat2 jr:template="">
+						<name/>
+					</repeat2>
+					<buffer/>
+					<repeat jr:template="">
+						<hometown/>
+						<age/>
+					</repeat>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data></instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/start" type="xsd:string"/>
+			<bind nodeset="/data/type"/>
+			<bind nodeset="/data/repeat2"/>
+			<bind nodeset="/data/repeat2/name" type="xsd:string"/>
+			<bind nodeset="/data/buffer"/>
+			<bind nodeset="/data/repeat"/>
+			<bind nodeset="/data/repeat/hometown" type="xsd:string"/>
+			<bind nodeset="/data/repeat/age" type="xsd:int"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="start-label">
+						<value>start</value>
+					</text>
+					<text id="type-label">
+						<value>[added] survey type</value>
+					</text>
+					<text id="type-type1-label">
+						<value>type1</value>
+					</text>
+					<text id="type-type2-label">
+						<value>type2</value>
+					</text>
+					<text id="repeat2-label">
+						<value>[added] repeat2</value>
+					</text>
+					<text id="repeat2/name-label">
+						<value>name</value>
+					</text>
+					<text id="buffer-label">
+						<value>[added] Buffer between repeats</value>
+					</text>
+					<text id="repeat-label">
+						<value>repeat</value>
+					</text>
+					<text id="repeat/hometown-label">
+						<value>[added] hometown</value>
+					</text>
+					<text id="repeat/age-label">
+						<value>age</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<input ref="/data/start">
+			<label ref="jr:itext('start-label')"/>
+		</input>
+		<select1 ref="/data/type">
+			<label ref="jr:itext('type-label')"/>
+			<item>
+				<label ref="jr:itext('type-type1-label')"/>
+				<value>type1</value>
+			</item>
+			<item>
+				<label ref="jr:itext('type-type2-label')"/>
+				<value>type2</value>
+			</item>
+		</select1>
+		<group>
+			<label ref="jr:itext('repeat2-label')"/>
+			<repeat nodeset="/data/repeat2">
+				<input ref="/data/repeat2/name">
+					<label ref="jr:itext('repeat2/name-label')"/>
+				</input>
+			</repeat>
+		</group>
+		<trigger ref="/data/buffer" appearance="minimal">
+			<label ref="jr:itext('buffer-label')"/>
+		</trigger>
+		<group>
+			<label ref="jr:itext('repeat-label')"/>
+			<repeat nodeset="/data/repeat">
+				<input ref="/data/repeat/hometown">
+					<label ref="jr:itext('repeat/hometown-label')"/>
+				</input>
+				<input ref="/data/repeat/age">
+					<label ref="jr:itext('repeat/age-label')"/>
+				</input>
+			</repeat>
+		</group>
+	</h:body>
+</h:html>

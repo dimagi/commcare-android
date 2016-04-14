@@ -1,0 +1,101 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Signature Not At End</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/ba4f653d8287a36f089928165b64156757af985f" uiVersion="1" version="18" name="Signature Not At End">
+					<signedValue/>
+					<changed_id/>
+					<added_2/>
+					<ADDED/>
+					<question3>
+						<copy-1-of-signedValue/>
+						<question4/>
+						<added/>
+					</question3>
+					<question1/>
+				<orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/signedValue" type="binary"/>
+			<bind nodeset="/data/changed_id" type="xsd:int"/>
+			<bind nodeset="/data/added_2" type="xsd:date"/>
+			<bind nodeset="/data/ADDED"/>
+			<bind nodeset="/data/question3"/>
+			<bind nodeset="/data/question3/copy-1-of-signedValue" type="binary"/>
+			<bind nodeset="/data/question3/question4" type="xsd:int"/>
+			<bind nodeset="/data/question3/added" type="xsd:string"/>
+			<bind nodeset="/data/question1" type="xsd:string" relevant="false()"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="changed_id-label">
+						<value>Changed ID</value>
+					</text>
+					<text id="added_2-label">
+						<value>[Added] Date</value>
+					</text>
+					<text id="ADDED-label">
+						<value>ADDED</value>
+					</text>
+					<text id="ADDED-yes-label">
+						<value>yes</value>
+					</text>
+					<text id="ADDED-no-label">
+						<value>no</value>
+					</text>
+					<text id="question3-label">
+						<value>question3</value>
+					</text>
+					<text id="question3/copy-1-of-signedValue-label">
+						<value>signedValue</value>
+					</text>
+					<text id="question3/question4-label">
+						<value>question4</value>
+					</text>
+					<text id="question3/added-label">
+						<value>added</value>
+					</text>
+					<text id="question1-label">
+						<value>question1</value>
+					</text>
+				</translation>
+			</itext>
+		<setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<upload mediatype="image/*" ref="/data/signedValue" appearance="signedValue">
+			<label ref="jr:itext('question3/copy-1-of-signedValue-label')"/>
+		</upload>
+		<input ref="/data/changed_id">
+			<label ref="jr:itext('changed_id-label')"/>
+		</input>
+		<input ref="/data/added_2">
+			<label ref="jr:itext('added_2-label')"/>
+		</input>
+		<select1 ref="/data/ADDED">
+			<label ref="jr:itext('ADDED-label')"/>
+			<item>
+				<label ref="jr:itext('ADDED-yes-label')"/>
+				<value>yes</value>
+			</item>
+			<item>
+				<label ref="jr:itext('ADDED-no-label')"/>
+				<value>no</value>
+			</item>
+		</select1>
+		<group ref="/data/question3" appearance="field-list">
+			<label ref="jr:itext('question3-label')"/>
+			<upload mediatype="image/*" ref="/data/question3/copy-1-of-signedValue" appearance="signedValue">
+				<label ref="jr:itext('question3/copy-1-of-signedValue-label')"/>
+			</upload>
+			<input ref="/data/question3/question4">
+				<label ref="jr:itext('question3/question4-label')"/>
+			</input>
+			<input ref="/data/question3/added">
+				<label ref="jr:itext('question3/added-label')"/>
+			</input>
+		</group>
+		<input ref="/data/question1">
+			<label ref="jr:itext('question1-label')"/>
+		</input>
+	</h:body>
+</h:html>
