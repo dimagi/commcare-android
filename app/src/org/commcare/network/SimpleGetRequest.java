@@ -48,7 +48,8 @@ public class SimpleGetRequest {
 
             return followRedirect(con).getInputStream();
         } catch (IOException e) {
-            if (e.getMessage().toLowerCase().contains("authentication") || responseCode == 401) {
+            if (e.getMessage().toLowerCase().contains("authentication")
+                    || responseCode == 401) {
                 //Android http libraries _suuuuuck_, let's try apache.
                 return null;
             } else {
@@ -57,10 +58,14 @@ public class SimpleGetRequest {
         }
     }
 
-    private static HttpURLConnection followRedirect(HttpURLConnection httpConnection) throws IOException {
+    private static HttpURLConnection followRedirect(HttpURLConnection httpConnection)
+            throws IOException {
         final URL url = httpConnection.getURL();
         if (httpConnection.getResponseCode() == 301) {
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Attempting 1 stage redirect from " + url.toString() + " to " + httpConnection.getURL().toString());
+            String redirectString =
+                    url.toString() + " to " + httpConnection.getURL().toString();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
+                    "Attempting 1 stage redirect from " + redirectString);
             //only allow one level of redirection here for now.
             URL newUrl = new URL(httpConnection.getHeaderField("Location"));
             httpConnection.disconnect();
@@ -68,10 +73,14 @@ public class SimpleGetRequest {
             setupGetConnection(httpConnection);
             httpConnection.connect();
 
-            //Don't allow redirects _from_ https _to_ https unless they are redirecting to the same server.
+            // Don't allow redirects _from_ https _to_ https unless they are
+            // redirecting to the same server.
             if (!HttpRequestGenerator.isValidRedirect(url, httpConnection.getURL())) {
-                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Invalid redirect from " + url.toString() + " to " + httpConnection.getURL().toString());
-                throw new IOException("Invalid redirect from secure server to insecure server");
+                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK,
+                        "Invalid redirect from " + redirectString);
+                String errorMessage =
+                        "Invalid redirect from secure server to insecure server";
+                throw new IOException(errorMessage);
             }
         }
 

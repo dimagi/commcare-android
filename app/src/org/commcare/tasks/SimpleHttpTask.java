@@ -56,12 +56,14 @@ public class SimpleHttpTask
     }
 
     @Override
-    protected void deliverUpdate(HttpResponseProcessor httpResponseProcessor, Void... update) {
+    protected void deliverUpdate(HttpResponseProcessor httpResponseProcessor,
+                                 Void... update) {
 
     }
 
     @Override
-    protected void deliverError(HttpResponseProcessor httpResponseProcessor, Exception e) {
+    protected void deliverError(HttpResponseProcessor httpResponseProcessor,
+                                Exception e) {
 
     }
 
