@@ -44,6 +44,11 @@ import java.util.Hashtable;
 import java.util.Map;
 
 /**
+ * Collects 'query datum' in the current session. Prompts user for query
+ * params, makes query to server and stores xml 'fixture' response into current
+ * session. Allows for 'case search and claim' workflow when used inside a
+ * 'sync-request' entry in conjuction with entity select datum and sync
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @ManagedUi(R.layout.http_request_layout)
@@ -51,13 +56,21 @@ public class QueryRequestActivity
         extends CommCareActivity<QueryRequestActivity>
         implements HttpResponseProcessor {
     private static final String TAG = QueryRequestActivity.class.getSimpleName();
-    private static final String ANSWERED_USER_PROMPTS_KEY = "answered_user_prompts";
 
-    private RemoteQuerySessionManager remoteQuerySessionManager;
-    private Hashtable<String, EditText> promptsBoxes = new Hashtable<>();
+    private static final String ANSWERED_USER_PROMPTS_KEY = "answered_user_prompts";
+    private static final String IN_ERROR_STATE_KEY = "in-error-state-key";
+    private static final String ERROR_MESSAGE_KEY = "error-message-key";
 
     @UiElement(value = R.id.request_button, locale = "query.button")
     private Button queryButton;
+
+    @UiElement(value = R.id.error_message)
+    private TextView errorTextView;
+
+    private boolean inErrorState;
+    private String errorMessage;
+    private RemoteQuerySessionManager remoteQuerySessionManager;
+    private Hashtable<String, EditText> promptsBoxes = new Hashtable<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,10 +84,15 @@ public class QueryRequestActivity
             setResult(RESULT_CANCELED);
             finish();
         } else {
-            resetQuerySessionFromBundle(savedInstanceState);
-        }
+            loadStateFromSavedInstance(savedInstanceState);
 
+            setupUI();
+        }
+    }
+
+    private void setupUI() {
         buildPromptUI();
+
         queryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,6 +100,19 @@ public class QueryRequestActivity
                 makeQueryRequest();
             }
         });
+    }
+
+    private void buildPromptUI() {
+        LinearLayout promptsLayout = (LinearLayout)findViewById(R.id.query_prompts);
+        Hashtable<String, DisplayUnit> userInputDisplays =
+                remoteQuerySessionManager.getNeededUserInputDisplays();
+        for (Map.Entry<String, DisplayUnit> displayEntry : userInputDisplays.entrySet()) {
+            promptsLayout.addView(createPromptEntry(displayEntry.getValue()));
+
+            EditText promptEditText = new EditText(this);
+            promptsLayout.addView(promptEditText);
+            promptsBoxes.put(displayEntry.getKey(), promptEditText);
+        }
     }
 
     private void answerPrompts() {
@@ -94,6 +125,8 @@ public class QueryRequestActivity
     }
 
     private void makeQueryRequest() {
+        errorMessage = "";
+        inErrorState = false;
         URL url = null;
         try {
             url = new URL(remoteQuerySessionManager.getBaseUrl());
@@ -104,7 +137,7 @@ public class QueryRequestActivity
         if (url != null) {
             SimpleHttpTask httpTask =
                     new SimpleHttpTask(this, url, remoteQuerySessionManager.getRawQueryParams(), false);
-            httpTask.connect((ConnectorWithHttpResponseProcessor) this);
+            httpTask.connect((ConnectorWithHttpResponseProcessor)this);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 httpTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
             } else {
@@ -114,7 +147,15 @@ public class QueryRequestActivity
     }
 
     private void enterErrorState(String message) {
-        Log.e(TAG, message);
+        errorMessage = message;
+        enterErrorState();
+    }
+
+    private void enterErrorState() {
+        inErrorState = true;
+        Log.e(TAG, errorMessage);
+        errorTextView.setText(errorMessage);
+        errorTextView.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -123,33 +164,25 @@ public class QueryRequestActivity
 
         savedInstanceState.putSerializable(ANSWERED_USER_PROMPTS_KEY,
                 remoteQuerySessionManager.getUserAnswers());
-    }
-
-    private void buildPromptUI() {
-        LinearLayout promptsLayout = (LinearLayout) findViewById(R.id.query_prompts);
-        for (Map.Entry<String, DisplayUnit> displayEntry : remoteQuerySessionManager.getNeededUserInputDisplays().entrySet()) {
-            promptsLayout.addView(createPromptEntry(displayEntry.getValue()));
-
-            EditText promptEditText = new EditText(this);
-            promptsLayout.addView(promptEditText);
-            promptsBoxes.put(displayEntry.getKey(), promptEditText);
-        }
-
+        savedInstanceState.putString(ERROR_MESSAGE_KEY, errorMessage);
+        savedInstanceState.putBoolean(IN_ERROR_STATE_KEY, inErrorState);
     }
 
     private static RemoteQuerySessionManager buildQuerySessionManager(AndroidSessionWrapper sessionWrapper) {
         SessionDatum datum = sessionWrapper.getSession().getNeededDatum();
         if (datum instanceof RemoteQueryDatum) {
-            return new RemoteQuerySessionManager((RemoteQueryDatum) datum, sessionWrapper.getEvaluationContext());
+            return new RemoteQuerySessionManager((RemoteQueryDatum)datum, sessionWrapper.getEvaluationContext());
         } else {
             return null;
         }
     }
 
-    private void resetQuerySessionFromBundle(Bundle savedInstanceState) {
+    private void loadStateFromSavedInstance(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
+            errorMessage = savedInstanceState.getString(ERROR_MESSAGE_KEY);
+            inErrorState = savedInstanceState.getBoolean(IN_ERROR_STATE_KEY);
             Hashtable<String, String> answeredPrompts =
-                    (Hashtable<String, String>) savedInstanceState.getSerializable(ANSWERED_USER_PROMPTS_KEY);
+                    (Hashtable<String, String>)savedInstanceState.getSerializable(ANSWERED_USER_PROMPTS_KEY);
             if (answeredPrompts != null) {
                 for (Map.Entry<String, String> entry : answeredPrompts.entrySet()) {
                     remoteQuerySessionManager.answerUserPrompt(entry.getKey(), entry.getValue());
@@ -164,7 +197,7 @@ public class QueryRequestActivity
         TextView text = new TextView(getApplicationContext());
         text.setText(str);
 
-        int padding = (int) getResources().getDimension(R.dimen.help_text_padding);
+        int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
         text.setPadding(0, 0, 0, 7);
 
         MediaLayout helpLayout = new MediaLayout(this);
@@ -173,22 +206,6 @@ public class QueryRequestActivity
         text.setTextColor(Color.BLACK);
 
         return helpLayout;
-    }
-
-    @Override
-    public CustomProgressDialog generateProgressDialog(int taskId) {
-        String title, message;
-        switch (taskId) {
-            case 1:
-                title = Localization.get("sync.progress.title");
-                message = Localization.get("sync.progress.purge");
-                break;
-            default:
-                Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                        + "any valid possibilities in CommCareHomeActivity");
-                return null;
-        }
-        return CustomProgressDialog.newInstance(title, message, taskId);
     }
 
     @Override
@@ -206,31 +223,46 @@ public class QueryRequestActivity
         CommCareApplication._().getCurrentSession().setQueryDatum(instance);
         setResult(RESULT_OK);
         finish();
-
     }
 
     @Override
     public void processRedirection(int responseCode) {
-
+        enterErrorState(responseCode + "");
     }
 
     @Override
     public void processClientError(int responseCode) {
-
+        enterErrorState(responseCode + "");
     }
 
     @Override
     public void processServerError(int responseCode) {
-
+        enterErrorState(responseCode + "");
     }
 
     @Override
     public void processOther(int responseCode) {
-
+        enterErrorState(responseCode + "");
     }
 
     @Override
     public void handleIOException(IOException exception) {
+        enterErrorState(exception.getMessage());
+    }
 
+    @Override
+    public CustomProgressDialog generateProgressDialog(int taskId) {
+        String title, message;
+        switch (taskId) {
+            case 1:
+                title = Localization.get("sync.progress.title");
+                message = Localization.get("sync.progress.purge");
+                break;
+            default:
+                Log.w(TAG, "taskId passed to generateProgressDialog does not match "
+                        + "any valid possibilities in CommCareHomeActivity");
+                return null;
+        }
+        return CustomProgressDialog.newInstance(title, message, taskId);
     }
 }

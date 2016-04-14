@@ -42,21 +42,22 @@ public class PostRequestActivity
 
     private static final String TASK_LAUNCHED_KEY = "task-launched-key";
     private static final String IN_ERROR_STATE_KEY = "in-error-state-key";
+    private static final String ERROR_MESSAGE_KEY = "error-message-key";
 
     public static final String URL_KEY = "url-key";
     public static final String PARAMS_KEY = "params-key";
-
-    private URL url;
-    private Hashtable<String, String> params;
-
-    private boolean hasTaskLaunched;
-    private boolean inErrorState;
 
     @UiElement(value = R.id.request_button, locale = "post.request.button")
     private Button retryButton;
 
     @UiElement(value = R.id.error_message)
     private TextView errorMessageBox;
+
+    private URL url;
+    private Hashtable<String, String> params;
+    private String errorMessage;
+    private boolean hasTaskLaunched;
+    private boolean inErrorState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +77,7 @@ public class PostRequestActivity
         if (savedInstanceState != null) {
             hasTaskLaunched = savedInstanceState.getBoolean(TASK_LAUNCHED_KEY);
             inErrorState = savedInstanceState.getBoolean(IN_ERROR_STATE_KEY);
+            errorMessage = savedInstanceState.getString(ERROR_MESSAGE_KEY);
         }
     }
 
@@ -94,7 +96,7 @@ public class PostRequestActivity
 
     private void setupUI() {
         if (inErrorState) {
-            showErrorState();
+            enterErrorState();
         } else {
             retryButton.setVisibility(View.GONE);
         }
@@ -127,15 +129,21 @@ public class PostRequestActivity
         }
     }
 
-    private void showErrorState() {
+    private void enterErrorState() {
         inErrorState = true;
         errorMessageBox.setVisibility(View.VISIBLE);
-        errorMessageBox.setText("Error!");
+        errorMessageBox.setText(errorMessage);
         retryButton.setVisibility(View.VISIBLE);
+    }
+
+    private void enterErrorState(String message) {
+        errorMessage = message;
+        enterErrorState();
     }
 
     private void retryPost() {
         inErrorState = false;
+        errorMessage = "";
         errorMessageBox.setVisibility(View.GONE);
         hasTaskLaunched = false;
         makePostRequest();
@@ -147,6 +155,59 @@ public class PostRequestActivity
 
         savedInstanceState.putBoolean(TASK_LAUNCHED_KEY, hasTaskLaunched);
         savedInstanceState.putBoolean(IN_ERROR_STATE_KEY, inErrorState);
+        savedInstanceState.putString(ERROR_MESSAGE_KEY, errorMessage);
+    }
+
+    @Override
+    public void reportSuccess(String message) {
+        Log.d(TAG, "sync successful");
+        Log.d(TAG, message);
+
+        CommCareApplication._().getCurrentSessionWrapper().terminateSession();
+
+        setResult(RESULT_OK);
+        finish();
+    }
+
+    @Override
+    public void reportFailure(String message, boolean showPopupNotification) {
+        Log.d(TAG, "sync failed");
+        if (showPopupNotification) {
+            Log.d(TAG, "BAD: " + message);
+        } else {
+            Log.d(TAG, "BAD NO TOAST: " + message);
+        }
+        enterErrorState("sync failed");
+    }
+
+    @Override
+    public void processSuccess(int responseCode, InputStream responseData) {
+        performSync();
+    }
+
+    @Override
+    public void processRedirection(int responseCode) {
+        enterErrorState(responseCode + "");
+    }
+
+    @Override
+    public void processClientError(int responseCode) {
+        enterErrorState(responseCode + "");
+    }
+
+    @Override
+    public void processServerError(int responseCode) {
+        enterErrorState(responseCode + "");
+    }
+
+    @Override
+    public void processOther(int responseCode) {
+        enterErrorState(responseCode + "");
+    }
+
+    @Override
+    public void handleIOException(IOException exception) {
+        enterErrorState(exception.getMessage());
     }
 
     @Override
@@ -176,53 +237,4 @@ public class PostRequestActivity
         return CustomProgressDialog.newInstance(title, message, taskId);
     }
 
-    @Override
-    public void reportSuccess(String message) {
-        Log.d(TAG, message);
-
-        CommCareApplication._().getCurrentSessionWrapper().terminateSession();
-
-        setResult(RESULT_OK);
-        finish();
-    }
-
-    @Override
-    public void reportFailure(String message, boolean showPopupNotification) {
-        if (showPopupNotification) {
-            Log.d(TAG, "BAD: " + message);
-        } else {
-            Log.d(TAG, "BAD NO TOAST: " + message);
-        }
-        showErrorState();
-    }
-
-    @Override
-    public void processSuccess(int responseCode, InputStream responseData) {
-        performSync();
-    }
-
-    @Override
-    public void processRedirection(int responseCode) {
-        showErrorState();
-    }
-
-    @Override
-    public void processClientError(int responseCode) {
-        showErrorState();
-    }
-
-    @Override
-    public void processServerError(int responseCode) {
-        showErrorState();
-    }
-
-    @Override
-    public void processOther(int responseCode) {
-        showErrorState();
-    }
-
-    @Override
-    public void handleIOException(IOException exception) {
-        showErrorState();
-    }
 }
