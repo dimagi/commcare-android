@@ -12,9 +12,11 @@ import java.net.PasswordAuthentication;
 import java.net.URL;
 
 /**
+ * Make simple get request that follows redirects and uses modern http libs
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class ModernHttpRequest {
+public class SimpleGetRequest {
 
     public static InputStream makeRequest(final String username,
                                           final String password,

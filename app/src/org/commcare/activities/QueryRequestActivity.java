@@ -110,6 +110,7 @@ public class QueryRequestActivity
             promptsLayout.addView(createPromptEntry(displayEntry.getValue()));
 
             EditText promptEditText = new EditText(this);
+            promptEditText.setBackgroundResource(R.drawable.login_edit_text);
             promptsLayout.addView(promptEditText);
             promptsBoxes.put(displayEntry.getKey(), promptEditText);
         }

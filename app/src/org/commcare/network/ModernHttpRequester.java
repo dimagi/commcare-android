@@ -3,7 +3,6 @@ package org.commcare.network;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v4.util.Pair;
 
 import org.commcare.CommCareApplication;
 import org.commcare.interfaces.HttpResponseProcessor;
@@ -25,10 +24,12 @@ import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 /**
+ * Make http get/post requests with query params encoded in get url or post
+ * body. Delegates response to appropriate response processor callback
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ModernHttpRequester {
@@ -41,7 +42,7 @@ public class ModernHttpRequester {
     public ModernHttpRequester(Context context, URL url,
                                HttpResponseProcessor responseProcessor,
                                Hashtable<String, String> params,
-                               boolean isAuth,
+                               boolean isAuthenticatedRequest,
                                boolean isPostRequest) {
         this.isPostRequest = isPostRequest;
         this.context = context;
@@ -49,7 +50,7 @@ public class ModernHttpRequester {
         this.params = params;
         this.url = url;
 
-        setupAuthentication(isAuth);
+        setupAuthentication(isAuthenticatedRequest);
     }
 
     private void setupAuthentication(boolean isAuth) {
@@ -58,7 +59,9 @@ public class ModernHttpRequester {
             final String username = u.getUsername();
             final String password = u.getCachedPwd();
             if (username == null || password == null || User.TYPE_DEMO.equals(u.getUserType())) {
-                throw new RuntimeException("Trying to make authenticated http request without proper credentials");
+                String message =
+                        "Trying to make authenticated http request without proper credentials";
+                throw new RuntimeException(message);
             } else if (!"https".equals(url.getProtocol())) {
                 throw new RuntimeException("Don't transmit credentials in plain text");
             } else {
@@ -104,13 +107,13 @@ public class ModernHttpRequester {
     private HttpURLConnection setupConnection() throws IOException {
         HttpURLConnection httpConnection;
         if (isPostRequest) {
-            httpConnection = (HttpURLConnection) url.openConnection();
+            httpConnection = (HttpURLConnection)url.openConnection();
             httpConnection.setRequestMethod("POST");
             buildPostPayload(httpConnection);
             httpConnection.setDoOutput(true);
         } else {
             URL urlWithQuery = buildUrlWithParams();
-            httpConnection = (HttpURLConnection) urlWithQuery.openConnection();
+            httpConnection = (HttpURLConnection)urlWithQuery.openConnection();
             httpConnection.setRequestMethod("GET");
         }
 
@@ -192,7 +195,7 @@ public class ModernHttpRequester {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 httpConnection.setFixedLengthStreamingMode(dataSizeGuess);
             } else {
-                httpConnection.setFixedLengthStreamingMode((int) dataSizeGuess);
+                httpConnection.setFixedLengthStreamingMode((int)dataSizeGuess);
             }
         }
         return dataSizeGuess;

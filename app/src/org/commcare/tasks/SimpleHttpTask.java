@@ -12,6 +12,8 @@ import java.net.URL;
 import java.util.Hashtable;
 
 /**
+ * Makes get/post request and delegates http response to receiver on completion
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class SimpleHttpTask
@@ -29,7 +31,8 @@ public class SimpleHttpTask
                           Hashtable<String, String> params,
                           boolean isPostRequest) {
         taskId = SIMPLE_HTTP_TASK_ID;
-        requestor = new ModernHttpRequester(context, url, this, params, true, isPostRequest);
+        requestor = new ModernHttpRequester(context, url, this,
+                params, true, isPostRequest);
     }
 
     @Override
@@ -44,6 +47,7 @@ public class SimpleHttpTask
         if (ioException != null) {
             httpResponseProcessor.handleIOException(ioException);
         } else {
+            // route to appropriate callback based on http response code
             ModernHttpRequester.processResponse(
                     httpResponseProcessor,
                     responseCode,
