@@ -4,7 +4,6 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -41,15 +40,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@ManagedUi(R.layout.query_request_layout)
+@ManagedUi(R.layout.http_request_layout)
 public class QueryRequestActivity
         extends CommCareActivity<QueryRequestActivity>
         implements HttpResponseProcessor {
@@ -59,7 +56,7 @@ public class QueryRequestActivity
     private RemoteQuerySessionManager remoteQuerySessionManager;
     private Hashtable<String, EditText> promptsBoxes = new Hashtable<>();
 
-    @UiElement(value = R.id.query_button, locale = "query.button")
+    @UiElement(value = R.id.request_button, locale = "query.button")
     private Button queryButton;
 
     @Override

@@ -5,12 +5,17 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
+import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.dalvik.R;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.SimpleHttpTask;
+import org.commcare.views.ManagedUi;
+import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 
@@ -23,6 +28,7 @@ import java.util.Hashtable;
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
+@ManagedUi(R.layout.http_request_layout)
 public class SyncRequestActivity
         extends CommCareActivity<SyncRequestActivity>
         implements ConnectorWithHttpResponseProcessor<SyncRequestActivity>,
@@ -40,6 +46,12 @@ public class SyncRequestActivity
 
     private boolean hasTaskLaunched;
     private boolean inErrorState;
+
+    @UiElement(value = R.id.request_button, locale = "post.request.button")
+    private Button retryButton;
+
+    @UiElement(value = R.id.error_message)
+    private TextView errorMessageBox;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
