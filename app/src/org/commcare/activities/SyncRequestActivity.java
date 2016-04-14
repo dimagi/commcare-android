@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,6 +16,9 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Hashtable;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
@@ -28,6 +32,12 @@ public class SyncRequestActivity
     private static final String TASK_LAUNCHED_KEY = "task-launched-key";
     private static final String IN_ERROR_STATE_KEY = "in-error-state-key";
 
+    public static final String URL_KEY = "url-key";
+    public static final String PARAMS_KEY = "params-key";
+
+    private URL url;
+    private Hashtable<String, String> params;
+
     private boolean hasTaskLaunched;
     private boolean inErrorState;
 
@@ -35,16 +45,31 @@ public class SyncRequestActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        resetQuerySessionFromBundle(savedInstanceState);
+        loadStateFromSavedInstance(savedInstanceState);
+        loadStateFromIntent(getIntent());
 
         if (inErrorState) {
             showErrorState();
         } else {
             makePostRequest();
         }
+
     }
 
-    private void resetQuerySessionFromBundle(Bundle savedInstanceState) {
+    private void loadStateFromIntent(Intent intent) {
+        if (intent.hasExtra(URL_KEY) && intent.hasExtra(PARAMS_KEY)) {
+            try {
+                url = new URL(intent.getStringExtra(URL_KEY));
+            } catch (MalformedURLException e) {
+                inErrorState = true;
+            }
+            params = (Hashtable<String, String>)intent.getSerializableExtra(PARAMS_KEY);
+        } else {
+            inErrorState = true;
+        }
+    }
+
+    private void loadStateFromSavedInstance(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             hasTaskLaunched = savedInstanceState.getBoolean(TASK_LAUNCHED_KEY);
             inErrorState = savedInstanceState.getBoolean(IN_ERROR_STATE_KEY);
@@ -53,9 +78,7 @@ public class SyncRequestActivity
 
     private void makePostRequest() {
         if (!hasTaskLaunched && !inErrorState) {
-            // TODO PLM: get post params
-            // TODO PLM: get url
-            SimpleHttpTask syncTask = new SimpleHttpTask(this, null, null, true);
+            SimpleHttpTask syncTask = new SimpleHttpTask(this, url, params, true);
             syncTask.connect((ConnectorWithHttpResponseProcessor)this);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 syncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);

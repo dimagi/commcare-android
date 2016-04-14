@@ -40,6 +40,7 @@ import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.session.CommCareSession;
+import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigationResponder;
 import org.commcare.session.SessionNavigator;
@@ -47,6 +48,8 @@ import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.suite.model.SyncEntry;
+import org.commcare.suite.model.SyncPost;
 import org.commcare.suite.model.Text;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.DumpTask;
@@ -78,9 +81,11 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.expr.XPathExpression;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 
@@ -239,7 +244,6 @@ public class CommCareHomeActivity
 
     // See if we should launch either the pin choice dialog, or the create pin activity directly
     private void checkForPinLaunchConditions() throws SessionUnavailableException {
-
         LoginMode loginMode = (LoginMode)getIntent().getSerializableExtra(LoginActivity.LOGIN_MODE);
 
         if (loginMode == LoginMode.PRIMED) {
@@ -902,8 +906,18 @@ public class CommCareHomeActivity
     private void launchRemoteSync(AndroidSessionWrapper asw) {
         String command = asw.getSession().getCommand();
         Entry commandEntry = CommCareApplication._().getCommCarePlatform().getEntry(command);
-        Intent i = new Intent(getApplicationContext(), SyncRequestActivity.class);
-        startActivityForResult(i, MAKE_REMOTE_POST);
+        if (commandEntry instanceof SyncEntry) {
+            SyncPost syncPost = ((SyncEntry)commandEntry).getSyncPost();
+            Intent i = new Intent(getApplicationContext(), SyncRequestActivity.class);
+            i.putExtra(SyncRequestActivity.URL_KEY, syncPost.getUrl());
+            i.putExtra(SyncRequestActivity.PARAMS_KEY,
+                    syncPost.getEvaluatedParams(asw.getEvaluationContext()));
+
+            startActivityForResult(i, MAKE_REMOTE_POST);
+        } else {
+            // expected a sync entry; clear session and show vague 'session error' message to user
+            clearSessionAndExit(asw, true);
+        }
     }
 
     private void launchQueryMaker(AndroidSessionWrapper asw) {

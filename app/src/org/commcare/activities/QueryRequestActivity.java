@@ -97,11 +97,6 @@ public class QueryRequestActivity
     }
 
     private void makeQueryRequest() {
-        List<Pair<String, String>> params = new ArrayList<>();
-
-        for (String[] keyValuePair : remoteQuerySessionManager.getRawQueryParams()) {
-            params.add(new Pair<>(keyValuePair[0], keyValuePair[1]));
-        }
         URL url = null;
         try {
             url = new URL(remoteQuerySessionManager.getBaseUrl());
@@ -111,7 +106,7 @@ public class QueryRequestActivity
 
         if (url != null) {
             SimpleHttpTask httpTask =
-                    new SimpleHttpTask(this, url, params, false);
+                    new SimpleHttpTask(this, url, remoteQuerySessionManager.getRawQueryParams(), false);
             httpTask.connect((ConnectorWithHttpResponseProcessor) this);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 httpTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);

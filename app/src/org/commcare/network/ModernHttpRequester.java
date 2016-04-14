@@ -24,7 +24,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -34,11 +36,11 @@ public class ModernHttpRequester {
     private final Context context;
     private final HttpResponseProcessor responseProcessor;
     private final URL url;
-    private final List<Pair<String, String>> params;
+    private final Hashtable<String, String> params;
 
     public ModernHttpRequester(Context context, URL url,
                                HttpResponseProcessor responseProcessor,
-                               List<Pair<String, String>> params,
+                               Hashtable<String, String> params,
                                boolean isAuth,
                                boolean isPostRequest) {
         this.isPostRequest = isPostRequest;
@@ -134,8 +136,8 @@ public class ModernHttpRequester {
 
     private URL buildUrlWithParams() throws MalformedURLException {
         Uri.Builder b = Uri.parse(url.toString()).buildUpon();
-        for (Pair<String, String> param : params) {
-            b.appendQueryParameter(param.first, param.second);
+        for (Map.Entry<String, String> param : params.entrySet()) {
+            b.appendQueryParameter(param.getKey(), param.getValue());
         }
         return new URL(b.build().toString());
     }

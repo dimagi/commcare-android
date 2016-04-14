@@ -1,7 +1,6 @@
 package org.commcare.tasks;
 
 import android.content.Context;
-import android.support.v4.util.Pair;
 
 import org.commcare.interfaces.HttpResponseProcessor;
 import org.commcare.network.ModernHttpRequester;
@@ -10,7 +9,7 @@ import org.commcare.tasks.templates.CommCareTask;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.List;
+import java.util.Hashtable;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -27,7 +26,7 @@ public class SimpleHttpTask
     private IOException ioException;
 
     public SimpleHttpTask(Context context, URL url,
-                          List<Pair<String, String>> params,
+                          Hashtable<String, String> params,
                           boolean isPostRequest) {
         taskId = SIMPLE_HTTP_TASK_ID;
         requestor = new ModernHttpRequester(context, url, this, params, true, isPostRequest);
