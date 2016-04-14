@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -26,14 +27,18 @@ import java.net.URL;
 import java.util.Hashtable;
 
 /**
+ * Perform post request to external server and trigger a sync upon success.
+ * Can be used to perform server transactions, to, for instance, claim a case
+ * and pull it down to the mobile device
+ *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 @ManagedUi(R.layout.http_request_layout)
-public class SyncRequestActivity
-        extends CommCareActivity<SyncRequestActivity>
-        implements ConnectorWithHttpResponseProcessor<SyncRequestActivity>,
-        ConnectorWithResultCallback<SyncRequestActivity> {
-    private static final String TAG = SyncRequestActivity.class.getSimpleName();
+public class PostRequestActivity
+        extends CommCareActivity<PostRequestActivity>
+        implements ConnectorWithHttpResponseProcessor<PostRequestActivity>,
+        ConnectorWithResultCallback<PostRequestActivity> {
+    private static final String TAG = PostRequestActivity.class.getSimpleName();
 
     private static final String TASK_LAUNCHED_KEY = "task-launched-key";
     private static final String IN_ERROR_STATE_KEY = "in-error-state-key";
@@ -60,12 +65,18 @@ public class SyncRequestActivity
         loadStateFromSavedInstance(savedInstanceState);
         loadStateFromIntent(getIntent());
 
-        if (inErrorState) {
-            showErrorState();
-        } else {
+        setupUI();
+
+        if (!inErrorState) {
             makePostRequest();
         }
+    }
 
+    private void loadStateFromSavedInstance(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+            hasTaskLaunched = savedInstanceState.getBoolean(TASK_LAUNCHED_KEY);
+            inErrorState = savedInstanceState.getBoolean(IN_ERROR_STATE_KEY);
+        }
     }
 
     private void loadStateFromIntent(Intent intent) {
@@ -81,11 +92,26 @@ public class SyncRequestActivity
         }
     }
 
-    private void loadStateFromSavedInstance(Bundle savedInstanceState) {
-        if (savedInstanceState != null) {
-            hasTaskLaunched = savedInstanceState.getBoolean(TASK_LAUNCHED_KEY);
-            inErrorState = savedInstanceState.getBoolean(IN_ERROR_STATE_KEY);
+    private void setupUI() {
+        if (inErrorState) {
+            showErrorState();
+        } else {
+            retryButton.setVisibility(View.GONE);
         }
+
+        retryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                retryPost();
+            }
+        });
+    }
+
+    private void performSync() {
+        Log.d(TAG, "perform sync");
+
+        FormAndDataSyncer formAndDataSyncer = new FormAndDataSyncer(this, this);
+        formAndDataSyncer.syncData(false, false);
     }
 
     private void makePostRequest() {
@@ -101,19 +127,16 @@ public class SyncRequestActivity
         }
     }
 
-    private void performSync() {
-        Log.d(TAG, "perform sync");
-
-        FormAndDataSyncer formAndDataSyncer = new FormAndDataSyncer(this, this);
-        formAndDataSyncer.syncData(false, false);
-    }
-
     private void showErrorState() {
         inErrorState = true;
+        errorMessageBox.setVisibility(View.VISIBLE);
+        errorMessageBox.setText("Error!");
+        retryButton.setVisibility(View.VISIBLE);
     }
 
     private void retryPost() {
         inErrorState = false;
+        errorMessageBox.setVisibility(View.GONE);
         hasTaskLaunched = false;
         makePostRequest();
     }

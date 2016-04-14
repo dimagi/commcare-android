@@ -4,7 +4,7 @@ import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.dialogs.DialogController;
 
 /**
- * Expose message reporting to blocking task receivers
+ * Expose success/failure reporting to task connectors
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */

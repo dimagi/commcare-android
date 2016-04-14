@@ -391,7 +391,7 @@
         <activity
             android:name="org.commcare.activities.SeatAppActivity">
         </activity>
-        <activity android:name="org.commcare.activities.SyncRequestActivity"/>
+        <activity android:name="org.commcare.activities.PostRequestActivity"/>
         <activity android:name="org.commcare.activities.QueryRequestActivity"/>
         <activity
             android:name="org.commcare.activities.CreatePinActivity"

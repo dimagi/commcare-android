@@ -40,7 +40,6 @@ import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.session.CommCareSession;
-import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigationResponder;
 import org.commcare.session.SessionNavigator;
@@ -81,11 +80,9 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.javarosa.xpath.expr.XPathExpression;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 
@@ -908,9 +905,9 @@ public class CommCareHomeActivity
         Entry commandEntry = CommCareApplication._().getCommCarePlatform().getEntry(command);
         if (commandEntry instanceof SyncEntry) {
             SyncPost syncPost = ((SyncEntry)commandEntry).getSyncPost();
-            Intent i = new Intent(getApplicationContext(), SyncRequestActivity.class);
-            i.putExtra(SyncRequestActivity.URL_KEY, syncPost.getUrl());
-            i.putExtra(SyncRequestActivity.PARAMS_KEY,
+            Intent i = new Intent(getApplicationContext(), PostRequestActivity.class);
+            i.putExtra(PostRequestActivity.URL_KEY, syncPost.getUrl());
+            i.putExtra(PostRequestActivity.PARAMS_KEY,
                     syncPost.getEvaluatedParams(asw.getEvaluationContext()));
 
             startActivityForResult(i, MAKE_REMOTE_POST);
