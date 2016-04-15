@@ -13,6 +13,7 @@ import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.OrderedHashtable;
 
 import java.util.Collections;
 import java.util.Hashtable;
@@ -36,12 +37,12 @@ public class SimprintsCalloutProcessing {
         return intent.hasExtra("registration");
     }
 
-    public static LinkedHashMap<String, String> getIdentificationData(Intent intent) {
+    public static OrderedHashtable<String, String> getIdentificationData(Intent intent) {
         List<Identification> idReadings = (List)intent.getParcelableArrayListExtra("identification");
 
         Collections.sort(idReadings);
 
-        LinkedHashMap<String, String> guidToDataMap = new LinkedHashMap<>();
+        OrderedHashtable<String, String> guidToDataMap = new OrderedHashtable<>();
         for (Identification id : idReadings) {
             guidToDataMap.put(id.getGuid(), id.getConfidence() + "");
         }

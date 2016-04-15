@@ -21,12 +21,12 @@ import org.commcare.views.GridEntityView;
 import org.commcare.views.HorizontalMediaView;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.OrderedHashtable;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 
 /**
  * This adapter class handles displaying the cases for a CommCareODK user.
@@ -74,7 +74,7 @@ public class EntityListAdapter implements ListAdapter {
 
     // false until we determine the Detail has at least one <grid> block
     private boolean usesGridView = false;
-    private LinkedHashMap<String, String> extraData = new LinkedHashMap<>();
+    private OrderedHashtable<String, String> extraData = new OrderedHashtable<>();
 
     public EntityListAdapter(Activity activity, Detail detail,
                              List<TreeReference> references,
@@ -302,7 +302,7 @@ public class EntityListAdapter implements ListAdapter {
         }
     }
 
-    public void applyCalloutResultFilter(LinkedHashMap<String, String> idReadings) {
+    public void applyCalloutResultFilter(OrderedHashtable<String, String> idReadings) {
         extraData = idReadings;
         final int TOP_N_ENTRIES_COUNT = 3;
         int filteredEntryCount = Math.min(idReadings.size(), TOP_N_ENTRIES_COUNT);
@@ -312,8 +312,9 @@ public class EntityListAdapter implements ListAdapter {
                 entitySearcher.cancelSearch();
             }
             LinkedHashSet<String> topMatchingCaseIds = new LinkedHashSet<>();
-            for (Map.Entry<String, String> kv : extraData.entrySet())  {
-                topMatchingCaseIds.add(kv.getKey());
+            for (Enumeration en = extraData.keys() ; en.hasMoreElements() ; )  {
+                String key = (String)en.nextElement();
+                topMatchingCaseIds.add(key);
 
                 if (topMatchingCaseIds.size() >= filteredEntryCount) {
                     break;
@@ -414,5 +415,9 @@ public class EntityListAdapter implements ListAdapter {
 
     public boolean hasCalloutResponseData() {
         return !extraData.isEmpty();
+    }
+
+    public OrderedHashtable<String, String> getExtraData() {
+        return extraData;
     }
 }

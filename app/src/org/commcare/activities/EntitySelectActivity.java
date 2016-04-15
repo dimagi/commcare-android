@@ -69,10 +69,10 @@ import org.commcare.views.media.AudioController;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 /**
@@ -88,6 +88,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private static final String CONTAINS_HERE_FUNCTION = "contains_here_function";
     private static final String MAPPING_ENABLED = "map_view_enabled";
     private static final String LOCATION_CHANGED_WHILE_LOADING = "location_changed_while_loading";
+    private static final String KEY_ENTITY_LIST_EXTRA_DATA = "entity-list-data";
 
     private static final int CONFIRM_SELECT = 0;
     private static final int MAP_SELECT = 2;
@@ -515,6 +516,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
+    private void saveExtraAdapterDataInSession() {
+        if (adapter != null && adapter.isFilteringByCalloutResult()) {
+            CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(KEY_ENTITY_LIST_EXTRA_DATA, adapter.getExtraData());
+        }
+    }
+
+
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if (id == EntityListAdapter.SPECIAL_ACTION) {
@@ -647,14 +655,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void handleFingerprintMatchCallout(Intent intent) {
-        LinkedHashMap<String, String> guidToMatchConfidenceMap =
+        OrderedHashtable<String, String> guidToMatchConfidenceMap =
                 SimprintsCalloutProcessing.getIdentificationData(intent);
         adapter.applyCalloutResultFilter(guidToMatchConfidenceMap);
         refreshView();
     }
 
     private void fakeAccuracy(Intent intent) {
-        LinkedHashMap<String, String> guidToMatchConfidenceMap = new LinkedHashMap();
+        OrderedHashtable<String, String> guidToMatchConfidenceMap = new OrderedHashtable<>();
         guidToMatchConfidenceMap.put("b319e951-03f1-4172-b662-4fb3964a0be7", "0.99"); // stan
         guidToMatchConfidenceMap.put("8e011880-602f-4017-b9d6-ed9dcbba7516", "0.55"); // ellen
         guidToMatchConfidenceMap.put("c44c7ade-0cec-4401-b422-4c475f0043ae", "0.25"); // pat
@@ -668,6 +676,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
      * Finish this activity, including all extras from the given intent in the finishing intent
      */
     private void returnWithResult(Intent intent) {
+        saveExtraAdapterDataInSession();
         Intent i = new Intent(this.getIntent());
         i.putExtras(intent.getExtras());
         setResult(RESULT_OK, i);
@@ -931,8 +940,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
-        if (adapter != null && filterString != null && !"".equals(filterString)) {
-            adapter.applyStringFilter(filterString);
+        if (adapter != null) {
+            if (filterString != null && !"".equals(filterString)) {
+                adapter.applyStringFilter(filterString);
+            }
+            OrderedHashtable<String, String> extraDataFromSession = (OrderedHashtable<String, String>)CommCareApplication._().getCurrentSession().getCurrentFrameStepExtra(KEY_ENTITY_LIST_EXTRA_DATA);
+            if (extraDataFromSession != null) {
+                adapter.applyCalloutResultFilter(extraDataFromSession);
+            }
         }
 
         //In landscape we want to select something now. Either the top item, or the most recently selected one
@@ -1041,6 +1056,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void performEntitySelect() {
+        saveExtraAdapterDataInSession();
         Intent i = new Intent(EntitySelectActivity.this.getIntent());
         i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
         setResult(RESULT_OK, i);
