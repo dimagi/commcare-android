@@ -59,9 +59,14 @@ public class NotificationMessageFactory {
         Restore_RemoteError("notification.restore.remote.error"),
 
         /**
-         * The phone had a problem parsing the data from the server *
+         * The phone had a problem parsing the data from the server
          */
         Remote_BadRestore("notification.restore.baddata"),
+
+        /**
+         * Data sent from server needs to be fixed manually
+         */
+        Remote_BadRestoreRequiresIntervention("notification.restore.data.requires.intervention"),
 
         /**
          * No network connectivity *
@@ -159,7 +164,6 @@ public class NotificationMessageFactory {
     }
 
     public static NotificationMessage message(MessageTag message, String[] parameters, String customCategory) {
-
         String base = message.getLocaleKeyBase();
         if (base == null) {
             throw new NullPointerException("No Locale Key base for message tag!");

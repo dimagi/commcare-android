@@ -18,6 +18,7 @@ public class CommCareTestRunner extends RobolectricGradleTestRunner {
     public InstrumentationConfiguration createClassLoaderConfig() {
         InstrumentationConfiguration.Builder builder = InstrumentationConfiguration.newBuilder();
         builder.addInstrumentedPackage("net.sqlcipher.database.SQLiteDatabase");
+        builder.addInstrumentedPackage("org.commcare.models.encryption");
         return builder.build();
     }
 }

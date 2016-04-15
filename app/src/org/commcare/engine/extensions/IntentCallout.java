@@ -115,6 +115,7 @@ public class IntentCallout implements Externalizable {
                 }
             }
         }
+        Log.d(TAG, "Generated Intent: " + i.toString());
         return i;
     }
 

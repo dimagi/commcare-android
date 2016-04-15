@@ -469,7 +469,11 @@ notification.restore.unknown.detail=CommCare had trouble dealing with something 
 notification.restore.unknown.action=Try to log in again. If you receive this message again, force close the application from the Manage Applications menu on the phone. If the error persists, contact technical support.
 
 notification.restore.baddata.title=Bad Server Response
-notification.restore.baddata.detail=CommCare had trouble processing the network response. Please try again. 
+notification.restore.baddata.detail=CommCare had trouble processing the network response. Please try again.
+
+notification.restore.data.requires.intervention.title=Bad Server Response
+notification.restore.data.requires.intervention.detail=CommCare tried to sync invalid data from the server. This may have been caused by a misconfiguration in your app and must be fixed in order to log in. Please contact your supervisor or CommCare support.
+notification.restore.data.requires.intervention.action=\nTechnical details:\n${0}
 
 notification.install.installed.title=App Succesfully Installed
 notification.install.installed.detail=Your app install is up to date.
@@ -681,6 +685,8 @@ permission.sms.install.message=CommCare would like to scan your recent messages 
 permission.form.gps.title=Permission to capture location during form entry
 permission.form.gps.message=CommCare would like to capture your location and provide it to forms you complete.
 permission.acquire.required=Acquire Required Permissions
+
+case.error.self.index=Case '${0}' cannot index itself. In order to login you must change the case on the server.
 
 intent.barcode.get=Get Barcode
 intent.barcode.update=Update Barcode
