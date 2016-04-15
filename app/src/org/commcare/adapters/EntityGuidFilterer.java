@@ -7,42 +7,63 @@ import org.commcare.models.NodeEntityFactory;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
- * Filter entities by those whose guid (case id) is present in the provided set
+ * Filter (and order) entities by those whose 'extra key', most likely case id,
+ * is present in the provided ordered key set
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class EntityGuidFilterer extends EntityFiltererBase {
-    private final Set<String> guidSet;
+    private final LinkedHashSet<String> orderedKeySet;
     private final List<Entity<TreeReference>> matchList = new ArrayList<>();
 
     public EntityGuidFilterer(EntityListAdapter adapter,
                               NodeEntityFactory nodeFactory,
                               List<Entity<TreeReference>> fullEntityList,
-                              Activity context, Set<String> guidSet) {
+                              Activity context, LinkedHashSet<String> orderedKeySet) {
         super(context, nodeFactory, adapter, fullEntityList);
 
-        this.guidSet = guidSet;
+        this.orderedKeySet = orderedKeySet;
     }
 
     @Override
     protected void filter() {
-        if (isCancelled() || guidSet.isEmpty()) {
+        if (isCancelled() || orderedKeySet.isEmpty()) {
             return;
         }
 
-        for (Entity<TreeReference> entity : fullEntityList) {
-            if (guidSet.contains(entity.extraKey)) {
-                matchList.add(entity);
-
-                if (matchList.size() >= guidSet.size()) {
-                    break;
-                }
+        // Add entities whose extra keys are in the key set, preserving key set
+        // ordering. Don't assume one-to-one correspondence between entities
+        // and keys: depending on the appliciation we might want to attach the
+        // same data to multiple entities
+        Hashtable<String, List<Entity<TreeReference>>> keyToEntitiesMap =
+                buildKeyToEntitiesMap(fullEntityList);
+        for (String key : orderedKeySet) {
+            if (keyToEntitiesMap.containsKey(key)) {
+                matchList.addAll(keyToEntitiesMap.get(key));
             }
         }
+    }
+
+    private static Hashtable<String, List<Entity<TreeReference>>> buildKeyToEntitiesMap(List<Entity<TreeReference>> entityList) {
+        // NOTE PLM: potentially expensive in presence of large entity set;
+        // could build at entity load time or forgoe ordering or constrain the
+        // key to entity mapping to be one-to-one
+        Hashtable<String, List<Entity<TreeReference>>> keyToEntitiesMap = new Hashtable<>();
+        for (Entity<TreeReference> entity : entityList) {
+            if (keyToEntitiesMap.containsKey(entity.extraKey)) {
+                keyToEntitiesMap.get(entity.extraKey).add(entity);
+            } else {
+                ArrayList<Entity<TreeReference>> list = new ArrayList<>();
+                list.add(entity);
+                keyToEntitiesMap.put(entity.extraKey, list);
+            }
+        }
+        return keyToEntitiesMap;
     }
 
     @Override

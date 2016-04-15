@@ -23,11 +23,10 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * This adapter class handles displaying the cases for a CommCareODK user.
@@ -309,7 +308,7 @@ public class EntityListAdapter implements ListAdapter {
             if (entitySearcher != null) {
                 entitySearcher.cancelSearch();
             }
-            Set<String> topMatchingCaseIds = new HashSet<>();
+            LinkedHashSet<String> topMatchingCaseIds = new LinkedHashSet<>();
             for (Map.Entry<String, String> kv : extraData.entrySet())  {
                 topMatchingCaseIds.add(kv.getKey());
 
