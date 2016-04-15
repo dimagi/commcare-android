@@ -6,24 +6,6 @@
       <location authority="remote">./modules-0/forms-0.xml</location>
     </resource>
   </xform>
-  <xform>
-    <resource id="ba4f653d8287a36f089928165b64156757af985f" version="18" descriptor="Form: (Module Signature Test) - Signature Not At End">
-      <location authority="local">./modules-0/forms-1.xml</location>
-      <location authority="remote">./modules-0/forms-1.xml</location>
-    </resource>
-  </xform>
-  <xform>
-    <resource id="f68aa8490f3a8c54b0437f0da6cc4ae7b9825529" version="37" descriptor="Form: (Module Form Replay Test) - Test Insertions">
-      <location authority="local">./modules-1/forms-0.xml</location>
-      <location authority="remote">./modules-1/forms-0.xml</location>
-    </resource>
-  </xform>
-  <xform>
-    <resource id="551a2567eeff274fd715932bc9da0a8c1b3c9f0e" version="35" descriptor="Form: (Module Form Replay Test) - Test Repeats">
-      <location authority="local">./modules-1/forms-1.xml</location>
-      <location authority="remote">./modules-1/forms-1.xml</location>
-    </resource>
-  </xform>
   <locale language="default">
     <resource id="app_default_strings" version="37" descriptor="Translations: Default Language">
       <location authority="local">./default/app_strings.txt</location>
@@ -79,49 +61,6 @@
       </template>
     </field>
   </detail>
-  <detail id="m1_case_short">
-    <title>
-      <text>
-        <locale id="m1.case_short.title"/>
-      </text>
-    </title>
-    <field>
-      <header>
-        <text>
-          <locale id="m1.case_short.case_name_1.header"/>
-        </text>
-      </header>
-      <template>
-        <text>
-          <xpath function="case_name"/>
-        </text>
-      </template>
-      <sort type="string" order="1" direction="ascending">
-        <text>
-          <xpath function="case_name"/>
-        </text>
-      </sort>
-    </field>
-  </detail>
-  <detail id="m1_case_long">
-    <title>
-      <text>
-        <locale id="m1.case_long.title"/>
-      </text>
-    </title>
-    <field>
-      <header>
-        <text>
-          <locale id="m1.case_long.case_name_1.header"/>
-        </text>
-      </header>
-      <template>
-        <text>
-          <xpath function="case_name"/>
-        </text>
-      </template>
-    </field>
-  </detail>
   <entry>
     <form>undefined</form>
     <command id="m0-f0">
@@ -130,42 +69,10 @@
       </text>
     </command>
   </entry>
-  <entry>
-    <form>http://openrosa.org/formdesigner/ba4f653d8287a36f089928165b64156757af985f</form>
-    <command id="m0-f1">
-      <text>
-        <locale id="forms.m0f1"/>
-      </text>
-    </command>
-  </entry>
-  <entry>
-    <form>http://openrosa.org/formdesigner/f68aa8490f3a8c54b0437f0da6cc4ae7b9825529</form>
-    <command id="m1-f0">
-      <text>
-        <locale id="forms.m1f0"/>
-      </text>
-    </command>
-  </entry>
-  <entry>
-    <form>http://openrosa.org/formdesigner/551a2567eeff274fd715932bc9da0a8c1b3c9f0e</form>
-    <command id="m1-f1">
-      <text>
-        <locale id="forms.m1f1"/>
-      </text>
-    </command>
-  </entry>
   <menu id="m0">
     <text>
       <locale id="modules.m0"/>
     </text>
     <command id="m0-f0"/>
-    <command id="m0-f1"/>
-  </menu>
-  <menu id="m1">
-    <text>
-      <locale id="modules.m1"/>
-    </text>
-    <command id="m1-f0"/>
-    <command id="m1-f1"/>
   </menu>
 </suite>
