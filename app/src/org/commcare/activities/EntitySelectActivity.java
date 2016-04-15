@@ -552,6 +552,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 break;
             case CONFIRM_SELECT:
                 resuming = true;
+                isStartingDetailActivity = false;
                 if (resultCode == RESULT_OK && !mViewMode) {
                     // create intent for return and store path
                     returnWithResult(intent);
