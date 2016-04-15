@@ -88,7 +88,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private static final String CONTAINS_HERE_FUNCTION = "contains_here_function";
     private static final String MAPPING_ENABLED = "map_view_enabled";
     private static final String LOCATION_CHANGED_WHILE_LOADING = "location_changed_while_loading";
-    private static final String KEY_ENTITY_LIST_EXTRA_DATA = "entity-list-data";
 
     private static final int CONFIRM_SELECT = 0;
     private static final int MAP_SELECT = 2;
@@ -308,7 +307,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         clearSearchButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                adapter.clearExtraData();
+                adapter.clearExternalData();
                 refreshView();
             }
         });
@@ -527,11 +526,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
-    private void saveExtraAdapterDataInSession() {
-        if (adapter != null && adapter.isFilteringByCalloutResult()) {
-            CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(KEY_ENTITY_LIST_EXTRA_DATA, adapter.getExtraData());
-        }
-    }
 
 
     @Override
@@ -687,7 +681,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
      * Finish this activity, including all extras from the given intent in the finishing intent
      */
     private void returnWithResult(Intent intent) {
-        saveExtraAdapterDataInSession();
+        if (adapter != null) {
+            adapter.saveExternalDataToSession();
+        }
         Intent i = new Intent(this.getIntent());
         i.putExtras(intent.getExtras());
         setResult(RESULT_OK, i);
@@ -974,13 +970,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             adapter.filterByString(filterString);
         }
 
-        OrderedHashtable<String, String> extraDataFromSession =
-                (OrderedHashtable<String, String>)CommCareApplication._()
-                        .getCurrentSession()
-                        .getCurrentFrameStepExtra(KEY_ENTITY_LIST_EXTRA_DATA);
-        if (extraDataFromSession != null) {
-            adapter.filterByKeyedCalloutData(extraDataFromSession);
-        }
+        adapter.loadExternalDataFromSession();
     }
 
     private void updateSelectedItem(boolean forceMove) {
@@ -1075,7 +1065,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void performEntitySelect() {
-        saveExtraAdapterDataInSession();
+        if (adapter != null) {
+            adapter.saveExternalDataToSession();
+        }
         Intent i = new Intent(EntitySelectActivity.this.getIntent());
         i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
         setResult(RESULT_OK, i);

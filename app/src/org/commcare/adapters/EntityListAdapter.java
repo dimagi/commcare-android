@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
+import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.models.AsyncNodeEntityFactory;
 import org.commcare.models.Entity;
@@ -37,6 +38,7 @@ import java.util.List;
  * @author wspride
  */
 public class EntityListAdapter implements ListAdapter {
+    private static final String KEY_ENTITY_LIST_EXTRA_DATA = "entity-list-data";
 
     public static final int SPECIAL_ACTION = -2;
 
@@ -73,7 +75,8 @@ public class EntityListAdapter implements ListAdapter {
 
     // false until we determine the Detail has at least one <grid> block
     private boolean usesGridView = false;
-    private OrderedHashtable<String, String> extraData = new OrderedHashtable<>();
+    // key to data mapping used to attach callout results to individual entities
+    private OrderedHashtable<String, String> externalData = new OrderedHashtable<>();
 
     public EntityListAdapter(Activity activity, Detail detail,
                              List<TreeReference> references,
@@ -135,10 +138,10 @@ public class EntityListAdapter implements ListAdapter {
         searchQuery = "";
     }
 
-    public void clearExtraData() {
+    public void clearExternalData() {
         setCurrent(full);
         isFilteringByCalloutResult = false;
-        extraData.clear();
+        externalData.clear();
         update();
     }
 
@@ -259,10 +262,10 @@ public class EntityListAdapter implements ListAdapter {
             emv = EntityView.buildEntryEntityView(
                     context, detail, entity,
                     currentSearchTerms, position, mFuzzySearchEnabled,
-                    extraData.get(entity.extraKey));
+                    externalData.get(entity.extraKey));
         } else {
             emv.setSearchTerms(currentSearchTerms);
-            emv.setExtraData(extraData.get(entity.extraKey));
+            emv.setExtraData(externalData.get(entity.extraKey));
             emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);
         }
         return emv;
@@ -306,13 +309,13 @@ public class EntityListAdapter implements ListAdapter {
      * mapping.
      */
     public synchronized void filterByKeyedCalloutData(OrderedHashtable<String, String> keyToExtraDataMapping) {
-        extraData = keyToExtraDataMapping;
+        externalData = keyToExtraDataMapping;
 
         if (entitySearcher != null) {
             entitySearcher.cancelSearch();
         }
         LinkedHashSet<String> topMatchingCaseIds = new LinkedHashSet<>();
-        for (Enumeration en = extraData.keys(); en.hasMoreElements(); ) {
+        for (Enumeration en = externalData.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
             topMatchingCaseIds.add(key);
         }
@@ -407,10 +410,22 @@ public class EntityListAdapter implements ListAdapter {
     }
 
     public boolean hasCalloutResponseData() {
-        return !extraData.isEmpty();
+        return !externalData.isEmpty();
     }
 
-    public OrderedHashtable<String, String> getExtraData() {
-        return extraData;
+    public void loadExternalDataFromSession() {
+        OrderedHashtable<String, String> externalData =
+                (OrderedHashtable<String, String>)CommCareApplication._()
+                        .getCurrentSession()
+                        .getCurrentFrameStepExtra(KEY_ENTITY_LIST_EXTRA_DATA);
+        if (externalData != null) {
+            filterByKeyedCalloutData(externalData);
+        }
+    }
+
+    public void saveExternalDataToSession() {
+        if (isFilteringByCalloutResult) {
+            CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(KEY_ENTITY_LIST_EXTRA_DATA, externalData);
+        }
     }
 }

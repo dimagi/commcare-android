@@ -9,7 +9,7 @@ import org.javarosa.core.model.instance.TreeReference;
 import java.util.List;
 
 /**
- * Filtering the entity select list using pluggable filter logic
+ * Skeleton for filtering the entity select list.
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */

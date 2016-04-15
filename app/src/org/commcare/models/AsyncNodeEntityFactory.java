@@ -63,7 +63,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
             }
         }
 
-        String entityKey = loadCalloutResponseKey(nodeContext);
+        String entityKey = loadExternalDataKey(nodeContext);
         AsyncEntity entity =
                 new AsyncEntity(detail.getFields(), nodeContext, data, mVariableDeclarations,
                         mEntityCache, mCacheIndex, detail.getId(), entityKey);

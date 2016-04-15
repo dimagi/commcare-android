@@ -35,7 +35,7 @@ public class NodeEntityFactory {
         detail.populateEvaluationContextVariables(nodeContext);
 
         int length = detail.getHeaderForms().length;
-        String entityKey = loadCalloutResponseKey(nodeContext);
+        String extraKey = loadExternalDataKey(nodeContext);
 
         Object[] details = new Object[length];
         String[] sortDetails = new String[length];
@@ -60,10 +60,14 @@ public class NodeEntityFactory {
             count++;
         }
 
-        return new Entity<>(details, sortDetails, relevancyDetails, data, entityKey);
+        return new Entity<>(details, sortDetails, relevancyDetails, data, extraKey);
     }
 
-    protected String loadCalloutResponseKey(EvaluationContext nodeContext) {
+    /**
+     * Evaluate the lookup's 'template' detail block and use result as key for
+     * attaching external data to the entity.
+     */
+    protected String loadExternalDataKey(EvaluationContext nodeContext) {
         if (detail.getCallout() != null) {
             DetailField calloutResponseDetail = detail.getCallout().getResponseDetail();
             if (calloutResponseDetail != null) {

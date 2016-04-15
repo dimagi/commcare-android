@@ -11,6 +11,9 @@ public class Entity<T> {
     private Object[] data;
     private String[] sortData;
     private boolean[] relevancyData;
+    /**
+     * Key used to attach external data (i.e. from case list callout) to an entity
+     */
     public final String extraKey;
 
     protected Entity(T t, String extraKey) {
