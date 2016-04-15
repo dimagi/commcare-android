@@ -13,13 +13,9 @@ public class Entity<T> {
     private boolean[] relevancyData;
     public final String extraKey;
 
-    protected Entity(T t) {
+    protected Entity(T t, String extraKey) {
         this.t = t;
-        this.extraKey = null;
-    }
-
-    public Entity(Object[] data, String[] sortData, boolean[] relevancyData, T t) {
-        this(data, sortData, relevancyData, t, null);
+        this.extraKey = extraKey;
     }
 
     public Entity(Object[] data, String[] sortData, boolean[] relevancyData, T t,

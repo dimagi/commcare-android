@@ -65,7 +65,7 @@ public class EntityListAdapter implements ListAdapter {
     private boolean mAsyncMode = false;
 
     private String[] currentSearchTerms;
-    private String searchQuery;
+    private String searchQuery = "";
 
     private EntityFiltererBase entitySearcher = null;
     private final Object mSyncLock = new Object();

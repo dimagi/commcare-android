@@ -63,7 +63,7 @@ public class NodeEntityFactory {
         return new Entity<>(details, sortDetails, relevancyDetails, data, entityKey);
     }
 
-    private String loadCalloutResponseKey(EvaluationContext nodeContext) {
+    protected String loadCalloutResponseKey(EvaluationContext nodeContext) {
         if (detail.getCallout() != null) {
             DetailField calloutResponseDetail = detail.getCallout().getResponseDetail();
             if (calloutResponseDetail != null) {

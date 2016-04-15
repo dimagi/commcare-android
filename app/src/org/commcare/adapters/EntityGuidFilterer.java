@@ -30,8 +30,6 @@ public class EntityGuidFilterer extends EntityFiltererBase {
 
     @Override
     protected void filter() {
-        // TODO PLM: make work in async mode
-
         if (isCancelled() || guidSet.isEmpty()) {
             return;
         }
