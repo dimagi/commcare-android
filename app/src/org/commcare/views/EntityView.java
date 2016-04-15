@@ -67,7 +67,7 @@ public class EntityView extends LinearLayout {
      */
     private EntityView(Context context, Detail d, Entity e,
                        String[] searchTerms, long rowId,
-                       boolean mFuzzySearchEnabled) {
+                       boolean mFuzzySearchEnabled, String extraData) {
         super(context);
 
         //this is bad :(
@@ -84,6 +84,8 @@ public class EntityView extends LinearLayout {
             String sortField = e.getSortField(col);
             views.add(addCell(col, field, forms.get(col), mHints.get(col), sortField, -1, true));
         }
+
+        addExtraData(extraData);
 
         this.mFuzzySearchEnabled = mFuzzySearchEnabled;
     }
@@ -137,9 +139,10 @@ public class EntityView extends LinearLayout {
     public static EntityView buildEntryEntityView(Context context, Detail detail,
                                                   Entity entity,
                                                   String[] searchTerms,
-                                                  long rowId, boolean isFuzzySearchEnabled) {
+                                                  long rowId, boolean isFuzzySearchEnabled,
+                                                  String extraData) {
         return new EntityView(context, detail, entity,
-                searchTerms, rowId, isFuzzySearchEnabled);
+                searchTerms, rowId, isFuzzySearchEnabled, extraData);
     }
 
     public static EntityView buildHeadersEntityView(Context context,
@@ -201,16 +204,18 @@ public class EntityView extends LinearLayout {
     }
 
     public void setExtraData(String newExtraData) {
+        if (extraData != null) {
+            removeExtraData();
+        }
+        addExtraData(newExtraData);
+    }
+
+    private void addExtraData(String newExtraData) {
         if (newExtraData != null && !"".equals(newExtraData)) {
-            if (extraData != null) {
-                removeExtraData();
-            }
             extraData = newExtraData;
             views.add(addCell(views.size(), newExtraData, "", "", "", -1, false));
             mHints.add(null);
             forms.add("");
-        } else {
-            removeExtraData();
         }
     }
 

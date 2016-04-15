@@ -257,7 +257,10 @@ public class EntityListAdapter implements ListAdapter {
 
     private View getEntityView(Entity<TreeReference> entity, EntityView emv, int position) {
         if (emv == null) {
-            emv = EntityView.buildEntryEntityView(context, detail, entity, currentSearchTerms, position, mFuzzySearchEnabled);
+            emv = EntityView.buildEntryEntityView(
+                    context, detail, entity,
+                    currentSearchTerms, position, mFuzzySearchEnabled,
+                    extraData.get(entity.extraKey));
         } else {
             emv.setSearchTerms(currentSearchTerms);
             emv.setExtraData(extraData.get(entity.extraKey));
@@ -319,7 +322,7 @@ public class EntityListAdapter implements ListAdapter {
 
             isFilteringByCalloutResult = true;
             entitySearcher =
-                    new EntityGuidFilterer(this, mNodeFactory, full, context, topMatchingCaseIds);
+                    new EntityKeyFilterer(this, mNodeFactory, full, context, topMatchingCaseIds);
             entitySearcher.start();
         }
     }

@@ -353,6 +353,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
 
                 findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+
+                if (adapter.isFilteringByCalloutResult()) {
+                    showSearchBanner(true);
+                }
             }
         }
     }
@@ -567,7 +571,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                                         EntityDetailActivity.CONTEXT_REFERENCE,
                                         TreeReference.class);
                         if (r != null && adapter != null) {
-                            // TODO PLM: adapter null check should be unnessecary
                             this.displayReferenceAwesome(r, adapter.getPosition(r));
                             updateSelectedItem(r, true);
                         }
@@ -674,7 +677,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public void afterTextChanged(Editable incomingEditable) {
         final String incomingString = incomingEditable.toString();
         final String currentSearchText = getSearchText().toString();
-        if (incomingString.equals(currentSearchText)) {
+        if (!"".equals(currentSearchText) && incomingString.equals(currentSearchText)) {
             filterString = currentSearchText;
             if (adapter != null) {
                 adapter.applyStringFilter(filterString);

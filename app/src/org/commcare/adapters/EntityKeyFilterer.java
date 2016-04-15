@@ -17,14 +17,14 @@ import java.util.List;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class EntityGuidFilterer extends EntityFiltererBase {
+public class EntityKeyFilterer extends EntityFiltererBase {
     private final LinkedHashSet<String> orderedKeySet;
     private final List<Entity<TreeReference>> matchList = new ArrayList<>();
 
-    public EntityGuidFilterer(EntityListAdapter adapter,
-                              NodeEntityFactory nodeFactory,
-                              List<Entity<TreeReference>> fullEntityList,
-                              Activity context, LinkedHashSet<String> orderedKeySet) {
+    public EntityKeyFilterer(EntityListAdapter adapter,
+                             NodeEntityFactory nodeFactory,
+                             List<Entity<TreeReference>> fullEntityList,
+                             Activity context, LinkedHashSet<String> orderedKeySet) {
         super(context, nodeFactory, adapter, fullEntityList);
 
         this.orderedKeySet = orderedKeySet;
