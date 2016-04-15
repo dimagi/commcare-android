@@ -59,12 +59,7 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
     }
 
     private static boolean causedByLocalizationException(Throwable ex) {
-        if (ex == null) {
-            return false;
-        }
-        if (ex instanceof NoLocalizedTextException) {
-            return true;
-        }
-        return causedByLocalizationException(ex.getCause());
+        return ex != null &&
+                (ex instanceof NoLocalizedTextException || causedByLocalizationException(ex.getCause()));
     }
 }
