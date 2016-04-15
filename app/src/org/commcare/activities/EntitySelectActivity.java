@@ -295,7 +295,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         searchbox.setMaxLines(3);
         searchbox.setHorizontallyScrolling(false);
         searchBanner = findViewById(R.id.search_result_banner);
-        searchResultStatus = (TextView)findViewById(R.id.no_search_results);
+        searchResultStatus = (TextView)findViewById(R.id.search_results_status);
         clearSearchButton = (ImageButton)findViewById(R.id.clear_search_button);
         clearSearchButton.setOnClickListener(new OnClickListener() {
             @Override
