@@ -38,17 +38,16 @@ public class TestAppInstaller {
         this.password = password;
     }
 
-    public void installAppAndLogin() {
-        installApp();
-
-        buildTestUser();
-
-        login(username, password);
+    public static void initInstallAndLogin(String appPath,
+                                           String username,
+                                           String password) {
+        initInstallAndLogin(appPath, username, password, null);
     }
 
     public static void initInstallAndLogin(String appPath,
                                            String username,
-                                           String password) {
+                                           String password,
+                                           TestResourceEngineTaskListener receiver) {
         // needed to resolve "jr://resource" type references
         ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
 
@@ -58,7 +57,23 @@ public class TestAppInstaller {
         TestAppInstaller appTestInstaller =
                 new TestAppInstaller(
                         appPath, username, password);
-        appTestInstaller.installAppAndLogin();
+        appTestInstaller.installAppAndLogin(receiver);
+    }
+
+    public void installAppAndLogin() {
+        installAppAndLogin(null);
+    }
+
+    private void installAppAndLogin(TestResourceEngineTaskListener receiver) {
+        if (receiver == null) {
+            installApp();
+        } else {
+            installAppWithReceiver(receiver);
+        }
+
+        buildTestUser();
+
+        login(username, password);
     }
 
     private void installApp() {
@@ -72,6 +87,7 @@ public class TestAppInstaller {
                     @Override
                     protected void deliverResult(Object receiver,
                                                  AppInstallStatus result) {
+                        String s = "";
                     }
 
                     @Override
@@ -92,7 +108,7 @@ public class TestAppInstaller {
         Robolectric.flushForegroundThreadScheduler();
     }
 
-    public void installAppWithReceiver(TestResourceEngineTaskListener receiver) {
+    private void installAppWithReceiver(TestResourceEngineTaskListener receiver) {
         ApplicationRecord newRecord =
                 new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
                         ApplicationRecord.STATUS_UNINITIALIZED);

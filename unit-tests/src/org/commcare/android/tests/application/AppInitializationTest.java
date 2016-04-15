@@ -12,8 +12,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
 /**
- * Tests that use the ability to install a CommCare app and login as a test
- * user.
+ * Tests the ability to install a CommCare app and login as a test user.
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
