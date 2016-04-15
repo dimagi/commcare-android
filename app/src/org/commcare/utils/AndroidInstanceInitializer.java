@@ -7,7 +7,7 @@ import org.commcare.engine.cases.AndroidCaseInstanceTreeElement;
 import org.commcare.engine.cases.AndroidLedgerInstanceTreeElement;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.ACase;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.ExternalDataInstance;

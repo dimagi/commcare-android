@@ -29,7 +29,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.ACase;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;

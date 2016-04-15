@@ -20,7 +20,7 @@ import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.models.database.app.models.UserKeyRecord;
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.CipherPool;

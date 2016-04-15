@@ -6,12 +6,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 
-import org.commcare.logging.AndroidLogEntry;
+import org.commcare.android.logging.AndroidLogEntry;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.logging.DeviceReportRecord;
-import org.commcare.models.database.user.models.FormRecord;
-import org.commcare.models.database.user.models.GeocodeCacheModel;
-import org.commcare.models.database.user.models.SessionStateDescriptor;
+import org.commcare.android.logging.DeviceReportRecord;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.GeocodeCacheModel;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.services.Logger;
 

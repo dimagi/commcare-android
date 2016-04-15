@@ -7,6 +7,7 @@ import org.javarosa.model.xform.XPathReference;
 import org.javarosa.xform.parse.IElementHandler;
 import org.javarosa.xform.parse.XFormParser;
 import org.kxml2.kdom.Element;
+import org.odk.collect.android.jr.extensions.PollSensorAction;
 
 /**
  * Handler for <pollsensor> tags, which get processed by PollSensorActions.

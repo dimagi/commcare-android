@@ -1,6 +1,7 @@
 package org.commcare.logging;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.logging.DeviceReportRecord;
 import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;

@@ -13,7 +13,7 @@ import android.widget.Toast;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.models.database.global.models.ApplicationRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.utils.SessionUnavailableException;

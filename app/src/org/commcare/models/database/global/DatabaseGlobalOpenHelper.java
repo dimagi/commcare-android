@@ -10,11 +10,11 @@ import net.sqlcipher.database.SQLiteException;
 import net.sqlcipher.database.SQLiteOpenHelper;
 
 import org.commcare.android.logging.ForceCloseLogEntry;
-import org.commcare.logging.AndroidLogEntry;
+import org.commcare.android.logging.AndroidLogEntry;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.DbUtil;
-import org.commcare.models.database.global.models.AndroidSharedKeyRecord;
-import org.commcare.models.database.global.models.ApplicationRecord;
+import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 
 /**
  * The helper for opening/updating the global (unencrypted) db space for CommCare.

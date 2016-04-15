@@ -10,7 +10,7 @@ import android.support.annotation.NonNull;
 import org.commcare.CommCareApplication;
 import org.commcare.cases.model.Case;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.ACase;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
