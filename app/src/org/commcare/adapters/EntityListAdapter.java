@@ -67,7 +67,6 @@ public class EntityListAdapter implements ListAdapter {
     private String searchQuery = "";
 
     private EntityFiltererBase entitySearcher = null;
-    private final Object mSyncLock = new Object();
 
     // Asyncronous image loader, allows rows with images to scroll smoothly
     private final CachingAsyncImageLoader mImageLoader;
@@ -106,7 +105,7 @@ public class EntityListAdapter implements ListAdapter {
             if (sort.length != 0) {
                 sort(sort);
             }
-            applyStringFilter("");
+            filterByString("");
         } else {
             setCurrent(new ArrayList<>(full));
         }
@@ -284,48 +283,44 @@ public class EntityListAdapter implements ListAdapter {
         return getCount() > 0;
     }
 
-    public void applyStringFilter(String filterRaw) {
-        synchronized (mSyncLock) {
-            if (entitySearcher != null) {
-                entitySearcher.cancelSearch();
-            }
-            // split by whitespace
-            String[] searchTerms = filterRaw.split("\\s+");
-            for (int i = 0; i < searchTerms.length; ++i) {
-                searchTerms[i] = StringUtils.normalize(searchTerms[i]);
-            }
-            currentSearchTerms = searchTerms;
-            searchQuery = filterRaw;
-            entitySearcher =
-                    new EntityStringFilterer(this, searchTerms, mAsyncMode, mFuzzySearchEnabled, mNodeFactory, full, context);
-            entitySearcher.start();
+    public synchronized void filterByString(String filterRaw) {
+        if (entitySearcher != null) {
+            entitySearcher.cancelSearch();
         }
+        // split by whitespace
+        String[] searchTerms = filterRaw.split("\\s+");
+        for (int i = 0; i < searchTerms.length; ++i) {
+            searchTerms[i] = StringUtils.normalize(searchTerms[i]);
+        }
+        currentSearchTerms = searchTerms;
+        searchQuery = filterRaw;
+        entitySearcher =
+                new EntityStringFilterer(this, searchTerms, mAsyncMode,
+                        mFuzzySearchEnabled, mNodeFactory, full, context);
+        entitySearcher.start();
     }
 
-    public void applyCalloutResultFilter(OrderedHashtable<String, String> idReadings) {
-        extraData = idReadings;
-        final int TOP_N_ENTRIES_COUNT = 3;
-        int filteredEntryCount = Math.min(idReadings.size(), TOP_N_ENTRIES_COUNT);
+    /**
+     * Filter entity list to only include entities that have extra keys present
+     * in the provided mapping.  Reorders entities by the key ordering of the
+     * mapping.
+     */
+    public synchronized void filterByKeyedCalloutData(OrderedHashtable<String, String> keyToExtraDataMapping) {
+        extraData = keyToExtraDataMapping;
 
-        synchronized (mSyncLock) {
-            if (entitySearcher != null) {
-                entitySearcher.cancelSearch();
-            }
-            LinkedHashSet<String> topMatchingCaseIds = new LinkedHashSet<>();
-            for (Enumeration en = extraData.keys() ; en.hasMoreElements() ; )  {
-                String key = (String)en.nextElement();
-                topMatchingCaseIds.add(key);
-
-                if (topMatchingCaseIds.size() >= filteredEntryCount) {
-                    break;
-                }
-            }
-
-            isFilteringByCalloutResult = true;
-            entitySearcher =
-                    new EntityKeyFilterer(this, mNodeFactory, full, context, topMatchingCaseIds);
-            entitySearcher.start();
+        if (entitySearcher != null) {
+            entitySearcher.cancelSearch();
         }
+        LinkedHashSet<String> topMatchingCaseIds = new LinkedHashSet<>();
+        for (Enumeration en = extraData.keys(); en.hasMoreElements(); ) {
+            String key = (String)en.nextElement();
+            topMatchingCaseIds.add(key);
+        }
+
+        isFilteringByCalloutResult = true;
+        entitySearcher =
+                new EntityKeyFilterer(this, mNodeFactory, full, context, topMatchingCaseIds);
+        entitySearcher.start();
     }
 
     void update() {
@@ -377,11 +372,9 @@ public class EntityListAdapter implements ListAdapter {
      * Signal that this adapter is dying. If we are doing any asynchronous work,
      * we need to stop doing so.
      */
-    public void signalKilled() {
-        synchronized (mSyncLock) {
-            if (entitySearcher != null) {
-                entitySearcher.cancelSearch();
-            }
+    public synchronized void signalKilled() {
+        if (entitySearcher != null) {
+            entitySearcher.cancelSearch();
         }
     }
 

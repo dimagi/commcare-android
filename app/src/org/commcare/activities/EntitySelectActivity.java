@@ -191,24 +191,31 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             public void onChanged() {
                 super.onChanged();
 
-                if (!"".equals(adapter.getSearchQuery())) {
-                    showSearchBanner(false);
-                } else if (adapter.isFilteringByCalloutResult()) {
-                    showSearchBanner(true);
-                } else {
-                    searchBanner.setVisibility(View.GONE);
-                    clearSearchButton.setVisibility(View.GONE);
-                }
+                setSearchBannerState();
             }
         };
     }
 
-    private void showSearchBanner(boolean hasClearResultsButton) {
+    private void setSearchBannerState() {
+        if (!"".equals(adapter.getSearchQuery())) {
+            showSearchBanner();
+        } else if (adapter.isFilteringByCalloutResult()) {
+            showSearchBannerWithClearButton();
+        } else {
+            searchBanner.setVisibility(View.GONE);
+            clearSearchButton.setVisibility(View.GONE);
+        }
+    }
+
+    private void showSearchBannerWithClearButton() {
+        showSearchBanner();
+        clearSearchButton.setVisibility(View.VISIBLE);
+    }
+
+    private void showSearchBanner() {
         searchResultStatus.setText(adapter.getSearchNotificationText());
         searchResultStatus.setVisibility(View.VISIBLE);
         searchBanner.setVisibility(View.VISIBLE);
-
-        clearSearchButton.setVisibility(hasClearResultsButton ? View.VISIBLE : View.GONE);
     }
 
     private void restoreSavedState(Bundle savedInstanceState) {
@@ -350,15 +357,19 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             adapter = containerFragment.getData();
             // on orientation change
             if (adapter != null) {
-                view.setAdapter(adapter);
-                EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
-
-                findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
-
-                if (adapter.isFilteringByCalloutResult()) {
-                    showSearchBanner(true);
-                }
+                setupUIFromAdapter(view);
             }
+        }
+    }
+
+    private void setupUIFromAdapter(ListView view) {
+        view.setAdapter(adapter);
+        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
+
+        findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+
+        if (adapter.isFilteringByCalloutResult()) {
+            showSearchBannerWithClearButton();
         }
     }
 
@@ -657,7 +668,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private void handleFingerprintMatchCallout(Intent intent) {
         OrderedHashtable<String, String> guidToMatchConfidenceMap =
                 SimprintsCalloutProcessing.getIdentificationData(intent);
-        adapter.applyCalloutResultFilter(guidToMatchConfidenceMap);
+        adapter.filterByKeyedCalloutData(guidToMatchConfidenceMap);
         refreshView();
     }
 
@@ -668,7 +679,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         guidToMatchConfidenceMap.put("c44c7ade-0cec-4401-b422-4c475f0043ae", "0.25"); // pat
         guidToMatchConfidenceMap.put("6b09e558-604c-4735-ac34-efbb2783b784", "0.22"); // aria
         guidToMatchConfidenceMap.put("16d31048-e8f8-40d5-a3e9-b35e9cde20da", "0.10"); // gilbert
-        adapter.applyCalloutResultFilter(guidToMatchConfidenceMap);
+        adapter.filterByKeyedCalloutData(guidToMatchConfidenceMap);
         refreshView();
     }
 
@@ -690,7 +701,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (!"".equals(currentSearchText) && incomingString.equals(currentSearchText)) {
             filterString = currentSearchText;
             if (adapter != null) {
-                adapter.applyStringFilter(filterString);
+                adapter.filterByString(filterString);
             }
         }
         if (!isUsingActionBar()) {
@@ -734,7 +745,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     }
                     searchView.setQuery(lastQueryString, false);
                     if (adapter != null) {
-                        adapter.applyStringFilter(lastQueryString == null ? "" : lastQueryString);
+                        adapter.filterByString(lastQueryString == null ? "" : lastQueryString);
                     }
                 }
                 EntitySelectActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -748,7 +759,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                         lastQueryString = newText;
                         filterString = newText;
                         if (adapter != null) {
-                            adapter.applyStringFilter(newText);
+                            adapter.filterByString(newText);
                         }
                         return false;
                     }
@@ -891,7 +902,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             View.OnClickListener listener = new View.OnClickListener() {
                 public void onClick(View v) {
                     adapter.sortEntities(new int[]{keyArray[index]});
-                    adapter.applyStringFilter(getSearchText().toString());
+                    adapter.filterByString(getSearchText().toString());
                     dialog.dismiss();
                 }
             };
@@ -941,13 +952,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
         if (adapter != null) {
-            if (filterString != null && !"".equals(filterString)) {
-                adapter.applyStringFilter(filterString);
-            }
-            OrderedHashtable<String, String> extraDataFromSession = (OrderedHashtable<String, String>)CommCareApplication._().getCurrentSession().getCurrentFrameStepExtra(KEY_ENTITY_LIST_EXTRA_DATA);
-            if (extraDataFromSession != null) {
-                adapter.applyCalloutResultFilter(extraDataFromSession);
-            }
+            restoreAdapterStateFromSession();
         }
 
         //In landscape we want to select something now. Either the top item, or the most recently selected one
@@ -961,6 +966,20 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             Log.i("HereFunctionHandler", "location changed while reloading");
             locationChangedWhileLoading = false;
             loadEntities();
+        }
+    }
+
+    private void restoreAdapterStateFromSession() {
+        if (filterString != null && !"".equals(filterString)) {
+            adapter.filterByString(filterString);
+        }
+
+        OrderedHashtable<String, String> extraDataFromSession =
+                (OrderedHashtable<String, String>)CommCareApplication._()
+                        .getCurrentSession()
+                        .getCurrentFrameStepExtra(KEY_ENTITY_LIST_EXTRA_DATA);
+        if (extraDataFromSession != null) {
+            adapter.filterByKeyedCalloutData(extraDataFromSession);
         }
     }
 
