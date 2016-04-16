@@ -1,4 +1,4 @@
-package org.commcare.android.logging;
+package org.commcare.android.javarosa;
 
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.model.utils.DateUtils;

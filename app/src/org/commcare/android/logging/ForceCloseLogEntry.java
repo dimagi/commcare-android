@@ -3,6 +3,7 @@ package org.commcare.android.logging;
 import android.os.Build;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.DevSessionRestorer;
 import org.javarosa.core.util.externalizable.DeserializationException;

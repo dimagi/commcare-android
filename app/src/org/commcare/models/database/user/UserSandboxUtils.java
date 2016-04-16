@@ -12,7 +12,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.android.logging.DeviceReportRecord;
+import org.commcare.android.javarosa.DeviceReportRecord;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;

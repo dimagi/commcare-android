@@ -1,7 +1,7 @@
 package org.commcare.logging;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.logging.AndroidLogEntry;
+import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.android.logging.ReportingUtils;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;

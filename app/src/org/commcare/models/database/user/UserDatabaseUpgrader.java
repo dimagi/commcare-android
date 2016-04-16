@@ -8,7 +8,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.cases.ledger.Ledger;
-import org.commcare.android.logging.AndroidLogEntry;
+import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;

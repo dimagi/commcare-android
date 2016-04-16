@@ -1,4 +1,4 @@
-package org.commcare.android.logging;
+package org.commcare.android.javarosa;
 
 import org.commcare.CommCareApplication;
 import org.commcare.models.encryption.EncryptionIO;
