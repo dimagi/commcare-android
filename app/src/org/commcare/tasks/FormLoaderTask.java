@@ -12,7 +12,7 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.engine.extensions.CalendaredDateFormatHandler;
 import org.commcare.engine.extensions.IntentExtensionParser;
-import org.commcare.engine.extensions.PollSensorAction;
+import org.odk.collect.android.jr.extensions.PollSensorAction;
 import org.commcare.engine.extensions.PollSensorExtensionParser;
 import org.commcare.engine.extensions.XFormExtensionUtils;
 import org.commcare.logging.AndroidLogger;
@@ -48,7 +48,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 
 import javax.crypto.spec.SecretKeySpec;
 

@@ -11,7 +11,7 @@ import org.commcare.adapters.HomeCardDisplayData;
 import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.services.locale.Localization;
 

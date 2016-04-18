@@ -1,5 +1,6 @@
 package org.commcare.logging;
 
+import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.log.StreamLogSerializer;

@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.models.database.global.models.AndroidSharedKeyRecord;
+import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.javarosa.core.services.storage.StorageFullException;

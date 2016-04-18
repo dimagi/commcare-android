@@ -5,8 +5,8 @@ import android.util.Pair;
 
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.FormRecord;
-import org.commcare.models.database.user.models.SessionStateDescriptor;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.suite.model.Text;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.utils.AndroidCommCarePlatform;

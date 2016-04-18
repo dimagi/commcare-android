@@ -1,15 +1,13 @@
 package org.commcare.logging;
 
+import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.log.StreamLogSerializer;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.storage.EntityFilter;
-import org.javarosa.core.util.SortedIntSet;
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;
-import java.util.Hashtable;
 
 /**
  * @author ctsims

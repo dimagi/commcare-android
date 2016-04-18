@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.FormRecordProcessor;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FormUploadUtil;

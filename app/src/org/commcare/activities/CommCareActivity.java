@@ -29,7 +29,7 @@ import org.commcare.fragments.ContainerFragment;
 import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.models.database.user.models.ACase;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
