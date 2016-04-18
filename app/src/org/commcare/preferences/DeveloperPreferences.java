@@ -47,6 +47,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      * triggers.
      */
     public final static String FIRE_TRIGGERS_ON_SAVE = "cc-fire-triggers-on-save";
+    public final static String ANIMATE_FORM_SUBMIT_BUTTON = "cc-animate-form-submit-button";
     public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
 
     public final static String OFFER_PIN_FOR_LOGIN = "cc-offer-pin-for-login";
@@ -82,6 +83,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         prefKeyToAnalyticsEvent.put(MARKDOWN_ENABLED, GoogleAnalyticsFields.LABEL_MARKDOWN);
         prefKeyToAnalyticsEvent.put(ALTERNATE_QUESTION_LAYOUT_ENABLED, GoogleAnalyticsFields.LABEL_IMAGE_ABOVE_TEXT);
         prefKeyToAnalyticsEvent.put(FIRE_TRIGGERS_ON_SAVE, GoogleAnalyticsFields.LABEL_TRIGGERS_ON_SAVE);
+        prefKeyToAnalyticsEvent.put(ANIMATE_FORM_SUBMIT_BUTTON, GoogleAnalyticsFields.LABEL_ANIMATE_FORM_SUBMIT_BUTTON);
         prefKeyToAnalyticsEvent.put(HOME_REPORT_ENABLED, GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED);
         prefKeyToAnalyticsEvent.put(AUTO_PURGE_ENABLED, GoogleAnalyticsFields.LABEL_AUTO_PURGE);
         prefKeyToAnalyticsEvent.put(LOAD_FORM_PAYLOAD_AS, GoogleAnalyticsFields.LABEL_LOAD_FORM_PAYLOAD_AS);
@@ -203,6 +205,11 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static boolean shouldFireTriggersOnSave() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(FIRE_TRIGGERS_ON_SAVE, CommCarePreferences.YES).equals(CommCarePreferences.YES);
+    }
+
+    public static boolean shouldAnimateFormSubmitButton() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(ANIMATE_FORM_SUBMIT_BUTTON, CommCarePreferences.YES).equals(CommCarePreferences.YES);
     }
 
     public static boolean isAutoLoginEnabled() {
