@@ -31,15 +31,15 @@ public class TestAppInstaller {
     private final CommCareTaskConnectorFake<Object> fakeConnector =
             new CommCareTaskConnectorFake<>();
 
-    public TestAppInstaller(String resourceFilepath,
-                            String username,
-                            String password) {
+    private TestAppInstaller(String resourceFilepath,
+                             String username,
+                             String password) {
         this.resourceFilepath = resourceFilepath;
         this.username = username;
         this.password = password;
     }
 
-    public void installAppAndLogin() {
+    private void installAppAndLogin() {
         installApp();
 
         buildTestUser();
@@ -127,7 +127,7 @@ public class TestAppInstaller {
         return null;
     }
 
-    public static void setupPrototypeFactory() {
+    private static void setupPrototypeFactory() {
         // Sets DB to use an in-memory store for class serialization tagging.
         // This avoids the need to use apk reflection to perform read/writes
         TestUtils.initializeStaticTestStorage();
