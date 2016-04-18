@@ -41,6 +41,7 @@ public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTask
 
     public static final int ZIP_TASK_ID = 72135;
 
+    private File toBeZippedFile;
     private String toBeZippedPath;
     private String zipFilePath;
 
@@ -48,9 +49,10 @@ public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTask
         taskId = ZIP_TASK_ID;
         this.toBeZippedPath = toBeZippedPath;
         this.zipFilePath = zipFilePath;
+        this.toBeZippedFile = new File(toBeZippedPath);
     }
 
-    private boolean zipParentFolder(File toBeZippedDirectory, String zipFilePath) throws IOException {
+    private static boolean zipParentFolder(File toBeZippedDirectory, String zipFilePath) throws IOException {
 
         Log.d(TAG, "Zipping directory" + toBeZippedDirectory.toString() + " to path " + zipFilePath);
 
@@ -65,19 +67,19 @@ public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTask
 
             for (File formInstanceFolder : formInstanceFolders) {
                 File[] subFileArray = formInstanceFolder.listFiles();
-                zipInstanceFolder(subFileArray, zipFilePath, out);
+                Log.d(TAG, "Zipping instance folder with files: " + Arrays.toString(subFileArray)
+                    + ", zipFilePath: " + zipFilePath);
+                zipInstanceFolder(subFileArray, out);
             }
-
+            out.finish();
         } finally {
             out.close();
         }
         return false;
     }
 
-    private void zipInstanceFolder(File[] toBeZippedFiles, String zipFilePath, ZipOutputStream zos)
+    private static void zipInstanceFolder(File[] toBeZippedFiles, ZipOutputStream zos)
             throws IOException {
-        Log.d(TAG, "Zipping instance folder with files: " + Arrays.toString(toBeZippedFiles)
-                + ", zipFilePath: " + zipFilePath);
 
         int BUFFER_SIZE = 1024;
         BufferedInputStream origin;
@@ -97,17 +99,16 @@ public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTask
 
                 int pathPartsLength = pathParts.length;
 
-                String fileName = pathParts[pathPartsLength - 1];
-                String fileFolder = pathParts[pathPartsLength - 2];
+                String filePath = pathParts[pathPartsLength -1] + "/" + pathParts[pathPartsLength - 2];
+                Log.d(TAG, "Zipping instance folder with path: " + filePath);
 
-                Log.d(TAG, "Zipping instance folder with path: " + fileFolder + "/" + fileName);
-
-                ZipEntry entry = new ZipEntry(fileFolder + "/" + fileName);
+                ZipEntry entry = new ZipEntry(filePath);
                 zos.putNextEntry(entry);
                 int count;
                 while ((count = origin.read(data, 0, BUFFER_SIZE)) != -1) {
                     zos.write(data, 0, count);
                 }
+                zos.closeEntry();
             } finally {
                 origin.close();
             }
@@ -118,14 +119,9 @@ public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTask
     protected ZipTaskResult doTaskBackground(Void... params) {
         Log.d(TAG, "Doing UnzipTask");
         try {
-            String zipPath = toBeZippedPath;
-            File nf = new File(zipPath);
-            if (nf.exists()) {
-                nf.delete();
-           }
-            zipParentFolder(nf, zipFilePath);
-            File toBeZippedDir = new File(toBeZippedPath);
-            FileUtil.deleteFileOrDir(toBeZippedDir);
+            FileUtil.deleteFileOrDir(toBeZippedFile);
+            zipParentFolder(toBeZippedFile, zipFilePath);
+            FileUtil.deleteFileOrDir(toBeZippedFile);
         } catch (IOException ioe) {
             Log.d(TAG, "IOException: " + ioe.getMessage());
             return ZipTaskResult.Failure;

@@ -2,7 +2,6 @@ package org.commcare.tasks;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Environment;
 import android.util.Log;
 import android.util.Pair;
 
@@ -16,7 +15,6 @@ import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadUtil;
-import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.ProcessIssues;
@@ -25,10 +23,10 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.Vector;
 
@@ -44,12 +42,13 @@ import javax.crypto.spec.SecretKeySpec;
 public abstract class FormRecordToFileTask extends CommCareTask<String, String, Pair<Long, FormRecord[]>, CommCareWiFiDirectActivity> {
     private static final String TAG = AndroidLogger.TYPE_FORM_DUMP;
 
-    private Context c;
-    private Long[] results;
+    private final Context c;
     // this is where the forms that have been pulled from FormRecord storage to the file system live
-    private File storedFormDirectory;
+    private final File storedFormDirectory;
 
     public static final int PULL_TASK_ID = 721356;
+
+    private static final String[] SUPPORTED_FILE_EXTS = {".xml", ".jpg", ".3gpp", ".3gp"};
 
     public FormRecordToFileTask(Context c, String formStoragePath) {
         this.c = c;
@@ -57,21 +56,11 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
         taskId = PULL_TASK_ID;
     }
 
-    @Override
-    protected void onPostExecute(Pair<Long, FormRecord[]> result) {
-        super.onPostExecute(result);
-        //These will never get Zero'd otherwise
-        c = null;
-        results = null;
-    }
-
-    private static final String[] SUPPORTED_FILE_EXTS = {".xml", ".jpg", ".3gpp", ".3gp"};
-
     /**
-     * Turn a FormRecord folder from storage into a standard file representation in our file system.n
+     * Turn a FormRecord folder from storage into a standard file representation in our file system.
+     * Return an int status code from FormUploadUtil corresponding to the outcome of the transfer
      */
-    private long getFileInstanceFromStorage(File formRecordFolder, SecretKeySpec decryptionKey)
-            throws FileNotFoundException, SessionUnavailableException {
+    private long copyFileInstanceFromStorage(File formRecordFolder, SecretKeySpec decryptionKey) {
         File[] files = formRecordFolder.listFiles();
         Logger.log(TAG, "Trying to get instance with: " + files.length + " files.");
 
@@ -104,7 +93,7 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
             }
         }
     }
-    private boolean isSupportedFiletype(File file){
+    private static boolean isSupportedFiletype(File file){
         for (String ext : SUPPORTED_FILE_EXTS) {
             if (file.getName().endsWith(ext)) {
                 return true;
@@ -112,7 +101,7 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
         }
         return false;
     }
-    private void logTransferBytes(File[] files){
+    private static void logTransferBytes(File[] files){
         long bytes = 0;
         for (File file : files) {
             //Make sure we'll be sending it
@@ -160,8 +149,9 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
 
     @Override
     protected Pair<Long, FormRecord[]> doTaskBackground(String... params) {
-        Log.d(TAG, "Doing zip task in background with params: " + params);
+        Log.d(TAG, "Doing zip task in background with params: " + Arrays.toString(params));
 
+        Long[] results;
         // we want this directory to be clean
         if (storedFormDirectory.exists()) {
             storedFormDirectory.delete();
@@ -196,49 +186,43 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
 
                         //Good!
                         //Time to transfer forms to storage!
-                        try {
-                            results[i] = getFileInstanceFromStorage(folder, new SecretKeySpec(record.getAesKey(), "AES"));
-                        } catch (FileNotFoundException e) {
-                            if (CommCareApplication._().isStorageAvailable()) {
-                                //If storage is available generally, this is a bug in the app design
-                                Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Removing form record because file was missing|" + getExceptionText(e));
-                            } else {
-                                //Otherwise, the SD card just got removed, and we need to bail anyway.
-                                CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(ProcessIssues.StorageRemoved), true);
-                                break;
-                            }
-                            continue;
-                        }
+                        results[i] = copyFileInstanceFromStorage(folder, new SecretKeySpec(record.getAesKey(), "AES"));
                         if (results[i].intValue() == FormUploadUtil.FAILURE) {
                             publishProgress("Failure during zipping process");
                             return null;
                         }
                     }
-                } catch (SessionUnavailableException sue) {
-                    this.cancel(false);
-                    return null;
                 } catch (Exception e) {
                     //Just try to skip for now. Hopefully this doesn't wreck the model :/
                     Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
                 }
             }
 
-            long result = 0;
-            for (int i = 0; i < records.length; ++i) {
-                if (results[i] > result) {
-                    result = results[i];
-                }
-            }
+            long result = getLoopResult(results);
 
             return new Pair<>(result, records);
 
         } else {
-            publishProgress("No forms to send.");
+            publishProgress(Localization.get("form.transfer.no.forms"));
             return null;
         }
     }
 
-    private String getExceptionText(Exception e) {
+    /**
+     * Iterate over each form transfer result and return the "worst" (high value) outcome
+     * @return The FormUploadUtil int outcome code corresponding to the "worst" result
+     */
+    private long getLoopResult(Long[] results){
+        long returnResult = 0;
+        for (long iterResult: results) {
+            if (iterResult > returnResult) {
+                returnResult = iterResult;
+            }
+        }
+        return returnResult;
+    }
+
+    private static String getExceptionText(Exception e) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             e.printStackTrace(new PrintStream(bos));

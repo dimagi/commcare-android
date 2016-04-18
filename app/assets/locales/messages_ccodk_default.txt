@@ -665,6 +665,8 @@ wifi.direct.status.submit.header=You are in Submit Form Mode
 wifi.direct.status.submit.count=Device has ${0} unsubmitted forms.
 wifi.direct.status.submit.message=This mode will allow you to submit forms to the CommCare Server if you have an internet connection.
 
+form.transfer.no.forms=No forms to send.
+
 
 form.attachment.invalid=Invalid filetype choosen. Please select a valid multimedia file.
 
@@ -697,3 +699,5 @@ intent.callout.get=Get Data
 intent.callout.update=Update Data
 intent.callout.cancelled=Question callout cancelled
 intent.callout.unable.to.process=Unable to process callout result
+
+
