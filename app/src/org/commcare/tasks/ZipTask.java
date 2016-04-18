@@ -26,11 +26,13 @@ import java.util.zip.ZipOutputStream;
  * This task zips the files in toBeZippedPath into the file specified by zipFilePath
  * Returns 1 for success, -1 for failure.
  */
-public abstract class ZipTask extends CommCareTask<Void, String, Integer, CommCareWiFiDirectActivity> {
+public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTaskResult, CommCareWiFiDirectActivity> {
     private static final String TAG = AndroidLogger.TYPE_FORM_DUMP;
 
-    public static final int RESULT_SUCCESS = 1;
-    public static final int RESULT_FAILURE = -1;
+    public enum ZipTaskResult {
+        Success,
+        Failure
+    }
 
     // this is where the forms that have been pulled from FormRecord storage to the file system live
 
@@ -113,7 +115,7 @@ public abstract class ZipTask extends CommCareTask<Void, String, Integer, CommCa
     }
 
     @Override
-    protected Integer doTaskBackground(Void... params) {
+    protected ZipTaskResult doTaskBackground(Void... params) {
         Log.d(TAG, "Doing UnzipTask");
         try {
             String zipPath = toBeZippedPath;
@@ -126,10 +128,10 @@ public abstract class ZipTask extends CommCareTask<Void, String, Integer, CommCa
             FileUtil.deleteFileOrDir(toBeZippedDir);
         } catch (IOException ioe) {
             Log.d(TAG, "IOException: " + ioe.getMessage());
-            return RESULT_FAILURE;
+            return ZipTaskResult.Failure;
 
         }
-        return RESULT_SUCCESS;
+        return ZipTaskResult.Success;
     }
 
     @Override

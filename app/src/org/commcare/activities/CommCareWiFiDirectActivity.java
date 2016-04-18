@@ -609,28 +609,29 @@ public class CommCareWiFiDirectActivity
             return;
         }
         // We've received transferred forms. Move them into the to be zipped directory.
-        File[] files = receiveFolder.listFiles();
+        File[] originFiles = receiveFolder.listFiles();
+        File[] destinationFiles = new File[originFiles.length];
+        for(int i=0; i< originFiles.length; i++){
+            destinationFiles[i] = new File(toBeTransferredDirectory, originFiles[i].getName());
+        }
         try {
-            Log.d(TAG, "We have " + files.length + " toBeSubmitted files to transfer");
-            for (File instanceDirectory : files) {
-                FileUtil.copyFileDeep(instanceDirectory,
-                        new File(toBeTransferredDirectory, instanceDirectory.getName()));
-                Log.d(TAG, "Transferred " + instanceDirectory + " to " + toBeTransferredDirectory
-                        + "/" + instanceDirectory.getName());
+            Log.d(TAG, "We have " + originFiles.length + " toBeSubmitted files to transfer");
+            for (int i=0; i< originFiles.length; i++) {
+                FileUtil.copyFileDeep(originFiles[i], destinationFiles[i]);
+                Log.d(TAG, "Transferred " + originFiles[i] + " to " + destinationFiles[i]);
             }
         } catch(IOException e){
             // if we catch an error, delete all the new files we've copied over
-            for (File instanceDirectory : files) {
-                File newDestination = new File(toBeTransferredDirectory, instanceDirectory.getName());
-                if(newDestination.exists()){
-                    FileUtil.deleteFileOrDir(newDestination);
+            for (File destinationFile : destinationFiles) {
+                if(destinationFile.exists()){
+                    FileUtil.deleteFileOrDir(destinationFile);
                 }
             }
         }
         // Delete all the to be submitted files, we have them copied for transfer.
-        for (File instanceDirectory : files) {
-            if(instanceDirectory.exists()){
-                FileUtil.deleteFileOrDir(instanceDirectory);
+        for (File originFile : originFiles) {
+            if(originFile.exists()){
+                FileUtil.deleteFileOrDir(originFile);
             }
         }
     }
@@ -708,8 +709,8 @@ public class CommCareWiFiDirectActivity
             }
 
             @Override
-            protected void deliverResult(CommCareWiFiDirectActivity receiver, Integer result) {
-                if (result.intValue() == ZipTask.RESULT_SUCCESS) {
+            protected void deliverResult(CommCareWiFiDirectActivity receiver, ZipTaskResult result) {
+                if (result == ZipTaskResult.Success) {
                     receiver.onZipSuccesful();
                 } else {
                     receiver.onZipError();
