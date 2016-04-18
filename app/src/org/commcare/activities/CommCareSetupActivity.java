@@ -36,7 +36,7 @@ import org.commcare.fragments.SelectInstallModeFragment;
 import org.commcare.fragments.SetupEnterURLFragment;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
-import org.commcare.models.database.global.models.ApplicationRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.ResourceEngineTask;
