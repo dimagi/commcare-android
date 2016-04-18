@@ -1,0 +1,141 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Registration</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/11FAC65A-F2CD-427F-A870-CF126336AAB5" uiVersion="1" version="18" name="Registration">
+					<welcome_message/>
+					<Fingerprint/>
+					<right_index/>
+					<right_thumb/>
+					<left_index/>
+					<left_thumb/>
+					<show_fingerprints/>
+					<name/>
+					<sample_choice_question/>
+					<sample_number_question/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><create><case_name/><owner_id/><case_type>case</case_type></create><update><sample_choice_question/><sample_number_question/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/welcome_message"/>
+			<bind nodeset="/data/Fingerprint" type="intent"/>
+			<bind nodeset="/data/right_index"/>
+			<bind nodeset="/data/right_thumb"/>
+			<bind nodeset="/data/left_index"/>
+			<bind nodeset="/data/left_thumb"/>
+			<bind nodeset="/data/show_fingerprints" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/name" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/sample_choice_question"/>
+			<bind nodeset="/data/sample_number_question" type="xsd:int"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="welcome_message-label">
+						<value>This is a registration form.  It adds new items (**Cases**) to track.  You can save some or all of the questions in this form to the case as **case properties**, which means you can refer to them in later forms, display them on the phone as a record, or use them to distinguish among cases.  
+
+Add questions to this form using the toolbar above:
+
+* You can add text, number, multiple choice, or other question types.  
+* For multiple and single choice questions, use the circle button in the toolbar to add more choices. 
+* For a given question, set the Question ID to the name of your data variable and the Label to the text you want the user to see.
+
+On the main form settings page, you can choose which of these questions you want to *save to the case* as case properties.
+
+For more help, see the following Help Site Pages:
+
+* [CommCare Forms](https://confluence.dimagi.com/display/commcarepublic/Form+Builder)
+* [Case Management Overview](https://confluence.dimagi.com/display/commcarepublic/Case+Management).
+* [Application Building Tutorials](https://confluence.dimagi.com/display/commcarepublic/Application+Building+Tutorial+Series)
+
+When you're ready to test your form, you can use the Try In CloudCare option on the main form page, or [install it on a phone using our deploy manager](https://confluence.dimagi.com/display/commcarepublic/Deploy+an+Application+on+CommCareHQ).</value>
+						<value form="markdown">This is a registration form.  It adds new items (**Cases**) to track.  You can save some or all of the questions in this form to the case as **case properties**, which means you can refer to them in later forms, display them on the phone as a record, or use them to distinguish among cases.  
+
+Add questions to this form using the toolbar above:
+
+* You can add text, number, multiple choice, or other question types.  
+* For multiple and single choice questions, use the circle button in the toolbar to add more choices. 
+* For a given question, set the Question ID to the name of your data variable and the Label to the text you want the user to see.
+
+On the main form settings page, you can choose which of these questions you want to *save to the case* as case properties.
+
+For more help, see the following Help Site Pages:
+
+* [CommCare Forms](https://confluence.dimagi.com/display/commcarepublic/Form+Builder)
+* [Case Management Overview](https://confluence.dimagi.com/display/commcarepublic/Case+Management).
+* [Application Building Tutorials](https://confluence.dimagi.com/display/commcarepublic/Application+Building+Tutorial+Series)
+
+When you're ready to test your form, you can use the Try In CloudCare option on the main form page, or [install it on a phone using our deploy manager](https://confluence.dimagi.com/display/commcarepublic/Deploy+an+Application+on+CommCareHQ).</value>
+					</text>
+					<text id="Fingerprint-label">
+						<value/>
+						<value form="image">jr://file/commcare/image/data/Fingerprint.png</value>
+					</text>
+					<text id="show_fingerprints-label">
+						<value>right index: <output value="/data/right_index"/>
+right thumb: <output value="/data/right_thumb"/>
+left index: <output value="/data/left_index"/>
+left thumb: <output value="/data/left_thumb"/></value>
+					</text>
+					<text id="name-label">
+						<value>name</value>
+					</text>
+					<text id="sample_choice_question-label">
+						<value>Sample Choice Question</value>
+					</text>
+					<text id="sample_choice_question-choice1-label">
+						<value>Choice 1</value>
+					</text>
+					<text id="sample_choice_question-choice2-label">
+						<value>Choice 2</value>
+					</text>
+					<text id="sample_choice_question-choice3-label">
+						<value>Choice 3</value>
+					</text>
+					<text id="sample_number_question-label">
+						<value>Sample Number Question</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><setvalue event="xforms-ready" ref="/data/case/@case_id" value="instance('commcaresession')/session/data/case_id_new_case_0"/><bind calculate="/data/name" nodeset="/data/case/create/case_name"/><bind calculate="/data/meta/userID" nodeset="/data/case/create/owner_id"/><bind calculate="/data/sample_choice_question" nodeset="/data/case/update/sample_choice_question" relevant="count(/data/sample_choice_question) &gt; 0"/><bind calculate="/data/sample_number_question" nodeset="/data/case/update/sample_number_question" relevant="count(/data/sample_number_question) &gt; 0"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+		<odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="Fingerprint" class="com.simprints.id.REGISTER" button-label="Scan Fingerprints" update-button-label="Rescan Fingerprints">
+			<extra key="deviceId" ref="123"/>
+			<extra key="apiKey" ref="456"/>
+			<extra key="packageName" ref="789"/>
+      <extra key="caseId" ref="/data/case/@case_id"/>
+			<response key="rightIndex" ref="/data/right_index"/>
+			<response key="rightThumb" ref="/data/right_thumb"/>
+			<response key="leftIndex" ref="/data/left_index"/>
+			<response key="leftThumb" ref="/data/left_thumb"/>
+		</odkx:intent>
+	</h:head>
+	<h:body>
+		<trigger ref="/data/welcome_message" appearance="minimal">
+			<label ref="jr:itext('welcome_message-label')"/>
+		</trigger>
+		<input ref="/data/Fingerprint" appearance="intent:Fingerprint">
+			<label ref="jr:itext('Fingerprint-label')"/>
+		</input>
+		<input ref="/data/show_fingerprints">
+			<label ref="jr:itext('show_fingerprints-label')"/>
+		</input>
+		<input ref="/data/name">
+			<label ref="jr:itext('name-label')"/>
+		</input>
+		<select1 ref="/data/sample_choice_question">
+			<label ref="jr:itext('sample_choice_question-label')"/>
+			<item>
+				<label ref="jr:itext('sample_choice_question-choice1-label')"/>
+				<value>choice1</value>
+			</item>
+			<item>
+				<label ref="jr:itext('sample_choice_question-choice2-label')"/>
+				<value>choice2</value>
+			</item>
+			<item>
+				<label ref="jr:itext('sample_choice_question-choice3-label')"/>
+				<value>choice3</value>
+			</item>
+		</select1>
+		<input ref="/data/sample_number_question">
+			<label ref="jr:itext('sample_number_question-label')"/>
+		</input>
+	</h:body>
+</h:html>
