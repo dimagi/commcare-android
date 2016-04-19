@@ -23,7 +23,6 @@
     <string name="audio_file_error">Ningun archivo de audio fue especificado.</string>
     <string name="audio_file_invalid">Archivo: %s no es un archivo de audio valido.</string>
     <string name="backup">de vuelta a la \npregunta\nprevia</string>
-    <string name="barcode_scanner_error">El lector de codigo de barra no esta instalado!</string>
     <string name="cancel">Cancelar</string>
     <string name="cancel_loading_form">Cancelar</string>
     <string name="cancel_location">Cancelar</string>
@@ -71,7 +70,6 @@
     <string name="forms">Formularios en Blanco</string>
     <string name="form_renamed">A %1$s se le cambio el nombre a %2$s.</string>
     <string name="getting_location">Cargando la Ubicacion</string>
-    <string name="get_barcode">Obtener Codigo de Barra</string>
     <string name="get_forms">Obtener el Formulario en Blanco</string>
     <string name="get_location">Ubicacion de Dato</string>
     <string name="provider_disabled_error">Los proveedores de ubicacion estan deshabilitados!</string>

@@ -23,7 +23,6 @@ License.
     <string name="audio_file_error">Aucun fichier audio spécifié.</string>
     <string name="audio_file_invalid">%s n\'est pas un fichier audio valable.</string>
     <string name="backup">retourner à\nprevious\nprompt</string>
-    <string name="barcode_scanner_error">Aucun lecteur de Barcode n\'est installé.</string>
     <string name="cancel">Annuler</string>
     <string name="cancel_loading_form">Annuler</string>
     <string name="cancel_location">Annuler</string>
@@ -71,7 +70,6 @@ License.
     <string name="forms">Formulaires vides</string>
     <string name="form_renamed">%1$s a été renommé %2$s.</string>
     <string name="getting_location">Chargement de la localisation</string>
-    <string name="get_barcode">Obtention du code-barre</string>
     <string name="get_forms">Récupération du formulaire vierge</string>
     <string name="get_location">Enregistrement du lieu</string>
     <string name="provider_disabled_error">Désolé, le fournisseur de localisation est désactivé.</string>

@@ -3,17 +3,14 @@ package org.commcare.views;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.speech.tts.TextToSpeech;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.commcare.android.logging.ForceCloseLogger;
@@ -40,14 +37,11 @@ import java.util.Vector;
  * @author ctsims
  */
 public class EntityView extends LinearLayout {
-
     private final View[] views;
     private String[] forms;
-    private TextToSpeech tts;
     private String[] searchTerms;
     private final String[] mHints;
-    private final Context context;
-    private Hashtable<Integer, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
+    private Hashtable<Long, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
     private long rowId;
     public static final String FORM_AUDIO = "audio";
     public static final String FORM_IMAGE = "image";
@@ -65,33 +59,23 @@ public class EntityView extends LinearLayout {
     /**
      * Creates row entry for entity
      */
-    private EntityView(Context context, Detail d, Entity e, TextToSpeech tts,
+    private EntityView(Context context, Detail d, Entity e,
                        String[] searchTerms, long rowId, boolean mFuzzySearchEnabled) {
         super(context);
 
-        this.context = context;
         //this is bad :(
         mIsAsynchronous = e instanceof AsyncEntity;
         this.searchTerms = searchTerms;
-        this.tts = tts;
         this.renderedGraphsCache = new Hashtable<>();
         this.rowId = rowId;
         this.views = new View[e.getNumFields()];
         this.forms = d.getTemplateForms();
         this.mHints = d.getTemplateSizeHints();
 
-        for (int i = 0; i < views.length; ++i) {
-            if (mHints[i] == null || !mHints[i].startsWith("0")) {
-                views[i] = initView(e.getField(i), forms[i], new ViewId(rowId, i, false), e.getSortField(i));
-                views[i].setId(AndroidUtil.generateViewId());
-            }
-        }
-        refreshViewsForNewEntity(e, false, rowId);
-        for (View view : views) {
-            if (view != null) {
-                LayoutParams l = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-                addView(view, l);
-            }
+        for (int col = 0; col < views.length; ++col) {
+            Object field = e.getField(col);
+            String sortField = e.getSortField(col);
+            views[col] = addCell(col, field, forms[col], mHints[col], sortField, -1, true);
         }
 
         this.mFuzzySearchEnabled = mFuzzySearchEnabled;
@@ -102,37 +86,26 @@ public class EntityView extends LinearLayout {
      */
     private EntityView(Context context, Detail d, String[] headerText) {
         super(context);
-        this.context = context;
         this.views = new View[headerText.length];
         this.mHints = d.getHeaderSizeHints();
         String[] headerForms = d.getHeaderForms();
 
-        int[] colors = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.entity_view_header_background_color, R.attr.entity_view_header_text_color});
+        int[] colors = AndroidUtil.getThemeColorIDs(getContext(), new int[]{R.attr.entity_view_header_background_color, R.attr.entity_view_header_text_color});
         
         if (colors[0] != -1) {
             this.setBackgroundColor(colors[0]);
         }
 
-        for (int i = 0; i < views.length; ++i) {
-            if (mHints[i] == null || !mHints[i].startsWith("0")) {
-                LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-                ViewId uniqueId = new ViewId(rowId, i, false);
-                views[i] = initView(headerText[i], headerForms[i], uniqueId, null);
-                views[i].setId(AndroidUtil.generateViewId());
-                if (colors[1] != -1) {
-                    TextView tv = (TextView) views[i].findViewById(R.id.component_audio_text_txt);
-                    if (tv != null) tv.setTextColor(colors[1]);
-                }
-                addView(views[i], l);
-            }
+        for (int col = 0; col < views.length; ++col) {
+            views[col] = addCell(col, headerText[col], headerForms[col], mHints[col], null, colors[1], false);
         }
     }
 
     public static EntityView buildEntryEntityView(Context context, Detail detail,
-                                                  Entity entity, TextToSpeech tts,
+                                                  Entity entity,
                                                   String[] searchTerms,
                                                   long rowId, boolean isFuzzySearchEnabled) {
-        return new EntityView(context, detail, entity, tts,
+        return new EntityView(context, detail, entity,
                 searchTerms, rowId, isFuzzySearchEnabled);
     }
 
@@ -142,6 +115,29 @@ public class EntityView extends LinearLayout {
         return new EntityView(context, detail, headerText);
     }
 
+    private View addCell(int columnIndex, Object data, String form,
+                         String hint, String sortField,
+                         int textColor, boolean shouldRefresh) {
+        View view = null;
+        if (hint == null || !hint.startsWith("0")) {
+            ViewId uniqueId = new ViewId(rowId, columnIndex, false);
+            view = initView(data, form, uniqueId, sortField);
+            view.setId(AndroidUtil.generateViewId());
+            if (textColor != -1) {
+                TextView tv = (TextView) view.findViewById(R.id.entity_view_text);
+                if (tv != null) tv.setTextColor(textColor);
+            }
+
+            if (shouldRefresh) {
+                refreshViewForNewEntity(view, data, form, sortField, columnIndex, rowId);
+            }
+
+            LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+            addView(view, l);
+        }
+        return view;
+    }
+
     /**
      * Creates up a new view in the view with ID uniqueid, based upon
      * the entity's text and form
@@ -149,23 +145,18 @@ public class EntityView extends LinearLayout {
     private View initView(Object data, String form, ViewId uniqueId, String sortField) {
         View retVal;
         if (FORM_IMAGE.equals(form)) {
-            retVal = View.inflate(context, R.layout.entity_item_image, null);
+            retVal = View.inflate(getContext(), R.layout.entity_item_image, null);
         } else if (FORM_AUDIO.equals(form)) {
             String text = (String) data;
-            AudioButton b;
-            if (text != null & text.length() > 0) {
-                b = new AudioButton(context, text, uniqueId, true);
-            } else {
-                b = new AudioButton(context, text, uniqueId, false);
-            }
-            retVal = b;
+            boolean isVisible = (text != null && text.length() > 0);
+            retVal = new AudioButton(getContext(), text, uniqueId, isVisible);
         } else if (FORM_GRAPH.equals(form) && data instanceof GraphData) {
-            retVal = View.inflate(context, R.layout.entity_item_graph, null);
+            retVal = View.inflate(getContext(), R.layout.entity_item_graph, null);
         } else if (FORM_CALLLOUT.equals(form)) {
-            retVal = View.inflate(context, R.layout.entity_item_graph, null);
+            retVal = View.inflate(getContext(), R.layout.entity_item_graph, null);
         } else {
-            View layout = View.inflate(context, R.layout.component_audio_text, null);
-            setupTextAndTTSLayout(layout, (String) data, sortField);
+            View layout = View.inflate(getContext(), R.layout.component_text, null);
+            setupText(layout, (String) data, sortField);
             retVal = layout;
         }
         return retVal;
@@ -176,44 +167,13 @@ public class EntityView extends LinearLayout {
     }
 
     public void refreshViewsForNewEntity(Entity e, boolean currentlySelected, long rowId) {
-        for (int i = 0; i < e.getNumFields(); ++i) {
+        for (int i = 0; i < views.length; ++i) {
             Object field = e.getField(i);
             View view = views[i];
             String form = forms[i];
 
-            if (view == null) {
-                continue;
-            }
-
-            if (FORM_AUDIO.equals(form)) {
-                ViewId uniqueId = new ViewId(rowId, i, false);
-                setupAudioLayout(view, (String) field, uniqueId);
-            } else if (FORM_IMAGE.equals(form)) {
-                setupImageLayout(view, (String) field);
-            } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
-                int orientation = getResources().getConfiguration().orientation;
-                GraphView g = new GraphView(context, "", false);
-                View rendered = null;
-                if (renderedGraphsCache.get(i) != null) {
-                    rendered = renderedGraphsCache.get(i).get(orientation);
-                } else {
-                    renderedGraphsCache.put(i, new Hashtable<Integer, View>());
-                }
-                if (rendered == null) {
-                    try {
-                        rendered = g.getView(g.getHTML((GraphData) field));
-                    } catch (GraphException ex) {
-                        rendered = new TextView(context);
-                        ((TextView) rendered).setText(ex.getMessage());
-                    }
-                    renderedGraphsCache.get(i).put(orientation, rendered);
-                }
-                ((LinearLayout) view).removeAllViews();
-                ((LinearLayout) view).addView(rendered, GraphView.getLayoutParams());
-                view.setVisibility(VISIBLE);
-            } else {
-                //text to speech
-                setupTextAndTTSLayout(view, (String) field, e.getSortField(i));
+            if (view != null) {
+                refreshViewForNewEntity(view, field, form, e.getSortField(i), i, rowId);
             }
         }
 
@@ -221,6 +181,40 @@ public class EntityView extends LinearLayout {
             this.setBackgroundResource(R.drawable.grey_bordered_box);
         } else {
             this.setBackgroundDrawable(null);
+        }
+    }
+
+    private void refreshViewForNewEntity(View view, Object field,
+                                         String form, String sortField,
+                                         int columnIndex, long rowId) {
+        if (FORM_AUDIO.equals(form)) {
+            ViewId uniqueId = new ViewId(rowId, columnIndex, false);
+            setupAudioLayout(view, (String) field, uniqueId);
+        } else if (FORM_IMAGE.equals(form)) {
+            setupImageLayout(view, (String) field);
+        } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {
+            int orientation = getResources().getConfiguration().orientation;
+            GraphView g = new GraphView(getContext(), "", false);
+            View rendered = null;
+            if (renderedGraphsCache.get(rowId) != null) {
+                rendered = renderedGraphsCache.get(rowId).get(orientation);
+            } else {
+                renderedGraphsCache.put(rowId, new Hashtable<Integer, View>());
+            }
+            if (rendered == null) {
+                try {
+                    rendered = g.getView(g.getHTML((GraphData) field));
+                } catch (GraphException ex) {
+                    rendered = new TextView(getContext());
+                    ((TextView) rendered).setText(ex.getMessage());
+                }
+                renderedGraphsCache.get(rowId).put(orientation, rendered);
+            }
+            ((LinearLayout) view).removeAllViews();
+            ((LinearLayout) view).addView(rendered, GraphView.getLayoutParams());
+            view.setVisibility(VISIBLE);
+        } else {
+            setupText(view, (String) field, sortField);
         }
     }
 
@@ -240,31 +234,10 @@ public class EntityView extends LinearLayout {
     /**
      * Updates the text layout that is passed in, based on the new text
      */
-    private void setupTextAndTTSLayout(View layout, final String text, String searchField) {
-        TextView tv = (TextView) layout.findViewById(R.id.component_audio_text_txt);
+    private void setupText(View layout, final String text, String searchField) {
+        TextView tv = (TextView) layout.findViewById(R.id.entity_view_text);
         tv.setVisibility(View.VISIBLE);
         tv.setText(highlightSearches(searchTerms, new SpannableString(text == null ? "" : text), searchField, mFuzzySearchEnabled, mIsAsynchronous));
-        ImageButton btn = (ImageButton) layout.findViewById(R.id.component_audio_text_btn_audio);
-        btn.setFocusable(false);
-
-        btn.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                tts.speak(text, TextToSpeech.QUEUE_FLUSH, null);
-            }
-        });
-        if (tts == null || text == null || text.equals("")) {
-            btn.setVisibility(View.INVISIBLE);
-            RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
-            params.width = 0;
-            btn.setLayoutParams(params);
-        } else {
-            btn.setVisibility(View.VISIBLE);
-            RelativeLayout.LayoutParams params = (android.widget.RelativeLayout.LayoutParams) btn.getLayoutParams();
-            params.width = LayoutParams.WRAP_CONTENT;
-            btn.setLayoutParams(params);
-        }
     }
 
     private void addLayoutToRedrawQueue(View layout, String source) {
@@ -277,7 +250,6 @@ public class EntityView extends LinearLayout {
         }
         imageViewsToRedraw.clear();
     }
-
 
     /**
      * Updates the ImageView layout that is passed in, based on the new id and source

@@ -39,7 +39,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
         IncorrectPin
     }
 
-    final Context c;
+    private final Context c;
 
     public HttpCalloutTask(Context c) {
         this.c = c;

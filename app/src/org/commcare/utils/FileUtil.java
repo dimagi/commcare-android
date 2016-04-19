@@ -33,6 +33,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
@@ -298,7 +299,6 @@ public class FileUtil {
         }
     }
 
-
     /*
      * if we are on KitKat we need use the new API to find the mounted roots, then append our application
      * specific path that we're allowed to write to
@@ -342,6 +342,24 @@ public class FileUtil {
                 return getExternalMounts().get(0);
             }
             return null;
+        }
+    }
+
+    public static Properties loadProperties(File file) throws IOException{
+        Properties prop = new Properties();
+        InputStream input = null;
+        try {
+            input = new FileInputStream(file);
+            prop.load(input);
+            return prop;
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 

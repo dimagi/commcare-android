@@ -14,12 +14,4 @@ public class SessionUnavailableException extends Exception {
     public SessionUnavailableException(String message) {
         super(message);
     }
-
-    public SessionUnavailableException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public SessionUnavailableException(Throwable cause) {
-        super(cause);
-    }
 }

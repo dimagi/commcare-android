@@ -67,7 +67,7 @@
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
-        android:defaultValue="yes"
+        android:defaultValue="no"
         android:key="cc-fire-triggers-on-save"
         android:title="Fire triggers on form save"/>
     <ListPreference
@@ -96,4 +96,11 @@
         android:defaultValue="yes"
         android:key="cc-form-payload-status"
         android:title="Load form payload status"/>
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:defaultValue="yes"
+        android:key="cc-detail-final-swipe-enabled"
+        android:title="Enable swipe in/out of case detail tabs"/>
 </PreferenceScreen>

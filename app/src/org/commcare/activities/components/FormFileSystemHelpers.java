@@ -34,9 +34,9 @@ public class FormFileSystemHelpers {
         }
     }
 
-    public static int getFormInstanceCount(Context context,
-                                           String instancePath,
-                                           Uri instanceProviderContentURI) {
+    private static int getFormInstanceCount(Context context,
+                                            String instancePath,
+                                            Uri instanceProviderContentURI) {
         String selection =
                 InstanceProviderAPI.InstanceColumns.INSTANCE_FILE_PATH + " like '"
                         + instancePath + "'";

@@ -47,16 +47,9 @@ public class EndOfFormTest {
 
     @Before
     public void setup() {
-        // needed to resolve "jr://resource" type references
-        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
-
-        TestUtils.initializeStaticTestStorage();
-        TestAppInstaller.setupPrototypeFactory();
-
-        TestAppInstaller appTestInstaller =
-                new TestAppInstaller("jr://resource/commcare-apps/form_nav_tests/profile.ccpr",
-                        "test", "123");
-        appTestInstaller.installAppAndLogin();
+        TestAppInstaller.initInstallAndLogin(
+                "jr://resource/commcare-apps/form_nav_tests/profile.ccpr",
+                "test", "123");
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
 

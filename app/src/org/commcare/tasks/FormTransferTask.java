@@ -3,6 +3,7 @@ package org.commcare.tasks;
 import android.util.Log;
 
 import org.commcare.activities.CommCareWiFiDirectActivity;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.tasks.templates.CommCareTask;
 
 import java.io.FileInputStream;
@@ -18,20 +19,19 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
 
     public static final int BULK_TRANSFER_ID = 9575922;
 
-    final String host;
-    final String filepath;
-    final int port;
+    private final String host;
+    private final String filepath;
+    private final int port;
 
     public FormTransferTask(String host, String filepath, int port) {
         this.taskId = BULK_TRANSFER_ID;
         this.host = host;
         this.filepath = filepath;
         this.port = port;
-
-        TAG = FormTransferTask.class.getSimpleName();
+        TAG = AndroidLogger.TYPE_FORM_DUMP;
     }
 
-    public InputStream getFormInputStream(String fPath) throws FileNotFoundException {
+    private InputStream getFormInputStream(String fPath) throws FileNotFoundException {
         Log.d(TAG, "Getting form input stream");
         InputStream is;
         Log.d(TAG, " fileinptutstream  with filepath: " + fPath);

@@ -3,8 +3,8 @@ package org.commcare.android.util;
 import org.javarosa.core.util.externalizable.Hasher;
 
 public class LiveHasher extends Hasher {
-    final LivePrototypeFactory pf;
-    final Hasher mHasher;
+    private final LivePrototypeFactory pf;
+    private final Hasher mHasher;
 
     public LiveHasher(LivePrototypeFactory pf, Hasher mHasher) {
         this.pf = pf;

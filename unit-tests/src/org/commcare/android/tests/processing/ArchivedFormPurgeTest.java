@@ -31,15 +31,9 @@ public class ArchivedFormPurgeTest {
 
     @Before
     public void setup() {
-        // needed to resolve "jr://resource" type references
-        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
-
-        TestAppInstaller.setupPrototypeFactory();
-
-        TestAppInstaller appTestInstaller =
-                new TestAppInstaller("jr://resource/commcare-apps/archive_form_tests/profile.ccpr",
-                        "test", "123");
-        appTestInstaller.installAppAndLogin();
+        TestAppInstaller.initInstallAndLogin(
+                "jr://resource/commcare-apps/archive_form_tests/profile.ccpr",
+                "test", "123");
 
         SavedFormLoader.loadFormsFromPayload("/commcare-apps/archive_form_tests/saved_form_payload.xml");
     }

@@ -5,26 +5,20 @@ import android.util.Log;
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.UserStorageClosedException;
-import org.commcare.models.database.user.models.ACase;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.models.database.user.models.SessionStateDescriptor;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackOperation;
-import org.commcare.suite.model.Text;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.expr.XPathEqExpr;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathStringLiteral;
 
 import java.util.Date;
 import java.util.Hashtable;
@@ -43,8 +37,8 @@ public class AndroidSessionWrapper {
     private static final String TAG = AndroidSessionWrapper.class.getSimpleName();
     //The state descriptor will need these 
     private final CommCareSession session;
-    protected int formRecordId = -1;
-    protected int sessionStateRecordId = -1;
+    private int formRecordId = -1;
+    private int sessionStateRecordId = -1;
 
     public AndroidSessionWrapper(CommCarePlatform platform) {
         session = new CommCareSession(platform);
@@ -194,82 +188,6 @@ public class AndroidSessionWrapper {
         return sessionStateRecordId;
     }
 
-    public String getTitle() {
-        //TODO: Most of this mimicks what we need to do in entrydetail activity, remove it from there
-        //and generalize the walking
-
-        //TODO: This manipulates the state of the session. We should instead grab and make a copy of the frame, and make a new session to 
-        //investigate this.
-
-        // Walk backwards until we find something with a long detail
-        while (session.getFrame().getSteps().size() > 0 &&
-                (!SessionFrame.STATE_DATUM_VAL.equals(session.getNeededData()) ||
-                        session.getNeededDatum().getLongDetail() == null)) {
-            session.stepBack();
-        }
-        if (session.getFrame().getSteps().size() == 0) {
-            return null;
-        }
-
-        EvaluationContext ec = getEvaluationContext();
-
-        //Get the value that was chosen for this item
-        String value = session.getPoppedStep().getValue();
-
-        SessionDatum datum = session.getNeededDatum();
-
-        //Now determine what nodeset that was going to be used to load this select
-        TreeReference nodesetRef = datum.getNodeset().clone();
-        Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() - 1);
-        predicates.add(new XPathEqExpr(XPathEqExpr.EQ, XPathReference.getPathExpr(datum.getValue()), new XPathStringLiteral(value)));
-
-        Vector<TreeReference> elements = ec.expandReference(nodesetRef);
-
-        //If we got our ref, awesome. Otherwise we need to bail.
-        if (elements.size() != 1) {
-            return null;
-        }
-
-        //Now generate a context for our element 
-        EvaluationContext element = new EvaluationContext(ec, elements.firstElement());
-
-
-        //Ok, so get our Text.
-        Text t = session.getDetail(datum.getLongDetail()).getTitle().getText();
-        boolean isPrettyPrint = true;
-
-        //CTS: this is... not awesome.
-        //But we're going to use this to test whether we _need_ an evaluation context
-        //for this. (If not, the title doesn't have prettyprint for us)
-        try {
-            String outcome = t.evaluate();
-            if (outcome != null) {
-                isPrettyPrint = false;
-            }
-        } catch (Exception e) {
-            //Cool. Got us a fancy string.
-        }
-
-        if (isPrettyPrint) {
-            //Now just get the detail title for that element
-            return t.evaluate(element);
-        } else {
-            //Otherwise, this is _almost certainly_ a case. See if it is, and 
-            //if so, grab the case name. otherwise, who knows?
-            SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
-            try {
-                ACase ourCase = storage.getRecordForValue(ACase.INDEX_CASE_ID, value);
-                if (ourCase != null) {
-                    return ourCase.getName();
-                } else {
-                    return null;
-                }
-            } catch (Exception e) {
-                return null;
-            }
-        }
-    }
-
     /**
      * @return The evaluation context for the current state.
      */
@@ -285,8 +203,8 @@ public class AndroidSessionWrapper {
         return session.getEvaluationContext(getIIF(), commandId);
     }
     
-    AndroidInstanceInitializer initializer;
-    protected AndroidInstanceInitializer getIIF() {
+    private AndroidInstanceInitializer initializer;
+    private AndroidInstanceInitializer getIIF() {
         if(initializer == null) {
             initializer = new AndroidInstanceInitializer(session);
         } 
@@ -308,28 +226,30 @@ public class AndroidSessionWrapper {
                 if (e.getSessionDataReqs().size() == 1) {
                     //This should fit the bill. Single selection.
                     SessionDatum datum = e.getSessionDataReqs().firstElement();
+                    // we only know how to mock a single case selection
+                    if (datum instanceof EntityDatum) {
+                        EntityDatum entityDatum = (EntityDatum)datum;
+                        //The only thing we need to know now is whether we have a better option available
+                        int countPredicates = CommCareUtil.countPreds(entityDatum.getNodeset());
 
-                    //The only thing we need to know now is whether we have a better option available
-
-                    int countPredicates = CommCareUtil.countPreds(datum.getNodeset());
-
-                    if (wrapper == null) {
-                        //No previous value! Yay.
-                        //Record the degree of specificity of this selection for now (we'll
-                        //actually create the wrapper later
-                        curPredicates = countPredicates;
-                    } else {
-                        //There's already a path to this form. Only keep going 
-                        //if the current choice is less specific
-                        if (countPredicates >= curPredicates) {
-                            continue;
+                        if (wrapper == null) {
+                            //No previous value! Yay.
+                            //Record the degree of specificity of this selection for now (we'll
+                            //actually create the wrapper later
+                            curPredicates = countPredicates;
+                        } else {
+                            //There's already a path to this form. Only keep going
+                            //if the current choice is less specific
+                            if (countPredicates >= curPredicates) {
+                                continue;
+                            }
                         }
-                    }
 
-                    wrapper = new AndroidSessionWrapper(platform);
-                    wrapper.session.setCommand(platform.getModuleNameForEntry((FormEntry)e));
-                    wrapper.session.setCommand(e.getCommandId());
-                    wrapper.session.setDatum(datum.getDataId(), selectedValue);
+                        wrapper = new AndroidSessionWrapper(platform);
+                        wrapper.session.setCommand(platform.getModuleNameForEntry((FormEntry) e));
+                        wrapper.session.setCommand(e.getCommandId());
+                        wrapper.session.setDatum(entityDatum.getDataId(), selectedValue);
+                    }
                 }
 
                 //We don't really have a good thing to do with this yet. For now, just

@@ -27,7 +27,6 @@ import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
-import java.util.Vector;
 
 /**
  * Responsible for delegating the loading of form lists and performing
@@ -38,14 +37,14 @@ import java.util.Vector;
 public class IncompleteFormListAdapter extends BaseAdapter implements FormRecordLoadListener {
     private final Context context;
 
-    private final List<DataSetObserver> observers;
+    private final List<DataSetObserver> observers = new ArrayList<>();
 
     private FormRecordFilter filter;
 
     /**
      * All loaded form records of a given status, with no filtering.
      */
-    private List<FormRecord> records;
+    private final List<FormRecord> records = new ArrayList<>();
 
     /**
      * Filtered form records. getView reads from this to display all the forms.
@@ -76,7 +75,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
      * (entry-point text). Needed because FormRecords don't have form title
      * info, but do have the namespace.
      */
-    private final Hashtable<String, Text> names;
+    private final Hashtable<String, Text> names = new Hashtable<>();
 
     public IncompleteFormListAdapter(Context context,
                                      AndroidCommCarePlatform platform,
@@ -84,9 +83,6 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         this.context = context;
         this.filter = null;
         this.loader = loader;
-
-        observers = new ArrayList<>();
-        names = new Hashtable<>();
 
         loader.addListener(this);
 
@@ -161,7 +157,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
             filter = FormRecordFilter.SubmittedAndPending;
         }
 
-        records = new Vector<>();
+        records.clear();
         String currentAppId = CommCareApplication._().getCurrentApp().getAppRecord().getApplicationId();
         // Grab all form records that satisfy ANY of the statuses in the filter, AND belong to the
         // currently seated app
@@ -306,30 +302,26 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
     /**
      * Filter loaded FormRecords by those whose data contains any word in the
      * query field.
-     * <p/>
+     *
      * Reads from FormRecords in the 'records' field and moves them into the
      * cleared out the 'current' field.
      */
     private void filterValues() {
-        // If FormRecords are still being loaded, wait for them to finish.
-        // Upon load completion this method will get called.
-        if (!loader.doneLoadingFormRecords()) {
-            return;
-        }
+        if (loader.doneLoadingFormRecords()) {
+            current.clear();
 
-        current.clear();
-
-        if ("".equals(query)) {
-            current.addAll(records);
-        } else {
-            // collect all forms that have text data that contains pieces.
-            for (FormRecord r : records) {
-                if (satisfiesQuery(r)) {
-                    current.add(r);
+            if ("".equals(query)) {
+                current.addAll(records);
+            } else {
+                // collect all forms that have text data that contains pieces.
+                for (FormRecord r : records) {
+                    if (satisfiesQuery(r)) {
+                        current.add(r);
+                    }
                 }
             }
+            notifyDataSetChanged();
         }
-        notifyDataSetChanged();
     }
 
     /**
