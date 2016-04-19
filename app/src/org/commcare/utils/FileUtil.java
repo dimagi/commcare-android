@@ -363,7 +363,6 @@ public class FileUtil {
         }
     }
 
-
     public static boolean createFolder(String path) {
         boolean made = true;
         File dir = new File(path);
