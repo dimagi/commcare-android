@@ -13,7 +13,7 @@ import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.app.models.UserKeyRecord;
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.models.legacy.LegacyInstallUtils;

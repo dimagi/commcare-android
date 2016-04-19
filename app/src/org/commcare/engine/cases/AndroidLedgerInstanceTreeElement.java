@@ -5,7 +5,7 @@ import org.commcare.cases.ledger.instance.LedgerChildElement;
 import org.commcare.cases.ledger.instance.LedgerInstanceTreeElement;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.SqlStorageIterator;
-import org.commcare.models.database.user.models.ACase;
+import org.commcare.android.database.user.models.ACase;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.services.storage.IStorageIterator;
 import org.javarosa.core.util.DataUtil;

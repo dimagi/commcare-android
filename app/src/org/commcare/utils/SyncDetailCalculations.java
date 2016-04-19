@@ -11,7 +11,8 @@ import org.commcare.adapters.HomeCardDisplayData;
 import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.modern.util.Pair;
 import org.javarosa.core.services.locale.Localization;
 
 import java.text.DateFormat;
@@ -29,22 +30,26 @@ public class SyncDetailCalculations {
     public static void updateSubText(final CommCareHomeActivity activity,
                                      SquareButtonViewHolder squareButtonViewHolder,
                                      HomeCardDisplayData cardDisplayData) {
+
         SqlStorage<FormRecord> formsStorage = CommCareApplication._().getUserStorage(FormRecord.class);
         int numUnsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
+
+        Pair<Long, String> lastSyncTimeAndMessage = getLastSyncTimeAndMessage();
+
         if (numUnsentForms > 0) {
-            Spannable syncIndicator = (activity.localize("home.sync.indicator",
-                    new String[]{String.valueOf(numUnsentForms), cardDisplayData.text}));
+            Spannable syncIndicator = (activity.localize("home.unsent.forms.indicator",
+                    new String[]{String.valueOf(numUnsentForms)}));
             squareButtonViewHolder.subTextView.setText(syncIndicator);
-            squareButtonViewHolder.subTextView.setTextColor(activity.getResources().getColor(cardDisplayData.subTextColor));
         } else {
-            showSyncMessage(squareButtonViewHolder.subTextView,
-                    activity.getResources().getColor(cardDisplayData.subTextColor),
-                    activity.getResources().getColor(R.color.cc_attention_negative_text),
-                    numUnsentForms);
+            squareButtonViewHolder.subTextView.setText(lastSyncTimeAndMessage.second);
         }
+        setSyncSubtextColor(
+                squareButtonViewHolder.subTextView, numUnsentForms, lastSyncTimeAndMessage.first,
+                activity.getResources().getColor(cardDisplayData.subTextColor),
+                activity.getResources().getColor(R.color.cc_attention_negative_text));
     }
 
-    private static void showSyncMessage(TextView subTextView, int normalColor, int warningColor, int numUnsentForms) {
+    private static Pair<Long, String> getLastSyncTimeAndMessage() {
         CharSequence syncTimeMessage;
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         long lastSyncTime = prefs.getLong("last-succesful-sync", 0);
@@ -53,20 +58,15 @@ public class SyncDetailCalculations {
         } else {
             syncTimeMessage = DateUtils.formatSameDayTime(lastSyncTime, new Date().getTime(), DateFormat.DEFAULT, DateFormat.DEFAULT);
         }
+        return new Pair<>(lastSyncTime, Localization.get("home.sync.message.last", new String[]{syncTimeMessage.toString()}));
+    }
 
-        String message = "";
-        if (numUnsentForms == 1) {
-            message += Localization.get("home.sync.message.unsent.singular") + "\n";
-        } else if (numUnsentForms > 1) {
-            message += Localization.get("home.sync.message.unsent.plural", new String[]{String.valueOf(numUnsentForms)}) + "\n";
-        }
-
-        message += Localization.get("home.sync.message.last", new String[]{syncTimeMessage.toString()});
-        subTextView.setText(message);
+    private static void setSyncSubtextColor(TextView subtext, int numUnsentForms, long lastSyncTime,
+                                            int normalColor, int warningColor) {
         if (isSyncStronglyNeeded(numUnsentForms, lastSyncTime)) {
-            subTextView.setTextColor(warningColor);
+            subtext.setTextColor(warningColor);
         } else {
-            subTextView.setTextColor(normalColor);
+            subtext.setTextColor(normalColor);
         }
     }
 

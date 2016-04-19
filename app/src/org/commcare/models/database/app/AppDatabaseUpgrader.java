@@ -10,10 +10,10 @@ import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.app.models.UserKeyRecord;
-import org.commcare.models.database.app.models.UserKeyRecordV1;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.app.models.UserKeyRecordV1;
 import org.commcare.models.database.migration.FixtureSerializationMigration;
-import org.commcare.models.framework.Persisted;
+import org.commcare.android.storage.framework.Persisted;
 import org.commcare.resources.model.Resource;
 
 import java.util.ArrayList;

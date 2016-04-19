@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import org.commcare.engine.extensions.AndroidXFormExtensions;
-import org.commcare.engine.extensions.IntentCallout;
+import org.odk.collect.android.jr.extensions.AndroidXFormExtensions;
+import org.odk.collect.android.jr.extensions.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
