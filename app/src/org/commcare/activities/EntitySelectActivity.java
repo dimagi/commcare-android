@@ -49,6 +49,7 @@ import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.tasks.EntityLoaderListener;
 import org.commcare.tasks.EntityLoaderTask;
@@ -110,7 +111,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private MenuItem searchItem;
     private MenuItem barcodeItem;
 
-    private SessionDatum selectDatum;
+    private EntityDatum selectDatum;
 
     private boolean mResultIsMap = false;
     private boolean isMappingEnabled = false;
@@ -175,7 +176,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         // avoid session dependent when there is no command
         if (session.getCommand() != null) {
-            selectDatum = session.getNeededDatum();
+            selectDatum = (EntityDatum)session.getNeededDatum();
             shortSelect = session.getDetail(selectDatum.getShortDetail());
             mNoDetailMode = selectDatum.getLongDetail() == null;
 
@@ -863,8 +864,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private DialogChoiceItem[] getSortOptionsList(final PaneledChoiceDialog dialog) {
-        SessionDatum datum = session.getNeededDatum();
-        DetailField[] fields = session.getDetail(datum.getShortDetail()).getFields();
+        DetailField[] fields = session.getDetail(selectDatum.getShortDetail()).getFields();
         List<String> namesList = new ArrayList<>();
 
         final int[] keyArray = new int[fields.length];
