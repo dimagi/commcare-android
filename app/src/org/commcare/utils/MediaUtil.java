@@ -3,6 +3,7 @@ package org.commcare.utils;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.ImageReader;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
@@ -342,5 +343,9 @@ public class MediaUtil {
         } catch (OutOfMemoryError e) {
             return performSafeScaleDown(imageFilepath, scale + 1, depth + 1);
         }
+    }
+
+    public static boolean isAnimatedGif(File gifFile) {
+        return true;
     }
 }

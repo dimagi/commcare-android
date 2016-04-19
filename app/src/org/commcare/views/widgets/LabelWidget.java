@@ -66,57 +66,7 @@ public class LabelWidget extends QuestionWidget {
                 mMissingImage = null;
 
                 // Now set up the image view
-                String errorMsg = null;
-                if (imageURI != null) {
-                    try {
-                        String imageFilename =
-                                ReferenceManager._().DeriveReference(imageURI).getLocalURI();
-                        final File imageFile = new File(imageFilename);
-                        if (imageFile.exists()) {
-                            Bitmap b = null;
-                            try {
-                                Display display =
-                                        ((WindowManager)getContext().getSystemService(
-                                                Context.WINDOW_SERVICE)).getDefaultDisplay();
-                                int screenWidth = display.getWidth();
-                                int screenHeight = display.getHeight();
-                                b = MediaUtil.getBitmapScaledToContainer(imageFile, screenHeight,
-                                        screenWidth);
-                            } catch (OutOfMemoryError e) {
-                                errorMsg = "ERROR: " + e.getMessage();
-                            }
-
-                            if (b != null) {
-                                mImageView = new ImageView(getContext());
-                                mImageView.setPadding(2, 2, 2, 2);
-                                mImageView.setAdjustViewBounds(true);
-                                mImageView.setImageBitmap(b);
-                                mImageView.setId(23423534);
-                            } else if (errorMsg == null) {
-                                // An error hasn't been logged and loading the image failed, so it's
-                                // likely
-                                // a bad file.
-                                errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_invalid, imageFile.toString());
-
-                            }
-                        } else {
-                            errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_missing, imageFile.toString());
-                        }
-
-                        if (errorMsg != null) {
-                            // errorMsg is only set when an error has occured
-                            Log.e(TAG, errorMsg);
-                            mMissingImage = new TextView(getContext());
-                            mMissingImage.setText(errorMsg);
-
-                            mMissingImage.setPadding(2, 2, 2, 2);
-                            mMissingImage.setId(234873453);
-                        }
-                    } catch (InvalidReferenceException e) {
-                        Log.e(TAG, "image invalid reference exception");
-                        e.printStackTrace();
-                    }
-                }
+                setupImage(imageURI);
 
                 // build text label. Don't assign the text to the built in label to he
                 // button because it aligns horizontally, and we want the label on top
@@ -166,6 +116,60 @@ public class LabelWidget extends QuestionWidget {
 
         questionLayout.addView(buttonLayout, buttonParams);
         addView(questionLayout);
+    }
+
+    private void setupImage(String imageURI) {
+        String errorMsg = null;
+        if (imageURI != null) {
+            try {
+                String imageFilename =
+                        ReferenceManager._().DeriveReference(imageURI).getLocalURI();
+                final File imageFile = new File(imageFilename);
+                if (imageFile.exists()) {
+                    Bitmap b = null;
+                    try {
+                        Display display =
+                                ((WindowManager)getContext().getSystemService(
+                                        Context.WINDOW_SERVICE)).getDefaultDisplay();
+                        int screenWidth = display.getWidth();
+                        int screenHeight = display.getHeight();
+                        b = MediaUtil.getBitmapScaledToContainer(imageFile, screenHeight,
+                                screenWidth);
+                    } catch (OutOfMemoryError e) {
+                        errorMsg = "ERROR: " + e.getMessage();
+                    }
+
+                    if (b != null) {
+                        mImageView = new ImageView(getContext());
+                        mImageView.setPadding(2, 2, 2, 2);
+                        mImageView.setAdjustViewBounds(true);
+                        mImageView.setImageBitmap(b);
+                        mImageView.setId(23423534);
+                    } else if (errorMsg == null) {
+                        // An error hasn't been logged and loading the image failed, so it's
+                        // likely
+                        // a bad file.
+                        errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_invalid, imageFile.toString());
+
+                    }
+                } else {
+                    errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_missing, imageFile.toString());
+                }
+
+                if (errorMsg != null) {
+                    // errorMsg is only set when an error has occured
+                    Log.e(TAG, errorMsg);
+                    mMissingImage = new TextView(getContext());
+                    mMissingImage.setText(errorMsg);
+
+                    mMissingImage.setPadding(2, 2, 2, 2);
+                    mMissingImage.setId(234873453);
+                }
+            } catch (InvalidReferenceException e) {
+                Log.e(TAG, "image invalid reference exception");
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
