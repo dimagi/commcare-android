@@ -3,7 +3,7 @@ package org.commcare.engine.resource.installers;
 import org.commcare.CommCareApp;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.engine.resource.AppInstallStatus;
-import org.commcare.models.database.global.models.ApplicationRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.tasks.ResourceEngineTask;
 import org.javarosa.core.util.PropertyUtils;
 

@@ -2,7 +2,8 @@ package org.commcare.android.logging;
 
 import android.os.Build;
 
-import org.commcare.logging.AndroidLogEntry;
+import org.commcare.CommCareApplication;
+import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.DevSessionRestorer;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -29,6 +30,8 @@ public class ForceCloseLogEntry extends AndroidLogEntry {
     private String deviceModel;
     private String readableSessionString;
     private String serializedSessionString;
+    private String appId;
+    private String userId;
 
     /**
      * Serialization only
@@ -44,6 +47,8 @@ public class ForceCloseLogEntry extends AndroidLogEntry {
         deviceModel = Build.MODEL;
         readableSessionString = ReportingUtils.getCurrentSession();
         serializedSessionString = DevSessionRestorer.getSerializedSessionString();
+        appId = ReportingUtils.getAppId();
+        userId = CommCareApplication._().getCurrentUserId();
     }
 
     public int getAppBuildNumber() {
@@ -66,6 +71,14 @@ public class ForceCloseLogEntry extends AndroidLogEntry {
         return serializedSessionString;
     }
 
+    public String getAppId() {
+        return appId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
@@ -75,6 +88,8 @@ public class ForceCloseLogEntry extends AndroidLogEntry {
         deviceModel = ExtUtil.readString(in);
         readableSessionString = ExtUtil.readString(in);
         serializedSessionString = ExtUtil.readString(in);
+        appId = ExtUtil.readString(in);
+        userId = ExtUtil.readString(in);
     }
 
     @Override
@@ -85,6 +100,8 @@ public class ForceCloseLogEntry extends AndroidLogEntry {
         ExtUtil.writeString(out, deviceModel);
         ExtUtil.writeString(out, readableSessionString);
         ExtUtil.writeString(out, serializedSessionString);
+        ExtUtil.writeString(out, appId);
+        ExtUtil.writeString(out, userId);
     }
 
 }

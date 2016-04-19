@@ -11,8 +11,8 @@ import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.MigrationException;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.global.models.ApplicationRecord;
-import org.commcare.models.database.global.models.ApplicationRecordV1;
+import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.database.global.models.ApplicationRecordV1;
 import org.commcare.provider.ProviderUtils;
 import org.javarosa.core.services.storage.Persistable;
 

@@ -5,7 +5,7 @@ import android.util.Log;
 
 import org.commcare.activities.CommCareWiFiDirectActivity;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.tasks.templates.CommCareTask;
 
 /**
