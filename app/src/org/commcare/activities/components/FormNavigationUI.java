@@ -23,6 +23,7 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logic.FormController;
+import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.views.ClippingFrame;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.UserfacingErrorHandling;
@@ -92,15 +93,20 @@ public class FormNavigationUI {
                                      final ClippingFrame finishButton,
                                      FormNavigationController.NavigationDetails details,
                                      ProgressBar progressBar) {
-        if(nextButton.getTag() == null) {
-            setFinishVisible(finishButton);
-        }else if(!FormEntryActivity.NAV_STATE_DONE.equals(nextButton.getTag())) {
-            nextButton.setTag(FormEntryActivity.NAV_STATE_DONE);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                expandAndShowFinishButton(context, finishButton);
-            } else {
+        if (DeveloperPreferences.shouldAnimateFormSubmitButton()) {
+            if (nextButton.getTag() == null) {
                 setFinishVisible(finishButton);
+            } else if (!FormEntryActivity.NAV_STATE_DONE.equals(nextButton.getTag())) {
+                nextButton.setTag(FormEntryActivity.NAV_STATE_DONE);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    expandAndShowFinishButton(context, finishButton);
+                } else {
+                    setFinishVisible(finishButton);
+                }
             }
+        } else {
+            nextButton.setImageResource(R.drawable.icon_chevron_right_attnpos);
+            nextButton.setTag(FormEntryActivity.NAV_STATE_DONE);
         }
 
         progressBar.setProgressDrawable(context.getResources().getDrawable(R.drawable.progressbar_full));
@@ -148,11 +154,16 @@ public class FormNavigationUI {
                                               ClippingFrame finishButton,
                                               FormNavigationController.NavigationDetails details,
                                               ProgressBar progressBar) {
-        if(!FormEntryActivity.NAV_STATE_NEXT.equals(nextButton.getTag())) {
-            nextButton.setTag(FormEntryActivity.NAV_STATE_NEXT);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                finishButton.setVisibility(View.GONE);
+        if (DeveloperPreferences.shouldAnimateFormSubmitButton()) {
+            if (!FormEntryActivity.NAV_STATE_NEXT.equals(nextButton.getTag())) {
+                nextButton.setTag(FormEntryActivity.NAV_STATE_NEXT);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                    finishButton.setVisibility(View.GONE);
+                }
             }
+        } else {
+            nextButton.setImageResource(R.drawable.icon_chevron_right_brand);
+            nextButton.setTag(FormEntryActivity.NAV_STATE_NEXT);
         }
 
         progressBar.setProgressDrawable(context.getResources().getDrawable(R.drawable.progressbar_modern));
