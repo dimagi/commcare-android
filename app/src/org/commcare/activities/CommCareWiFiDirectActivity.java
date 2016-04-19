@@ -36,7 +36,7 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.services.WiFiDirectBroadcastReceiver;
 import org.commcare.tasks.FormRecordToFileTask;

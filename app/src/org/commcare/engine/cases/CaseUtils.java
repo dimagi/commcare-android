@@ -9,7 +9,7 @@ import org.commcare.cases.util.CasePurgeFilter;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.UserStorageClosedException;
-import org.commcare.models.database.user.models.ACase;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.SessionUnavailableException;

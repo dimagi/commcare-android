@@ -6,7 +6,7 @@ import android.os.AsyncTask;
 import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.FormRecordProcessor;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FormUploadUtil;
@@ -372,7 +372,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         results = null;
     }
 
-    protected int getSuccesfulSends() {
+    protected int getSuccessfulSends() {
         int successes = 0;
         for (Long formResult : results) {
             if (formResult != null && FormUploadUtil.FULL_SUCCESS == formResult.intValue()) {

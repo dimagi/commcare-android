@@ -53,8 +53,8 @@ import org.commcare.activities.components.FormRelevancyUpdating;
 import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.engine.extensions.IntentCallout;
-import org.commcare.engine.extensions.PollSensorAction;
+import org.odk.collect.android.jr.extensions.IntentCallout;
+import org.odk.collect.android.jr.extensions.PollSensorAction;
 import org.commcare.interfaces.AdvanceToNextListener;
 import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.interfaces.FormSavedListener;
@@ -97,7 +97,6 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryPrompt;
@@ -116,7 +115,6 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -1645,21 +1643,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
             // Newer menus may have already built the menu, before all data was ready
             invalidateOptionsMenu();
-        }
-
-        Localizer mLocalizer = Localization.getGlobalLocalizerAdvanced();
-
-        if(mLocalizer != null){
-            String mLocale = mLocalizer.getLocale();
-
-            if (mLocale != null && fc.getLanguages() != null && Arrays.asList(fc.getLanguages()).contains(mLocale)){
-                fc.setLanguage(mLocale);
-            }
-            else{
-                Logger.log("formloader", "The current locale is not set");
-            }
-        } else{
-            Logger.log("formloader", "Could not get the localizer");
         }
 
         registerSessionFormSaveCallback();

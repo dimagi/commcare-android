@@ -1,10 +1,10 @@
 package org.commcare.utils;
 
-import org.commcare.engine.resource.installers.LocaleAndroidInstaller;
-import org.commcare.engine.resource.installers.MediaFileAndroidInstaller;
-import org.commcare.engine.resource.installers.ProfileAndroidInstaller;
-import org.commcare.engine.resource.installers.SuiteAndroidInstaller;
-import org.commcare.engine.resource.installers.XFormAndroidInstaller;
+import org.commcare.android.resource.installers.LocaleAndroidInstaller;
+import org.commcare.android.resource.installers.MediaFileAndroidInstaller;
+import org.commcare.android.resource.installers.ProfileAndroidInstaller;
+import org.commcare.android.resource.installers.SuiteAndroidInstaller;
+import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.resources.model.InstallerFactory;
 import org.commcare.resources.model.ResourceInstaller;
 
