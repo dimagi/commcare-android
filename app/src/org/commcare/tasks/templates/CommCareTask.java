@@ -9,7 +9,8 @@ import org.javarosa.core.services.Logger;
 /**
  * @author ctsims
  */
-public abstract class CommCareTask<Params, Progress, Result, Receiver> extends ManagedAsyncTask<Params, Progress, Result> {
+public abstract class CommCareTask<Params, Progress, Result, Receiver>
+        extends ManagedAsyncTask<Params, Progress, Result> {
     protected static String TAG;
 
     public static final int GENERIC_TASK_ID = 32;
