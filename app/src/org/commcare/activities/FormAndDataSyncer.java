@@ -16,7 +16,6 @@ import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.ResultAndError;
-import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
@@ -26,16 +25,15 @@ import org.javarosa.core.services.locale.Localization;
  * Processes and submits forms and syncs data with server
  */
 public class FormAndDataSyncer {
-    private final ConnectorWithMessaging activity;
     private final Context context;
 
-    public FormAndDataSyncer(Context context, ConnectorWithMessaging activity) {
+    public FormAndDataSyncer(Context context) {
         this.context = context;
-        this.activity = activity;
     }
 
     @SuppressLint("NewApi")
-    public void processAndSendForms(FormRecord[] records,
+    public void processAndSendForms(CommCareHomeActivity activity,
+                                    FormRecord[] records,
                                     final boolean syncAfterwards,
                                     final boolean userTriggered) {
 
@@ -63,7 +61,7 @@ public class FormAndDataSyncer {
                     receiver.displayMessage(label);
 
                     if (syncAfterwards) {
-                        syncData(true, userTriggered);
+                        syncData(receiver, true, userTriggered);
                     }
                 } else if (result != FormUploadUtil.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
@@ -87,7 +85,7 @@ public class FormAndDataSyncer {
             // abort since it looks like the session expired
             return;
         }
-        mProcess.connect((CommCareTaskConnector<CommCareHomeActivity>)activity);
+        mProcess.connect(activity);
 
         //Execute on a true multithreaded chain. We should probably replace all of our calls with this
         //but this is the big one for now.
@@ -105,7 +103,8 @@ public class FormAndDataSyncer {
                 context.getString(R.string.PostURL));
     }
 
-    public void syncData(final boolean formsToSend, final boolean userTriggeredSync) {
+    public void syncData(ConnectorWithMessaging messagingConnector,
+                         final boolean formsToSend, final boolean userTriggeredSync) {
         User u;
         try {
             u = CommCareApplication._().getSession().getLoggedInUser();
@@ -118,9 +117,9 @@ public class FormAndDataSyncer {
             if (userTriggeredSync) {
                 // Remind the user that there's no syncing in demo mode.
                 if (formsToSend) {
-                    activity.displayBadMessageWithoutToast(Localization.get("main.sync.demo.has.forms"));
+                    messagingConnector.displayBadMessageWithoutToast(Localization.get("main.sync.demo.has.forms"));
                 } else {
-                    activity.displayBadMessageWithoutToast(Localization.get("main.sync.demo.no.forms"));
+                    messagingConnector.displayBadMessageWithoutToast(Localization.get("main.sync.demo.no.forms"));
                 }
             }
             return;
@@ -210,7 +209,7 @@ public class FormAndDataSyncer {
             }
         };
 
-        mDataPullTask.connect((CommCareTaskConnector<ConnectorWithMessaging>)activity);
+        mDataPullTask.connect(messagingConnector);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             mDataPullTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {

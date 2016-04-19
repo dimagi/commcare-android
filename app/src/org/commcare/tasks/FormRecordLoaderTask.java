@@ -6,13 +6,11 @@ import android.util.Pair;
 
 import org.commcare.CommCareApplication;
 import org.commcare.models.AndroidSessionWrapper;
-import org.commcare.models.Entity;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.models.ACase;
 import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.models.database.user.models.SessionStateDescriptor;
 import org.commcare.session.CommCareSession;
-import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Text;
