@@ -47,7 +47,7 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
      * they can fix.
      */
     private boolean warnUserAndExit(Throwable ex) {
-        if (ex instanceof NoLocalizedTextException) {
+        if (causedByLocalizationException(ex)) {
             Intent i = new Intent(ctx, CrashWarningActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -56,5 +56,10 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
             return true;
         }
         return false;
+    }
+
+    private static boolean causedByLocalizationException(Throwable ex) {
+        return ex != null &&
+                (ex instanceof NoLocalizedTextException || causedByLocalizationException(ex.getCause()));
     }
 }

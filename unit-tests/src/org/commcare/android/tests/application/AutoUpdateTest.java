@@ -85,15 +85,9 @@ public class AutoUpdateTest {
     }
 
     private void installBaseApp() {
-        // needed to resolve "jr://resource" type references
-        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
-
-        TestAppInstaller.setupPrototypeFactory();
-
-        TestAppInstaller appTestInstaller =
-                new TestAppInstaller(buildResourceRef("base_app", "profile.ccpr"),
-                        username, password);
-        appTestInstaller.installAppAndLogin();
+        TestAppInstaller.initInstallAndLogin(
+                buildResourceRef("base_app", "profile.ccpr"),
+                username, password);
 
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
         Assert.assertTrue(p.getVersion() == 6);
