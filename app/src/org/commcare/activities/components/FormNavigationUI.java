@@ -39,6 +39,10 @@ public class FormNavigationUI {
     public static void updateNavigationCues(CommCareActivity activity,
                                             FormController formController,
                                             QuestionsView view) {
+        if (view == null) {
+            return;
+        }
+
         updateFloatingLabels(activity, view);
 
         FormNavigationController.NavigationDetails details;
