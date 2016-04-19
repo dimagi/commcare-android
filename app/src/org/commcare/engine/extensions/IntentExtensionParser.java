@@ -12,6 +12,8 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.kdom.Element;
+import org.odk.collect.android.jr.extensions.AndroidXFormExtensions;
+import org.odk.collect.android.jr.extensions.IntentCallout;
 
 import java.util.Hashtable;
 import java.util.Vector;

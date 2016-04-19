@@ -5,7 +5,7 @@ import android.util.Log;
 import org.commcare.activities.CommCareHomeActivity;
 import org.commcare.activities.FormAndDataSyncer;
 import org.commcare.interfaces.ConnectorWithMessaging;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 
 /**
  * Fake object that prevent tests from communicating with server to pull or submit data

@@ -15,7 +15,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionNavigator;
 import org.commcare.views.QuestionsView;
