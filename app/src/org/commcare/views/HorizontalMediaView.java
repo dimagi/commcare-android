@@ -34,7 +34,7 @@ public class HorizontalMediaView extends RelativeLayout {
 
     public HorizontalMediaView(Context c) {
         super(c);
-        this.iconDimension = (int) getResources().getDimension(R.dimen.menu_icon_size);
+        this.iconDimension = (int)getResources().getDimension(R.dimen.menu_icon_size);
     }
 
     public void setDisplay(DisplayUnit display) {
@@ -119,9 +119,9 @@ public class HorizontalMediaView extends RelativeLayout {
             textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
         }
         LayoutInflater inflater =
-                (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        TextView mTextView = (TextView) inflater.inflate(R.layout.menu_list_item, null);
+        TextView mTextView = (TextView)inflater.inflate(R.layout.menu_list_item, null);
         mTextView.setText(displayText);
         addView(mTextView, textParams);
     }
