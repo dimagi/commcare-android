@@ -3,6 +3,7 @@ package org.commcare.tasks;
 import android.util.Log;
 
 import org.commcare.activities.CommCareWiFiDirectActivity;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.tasks.templates.CommCareTask;
 
 import java.io.FileInputStream;
@@ -27,8 +28,7 @@ public abstract class FormTransferTask extends CommCareTask<String, String, Bool
         this.host = host;
         this.filepath = filepath;
         this.port = port;
-
-        TAG = FormTransferTask.class.getSimpleName();
+        TAG = AndroidLogger.TYPE_FORM_DUMP;
     }
 
     private InputStream getFormInputStream(String fPath) throws FileNotFoundException {
