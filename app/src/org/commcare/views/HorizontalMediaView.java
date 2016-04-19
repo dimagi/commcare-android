@@ -14,7 +14,6 @@ import org.commcare.suite.model.DisplayData;
 import org.commcare.suite.model.DisplayUnit;
 import org.commcare.utils.MediaUtil;
 import org.commcare.views.media.AudioButton;
-import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localizer;
@@ -27,137 +26,112 @@ import java.io.File;
  *
  * @author wspride
  */
-
 public class HorizontalMediaView extends RelativeLayout {
-    private static final String t = "AVTLayout";
+    private static final String TAG = HorizontalMediaView.class.getSimpleName();
 
-    private TextView mTextView;
-    private AudioButton mAudioButton;
-    private ImageView mImageView;
-    private final EvaluationContext ec;
     private final int iconDimension;
-
-    public static final int NAVIGATION_NONE = 0;
-    public static final int NAVIGATION_NEXT = 1;
-
+    private AudioButton audioButton;
 
     public HorizontalMediaView(Context c) {
-        this(c, null);
-    }
-
-    private HorizontalMediaView(Context c, EvaluationContext ec) {
         super(c);
-        mTextView = null;
-        mAudioButton = null;
-        mImageView = null;
-        this.ec = ec;
         this.iconDimension = (int)getResources().getDimension(R.dimen.menu_icon_size);
     }
 
     public void setDisplay(DisplayUnit display) {
-        DisplayData mData = display.evaluate(ec);
-        setAVT(Localizer.processArguments(mData.getName(), new String[]{""}).trim(), mData.getAudioURI(), mData.getImageURI());
+        DisplayData mData = display.evaluate();
+        String displayText =
+                Localizer.processArguments(mData.getName(), new String[]{""}).trim();
+
+        setAVT(displayText, mData.getAudioURI(), mData.getImageURI());
     }
 
     public void setAVT(String displayText, String audioURI, String imageURI) {
-        this.setAVT(displayText, audioURI, imageURI, NAVIGATION_NONE);
+        removeAllViews();
+
+        RelativeLayout.LayoutParams audioParams =
+                new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        audioButton = setupAudioButton(audioURI, audioParams);
+
+        ImageView imageView = setupImageView(imageURI, audioParams);
+
+        setupText(displayText, imageView);
     }
 
-    private void setAVT(String displayText, String audioURI, String imageURI, int navStyle) {
-        this.removeAllViews();
+    private AudioButton setupAudioButton(String audioURI, RelativeLayout.LayoutParams audioParams) {
+        AudioButton tmpAudioButton = null;
+        // First set up the audio button
+        if (audioFileExists(audioURI)) {
+            // An audio file is specified
+            tmpAudioButton = new AudioButton(getContext(), audioURI, true);
+            tmpAudioButton.setId(3245345); // random ID to be used by the relative layout.
+            // Set not focusable so that list onclick will work
+            tmpAudioButton.setFocusable(false);
+            tmpAudioButton.setFocusableInTouchMode(false);
+            audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            audioParams.addRule(CENTER_VERTICAL);
+            addView(tmpAudioButton, audioParams);
+        }
+        return tmpAudioButton;
+    }
 
-        LayoutInflater inflater = (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mTextView = (TextView)inflater.inflate(R.layout.menu_list_item, null);
-        mTextView.setText(displayText);
-
-        // Layout configurations for our elements in the relative layout
-        RelativeLayout.LayoutParams textParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        RelativeLayout.LayoutParams audioParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        RelativeLayout.LayoutParams imageParams = new RelativeLayout.LayoutParams(iconDimension, iconDimension);
-
-        RelativeLayout.LayoutParams iconParams = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-        String audioFilename = "";
+    private static boolean audioFileExists(String audioURI) {
         if (audioURI != null && !audioURI.equals("")) {
             try {
-                audioFilename = ReferenceManager._().DeriveReference(audioURI).getLocalURI();
+                return new File(ReferenceManager._().DeriveReference(audioURI).getLocalURI()).exists();
             } catch (InvalidReferenceException e) {
-                Log.e(t, "Invalid reference exception");
+                Log.e(TAG, "Invalid reference exception");
                 e.printStackTrace();
             }
         }
+        return false;
+    }
 
-
-        if (navStyle != NAVIGATION_NONE) {
-            ImageView iconRight = new ImageView(this.getContext());
-            if (navStyle == NAVIGATION_NEXT) {
-                iconRight.setImageResource(R.drawable.icon_next);
-            } else {
-                iconRight.setImageResource(R.drawable.icon_done);
-            }
-            iconRight.setId(2345345);
-            iconParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            iconParams.addRule(CENTER_VERTICAL);
-
-            iconParams.rightMargin = 5;
-            //iconRight.setPadding(20, iconRight.getPaddingTop(), iconRight.getPaddingRight(), iconRight.getPaddingBottom());
-            this.addView(iconRight, iconParams);
-        }
-
-        File audioFile = new File(audioFilename);
-
-        // First set up the audio button
-        if (!"".equals(audioFilename) && audioFile.exists()) {
-            // An audio file is specified
-            mAudioButton = new AudioButton(getContext(), audioURI, true);
-            mAudioButton.setId(3245345); // random ID to be used by the relative layout.
-            // Set not focusable so that list onclick will work
-            mAudioButton.setFocusable(false);
-            mAudioButton.setFocusableInTouchMode(false);
-            if (navStyle != NAVIGATION_NONE) {
-                audioParams.addRule(RelativeLayout.LEFT_OF, 2345345);
-            } else {
-                audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            }
-            audioParams.addRule(CENTER_VERTICAL);
-            addView(mAudioButton, audioParams);
-        }
-
+    private ImageView setupImageView(String imageURI, RelativeLayout.LayoutParams audioParams) {
+        ImageView imageView = null;
         Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI, iconDimension, iconDimension);
         if (b != null) {
-            mImageView = new ImageView(getContext());
-            mImageView.setPadding(10, 10, 10, 10);
-            mImageView.setAdjustViewBounds(true);
-            mImageView.setImageBitmap(b);
-            mImageView.setId(23422634);
+            RelativeLayout.LayoutParams imageParams =
+                    new RelativeLayout.LayoutParams(iconDimension, iconDimension);
+            imageView = new ImageView(getContext());
+            imageView.setPadding(10, 10, 10, 10);
+            imageView.setAdjustViewBounds(true);
+            imageView.setImageBitmap(b);
+            imageView.setId(23422634);
             imageParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             audioParams.addRule(CENTER_VERTICAL);
-            addView(mImageView, imageParams);
+            addView(imageView, imageParams);
         }
+        return imageView;
+    }
 
+    private void setupText(String displayText, ImageView imageView) {
+        RelativeLayout.LayoutParams textParams =
+                new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         textParams.addRule(RelativeLayout.CENTER_VERTICAL);
         textParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
-        if (imageURI != null && !imageURI.equals("") && mImageView != null) {
-            textParams.addRule(RelativeLayout.RIGHT_OF, mImageView.getId());
+        if (imageView != null) {
+            textParams.addRule(RelativeLayout.RIGHT_OF, imageView.getId());
         } else {
             textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
         }
 
-        if (navStyle != NAVIGATION_NONE) {
-            textParams.addRule(RelativeLayout.LEFT_OF, 2345345);
-        } else if (mAudioButton != null) {
-            textParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
+        if (audioButton != null) {
+            textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
         }
+        LayoutInflater inflater =
+                (LayoutInflater)getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        TextView mTextView = (TextView)inflater.inflate(R.layout.menu_list_item, null);
+        mTextView.setText(displayText);
         addView(mTextView, textParams);
     }
 
     @Override
     protected void onWindowVisibilityChanged(int visibility) {
         super.onWindowVisibilityChanged(visibility);
-        if (visibility != View.VISIBLE) {
-            if (mAudioButton != null) {
-                mAudioButton.endPlaying();
-            }
+
+        if (visibility != View.VISIBLE && audioButton != null) {
+            audioButton.endPlaying();
         }
     }
 }
