@@ -8,8 +8,10 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Gravity;
+import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -44,7 +46,7 @@ public class LabelWidget extends QuestionWidget {
 
     private TextView mQuestionText;
     private TextView mMissingImage;
-    private ImageView mImageView;
+    private View mImageView;
     private TextView label;
 
     public LabelWidget(Context context, FormEntryPrompt prompt) {
@@ -126,31 +128,10 @@ public class LabelWidget extends QuestionWidget {
                         ReferenceManager._().DeriveReference(imageURI).getLocalURI();
                 final File imageFile = new File(imageFilename);
                 if (imageFile.exists()) {
-                    Bitmap b = null;
-                    try {
-                        Display display =
-                                ((WindowManager)getContext().getSystemService(
-                                        Context.WINDOW_SERVICE)).getDefaultDisplay();
-                        int screenWidth = display.getWidth();
-                        int screenHeight = display.getHeight();
-                        b = MediaUtil.getBitmapScaledToContainer(imageFile, screenHeight,
-                                screenWidth);
-                    } catch (OutOfMemoryError e) {
-                        errorMsg = "ERROR: " + e.getMessage();
-                    }
-
-                    if (b != null) {
-                        mImageView = new ImageView(getContext());
-                        mImageView.setPadding(2, 2, 2, 2);
-                        mImageView.setAdjustViewBounds(true);
-                        mImageView.setImageBitmap(b);
-                        mImageView.setId(23423534);
-                    } else if (errorMsg == null) {
-                        // An error hasn't been logged and loading the image failed, so it's
-                        // likely
-                        // a bad file.
-                        errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_invalid, imageFile.toString());
-
+                    if (MediaUtil.isAnimatedGif(imageFile)) {
+                        errorMsg = loadGif(imageFile);
+                    } else {
+                        errorMsg = loadBitmap(imageFile);
                     }
                 } else {
                     errorMsg = StringUtils.getStringRobust(getContext(), R.string.file_missing, imageFile.toString());
@@ -170,6 +151,44 @@ public class LabelWidget extends QuestionWidget {
                 e.printStackTrace();
             }
         }
+    }
+
+    private String loadBitmap(File imageFile) {
+        Bitmap b;
+        try {
+            Display display =
+                    ((WindowManager)getContext().getSystemService(
+                            Context.WINDOW_SERVICE)).getDefaultDisplay();
+            int screenWidth = display.getWidth();
+            int screenHeight = display.getHeight();
+            b = MediaUtil.getBitmapScaledToContainer(imageFile, screenHeight,
+                    screenWidth);
+        } catch (OutOfMemoryError e) {
+            return "ERROR: " + e.getMessage();
+        }
+
+        if (b != null) {
+            ImageView imageView = new ImageView(getContext());
+            imageView.setPadding(2, 2, 2, 2);
+            imageView.setAdjustViewBounds(true);
+            imageView.setImageBitmap(b);
+            imageView.setId(23423534);
+            mImageView = imageView;
+        } else {
+            // An error hasn't been logged and loading the image failed, so it's
+            // likely a bad file.
+            return StringUtils.getStringRobust(getContext(), R.string.file_invalid, imageFile.toString());
+        }
+        return null;
+    }
+
+    private String loadGif(File imageFile) {
+        WebView webView = new WebView(getContext());
+        webView.loadUrl("file:///" + imageFile.getAbsolutePath());
+        webView.setPadding(2, 2, 2, 2);
+        webView.setId(23423534);
+        mImageView = webView;
+        return null;
     }
 
     @Override

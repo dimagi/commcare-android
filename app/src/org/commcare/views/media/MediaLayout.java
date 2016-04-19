@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
+import android.webkit.WebView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.MediaController;
@@ -160,7 +161,6 @@ public class MediaLayout extends RelativeLayout {
         }
 
         // Now set up the center view, it is either an image, a QR Code, or an inline video
-        String errorMsg = null;
         View mediaPane = null;
 
         if (inlineVideoURI != null) {
@@ -195,55 +195,10 @@ public class MediaLayout extends RelativeLayout {
                 e.printStackTrace();
             }
         } else if (imageURI != null) {
-            try {
-                int[] maxBounds = getMaxCenterViewBounds();
-                final String imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
-                final File imageFile = new File(imageFilename);
-                if (imageFile.exists()) {
-                    Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI, maxBounds[0],
-                            maxBounds[1]);
-                    if (b != null) {
-                        ImageView mImageView = new ImageView(getContext());
-                        if (useResizingImageView()) {
-                            mImageView = new ResizingImageView(getContext(), imageURI, bigImageURI);
-                            mImageView.setAdjustViewBounds(true);
-                            mImageView.setMaxWidth(maxBounds[0]);
-                            mImageView.setMaxHeight(maxBounds[1]);
-                        } else{
-                            mImageView.setScaleType(ImageView.ScaleType.CENTER);
-                        }
-                        mImageView.setPadding(10, 10, 10, 10);
-                        mImageView.setImageBitmap(b);
-                        mImageView.setId(23423534);
-                        mediaPane = mImageView;
-                    } else if (errorMsg == null) {
-                        // An error hasn't been logged and loading the image failed, so it's likely
-                        // a bad file.
-                        errorMsg = getContext().getString(R.string.file_invalid, imageFile);
-                    }
-                } else {
-                    // An error hasn't been logged. We should have an image, but the file doesn't
-                    // exist.
-                    errorMsg = getContext().getString(R.string.file_missing, imageFile);
-                }
-
-                if (errorMsg != null) {
-                    // errorMsg is only set when an error has occured
-                    Log.e(t, errorMsg);
-                    mMissingImage = new TextView(getContext());
-                    mMissingImage.setText(errorMsg);
-                    mMissingImage.setPadding(10, 10, 10, 10);
-                    mMissingImage.setId(234873453);
-                    mediaPane = mMissingImage;
-                }
-            } catch (InvalidReferenceException e) {
-                Log.e(t, "image invalid reference exception");
-                e.printStackTrace();
-            }
+            mediaPane = loadImage(imageURI, bigImageURI);
         }
 
         if (mediaPane != null) {
-
             if (!textVisible) {
                 this.addView(questionTextPane, questionTextPaneParams);
                 if (mAudioButton != null) {
@@ -270,6 +225,73 @@ public class MediaLayout extends RelativeLayout {
         } else {
             this.addView(questionTextPane, questionTextPaneParams);
         }
+    }
+
+    private View loadImage(String imageURI, String bigImageURI) {
+        String errorMsg = null;
+        View imageView = null;
+        try {
+            int[] maxBounds = getMaxCenterViewBounds();
+            final String imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
+            final File imageFile = new File(imageFilename);
+            if (imageFile.exists()) {
+                if (MediaUtil.isAnimatedGif(imageFile)) {
+                    return loadGif(imageFile);
+                } else {
+                    imageView = loadBitmap(imageURI, bigImageURI, maxBounds);
+                    if (imageView == null) {
+                        errorMsg = getContext().getString(R.string.file_invalid, imageFile);
+                    }
+                }
+            } else {
+                // An error hasn't been logged. We should have an image, but the file doesn't
+                // exist.
+                errorMsg = getContext().getString(R.string.file_missing, imageFile);
+            }
+
+            if (errorMsg != null) {
+                // errorMsg is only set when an error has occured
+                Log.e(t, errorMsg);
+                mMissingImage = new TextView(getContext());
+                mMissingImage.setText(errorMsg);
+                mMissingImage.setPadding(10, 10, 10, 10);
+                mMissingImage.setId(234873453);
+                return mMissingImage;
+            }
+        } catch (InvalidReferenceException e) {
+            Log.e(t, "image invalid reference exception");
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private View loadBitmap(String imageURI, String bigImageURI, int[] maxBounds) {
+        Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI, maxBounds[0],
+                maxBounds[1]);
+        if (b != null) {
+            ImageView mImageView = new ImageView(getContext());
+            if (useResizingImageView()) {
+                mImageView = new ResizingImageView(getContext(), imageURI, bigImageURI);
+                mImageView.setAdjustViewBounds(true);
+                mImageView.setMaxWidth(maxBounds[0]);
+                mImageView.setMaxHeight(maxBounds[1]);
+            } else{
+                mImageView.setScaleType(ImageView.ScaleType.CENTER);
+            }
+            mImageView.setPadding(10, 10, 10, 10);
+            mImageView.setImageBitmap(b);
+            mImageView.setId(23423534);
+            return mImageView;
+        }
+        return null;
+    }
+
+    private View loadGif(File imageFile) {
+        WebView webView = new WebView(getContext());
+        webView.loadUrl("file:///" + imageFile.getAbsolutePath());
+        webView.setPadding(2, 2, 2, 2);
+        webView.setId(23423534);
+        return webView;
     }
 
     /**
