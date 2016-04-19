@@ -63,4 +63,27 @@ public class AndroidStreamUtil {
     public interface StreamReadObserver {
         void notifyCurrentCount(long bytesRead);
     }
+
+    /**
+     * Writes input stream to output stream in a buffered fasion
+     * Closing only the input stream upon completion
+     */
+    public static void writeFromInputToOutputUnmanaged(InputStream is, OutputStream os) throws IOException {
+        byte[] buffer = new byte[8192];
+
+        try {
+            int count = is.read(buffer);
+            while (count != -1) {
+                os.write(buffer, 0, count);
+                count = is.read(buffer);
+            }
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+    }
 }

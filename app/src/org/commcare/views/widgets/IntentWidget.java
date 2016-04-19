@@ -16,7 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.engine.extensions.IntentCallout;
+import org.odk.collect.android.jr.extensions.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;

@@ -5,9 +5,13 @@ document.addEventListener("DOMContentLoaded", function(event) {
         delay = 0;
     var intervalID = setInterval(function() {
         delay += retryFrequency;
+
+        // Ghastly hack: Occasionally, when the graphing javascript runs, document.body has no
+        // dimensions, which causes the graph to not actually display full screen, and it also
+        // causes extra points to appear on the y axis. If we wait, dimensions will sometimes get
+        // populated. If they never do, give up, and user will see a blank space.
         if (!document.body.offsetWidth || !document.body.offsetHeight) {
-            if (delay > 6000) {
-                displayError("Could not find document body.");
+            if (delay > 10000) {
                 clearInterval(intervalID);
             }
             return;

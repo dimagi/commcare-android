@@ -11,10 +11,10 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.LoginMode;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.app.models.UserKeyRecord;
-import org.commcare.models.database.global.models.AndroidSharedKeyRecord;
-import org.commcare.models.database.user.models.FormRecord;
-import org.commcare.models.encryption.CryptUtil;
+import org.commcare.models.encryption.ByteEncrypter;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
@@ -234,7 +234,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 return false;
             }
             //TODO: Extract this
-            byte[] key = CryptUtil.unwrapByteArrayWithString(matchingRecord.getEncryptedKey(), password);
+            byte[] key = ByteEncrypter.unwrapByteArrayWithString(matchingRecord.getEncryptedKey(), password);
             if (matchingRecord.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
                 LegacyInstallUtils.transitionLegacyUserStorage(context, CommCareApplication._().getCurrentApp(), key, matchingRecord);
             }

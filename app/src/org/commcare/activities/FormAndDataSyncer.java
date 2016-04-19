@@ -10,7 +10,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
@@ -48,7 +48,7 @@ public class FormAndDataSyncer {
                 }
                 activity.getUIController().refreshView();
 
-                int successfulSends = this.getSuccesfulSends();
+                int successfulSends = this.getSuccessfulSends();
 
                 if (result == FormUploadUtil.FULL_SUCCESS) {
                     String label = Localization.get("sync.success.sent.singular",
@@ -210,6 +210,10 @@ public class FormAndDataSyncer {
         };
 
         mDataPullTask.connect(activity);
-        mDataPullTask.execute();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            mDataPullTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            mDataPullTask.execute();
+        }
     }
 }

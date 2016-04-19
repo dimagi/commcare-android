@@ -7,14 +7,12 @@ import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.resource.AppInstallStatus;
-import org.commcare.models.database.global.models.ApplicationRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.tasks.UpdateTask;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,15 +36,9 @@ public class AppUpdateTest {
 
     @Before
     public void setup() {
-        // needed to resolve "jr://resource" type references
-        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
-
-        TestAppInstaller.setupPrototypeFactory();
-
-        TestAppInstaller appTestInstaller =
-                new TestAppInstaller(buildResourceRef("base_app", "profile.ccpr"),
-                        "test", "123");
-        appTestInstaller.installAppAndLogin();
+        TestAppInstaller.initInstallAndLogin(
+                buildResourceRef("base_app", "profile.ccpr"),
+                "test", "123");
 
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
         Assert.assertTrue(p.getVersion() == 6);

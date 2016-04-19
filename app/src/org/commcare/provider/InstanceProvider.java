@@ -21,7 +21,7 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.UserStorageClosedException;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessage;

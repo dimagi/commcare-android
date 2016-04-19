@@ -7,6 +7,10 @@ import android.net.nsd.NsdServiceInfo;
 import android.os.Build;
 import android.util.Log;
 
+import org.commcare.logging.AndroidLogger;
+import org.commcare.utils.TimeBoundOperation;
+import org.javarosa.core.services.Logger;
+
 import java.net.InetAddress;
 import java.util.Collection;
 import java.util.HashMap;
@@ -37,7 +41,8 @@ public class NSDDiscoveryTools {
     public enum NsdState {
         Init,
         Discovery,
-        Idle
+        Idle,
+        Unsupported
     }
 
     private static NsdState state = NsdState.Init;
@@ -93,7 +98,9 @@ public class NSDDiscoveryTools {
     private static void doDiscovery(Context context) {
         synchronized (nsdToolsLock) {
             if (mNsdManager == null) {
-                mNsdManager = (NsdManager)context.getSystemService(Context.NSD_SERVICE);
+                if(!connectNsdManager(context)) {
+                    return;
+                }
             }
 
             if (state == NsdState.Init || state == NsdState.Idle) {
@@ -102,6 +109,42 @@ public class NSDDiscoveryTools {
                 mNsdManager.discoverServices(SERVICE_TYPE,
                         NsdManager.PROTOCOL_DNS_SD, mDiscoveryListener);
             }
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    private static boolean connectNsdManager(final Context context) {
+        synchronized (nsdToolsLock) {
+            //sometimes the service fetch  basically times out forever, thanks for the clear
+            //workaround steps google. Only give this half a second to fire, and then ignore the
+            //service as broken.
+            //Apparently NSDManager is a disaster before Android 5 and we should consider using
+            //a different NSD stack. Ugh.
+            //https://code.google.com/p/android/issues/detail?id=70778
+
+            boolean connected = new TimeBoundOperation(500) {
+                NsdManager manager;
+
+                @Override
+                public void run() {
+                    manager = (NsdManager)context.getSystemService(Context.NSD_SERVICE);
+                }
+
+                @Override
+                public void commit() {
+                    mNsdManager = manager;
+                }
+
+            }.execute();
+
+            if(!connected) {
+                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "NSD Service Failed to connect");
+            }
+            if(mNsdManager == null) {
+                Log.d(TAG, "NSD Service Unavailable on device");
+                state = NsdState.Unsupported;
+            }
+            return connected;
         }
     }
 

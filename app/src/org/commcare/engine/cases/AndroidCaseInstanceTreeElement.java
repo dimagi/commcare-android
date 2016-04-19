@@ -6,7 +6,7 @@ import org.commcare.cases.instance.CaseChildElement;
 import org.commcare.cases.instance.CaseInstanceTreeElement;
 import org.commcare.cases.model.Case;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.ACase;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
