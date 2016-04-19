@@ -210,6 +210,10 @@ public class FormAndDataSyncer {
         };
 
         mDataPullTask.connect(activity);
-        mDataPullTask.execute();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            mDataPullTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            mDataPullTask.execute();
+        }
     }
 }
