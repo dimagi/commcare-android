@@ -209,7 +209,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     public static boolean shouldAnimateFormSubmitButton() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return properties.getString(ANIMATE_FORM_SUBMIT_BUTTON, CommCarePreferences.YES).equals(CommCarePreferences.YES);
+        return properties.getString(ANIMATE_FORM_SUBMIT_BUTTON, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
     public static boolean isAutoLoginEnabled() {
