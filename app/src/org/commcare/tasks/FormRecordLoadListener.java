@@ -1,6 +1,6 @@
 package org.commcare.tasks;
 
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 
 /**
  * Listener methods that are used to keep track of loading progress of form

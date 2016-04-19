@@ -74,6 +74,13 @@
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
+        android:defaultValue="no"
+        android:key="cc-animate-form-submit-button"
+        android:title="Animate form submit button"/>
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
         android:key="cc-home-report"
         android:title="Home Report Button enabled"/>
     <ListPreference
