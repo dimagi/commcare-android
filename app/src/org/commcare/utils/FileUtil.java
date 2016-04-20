@@ -12,12 +12,15 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.Pair;
 
+import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.io.File;
@@ -435,8 +438,12 @@ public class FileUtil {
             return false;
         }
 
-        Bitmap bitmap = MediaUtil.inflateImageSafe(originalImage.getAbsolutePath());
-        Bitmap scaledBitmap = getBitmapScaledByMaxDimen(bitmap, maxDimen);
+        Pair<Bitmap, Boolean> bitmapAndScaledBool = MediaUtil.inflateImageSafe(originalImage.getAbsolutePath());
+        if (bitmapAndScaledBool.second) {
+            Logger.log(AndroidLogger.TYPE_FORM_ENTRY,
+                    "An image captured during form entry was too large to be processed at its original size, and had to be downsized");
+        }
+        Bitmap scaledBitmap = getBitmapScaledByMaxDimen(bitmapAndScaledBool.first, maxDimen);
         if (scaledBitmap != null) {
             // Write this scaled bitmap to the final file location
             FileOutputStream out = null;
