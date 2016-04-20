@@ -313,6 +313,14 @@ public class MediaUtil {
     }
 
     /**
+     * Inflate an image file into a bitmap, attempting first to inflate it at its full size,
+     * but progressively scaling down if an OutOfMemoryError is encountered
+     */
+    public static Bitmap inflateImageSafe(String imageFilepath) {
+        return performSafeScaleDown(imageFilepath, 1, 0);
+    }
+
+    /**
      * @return A scaled-down bitmap for the given image file, progressively increasing the
      * scale-down factor by 1 until allocating memory for the bitmap does not cause an OOM error
      */

@@ -435,7 +435,7 @@ public class FileUtil {
             return false;
         }
 
-        Bitmap bitmap = BitmapFactory.decodeFile(originalImage.getAbsolutePath());
+        Bitmap bitmap = MediaUtil.inflateImageSafe(originalImage.getAbsolutePath());
         Bitmap scaledBitmap = getBitmapScaledByMaxDimen(bitmap, maxDimen);
         if (scaledBitmap != null) {
             // Write this scaled bitmap to the final file location
