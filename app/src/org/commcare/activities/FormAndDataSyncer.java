@@ -255,6 +255,14 @@ public class FormAndDataSyncer {
                             Localization.get("properties.update.success.toast", new String[]{appDisplayName}),
                             Toast.LENGTH_LONG)
                             .show();
+                } else if (result == UpdatePropertiesResult.PARTIAL_SUCCESS) {
+                    CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(result));
+                    Toast.makeText(receiver,
+                            Localization.get("notification.for.details.wrapper",
+                                    new String[]{Localization.get("properties.update.success.toast",
+                                            new String[]{appDisplayName})}),
+                            Toast.LENGTH_LONG)
+                            .show();
                 } else {
                     CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(result));
                     Toast.makeText(receiver,

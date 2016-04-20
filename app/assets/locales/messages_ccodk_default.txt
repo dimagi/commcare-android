@@ -602,7 +602,15 @@ notification.properties.update.error.parsing.action=Please try again later, or c
 
 notification.properties.update.error.endpoint.title=Could not perform property update
 notification.properties.update.error.endpoint.detail=This app is from an outdated build that is not compatible with this feature.
-notification.properties.update.error.endpoint.action=To use this feature, please make a new build of your app.
+notification.properties.update.error.endpoint.action=To use the property update feature, please make a new build of your app.
+
+notification.properties.update.error.version.title=Could not perform property update
+notification.properties.update.error.version.detail=The version of CommCare you are running is no longer compatible with the property update feature.
+notification.properties.update.error.version.action=To update your properties successfully, you must update to a newer version of CommCare.
+
+notification.properties.update.partial.success.title=Some properties not updated
+notification.properties.update.partial.success.detail=Some of your properties were not updated because they are protected, and we could not verify that their values came from Dimagi's server.
+notification.properties.update.partial.success.action=If you believe this occurred in error, please contact technical support.
 
 properties.update.dialog.title=Property Update in Progress
 properties.update.dialog.message=Refreshing your app's properties from the server

@@ -21,6 +21,12 @@ import java.util.HashMap;
  */
 public class AppPropertiesXmlParser extends TransactionParser<HashMap<String, Object>> {
 
+    private static final int CURRENT_VERSION = 1;
+
+    // True if any properties from the file being parsed were not committed because their signed
+    // values could not be successfully validated
+    private boolean propertiesRejected;
+
     public AppPropertiesXmlParser(InputStream inputStream) throws IOException {
         super(ElementParser.instantiateParser(inputStream));
     }
@@ -39,13 +45,18 @@ public class AppPropertiesXmlParser extends TransactionParser<HashMap<String, Ob
     @Override
     public HashMap<String, Object> parse() throws InvalidStructureException, IOException, XmlPullParserException, UnfullfilledRequirementsException {
         checkNode("AppProperties");
-        int eventType = parser.next();
+        int version = Integer.parseInt(parser.getAttributeValue(null, "version"));
+        if (version != CURRENT_VERSION) {
+            throw new UnsupportedVersionException();
+        }
+
         HashMap<String, Object> propertyMapping = new HashMap<String, Object>();
+        int eventType = parser.next();
 
         do {
             if (eventType == KXmlParser.START_TAG) {
                 if (parser.getName().toLowerCase().equals("property")) {
-                    parseProperty(propertyMapping);
+                    parseAndVerifyProperty(propertyMapping);
                 }
             }
             eventType = parser.next();
@@ -54,7 +65,7 @@ public class AppPropertiesXmlParser extends TransactionParser<HashMap<String, Ob
         return propertyMapping;
     }
 
-    private void parseProperty(HashMap<String, Object> properties) {
+    private void parseAndVerifyProperty(HashMap<String, Object> properties) {
         String key = parser.getAttributeValue(null, "key");
         String value = parser.getAttributeValue(null, "value");
         String signature = parser.getAttributeValue(null, "signature");
@@ -65,6 +76,8 @@ public class AppPropertiesXmlParser extends TransactionParser<HashMap<String, Ob
                 // If a signed property doesn't verify properly, we don't want to update based
                 // upon it at all
                 properties.put(key, permission);
+            } else {
+                propertiesRejected = true;
             }
         } else {
             properties.put(key, value);
@@ -79,5 +92,13 @@ public class AppPropertiesXmlParser extends TransactionParser<HashMap<String, Ob
         Profile currentProfile = CommCareApplication._().getCurrentApp().getCommCarePlatform()
                 .getCurrentProfile();
         currentProfile.addSignedPermission(permission);
+    }
+
+    public boolean somePropertiesFailedAuthentication() {
+        return propertiesRejected;
+    }
+
+    public class UnsupportedVersionException extends RuntimeException {
+
     }
 }

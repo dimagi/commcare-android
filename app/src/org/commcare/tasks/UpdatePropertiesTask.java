@@ -28,7 +28,7 @@ public abstract class UpdatePropertiesTask<R> extends CommCareTask<ApplicationRe
     public static final int UPDATE_PROPERTIES_TASK_ID = 11;
 
     // FOR TESTING, REMOVE
-    private static final String xml_string = "<AppProperties appId=\"\" domain=\"\">\n" +
+    private static final String xml_string = "<AppProperties appId=\"\" version=\"1\" domain=\"\">\n" +
             "\t<property key=\"multiple-apps-compatible\" value=\"enabled\" signature=\"test-signature\" />\n" +
             "</AppProperties>";
 
@@ -73,13 +73,20 @@ public abstract class UpdatePropertiesTask<R> extends CommCareTask<ApplicationRe
             e.printStackTrace();
             return UpdatePropertiesResult.ERROR_PARSING_RESPONSE;
         }
+        //return parseAndSaveResponse(new StringBufferInputStream(xml_string));
     }
 
     private static UpdatePropertiesResult parseAndSaveResponse(InputStream responseBody) {
         try {
             AppPropertiesXmlParser parser = new AppPropertiesXmlParser(responseBody);
             parser.commit(parser.parse());
-            return UpdatePropertiesResult.SUCCESS;
+            if (parser.somePropertiesFailedAuthentication()) {
+                return UpdatePropertiesResult.PARTIAL_SUCCESS;
+            } else {
+                return UpdatePropertiesResult.SUCCESS;
+            }
+        } catch (AppPropertiesXmlParser.UnsupportedVersionException e) {
+            return UpdatePropertiesResult.ERROR_VERSION_INCOMPAT;
         } catch (IOException | InvalidStructureException | XmlPullParserException | UnfullfilledRequirementsException e) {
             return UpdatePropertiesResult.ERROR_PARSING_RESPONSE;
         }
@@ -87,9 +94,11 @@ public abstract class UpdatePropertiesTask<R> extends CommCareTask<ApplicationRe
 
     public enum UpdatePropertiesResult implements MessageTag {
         SUCCESS(""),
+        PARTIAL_SUCCESS("notification.properties.update.partial.success"),
         ENDPOINT_NOT_SET("notification.properties.update.error.endpoint"),
         REQUEST_ERROR("notification.properties.update.error.request"),
-        ERROR_PARSING_RESPONSE("notification.properties.update.error.parsing");
+        ERROR_PARSING_RESPONSE("notification.properties.update.error.parsing"),
+        ERROR_VERSION_INCOMPAT("notification.properties.update.error.version");
 
         UpdatePropertiesResult(String root) {
             this.root = root;
