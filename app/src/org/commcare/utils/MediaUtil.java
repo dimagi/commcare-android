@@ -236,7 +236,7 @@ public class MediaUtil {
         } catch (OutOfMemoryError e) {
             // OOM encountered trying to decode the bitmap, so we know we need to scale down by
             // a larger factor
-            return performSafeScaleDown(imageFilepath, approximateScaleFactor + 1, 0);
+            return performSafeScaleDown(imageFilepath, approximateScaleFactor + 1, 1).first;
         }
     }
 
@@ -290,7 +290,7 @@ public class MediaUtil {
         } catch (OutOfMemoryError e) {
             // Just inflating the image at its original size caused an OOM error, don't have a
             // choice but to scale down
-            return performSafeScaleDown(imageFilepath, 2, 1);
+            return performSafeScaleDown(imageFilepath, 2, 1).first;
         }
     }
 
@@ -313,18 +313,29 @@ public class MediaUtil {
     }
 
     /**
-     * @return A scaled-down bitmap for the given image file, progressively increasing the
-     * scale-down factor by 1 until allocating memory for the bitmap does not cause an OOM error
+     * Inflate an image file into a bitmap, attempting first to inflate it at its full size,
+     * but progressively scaling down if an OutOfMemoryError is encountered
+     *
+     * @return the bitmap, plus a boolean value representing whether the image had to be downsized
      */
-    private static Bitmap performSafeScaleDown(String imageFilepath, int scale, int depth) {
+    public static Pair<Bitmap, Boolean> inflateImageSafe(String imageFilepath) {
+        return performSafeScaleDown(imageFilepath, 1, 0);
+    }
+
+    /**
+     * @return A scaled-down bitmap for the given image file, progressively increasing the
+     * scale-down factor by 1 until allocating memory for the bitmap does not cause an OOM error,
+     * and a boolean value representing whether the image had to be downsized
+     */
+    private static Pair<Bitmap, Boolean> performSafeScaleDown(String imageFilepath, int scale, int depth) {
         if (depth == 5) {
             // Limit the number of recursive calls
-            return null;
+            return new Pair<>(null, true);
         }
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = scale;
         try {
-            return BitmapFactory.decodeFile(imageFilepath, options);
+            return new Pair<>(BitmapFactory.decodeFile(imageFilepath, options), scale > 1);
         } catch (OutOfMemoryError e) {
             return performSafeScaleDown(imageFilepath, scale + 1, depth + 1);
         }
