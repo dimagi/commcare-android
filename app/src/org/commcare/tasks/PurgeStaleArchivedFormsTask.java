@@ -4,7 +4,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.utils.FormUploadUtil;
 import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;

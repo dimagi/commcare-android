@@ -1,8 +1,7 @@
 package org.commcare.utils;
 
 import org.commcare.CommCareApplication;
-import org.commcare.models.database.global.models.ApplicationRecord;
-import org.commcare.suite.model.Profile;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.suite.model.SignedPermission;
 
 import java.util.ArrayList;

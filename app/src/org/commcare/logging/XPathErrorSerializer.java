@@ -58,7 +58,7 @@ public class XPathErrorSerializer
             AndroidLogSerializer.writeText("msg", errorEntry.getMessage(), serializer);
             AndroidLogSerializer.writeText("user_id", errorEntry.getUserId(), serializer);
             AndroidLogSerializer.writeText("session", errorEntry.getSessionPath(), serializer);
-            AndroidLogSerializer.writeText("version", errorEntry.getAppVersion() + "", serializer);
+            AndroidLogSerializer.writeText("app_build", errorEntry.getAppVersion() + "", serializer);
             AndroidLogSerializer.writeText("app_id", errorEntry.getAppId(), serializer);
             AndroidLogSerializer.writeText("expr", errorEntry.getExpression(), serializer);
         } catch (Exception e) {

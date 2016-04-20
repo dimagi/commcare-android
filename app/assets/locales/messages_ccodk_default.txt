@@ -79,7 +79,7 @@ home.forms.incomplete=Incomplete
 home.forms.incomplete.indicator=${1} (${0})  
 home.forms.saved=Saved
 home.sync=Sync with Server
-home.sync.indicator=${1} (${0})
+home.unsent.forms.indicator=Unsent Forms: ${0}
 home.logout=Log out of CommCare
 home.report=Report an Issue
 
@@ -667,6 +667,8 @@ wifi.direct.connect.failed=Connecting failed, please retry
 wifi.direct.error.wiping.forms=Error wiping forms: ${0}
 wifi.direct.connect.success=Successfully connected to peer
 
+wifi.direct.pull.successful=Record pull successful, attempting to zip files...
+wifi.direct.pull.unsuccessful=Pulling records from storage failed.
 wifi.direct.submit.button=Submit
 wifi.direct.send.button=Send
 wifi.direct.discover.button=Discover
@@ -684,9 +686,11 @@ wifi.direct.receive.task.title=Started Receiving Files
 wifi.direct.receive.task.message=CommCare is receiving files
 wifi.direct.wipe.task.title=Wiping Forms
 wifi.direct.wipe.task.message=Cleaning up after transfer
+wifi.direct.pull.task.title=Pulling Forms
+wifi.direct.pull.task.message=Pulling forms from record storage.
 
 wifi.direct.status.transfer.header=You are in Transfer Form Mode
-wifi.direct.status.transfer.count=Device has ${0} unsent forms.
+wifi.direct.status.transfer.count=Device has ${0} local forms and ${1} received forms.
 wifi.direct.status.transfer.message=This will allow you to transfer forms from this device to another device via Wi-Fi Direct
 
 wifi.direct.status.receive.header=You are in Receive Form Mode
@@ -696,6 +700,8 @@ wifi.direct.status.receive.message=This will allow you to receive forms on this 
 wifi.direct.status.submit.header=You are in Submit Form Mode
 wifi.direct.status.submit.count=Device has ${0} unsubmitted forms.
 wifi.direct.status.submit.message=This mode will allow you to submit forms to the CommCare Server if you have an internet connection.
+
+form.transfer.no.forms=No forms to send.
 
 
 form.attachment.invalid=Invalid filetype choosen. Please select a valid multimedia file.
@@ -729,3 +735,5 @@ intent.callout.get=Get Data
 intent.callout.update=Update Data
 intent.callout.cancelled=Question callout cancelled
 intent.callout.unable.to.process=Unable to process callout result
+
+

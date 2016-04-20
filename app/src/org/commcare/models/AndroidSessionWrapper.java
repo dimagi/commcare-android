@@ -5,10 +5,11 @@ import android.util.Log;
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.UserStorageClosedException;
-import org.commcare.models.database.user.models.FormRecord;
-import org.commcare.models.database.user.models.SessionStateDescriptor;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.SessionDatum;
@@ -225,28 +226,30 @@ public class AndroidSessionWrapper {
                 if (e.getSessionDataReqs().size() == 1) {
                     //This should fit the bill. Single selection.
                     SessionDatum datum = e.getSessionDataReqs().firstElement();
+                    // we only know how to mock a single case selection
+                    if (datum instanceof EntityDatum) {
+                        EntityDatum entityDatum = (EntityDatum)datum;
+                        //The only thing we need to know now is whether we have a better option available
+                        int countPredicates = CommCareUtil.countPreds(entityDatum.getNodeset());
 
-                    //The only thing we need to know now is whether we have a better option available
-
-                    int countPredicates = CommCareUtil.countPreds(datum.getNodeset());
-
-                    if (wrapper == null) {
-                        //No previous value! Yay.
-                        //Record the degree of specificity of this selection for now (we'll
-                        //actually create the wrapper later
-                        curPredicates = countPredicates;
-                    } else {
-                        //There's already a path to this form. Only keep going 
-                        //if the current choice is less specific
-                        if (countPredicates >= curPredicates) {
-                            continue;
+                        if (wrapper == null) {
+                            //No previous value! Yay.
+                            //Record the degree of specificity of this selection for now (we'll
+                            //actually create the wrapper later
+                            curPredicates = countPredicates;
+                        } else {
+                            //There's already a path to this form. Only keep going
+                            //if the current choice is less specific
+                            if (countPredicates >= curPredicates) {
+                                continue;
+                            }
                         }
-                    }
 
-                    wrapper = new AndroidSessionWrapper(platform);
-                    wrapper.session.setCommand(platform.getModuleNameForEntry((FormEntry)e));
-                    wrapper.session.setCommand(e.getCommandId());
-                    wrapper.session.setDatum(datum.getDataId(), selectedValue);
+                        wrapper = new AndroidSessionWrapper(platform);
+                        wrapper.session.setCommand(platform.getModuleNameForEntry((FormEntry) e));
+                        wrapper.session.setCommand(e.getCommandId());
+                        wrapper.session.setDatum(entityDatum.getDataId(), selectedValue);
+                    }
                 }
 
                 //We don't really have a good thing to do with this yet. For now, just

@@ -11,7 +11,7 @@ import org.commcare.cases.model.Case;
 import org.commcare.engine.references.JavaHttpReference;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.UserStorageClosedException;
-import org.commcare.models.database.user.models.ACase;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.network.HttpRequestGenerator;

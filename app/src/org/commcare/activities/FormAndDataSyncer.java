@@ -7,13 +7,12 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.widget.Toast;
 
-import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
-import org.commcare.models.database.global.models.ApplicationRecord;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
@@ -55,7 +54,7 @@ public class FormAndDataSyncer {
                 }
                 activity.getUIController().refreshView();
 
-                int successfulSends = this.getSuccesfulSends();
+                int successfulSends = this.getSuccessfulSends();
 
                 if (result == FormUploadUtil.FULL_SUCCESS) {
                     String label = Localization.get("sync.success.sent.singular",

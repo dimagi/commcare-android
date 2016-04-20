@@ -1,8 +1,8 @@
 package org.commcare.xml;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.data.xml.TransactionParser;
-import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.models.encryption.AndroidSignedPermissionVerifier;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.SignedPermission;

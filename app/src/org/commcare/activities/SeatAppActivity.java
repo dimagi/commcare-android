@@ -10,8 +10,8 @@ import android.widget.TextView;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.models.database.global.models.ApplicationRecord;
 import org.commcare.utils.MultipleAppsUtil;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.javarosa.core.services.locale.Localization;
 
 /**

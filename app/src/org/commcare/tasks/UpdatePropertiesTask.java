@@ -4,7 +4,7 @@ package org.commcare.tasks;
 import org.apache.http.HttpResponse;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.models.database.global.models.ApplicationRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.SessionUnavailableException;

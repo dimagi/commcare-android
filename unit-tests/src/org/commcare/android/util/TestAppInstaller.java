@@ -5,8 +5,8 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApp;
 import org.commcare.android.mocks.MockCommCareTaskConnector;
 import org.commcare.engine.resource.AppInstallStatus;
-import org.commcare.models.database.app.models.UserKeyRecord;
-import org.commcare.models.database.global.models.ApplicationRecord;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.ResourceEngineTask;
@@ -30,9 +30,9 @@ public class TestAppInstaller {
 
     private final MockCommCareTaskConnector<Object> fakeConnector = new MockCommCareTaskConnector();
 
-    public TestAppInstaller(String resourceFilepath,
-                            String username,
-                            String password) {
+    private TestAppInstaller(String resourceFilepath,
+                             String username,
+                             String password) {
         this.resourceFilepath = resourceFilepath;
         this.username = username;
         this.password = password;
@@ -58,10 +58,6 @@ public class TestAppInstaller {
                 new TestAppInstaller(
                         appPath, username, password);
         appTestInstaller.installAppAndLogin(receiver);
-    }
-
-    public void installAppAndLogin() {
-        installAppAndLogin(null);
     }
 
     private void installAppAndLogin(TestResourceEngineTaskListener receiver) {
@@ -177,7 +173,7 @@ public class TestAppInstaller {
         return null;
     }
 
-    public static void setupPrototypeFactory() {
+    private static void setupPrototypeFactory() {
         // Sets DB to use an in-memory store for class serialization tagging.
         // This avoids the need to use apk reflection to perform read/writes
         TestUtils.initializeStaticTestStorage();
