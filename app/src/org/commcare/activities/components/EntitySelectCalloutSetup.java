@@ -96,15 +96,7 @@ public class EntitySelectCalloutSetup {
      * associated callout extras
      */
     public static View.OnClickListener makeCalloutClickListener(final Activity activity, Callout callout) {
-        final CalloutData calloutData = callout.getRawCalloutData();
-
-        final Intent i = new Intent(calloutData.getActionName());
-        for (Map.Entry<String, String> keyValue : calloutData.getExtras().entrySet()) {
-            i.putExtra(keyValue.getKey(), keyValue.getValue());
-        }
-        if (calloutData.getType() != null && !"".equals(calloutData.getType())) {
-            i.setType(calloutData.getType());
-        }
+        final Intent i = buildCalloutIntent(callout);
         return new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -117,5 +109,17 @@ public class EntitySelectCalloutSetup {
                 }
             }
         };
+    }
+
+    public static Intent buildCalloutIntent(Callout callout) {
+        final CalloutData calloutData = callout.getRawCalloutData();
+        Intent i = new Intent(calloutData.getActionName());
+        for (Map.Entry<String, String> keyValue : calloutData.getExtras().entrySet()) {
+            i.putExtra(keyValue.getKey(), keyValue.getValue());
+        }
+        if (calloutData.getType() != null && !"".equals(calloutData.getType())) {
+            i.setType(calloutData.getType());
+        }
+        return i;
     }
 }
