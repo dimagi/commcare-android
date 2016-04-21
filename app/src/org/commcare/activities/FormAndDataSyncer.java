@@ -8,6 +8,7 @@ import android.os.Build;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.ConnectorWithMessaging;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.user.models.FormRecord;
@@ -24,20 +25,21 @@ import org.javarosa.core.services.locale.Localization;
  * Processes and submits forms and syncs data with server
  */
 public class FormAndDataSyncer {
-    private final CommCareHomeActivity activity;
+    private final Context context;
 
-    public FormAndDataSyncer(CommCareHomeActivity activity) {
-        this.activity = activity;
+    public FormAndDataSyncer(Context context) {
+        this.context = context;
     }
 
     @SuppressLint("NewApi")
-    public void processAndSendForms(FormRecord[] records,
+    public void processAndSendForms(CommCareHomeActivity activity,
+                                    FormRecord[] records,
                                     final boolean syncAfterwards,
                                     final boolean userTriggered) {
 
         ProcessAndSendTask<CommCareHomeActivity> mProcess = new ProcessAndSendTask<CommCareHomeActivity>(
-                activity,
-                getFormPostURL(activity),
+                context,
+                getFormPostURL(context),
                 syncAfterwards) {
 
             @Override
@@ -46,7 +48,6 @@ public class FormAndDataSyncer {
                     receiver.finish();
                     return;
                 }
-                activity.getUIController().refreshView();
 
                 int successfulSends = this.getSuccessfulSends();
 
@@ -60,11 +61,11 @@ public class FormAndDataSyncer {
                     receiver.displayMessage(label);
 
                     if (syncAfterwards) {
-                        syncData(true, userTriggered);
+                        syncData(receiver, true, userTriggered);
                     }
                 } else if (result != FormUploadUtil.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
-                    receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
+                    receiver.displayBadMessage(Localization.get("sync.fail.unsent"));
                 }
             }
 
@@ -74,7 +75,7 @@ public class FormAndDataSyncer {
 
             @Override
             protected void deliverError(CommCareHomeActivity receiver, Exception e) {
-                receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
+                receiver.displayBadMessage(Localization.get("sync.fail.unsent"));
             }
         };
 
@@ -102,7 +103,8 @@ public class FormAndDataSyncer {
                 context.getString(R.string.PostURL));
     }
 
-    public void syncData(final boolean formsToSend, final boolean userTriggeredSync) {
+    public void syncData(ConnectorWithMessaging messagingConnector,
+                         final boolean formsToSend, final boolean userTriggeredSync) {
         User u;
         try {
             u = CommCareApplication._().getSession().getLoggedInUser();
@@ -115,26 +117,24 @@ public class FormAndDataSyncer {
             if (userTriggeredSync) {
                 // Remind the user that there's no syncing in demo mode.
                 if (formsToSend) {
-                    activity.displayMessage(Localization.get("main.sync.demo.has.forms"), true, true);
+                    messagingConnector.displayBadMessageWithoutToast(Localization.get("main.sync.demo.has.forms"));
                 } else {
-                    activity.displayMessage(Localization.get("main.sync.demo.no.forms"), true, true);
+                    messagingConnector.displayBadMessageWithoutToast(Localization.get("main.sync.demo.no.forms"));
                 }
             }
             return;
         }
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        DataPullTask<CommCareHomeActivity> mDataPullTask = new DataPullTask<CommCareHomeActivity>(
+        DataPullTask<ConnectorWithMessaging> mDataPullTask = new DataPullTask<ConnectorWithMessaging>(
                 u.getUsername(),
                 u.getCachedPwd(),
                 prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY,
-                        activity.getString(R.string.ota_restore_url)),
-                activity) {
+                        context.getString(R.string.ota_restore_url)),
+                context) {
 
             @Override
-            protected void deliverResult(CommCareHomeActivity receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
-                receiver.getUIController().refreshView();
-
+            protected void deliverResult(ConnectorWithMessaging receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
                 PullTaskResult result = resultAndErrorMessage.data;
                 String reportSyncLabel = result.getCorrespondingGoogleAnalyticsLabel();
                 int reportSyncValue = result.getCorrespondingGoogleAnalyticsValue();
@@ -142,11 +142,11 @@ public class FormAndDataSyncer {
                 //TODO: SHARES _A LOT_ with login activity. Unify into service
                 switch (result) {
                     case AUTH_FAILED:
-                        receiver.displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
+                        receiver.displayBadMessage(Localization.get("sync.fail.auth.loggedin"));
                         break;
                     case BAD_DATA:
                     case BAD_DATA_REQUIRES_INTERVENTION:
-                        receiver.displayMessage(Localization.get("sync.fail.bad.data"), true);
+                        receiver.displayBadMessage(Localization.get("sync.fail.bad.data"));
                         break;
                     case DOWNLOAD_SUCCESS:
                         if (formsToSend) {
@@ -160,13 +160,13 @@ public class FormAndDataSyncer {
                         receiver.displayMessage(Localization.get("sync.fail.server.error"));
                         break;
                     case UNREACHABLE_HOST:
-                        receiver.displayMessage(Localization.get("sync.fail.bad.network"), true);
+                        receiver.displayBadMessage(Localization.get("sync.fail.bad.network"));
                         break;
                     case CONNECTION_TIMEOUT:
-                        receiver.displayMessage(Localization.get("sync.fail.timeout"), true);
+                        receiver.displayBadMessage(Localization.get("sync.fail.timeout"));
                         break;
                     case UNKNOWN_FAILURE:
-                        receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
+                        receiver.displayBadMessage(Localization.get("sync.fail.unknown"));
                         break;
                 }
 
@@ -183,7 +183,7 @@ public class FormAndDataSyncer {
             }
 
             @Override
-            protected void deliverUpdate(CommCareHomeActivity receiver, Integer... update) {
+            protected void deliverUpdate(ConnectorWithMessaging receiver, Integer... update) {
                 if (update[0] == DataPullTask.PROGRESS_STARTED) {
                     receiver.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
                 } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
@@ -203,13 +203,13 @@ public class FormAndDataSyncer {
             }
 
             @Override
-            protected void deliverError(CommCareHomeActivity receiver,
+            protected void deliverError(ConnectorWithMessaging receiver,
                                         Exception e) {
-                receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
+                receiver.displayBadMessage(Localization.get("sync.fail.unknown"));
             }
         };
 
-        mDataPullTask.connect(activity);
+        mDataPullTask.connect(messagingConnector);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             mDataPullTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
         } else {

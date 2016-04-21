@@ -25,6 +25,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.interfaces.ConnectorWithMessaging;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
@@ -84,7 +85,8 @@ import java.util.Vector;
 
 public class CommCareHomeActivity
         extends SessionAwareCommCareActivity<CommCareHomeActivity>
-        implements SessionNavigationResponder, WithUIController {
+        implements SessionNavigationResponder, WithUIController,
+        ConnectorWithMessaging<CommCareHomeActivity> {
 
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
@@ -1017,10 +1019,10 @@ public class CommCareHomeActivity
     void syncButtonPressed() {
         if (!ConnectivityStatus.isNetworkAvailable(CommCareHomeActivity.this)) {
             if (ConnectivityStatus.isAirplaneModeOn(CommCareHomeActivity.this)) {
-                displayMessage(Localization.get("notification.sync.airplane.action"), true, true);
+                displayBadMessageWithoutToast(Localization.get("notification.sync.airplane.action"));
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_AirplaneMode, AIRPLANE_MODE_CATEGORY));
             } else {
-                displayMessage(Localization.get("notification.sync.connections.action"), true, true);
+                displayBadMessageWithoutToast(Localization.get("notification.sync.connections.action"));
                 CommCareApplication._().reportNotificationMessage(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Sync_NoConnections, AIRPLANE_MODE_CATEGORY));
             }
             GoogleAnalyticsUtils.reportSyncAttempt(
@@ -1052,7 +1054,7 @@ public class CommCareHomeActivity
     private void sendFormsOrSync(boolean userTriggeredSync) {
         boolean formsSentToServer = checkAndStartUnsentFormsTask(true, userTriggeredSync);
         if(!formsSentToServer) {
-            formAndDataSyncer.syncData(false, userTriggeredSync);
+            formAndDataSyncer.syncData(this, false, userTriggeredSync);
         }
     }
 
@@ -1065,7 +1067,7 @@ public class CommCareHomeActivity
         FormRecord[] records = StorageUtils.getUnsentRecords(storage);
 
         if(records.length > 0) {
-            formAndDataSyncer.processAndSendForms(records, syncAfterwards, userTriggered);
+            formAndDataSyncer.processAndSendForms(this, records, syncAfterwards, userTriggered);
             return true;
         } else {
             return false;
@@ -1136,12 +1138,19 @@ public class CommCareHomeActivity
         showAlertDialog(factory);
     }
 
-    void displayMessage(String message) {
-        displayMessage(message, false);
+    @Override
+    public void displayMessage(String message) {
+        displayMessage(message, false, false);
     }
 
-    void displayMessage(String message, boolean bad) {
-        displayMessage(message, bad, false);
+    @Override
+    public void displayBadMessage(String message) {
+        displayMessage(message, true, false);
+    }
+
+    @Override
+    public void displayBadMessageWithoutToast(String message) {
+        displayMessage(message, true, true);
     }
 
     void displayMessage(String message, boolean bad, boolean suppressToast) {
