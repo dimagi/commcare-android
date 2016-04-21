@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -59,8 +60,12 @@ import org.javarosa.core.util.NoLocalizedTextException;
 public abstract class CommCareActivity<R> extends FragmentActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener {
 
+    private static String TAG = CommCareActivity.class.getSimpleName();
+
     private static final String KEY_PROGRESS_DIALOG_FRAG = "progress-dialog-fragment";
     private static final String KEY_ALERT_DIALOG_FRAG = "alert-dialog-fragment";
+
+    int invalidTaskIdMessageThrown = -2;
 
     TaskConnectorFragment<R> stateHolder;
 
@@ -496,9 +501,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             if (mProgressDialog.getTaskId() == taskId) {
                 mProgressDialog.updateMessage(updateText);
             } else {
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
-                        "Attempting to update a progress dialog whose taskId does not match the"
-                                + "task for which the update message was intended.");
+                warnInvalidProgressUpdate(taskId);
             }
         }
     }
@@ -510,10 +513,20 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             if (mProgressDialog.getTaskId() == taskId) {
                 mProgressDialog.updateProgressBar(progress, max);
             } else {
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
-                        "Attempting to update a progress dialog whose taskId does not match the"
-                                + "task for which the update message was intended.");
+                warnInvalidProgressUpdate(taskId);
             }
+        }
+    }
+
+    private void warnInvalidProgressUpdate(int taskId) {
+        String message = "Attempting to update a progress dialog whose taskId (" + taskId +
+                " does not match the task for which the update message was intended.";
+
+        if(invalidTaskIdMessageThrown != taskId) {
+            invalidTaskIdMessageThrown = taskId;
+            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, message);
+        } else {
+            Log.w(TAG, message);
         }
     }
 
