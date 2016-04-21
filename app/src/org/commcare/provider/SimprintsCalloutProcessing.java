@@ -7,17 +7,16 @@ import android.util.Log;
 import com.simprints.libsimprints.Identification;
 import com.simprints.libsimprints.Registration;
 
-import org.commcare.engine.extensions.IntentCallout;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
+import org.odk.collect.android.jr.extensions.IntentCallout;
 
 import java.util.Collections;
 import java.util.Hashtable;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Vector;
 

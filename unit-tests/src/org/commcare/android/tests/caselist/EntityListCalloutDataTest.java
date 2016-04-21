@@ -3,9 +3,8 @@ package org.commcare.android.tests.caselist;
 import org.commcare.CommCareApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestAppInstaller;
+import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.suite.model.Profile;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,15 +23,10 @@ public class EntityListCalloutDataTest {
     public void setup() {
         TestAppInstaller.initInstallAndLogin("jr://resource/commcare-apps/case_list_lookup/profile.ccpr", "test", "123");
 
-        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
-        Assert.assertTrue(p.getVersion() == 6);
-    }
-
-    private String buildResourceRef(String app, String resource) {
-        return REF_BASE_DIR + app + "/" + resource;
+        TestUtils.processResourceTransaction("/commcare-apps/case_list_lookup/restore.xml");
     }
 
     @Test
-    public void testAppUpdate() {
+    public void testAttachCalloutResultToEntityList() {
     }
 }
