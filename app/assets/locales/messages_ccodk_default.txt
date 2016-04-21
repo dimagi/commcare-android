@@ -673,3 +673,5 @@ permission.sms.install.message=CommCare would like to scan your recent messages 
 permission.form.gps.title=Permission to capture location during form entry
 permission.form.gps.message=CommCare would like to capture your location and provide it to forms you complete.
 permission.acquire.required=Acquire Required Permissions
+
+custom.acknowledgement=

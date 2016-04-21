@@ -2,6 +2,7 @@ package org.commcare.views.dialogs;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Build;
 import android.text.Spannable;
@@ -13,13 +14,13 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.utils.MarkupUtil;
+import org.javarosa.core.services.locale.Localization;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class DialogCreationHelpers {
     public static AlertDialog buildAboutCommCareDialog(Activity activity) {
-        final String commcareVersion = CommCareApplication._().getCurrentVersionString();
 
         LayoutInflater li = LayoutInflater.from(activity);
         View view = li.inflate(R.layout.scrolling_info_dialog, null);
@@ -27,9 +28,8 @@ public class DialogCreationHelpers {
         TextView titleView = (TextView) view.findViewById(R.id.dialog_title_text);
         titleView.setText(activity.getString(R.string.about_cc));
 
+        Spannable markdownText = buildAboutMessage(activity);
         TextView aboutText = (TextView)view.findViewById(R.id.dialog_text);
-        String msg = activity.getString(R.string.aboutdialog, commcareVersion);
-        Spannable markdownText = MarkupUtil.returnMarkdown(activity, msg);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
             aboutText.setText(markdownText);
         } else {
@@ -39,6 +39,13 @@ public class DialogCreationHelpers {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setView(view);
         return builder.create();
+    }
+
+    private static Spannable buildAboutMessage(Context context) {
+        String commcareVersion = CommCareApplication._().getCurrentVersionString();
+        String customAcknowledgment = Localization.get("custom.acknowledgement");
+        String message = context.getString(R.string.about_dialog, commcareVersion, customAcknowledgment);
+        return MarkupUtil.returnMarkdown(context, message);
     }
 
     /**
