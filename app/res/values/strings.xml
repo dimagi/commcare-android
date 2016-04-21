@@ -54,19 +54,19 @@
     <string name="expirenotification">CommCare Login Expired</string>
     <string name="submission_notification_title">Submitting Data</string>
     <string name="submission_logs_title">Submitting CommCare Logs</string>
-    <string name="form_record_url"></string>
+    <string name="form_record_url"/>
 
     <item name="login_screen_hide_all_cuttoff" type="integer">200</item>
     <item name="login_screen_hide_banner_cuttoff" type="integer">250</item>
 
     <string name="url_prompt">Choose a URL</string>
 
-    <string name="aboutdialog">%s\n\n
+    <string name="about_dialog" formatted="false">%s\n\n
 _Copyright 2015, Dimagi inc, All rights reserved_ \n\n
 
 ---------------- \n\n
 __Acknowledgements:__ \n\n
-
+%s
 Some images in CommCare are graciously used under Creative Commons Licensing from thenounproject.com collection:\n\n
 * “Door” symbol by Tak Imoto \n
 * “Pencil” symbol by Creologica \n
@@ -77,7 +77,7 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
 
 _Android MapView Balloons_ project used under the Apache Software License 2.0. \n
 Author: Jeff Gilfelt \n
-Copyright (c) 2012 readyState Software Ltd.</string>
+Copyright © 2012 readyState Software Ltd.</string>
     <string name="notification_message_title">CommCare Notification</string>
 
     <string-array name="frequency_vals">
