@@ -14,6 +14,7 @@ import org.commcare.adapters.GridMenuAdapter;
 import org.commcare.adapters.MenuAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.session.SessionFrame;
+import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
@@ -83,8 +84,8 @@ public class MenuGrid extends SaveSessionCommCareActivity implements OnItemClick
     public void onItemClick(AdapterView listView, View view, int position, long id) {
         String commandId;
         Object value = listView.getAdapter().getItem(position);
-        if(value instanceof FormEntry) {
-            commandId = ((FormEntry)value).getCommandId();
+        if(value instanceof Entry) {
+            commandId = ((Entry)value).getCommandId();
         } else {
             commandId = ((Menu)value).getId();
         }
