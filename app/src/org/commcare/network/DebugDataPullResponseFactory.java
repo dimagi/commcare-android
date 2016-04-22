@@ -1,8 +1,5 @@
-package org.commcare.tasks.network;
+package org.commcare.network;
 
-import org.commcare.network.DataPullRequester;
-import org.commcare.network.HttpRequestGenerator;
-import org.commcare.network.RemoteDataPullResponse;
 import org.commcare.tasks.DataPullTask;
 
 import java.io.IOException;

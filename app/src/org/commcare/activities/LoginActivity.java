@@ -29,12 +29,14 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DemoUserBuilder;
+import org.commcare.network.DebugDataPullResponseFactory;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ManageKeyRecordTask;
 import org.commcare.tasks.ResultAndError;
+
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ViewUtil;
@@ -44,8 +46,12 @@ import org.commcare.views.notifications.MessageTag;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
+import org.kxml2.io.KXmlParser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -204,44 +210,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                         LoginActivity.this) {
                     @Override
                     protected void deliverResult(LoginActivity receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
-                        PullTaskResult result = resultAndErrorMessage.data;
-                        if (result == null) {
-                            // The task crashed unexpectedly
-                            receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
-                            return;
-                        }
-
-                        switch (result) {
-                            case AUTH_FAILED:
-                                receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
-                                break;
-                            case BAD_DATA_REQUIRES_INTERVENTION:
-                                receiver.raiseLoginMessageWithInfo(StockMessages.Remote_BadRestoreRequiresIntervention, resultAndErrorMessage.errorMessage, true);
-                                break;
-                            case BAD_DATA:
-                                receiver.raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore, resultAndErrorMessage.errorMessage, true);
-                                break;
-                            case STORAGE_FULL:
-                                receiver.raiseLoginMessage(StockMessages.Storage_Full, true);
-                                break;
-                            case DOWNLOAD_SUCCESS:
-                                if (!tryLocalLogin(true, uiController.isRestoreSessionChecked())) {
-                                    receiver.raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
-                                }
-                                break;
-                            case UNREACHABLE_HOST:
-                                receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork, true);
-                                break;
-                            case CONNECTION_TIMEOUT:
-                                receiver.raiseLoginMessage(StockMessages.Remote_Timeout, true);
-                                break;
-                            case SERVER_ERROR:
-                                receiver.raiseLoginMessage(StockMessages.Remote_ServerError, true);
-                                break;
-                            case UNKNOWN_FAILURE:
-                                receiver.raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
-                                break;
-                        }
+                        handlePullTaskResult(receiver, resultAndErrorMessage);
                     }
 
                     @Override
@@ -272,6 +241,80 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         dataPuller.connect(this);
         dataPuller.execute();
+    }
+
+    private void performLocalRestore() {
+        String localRestoreFile = "jr://asset/local_restore_payload.xml";
+        try {
+            ReferenceManager._().DeriveReference(localRestoreFile).getStream();
+        } catch (InvalidReferenceException | IOException e) {
+            throw new RuntimeException("Local restore file missing");
+        }
+        DebugDataPullResponseFactory localDataPullRequester =
+                new DebugDataPullResponseFactory(localRestoreFile);
+        DataPullTask<LoginActivity> pullTask =
+                new DataPullTask<LoginActivity>(getUniformUsername(),
+                        uiController.getEnteredPasswordOrPin(), "fake-server-that-is-never-used",
+                        this, localDataPullRequester) {
+
+                    @Override
+                    protected void deliverResult(LoginActivity receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
+                        handlePullTaskResult(receiver, resultAndErrorMessage);
+                    }
+
+                    @Override
+                    protected void deliverUpdate(LoginActivity loginActivity, Integer... update) {
+
+                    }
+
+                    @Override
+                    protected void deliverError(LoginActivity loginActivity, Exception e) {
+
+                    }
+                };
+        pullTask.connect(this);
+        pullTask.execute();
+    }
+
+    private void handlePullTaskResult(LoginActivity receiver, ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage) {
+        DataPullTask.PullTaskResult result = resultAndErrorMessage.data;
+        if (result == null) {
+            // The task crashed unexpectedly
+            receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
+            return;
+        }
+
+        switch (result) {
+            case AUTH_FAILED:
+                receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
+                break;
+            case BAD_DATA_REQUIRES_INTERVENTION:
+                receiver.raiseLoginMessageWithInfo(StockMessages.Remote_BadRestoreRequiresIntervention, resultAndErrorMessage.errorMessage, true);
+                break;
+            case BAD_DATA:
+                receiver.raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore, resultAndErrorMessage.errorMessage, true);
+                break;
+            case STORAGE_FULL:
+                receiver.raiseLoginMessage(StockMessages.Storage_Full, true);
+                break;
+            case DOWNLOAD_SUCCESS:
+                if (!tryLocalLogin(true, uiController.isRestoreSessionChecked())) {
+                    receiver.raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
+                }
+                break;
+            case UNREACHABLE_HOST:
+                receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork, true);
+                break;
+            case CONNECTION_TIMEOUT:
+                receiver.raiseLoginMessage(StockMessages.Remote_Timeout, true);
+                break;
+            case SERVER_ERROR:
+                receiver.raiseLoginMessage(StockMessages.Remote_ServerError, true);
+                break;
+            case UNKNOWN_FAILURE:
+                receiver.raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
+                break;
+        }
     }
 
     @Override
@@ -316,7 +359,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             return;
         }
 
-        tryAutoLogin();
+        if (CommCareApplication._().isConsumerApp()) {
+            uiController.setUsername("t1");
+            uiController.setPasswordOrPin("123");
+            performLocalRestore();
+        } else {
+            tryAutoLogin();
+        }
     }
 
     @Override
@@ -433,9 +482,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         boolean otherResult = super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case MENU_DEMO:
-                DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
-                tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,
-                        false, LoginMode.PASSWORD);
+                loginAsDemoUser();
                 return true;
             case MENU_ABOUT:
                 DialogCreationHelpers.buildAboutCommCareDialog(this).show();
@@ -449,6 +496,12 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             default:
                 return otherResult;
         }
+    }
+
+    private void loginAsDemoUser() {
+        DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
+        tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,
+                false, LoginMode.PASSWORD);
     }
 
     @Override

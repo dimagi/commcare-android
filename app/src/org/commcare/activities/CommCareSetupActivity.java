@@ -98,7 +98,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         IN_URL_ENTRY,
         CHOOSE_INSTALL_ENTRY_METHOD,
         READY_TO_INSTALL,
-        NEEDS_PERMS
+        NEEDS_PERMS,
+        BLANK
     }
 
     private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
@@ -180,6 +181,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         persistCommCareAppState();
 
+        if (isSingleAppBuild()) {
+            uiState = UiState.BLANK;
+        }
+
         Log.v("UiState", "Current vars: " +
                 "UIState is: " + this.uiState + " " +
                 "incomingRef is: " + incomingRef + " " +
@@ -241,10 +246,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             this.finish();
             return;
         }
-
-        if (isSingleAppBuild()) {
-            SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
-        }
     }
 
     @Override
@@ -293,6 +294,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case NEEDS_PERMS:
                 fragment = permFragment;
+                break;
+            case BLANK:
+                fragment = new Fragment();
                 break;
             default:
                 return;
@@ -716,8 +720,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    public void failWithNotification(AppInstallStatus statusfailstate) {
-        fail(NotificationMessageFactory.message(statusfailstate), true);
+    public void failWithNotification(AppInstallStatus statusFailState) {
+        fail(NotificationMessageFactory.message(statusFailState), true);
     }
 
     @Override
@@ -727,6 +731,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     + "any valid possibilities in CommCareSetupActivity");
             return null;
         }
+        if (isSingleAppBuild()) {
+            return generateStandaloneInstallDialog(taskId);
+        } else {
+            return generateNormalInstallDialog(taskId);
+        }
+    }
+
+    private CustomProgressDialog generateNormalInstallDialog(int taskId) {
         String title = Localization.get("updates.resources.initialization");
         String message = Localization.get("updates.resources.profile");
         CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
@@ -736,6 +748,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         boolean isChecked = (lastDialog != null) && lastDialog.isChecked();
         dialog.addCheckbox(checkboxText, isChecked);
         dialog.addProgressBar();
+        return dialog;
+    }
+
+    private CustomProgressDialog generateStandaloneInstallDialog(int taskId) {
+        String title = "Starting up";
+        String message = "Initializing your application...";
+        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
+        dialog.setCancelable(false);
         return dialog;
     }
 
@@ -831,8 +851,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             // external storage perms were enabled, so setup temp storage,
             // which fails in application setup without external storage perms.
             CommCareApplication._().prepareTemporaryStorage();
-            uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
-            uiStateScreenTransition();
+            if (isSingleAppBuild()) {
+                SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
+            } else {
+                uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
+                uiStateScreenTransition();
+            }
         }
     }
 

@@ -103,7 +103,7 @@ public abstract class DataPullTask<R>
         this(username, password, server, context, false);
     }
 
-    private DataPullTask(String username, String password,
+    public DataPullTask(String username, String password,
                          String server, Context context,
                          DataPullRequester dataPullRequester) {
         this(username, password, server, context);

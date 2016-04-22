@@ -1476,4 +1476,8 @@ public class CommCareApplication extends Application {
         return false;
     }
 
+    public boolean isConsumerApp() {
+        return BuildConfig.IS_CONSUMER_APP;
+    }
+
 }
