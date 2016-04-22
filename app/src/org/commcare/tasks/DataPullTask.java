@@ -79,6 +79,14 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
     public static final int PROGRESS_DOWNLOADING = 256;
     private DataPullRequester dataPullRequester;
 
+    private boolean useRequestFlags = false;
+    private HttpRequestGenerator  requestor;
+    private boolean loginNeeded = true;
+    private RemoteDataPullResponse pullResponse;
+    private AndroidTransactionParserFactory factory;
+    private UserKeyRecord ukr;
+    private PullTaskResult responseError = null;
+
     private DataPullTask(String username, String password, String server, Context context, boolean restoreOldSession) {
         this.server = server;
         this.username = username;
@@ -115,112 +123,107 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
             // TODO PLM: once this task is refactored into manageable
             // components, it should use the ManagedAsyncTask pattern of
             // checking for isCancelled() and aborting at safe places.
-            return PullTaskResult.UNKNOWN_FAILURE;
+            responseError = PullTaskResult.UNKNOWN_FAILURE;
+            return;
         }
 
 
         // Wrap in a 'try' to enable a 'finally' close that releases the
         // sessionAliveLock.
+        publishProgress(PROGRESS_STARTED);
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        SharedPreferences prefs = app.getAppPreferences();
+
+        String keyServer = prefs.getString("key_server", null);
+
+        mTotalItems = -1;
+        mCurrentProgress = -1;
+
+        //Whether or not we should be generating the first key
+        boolean useExternalKeys = !(keyServer == null || keyServer.equals(""));
+
         try {
-            publishProgress(PROGRESS_STARTED);
-            CommCareApp app = CommCareApplication._().getCurrentApp();
-            SharedPreferences prefs = app.getAppPreferences();
+            loginNeeded = !CommCareApplication._().getSession().isActive();
+        } catch (SessionUnavailableException sue) {
+            //expected if we aren't initialized.
+        }
 
-            String keyServer = prefs.getString("key_server", null);
+        //This should be per _user_, not per app
+        prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
 
-            mTotalItems = -1;
-            mCurrentProgress = -1;
+        requestor = new HttpRequestGenerator(username, password);
 
-            //Whether or not we should be generating the first key
-            boolean useExternalKeys = !(keyServer == null || keyServer.equals(""));
+        factory = new AndroidTransactionParserFactory(context, requestor) {
+            boolean publishedAuth = false;
 
-            try {
-                loginNeeded = !CommCareApplication._().getSession().isActive();
-            } catch (SessionUnavailableException sue) {
-                //expected if we aren't initialized.
-            }
-
-            //This should be per _user_, not per app
-            prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
-
-            requestor = new HttpRequestGenerator(username, password);
-
-            factory = new AndroidTransactionParserFactory(context, requestor) {
-                boolean publishedAuth = false;
-
-                @Override
-                public void reportProgress(int progress) {
-                    if (!publishedAuth) {
-                        DataPullTask.this.publishProgress(PROGRESS_AUTHED, progress);
-                        publishedAuth = true;
-                    }
+            @Override
+            public void reportProgress(int progress) {
+                if (!publishedAuth) {
+                    DataPullTask.this.publishProgress(PROGRESS_AUTHED, progress);
+                    publishedAuth = true;
                 }
-            };
-            Logger.log(AndroidLogger.TYPE_USER, "Starting Sync");
+            }
+        };
+        Logger.log(AndroidLogger.TYPE_USER, "Starting Sync");
 
-            try {
-                // This is a dangerous way to do this (the null settings), should revisit later
-                if (loginNeeded) {
-                    if (!useExternalKeys) {
-                        // Get the key
-                        SecretKey newKey = CryptUtil.generateSemiRandomKey();
+        try {
+            // This is a dangerous way to do this (the null settings), should revisit later
+            if (loginNeeded) {
+                if (!useExternalKeys) {
+                    // Get the key
+                    SecretKey newKey = CryptUtil.generateSemiRandomKey();
 
-                        if (newKey == null) {
-                            this.publishProgress(PROGRESS_DONE);
-                            return PullTaskResult.UNKNOWN_FAILURE;
-                        }
-                        String sandboxId = PropertyUtils.genUUID().replace("-", "");
-                        ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password),
-                                CryptUtil.wrapByteArrayWithString(newKey.getEncoded(), password),
-                                new Date(), new Date(Long.MAX_VALUE), sandboxId);
-
-                    } else {
-                        ukr = UserKeyRecord.getCurrentValidRecordByPassword(app, username, password, true);
-                        if (ukr == null) {
-                            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Shouldn't be able to not have a valid key record when OTA restoring with a key server");
-                            this.publishProgress(PROGRESS_DONE);
-                            return PullTaskResult.UNKNOWN_FAILURE;
-                        }
+                    if (newKey == null) {
+                        this.publishProgress(PROGRESS_DONE);
+                        responseError = PullTaskResult.UNKNOWN_FAILURE;
+                        return;
                     }
+                    String sandboxId = PropertyUtils.genUUID().replace("-", "");
+                    ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password),
+                            CryptUtil.wrapByteArrayWithString(newKey.getEncoded(), password),
+                            new Date(), new Date(Long.MAX_VALUE), sandboxId);
 
-                    //add to transaction parser factory
-                    byte[] wrappedKey = CryptUtil.wrapByteArrayWithString(ukr.getEncryptedKey(), password);
-                    factory.initUserParser(wrappedKey);
                 } else {
-                    factory.initUserParser(CommCareApplication._().getSession().getLoggedInUser().getWrappedKey());
-
-                    //Only purge cases if we already had a logged in user. Otherwise we probably can't read the DB.
-                    CaseUtils.purgeCases();
-                    useRequestFlags = true;
+                    ukr = UserKeyRecord.getCurrentValidRecordByPassword(app, username, password, true);
+                    if (ukr == null) {
+                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Shouldn't be able to not have a valid key record when OTA restoring with a key server");
+                        this.publishProgress(PROGRESS_DONE);
+                        responseError = PullTaskResult.UNKNOWN_FAILURE;
+                        return;
+                    }
                 }
-                //Either way, don't re-do this step
-                this.publishProgress(PROGRESS_CLEANED);
-            } catch (ConnectTimeoutException | SocketTimeoutException e) {
-                e.printStackTrace();
-                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
-                responseError = PullTaskResult.CONNECTION_TIMEOUT;
-            } catch (ClientProtocolException e) {
-                e.printStackTrace();
-                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due network error|" + e.getMessage());
-            } catch (UnknownHostException e) {
-                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
-                responseError = PullTaskResult.UNREACHABLE_HOST;
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
-            } catch (SessionUnavailableException sue) {
-                // TODO PLM: eventually take out this catch. These should be
-                // checked locally
-                //TODO: Keys were lost somehow.
-                sue.printStackTrace();
+
+                //add to transaction parser factory
+                byte[] wrappedKey = CryptUtil.wrapByteArrayWithString(ukr.getEncryptedKey(), password);
+                factory.initUserParser(wrappedKey);
+            } else {
+                try {
+                    factory.initUserParser(CommCareApplication._().getSession().getLoggedInUser().getWrappedKey());
+                } catch (SessionUnavailableException sue) {
+                    // TODO PLM: eventually take out this catch. These should be
+                    // checked locally
+                    //TODO: Keys were lost somehow.
+                    sue.printStackTrace();
+                    responseError = PullTaskResult.UNKNOWN_FAILURE;
+                    return;
+                }
+
+                //Only purge cases if we already had a logged in user. Otherwise we probably can't read the DB.
+                CaseUtils.purgeCases();
+                useRequestFlags = true;
             }
+            //Either way, don't re-do this step
+            this.publishProgress(PROGRESS_CLEANED);
         } finally {
             CommCareSessionService.sessionAliveLock.unlock();
         }
     }
     @Override
     protected void volatileWork(Void... params) {
+        if (responseError != null) {
+            return;
+        }
+
         try {
             pullResponse = dataPullRequester.makeDataPullRequest(this, requestor, server, useRequestFlags);
         } catch (ConnectTimeoutException | SocketTimeoutException e) {
@@ -230,6 +233,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
         } catch (ClientProtocolException e) {
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due network error|" + e.getMessage());
+            responseError = PullTaskResult.UNREACHABLE_HOST;
         } catch (UnknownHostException e) {
             Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
             responseError = PullTaskResult.UNREACHABLE_HOST;
@@ -237,24 +241,21 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
             // TODO Auto-generated catch block
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
+            responseError = PullTaskResult.UNKNOWN_FAILURE;
         }
         Logger.log(AndroidLogger.TYPE_USER, "Request opened. Response code: " + pullResponse.responseCode);
     }
 
-    private boolean useRequestFlags = false;
-    private HttpRequestGenerator  requestor;
-    private boolean loginNeeded = true;
-    private RemoteDataPullResponse pullResponse;
-    private AndroidTransactionParserFactory factory;
-    private UserKeyRecord ukr;
-    private PullTaskResult responseError = PullTaskResult.UNKNOWN_FAILURE;
-
     @Override
     protected PullTaskResult commit(Void... params) {
+        if (responseError != null) {
+            return responseError;
+        }
+
         CommCareApp app = CommCareApplication._().getCurrentApp();
         SharedPreferences prefs = app.getAppPreferences();
-        try{
-            try{
+        try {
+            try {
                 if (pullResponse.responseCode == 401) {
                     //If we logged in, we need to drop those credentials
                     if (loginNeeded) {
@@ -272,12 +273,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                         wasKeyLoggedIn = true;
                     }
 
-
                     this.publishProgress(PROGRESS_AUTHED, 0);
-                    // TODO PLM put remainder in commit phase
-                    if (isCancelled()) {
-                        return PullTaskResult.UNKNOWN_FAILURE;
-                    }
 
                     Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
 
