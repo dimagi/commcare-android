@@ -36,22 +36,23 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     protected final Result doInBackground(Params... params) {
         //Never have to wrap the entirety of your task.
         try {
+            // show cancel button; don't dismiss dialog until setup's complete
             enableCancelButton();
             setup(params);
+
             enableDismissDialogOnCancel();
 
             if (isCancelled()) {
                 return null;
             }
-
-            volatileWork(params);
+            mainBackgroundWork(params);
 
             if (isCancelled()) {
                 return null;
             }
 
+            // hide cancel button during commit phase
             disableCancelButton();
-
             return commit(params);
         } catch (Exception e) {
             Logger.log(TAG, e.getMessage());
@@ -67,19 +68,33 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
         }
     }
 
+    /**
+     * Perform background setup work. Shows cancel button, but won't dismiss
+     * the dialog or stop the task until this method finishes.
+     */
     protected void setup(Params... params) {
     }
 
-    protected void volatileWork(Params... params) {
+    /**
+     * Main background work. Shows cancel button and if pressed, dismisses the
+     * blocking dialog and allows the task to continue in the background until
+     * this method completes. The user may launch a new instance of the task
+     * while the cancelled one is burning out, so this should not contain logic
+     * that depends on shared, mutable state.
+     */
+    protected void mainBackgroundWork(Params... params) {
     }
 
+    /**
+     * Phase of task that cannot be cancelled.
+     */
     protected Result commit(Params... params) {
         return doTaskBackground(params);
     }
 
     private void enableCancelButton() {
-        // call UI thread to enable cancel button on dialog
         showCancelButton = true;
+        // Hack to notify UI thread to enable cancel button on dialog
         publishProgress();
     }
 
@@ -90,7 +105,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     private void disableCancelButton() {
         canDismissOnCancel = false;
         showCancelButton = false;
-        // call UI thread to disable cancel button on dialog
+        // Hack to notify UI thread to disable cancel button on dialog
         publishProgress();
     }
 
@@ -164,6 +179,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
             CommCareTaskConnector<Receiver> connector = getConnector(false);
             if (connector != null) {
                 if (values.length == 0) {
+                    // hack to update the UI thread dialog's cancel button state
                     connector.setTaskCancelable(showCancelButton);
                 } else {
                     this.deliverUpdate(connector.getReceiver(), values);

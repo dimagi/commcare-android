@@ -214,7 +214,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
         this.publishProgress(PROGRESS_CLEANED);
     }
     @Override
-    protected void volatileWork(Void... params) {
+    protected void mainBackgroundWork(Void... params) {
         if (responseError != null) {
             return;
         }

@@ -22,7 +22,7 @@ public class TaskConnectorFragment<R> extends Fragment {
     private CommCareTask<?, ?, ?, R> currentTask;
 
     private WakeLock wakelock;
-    private boolean enableTaskDialogCancelButton = false;
+    private boolean isTaskDialogCancelButtonEnabled = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -68,16 +68,20 @@ public class TaskConnectorFragment<R> extends Fragment {
         }
     }
 
+    /**
+     * @return Task is in a state where, if cancelled, it can dismiss its
+     * blocking dialog and allow the user them to continue using the app
+     */
     public boolean canDetachFromCancelledTask() {
         return currentTask == null || currentTask.canStopUIBlockOnCancel();
     }
 
     public boolean isDialogCancelButtonEnabled() {
-        return enableTaskDialogCancelButton;
+        return isTaskDialogCancelButtonEnabled;
     }
 
     public void setDialogCancelButtonState(boolean showCancelButton) {
-        enableTaskDialogCancelButton = showCancelButton;
+        isTaskDialogCancelButtonEnabled = showCancelButton;
     }
 
     private synchronized void acquireWakeLock(CommCareActivity activity) {
