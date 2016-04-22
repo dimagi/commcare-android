@@ -22,6 +22,7 @@ public class TaskConnectorFragment<R> extends Fragment {
     private CommCareTask<?, ?, ?, R> currentTask;
 
     private WakeLock wakelock;
+    private boolean enableTaskDialogCancelButton = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -67,8 +68,16 @@ public class TaskConnectorFragment<R> extends Fragment {
         }
     }
 
-    public boolean canDetachFromCanceledTask() {
+    public boolean canDetachFromCancelledTask() {
         return currentTask == null || currentTask.canDismissOnCancel();
+    }
+
+    public boolean isDialogCancelButtonEnabled() {
+        return enableTaskDialogCancelButton;
+    }
+
+    public void setDialogCancelButtonState(boolean showCancelButton) {
+        enableTaskDialogCancelButton = showCancelButton;
     }
 
     private synchronized void acquireWakeLock(CommCareActivity activity) {

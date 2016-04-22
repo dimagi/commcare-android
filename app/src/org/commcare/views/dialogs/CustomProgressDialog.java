@@ -85,10 +85,14 @@ public class CustomProgressDialog extends DialogFragment {
         usingCancelButton = true;
     }
 
+    public void addCancelButtonToDialog() {
+        usingCancelButton = true;
+        cancelButton.setVisibility(View.VISIBLE);
+    }
     public void removeCancelButton() {
         usingCancelButton = false;
         if (cancelButton != null) {
-            cancelButton.setVisibility(View.INVISIBLE);
+            cancelButton.setVisibility(View.GONE);
         }
     }
 
@@ -164,8 +168,9 @@ public class CustomProgressDialog extends DialogFragment {
         TextView messageView = (TextView)view.findViewById(R.id.progress_dialog_message);
         messageView.setText(message);
 
+        cancelButton = setupCancelButton(view);
         if (usingCancelButton) {
-            cancelButton = setupCancelButton(view);
+            cancelButton.setVisibility(View.VISIBLE);
             if (wasCancelPressed) {
                 setCancellingText(titleView, messageView, cancelButton);
             }
@@ -213,7 +218,7 @@ public class CustomProgressDialog extends DialogFragment {
             }
 
         });
-        b.setVisibility(View.VISIBLE);
+        b.setVisibility(View.GONE);
         return b;
     }
 

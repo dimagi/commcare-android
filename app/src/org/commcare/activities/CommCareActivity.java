@@ -98,8 +98,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private boolean triedBlockingWhilePaused;
     private boolean triedDismissingWhilePaused;
 
-    private boolean enableTaskDialogCancelButton = false;
-
     /**
      * Store the id of a task progress dialog so it can be disabled/enabled
      * on activity pause/resume.
@@ -409,7 +407,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public void cancelCurrentTask() {
         stateHolder.cancelTask();
 
-        if (stateHolder.canDetachFromCanceledTask()) {
+        if (stateHolder.canDetachFromCancelledTask()) {
             dismissProgressDialog();
         }
     }
@@ -511,12 +509,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             }
         }
     }
-    public void removeDisableFromProgressDialog() {
-        CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
-        if (mProgressDialog != null && !areFragmentsPaused) {
-            mProgressDialog.removeCancelButton();
-        }
-    }
 
     @Override
     public void updateProgressBar(int progress, int max, int taskId) {
@@ -547,7 +539,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         if (taskId >= 0) {
             CustomProgressDialog dialog = generateProgressDialog(taskId);
             if (dialog != null) {
-                if (enableTaskDialogCancelButton) {
+                if (stateHolder.isDialogCancelButtonEnabled()) {
                     dialog.addCancelButton();
                 } else {
                     dialog.removeCancelButton();
@@ -559,12 +551,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public void setTaskCancelable(boolean canCancel) {
-        enableTaskDialogCancelButton = canCancel;
+        stateHolder.setDialogCancelButtonState(canCancel);
 
+        // TODO PLM: pay attention to fragment pause issue
         CustomProgressDialog dialog = getCurrentProgressDialog();
         if (dialog != null) {
-            if (enableTaskDialogCancelButton) {
-                dialog.addCancelButton();
+            if (canCancel) {
+                dialog.addCancelButtonToDialog();
             } else {
                 dialog.removeCancelButton();
             }

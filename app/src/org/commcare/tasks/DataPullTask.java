@@ -111,7 +111,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
     @Override
     protected void onCancelled() {
         super.onCancelled();
-        CommCareSessionService.sessionAliveLock.unlock();
+
         if (wasKeyLoggedIn) {
             CommCareApplication._().releaseUserResourcesAndServices();
         }
@@ -119,8 +119,9 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
 
     @Override
     protected void setup(Void... params) {
-        // Don't try to sync if logging out is occuring
-        if (!CommCareSessionService.sessionAliveLock.tryLock()) {
+        // Don't bother starting sync if logging out is occuring; wait to grab
+        // lock in commit phase of sync
+        if (CommCareSessionService.sessionAliveLock.isLocked()) {
             // TODO PLM: once this task is refactored into manageable
             // components, it should use the ManagedAsyncTask pattern of
             // checking for isCancelled() and aborting at safe places.
@@ -251,6 +252,10 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
             return responseError;
         }
 
+        if (!CommCareSessionService.sessionAliveLock.tryLock()) {
+            return PullTaskResult.UNKNOWN_FAILURE;
+        }
+
         CommCareApp app = CommCareApplication._().getCurrentApp();
         SharedPreferences prefs = app.getAppPreferences();
         try {
@@ -377,18 +382,14 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
             // checked locally
             //TODO: Keys were lost somehow.
             sue.printStackTrace();
+        } finally {
+            CommCareSessionService.sessionAliveLock.unlock();
         }
         if (loginNeeded) {
             CommCareApplication._().releaseUserResourcesAndServices();
         }
         this.publishProgress(PROGRESS_DONE);
         return responseError;
-    }
-
-    @Override
-    protected void onPostExecute(PullTaskResult result) {
-        super.onPostExecute(result);
-        CommCareSessionService.sessionAliveLock.unlock();
     }
 
     private void storeSuccessfulSyncTime(SharedPreferences prefs) {

@@ -19,6 +19,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     private final Object connectorLock = new Object();
     private CommCareTaskConnector<Receiver> connector;
     private boolean canDismissOnCancel;
+    private boolean showCancelButton;
 
     private Exception unknownError;
 
@@ -78,7 +79,8 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
 
     private void enableCancelButton() {
         // call UI thread to enable cancel button on dialog
-        updateDialogCancelState(true);
+        showCancelButton = true;
+        publishProgress();
     }
 
     private void enableDismissDialogOnCancel() {
@@ -87,18 +89,9 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
 
     private void disableCancelButton() {
         canDismissOnCancel = false;
+        showCancelButton = false;
         // call UI thread to disable cancel button on dialog
-        updateDialogCancelState(false);
-    }
-
-    private void updateDialogCancelState(boolean canCancel) {
-        synchronized (connectorLock) {
-            CommCareTaskConnector<Receiver> connector = getConnector();
-
-            if (connector != null) {
-                connector.setTaskCancelable(canCancel);
-            }
-        }
+        publishProgress();
     }
 
     public boolean canDismissOnCancel() {
@@ -171,7 +164,11 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
         synchronized (connectorLock) {
             CommCareTaskConnector<Receiver> connector = getConnector(false);
             if (connector != null) {
-                this.deliverUpdate(connector.getReceiver(), values);
+                if (values.length == 0) {
+                    connector.setTaskCancelable(showCancelButton);
+                } else {
+                    this.deliverUpdate(connector.getReceiver(), values);
+                }
             }
         }
     }
