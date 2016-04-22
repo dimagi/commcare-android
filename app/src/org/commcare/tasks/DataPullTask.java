@@ -3,7 +3,6 @@ package org.commcare.tasks;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
@@ -110,7 +109,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
     }
 
     @Override
-    protected PullTaskResult doTaskBackground(Void... params) {
+    protected void setup(Void... params) {
         // Don't try to sync if logging out is occuring
         if (!CommCareSessionService.sessionAliveLock.tryLock()) {
             // TODO PLM: once this task is refactored into manageable
@@ -135,22 +134,18 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
             //Whether or not we should be generating the first key
             boolean useExternalKeys = !(keyServer == null || keyServer.equals(""));
 
-            boolean loginNeeded = true;
-            boolean useRequestFlags = false;
             try {
                 loginNeeded = !CommCareApplication._().getSession().isActive();
             } catch (SessionUnavailableException sue) {
                 //expected if we aren't initialized.
             }
 
-            PullTaskResult responseError = PullTaskResult.UNKNOWN_FAILURE;
-
             //This should be per _user_, not per app
             prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
 
-            HttpRequestGenerator requestor = new HttpRequestGenerator(username, password);
+            requestor = new HttpRequestGenerator(username, password);
 
-            AndroidTransactionParserFactory factory = new AndroidTransactionParserFactory(context, requestor) {
+            factory = new AndroidTransactionParserFactory(context, requestor) {
                 boolean publishedAuth = false;
 
                 @Override
@@ -162,9 +157,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                 }
             };
             Logger.log(AndroidLogger.TYPE_USER, "Starting Sync");
-            long bytesRead = -1;
-
-            UserKeyRecord ukr = null;
 
             try {
                 // This is a dangerous way to do this (the null settings), should revisit later
@@ -203,10 +195,66 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                 }
                 //Either way, don't re-do this step
                 this.publishProgress(PROGRESS_CLEANED);
+            } catch (ConnectTimeoutException | SocketTimeoutException e) {
+                e.printStackTrace();
+                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
+                responseError = PullTaskResult.CONNECTION_TIMEOUT;
+            } catch (ClientProtocolException e) {
+                e.printStackTrace();
+                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due network error|" + e.getMessage());
+            } catch (UnknownHostException e) {
+                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
+                responseError = PullTaskResult.UNREACHABLE_HOST;
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
+            } catch (SessionUnavailableException sue) {
+                // TODO PLM: eventually take out this catch. These should be
+                // checked locally
+                //TODO: Keys were lost somehow.
+                sue.printStackTrace();
+            }
+        } finally {
+            CommCareSessionService.sessionAliveLock.unlock();
+        }
+    }
+    @Override
+    protected void volatileWork(Void... params) {
+        try {
+            pullResponse = dataPullRequester.makeDataPullRequest(this, requestor, server, useRequestFlags);
+        } catch (ConnectTimeoutException | SocketTimeoutException e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
+            responseError = PullTaskResult.CONNECTION_TIMEOUT;
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due network error|" + e.getMessage());
+        } catch (UnknownHostException e) {
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
+            responseError = PullTaskResult.UNREACHABLE_HOST;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
+        }
+        Logger.log(AndroidLogger.TYPE_USER, "Request opened. Response code: " + pullResponse.responseCode);
+    }
 
-                RemoteDataPullResponse pullResponse = dataPullRequester.makeDataPullRequest(this, requestor, server, useRequestFlags);
-                Logger.log(AndroidLogger.TYPE_USER, "Request opened. Response code: " + pullResponse.responseCode);
+    private boolean useRequestFlags = false;
+    private HttpRequestGenerator  requestor;
+    private boolean loginNeeded = true;
+    private RemoteDataPullResponse pullResponse;
+    private AndroidTransactionParserFactory factory;
+    private UserKeyRecord ukr;
+    private PullTaskResult responseError = PullTaskResult.UNKNOWN_FAILURE;
 
+    @Override
+    protected PullTaskResult commit(Void... params) {
+        CommCareApp app = CommCareApplication._().getCurrentApp();
+        SharedPreferences prefs = app.getAppPreferences();
+        try{
+            try{
                 if (pullResponse.responseCode == 401) {
                     //If we logged in, we need to drop those credentials
                     if (loginNeeded) {
@@ -316,11 +364,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                     Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
                     return PullTaskResult.SERVER_ERROR;
                 }
-            } catch (SocketTimeoutException e) {
-                e.printStackTrace();
-                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
-                responseError = PullTaskResult.CONNECTION_TIMEOUT;
-            } catch (ConnectTimeoutException e) {
+            } catch (ConnectTimeoutException | SocketTimeoutException e) {
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
                 responseError = PullTaskResult.CONNECTION_TIMEOUT;
@@ -351,7 +395,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
     }
 
     private void storeSuccessfulSyncTime(SharedPreferences prefs) {
-        Editor e = prefs.edit();
+        SharedPreferences.Editor e = prefs.edit();
         e.putLong("last-succesful-sync", new Date().getTime());
         e.commit();
     }
