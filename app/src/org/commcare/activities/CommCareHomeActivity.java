@@ -20,6 +20,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -31,9 +34,6 @@ import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.FormsProviderAPI;
@@ -1345,9 +1345,6 @@ public class CommCareHomeActivity
         CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
         if (taskId == ProcessAndSendTask.PROCESSING_PHASE_ID) {
             dialog.addProgressBar();
-        }
-        if (taskId == DataPullTask.DATA_PULL_TASK_ID) {
-            dialog.addCancelButton();
         }
         return dialog;
     }

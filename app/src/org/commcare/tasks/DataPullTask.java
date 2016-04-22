@@ -11,13 +11,13 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.encryption.CryptUtil;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
@@ -78,7 +78,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
     private static final int PROGRESS_RECOVERY_FAIL_BAD = 64;
     public static final int PROGRESS_PROCESSING = 128;
     public static final int PROGRESS_DOWNLOADING = 256;
-    public static final int PROGRESS_DOWNLOADING_COMPLETE = 512;
     private DataPullRequester dataPullRequester;
 
     private DataPullTask(String username, String password, String server, Context context, boolean restoreOldSession) {
@@ -227,7 +226,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
 
 
                     this.publishProgress(PROGRESS_AUTHED, 0);
-                    this.publishProgress(PROGRESS_DOWNLOADING_COMPLETE, 0);
+                    // TODO PLM put remainder in commit phase
                     if (isCancelled()) {
                         return PullTaskResult.UNKNOWN_FAILURE;
                     }

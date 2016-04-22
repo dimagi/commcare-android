@@ -18,6 +18,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
 
     private final Object connectorLock = new Object();
     private CommCareTaskConnector<Receiver> connector;
+    private boolean canDismissOnCancel;
 
     private Exception unknownError;
 
@@ -34,7 +35,23 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     protected final Result doInBackground(Params... params) {
         //Never have to wrap the entirety of your task.
         try {
-            return doTaskBackground(params);
+            enableCancelButton();
+            setup(params);
+            enableDismissDialogOnCancel();
+
+            if (isCancelled()) {
+                return null;
+            }
+
+            volatileWork(params);
+
+            if (isCancelled()) {
+                return null;
+            }
+
+            disableCancelButton();
+
+            return commit(params);
         } catch (Exception e) {
             Logger.log(TAG, e.getMessage());
             e.printStackTrace();
@@ -47,6 +64,46 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
 
             return null;
         }
+    }
+
+    protected void setup(Params... params) {
+    }
+
+    protected void volatileWork(Params... params) {
+    }
+
+    protected Result commit(Params... params) {
+        return doTaskBackground(params);
+    }
+
+    private void enableCancelButton() {
+        // call UI thread to enable cancel button on dialog
+        updateDialogCancelState(true);
+    }
+
+    private void enableDismissDialogOnCancel() {
+        canDismissOnCancel = true;
+    }
+
+    private void disableCancelButton() {
+        canDismissOnCancel = false;
+        // call UI thread to disable cancel button on dialog
+        updateDialogCancelState(false);
+    }
+
+    private void updateDialogCancelState(boolean canCancel) {
+        synchronized (connectorLock) {
+            CommCareTaskConnector<Receiver> connector = getConnector();
+
+            if (connector != null) {
+                connector.setTaskCancelable(canCancel);
+            }
+        }
+    }
+
+    public boolean canDismissOnCancel() {
+        // UI thread calls this to see if they should dismiss blocking dialog and detach from task
+        return canDismissOnCancel;
     }
 
     /**

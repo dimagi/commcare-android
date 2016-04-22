@@ -67,6 +67,10 @@ public class TaskConnectorFragment<R> extends Fragment {
         }
     }
 
+    public boolean canDetachFromCanceledTask() {
+        return currentTask == null || currentTask.canDismissOnCancel();
+    }
+
     private synchronized void acquireWakeLock(CommCareActivity activity) {
         int lockLevel = activity.getWakeLockLevel();
         if (lockLevel != CommCareTask.DONT_WAKELOCK) {
