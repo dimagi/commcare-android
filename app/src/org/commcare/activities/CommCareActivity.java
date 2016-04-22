@@ -408,6 +408,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         stateHolder.cancelTask();
 
         if (stateHolder.canDetachFromCancelledTask()) {
+            // let cancelled task burn out in the background
             dismissProgressDialog();
         }
     }
@@ -539,11 +540,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         if (taskId >= 0) {
             CustomProgressDialog dialog = generateProgressDialog(taskId);
             if (dialog != null) {
-                if (stateHolder.isDialogCancelButtonEnabled()) {
-                    dialog.addCancelButton();
-                } else {
-                    dialog.removeCancelButton();
-                }
+                dialog.setCancelButtonVisibility(stateHolder.isDialogCancelButtonEnabled());
                 dialog.show(getSupportFragmentManager(), KEY_PROGRESS_DIALOG_FRAG);
             }
         }
@@ -553,14 +550,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public void setTaskCancelable(boolean canCancel) {
         stateHolder.setDialogCancelButtonState(canCancel);
 
-        // TODO PLM: pay attention to fragment pause issue
         CustomProgressDialog dialog = getCurrentProgressDialog();
         if (dialog != null) {
-            if (canCancel) {
-                dialog.addCancelButtonToDialog();
-            } else {
-                dialog.removeCancelButton();
-            }
+            dialog.setCancelButtonVisibility(canCancel);
         }
     }
 

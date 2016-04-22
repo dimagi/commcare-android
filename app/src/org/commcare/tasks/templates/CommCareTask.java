@@ -94,8 +94,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
         publishProgress();
     }
 
-    public boolean canDismissOnCancel() {
-        // UI thread calls this to see if they should dismiss blocking dialog and detach from task
+    public boolean canStopUIBlockOnCancel() {
         return canDismissOnCancel;
     }
 

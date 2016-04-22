@@ -85,17 +85,6 @@ public class CustomProgressDialog extends DialogFragment {
         usingCancelButton = true;
     }
 
-    public void addCancelButtonToDialog() {
-        usingCancelButton = true;
-        cancelButton.setVisibility(View.VISIBLE);
-    }
-    public void removeCancelButton() {
-        usingCancelButton = false;
-        if (cancelButton != null) {
-            cancelButton.setVisibility(View.GONE);
-        }
-    }
-
     public void setCancelable() {
         this.isCancelable = true;
     }
@@ -168,12 +157,9 @@ public class CustomProgressDialog extends DialogFragment {
         TextView messageView = (TextView)view.findViewById(R.id.progress_dialog_message);
         messageView.setText(message);
 
-        cancelButton = setupCancelButton(view);
-        if (usingCancelButton) {
-            cancelButton.setVisibility(View.VISIBLE);
-            if (wasCancelPressed) {
-                setCancellingText(titleView, messageView, cancelButton);
-            }
+        setupCancelButton(view);
+        if (wasCancelPressed) {
+            setCancellingText(titleView, messageView, cancelButton);
         }
 
         builder.setView(view);
@@ -207,19 +193,17 @@ public class CustomProgressDialog extends DialogFragment {
         }
     }
 
-    private Button setupCancelButton(View v) {
-        Button b = (Button)v.findViewById(R.id.dialog_cancel_button);
-        b.setOnClickListener(new OnClickListener() {
-
+    private void setupCancelButton(View v) {
+        cancelButton = (Button)v.findViewById(R.id.dialog_cancel_button);
+        cancelButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 ((CommCareActivity)getActivity()).cancelCurrentTask();
                 showCancelledState();
             }
-
         });
-        b.setVisibility(View.GONE);
-        return b;
+
+        cancelButton.setVisibility(usingCancelButton ? View.VISIBLE : View.GONE);
     }
 
     private void showCancelledState() {
@@ -277,6 +261,13 @@ public class CustomProgressDialog extends DialogFragment {
             ProgressBar bar = (ProgressBar)dialog.findViewById(R.id.progress_bar_horizontal);
             bar.setProgress(progress);
             bar.setMax(max);
+        }
+    }
+
+    public void setCancelButtonVisibility(boolean isVisible) {
+        usingCancelButton = isVisible;
+        if (cancelButton != null) {
+            cancelButton.setVisibility(isVisible ? View.VISIBLE : View.GONE);
         }
     }
 }

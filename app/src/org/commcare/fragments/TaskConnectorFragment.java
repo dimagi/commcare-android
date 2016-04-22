@@ -69,7 +69,7 @@ public class TaskConnectorFragment<R> extends Fragment {
     }
 
     public boolean canDetachFromCancelledTask() {
-        return currentTask == null || currentTask.canDismissOnCancel();
+        return currentTask == null || currentTask.canStopUIBlockOnCancel();
     }
 
     public boolean isDialogCancelButtonEnabled() {
