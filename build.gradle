@@ -97,6 +97,7 @@ ext {
 
 def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : ""
 def ccDomain = project.hasProperty('cc_domain') ? cc_domain : ""
+def isConsumerApp = project.hasProperty('is_consumer_app') ? is_consumer_app : ""
 def ccDomainSafe = ccDomain.replaceAll("-", "")
 
 /**
@@ -157,6 +158,7 @@ android {
         // when set, app won't show install screen and try to install
         // resources from assets folder
         buildConfigField "boolean", "IS_SINGLE_APP_BUILD", "false"
+        buildConfigField "boolean", "IS_CONSUMER_APP", "false"
 
         buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
         buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
@@ -263,6 +265,7 @@ android {
             manifestPlaceholders = [odkProvider: odkProviderStr]
 
             buildConfigField "boolean", "IS_SINGLE_APP_BUILD", "true"
+            buildConfigField "boolean", "IS_CONSUMER_APP", isConsumerApp
             // include this again so that the value get reloaded
             buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
             buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
