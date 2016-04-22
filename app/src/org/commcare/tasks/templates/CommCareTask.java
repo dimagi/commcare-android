@@ -1,6 +1,9 @@
 package org.commcare.tasks.templates;
 
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 
 import org.acra.ACRA;
@@ -15,6 +18,9 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
 
     public static final int GENERIC_TASK_ID = 32;
     public static final int DONT_WAKELOCK = -1;
+
+    private final static int MESSAGE_CANCEL_UPDATE = 0;
+    private static InternalUIHandler sHandler;
 
     private final Object connectorLock = new Object();
     private CommCareTaskConnector<Receiver> connector;
@@ -94,8 +100,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
 
     private void enableCancelButton() {
         showCancelButton = true;
-        // Hack to notify UI thread to enable cancel button on dialog
-        publishProgress();
+        publishCancelDialogUpdate();
     }
 
     private void enableDismissDialogOnCancel() {
@@ -105,8 +110,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     private void disableCancelButton() {
         canDismissOnCancel = false;
         showCancelButton = false;
-        // Hack to notify UI thread to disable cancel button on dialog
-        publishProgress();
+        publishCancelDialogUpdate();
     }
 
     public boolean canStopUIBlockOnCancel() {
@@ -178,12 +182,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
         synchronized (connectorLock) {
             CommCareTaskConnector<Receiver> connector = getConnector(false);
             if (connector != null) {
-                if (values.length == 0) {
-                    // hack to update the UI thread dialog's cancel button state
-                    connector.setTaskCancelable(showCancelButton);
-                } else {
-                    this.deliverUpdate(connector.getReceiver(), values);
-                }
+                this.deliverUpdate(connector.getReceiver(), values);
             }
         }
     }
@@ -264,6 +263,59 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     public void disconnect() {
         synchronized (connectorLock) {
             connector = null;
+        }
+    }
+
+    protected final void publishCancelDialogUpdate() {
+        if (!isCancelled()) {
+            getHandler().obtainMessage(MESSAGE_CANCEL_UPDATE,
+                    new CCTaskMessageResult(this)).sendToTarget();
+        }
+    }
+
+    private static Handler getHandler() {
+        synchronized (CommCareTask.class) {
+            if (sHandler == null) {
+                sHandler = new InternalUIHandler();
+            }
+            return sHandler;
+        }
+    }
+
+    private static class InternalUIHandler extends Handler {
+        public InternalUIHandler() {
+            super(Looper.getMainLooper());
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            CCTaskMessageResult result = (CCTaskMessageResult) msg.obj;
+            switch (msg.what) {
+                case MESSAGE_CANCEL_UPDATE:
+                    result.task.updateCancelUIState();
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Must be run on UI thread because it updates blocking dialog UI
+     */
+    private void updateCancelUIState() {
+        synchronized (connectorLock) {
+            CommCareTaskConnector<Receiver> connector = getConnector();
+
+            if (connector != null) {
+                connector.setTaskCancelable(showCancelButton);
+            }
+        }
+    }
+
+    private static class CCTaskMessageResult {
+        private final CommCareTask task;
+
+        CCTaskMessageResult(CommCareTask task) {
+            this.task = task;
         }
     }
 }

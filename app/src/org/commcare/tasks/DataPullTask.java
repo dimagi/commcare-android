@@ -206,13 +206,14 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
                 return;
             }
 
-            //Only purge cases if we already had a logged in user. Otherwise we probably can't read the DB.
+            // Only purge cases if we already had a logged in user. Otherwise we probably can't read the DB.
             CaseUtils.purgeCases();
             useRequestFlags = true;
         }
         //Either way, don't re-do this step
         this.publishProgress(PROGRESS_CLEANED);
     }
+
     @Override
     protected void mainBackgroundWork(Void... params) {
         if (responseError != null) {
@@ -243,6 +244,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
 
     @Override
     protected PullTaskResult doTaskBackground(Void... params) {
+        // since we are defining a commit implementation, this will never be called
         throw new UnsupportedOperationException("legacy; should never be called");
     }
 
