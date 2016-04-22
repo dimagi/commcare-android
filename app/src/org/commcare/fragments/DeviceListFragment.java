@@ -33,8 +33,8 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
     private static final String TAG = DeviceListFragment.class.getSimpleName();
 
     private final List<WifiP2pDevice> peers = new ArrayList<>();
-    ProgressDialog progressDialog = null;
-    View mContentView = null;
+    private ProgressDialog progressDialog = null;
+    private View mContentView = null;
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
@@ -50,7 +50,7 @@ public class DeviceListFragment extends ListFragment implements PeerListListener
         return mContentView;
     }
 
-    public static String getDeviceStatus(int deviceStatus) {
+    private static String getDeviceStatus(int deviceStatus) {
         Log.d(TAG, "Peer status :" + deviceStatus);
         switch (deviceStatus) {
             case WifiP2pDevice.AVAILABLE:

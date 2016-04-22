@@ -361,7 +361,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         setReadyToInstall(result);
     }
 
-    public void setReadyToInstall(String reference) {
+    private void setReadyToInstall(String reference) {
         incomingRef = reference;
         this.uiState = UiState.READY_TO_INSTALL;
 

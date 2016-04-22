@@ -53,16 +53,9 @@ public class StoreFixturesOnFilesystemTests {
     }
 
     public static AndroidSandbox installAppWithFixtureData(Class testClass, String fixtureResource) {
-        // needed to resolve "jr://resource" type references
-        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
-
-        TestUtils.initializeStaticTestStorage();
-        TestAppInstaller.setupPrototypeFactory();
-
-        TestAppInstaller appTestInstaller =
-                new TestAppInstaller("jr://resource/commcare-apps/archive_form_tests/profile.ccpr",
-                        "test", "123");
-        appTestInstaller.installAppAndLogin();
+        TestAppInstaller.initInstallAndLogin(
+                "jr://resource/commcare-apps/archive_form_tests/profile.ccpr",
+                "test", "123");
 
         AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication._());
 

@@ -73,7 +73,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     private static void populatePrefKeyToEventLabelMapping() {
         prefKeyToAnalyticsEvent.put(SUPERUSER_ENABLED, GoogleAnalyticsFields.LABEL_DEV_MODE);
-        prefKeyToAnalyticsEvent.put(ACTION_BAR_ENABLED, GoogleAnalyticsFields.LABEL_ACTION_BAR);;
+        prefKeyToAnalyticsEvent.put(ACTION_BAR_ENABLED, GoogleAnalyticsFields.LABEL_ACTION_BAR);
         prefKeyToAnalyticsEvent.put(NAV_UI_ENABLED, GoogleAnalyticsFields.LABEL_NAV_UI);
         prefKeyToAnalyticsEvent.put(LIST_REFRESH_ENABLED, GoogleAnalyticsFields.LABEL_ENTITY_LIST_REFRESH);
         prefKeyToAnalyticsEvent.put(NEWEST_APP_VERSION_ENABLED, GoogleAnalyticsFields.LABEL_NEWEST_APP_VERSION);
@@ -204,7 +204,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     public static boolean shouldFireTriggersOnSave() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return properties.getString(FIRE_TRIGGERS_ON_SAVE, CommCarePreferences.YES).equals(CommCarePreferences.YES);
+        return properties.getString(FIRE_TRIGGERS_ON_SAVE, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
     public static boolean shouldAnimateFormSubmitButton() {

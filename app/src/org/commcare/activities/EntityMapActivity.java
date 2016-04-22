@@ -24,6 +24,7 @@ import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.SerializationUtil;
@@ -44,7 +45,7 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
     private static final int MAP_PADDING = 50;  // Number of pixels to pad bounding region of markers
 
     private final CommCareSession session = CommCareApplication._().getCurrentSession();
-    private final SessionDatum selectDatum = session.getNeededDatum();
+    private EntityDatum selectDatum;
 
     private final Vector<Pair<Entity<TreeReference>, LatLng>> entityLocations = new Vector<>();
     private final HashMap<Marker, TreeReference> markerReferences = new HashMap<>();
@@ -59,11 +60,15 @@ public class EntityMapActivity extends CommCareActivity implements OnMapReadyCal
         SupportMapFragment mapFragment = (SupportMapFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        SessionDatum datum = session.getNeededDatum();
+        if (datum instanceof EntityDatum) {
+            selectDatum = (EntityDatum)datum;
 
-        Detail detail = session.getDetail(selectDatum.getShortDetail());
-        addEntityLocations(detail);
-        Log.d(TAG, "Loaded. " + entityLocations.size() + " addresses discovered, " + (
-                detail.getHeaderForms().length - entityLocations.size()) + " could not be located");
+            Detail detail = session.getDetail(selectDatum.getShortDetail());
+            addEntityLocations(detail);
+            Log.d(TAG, "Loaded. " + entityLocations.size() + " addresses discovered, " + (
+                    detail.getHeaderForms().length - entityLocations.size()) + " could not be located");
+        }
     }
 
     /**

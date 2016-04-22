@@ -1,7 +1,5 @@
 package org.commcare.android.database.user.models;
 
-import com.google.android.maps.GeoPoint;
-
 import org.commcare.modern.models.EncryptedModel;
 import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.services.storage.IMetaData;
@@ -57,15 +55,6 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
         this.lastQueried = queried;
     }
 
-    public static GeocodeCacheModel NoHitRecord(String val) {
-        GeocodeCacheModel model = new GeocodeCacheModel();
-        model.location = val;
-        model.hit = false;
-        model.lastQueried = new Date();
-        return model;
-    }
-
-
     public boolean isEncrypted(String data) {
         return !(data.equals(META_LAST_QUERY) || data.equals(META_HIT));
     }
@@ -94,10 +83,6 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
         }
     }
 
-    public GeoPoint getGeoPoint() {
-        return new GeoPoint(lat, lon);
-    }
-
     public void setID(int ID) {
         recordId = ID;
     }
@@ -124,12 +109,4 @@ public class GeocodeCacheModel implements IMetaData, Persistable, EncryptedModel
         }
         throw new IllegalArgumentException("No metadata field " + fieldName + " for Geocoder Cache Models");
     }
-
-    /**
-     * Whether this represents a location which has a geopoint, or one which failed to look up
-     */
-    public boolean dataExists() {
-        return hit;
-    }
-
 }

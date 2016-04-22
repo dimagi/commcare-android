@@ -14,6 +14,7 @@ import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
@@ -132,9 +133,10 @@ public class FormAndDataSyncer {
                 activity) {
 
             @Override
-            protected void deliverResult(CommCareHomeActivity receiver, PullTaskResult result) {
+            protected void deliverResult(CommCareHomeActivity receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
                 receiver.getUIController().refreshView();
 
+                PullTaskResult result = resultAndErrorMessage.data;
                 String reportSyncLabel = result.getCorrespondingGoogleAnalyticsLabel();
                 int reportSyncValue = result.getCorrespondingGoogleAnalyticsValue();
 
@@ -144,6 +146,7 @@ public class FormAndDataSyncer {
                         receiver.displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
                         break;
                     case BAD_DATA:
+                    case BAD_DATA_REQUIRES_INTERVENTION:
                         receiver.displayMessage(Localization.get("sync.fail.bad.data"), true);
                         break;
                     case DOWNLOAD_SUCCESS:
@@ -208,6 +211,10 @@ public class FormAndDataSyncer {
         };
 
         mDataPullTask.connect(activity);
-        mDataPullTask.execute();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            mDataPullTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            mDataPullTask.execute();
+        }
     }
 }

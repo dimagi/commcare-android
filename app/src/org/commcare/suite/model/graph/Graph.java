@@ -76,10 +76,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         return mConfiguration.keys();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         mType = ExtUtil.readString(in);
         mConfiguration = (Hashtable<String, Text>)ExtUtil.read(in, new ExtWrapMap(String.class, Text.class), pf);
@@ -87,10 +84,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         mAnnotations = (Vector<Annotation>)ExtUtil.read(in, new ExtWrapList(Annotation.class), pf);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, mType);
         ExtUtil.write(out, new ExtWrapMap(mConfiguration));
@@ -98,10 +92,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         ExtUtil.write(out, new ExtWrapList(mAnnotations));
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.suite.model.DetailTemplate#evaluate(org.javarosa.core.model.condition.EvaluationContext)
-     */
+    @Override
     public GraphData evaluate(EvaluationContext context) {
         GraphData data = new GraphData();
         data.setType(mType);
@@ -111,7 +102,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         return data;
     }
 
-    /*
+    /**
      * Helper for evaluate. Looks at annotations only.
      */
     private void evaluateAnnotations(GraphData graphData, EvaluationContext context) {
@@ -124,7 +115,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         }
     }
 
-    /*
+    /**
      * Helper for evaluate. Looks at configuration only.
      */
     private void evaluateConfiguration(Configurable template, ConfigurableData data, EvaluationContext context) {
@@ -146,7 +137,7 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         }
     }
 
-    /*
+    /**
      * Helper for evaluate. Looks at all series.
      */
     private void evaluateSeries(GraphData graphData, EvaluationContext context) {

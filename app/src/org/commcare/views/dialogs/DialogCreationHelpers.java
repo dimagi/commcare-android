@@ -38,6 +38,12 @@ public class DialogCreationHelpers {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setView(view);
+        builder.setPositiveButton(Localization.get("dialog.ok"), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
         return builder.create();
     }
 

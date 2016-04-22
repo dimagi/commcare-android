@@ -11,15 +11,16 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.LoginMode;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.models.encryption.CryptUtil;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ExternalManageKeyRecordTask;
 import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.FormUploadUtil;
@@ -118,7 +119,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         if (ids.size() > 0) {
             FormRecord[] records = new FormRecord[ids.size()];
             for (int i = 0; i < ids.size(); ++i) {
-                records[i] = storage.read(ids.elementAt(i).intValue());
+                records[i] = storage.read(ids.elementAt(i));
             }
             SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
             ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(
@@ -181,7 +182,8 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 context) {
 
             @Override
-            protected void deliverResult(Object receiver, PullTaskResult result) {
+            protected void deliverResult(Object receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
+                PullTaskResult result = resultAndErrorMessage.data;
                 if (result != PullTaskResult.DOWNLOAD_SUCCESS) {
                     Toast.makeText(context, "CommCare couldn't sync. Please try to sync from CommCare directly for more information", Toast.LENGTH_LONG).show();
                 } else {
@@ -232,7 +234,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 return false;
             }
             //TODO: Extract this
-            byte[] key = CryptUtil.unwrapByteArrayWithString(matchingRecord.getEncryptedKey(), password);
+            byte[] key = ByteEncrypter.unwrapByteArrayWithString(matchingRecord.getEncryptedKey(), password);
             if (matchingRecord.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
                 LegacyInstallUtils.transitionLegacyUserStorage(context, CommCareApplication._().getCurrentApp(), key, matchingRecord);
             }

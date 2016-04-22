@@ -171,7 +171,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
         return super.onOptionsItemSelected(item);
     }
 
-    public void launchRememberPasswordConfirmDialog() {
+    private void launchRememberPasswordConfirmDialog() {
         AlertDialogFactory factory = new AlertDialogFactory(this,
                 Localization.get("remember.password.confirm.title"),
                 Localization.get("remember.password.confirm.message"));

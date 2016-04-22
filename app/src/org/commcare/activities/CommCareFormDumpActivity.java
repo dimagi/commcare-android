@@ -252,11 +252,6 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
         return ids;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-    }
-
     private void exitDump() {
         finish();
     }

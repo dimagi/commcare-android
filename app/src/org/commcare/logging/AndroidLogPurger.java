@@ -16,7 +16,7 @@ import java.util.Hashtable;
  */
 public class AndroidLogPurger<T extends AndroidLogEntry> implements StreamLogSerializer.Purger {
 
-    private SqlStorage<T> logStorage;
+    private final SqlStorage<T> logStorage;
 
     public AndroidLogPurger(SqlStorage<T> logStorage) {
         this.logStorage = logStorage;

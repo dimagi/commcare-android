@@ -1,5 +1,6 @@
 package org.commcare.activities;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -32,6 +33,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private static final String TAG = UpdateActivity.class.getSimpleName();
     private static final String TASK_CANCELLING_KEY = "update_task_cancelling";
     private static final String IS_APPLYING_UPDATE_KEY = "applying_update_task_running";
+
     private static final int DIALOG_UPGRADE_INSTALL = 6;
 
     private boolean taskIsCancelling;
@@ -39,19 +41,24 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private UpdateTask updateTask;
     private UpdateUIController uiController;
 
+    private boolean proceedAutomatically;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         uiController.setupUI();
 
-        loadSaveInstanceState(savedInstanceState);
+        proceedAutomatically = getIntent().getBooleanExtra(
+                RefreshToLatestBuildActivity.KEY_FROM_LATEST_BUILD_ACTIVITY, false);
+
+        loadSavedInstanceState(savedInstanceState);
 
         boolean isRotation = savedInstanceState != null;
         setupUpdateTask(isRotation);
     }
 
-    private void loadSaveInstanceState(Bundle savedInstanceState) {
+    private void loadSavedInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             taskIsCancelling =
                     savedInstanceState.getBoolean(TASK_CANCELLING_KEY, false);
@@ -170,17 +177,37 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     public void handleTaskCompletion(AppInstallStatus result) {
         if (result == AppInstallStatus.UpdateStaged) {
             uiController.unappliedUpdateAvailableUiState();
+            if (proceedAutomatically) {
+                launchUpdateInstallTask();
+                return;
+            }
         } else if (result == AppInstallStatus.UpToDate) {
             uiController.upToDateUiState();
+            if (proceedAutomatically) {
+                unregisterTask();
+                finishWithResult(RefreshToLatestBuildActivity.ALREADY_UP_TO_DATE);
+                return;
+            }
         } else {
             // Gives user generic failure warning; even if update staging
             // failed for a specific reason like xml syntax
             uiController.checkFailedUiState();
+            if (proceedAutomatically) {
+                unregisterTask();
+                finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
+                return;
+            }
         }
 
         unregisterTask();
-
         uiController.refreshView();
+    }
+
+    private void finishWithResult(String result) {
+        Intent i = new Intent();
+        setResult(RESULT_OK, i);
+        i.putExtra(RefreshToLatestBuildActivity.KEY_UPDATE_ATTEMPT_RESULT, result);
+        finish();
     }
 
     @Override
@@ -229,12 +256,16 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         } else {
             uiController.idleUiState();
         }
+
+        if (proceedAutomatically) {
+            finishWithResult(RefreshToLatestBuildActivity.UPDATE_CANCELED);
+        }
     }
 
     /**
      * Block the user with a dialog while the update is finalized.
      */
-    protected void lauchUpdateInstallTask() {
+    protected void launchUpdateInstallTask() {
         InstallStagedUpdateTask<UpdateActivity> task =
                 new InstallStagedUpdateTask<UpdateActivity>(DIALOG_UPGRADE_INSTALL) {
 
@@ -244,6 +275,10 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                         if (result == AppInstallStatus.Installed) {
                             receiver.logoutOnSuccessfulUpdate();
                         } else {
+                            if (proceedAutomatically) {
+                                finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
+                                return;
+                            }
                             receiver.uiController.errorUiState();
                         }
                         receiver.isApplyingUpdate = false;
@@ -287,8 +322,12 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 Localization.get("updates.install.finished");
         Toast.makeText(this, upgradeFinishedText, Toast.LENGTH_LONG).show();
         CommCareApplication._().expireUserSession();
-        setResult(RESULT_OK);
-        this.finish();
+        if (proceedAutomatically) {
+            finishWithResult(RefreshToLatestBuildActivity.UPDATE_SUCCESS);
+        } else {
+            setResult(RESULT_OK);
+            this.finish();
+        }
     }
 
     @Override
@@ -306,4 +345,5 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     public CommCareActivityUIController getUIController() {
         return this.uiController;
     }
+
 }

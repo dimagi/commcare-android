@@ -73,7 +73,7 @@ public class HttpRequestGenerator {
     private static final String SUBMIT_MODE_DEMO = "demo";
 
     private Credentials credentials;
-    PasswordAuthentication passwordAuthentication;
+    private PasswordAuthentication passwordAuthentication;
     private String username;
     private String userType;
 
@@ -190,7 +190,7 @@ public class HttpRequestGenerator {
         base.addHeader("x-openrosa-deviceid", CommCareApplication._().getPhoneId());
     }
 
-    public String getSyncToken(String username) {
+    private String getSyncToken(String username) {
         if (username == null) {
             return null;
         }
@@ -269,7 +269,7 @@ public class HttpRequestGenerator {
         return response;
     }
 
-    public static boolean isValidRedirect(URL url, URL newUrl) {
+    private static boolean isValidRedirect(URL url, URL newUrl) {
         //unless it's https, don't worry about it
         if (!url.getProtocol().equals("https")) {
             return true;

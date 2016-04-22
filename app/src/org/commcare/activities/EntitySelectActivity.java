@@ -3,14 +3,11 @@ package org.commcare.activities;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -50,6 +47,7 @@ import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.tasks.EntityLoaderListener;
 import org.commcare.tasks.EntityLoaderTask;
@@ -57,7 +55,6 @@ import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.EntitySelectRefreshTimer;
-import org.commcare.utils.GeoUtils;
 import org.commcare.utils.HereFunctionHandler;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.views.EntityView;
@@ -65,6 +62,7 @@ import org.commcare.views.TabbedDetailView;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.DialogChoiceItem;
+import org.commcare.views.dialogs.LocationNotificationHandler;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.media.AudioController;
 import org.javarosa.core.model.instance.TreeReference;
@@ -72,7 +70,6 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -109,7 +106,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private MenuItem searchItem;
     private MenuItem barcodeItem;
 
-    private SessionDatum selectDatum;
+    private EntityDatum selectDatum;
 
     private boolean mResultIsMap = false;
     private boolean isMappingEnabled = false;
@@ -154,7 +151,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private boolean locationChangedWhileLoading = false;
 
     // Handler for displaying alert dialog when no location providers are found
-    private final LocationNotificationHandler locationNotificationHandler = new LocationNotificationHandler(this);
+    private final LocationNotificationHandler locationNotificationHandler =
+            new LocationNotificationHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -173,7 +171,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         // avoid session dependent when there is no command
         if (session.getCommand() != null) {
-            selectDatum = session.getNeededDatum();
+            selectDatum = (EntityDatum)session.getNeededDatum();
             shortSelect = session.getDetail(selectDatum.getShortDetail());
             mNoDetailMode = selectDatum.getLongDetail() == null;
 
@@ -792,8 +790,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private DialogChoiceItem[] getSortOptionsList(final PaneledChoiceDialog dialog) {
-        SessionDatum datum = session.getNeededDatum();
-        DetailField[] fields = session.getDetail(datum.getShortDetail()).getFields();
+        DetailField[] fields = session.getDetail(selectDatum.getShortDetail()).getFields();
         List<String> namesList = new ArrayList<>();
 
         final int[] keyArray = new int[fields.length];
@@ -1043,45 +1040,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             if (!hereFunctionHandler.locationProvidersFound()) {
                 locationNotificationHandler.sendEmptyMessage(0);
             }
-        }
-    }
-
-    /**
-     * Handler class for displaying alert dialog when no location providers are found.
-     * Message-passing is necessary because the dialog is displayed during the course of evaluation
-     * of the here() function, which occurs in a background thread (EntityLoaderTask).
-     */
-    private static class LocationNotificationHandler extends Handler {
-        // Use a weak reference to avoid potential memory leaks
-        private final WeakReference<EntitySelectActivity> mActivity;
-
-        public LocationNotificationHandler(EntitySelectActivity activity) {
-            mActivity = new WeakReference<>(activity);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-
-            final EntitySelectActivity activity = mActivity.get();
-            if (activity != null) {
-                DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int i) {
-                        switch (i) {
-                            case DialogInterface.BUTTON_POSITIVE:
-                                Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                activity.startActivity(intent);
-                                hereFunctionHandler.allowGpsUse();
-                                break;
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                break;
-                        }
-                        dialog.dismiss();
-                    }
-                };
-
-                GeoUtils.showNoGpsDialog(activity, onChangeListener);
-            }  // else handler has outlived activity, do nothing
         }
     }
 
