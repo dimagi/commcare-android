@@ -73,6 +73,11 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         @Override
         public void stopTaskTransition() {
         }
+
+        @Override
+        public void setTaskCancelable(boolean canCancel) {
+
+        }
     };
 
     @Override

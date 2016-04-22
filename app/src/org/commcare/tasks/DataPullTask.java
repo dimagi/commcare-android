@@ -111,6 +111,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
     @Override
     protected void onCancelled() {
         super.onCancelled();
+        CommCareSessionService.sessionAliveLock.unlock();
         if (wasKeyLoggedIn) {
             CommCareApplication._().releaseUserResourcesAndServices();
         }
@@ -127,9 +128,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
             return;
         }
 
-
-        // Wrap in a 'try' to enable a 'finally' close that releases the
-        // sessionAliveLock.
         publishProgress(PROGRESS_STARTED);
         CommCareApp app = CommCareApplication._().getCurrentApp();
         SharedPreferences prefs = app.getAppPreferences();
@@ -166,57 +164,53 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
         };
         Logger.log(AndroidLogger.TYPE_USER, "Starting Sync");
 
-        try {
-            // This is a dangerous way to do this (the null settings), should revisit later
-            if (loginNeeded) {
-                if (!useExternalKeys) {
-                    // Get the key
-                    SecretKey newKey = CryptUtil.generateSemiRandomKey();
+        // This is a dangerous way to do this (the null settings), should revisit later
+        if (loginNeeded) {
+            if (!useExternalKeys) {
+                // Get the key
+                SecretKey newKey = CryptUtil.generateSemiRandomKey();
 
-                    if (newKey == null) {
-                        this.publishProgress(PROGRESS_DONE);
-                        responseError = PullTaskResult.UNKNOWN_FAILURE;
-                        return;
-                    }
-                    String sandboxId = PropertyUtils.genUUID().replace("-", "");
-                    ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password),
-                            CryptUtil.wrapByteArrayWithString(newKey.getEncoded(), password),
-                            new Date(), new Date(Long.MAX_VALUE), sandboxId);
-
-                } else {
-                    ukr = UserKeyRecord.getCurrentValidRecordByPassword(app, username, password, true);
-                    if (ukr == null) {
-                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Shouldn't be able to not have a valid key record when OTA restoring with a key server");
-                        this.publishProgress(PROGRESS_DONE);
-                        responseError = PullTaskResult.UNKNOWN_FAILURE;
-                        return;
-                    }
-                }
-
-                //add to transaction parser factory
-                byte[] wrappedKey = CryptUtil.wrapByteArrayWithString(ukr.getEncryptedKey(), password);
-                factory.initUserParser(wrappedKey);
-            } else {
-                try {
-                    factory.initUserParser(CommCareApplication._().getSession().getLoggedInUser().getWrappedKey());
-                } catch (SessionUnavailableException sue) {
-                    // TODO PLM: eventually take out this catch. These should be
-                    // checked locally
-                    //TODO: Keys were lost somehow.
-                    sue.printStackTrace();
+                if (newKey == null) {
+                    this.publishProgress(PROGRESS_DONE);
                     responseError = PullTaskResult.UNKNOWN_FAILURE;
                     return;
                 }
+                String sandboxId = PropertyUtils.genUUID().replace("-", "");
+                ukr = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password),
+                        CryptUtil.wrapByteArrayWithString(newKey.getEncoded(), password),
+                        new Date(), new Date(Long.MAX_VALUE), sandboxId);
 
-                //Only purge cases if we already had a logged in user. Otherwise we probably can't read the DB.
-                CaseUtils.purgeCases();
-                useRequestFlags = true;
+            } else {
+                ukr = UserKeyRecord.getCurrentValidRecordByPassword(app, username, password, true);
+                if (ukr == null) {
+                    Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Shouldn't be able to not have a valid key record when OTA restoring with a key server");
+                    this.publishProgress(PROGRESS_DONE);
+                    responseError = PullTaskResult.UNKNOWN_FAILURE;
+                    return;
+                }
             }
-            //Either way, don't re-do this step
-            this.publishProgress(PROGRESS_CLEANED);
-        } finally {
-            CommCareSessionService.sessionAliveLock.unlock();
+
+            //add to transaction parser factory
+            byte[] wrappedKey = CryptUtil.wrapByteArrayWithString(ukr.getEncryptedKey(), password);
+            factory.initUserParser(wrappedKey);
+        } else {
+            try {
+                factory.initUserParser(CommCareApplication._().getSession().getLoggedInUser().getWrappedKey());
+            } catch (SessionUnavailableException sue) {
+                // TODO PLM: eventually take out this catch. These should be
+                // checked locally
+                //TODO: Keys were lost somehow.
+                sue.printStackTrace();
+                responseError = PullTaskResult.UNKNOWN_FAILURE;
+                return;
+            }
+
+            //Only purge cases if we already had a logged in user. Otherwise we probably can't read the DB.
+            CaseUtils.purgeCases();
+            useRequestFlags = true;
         }
+        //Either way, don't re-do this step
+        this.publishProgress(PROGRESS_CLEANED);
     }
     @Override
     protected void volatileWork(Void... params) {
@@ -247,6 +241,11 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
     }
 
     @Override
+    protected PullTaskResult doTaskBackground(Void... params) {
+        throw new UnsupportedOperationException("legacy; should never be called");
+    }
+
+    @Override
     protected PullTaskResult commit(Void... params) {
         if (responseError != null) {
             return responseError;
@@ -255,139 +254,141 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
         CommCareApp app = CommCareApplication._().getCurrentApp();
         SharedPreferences prefs = app.getAppPreferences();
         try {
-            try {
-                if (pullResponse.responseCode == 401) {
-                    //If we logged in, we need to drop those credentials
-                    if (loginNeeded) {
-                        CommCareApplication._().releaseUserResourcesAndServices();
-                    }
-                    Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
-                    return PullTaskResult.AUTH_FAILED;
-                } else if (pullResponse.responseCode >= 200 && pullResponse.responseCode < 300) {
-                    if (loginNeeded) {
-                        //This is necessary (currently) to make sure that data
-                        //is encoded. Probably a better way to do this.
-                        CommCareApplication._().startUserSession(
-                                CryptUtil.unwrapByteArrayWithString(ukr.getEncryptedKey(), password),
-                                ukr, restoreSession);
-                        wasKeyLoggedIn = true;
-                    }
-
-                    this.publishProgress(PROGRESS_AUTHED, 0);
-
-                    Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
-
-                    try {
-                        BitCache cache = pullResponse.writeResponseToCache(context);
-
-                        InputStream cacheIn = cache.retrieveCache();
-                        String syncToken = readInput(cacheIn, factory);
-                        updateUserSyncToken(syncToken);
-
-                        //record when we last synced
-                        storeSuccessfulSyncTime(prefs);
-
-                        if (loginNeeded) {
-                            CommCareApplication._().getAppStorage(UserKeyRecord.class).write(ukr);
-                        }
-
-                        //Let anyone who is listening know!
-                        Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
-                        this.context.sendBroadcast(i);
-
-                        Logger.log(AndroidLogger.TYPE_USER, "User Sync Successful|" + username);
-                        updateCurrentUser(password);
-                        this.publishProgress(PROGRESS_DONE);
-                        return PullTaskResult.DOWNLOAD_SUCCESS;
-                    } catch (InvalidStructureException e) {
-                        e.printStackTrace();
-
-                        //TODO: Dump more details!!!
-                        Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
-                        return PullTaskResult.BAD_DATA;
-                    } catch (XmlPullParserException e) {
-                        e.printStackTrace();
-                        Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
-                        return PullTaskResult.BAD_DATA;
-                    } catch (UnfullfilledRequirementsException e) {
-                        e.printStackTrace();
-                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, unfulfilled reqs |" + e.getMessage());
-                    } catch (IllegalStateException e) {
-                        e.printStackTrace();
-                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, ISE |" + e.getMessage());
-                    } catch (RecordTooLargeException e) {
-                        e.printStackTrace();
-                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Storage Full during user sync |" + e.getMessage());
-                        return PullTaskResult.STORAGE_FULL;
-                    }
-                } else if (pullResponse.responseCode == 412) {
-                    //Our local state is bad. We need to do a full restore.
-                    int returnCode = recover(requestor, factory);
-
-                    if (returnCode == PROGRESS_DONE) {
-                        //All set! Awesome recovery
-                        storeSuccessfulSyncTime(prefs);
-                        this.publishProgress(PROGRESS_DONE);
-                        return PullTaskResult.DOWNLOAD_SUCCESS;
-                    } else if (returnCode == PROGRESS_RECOVERY_FAIL_SAFE) {
-                        //Things didn't go super well, but they might next time!
-
-                        //wipe our login if one happened
-                        if (loginNeeded) {
-                            CommCareApplication._().releaseUserResourcesAndServices();
-                        }
-                        this.publishProgress(PROGRESS_DONE);
-                        return PullTaskResult.UNKNOWN_FAILURE;
-                    } else if (returnCode == PROGRESS_RECOVERY_FAIL_BAD) {
-                        //WELL! That wasn't so good. TODO: Is there anything 
-                        //we can do about this?
-
-                        //wipe our login if one happened
-                        if (loginNeeded) {
-                            CommCareApplication._().releaseUserResourcesAndServices();
-                        }
-                        this.publishProgress(PROGRESS_DONE);
-                        return PullTaskResult.UNKNOWN_FAILURE;
-                    }
-
-                    if (loginNeeded) {
-                        CommCareApplication._().releaseUserResourcesAndServices();
-                    }
-                } else if (pullResponse.responseCode == 500) {
-                    if (loginNeeded) {
-                        CommCareApplication._().releaseUserResourcesAndServices();
-                    }
-                    Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
-                    return PullTaskResult.SERVER_ERROR;
+            if (pullResponse.responseCode == 401) {
+                //If we logged in, we need to drop those credentials
+                if (loginNeeded) {
+                    CommCareApplication._().releaseUserResourcesAndServices();
                 }
-            } catch (ConnectTimeoutException | SocketTimeoutException e) {
-                e.printStackTrace();
-                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
-                responseError = PullTaskResult.CONNECTION_TIMEOUT;
-            } catch (ClientProtocolException e) {
-                e.printStackTrace();
-                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due network error|" + e.getMessage());
-            } catch (UnknownHostException e) {
-                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
-                responseError = PullTaskResult.UNREACHABLE_HOST;
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
-            } catch (SessionUnavailableException sue) {
-                // TODO PLM: eventually take out this catch. These should be
-                // checked locally
-                //TODO: Keys were lost somehow.
-                sue.printStackTrace();
+                Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
+                return PullTaskResult.AUTH_FAILED;
+            } else if (pullResponse.responseCode >= 200 && pullResponse.responseCode < 300) {
+                if (loginNeeded) {
+                    //This is necessary (currently) to make sure that data
+                    //is encoded. Probably a better way to do this.
+                    CommCareApplication._().startUserSession(
+                            CryptUtil.unwrapByteArrayWithString(ukr.getEncryptedKey(), password),
+                            ukr, restoreSession);
+                    wasKeyLoggedIn = true;
+                }
+
+                this.publishProgress(PROGRESS_AUTHED, 0);
+
+                Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
+
+                try {
+                    BitCache cache = pullResponse.writeResponseToCache(context);
+
+                    InputStream cacheIn = cache.retrieveCache();
+                    String syncToken = readInput(cacheIn, factory);
+                    updateUserSyncToken(syncToken);
+
+                    //record when we last synced
+                    storeSuccessfulSyncTime(prefs);
+
+                    if (loginNeeded) {
+                        CommCareApplication._().getAppStorage(UserKeyRecord.class).write(ukr);
+                    }
+
+                    //Let anyone who is listening know!
+                    Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
+                    this.context.sendBroadcast(i);
+
+                    Logger.log(AndroidLogger.TYPE_USER, "User Sync Successful|" + username);
+                    updateCurrentUser(password);
+                    this.publishProgress(PROGRESS_DONE);
+                    return PullTaskResult.DOWNLOAD_SUCCESS;
+                } catch (InvalidStructureException e) {
+                    e.printStackTrace();
+
+                    //TODO: Dump more details!!!
+                    Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
+                    return PullTaskResult.BAD_DATA;
+                } catch (XmlPullParserException e) {
+                    e.printStackTrace();
+                    Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
+                    return PullTaskResult.BAD_DATA;
+                } catch (UnfullfilledRequirementsException e) {
+                    e.printStackTrace();
+                    Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, unfulfilled reqs |" + e.getMessage());
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                    Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, ISE |" + e.getMessage());
+                } catch (RecordTooLargeException e) {
+                    e.printStackTrace();
+                    Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Storage Full during user sync |" + e.getMessage());
+                    return PullTaskResult.STORAGE_FULL;
+                }
+            } else if (pullResponse.responseCode == 412) {
+                //Our local state is bad. We need to do a full restore.
+                int returnCode = recover(requestor, factory);
+
+                if (returnCode == PROGRESS_DONE) {
+                    //All set! Awesome recovery
+                    storeSuccessfulSyncTime(prefs);
+                    this.publishProgress(PROGRESS_DONE);
+                    return PullTaskResult.DOWNLOAD_SUCCESS;
+                } else if (returnCode == PROGRESS_RECOVERY_FAIL_SAFE) {
+                    //Things didn't go super well, but they might next time!
+
+                    //wipe our login if one happened
+                    if (loginNeeded) {
+                        CommCareApplication._().releaseUserResourcesAndServices();
+                    }
+                    this.publishProgress(PROGRESS_DONE);
+                    return PullTaskResult.UNKNOWN_FAILURE;
+                } else if (returnCode == PROGRESS_RECOVERY_FAIL_BAD) {
+                    //WELL! That wasn't so good. TODO: Is there anything
+                    //we can do about this?
+
+                    //wipe our login if one happened
+                    if (loginNeeded) {
+                        CommCareApplication._().releaseUserResourcesAndServices();
+                    }
+                    this.publishProgress(PROGRESS_DONE);
+                    return PullTaskResult.UNKNOWN_FAILURE;
+                }
+
+                if (loginNeeded) {
+                    CommCareApplication._().releaseUserResourcesAndServices();
+                }
+            } else if (pullResponse.responseCode == 500) {
+                if (loginNeeded) {
+                    CommCareApplication._().releaseUserResourcesAndServices();
+                }
+                Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
+                return PullTaskResult.SERVER_ERROR;
             }
-            if (loginNeeded) {
-                CommCareApplication._().releaseUserResourcesAndServices();
-            }
-            this.publishProgress(PROGRESS_DONE);
-            return responseError;
-        } finally {
-            CommCareSessionService.sessionAliveLock.unlock();
+        } catch (ConnectTimeoutException | SocketTimeoutException e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
+            responseError = PullTaskResult.CONNECTION_TIMEOUT;
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due network error|" + e.getMessage());
+        } catch (UnknownHostException e) {
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
+            responseError = PullTaskResult.UNREACHABLE_HOST;
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
+        } catch (SessionUnavailableException sue) {
+            // TODO PLM: eventually take out this catch. These should be
+            // checked locally
+            //TODO: Keys were lost somehow.
+            sue.printStackTrace();
         }
+        if (loginNeeded) {
+            CommCareApplication._().releaseUserResourcesAndServices();
+        }
+        this.publishProgress(PROGRESS_DONE);
+        return responseError;
+    }
+
+    @Override
+    protected void onPostExecute(PullTaskResult result) {
+        super.onPostExecute(result);
+        CommCareSessionService.sessionAliveLock.unlock();
     }
 
     private void storeSuccessfulSyncTime(SharedPreferences prefs) {

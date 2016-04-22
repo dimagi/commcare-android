@@ -560,6 +560,15 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     @Override
     public void setTaskCancelable(boolean canCancel) {
         enableTaskDialogCancelButton = canCancel;
+
+        CustomProgressDialog dialog = getCurrentProgressDialog();
+        if (dialog != null) {
+            if (enableTaskDialogCancelButton) {
+                dialog.addCancelButton();
+            } else {
+                dialog.removeCancelButton();
+            }
+        }
     }
 
     @Override
