@@ -11,6 +11,7 @@ import net.sqlcipher.database.SQLiteDatabaseHook;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.modern.database.DatabaseHelper;
 import org.javarosa.core.util.PrefixTree;
+import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
@@ -43,7 +44,7 @@ public class DbUtil {
         PrefixTree tree = new PrefixTree();
 
         try {
-            List<String> classes = getClasses(new String[]{"org.javarosa", "org.commcare"}, c);
+            List<String> classes = getClasses(new String[]{"org.javarosa", "org.commcare", "org.odk.collect"}, c);
             for (String cl : classes) {
                 tree.addString(cl);
             }
@@ -76,9 +77,7 @@ public class DbUtil {
             String cn = en.nextElement();
             try {
                 for (String packageName : packageNames) {
-
-                    if (cn.startsWith(packageName) && !cn.startsWith("org.commcare.dalvik") && !cn.contains(".test.") && !cn.contains("readystatesoftware")) {
-
+                    if (cn.startsWith(packageName) && !cn.contains(".test.") && !cn.contains("readystatesoftware")) {
                         //TODO: These optimize by preventing us from statically loading classes we don't need, but they take a _long_ time to run.
                         //Maybe we should skip this and/or roll it into initializing the factory itself.
                         Class prototype = Class.forName(cn);
@@ -94,7 +93,9 @@ public class DbUtil {
                         if (!emptyc) {
                             continue;
                         }
-                        classNames.add(cn);
+                        if (Externalizable.class.isAssignableFrom(prototype)) {
+                            classNames.add(cn);
+                        }
                     }
                 }
             } catch (Error | Exception e) {
