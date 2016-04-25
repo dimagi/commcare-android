@@ -118,7 +118,7 @@ public class FormRecordProcessingTest {
         CommCareHomeActivity homeActivity =
                 Robolectric.buildActivity(CommCareHomeActivity.class).create().get();
         // make sure we don't actually submit forms by using a fake form submitter
-        homeActivity.setFormAndDataSyncer(new FormAndDataSyncerFake(homeActivity));
+        homeActivity.setFormAndDataSyncer(new FormAndDataSyncerFake());
         SessionNavigator sessionNavigator = homeActivity.getSessionNavigator();
         sessionNavigator.startNextSessionStep();
         return homeActivity;

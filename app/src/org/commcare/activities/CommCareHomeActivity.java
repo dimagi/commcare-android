@@ -170,7 +170,7 @@ public class CommCareHomeActivity
         ACRAUtil.registerAppData();
         uiController.setupUI();
         sessionNavigator = new SessionNavigator(this);
-        formAndDataSyncer = new FormAndDataSyncer(this);
+        formAndDataSyncer = new FormAndDataSyncer();
 
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();
@@ -1052,7 +1052,7 @@ public class CommCareHomeActivity
     private void sendFormsOrSync(boolean userTriggeredSync) {
         boolean formsSentToServer = checkAndStartUnsentFormsTask(true, userTriggeredSync);
         if(!formsSentToServer) {
-            formAndDataSyncer.syncData(false, userTriggeredSync);
+            formAndDataSyncer.syncData(this, false, userTriggeredSync);
         }
     }
 
@@ -1065,7 +1065,7 @@ public class CommCareHomeActivity
         FormRecord[] records = StorageUtils.getUnsentRecords(storage);
 
         if(records.length > 0) {
-            formAndDataSyncer.processAndSendForms(records, syncAfterwards, userTriggered);
+            formAndDataSyncer.processAndSendForms(this, records, syncAfterwards, userTriggered);
             return true;
         } else {
             return false;
