@@ -78,6 +78,11 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         public void setTaskCancelable(boolean canCancel) {
 
         }
+
+        @Override
+        public void runOnConnectorThread(Runnable job) {
+
+        }
     };
 
     @Override

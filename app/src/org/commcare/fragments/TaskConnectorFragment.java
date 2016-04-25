@@ -22,7 +22,6 @@ public class TaskConnectorFragment<R> extends Fragment {
     private CommCareTask<?, ?, ?, R> currentTask;
 
     private WakeLock wakelock;
-    private boolean isTaskDialogCancelButtonEnabled = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,11 +54,19 @@ public class TaskConnectorFragment<R> extends Fragment {
     public void onDetach() {
         super.onDetach();
 
+        performDetach();
+    }
+
+    public void performDetach() {
         if (currentTask != null) {
             Log.i("CommCareUI", "Detaching activity from current task: " + this.currentTask);
             currentTask.disconnect();
             releaseWakeLock();
         }
+    }
+
+    public void clearTask() {
+        currentTask = null;
     }
 
     public void cancelTask() {
@@ -73,15 +80,19 @@ public class TaskConnectorFragment<R> extends Fragment {
      * blocking dialog and allow the user them to continue using the app
      */
     public boolean canDetachFromCancelledTask() {
-        return currentTask == null || currentTask.canStopUIBlockOnCancel();
+        return currentTask == null || currentTask.canDetachOnCancel();
     }
 
-    public boolean isDialogCancelButtonEnabled() {
-        return isTaskDialogCancelButtonEnabled;
+    public boolean canCancel() {
+        return currentTask == null || currentTask.isCancelable();
     }
 
-    public void setDialogCancelButtonState(boolean showCancelButton) {
-        isTaskDialogCancelButtonEnabled = showCancelButton;
+    public Object getTaskCancelLock() {
+        if (currentTask != null) {
+            return currentTask.taskCancelLock;
+        } else {
+            return new Object();
+        }
     }
 
     private synchronized void acquireWakeLock(CommCareActivity activity) {

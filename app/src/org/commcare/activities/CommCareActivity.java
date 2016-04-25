@@ -405,11 +405,17 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     public void cancelCurrentTask() {
-        stateHolder.cancelTask();
+        synchronized (stateHolder.getTaskCancelLock()) {
+            if (stateHolder.canCancel()) {
+                stateHolder.cancelTask();
 
-        if (stateHolder.canDetachFromCancelledTask()) {
-            // let cancelled task burn out in the background
-            dismissProgressDialog();
+                if (stateHolder.canDetachFromCancelledTask()) {
+                    // let cancelled task burn out in the background
+                    dismissProgressDialog();
+                    stateHolder.performDetach();
+                    stateHolder.clearTask();
+                }
+            }
         }
     }
 
@@ -540,7 +546,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         if (taskId >= 0) {
             CustomProgressDialog dialog = generateProgressDialog(taskId);
             if (dialog != null) {
-                dialog.setCancelButtonVisibility(stateHolder.isDialogCancelButtonEnabled());
+                dialog.setCancelButtonVisibility(stateHolder.canCancel());
                 dialog.show(getSupportFragmentManager(), KEY_PROGRESS_DIALOG_FRAG);
             }
         }
@@ -548,8 +554,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public void setTaskCancelable(boolean canCancel) {
-        stateHolder.setDialogCancelButtonState(canCancel);
-
         CustomProgressDialog dialog = getCurrentProgressDialog();
         if (dialog != null) {
             dialog.setCancelButtonVisibility(canCancel);
@@ -827,5 +831,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     public void setStateHolder(TaskConnectorFragment<R> stateHolder) {
         this.stateHolder = stateHolder;
+    }
+
+    @Override
+    public void runOnConnectorThread(Runnable job) {
+        runOnUiThread(job);
     }
 }

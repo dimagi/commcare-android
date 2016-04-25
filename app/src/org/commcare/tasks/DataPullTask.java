@@ -222,6 +222,7 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
 
         try {
             pullResponse = dataPullRequester.makeDataPullRequest(this, requestor, server, useRequestFlags);
+            Logger.log(AndroidLogger.TYPE_USER, "Request opened. Response code: " + pullResponse.responseCode);
         } catch (ConnectTimeoutException | SocketTimeoutException e) {
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
@@ -239,7 +240,6 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
             Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
             responseError = PullTaskResult.UNKNOWN_FAILURE;
         }
-        Logger.log(AndroidLogger.TYPE_USER, "Request opened. Response code: " + pullResponse.responseCode);
     }
 
     @Override

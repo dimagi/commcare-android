@@ -48,4 +48,6 @@ public interface CommCareTaskConnector<R> {
     void stopTaskTransition();
 
     void setTaskCancelable(boolean canCancel);
+
+    void runOnConnectorThread(Runnable job);
 }

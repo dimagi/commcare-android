@@ -1,9 +1,6 @@
 package org.commcare.tasks.templates;
 
 import android.os.AsyncTask;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
 
 import org.acra.ACRA;
@@ -19,13 +16,11 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     public static final int GENERIC_TASK_ID = 32;
     public static final int DONT_WAKELOCK = -1;
 
-    private final static int MESSAGE_CANCEL_UPDATE = 0;
-    private static InternalUIHandler sHandler;
-
     private final Object connectorLock = new Object();
+    public final Object taskCancelLock = new Object();
     private CommCareTaskConnector<Receiver> connector;
     private boolean canDismissOnCancel;
-    private boolean showCancelButton;
+    private boolean isCancelable;
 
     private Exception unknownError;
 
@@ -53,13 +48,11 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
             }
             mainBackgroundWork(params);
 
-            if (isCancelled()) {
+            if (!startCommitPhase()) {
                 return null;
+            } else {
+                return commit(params);
             }
-
-            // hide cancel button during commit phase
-            disableCancelButton();
-            return commit(params);
         } catch (Exception e) {
             Logger.log(TAG, e.getMessage());
             e.printStackTrace();
@@ -72,6 +65,17 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
 
             return null;
         }
+    }
+
+    private boolean startCommitPhase() {
+        synchronized (taskCancelLock) {
+            if (isCancelled()) {
+                return false;
+            }
+            // hide cancel button during commit phase
+            disableCancelButton();
+        }
+        return true;
     }
 
     /**
@@ -99,7 +103,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
     }
 
     private void enableCancelButton() {
-        showCancelButton = true;
+        isCancelable = true;
         publishCancelDialogUpdate();
     }
 
@@ -109,12 +113,16 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
 
     private void disableCancelButton() {
         canDismissOnCancel = false;
-        showCancelButton = false;
+        isCancelable = false;
         publishCancelDialogUpdate();
     }
 
-    public boolean canStopUIBlockOnCancel() {
+    public boolean canDetachOnCancel() {
         return canDismissOnCancel;
+    }
+
+    public boolean isCancelable() {
+        return isCancelable;
     }
 
     /**
@@ -266,56 +274,20 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
         }
     }
 
-    protected final void publishCancelDialogUpdate() {
-        if (!isCancelled()) {
-            getHandler().obtainMessage(MESSAGE_CANCEL_UPDATE,
-                    new CCTaskMessageResult(this)).sendToTarget();
-        }
-    }
-
-    private static Handler getHandler() {
-        synchronized (CommCareTask.class) {
-            if (sHandler == null) {
-                sHandler = new InternalUIHandler();
-            }
-            return sHandler;
-        }
-    }
-
-    private static class InternalUIHandler extends Handler {
-        public InternalUIHandler() {
-            super(Looper.getMainLooper());
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            CCTaskMessageResult result = (CCTaskMessageResult) msg.obj;
-            switch (msg.what) {
-                case MESSAGE_CANCEL_UPDATE:
-                    result.task.updateCancelUIState();
-                    break;
-            }
-        }
-    }
-
-    /**
-     * Must be run on UI thread because it updates blocking dialog UI
-     */
-    private void updateCancelUIState() {
+    private void publishCancelDialogUpdate() {
+        // do this on activity thread; connector lock will block until activity is available
         synchronized (connectorLock) {
-            CommCareTaskConnector<Receiver> connector = getConnector();
+            final CommCareTaskConnector<Receiver> connector = getConnector();
 
             if (connector != null) {
-                connector.setTaskCancelable(showCancelButton);
+                connector.runOnConnectorThread(
+                        new Runnable() {
+                            @Override
+                            public void run() {
+                                connector.setTaskCancelable(isCancelable);
+                            }
+                        });
             }
-        }
-    }
-
-    private static class CCTaskMessageResult {
-        private final CommCareTask task;
-
-        CCTaskMessageResult(CommCareTask task) {
-            this.task = task;
         }
     }
 }
