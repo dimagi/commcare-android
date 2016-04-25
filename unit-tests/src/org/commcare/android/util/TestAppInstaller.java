@@ -28,7 +28,7 @@ public class TestAppInstaller {
     private final String password;
     private final String resourceFilepath;
 
-    private final CommCareTaskConnectorFake<Object> fakeConnector =
+    public final static CommCareTaskConnectorFake<Object> fakeConnector =
             new CommCareTaskConnectorFake<>();
 
     private TestAppInstaller(String resourceFilepath,
