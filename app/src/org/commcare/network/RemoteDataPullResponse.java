@@ -28,15 +28,6 @@ public class RemoteDataPullResponse {
     private final HttpResponse response;
 
     /**
-     * Testing constructor used when overriding server dependent behavior
-     */
-    protected RemoteDataPullResponse(int responseCode) {
-        this.responseCode = responseCode;
-        this.task = null;
-        this.response = null;
-    }
-
-    /**
      * Makes data pulling request and keeps response for local caching
      *
      * @param task     For progress reporting
