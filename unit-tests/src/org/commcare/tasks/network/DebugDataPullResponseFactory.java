@@ -1,5 +1,6 @@
 package org.commcare.tasks.network;
 
+import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.network.RemoteDataPullResponse;
@@ -21,14 +22,14 @@ public class DebugDataPullResponseFactory implements DataPullRequester {
 
     @Override
     public RemoteDataPullResponse makeDataPullRequest(DataPullTask task,
-                                                      HttpRequestGenerator requestor,
+                                                      HttpRequestEndpoints requestor,
                                                       String server,
                                                       boolean includeSyncToken) throws IOException {
         return new DebugDataPullResponse(xmlPayloadReference);
     }
 
     @Override
-    public HttpRequestGenerator getHttpGenerator(String username, String password) {
+    public HttpRequestEndpoints getHttpGenerator(String username, String password) {
         // TODO PLM: return a mock of this
         return new HttpRequestGenerator(username, password);
     }
