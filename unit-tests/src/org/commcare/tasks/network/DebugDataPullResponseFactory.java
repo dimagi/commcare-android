@@ -8,6 +8,9 @@ import org.commcare.network.RemoteDataPullResponse;
 import org.commcare.tasks.DataPullTask;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Builds data pull requester that gets data from a local reference.
@@ -15,10 +18,10 @@ import java.io.IOException;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class DebugDataPullResponseFactory implements DataPullRequester {
-    private final String xmlPayloadReference;
+    private final List<String> xmlPayloadReferences = new ArrayList<>();
 
-    public DebugDataPullResponseFactory(String xmlPayloadReference) {
-        this.xmlPayloadReference = xmlPayloadReference;
+    public DebugDataPullResponseFactory(String[] payloadReferences) {
+        Collections.addAll(xmlPayloadReferences, payloadReferences);
     }
 
     @Override
@@ -27,7 +30,7 @@ public class DebugDataPullResponseFactory implements DataPullRequester {
                                                       String server,
                                                       boolean includeSyncToken) throws IOException {
         HttpResponse response = requestor.makeCaseFetchRequest(server, includeSyncToken);
-        return new DebugDataPullResponse(xmlPayloadReference, response);
+        return new DebugDataPullResponse(xmlPayloadReferences.remove(0), response);
     }
 
     @Override
