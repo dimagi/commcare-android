@@ -43,23 +43,32 @@ public class TestAppInstaller {
     public static void installAppAndLogin(String appPath,
                                           String username,
                                           String password) {
-        storageSetup();
-        TestAppInstaller appTestInstaller =
-                new TestAppInstaller(
-                        appPath, username, password);
-        appTestInstaller.installApp();
-        buildTestUser(username, password);
+        installAppAndUser(appPath, username, password);
         login(username, password);
     }
 
     /**
-     * Install an app and create (test) user but don't log in
+     * Install an app without creating a user
      */
     public static void installApp(String appPath) {
         storageSetup();
         TestAppInstaller appTestInstaller =
                 new TestAppInstaller(appPath, null, null);
         appTestInstaller.installApp();
+    }
+
+    /**
+     * Install an app with creating a user
+     */
+    public static void installAppAndUser(String appPath,
+                                         String username,
+                                         String password) {
+        storageSetup();
+        TestAppInstaller appTestInstaller =
+                new TestAppInstaller(
+                        appPath, username, password);
+        appTestInstaller.installApp();
+        appTestInstaller.buildTestUser();
     }
 
     private static void storageSetup() {
@@ -101,7 +110,7 @@ public class TestAppInstaller {
         Robolectric.flushForegroundThreadScheduler();
     }
 
-    public static void buildTestUser(String username, String password) {
+    private void buildTestUser() {
         CommCareApp ccApp = CommCareApplication._().getCurrentApp();
         DemoUserBuilder.buildTestUser(RuntimeEnvironment.application,
                 ccApp,

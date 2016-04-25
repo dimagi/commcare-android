@@ -14,11 +14,16 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * Mocks for different types of http requests commcare mobile makes to the server
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
-    public static List<Integer> caseFetchResponseCodeStack = new ArrayList<>();
+    private static List<Integer> caseFetchResponseCodeStack = new ArrayList<>();
 
+    /**
+     * Set the response code for the next N requests
+     */
     public static void setCaseFetchResponseCodes(Integer[] responseCodes) {
         caseFetchResponseCodeStack.clear();
         Collections.addAll(caseFetchResponseCodeStack, responseCodes);

@@ -10,6 +10,8 @@ import java.net.URL;
 import java.util.Date;
 
 /**
+ * Types of http requests made by CommCare mobile to server
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public interface HttpRequestEndpoints {
