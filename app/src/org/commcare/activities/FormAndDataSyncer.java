@@ -7,10 +7,10 @@ import android.os.AsyncTask;
 import android.os.Build;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
-import org.commcare.models.database.user.models.FormRecord;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
@@ -24,14 +24,13 @@ import org.javarosa.core.services.locale.Localization;
  * Processes and submits forms and syncs data with server
  */
 public class FormAndDataSyncer {
-    private final CommCareHomeActivity activity;
 
-    public FormAndDataSyncer(CommCareHomeActivity activity) {
-        this.activity = activity;
+    public FormAndDataSyncer() {
     }
 
     @SuppressLint("NewApi")
-    public void processAndSendForms(FormRecord[] records,
+    public void processAndSendForms(final CommCareHomeActivity activity,
+                                    FormRecord[] records,
                                     final boolean syncAfterwards,
                                     final boolean userTriggered) {
 
@@ -46,9 +45,9 @@ public class FormAndDataSyncer {
                     receiver.finish();
                     return;
                 }
-                activity.getUIController().refreshView();
+                receiver.getUIController().refreshView();
 
-                int successfulSends = this.getSuccesfulSends();
+                int successfulSends = this.getSuccessfulSends();
 
                 if (result == FormUploadUtil.FULL_SUCCESS) {
                     String label = Localization.get("sync.success.sent.singular",
@@ -60,7 +59,7 @@ public class FormAndDataSyncer {
                     receiver.displayMessage(label);
 
                     if (syncAfterwards) {
-                        syncData(true, userTriggered);
+                        syncData(receiver, true, userTriggered);
                     }
                 } else if (result != FormUploadUtil.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
@@ -102,7 +101,9 @@ public class FormAndDataSyncer {
                 context.getString(R.string.PostURL));
     }
 
-    public void syncData(final boolean formsToSend, final boolean userTriggeredSync) {
+    public void syncData(final CommCareHomeActivity activity,
+                         final boolean formsToSend,
+                         final boolean userTriggeredSync) {
         User u;
         try {
             u = CommCareApplication._().getSession().getLoggedInUser();

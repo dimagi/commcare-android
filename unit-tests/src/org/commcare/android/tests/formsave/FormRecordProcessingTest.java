@@ -17,7 +17,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionNavigator;
 import org.commcare.views.QuestionsView;
@@ -118,7 +118,7 @@ public class FormRecordProcessingTest {
         CommCareHomeActivity homeActivity =
                 Robolectric.buildActivity(CommCareHomeActivity.class).create().get();
         // make sure we don't actually submit forms by using a fake form submitter
-        homeActivity.setFormAndDataSyncer(new FormAndDataSyncerFake(homeActivity));
+        homeActivity.setFormAndDataSyncer(new FormAndDataSyncerFake());
         SessionNavigator sessionNavigator = homeActivity.getSessionNavigator();
         sessionNavigator.startNextSessionStep();
         return homeActivity;

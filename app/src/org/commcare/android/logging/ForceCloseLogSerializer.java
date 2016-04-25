@@ -63,7 +63,7 @@ public class ForceCloseLogSerializer extends StreamLogSerializer implements Devi
                     forceCloseEntry.getType(), serializer);
             AndroidLogSerializer.writeText("msg",
                     forceCloseEntry.getMessage(), serializer);
-            AndroidLogSerializer.writeText("build_number",
+            AndroidLogSerializer.writeText("app_build",
                     forceCloseEntry.getAppBuildNumber() + "", serializer);
             AndroidLogSerializer.writeText("android_version",
                     forceCloseEntry.getAndroidVersion(), serializer);
@@ -73,6 +73,8 @@ public class ForceCloseLogSerializer extends StreamLogSerializer implements Devi
                     forceCloseEntry.getReadableSession(), serializer);
             AndroidLogSerializer.writeText("session_serialized",
                     forceCloseEntry.getSerializedSessionString(), serializer);
+            AndroidLogSerializer.writeText("app_id", forceCloseEntry.getAppId(), serializer);
+            AndroidLogSerializer.writeText("user_id", forceCloseEntry.getUserId(), serializer);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

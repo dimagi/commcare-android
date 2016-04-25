@@ -13,6 +13,7 @@ import org.commcare.adapters.MenuAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.session.SessionFrame;
+import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.util.CommCarePlatform;
@@ -85,8 +86,8 @@ public class MenuList extends SaveSessionCommCareActivity implements OnItemClick
         if (value == null) {
             return;
         }
-        if (value instanceof FormEntry) {
-            commandId = ((FormEntry)value).getCommandId();
+        if (value instanceof Entry) {
+            commandId = ((Entry)value).getCommandId();
         } else {
             commandId = ((Menu)value).getId();
         }
