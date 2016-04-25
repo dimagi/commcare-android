@@ -6,6 +6,7 @@ import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
 import org.apache.http.HttpHost;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
@@ -163,7 +164,20 @@ public class HttpRequestGenerator {
         HttpGet request = new HttpGet(uri);
         AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
         addHeaders(request, syncToken);
+        currentRequest = request;
         return execute(client, request);
+    }
+    private HttpRequestBase currentRequest;
+
+    public void abortCurrentRequest() {
+        if (currentRequest != null) {
+            try {
+            currentRequest.abort();
+            } catch (Exception e) {
+                e.printStackTrace();
+                Log.d(TAG, "_________"+e.getMessage());
+            }
+        }
     }
 
     public HttpResponse makeKeyFetchRequest(String baseUri, Date lastRequest) throws ClientProtocolException, IOException {

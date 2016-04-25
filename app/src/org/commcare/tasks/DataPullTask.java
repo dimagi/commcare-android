@@ -12,15 +12,15 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.user.models.ACase;
-import org.commcare.models.encryption.CryptUtil;
 import org.commcare.models.encryption.ByteEncrypter;
+import org.commcare.models.encryption.CryptUtil;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
@@ -118,6 +118,7 @@ public abstract class DataPullTask<R>
             CommCareApplication._().releaseUserResourcesAndServices();
         }
     }
+    private HttpRequestGenerator requestor;
 
     @Override
     protected ResultAndError<PullTaskResult> doTaskBackground(Void... params) {
@@ -157,7 +158,7 @@ public abstract class DataPullTask<R>
             //This should be per _user_, not per app
             prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
 
-            HttpRequestGenerator requestor = new HttpRequestGenerator(username, password);
+            requestor = new HttpRequestGenerator(username, password);
 
             AndroidTransactionParserFactory factory = new AndroidTransactionParserFactory(context, requestor) {
                 boolean publishedAuth = false;
@@ -212,6 +213,9 @@ public abstract class DataPullTask<R>
                 //Either way, don't re-do this step
                 this.publishProgress(PROGRESS_CLEANED);
 
+                if (isCancelled()) {
+                    return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
+                }
                 RemoteDataPullResponse pullResponse = dataPullRequester.makeDataPullRequest(this, requestor, server, useRequestFlags);
                 Logger.log(AndroidLogger.TYPE_USER, "Request opened. Response code: " + pullResponse.responseCode);
 
@@ -358,6 +362,11 @@ public abstract class DataPullTask<R>
             return new ResultAndError<>(responseError);
         } finally {
             CommCareSessionService.sessionAliveLock.unlock();
+        }
+    }
+    public void abortRequest() {
+        if (requestor != null) {
+            requestor.abortCurrentRequest();
         }
     }
 
