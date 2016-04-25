@@ -26,7 +26,7 @@ import org.robolectric.annotation.Config;
 @Config(application = CommCareTestApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
-public class KeyAndDataPullTest {
+public class DataPullTaskTest {
     private final static String APP_BASE = "jr://resource/commcare-apps/form_nav_tests/";
     private final static String GOOD_RESTORE = APP_BASE + "simple_data_restore.xml";
     private final static String BAD_RESTORE_XML = APP_BASE + "bad_xml_data_restore.xml";
