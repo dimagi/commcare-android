@@ -235,7 +235,7 @@ public abstract class DataPullTask<R>
                     this.publishProgress(PROGRESS_AUTHED, 0);
                     this.publishProgress(PROGRESS_DOWNLOADING_COMPLETE, 0);
                     if (isCancelled()) {
-                        return PullTaskResult.UNKNOWN_FAILURE;
+                        return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
                     }
 
                     Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
