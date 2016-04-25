@@ -27,6 +27,7 @@ import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.commcare.CommCareApplication;
 import org.commcare.cases.util.CaseDBUtils;
+import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.ACase;
@@ -48,7 +49,7 @@ import java.util.Vector;
 /**
  * @author ctsims
  */
-public class HttpRequestGenerator {
+public class HttpRequestGenerator implements HttpRequestEndpoints {
     private static final String TAG = HttpRequestGenerator.class.getSimpleName();
 
     /**
@@ -133,6 +134,7 @@ public class HttpRequestGenerator {
 
     }
 
+    @Override
     public HttpResponse makeCaseFetchRequest(String baseUri, boolean includeStateFlags) throws ClientProtocolException, IOException {
         HttpClient client = client();
 
@@ -166,6 +168,7 @@ public class HttpRequestGenerator {
         return execute(client, request);
     }
 
+    @Override
     public HttpResponse makeKeyFetchRequest(String baseUri, Date lastRequest) throws ClientProtocolException, IOException {
         HttpClient client = client();
 
@@ -208,6 +211,7 @@ public class HttpRequestGenerator {
         return CaseDBUtils.computeHash(CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class));
     }
 
+    @Override
     public HttpResponse postData(String url, MultipartEntity entity) throws ClientProtocolException, IOException {
         // setup client
         HttpClient httpclient = client();
@@ -281,6 +285,7 @@ public class HttpRequestGenerator {
         return url.getHost().equals(newUrl.getHost());
     }
 
+    @Override
     public InputStream simpleGet(URL url) throws IOException {
         if (android.os.Build.VERSION.SDK_INT > 11) {
             InputStream requestResult = makeModernRequest(url);
