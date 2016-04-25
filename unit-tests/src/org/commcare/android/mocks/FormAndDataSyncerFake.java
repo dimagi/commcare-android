@@ -3,9 +3,9 @@ package org.commcare.android.mocks;
 import android.content.Context;
 import android.util.Log;
 
-import org.commcare.activities.CommCareHomeActivity;
 import org.commcare.activities.FormAndDataSyncer;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.interfaces.ConnectorWithResultCallback;
 
 /**
  * Fake object that prevent tests from communicating with server to pull or submit data

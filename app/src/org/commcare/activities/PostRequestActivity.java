@@ -112,8 +112,8 @@ public class PostRequestActivity
     private void performSync() {
         Log.d(TAG, "perform sync");
 
-        FormAndDataSyncer formAndDataSyncer = new FormAndDataSyncer(this, this);
-        formAndDataSyncer.syncData(false, false);
+        FormAndDataSyncer formAndDataSyncer = new FormAndDataSyncer();
+        formAndDataSyncer.syncData(this, this, false, false);
     }
 
     private void makePostRequest() {
