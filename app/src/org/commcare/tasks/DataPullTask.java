@@ -156,7 +156,7 @@ public abstract class DataPullTask<R>
             //This should be per _user_, not per app
             prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
 
-            HttpRequestGenerator requestor = new HttpRequestGenerator(username, password);
+            HttpRequestGenerator requestor = dataPullRequester.getHttpGenerator(username, password);
 
             AndroidTransactionParserFactory factory = new AndroidTransactionParserFactory(context, requestor) {
                 boolean publishedAuth = false;

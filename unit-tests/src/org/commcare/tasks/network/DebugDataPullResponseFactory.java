@@ -26,4 +26,10 @@ public class DebugDataPullResponseFactory implements DataPullRequester {
                                                       boolean includeSyncToken) throws IOException {
         return new DebugDataPullResponse(xmlPayloadReference);
     }
+
+    @Override
+    public HttpRequestGenerator getHttpGenerator(String username, String password) {
+        // TODO PLM: return a mock of this
+        return new HttpRequestGenerator(username, password);
+    }
 }

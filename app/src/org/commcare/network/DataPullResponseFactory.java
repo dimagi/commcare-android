@@ -17,4 +17,9 @@ public class DataPullResponseFactory implements DataPullRequester {
     public RemoteDataPullResponse makeDataPullRequest(DataPullTask task, HttpRequestGenerator requestor, String server, boolean includeSyncToken) throws IOException {
         return new RemoteDataPullResponse(task, requestor, server, includeSyncToken);
     }
+
+    @Override
+    public HttpRequestGenerator getHttpGenerator(String username, String password) {
+        return new HttpRequestGenerator(username, password);
+    }
 }
