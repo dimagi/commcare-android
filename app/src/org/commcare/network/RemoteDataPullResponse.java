@@ -39,16 +39,12 @@ public class RemoteDataPullResponse {
     /**
      * Makes data pulling request and keeps response for local caching
      *
-     * @param task             For progress reporting
-     * @param requestor        Handles making the http request
-     * @param server           Address of the request target
-     * @param includeSyncToken Add sync token to the request
+     * @param task     For progress reporting
+     * @param response Contains data pull response stream and status code
      */
     protected RemoteDataPullResponse(DataPullTask task,
-                                     HttpRequestEndpoints requestor,
-                                     String server,
-                                     boolean includeSyncToken) throws IOException {
-        this.response = requestor.makeCaseFetchRequest(server, includeSyncToken);
+                                     HttpResponse response) throws IOException {
+        this.response = response;
         this.responseCode = response.getStatusLine().getStatusCode();
         this.task = task;
     }

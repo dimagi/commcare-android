@@ -15,8 +15,10 @@ public interface DataPullRequester {
      * Makes a data pulling request and returns an object for locally caching
      * the response data.
      *
-     * @param task      For reporting data download progress
-     * @param requestor For making the data pulling request
+     * @param task             For reporting data download progress
+     * @param requestor        For making the data pulling request
+     * @param server           Address of the request target
+     * @param includeSyncToken Add sync token to the request
      * @return Instance to handle the response data
      */
     RemoteDataPullResponse makeDataPullRequest(DataPullTask task,
