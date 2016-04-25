@@ -35,13 +35,13 @@ public class KeyAndDataPullTest {
 
     @Test
     public void dataPullWithMissingRemoteKeyRecord() {
-        runDataPull();
+        runDataPull(new Integer[] {200});
         Assert.assertEquals(DataPullTask.PullTaskResult.UNKNOWN_FAILURE, dataPullResult.data);
         Assert.assertEquals("Unable to generate encryption key", dataPullResult.errorMessage);
     }
 
-    private static void runDataPull() {
-        HttpRequestEndpointsMock.caseFetchResponseCode = 200;
+    private static void runDataPull(Integer[] resultCodes) {
+        HttpRequestEndpointsMock.setCaseFetchResponseCodes(resultCodes);
 
         DebugDataPullResponseFactory dataPullRequestor =
                 new DebugDataPullResponseFactory(APP_BASE + "simple_data_restore.xml");
@@ -71,8 +71,35 @@ public class KeyAndDataPullTest {
 
     @Test
     public void dataPullWithLocalKeys() {
+        useLocalKeys();
+        runDataPull(new Integer[]{200});
+    }
+
+    private static void useLocalKeys() {
         CommCareApp app = CommCareApplication._().getCurrentApp();
         app.getAppPreferences().edit().putString("key_server", null).commit();
-        runDataPull();
+    }
+
+    @Test
+    public void dataPullServerError() {
+        useLocalKeys();
+        runDataPull(new Integer[]{500});
+        Assert.assertEquals(DataPullTask.PullTaskResult.SERVER_ERROR, dataPullResult.data);
+    }
+
+    @Test
+    public void dataPullAuthFailed() {
+        useLocalKeys();
+        runDataPull(new Integer[]{401});
+        Assert.assertEquals(DataPullTask.PullTaskResult.AUTH_FAILED, dataPullResult.data);
+    }
+
+    @Test
+    public void dataPullRecover() {
+        useLocalKeys();
+        TestAppInstaller.buildTestUser("test", "123");
+        TestAppInstaller.login("test", "123");
+        runDataPull(new Integer[]{412, 200});
+        Assert.assertEquals(DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS, dataPullResult.data);
     }
 }

@@ -8,7 +8,7 @@
         <password>
             sha1$RTBRzfAJgfZN$dc8cfd249de9d52db04de48a8a8d251aaf3e9ace
         </password>
-        <uuid>2ebaf997aecf7e6fcbb4c6f62e8c1648</uuid>
+        <uuid>test</uuid>
         <date>2015-07-22</date>
         <user_data>
             <data key="commcare_first_name"/>

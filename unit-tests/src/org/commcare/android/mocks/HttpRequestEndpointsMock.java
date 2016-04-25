@@ -8,17 +8,25 @@ import org.commcare.interfaces.HttpRequestEndpoints;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class HttpRequestEndpointsMock implements HttpRequestEndpoints{
-    public static int caseFetchResponseCode = 500;
+public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
+    public static List<Integer> caseFetchResponseCodeStack = new ArrayList<>();
+
+    public static void setCaseFetchResponseCodes(Integer[] responseCodes) {
+        caseFetchResponseCodeStack.clear();
+        Collections.addAll(caseFetchResponseCodeStack, responseCodes);
+    }
 
     @Override
     public HttpResponse makeCaseFetchRequest(String baseUri, boolean includeStateFlags) throws ClientProtocolException, IOException {
-        return HttpResponseMock.buildHttpResponseMock(caseFetchResponseCode);
+        return HttpResponseMock.buildHttpResponseMock(caseFetchResponseCodeStack.remove(0));
     }
 
     @Override

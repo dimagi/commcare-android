@@ -48,7 +48,7 @@ public class TestAppInstaller {
                 new TestAppInstaller(
                         appPath, username, password);
         appTestInstaller.installApp();
-        appTestInstaller.buildTestUser();
+        buildTestUser(username, password);
         login(username, password);
     }
 
@@ -101,7 +101,7 @@ public class TestAppInstaller {
         Robolectric.flushForegroundThreadScheduler();
     }
 
-    private void buildTestUser() {
+    public static void buildTestUser(String username, String password) {
         CommCareApp ccApp = CommCareApplication._().getCurrentApp();
         DemoUserBuilder.buildTestUser(RuntimeEnvironment.application,
                 ccApp,

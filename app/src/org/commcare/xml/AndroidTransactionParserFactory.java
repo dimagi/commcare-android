@@ -9,7 +9,6 @@ import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.models.database.AndroidSandbox;
-import org.commcare.network.HttpRequestGenerator;
 import org.commcare.utils.GlobalConstants;
 import org.kxml2.io.KXmlParser;
 
