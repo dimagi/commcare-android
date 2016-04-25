@@ -37,7 +37,7 @@ public class AppUpdateTest {
 
     @Before
     public void setup() {
-        TestAppInstaller.initInstallAndLogin(
+        TestAppInstaller.installAppAndLogin(
                 buildResourceRef("base_app", "profile.ccpr"),
                 "test", "123");
 

@@ -52,7 +52,7 @@ public class FormRecordProcessingTest {
 
     @Before
     public void setup() {
-        TestAppInstaller.initInstallAndLogin(
+        TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/form_save_regressions/profile.ccpr",
                 "test", "123");
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);

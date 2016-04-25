@@ -30,7 +30,7 @@ public class ArchivedFormPurgeTest {
 
     @Before
     public void setup() {
-        TestAppInstaller.initInstallAndLogin(
+        TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/archive_form_tests/profile.ccpr",
                 "test", "123");
 

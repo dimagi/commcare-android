@@ -37,25 +37,29 @@ public class TestAppInstaller {
         this.password = password;
     }
 
-    private void installAppAndLogin() {
-        installApp();
-
-        buildTestUser();
-
-        login(username, password);
-    }
-
     /**
      * Install an app and create / login with a (test) user
      */
-    public static void initInstallAndLogin(String appPath,
-                                           String username,
-                                           String password) {
+    public static void installAppAndLogin(String appPath,
+                                          String username,
+                                          String password) {
         storageSetup();
         TestAppInstaller appTestInstaller =
                 new TestAppInstaller(
                         appPath, username, password);
-        appTestInstaller.installAppAndLogin();
+        appTestInstaller.installApp();
+        appTestInstaller.buildTestUser();
+        login(username, password);
+    }
+
+    /**
+     * Install an app and create (test) user but don't log in
+     */
+    public static void installApp(String appPath) {
+        storageSetup();
+        TestAppInstaller appTestInstaller =
+                new TestAppInstaller(appPath, null, null);
+        appTestInstaller.installApp();
     }
 
     private static void storageSetup() {
@@ -64,16 +68,6 @@ public class TestAppInstaller {
 
         TestUtils.initializeStaticTestStorage();
         TestAppInstaller.setupPrototypeFactory();
-    }
-
-    /**
-     * Install an app without creating a user / logging in
-     */
-    public static void initAndInstall(String appPath) {
-        storageSetup();
-        TestAppInstaller appTestInstaller =
-                new TestAppInstaller(appPath, null, null);
-        appTestInstaller.installApp();
     }
 
     private void installApp() {

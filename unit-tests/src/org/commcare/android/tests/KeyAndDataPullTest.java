@@ -10,6 +10,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.network.DebugDataPullResponseFactory;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,15 +26,18 @@ import org.robolectric.annotation.Config;
 @RunWith(CommCareTestRunner.class)
 public class KeyAndDataPullTest {
     private final static String APP_BASE = "jr://resource/commcare-apps/form_nav_tests/";
+    private static ResultAndError<DataPullTask.PullTaskResult> dataPullResult;
 
     @Before
     public void setup() {
-        TestAppInstaller.initAndInstall(APP_BASE + "profile.ccpr");
+        TestAppInstaller.installApp(APP_BASE + "profile.ccpr");
     }
 
     @Test
-    public void initialDataPullTest() {
-        //runDataPull();
+    public void dataPullWithMissingRemoteKeyRecord() {
+        runDataPull();
+        Assert.assertEquals(DataPullTask.PullTaskResult.UNKNOWN_FAILURE, dataPullResult.data);
+        Assert.assertEquals("Unable to generate encryption key", dataPullResult.errorMessage);
     }
 
     private static void runDataPull() {
@@ -45,7 +49,7 @@ public class KeyAndDataPullTest {
                 new DataPullTask<Object>("test", "123", "fake.server.com", RuntimeEnvironment.application, dataPullRequestor) {
                     @Override
                     protected void deliverResult(Object o, ResultAndError<PullTaskResult> pullTaskResultResultAndError) {
-
+                        dataPullResult = pullTaskResultResultAndError;
                     }
 
                     @Override

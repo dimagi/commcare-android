@@ -84,7 +84,7 @@ public class AutoUpdateTest {
     }
 
     private void installBaseApp() {
-        TestAppInstaller.initInstallAndLogin(
+        TestAppInstaller.installAppAndLogin(
                 buildResourceRef("base_app", "profile.ccpr"),
                 username, password);
 

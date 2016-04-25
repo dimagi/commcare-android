@@ -50,7 +50,7 @@ public class StoreFixturesOnFilesystemTests {
     }
 
     public static AndroidSandbox installAppWithFixtureData(Class testClass, String fixtureResource) {
-        TestAppInstaller.initInstallAndLogin(
+        TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/archive_form_tests/profile.ccpr",
                 "test", "123");
 
