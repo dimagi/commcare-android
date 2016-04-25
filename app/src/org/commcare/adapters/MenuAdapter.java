@@ -182,7 +182,7 @@ public class MenuAdapter implements ListAdapter {
         if (tempItem instanceof Menu) {
             return ((Menu) tempItem).getId().hashCode();
         } else {
-            return ((FormEntry) tempItem).getCommandId().hashCode();
+            return ((Entry) tempItem).getCommandId().hashCode();
         }
     }
 
