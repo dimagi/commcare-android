@@ -15,19 +15,22 @@ import org.commcare.android.database.user.models.FormRecord;
 public class FormAndDataSyncerFake extends FormAndDataSyncer {
     private final String TAG = FormAndDataSyncerFake.class.getSimpleName();
 
-    public FormAndDataSyncerFake(CommCareHomeActivity activity) {
-        super((Context)activity, activity);
+    public FormAndDataSyncerFake() {
     }
 
     @Override
-    public void processAndSendForms(FormRecord[] records,
+    public void processAndSendForms(Context context,
+                                    ConnectorWithResultCallback activity,
+                                    FormRecord[]records,
                                     final boolean syncAfterwards,
                                     final boolean userTriggered) {
         Log.d(TAG, "faking form processing and sending");
     }
 
     @Override
-    public void syncData(boolean formsToSend,
+    public void syncData(Context context,
+                         ConnectorWithResultCallback activity,
+                         boolean formsToSend,
                          boolean userTriggeredSync) {
         Log.d(TAG, "faking data sync");
     }

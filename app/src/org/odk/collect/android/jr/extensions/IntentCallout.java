@@ -7,6 +7,7 @@ import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.util.Log;
 
+import org.commcare.logging.AndroidLogger;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
@@ -17,6 +18,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapList;
@@ -114,7 +116,7 @@ public class IntentCallout implements Externalizable {
                 }
             }
         }
-        Log.d(TAG, "Generated Intent: " + i.toString());
+        Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Generated Intent: " + i.toString());
         return i;
     }
 

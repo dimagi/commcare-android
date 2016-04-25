@@ -694,6 +694,7 @@ permission.form.gps.title=Permission to capture location during form entry
 permission.form.gps.message=CommCare would like to capture your location and provide it to forms you complete.
 permission.acquire.required=Acquire Required Permissions
 
+custom.acknowledgement=
 case.error.self.index=Case '${0}' cannot index itself. In order to login you must change the case on the server.
 
 intent.barcode.get=Get Barcode

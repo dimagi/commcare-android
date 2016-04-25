@@ -7,11 +7,11 @@ import android.os.AsyncTask;
 import android.os.Build;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
@@ -26,16 +26,14 @@ import org.javarosa.core.services.locale.Localization;
  * Processes and submits forms and syncs data with server
  */
 public class FormAndDataSyncer {
-    private final ConnectorWithResultCallback activity;
-    private final Context context;
 
-    public FormAndDataSyncer(Context context, ConnectorWithResultCallback activity) {
-        this.context = context;
-        this.activity = activity;
+    public FormAndDataSyncer() {
     }
 
     @SuppressLint("NewApi")
-    public void processAndSendForms(FormRecord[] records,
+    public void processAndSendForms(final Context context,
+                                    final ConnectorWithResultCallback activity,
+                                    FormRecord[] records,
                                     final boolean syncAfterwards,
                                     final boolean userTriggered) {
 
@@ -63,7 +61,7 @@ public class FormAndDataSyncer {
                     receiver.reportSuccess(label);
 
                     if (syncAfterwards) {
-                        syncData(true, userTriggered);
+                        syncData(context, receiver, true, userTriggered);
                     }
                 } else if (result != FormUploadUtil.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
@@ -105,7 +103,10 @@ public class FormAndDataSyncer {
                 context.getString(R.string.PostURL));
     }
 
-    public void syncData(final boolean formsToSend, final boolean userTriggeredSync) {
+    public void syncData(Context context,
+                         final ConnectorWithResultCallback activity,
+                         final boolean formsToSend,
+                         final boolean userTriggeredSync) {
         User u;
         try {
             u = CommCareApplication._().getSession().getLoggedInUser();
