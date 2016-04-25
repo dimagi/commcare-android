@@ -4,6 +4,7 @@ import android.text.format.DateUtils;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
@@ -14,8 +15,6 @@ import org.commcare.suite.model.Profile;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.tasks.UpdateTask;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -34,7 +33,7 @@ import static org.junit.Assert.fail;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@Config(application = CommCareApplication.class,
+@Config(application = CommCareTestApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class AutoUpdateTest {

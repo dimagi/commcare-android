@@ -2,6 +2,7 @@ package org.commcare.android.tests;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.mocks.HttpRequestEndpointsMock;
 import org.commcare.android.util.TestAppInstaller;
@@ -19,7 +20,7 @@ import org.robolectric.annotation.Config;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-@Config(application = CommCareApplication.class,
+@Config(application = CommCareTestApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class KeyAndDataPullTest {

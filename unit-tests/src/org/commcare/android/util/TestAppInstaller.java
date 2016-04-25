@@ -8,9 +8,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.mocks.CommCareTaskConnectorFake;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.models.database.user.DemoUserBuilder;
-import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.ResourceEngineTask;
-import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.util.PropertyUtils;
@@ -120,27 +118,7 @@ public class TestAppInstaller {
         CommCareApp ccApp = CommCareApplication._().getCurrentApp();
         UserKeyRecord keyRecord =
                 UserKeyRecord.getCurrentValidRecordByPassword(ccApp, username, password, true);
-        startSessionService(keyRecord, password);
-    }
-
-    private static void startSessionService(UserKeyRecord keyRecord, String password) {
-        // manually create/setup session service because robolectric doesn't
-        // really support services
-        CommCareSessionService ccService = new CommCareSessionService();
-        ccService.createCipherPool();
-        ccService.prepareStorage(keyRecord.unWrapKey(password), keyRecord);
-        ccService.startSession(getUserFromDb(ccService, keyRecord), keyRecord);
-
-        CommCareApplication._().setTestingService(ccService);
-    }
-
-    private static User getUserFromDb(CommCareSessionService ccService, UserKeyRecord keyRecord) {
-        for (User u : CommCareApplication._().getRawStorage("USER", User.class, ccService.getUserDbHandle())) {
-            if (keyRecord.getUsername().equals(u.getUsername())) {
-                return u;
-            }
-        }
-        return null;
+        CommCareApplication._().startUserSession(keyRecord.unWrapKey(password), keyRecord, false);
     }
 
     private static void setupPrototypeFactory() {
