@@ -3,10 +3,10 @@ package org.commcare.android.util;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApp;
-import org.commcare.android.mocks.CommCareTaskConnectorFake;
-import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.mocks.CommCareTaskConnectorFake;
+import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.ResourceEngineTask;
@@ -47,19 +47,35 @@ public class TestAppInstaller {
         login(username, password);
     }
 
+    /**
+     * Install an app and create / login with a (test) user
+     */
     public static void initInstallAndLogin(String appPath,
                                            String username,
                                            String password) {
+        storageSetup();
+        TestAppInstaller appTestInstaller =
+                new TestAppInstaller(
+                        appPath, username, password);
+        appTestInstaller.installAppAndLogin();
+    }
+
+    private static void storageSetup() {
         // needed to resolve "jr://resource" type references
         ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
 
         TestUtils.initializeStaticTestStorage();
         TestAppInstaller.setupPrototypeFactory();
+    }
 
+    /**
+     * Install an app without creating a user / logging in
+     */
+    public static void initAndInstall(String appPath) {
+        storageSetup();
         TestAppInstaller appTestInstaller =
-                new TestAppInstaller(
-                        appPath, username, password);
-        appTestInstaller.installAppAndLogin();
+                new TestAppInstaller(appPath, null, null);
+        appTestInstaller.installApp();
     }
 
     private void installApp() {
