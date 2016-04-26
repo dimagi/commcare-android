@@ -1,7 +1,10 @@
 package org.commcare;
 
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
+import org.commcare.services.CommCareSessionService;
+import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 import org.junit.Assert;
 
@@ -34,5 +37,26 @@ public class CommCareTestApplication extends CommCareApplication {
     @Override
     public CommCareApp getCurrentApp() {
         return new CommCareTestApp(super.getCurrentApp());
+    }
+
+    @Override
+    public void startUserSession(byte[] symetricKey, UserKeyRecord record, boolean restoreSession) {
+        // manually create/setup session service because robolectric doesn't
+        // really support services
+        CommCareSessionService ccService = new CommCareSessionService();
+        ccService.createCipherPool();
+        ccService.prepareStorage(symetricKey, record);
+        ccService.startSession(getUserFromDb(ccService, record), record);
+
+        CommCareApplication._().setTestingService(ccService);
+    }
+
+    private static User getUserFromDb(CommCareSessionService ccService, UserKeyRecord keyRecord) {
+        for (User u : CommCareApplication._().getRawStorage("USER", User.class, ccService.getUserDbHandle())) {
+            if (keyRecord.getUsername().equals(u.getUsername())) {
+                return u;
+            }
+        }
+        return null;
     }
 }
