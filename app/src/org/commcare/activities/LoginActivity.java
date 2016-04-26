@@ -370,7 +370,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (CommCareApplication._().isConsumerApp()) {
             uiController.setUsername("t1");
             uiController.setPasswordOrPin("123");
-            uiController.showBlankScreen();
             localLoginOrPullAndLogin(false);
         } else {
             tryAutoLogin();

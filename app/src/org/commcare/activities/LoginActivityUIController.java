@@ -452,12 +452,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         }
     }
 
-    protected void showBlankScreen() {
-        View blankView = activity.findViewById(R.id.full_screen_blank);
-        blankView.setVisibility(View.VISIBLE);
-        blankView.bringToFront();
-    }
-
     protected boolean isRestoreSessionChecked() {
         return restoreSessionCheckbox.isChecked();
     }

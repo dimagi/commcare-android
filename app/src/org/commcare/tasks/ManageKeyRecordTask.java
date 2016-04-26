@@ -223,7 +223,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
             }
         }
 
-        if (!hasRecord && keyServerUrl == null) {
+        if (!hasRecord && (keyServerUrl == null || CommCareApplication._().isConsumerApp())) {
             // If we don't have any records and we aren't doing remote key management, this is as
             // far as we're going
             return HttpCalloutOutcomes.Success;
