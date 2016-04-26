@@ -254,6 +254,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                             receiver.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
                         } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
                             receiver.updateProgress(Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
+                        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING_COMPLETE) {
+                            receiver.hideTaskCancelButton();
                         } else if (update[0] == DataPullTask.PROGRESS_PROCESSING) {
                             receiver.updateProgress(Localization.get("sync.process.processing", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
                             receiver.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);

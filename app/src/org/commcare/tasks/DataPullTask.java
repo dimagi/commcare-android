@@ -82,6 +82,7 @@ public abstract class DataPullTask<R>
     private static final int PROGRESS_RECOVERY_FAIL_BAD = 64;
     public static final int PROGRESS_PROCESSING = 128;
     public static final int PROGRESS_DOWNLOADING = 256;
+    public static final int PROGRESS_DOWNLOADING_COMPLETE = 512;
     private DataPullRequester dataPullRequester;
 
     private DataPullTask(String username, String password,
@@ -117,6 +118,7 @@ public abstract class DataPullTask<R>
             CommCareApplication._().releaseUserResourcesAndServices();
         }
     }
+    private HttpRequestGenerator requestor;
 
     @Override
     protected ResultAndError<PullTaskResult> doTaskBackground(Void... params) {
@@ -156,7 +158,7 @@ public abstract class DataPullTask<R>
             //This should be per _user_, not per app
             prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
 
-            HttpRequestEndpoints requestor = dataPullRequester.getHttpGenerator(username, password);
+            requestor = dataPullRequester.getHttpGenerator(username, password);
 
             AndroidTransactionParserFactory factory = new AndroidTransactionParserFactory(context, requestor) {
                 boolean publishedAuth = false;
@@ -211,6 +213,12 @@ public abstract class DataPullTask<R>
                 //Either way, don't re-do this step
                 this.publishProgress(PROGRESS_CLEANED);
 
+                if (isCancelled()) {
+                    // avoid making the http request if user cancelled the task
+                    // NOTE: The result returned is never processed since
+                    // cancelled task results are sent to onCancelled.
+                    return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
+                }
                 RemoteDataPullResponse pullResponse = dataPullRequester.makeDataPullRequest(this, requestor, server, useRequestFlags);
                 Logger.log(AndroidLogger.TYPE_USER, "Request opened. Response code: " + pullResponse.responseCode);
 
@@ -232,6 +240,15 @@ public abstract class DataPullTask<R>
                     }
 
                     this.publishProgress(PROGRESS_AUTHED, 0);
+                    if (isCancelled()) {
+                        // About to enter data commit phase; last chance to
+                        // finish early if cancelled.
+                        // NOTE: The result returned is never processed since
+                        // cancelled task results are sent to onCancelled.
+                        return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
+                    }
+                    this.publishProgress(PROGRESS_DOWNLOADING_COMPLETE, 0);
+
                     Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
 
                     try {
@@ -352,6 +369,13 @@ public abstract class DataPullTask<R>
             return new ResultAndError<>(responseError);
         } finally {
             CommCareSessionService.sessionAliveLock.unlock();
+        }
+    }
+
+    @Override
+    public void tryAbort() {
+        if (requestor != null) {
+            requestor.abortCurrentRequest();
         }
     }
 
