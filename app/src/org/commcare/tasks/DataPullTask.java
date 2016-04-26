@@ -214,6 +214,7 @@ public abstract class DataPullTask<R>
                 this.publishProgress(PROGRESS_CLEANED);
 
                 if (isCancelled()) {
+                    // avoid making the http request if user cancelled the task
                     return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
                 }
                 RemoteDataPullResponse pullResponse = dataPullRequester.makeDataPullRequest(this, requestor, server, useRequestFlags);
@@ -237,10 +238,11 @@ public abstract class DataPullTask<R>
                     }
 
                     this.publishProgress(PROGRESS_AUTHED, 0);
-                    this.publishProgress(PROGRESS_DOWNLOADING_COMPLETE, 0);
                     if (isCancelled()) {
+                        // About to enter data commit phase; last chance to finish early if cancelled
                         return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
                     }
+                    this.publishProgress(PROGRESS_DOWNLOADING_COMPLETE, 0);
 
                     Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
 
