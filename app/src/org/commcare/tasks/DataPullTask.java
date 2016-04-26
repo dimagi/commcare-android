@@ -245,7 +245,7 @@ public abstract class DataPullTask<R>
                         // finish early if cancelled.
                         // NOTE: The result returned is never processed since
                         // cancelled task results are sent to onCancelled.
-                        return PullTaskResult.UNKNOWN_FAILURE;
+                        return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
                     }
                     this.publishProgress(PROGRESS_DOWNLOADING_COMPLETE, 0);
 
