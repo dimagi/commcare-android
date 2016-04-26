@@ -88,18 +88,9 @@
         </users>
     </features>
 
-    <suite><resource id="suite" version="18">
-        
+    <suite>
+        <resource id="suite" version="18">
             <location authority="local">./suite.xml</location>
-        
-        <location authority="remote">https://www.commcarehq.org/a/simprints-integration/apps/download/df9c908610269bbea3f9b5e385ad4ccb/suite.xml</location>
-    </resource></suite>
-    
-    <suite><resource id="media-suite" version="18">
-        
-            <location authority="local">./media_suite.xml</location>
-        
-        <location authority="remote">https://www.commcarehq.org/a/simprints-integration/apps/download/df9c908610269bbea3f9b5e385ad4ccb/media_suite.xml</location>
-    </resource></suite>
-    
+        </resource>
+    </suite>
 </profile>
