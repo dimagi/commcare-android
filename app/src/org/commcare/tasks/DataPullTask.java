@@ -208,6 +208,8 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
 
                 if (isCancelled()) {
                     // avoid making the http request if user cancelled the task
+                    // NOTE: The result returned is never processed since
+                    // cancelled task results are sent to onCancelled.
                     return PullTaskResult.UNKNOWN_FAILURE;
                 }
                 RemoteDataPullResponse pullResponse = dataPullRequester.makeDataPullRequest(this, requestor, server, useRequestFlags);
@@ -232,7 +234,10 @@ public abstract class DataPullTask<R> extends CommCareTask<Void, Integer, DataPu
 
                     this.publishProgress(PROGRESS_AUTHED, 0);
                     if (isCancelled()) {
-                        // About to enter data commit phase; last chance to finish early if cancelled
+                        // About to enter data commit phase; last chance to
+                        // finish early if cancelled.
+                        // NOTE: The result returned is never processed since
+                        // cancelled task results are sent to onCancelled.
                         return PullTaskResult.UNKNOWN_FAILURE;
                     }
                     this.publishProgress(PROGRESS_DOWNLOADING_COMPLETE, 0);
