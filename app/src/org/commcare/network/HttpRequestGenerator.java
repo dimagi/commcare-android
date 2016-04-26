@@ -371,7 +371,7 @@ public class HttpRequestGenerator {
             try {
                 currentRequest.abort();
             } catch (Exception e) {
-                Log.i(TAG, e.getMessage());
+                Log.i(TAG, "Error thrown while aborting http: " + e.getMessage());
             }
         }
     }

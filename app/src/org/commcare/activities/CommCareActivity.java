@@ -25,12 +25,12 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.android.database.user.models.ACase;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
@@ -97,6 +97,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      */
     private boolean triedBlockingWhilePaused;
     private boolean triedDismissingWhilePaused;
+    private boolean triedHidingCancelWhilePaused;
 
     /**
      * Store the id of a task progress dialog so it can be disabled/enabled
@@ -317,6 +318,10 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             triedBlockingWhilePaused = false;
             showNewProgressDialog();
         }
+        if (triedHidingCancelWhilePaused) {
+            triedHidingCancelWhilePaused = false;
+            hideTaskCancelButton();
+        }
     }
 
     @Override
@@ -506,10 +511,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    public void removeDisableFromProgressDialog() {
+    public void hideTaskCancelButton() {
         CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
-        if (mProgressDialog != null && !areFragmentsPaused) {
-            mProgressDialog.removeCancelButton();
+        if (mProgressDialog != null) {
+            if (!areFragmentsPaused) {
+                mProgressDialog.removeCancelButton();
+            } else {
+                triedHidingCancelWhilePaused = true;
+            }
         }
     }
 
