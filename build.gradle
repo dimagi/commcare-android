@@ -47,12 +47,11 @@ dependencies {
     // release build type expects javarosa and commcare jars to be in app/libs
     debugCompile project(':javarosa')
     debugCompile project(':commcare')
-    debugCompile project(':simprints-lib')
     compile project(':javarosa')
     compile project(':commcare')
-    compile project(':simprints-lib')
     compile fileTree(dir: 'app/libs', include: '*.jar')
     compile(name: 'htmlspanner-custom', ext: 'aar')
+    compile(name: 'simprints-lib', ext: 'aar')
     compile 'com.android.support:cardview-v7:23.2.1'
     compile 'com.android.support:recyclerview-v7:23.2.1'
     compile 'com.android.support:support-v4:23.2.1'
