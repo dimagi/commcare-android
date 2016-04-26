@@ -217,7 +217,7 @@ public abstract class DataPullTask<R>
                     // avoid making the http request if user cancelled the task
                     // NOTE: The result returned is never processed since
                     // cancelled task results are sent to onCancelled.
-                    return PullTaskResult.UNKNOWN_FAILURE;
+                    return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
                 }
                 RemoteDataPullResponse pullResponse = dataPullRequester.makeDataPullRequest(this, requestor, server, useRequestFlags);
                 Logger.log(AndroidLogger.TYPE_USER, "Request opened. Response code: " + pullResponse.responseCode);
