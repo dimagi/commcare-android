@@ -752,7 +752,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private CustomProgressDialog generateStandaloneInstallDialog(int taskId) {
-        String title = "Starting up";
+        String title = "Starting Up";
         String message = "Initializing your application...";
         CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
         dialog.setCancelable(false);

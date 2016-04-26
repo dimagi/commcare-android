@@ -195,6 +195,14 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void startDataPull() {
+        if (CommCareApplication._().isConsumerApp()) {
+            performLocalRestore();
+        } else {
+            performOtaRestore();
+        }
+    }
+
+    private void performOtaRestore() {
         // We should go digest auth this user on the server and see whether to
         // pull them down.
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
@@ -362,7 +370,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (CommCareApplication._().isConsumerApp()) {
             uiController.setUsername("t1");
             uiController.setPasswordOrPin("123");
-            performLocalRestore();
+            uiController.showBlankScreen();
+            localLoginOrPullAndLogin(false);
         } else {
             tryAutoLogin();
         }
@@ -538,6 +547,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      */
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
+        if (CommCareApplication._().isConsumerApp()) {
+            return CustomProgressDialog.newInstance("Starting Up", "Initializing your application...", taskId);
+        }
+
         CustomProgressDialog dialog;
         switch (taskId) {
             case TASK_KEY_EXCHANGE:
