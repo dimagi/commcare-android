@@ -638,8 +638,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 handleSearchStringCallout(intent);
             } else if (SimprintsCalloutProcessing.isIdentificationResponse(intent)) {
                 handleFingerprintMatchCallout(intent);
-            } else {
-                fakeAccuracy(intent);
             }
         }
     }
@@ -662,17 +660,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private void handleFingerprintMatchCallout(Intent intent) {
         OrderedHashtable<String, String> guidToMatchConfidenceMap =
                 SimprintsCalloutProcessing.getIdentificationData(intent);
-        adapter.filterByKeyedCalloutData(guidToMatchConfidenceMap);
-        refreshView();
-    }
-
-    private void fakeAccuracy(Intent intent) {
-        OrderedHashtable<String, String> guidToMatchConfidenceMap = new OrderedHashtable<>();
-        guidToMatchConfidenceMap.put("b319e951-03f1-4172-b662-4fb3964a0be7", "0.99"); // stan
-        guidToMatchConfidenceMap.put("8e011880-602f-4017-b9d6-ed9dcbba7516", "0.55"); // ellen
-        guidToMatchConfidenceMap.put("c44c7ade-0cec-4401-b422-4c475f0043ae", "0.25"); // pat
-        guidToMatchConfidenceMap.put("6b09e558-604c-4735-ac34-efbb2783b784", "0.22"); // aria
-        guidToMatchConfidenceMap.put("16d31048-e8f8-40d5-a3e9-b35e9cde20da", "0.10"); // gilbert
         adapter.filterByKeyedCalloutData(guidToMatchConfidenceMap);
         refreshView();
     }
