@@ -1,6 +1,7 @@
 package org.commcare.engine.resource.installers;
 
 import org.commcare.CommCareApp;
+import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -74,6 +75,9 @@ public class SingleAppInstallation {
                     @Override
                     protected void deliverUpdate(CommCareSetupActivity receiver,
                                                  int[]... update) {
+                        if (!CommCareApplication._().isConsumerApp()) {
+                            receiver.updateResourceProgress(update[0][0], update[0][1], update[0][2]);
+                        }
                     }
 
                     @Override
