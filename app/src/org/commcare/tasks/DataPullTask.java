@@ -12,13 +12,13 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.encryption.CryptUtil;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.modern.models.RecordTooLargeException;
@@ -82,6 +82,7 @@ public abstract class DataPullTask<R>
     private static final int PROGRESS_RECOVERY_FAIL_BAD = 64;
     public static final int PROGRESS_PROCESSING = 128;
     public static final int PROGRESS_DOWNLOADING = 256;
+    public static final int PROGRESS_DOWNLOADING_COMPLETE = 512;
     private DataPullRequester dataPullRequester;
 
     private DataPullTask(String username, String password,
@@ -117,6 +118,7 @@ public abstract class DataPullTask<R>
             CommCareApplication._().releaseUserResourcesAndServices();
         }
     }
+    private HttpRequestGenerator requestor;
 
     @Override
     protected ResultAndError<PullTaskResult> doTaskBackground(Void... params) {
@@ -156,7 +158,7 @@ public abstract class DataPullTask<R>
             //This should be per _user_, not per app
             prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
 
-            HttpRequestGenerator requestor = new HttpRequestGenerator(username, password);
+            requestor = new HttpRequestGenerator(username, password);
 
             AndroidTransactionParserFactory factory = new AndroidTransactionParserFactory(context, requestor) {
                 boolean publishedAuth = false;
@@ -211,6 +213,12 @@ public abstract class DataPullTask<R>
                 //Either way, don't re-do this step
                 this.publishProgress(PROGRESS_CLEANED);
 
+                if (isCancelled()) {
+                    // avoid making the http request if user cancelled the task
+                    // NOTE: The result returned is never processed since
+                    // cancelled task results are sent to onCancelled.
+                    return PullTaskResult.UNKNOWN_FAILURE;
+                }
                 RemoteDataPullResponse pullResponse = dataPullRequester.makeDataPullRequest(this, requestor, server, useRequestFlags);
                 Logger.log(AndroidLogger.TYPE_USER, "Request opened. Response code: " + pullResponse.responseCode);
 
@@ -232,6 +240,15 @@ public abstract class DataPullTask<R>
                     }
 
                     this.publishProgress(PROGRESS_AUTHED, 0);
+                    if (isCancelled()) {
+                        // About to enter data commit phase; last chance to
+                        // finish early if cancelled.
+                        // NOTE: The result returned is never processed since
+                        // cancelled task results are sent to onCancelled.
+                        return PullTaskResult.UNKNOWN_FAILURE;
+                    }
+                    this.publishProgress(PROGRESS_DOWNLOADING_COMPLETE, 0);
+
                     Logger.log(AndroidLogger.TYPE_USER, "Remote Auth Successful|" + username);
 
                     try {
@@ -352,6 +369,13 @@ public abstract class DataPullTask<R>
             return new ResultAndError<>(responseError);
         } finally {
             CommCareSessionService.sessionAliveLock.unlock();
+        }
+    }
+
+    @Override
+    public void tryAbort() {
+        if (requestor != null) {
+            requestor.abortCurrentRequest();
         }
     }
 
