@@ -78,6 +78,11 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
     private String username;
     private String userType;
 
+    /**
+     * Keep track of current request to allow for early aborting
+     */
+    private HttpRequestBase currentRequest;
+
     public HttpRequestGenerator(User user) {
         this(user.getUsername(), user.getCachedPwd(), user.getUserType());
     }
@@ -162,10 +167,12 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
 
         String uri = serverUri.toString();
         Log.d(TAG, "Fetching from: " + uri);
-        HttpGet request = new HttpGet(uri);
-        AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
-        addHeaders(request, syncToken);
-        return execute(client, request);
+        currentRequest = new HttpGet(uri);
+        AndroidHttpClient.modifyRequestToAcceptGzipResponse(currentRequest);
+        addHeaders(currentRequest, syncToken);
+        HttpResponse response = execute(client, currentRequest);
+        currentRequest = null;
+        return response;
     }
 
     @Override
@@ -363,4 +370,15 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         con.setDoInput(true);
         con.setInstanceFollowRedirects(true);
     }
+
+    public void abortCurrentRequest() {
+        if (currentRequest != null) {
+            try {
+                currentRequest.abort();
+            } catch (Exception e) {
+                Log.i(TAG, "Error thrown while aborting http: " + e.getMessage());
+            }
+        }
+    }
+
 }
