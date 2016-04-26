@@ -262,13 +262,22 @@ public class EntityListAdapter implements ListAdapter {
             emv = EntityView.buildEntryEntityView(
                     context, detail, entity,
                     currentSearchTerms, position, mFuzzySearchEnabled,
-                    externalData.get(entity.extraKey));
+                    getExtraData(entity));
         } else {
             emv.setSearchTerms(currentSearchTerms);
-            emv.setExtraData(externalData.get(entity.extraKey));
+            emv.setExtraData(getExtraData(entity));
             emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);
         }
         return emv;
+    }
+
+    private String getExtraData(Entity<TreeReference> entity) {
+
+        if (entity.extraKey != null) {
+            return externalData.get(entity.extraKey);
+        } else {
+            return null;
+        }
     }
 
     @Override
