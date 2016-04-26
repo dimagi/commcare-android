@@ -26,7 +26,6 @@ import org.javarosa.core.services.locale.Localization;
  */
 public class RefreshToLatestBuildActivity extends Activity {
 
-    public static final String KEY_FROM_LATEST_BUILD_ACTIVITY = "from-test-latest-build-util";
     public static final String KEY_UPDATE_ATTEMPT_RESULT = "result-of-update-attempt";
 
     // Action status codes
@@ -123,7 +122,7 @@ public class RefreshToLatestBuildActivity extends Activity {
 
     private void attemptUpdate() {
         Intent i = new Intent(this, UpdateActivity.class);
-        i.putExtra(KEY_FROM_LATEST_BUILD_ACTIVITY, true);
+        i.putExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, true);
         startActivityForResult(i, PERFORM_UPDATE);
     }
 

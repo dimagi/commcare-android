@@ -30,6 +30,9 @@ import org.javarosa.core.services.locale.Localization;
 public class UpdateActivity extends CommCareActivity<UpdateActivity>
         implements TaskListener<Integer, AppInstallStatus>, WithUIController {
 
+    public static final String KEY_PROCEED_AUTOMATICALLY = "proceed-automatically-with-update";
+
+
     private static final String TAG = UpdateActivity.class.getSimpleName();
     private static final String TASK_CANCELLING_KEY = "update_task_cancelling";
     private static final String IS_APPLYING_UPDATE_KEY = "applying_update_task_running";
@@ -49,8 +52,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         uiController.setupUI();
 
-        proceedAutomatically = getIntent().getBooleanExtra(
-                RefreshToLatestBuildActivity.KEY_FROM_LATEST_BUILD_ACTIVITY, false);
+        proceedAutomatically = getIntent().getBooleanExtra(KEY_PROCEED_AUTOMATICALLY, false);
 
         loadSavedInstanceState(savedInstanceState);
 

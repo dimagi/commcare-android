@@ -13,6 +13,7 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.suite.model.Profile;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.AlertDialogFactory;
@@ -55,6 +56,8 @@ public class DispatchActivity extends FragmentActivity {
     // Used for soft assert for login redirection bug
     private boolean waitingForActivityResultFromLogin;
 
+    boolean shouldCheckForLocalAppFilesChange;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +69,8 @@ public class DispatchActivity extends FragmentActivity {
         if (savedInstanceState != null) {
             shortcutExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
         }
+
+        shouldCheckForLocalAppFilesChange = CommCareApplication._().isConsumerApp();
     }
 
     /**
@@ -105,10 +110,21 @@ public class DispatchActivity extends FragmentActivity {
         outState.putBoolean(EXTRA_CONSUMED_KEY, shortcutExtraWasConsumed);
     }
 
+    private void checkForUpdateToAppFiles() {
+        Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
+        i.putExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, true);
+        startActivity(i);
+    }
+
     private void dispatch() {
         if (isDbInBadState()) {
             // appropriate error dialog has been triggered, don't continue w/ dispatch
             return;
+        }
+
+        if (shouldCheckForLocalAppFilesChange) {
+            checkForUpdateToAppFiles();
+            shouldCheckForLocalAppFilesChange = false;
         }
 
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();

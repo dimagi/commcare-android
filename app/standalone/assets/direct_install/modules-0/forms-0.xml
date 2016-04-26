@@ -3,7 +3,7 @@
 		<h:title>Register A Warehouse</h:title>
 		<model>
 			<instance>
-				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/D6B5A26A-FADF-40BF-92A8-518EB2F814A2" uiVersion="1" version="48" name="Register A Warehouse">
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/D6B5A26A-FADF-40BF-92A8-518EB2F814A2" uiVersion="1" version="53" name="Register A Warehouse">
 					<Name/>
 					<Location/>
 					<Gender/>
@@ -34,10 +34,10 @@
 						<value>Gender</value>
 					</text>
 					<text id="Gender-female-label">
-						<value>Female</value>
+						<value>female</value>
 					</text>
 					<text id="Gender-male-label">
-						<value>Male</value>
+						<value>male</value>
 					</text>
 				</translation>
 				<translation lang="es">
@@ -52,10 +52,10 @@
 						<value>Gender</value>
 					</text>
 					<text id="Gender-female-label">
-						<value>Female</value>
+						<value>female</value>
 					</text>
 					<text id="Gender-male-label">
-						<value>Male</value>
+						<value>male</value>
 					</text>
 				</translation>
 			</itext>

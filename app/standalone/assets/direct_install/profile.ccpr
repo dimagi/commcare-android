@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<profile version="52"
-         update="https://www.commcarehq.org/a/aliza-test/apps/download/2619cc8e9f125b476aa917826f8fa5f4/media_profile.ccpr?latest=true"
+<profile version="53"
+         update="https://www.commcarehq.org/a/aliza-test/apps/download/19454496ab79b2ab059a3850854e9354/media_profile.ccpr?latest=true"
          requiredMajor="2"
          requiredMinor="23"
          uniqueid="a370e321169d2555a86d3e174f3024c2"
@@ -11,8 +11,8 @@
     <property key="restore-url" value="file:///E:/CommCare.Backup"/>
     <property key="ota-restore-url" value="https://www.commcarehq.org/a/aliza-test/phone/restore/"/>
     <property key="ota-restore-url-testing" value="https://www.commcarehq.org/a/aliza-test/phone/restore/"/>
-    <property key="PostURL" value="https://www.commcarehq.org/a/aliza-test/receiver/secure/2619cc8e9f125b476aa917826f8fa5f4/" force="true"/>
-    <property key="PostTestURL" value="https://www.commcarehq.org/a/aliza-test/receiver/secure/2619cc8e9f125b476aa917826f8fa5f4/" force="true"/>
+    <property key="PostURL" value="https://www.commcarehq.org/a/aliza-test/receiver/secure/19454496ab79b2ab059a3850854e9354/" force="true"/>
+    <property key="PostTestURL" value="https://www.commcarehq.org/a/aliza-test/receiver/secure/19454496ab79b2ab059a3850854e9354/" force="true"/>
     <property key="key_server" value="https://www.commcarehq.org/a/aliza-test/phone/keys/"/>
     <property key="cur_locale" value="en"/>
     <property key="cc_user_domain" value="aliza-test.commcarehq.org"/>
@@ -88,18 +88,18 @@
         </users>
     </features>
 
-    <suite><resource id="suite" version="52">
+    <suite><resource id="suite" version="53">
         
             <location authority="local">./suite.xml</location>
         
-        <location authority="remote">https://www.commcarehq.org/a/aliza-test/apps/download/2619cc8e9f125b476aa917826f8fa5f4/suite.xml</location>
+        <location authority="remote">https://www.commcarehq.org/a/aliza-test/apps/download/19454496ab79b2ab059a3850854e9354/suite.xml</location>
     </resource></suite>
     
-    <suite><resource id="media-suite" version="52">
+    <suite><resource id="media-suite" version="53">
         
             <location authority="local">./media_suite.xml</location>
         
-        <location authority="remote">https://www.commcarehq.org/a/aliza-test/apps/download/2619cc8e9f125b476aa917826f8fa5f4/media_suite.xml</location>
+        <location authority="remote">https://www.commcarehq.org/a/aliza-test/apps/download/19454496ab79b2ab059a3850854e9354/media_suite.xml</location>
     </resource></suite>
     
 </profile>

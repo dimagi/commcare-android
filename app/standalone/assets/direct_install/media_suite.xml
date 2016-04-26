@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<suite version="52" descriptor="Media Suite File">
+<suite version="53" descriptor="Media Suite File">
   <media path="../../commcare/image/data">
     <resource descriptor="Image File: Name.png" id="media-729912a6e494bc9df665034d468ac7c8-Name.png" version="46">
       <location authority="local">./commcare/image/data/Name.png</location>

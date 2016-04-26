@@ -12,7 +12,7 @@ import org.javarosa.core.util.PropertyUtils;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class SingleAppInstallation {
-    private static final String SINGLE_APP_REFERENCE = "jr://asset/direct_install/profile.ccpr";
+    public static final String SINGLE_APP_REFERENCE = "jr://asset/direct_install/profile.ccpr";
 
     /**
      * Install the app present in "assets/direct_install/", without offering
