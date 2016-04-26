@@ -56,36 +56,43 @@ public class EntityListCalloutDataTest {
         ShadowActivity shadowActivity =
                 ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m1-f0");
 
-        Intent formEntryIntent = shadowActivity.getNextStartedActivity();
+        Intent entitySelectIntent = shadowActivity.getNextStartedActivity();
 
         // make sure the form entry activity should be launched
-        String intentActivityName = formEntryIntent.getComponent().getClassName();
+        String intentActivityName = entitySelectIntent.getComponent().getClassName();
         assertTrue(intentActivityName.equals(EntitySelectActivity.class.getName()));
 
+        // start the entity select activity
         EntitySelectActivity entitySelectActivity =
-                Robolectric.buildActivity(EntitySelectActivity.class).withIntent(formEntryIntent)
+                Robolectric.buildActivity(EntitySelectActivity.class)
+                        .withIntent(entitySelectIntent)
                         .create().start().resume().get();
 
+        // wait for entities to load
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
 
-        ListView entityList = (ListView)entitySelectActivity.findViewById(R.id.screen_entity_select_list);
+        ListView entityList =
+                (ListView)entitySelectActivity.findViewById(R.id.screen_entity_select_list);
         EntityListAdapter adapter = (EntityListAdapter)entityList.getAdapter();
-        while(adapter.getCurrentCount() != 8) { }
+        // there should be 8 entries in the list, wait until they all show up in the adapter
+        while(adapter.getCurrentCount() != 8) {
+            System.out.println(adapter.getCurrentCount());
+        }
 
         EntityView entityView = (EntityView)entityList.getAdapter().getView(0, null, null);
-        int entityHeaderCount = 1;
-        assertEquals(entityHeaderCount, entityView.getChildCount());
+        int entityColumnCount = entityView.getChildCount();
 
         // make entity list callout to 'fingerprint identification'
-        ImageButton calloutButton = (ImageButton)entitySelectActivity.findViewById(R.id.barcodeButton);
+        ImageButton calloutButton =
+                (ImageButton)entitySelectActivity.findViewById(R.id.barcodeButton);
         calloutButton.performClick();
 
         // receive the (faked) callout result
-        ShadowActivity shadowEntitySelect = Shadows.shadowOf(entitySelectActivity);
         Callout identificationScanCallout = getEntitySelectCallout();
         Intent calloutIntent = EntitySelectCalloutSetup.buildCalloutIntent(identificationScanCallout);
         Intent responseIntent = buildIdentificationResultIntent();
+        ShadowActivity shadowEntitySelect = Shadows.shadowOf(entitySelectActivity);
         shadowEntitySelect.receiveResult(calloutIntent, Activity.RESULT_OK, responseIntent);
 
         // ensure that the entity list is filtered by the received callout result data (fingerprint identification list with confidence score)
@@ -95,7 +102,18 @@ public class EntityListCalloutDataTest {
 
         // ensure that entries in the entity list have extra data attached to them
         entityView = (EntityView)entityList.getAdapter().getView(0, null, null);
-        assertEquals(entityHeaderCount + 1, entityView.getChildCount());
+        assertEquals(entityColumnCount + 1, entityView.getChildCount());
+
+
+        // clear the callout data and make sure the extra column is removed and all the entities are shown
+        ImageButton clearSearchButton =
+                (ImageButton)entitySelectActivity.findViewById(R.id.clear_search_button);
+        clearSearchButton.performClick();
+
+        entityView = (EntityView)entityList.getAdapter().getView(0, null, null);
+        assertEquals(entityColumnCount, entityView.getChildCount());
+
+        assertEquals(8, adapter.getCurrentCount());
     }
 
     private static Intent buildIdentificationResultIntent() {
