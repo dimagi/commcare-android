@@ -97,7 +97,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      */
     private boolean triedBlockingWhilePaused;
     private boolean triedDismissingWhilePaused;
-    private boolean triedHidingCancelWhilePaused;
 
     /**
      * Store the id of a task progress dialog so it can be disabled/enabled
@@ -318,10 +317,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             triedBlockingWhilePaused = false;
             showNewProgressDialog();
         }
-        if (triedHidingCancelWhilePaused) {
-            triedHidingCancelWhilePaused = false;
-            hideTaskCancelButton();
-        }
     }
 
     @Override
@@ -514,11 +509,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     public void hideTaskCancelButton() {
         CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
         if (mProgressDialog != null) {
-            if (!areFragmentsPaused) {
-                mProgressDialog.removeCancelButton();
-            } else {
-                triedHidingCancelWhilePaused = true;
-            }
+            mProgressDialog.removeCancelButton();
         }
     }
 
