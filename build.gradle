@@ -97,7 +97,7 @@ ext {
 
 def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : ""
 def ccDomain = project.hasProperty('cc_domain') ? cc_domain : ""
-def isConsumerApp = project.hasProperty('is_consumer_app') ? is_consumer_app : ""
+def isConsumerApp = project.hasProperty('is_consumer_app') ? is_consumer_app : "false"
 def ccDomainSafe = ccDomain.replaceAll("-", "")
 
 /**
@@ -389,8 +389,8 @@ downloadCCApp << {
 
 // dynamically inject commcare app download into standalone build process
 tasks.whenTaskAdded { task ->
-    if (task.name == 'processStandaloneDebugResources' ||
-            task.name == 'processStandaloneReleaseResources') {
+    if ((task.name == 'processStandaloneDebugResources' ||
+            task.name == 'processStandaloneReleaseResources') && !isConsumerApp) {
         task.dependsOn downloadCCApp
     }
 }

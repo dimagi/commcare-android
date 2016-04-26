@@ -107,7 +107,7 @@ public class DispatchActivity extends FragmentActivity {
 
     private void dispatch() {
         if (isDbInBadState()) {
-            // approrpiate error dialog has been triggered, don't continue w/ dispatch
+            // appropriate error dialog has been triggered, don't continue w/ dispatch
             return;
         }
 

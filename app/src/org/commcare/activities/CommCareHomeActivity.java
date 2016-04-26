@@ -161,6 +161,8 @@ public class CommCareHomeActivity
     private static final String EXTRA_CONSUMED_KEY = "login_extra_was_consumed";
     private boolean isRestoringSession = false;
 
+    private boolean sessionNavigationProceedingAfterOnResume;
+
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
         super.onCreateSessionSafe(savedInstanceState);
@@ -549,6 +551,7 @@ public class CommCareHomeActivity
                     }
                     return;
             }
+            sessionNavigationProceedingAfterOnResume = true;
             startNextSessionStepSafe();
         }
         super.onActivityResult(requestCode, resultCode, intent);
@@ -1080,6 +1083,8 @@ public class CommCareHomeActivity
             refreshActionBar();
         }
         attemptDispatchHomeScreen();
+
+        sessionNavigationProceedingAfterOnResume = false;
     }
 
     /**
@@ -1094,6 +1099,8 @@ public class CommCareHomeActivity
                 // User was logged out somehow, so we want to return to dispatch activity
                 setResult(RESULT_OK);
                 this.finish();
+            } else if (CommCareApplication._().isConsumerApp() && !sessionNavigationProceedingAfterOnResume) {
+                enterRootModule();
             } else {
                 // Display the normal home screen!
                 uiController.refreshView();
