@@ -491,8 +491,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         boolean otherResult = super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case MENU_DEMO:
-                loginAsDemoUser();
-                return true;
+                DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
+                tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,
+                        false, LoginMode.PASSWORD);                return true;
             case MENU_ABOUT:
                 DialogCreationHelpers.buildAboutCommCareDialog(this).show();
                 return true;
@@ -505,12 +506,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             default:
                 return otherResult;
         }
-    }
-
-    private void loginAsDemoUser() {
-        DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
-        tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,
-                false, LoginMode.PASSWORD);
     }
 
     @Override
