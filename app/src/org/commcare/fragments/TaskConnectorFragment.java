@@ -9,7 +9,6 @@ import android.support.v4.app.Fragment;
 import android.util.Log;
 
 import org.commcare.activities.CommCareActivity;
-import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.templates.CommCareTask;
 
 /**
@@ -65,9 +64,7 @@ public class TaskConnectorFragment<R> extends Fragment {
     public void cancelTask() {
         if (currentTask != null) {
             currentTask.cancel(false);
-            if (currentTask instanceof DataPullTask) {
-                ((DataPullTask)currentTask).abortRequest();
-            }
+            currentTask.tryAbort();
         }
     }
 

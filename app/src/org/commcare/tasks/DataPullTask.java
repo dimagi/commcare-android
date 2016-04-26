@@ -364,7 +364,9 @@ public abstract class DataPullTask<R>
             CommCareSessionService.sessionAliveLock.unlock();
         }
     }
-    public void abortRequest() {
+
+    @Override
+    public void tryAbort() {
         if (requestor != null) {
             requestor.abortCurrentRequest();
         }

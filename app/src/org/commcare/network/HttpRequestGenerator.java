@@ -6,7 +6,6 @@ import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
 import org.apache.http.HttpHost;
-import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.Credentials;
@@ -27,10 +26,10 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.user.models.ACase;
 import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
@@ -77,6 +76,11 @@ public class HttpRequestGenerator {
     private PasswordAuthentication passwordAuthentication;
     private String username;
     private String userType;
+
+    /**
+     * Keep track of current request to allow for early aborting
+     */
+    private HttpRequestBase currentRequest;
 
     public HttpRequestGenerator(User user) {
         this(user.getUsername(), user.getCachedPwd(), user.getUserType());
@@ -161,23 +165,12 @@ public class HttpRequestGenerator {
 
         String uri = serverUri.toString();
         Log.d(TAG, "Fetching from: " + uri);
-        HttpGet request = new HttpGet(uri);
-        AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
-        addHeaders(request, syncToken);
-        currentRequest = request;
-        return execute(client, request);
-    }
-    private HttpRequestBase currentRequest;
-
-    public void abortCurrentRequest() {
-        if (currentRequest != null) {
-            try {
-            currentRequest.abort();
-            } catch (Exception e) {
-                e.printStackTrace();
-                Log.d(TAG, "_________"+e.getMessage());
-            }
-        }
+        currentRequest = new HttpGet(uri);
+        AndroidHttpClient.modifyRequestToAcceptGzipResponse(currentRequest);
+        addHeaders(currentRequest, syncToken);
+        HttpResponse response = execute(client, currentRequest);
+        currentRequest = null;
+        return response;
     }
 
     public HttpResponse makeKeyFetchRequest(String baseUri, Date lastRequest) throws ClientProtocolException, IOException {
@@ -372,4 +365,15 @@ public class HttpRequestGenerator {
         con.setDoInput(true);
         con.setInstanceFollowRedirects(true);
     }
+
+    public void abortCurrentRequest() {
+        if (currentRequest != null) {
+            try {
+                currentRequest.abort();
+            } catch (Exception e) {
+                Log.i(TAG, e.getMessage());
+            }
+        }
+    }
+
 }
