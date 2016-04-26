@@ -39,6 +39,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
+ * Test attaching callout data to entity select list
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 @Config(application = CommCareApplication.class,
@@ -46,12 +48,13 @@ import static org.junit.Assert.assertTrue;
 @RunWith(CommCareTestRunner.class)
 public class EntityListCalloutDataTest {
     private EntitySelectActivity entitySelectActivity;
-    private EntityView entityView;
     private EntityListAdapter adapter;
 
     @Before
     public void setup() {
-        TestAppInstaller.initInstallAndLogin("jr://resource/commcare-apps/case_list_lookup/profile.ccpr", "test", "123");
+        String appProfileResource =
+                "jr://resource/commcare-apps/case_list_lookup/profile.ccpr";
+        TestAppInstaller.initInstallAndLogin(appProfileResource, "test", "123");
 
         TestUtils.processResourceTransactionIntoAppDb("/commcare-apps/case_list_lookup/restore.xml");
     }
@@ -61,14 +64,16 @@ public class EntityListCalloutDataTest {
         launchEntitySelectActivity();
 
         loadAdapter();
+        // TODO PLM: This fails non-deterministically; haven't figured out how to fix it
         Assert.assertEquals(8, adapter.getCurrentCount());
 
-        entityView = (EntityView)adapter.getView(0, null, null);
+        EntityView entityView = (EntityView)adapter.getView(0, null, null);
         int entityColumnCount = entityView.getChildCount();
 
         performFingerprintCallout();
 
-        // ensure that the entity list is filtered by the received callout result data (fingerprint identification list with confidence score)
+        // ensure that the entity list is filtered by the received callout
+        // result data (fingerprint identification list with confidence score)
         assertEquals(5, adapter.getCurrentCount());
         assertTrue(adapter.isFilteringByCalloutResult());
         assertTrue(adapter.hasCalloutResponseData());
@@ -78,15 +83,16 @@ public class EntityListCalloutDataTest {
         assertEquals(entityColumnCount + 1, entityView.getChildCount());
 
         clearCalloutResults();
+        entityView = (EntityView)adapter.getView(0, null, null);
         assertEquals(entityColumnCount, entityView.getChildCount());
         assertEquals(8, adapter.getCurrentCount());
     }
 
     private void launchEntitySelectActivity() {
-        ShadowActivity shadowActivity =
+        ShadowActivity shadowHomeActivity =
                 ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m1-f0");
 
-        Intent entitySelectIntent = shadowActivity.getNextStartedActivity();
+        Intent entitySelectIntent = shadowHomeActivity.getNextStartedActivity();
 
         // make sure the form entry activity should be launched
         String intentActivityName = entitySelectIntent.getComponent().getClassName();
@@ -133,8 +139,7 @@ public class EntityListCalloutDataTest {
         matchingList.add(new Identification("c44c7ade-0cec-4401-b422-4c475f0043ae", 0.25f)); // pat
         matchingList.add(new Identification("6b09e558-604c-4735-ac34-efbb2783b784", 0.22f)); // aria
         matchingList.add(new Identification("16d31048-e8f8-40d5-a3e9-b35e9cde20da", 0.10f)); // gilbert
-        i.putExtra("identification", matchingList);
-        return i;
+        return i.putExtra("identification", matchingList);
     }
 
     private static Callout getEntitySelectCallout() {
@@ -147,11 +152,10 @@ public class EntityListCalloutDataTest {
     }
 
     private void clearCalloutResults() {
-        // clear the callout data and make sure the extra column is removed and all the entities are shown
+        // clear the callout data and make sure the extra column is removed and
+        // all the entities are shown
         ImageButton clearSearchButton =
                 (ImageButton)entitySelectActivity.findViewById(R.id.clear_search_button);
         clearSearchButton.performClick();
-
-        entityView = (EntityView)adapter.getView(0, null, null);
     }
 }
