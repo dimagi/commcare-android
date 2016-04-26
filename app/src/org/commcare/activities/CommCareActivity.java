@@ -25,12 +25,12 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.android.database.user.models.ACase;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
@@ -503,6 +503,13 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             } else {
                 warnInvalidProgressUpdate(taskId);
             }
+        }
+    }
+
+    public void hideTaskCancelButton() {
+        CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
+        if (mProgressDialog != null) {
+            mProgressDialog.removeCancelButton();
         }
     }
 
