@@ -6,12 +6,6 @@
       <location authority="remote">./default/app_strings.txt</location>
     </resource>
   </locale>
-  <locale language="en">
-    <resource id="app_en_strings" version="18" descriptor="Translations: English">
-      <location authority="local">./en/app_strings.txt</location>
-      <location authority="remote">./en/app_strings.txt</location>
-    </resource>
-  </locale>
   <detail id="m0_case_short">
     <title>
       <text>
