@@ -144,7 +144,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
                     // issue getting the filepath uri from file browser callout
                     // result
                     Toast.makeText(this,
-                            Localization.get("mult.install.state.invalid"),
+                            Localization.get("mult.install.state.invalid.path"),
                             Toast.LENGTH_SHORT).show();
                 } else {
                     String filePath = 
