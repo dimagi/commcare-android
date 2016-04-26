@@ -7,6 +7,8 @@ import android.widget.ListView;
 
 import com.simprints.libsimprints.Identification;
 
+import junit.framework.Assert;
+
 import org.commcare.CommCareApplication;
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
@@ -43,6 +45,9 @@ import static org.junit.Assert.assertTrue;
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class EntityListCalloutDataTest {
+    private EntitySelectActivity entitySelectActivity;
+    private EntityView entityView;
+    private EntityListAdapter adapter;
 
     @Before
     public void setup() {
@@ -53,6 +58,31 @@ public class EntityListCalloutDataTest {
 
     @Test
     public void testAttachCalloutResultToEntityList() {
+        launchEntitySelectActivity();
+
+        loadAdapter();
+        Assert.assertEquals(8, adapter.getCurrentCount());
+
+        entityView = (EntityView)adapter.getView(0, null, null);
+        int entityColumnCount = entityView.getChildCount();
+
+        performFingerprintCallout();
+
+        // ensure that the entity list is filtered by the received callout result data (fingerprint identification list with confidence score)
+        assertEquals(5, adapter.getCurrentCount());
+        assertTrue(adapter.isFilteringByCalloutResult());
+        assertTrue(adapter.hasCalloutResponseData());
+
+        // ensure that entries in the entity list have extra data attached to them
+        entityView = (EntityView)adapter.getView(0, null, null);
+        assertEquals(entityColumnCount + 1, entityView.getChildCount());
+
+        clearCalloutResults();
+        assertEquals(entityColumnCount, entityView.getChildCount());
+        assertEquals(8, adapter.getCurrentCount());
+    }
+
+    private void launchEntitySelectActivity() {
         ShadowActivity shadowActivity =
                 ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m1-f0");
 
@@ -63,26 +93,25 @@ public class EntityListCalloutDataTest {
         assertTrue(intentActivityName.equals(EntitySelectActivity.class.getName()));
 
         // start the entity select activity
-        EntitySelectActivity entitySelectActivity =
-                Robolectric.buildActivity(EntitySelectActivity.class)
-                        .withIntent(entitySelectIntent)
-                        .create().start().resume().get();
+        entitySelectActivity = Robolectric.buildActivity(EntitySelectActivity.class)
+                .withIntent(entitySelectIntent).create().start().resume().get();
+    }
 
+    private void loadAdapter() {
         // wait for entities to load
+        Robolectric.flushBackgroundThreadScheduler();
+        Robolectric.flushForegroundThreadScheduler();
+        // wait for string filterer to run on ""
+        // the string filterer probably doesn't filter at this point...
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
 
         ListView entityList =
                 (ListView)entitySelectActivity.findViewById(R.id.screen_entity_select_list);
-        EntityListAdapter adapter = (EntityListAdapter)entityList.getAdapter();
-        // there should be 8 entries in the list, wait until they all show up in the adapter
-        while(adapter.getCurrentCount() != 8) {
-            System.out.println(adapter.getCurrentCount());
-        }
+        adapter = (EntityListAdapter)entityList.getAdapter();
+    }
 
-        EntityView entityView = (EntityView)entityList.getAdapter().getView(0, null, null);
-        int entityColumnCount = entityView.getChildCount();
-
+    private void performFingerprintCallout() {
         // make entity list callout to 'fingerprint identification'
         ImageButton calloutButton =
                 (ImageButton)entitySelectActivity.findViewById(R.id.barcodeButton);
@@ -94,26 +123,6 @@ public class EntityListCalloutDataTest {
         Intent responseIntent = buildIdentificationResultIntent();
         ShadowActivity shadowEntitySelect = Shadows.shadowOf(entitySelectActivity);
         shadowEntitySelect.receiveResult(calloutIntent, Activity.RESULT_OK, responseIntent);
-
-        // ensure that the entity list is filtered by the received callout result data (fingerprint identification list with confidence score)
-        assertEquals(5, adapter.getCurrentCount());
-        assertTrue(adapter.isFilteringByCalloutResult());
-        assertTrue(adapter.hasCalloutResponseData());
-
-        // ensure that entries in the entity list have extra data attached to them
-        entityView = (EntityView)entityList.getAdapter().getView(0, null, null);
-        assertEquals(entityColumnCount + 1, entityView.getChildCount());
-
-
-        // clear the callout data and make sure the extra column is removed and all the entities are shown
-        ImageButton clearSearchButton =
-                (ImageButton)entitySelectActivity.findViewById(R.id.clear_search_button);
-        clearSearchButton.performClick();
-
-        entityView = (EntityView)entityList.getAdapter().getView(0, null, null);
-        assertEquals(entityColumnCount, entityView.getChildCount());
-
-        assertEquals(8, adapter.getCurrentCount());
     }
 
     private static Intent buildIdentificationResultIntent() {
@@ -135,5 +144,14 @@ public class EntityListCalloutDataTest {
         EntityDatum selectDatum = (EntityDatum)session.getNeededDatum();
         Detail shortSelect = session.getDetail(selectDatum.getShortDetail());
         return shortSelect.getCallout();
+    }
+
+    private void clearCalloutResults() {
+        // clear the callout data and make sure the extra column is removed and all the entities are shown
+        ImageButton clearSearchButton =
+                (ImageButton)entitySelectActivity.findViewById(R.id.clear_search_button);
+        clearSearchButton.performClick();
+
+        entityView = (EntityView)adapter.getView(0, null, null);
     }
 }
