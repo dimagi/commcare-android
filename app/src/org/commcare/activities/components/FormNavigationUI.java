@@ -171,7 +171,6 @@ public class FormNavigationUI {
     }
 
     public static void animateFinishArrow(final CommCareActivity activity) {
-        View finishButton = activity.findViewById(R.id.nav_image_finish);
         final View coverView = activity.findViewById(R.id.form_entry_cover);
 
         Animation growShrinkAnimation = AnimationUtils.loadAnimation(activity, R.anim.grow_shrink);
@@ -193,7 +192,14 @@ public class FormNavigationUI {
 
             }
         });
-        finishButton.startAnimation(growShrinkAnimation);
+
+        if (DeveloperPreferences.shouldAnimateFormSubmitButton()) {
+            View finishButton = activity.findViewById(R.id.nav_image_finish);
+            finishButton.startAnimation(growShrinkAnimation);
+        } else {
+            ImageButton nextButton = (ImageButton)activity.findViewById(R.id.nav_btn_next);
+            nextButton.startAnimation(growShrinkAnimation);
+        }
     }
 
     private static void setFinishVisible(ClippingFrame finishButton) {
