@@ -557,17 +557,23 @@ public class CommCareHomeActivity
                     }
                     return;
                 case MAKE_REMOTE_POST:
+                    stepBackIfCancelled(resultCode);
+                    break;
                 case GET_REMOTE_DATA:
-                    if (resultCode == RESULT_CANCELED) {
-                        asw = CommCareApplication._().getCurrentSessionWrapper();
-                        currentSession = asw.getSession();
-                        currentSession.stepBack();
-                    }
+                    stepBackIfCancelled(resultCode);
                     break;
             }
             startNextSessionStepSafe();
         }
         super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    private static void stepBackIfCancelled(int resultCode) {
+        if (resultCode == RESULT_CANCELED) {
+            AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+            CommCareSession currentSession = asw.getSession();
+            currentSession.stepBack();
+        }
     }
 
     private void startNextSessionStepSafe() {
