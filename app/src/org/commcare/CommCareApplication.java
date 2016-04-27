@@ -72,6 +72,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.framework.Table;
 import org.commcare.models.legacy.LegacyInstallUtils;
+import org.commcare.network.ModernHttpRequester;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.provider.ProviderUtils;
@@ -108,12 +109,14 @@ import org.javarosa.core.util.PropertyUtils;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
 
@@ -1476,4 +1479,10 @@ public class CommCareApplication extends Application {
         return false;
     }
 
+    public ModernHttpRequester buildModernHttpRequester(Context context, URL url,
+                                                        Hashtable<String, String> params,
+                                                        boolean isAuthenticatedRequest,
+                                                        boolean isPostRequest) {
+        return new ModernHttpRequester(context, url, params, isAuthenticatedRequest, isPostRequest);
+    }
 }

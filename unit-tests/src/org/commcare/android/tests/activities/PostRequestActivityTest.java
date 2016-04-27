@@ -8,18 +8,21 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.activities.PostRequestActivity;
 import org.commcare.activities.QueryRequestActivity;
 import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
+import org.robolectric.shadows.ShadowToast;
 
 import java.io.InputStream;
 import java.util.Hashtable;
@@ -43,6 +46,8 @@ public class PostRequestActivityTest {
 
     @Test
     public void makeSuccessfulPostRequestTest() {
+        ModernHttpRequesterMock.setResponseCodes(new Integer[] {200});
+
         AndroidSessionWrapper sessionWrapper =
                 CommCareApplication._().getCurrentSessionWrapper();
         CommCareSession session = sessionWrapper.getSession();
@@ -62,7 +67,7 @@ public class PostRequestActivityTest {
         String intentActivityName = postActivityIntent.getComponent().getClassName();
         assertTrue(intentActivityName.equals(PostRequestActivity.class.getName()));
 
-        assertEquals("fake.com/claim_patient/", postActivityIntent.getStringExtra(PostRequestActivity.URL_KEY));
+        assertEquals("https://www.fake.com/claim_patient/", postActivityIntent.getStringExtra(PostRequestActivity.URL_KEY));
         Hashtable<String, String> postUrlParams =
                 (Hashtable<String, String>)postActivityIntent.getSerializableExtra(PostRequestActivity.PARAMS_KEY);
         assertEquals("321", postUrlParams.get("selected_case_id"));
@@ -70,6 +75,9 @@ public class PostRequestActivityTest {
         PostRequestActivity postRequestActivity =
                 Robolectric.buildActivity(PostRequestActivity.class).withIntent(postActivityIntent)
                         .create().start().resume().get();
+        Robolectric.flushBackgroundThreadScheduler();
+        Robolectric.flushForegroundThreadScheduler();
+        Assert.assertEquals("claim successful", ShadowToast.getTextOfLatestToast());
 
         /*
         ShadowActivity shadowFormEntryActivity = navigateFormEntry(formEntryIntent);

@@ -35,22 +35,24 @@ import java.util.Map;
 public class ModernHttpRequester {
     private final boolean isPostRequest;
     private final Context context;
-    private final HttpResponseProcessor responseProcessor;
-    private final URL url;
+    private HttpResponseProcessor responseProcessor;
+    protected final URL url;
     private final Hashtable<String, String> params;
 
     public ModernHttpRequester(Context context, URL url,
-                               HttpResponseProcessor responseProcessor,
                                Hashtable<String, String> params,
                                boolean isAuthenticatedRequest,
                                boolean isPostRequest) {
         this.isPostRequest = isPostRequest;
         this.context = context;
-        this.responseProcessor = responseProcessor;
         this.params = params;
         this.url = url;
 
         setupAuthentication(isAuthenticatedRequest);
+    }
+
+    public void setResponseProcessor(HttpResponseProcessor responseProcessor) {
+        this.responseProcessor = responseProcessor;
     }
 
     private void setupAuthentication(boolean isAuth) {
@@ -104,7 +106,7 @@ public class ModernHttpRequester {
         }
     }
 
-    private HttpURLConnection setupConnection() throws IOException {
+    protected HttpURLConnection setupConnection() throws IOException {
         HttpURLConnection httpConnection;
         if (isPostRequest) {
             httpConnection = (HttpURLConnection)url.openConnection();

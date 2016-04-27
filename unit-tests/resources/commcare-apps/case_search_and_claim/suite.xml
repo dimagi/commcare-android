@@ -317,7 +317,7 @@
   </entry>
 
   <sync-request>
-    <post url="fake.com/claim_patient/">
+    <post url="https://www.fake.com/claim_patient/">
       <data key="selected_case_id" ref="instance('session')/session/data/case_id"/>
     </post>
     <command id="patient-search">
@@ -327,7 +327,7 @@
     </command>
     <instance id="session" src="jr://instance/session"/>
     <session>
-      <query url="fake.com/patient_search/" storage-instance="patients">
+      <query url="https://www.fake.com/patient_search/" storage-instance="patients">
         <data key="device_id" ref="instance('session')/session/context/deviceid"/>
         <prompt key="name">
           <display>

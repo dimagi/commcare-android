@@ -2,6 +2,7 @@ package org.commcare.tasks;
 
 import android.content.Context;
 
+import org.commcare.CommCareApplication;
 import org.commcare.interfaces.HttpResponseProcessor;
 import org.commcare.network.ModernHttpRequester;
 import org.commcare.tasks.templates.CommCareTask;
@@ -31,8 +32,9 @@ public class SimpleHttpTask
                           Hashtable<String, String> params,
                           boolean isPostRequest) {
         taskId = SIMPLE_HTTP_TASK_ID;
-        requestor = new ModernHttpRequester(context, url, this,
+        requestor = CommCareApplication._().buildModernHttpRequester(context, url,
                 params, true, isPostRequest);
+        requestor.setResponseProcessor(this);
     }
 
     @Override

@@ -1,17 +1,27 @@
 package org.commcare;
 
+import android.content.Context;
+
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
+import org.commcare.network.ModernHttpRequester;
 import org.commcare.services.CommCareSessionService;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 import org.junit.Assert;
 
+import java.net.URL;
+import java.util.Hashtable;
+
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class CommCareTestApplication extends CommCareApplication {
+
+    private String cachedUserPassword;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -46,7 +56,9 @@ public class CommCareTestApplication extends CommCareApplication {
         CommCareSessionService ccService = new CommCareSessionService();
         ccService.createCipherPool();
         ccService.prepareStorage(symetricKey, record);
-        ccService.startSession(getUserFromDb(ccService, record), record);
+        User user = getUserFromDb(ccService, record);
+        user.setCachedPwd(cachedUserPassword);
+        ccService.startSession(user, record);
 
         CommCareApplication._().setTestingService(ccService);
     }
@@ -57,6 +69,20 @@ public class CommCareTestApplication extends CommCareApplication {
                 return u;
             }
         }
-        return null;
+        throw new RuntimeException("Couldn't find '"
+                + keyRecord.getUsername()
+                + "' user in test database");
+    }
+
+    public void setCachedUserPassword(String password) {
+        cachedUserPassword = password;
+    }
+
+    @Override
+    public ModernHttpRequester buildModernHttpRequester(Context context, URL url,
+                                                        Hashtable<String, String> params,
+                                                        boolean isAuthenticatedRequest,
+                                                        boolean isPostRequest) {
+        return new ModernHttpRequesterMock(context, url, params, isAuthenticatedRequest, isPostRequest);
     }
 }

@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
@@ -82,7 +83,8 @@ public class PostRequestActivity
     private void loadStateFromIntent(Intent intent) {
         if (intent.hasExtra(URL_KEY) && intent.hasExtra(PARAMS_KEY)) {
             try {
-                url = new URL(intent.getStringExtra(URL_KEY));
+                String urlString = intent.getStringExtra(URL_KEY);
+                url = new URL(urlString);
             } catch (MalformedURLException e) {
                 inErrorState = true;
             }
@@ -176,7 +178,8 @@ public class PostRequestActivity
 
     @Override
     public void processSuccess(int responseCode, InputStream responseData) {
-        performSync();
+        Toast.makeText(this, "claim successful", Toast.LENGTH_LONG).show();
+        //performSync();
     }
 
     @Override
