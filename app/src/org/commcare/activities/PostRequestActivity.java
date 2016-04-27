@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.interfaces.ConnectorWithResultCallback;
@@ -86,13 +85,11 @@ public class PostRequestActivity
             try {
                 url = new URL(urlString);
             } catch (MalformedURLException e) {
-                inErrorState = true;
-                errorMessage = Localization.get("post.malformed.url", urlString);
+                enterErrorState(Localization.get("post.malformed.url", urlString));
             }
             params = (Hashtable<String, String>)intent.getSerializableExtra(PARAMS_KEY);
         } else {
-            inErrorState = true;
-            errorMessage = Localization.get("post.generic.error");
+            enterErrorState(Localization.get("post.generic.error"));
         }
     }
 

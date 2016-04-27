@@ -17,6 +17,7 @@ import org.commcare.dalvik.R;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.interfaces.HttpResponseProcessor;
 import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.network.ModernHttpRequester;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.DisplayData;
 import org.commcare.suite.model.DisplayUnit;
@@ -130,15 +131,21 @@ public class QueryRequestActivity
         errorMessage = "";
         inErrorState = false;
         URL url = null;
+        String urlString = remoteQuerySessionManager.getBaseUrl();
         try {
-            url = new URL(remoteQuerySessionManager.getBaseUrl());
+            url = new URL(urlString);
         } catch (MalformedURLException e) {
-            enterErrorState(e.getMessage());
+            enterErrorState(Localization.get("post.malformed.url", urlString));
         }
 
         if (url != null) {
-            SimpleHttpTask httpTask =
-                    new SimpleHttpTask(this, url, remoteQuerySessionManager.getRawQueryParams(), false);
+            SimpleHttpTask httpTask;
+            try {
+                httpTask = new SimpleHttpTask(this, url, remoteQuerySessionManager.getRawQueryParams(), false);
+            } catch (ModernHttpRequester.PlainTextPasswordException e) {
+                enterErrorState(Localization.get("post.not.using.https", url.toString()));
+                return;
+            }
             httpTask.connect((ConnectorWithHttpResponseProcessor)this);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                 httpTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
@@ -216,7 +223,7 @@ public class QueryRequestActivity
                 buildExternalDataInstance(responseData,
                         remoteQuerySessionManager.getStorageInstanceName());
         if (instanceOrError.first == null) {
-            enterErrorState(instanceOrError.second);
+            enterErrorState(Localization.get("query.response.format.error", instanceOrError.second));
         } else {
             CommCareApplication._().getCurrentSession().setQueryDatum(instanceOrError.first);
             setResult(RESULT_OK);
@@ -237,27 +244,27 @@ public class QueryRequestActivity
 
     @Override
     public void processRedirection(int responseCode) {
-        enterErrorState(responseCode + "");
+        enterErrorState(Localization.get("post.redirection.error", responseCode + ""));
     }
 
     @Override
     public void processClientError(int responseCode) {
-        enterErrorState(responseCode + "");
+        enterErrorState(Localization.get("post.client.error", responseCode + ""));
     }
 
     @Override
     public void processServerError(int responseCode) {
-        enterErrorState(responseCode + "");
+        enterErrorState(Localization.get("post.server.error", responseCode + ""));
     }
 
     @Override
     public void processOther(int responseCode) {
-        enterErrorState(responseCode + "");
+        enterErrorState(Localization.get("post.unknown.response", responseCode + ""));
     }
 
     @Override
     public void handleIOException(IOException exception) {
-        enterErrorState(exception.getMessage());
+        enterErrorState(Localization.get("post.io.error", exception.getMessage()));
     }
 
     @Override
@@ -265,8 +272,8 @@ public class QueryRequestActivity
         String title, message;
         switch (taskId) {
             case 1:
-                title = Localization.get("sync.progress.title");
-                message = Localization.get("sync.progress.purge");
+                title = Localization.get("query.dialog.title");
+                message = Localization.get("query.dialog.body");
                 break;
             default:
                 Log.w(TAG, "taskId passed to generateProgressDialog does not match "

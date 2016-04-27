@@ -162,6 +162,9 @@ login.update.install.success=App update successfully applied!
 login.update.install.failure=App update failed to apply!
 
 query.button=Query
+query.dialog.title=Querying Server
+query.dialog.body=Searching server for relevant data
+query.response.format.error=Error processing server response: ${0}
 post.request.button=Claim
 post.malformed.url=${0} is not a valid URL
 post.generic.error=An error occurred while preparing the HTTP request
