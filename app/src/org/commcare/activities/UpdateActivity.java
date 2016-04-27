@@ -31,7 +31,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         implements TaskListener<Integer, AppInstallStatus>, WithUIController {
 
     public static final String KEY_PROCEED_AUTOMATICALLY = "proceed-automatically-with-update";
-
+    public static final String KEY_LOCAL_UPDATE = "is-local-update";
 
     private static final String TAG = UpdateActivity.class.getSimpleName();
     private static final String TASK_CANCELLING_KEY = "update_task_cancelling";
@@ -223,6 +223,9 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         try {
             updateTask = UpdateTask.getNewInstance();
             updateTask.startPinnedNotification(this);
+            if (getIntent().getBooleanExtra(KEY_LOCAL_UPDATE, false)) {
+                updateTask.setAsLocalUpdate();
+            }
             updateTask.registerTaskListener(this);
         } catch (IllegalStateException e) {
             connectToRunningTask();

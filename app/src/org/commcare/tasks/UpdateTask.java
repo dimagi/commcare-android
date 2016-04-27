@@ -46,6 +46,7 @@ public class UpdateTask
     private boolean taskWasCancelledByUser = false;
     private int currentProgress = 0;
     private int maxProgress = 0;
+    boolean isLocalUpdate;
 
     private UpdateTask() {
         TAG = UpdateTask.class.getSimpleName();
@@ -135,7 +136,8 @@ public class UpdateTask
         String profileRefWithParams =
                 ResourceInstallUtils.addParamsToProfileReference(profileRef);
 
-        return resourceManager.checkAndPrepareUpgradeResources(profileRefWithParams);
+        int authority = isLocalUpdate ? Resource.RESOURCE_AUTHORITY_LOCAL : Resource.RESOURCE_AUTHORITY_REMOTE;
+        return resourceManager.checkAndPrepareUpgradeResources(profileRefWithParams, authority);
     }
 
     @Override
@@ -236,6 +238,10 @@ public class UpdateTask
         wasTriggeredByAutoUpdate = true;
     }
 
+    public void setAsLocalUpdate() {
+        isLocalUpdate = true;
+    }
+
     /**
      * Record that task cancellation was triggered by user, not the app logging
      * out. Useful for knowing if an auto-update should resume or not upon next
@@ -244,4 +250,6 @@ public class UpdateTask
     public void cancelWasUserTriggered() {
         taskWasCancelledByUser = true;
     }
+
+
 }

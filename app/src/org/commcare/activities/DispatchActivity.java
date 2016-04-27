@@ -13,7 +13,6 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.suite.model.Profile;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.AlertDialogFactory;
@@ -110,9 +109,10 @@ public class DispatchActivity extends FragmentActivity {
         outState.putBoolean(EXTRA_CONSUMED_KEY, shortcutExtraWasConsumed);
     }
 
-    private void checkForUpdateToAppFiles() {
+    private void checkForChangedAppFiles() {
         Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
         i.putExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, true);
+        i.putExtra(UpdateActivity.KEY_LOCAL_UPDATE, true);
         startActivity(i);
     }
 
@@ -123,7 +123,7 @@ public class DispatchActivity extends FragmentActivity {
         }
 
         if (shouldCheckForLocalAppFilesChange) {
-            checkForUpdateToAppFiles();
+            checkForChangedAppFiles();
             shouldCheckForLocalAppFilesChange = false;
         }
 
