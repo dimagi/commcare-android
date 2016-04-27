@@ -17,11 +17,14 @@ import org.javarosa.core.model.instance.ExternalDataInstance;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
 import java.io.InputStream;
+import java.util.Hashtable;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -56,9 +59,17 @@ public class PostRequestActivityTest {
 
         Intent postActivityIntent = shadowActivity.getNextStartedActivity();
 
-        // make sure the form entry activity should be launched
         String intentActivityName = postActivityIntent.getComponent().getClassName();
         assertTrue(intentActivityName.equals(PostRequestActivity.class.getName()));
+
+        assertEquals("fake.com/claim_patient/", postActivityIntent.getStringExtra(PostRequestActivity.URL_KEY));
+        Hashtable<String, String> postUrlParams =
+                (Hashtable<String, String>)postActivityIntent.getSerializableExtra(PostRequestActivity.PARAMS_KEY);
+        assertEquals("321", postUrlParams.get("selected_case_id"));
+
+        PostRequestActivity postRequestActivity =
+                Robolectric.buildActivity(PostRequestActivity.class).withIntent(postActivityIntent)
+                        .create().start().resume().get();
 
         /*
         ShadowActivity shadowFormEntryActivity = navigateFormEntry(formEntryIntent);
