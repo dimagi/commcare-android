@@ -11,6 +11,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.interfaces.ConnectorWithResultCallback;
+import org.commcare.network.ModernHttpRequester;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.SimpleHttpTask;
 import org.commcare.views.ManagedUi;
@@ -81,15 +82,17 @@ public class PostRequestActivity
 
     private void loadStateFromIntent(Intent intent) {
         if (intent.hasExtra(URL_KEY) && intent.hasExtra(PARAMS_KEY)) {
+            String urlString = intent.getStringExtra(URL_KEY);
             try {
-                String urlString = intent.getStringExtra(URL_KEY);
                 url = new URL(urlString);
             } catch (MalformedURLException e) {
                 inErrorState = true;
+                errorMessage = Localization.get("post.malformed.url", urlString);
             }
             params = (Hashtable<String, String>)intent.getSerializableExtra(PARAMS_KEY);
         } else {
             inErrorState = true;
+            errorMessage = Localization.get("post.generic.error");
         }
     }
 
@@ -109,15 +112,19 @@ public class PostRequestActivity
     }
 
     private void performSync() {
-        Log.d(TAG, "perform sync");
-
         FormAndDataSyncer formAndDataSyncer = new FormAndDataSyncer();
         formAndDataSyncer.syncData(this, this, false, false);
     }
 
     private void makePostRequest() {
         if (!hasTaskLaunched && !inErrorState) {
-            SimpleHttpTask syncTask = new SimpleHttpTask(this, url, params, true);
+            SimpleHttpTask syncTask;
+            try {
+                syncTask = new SimpleHttpTask(this, url, params, true);
+            } catch (ModernHttpRequester.PlainTextPasswordException e) {
+                enterErrorState(Localization.get("post.not.using.https", url.toString()));
+                return;
+            }
             syncTask.connect((ConnectorWithHttpResponseProcessor)this);
             syncTask.executeParallel();
             hasTaskLaunched = true;
@@ -155,24 +162,13 @@ public class PostRequestActivity
 
     @Override
     public void reportSuccess(String message) {
-        Log.d(TAG, "sync successful");
-        Log.d(TAG, message);
-
-        CommCareApplication._().getCurrentSessionWrapper().terminateSession();
-
         setResult(RESULT_OK);
         finish();
     }
 
     @Override
     public void reportFailure(String message, boolean showPopupNotification) {
-        Log.d(TAG, "sync failed");
-        if (showPopupNotification) {
-            Log.d(TAG, "BAD: " + message);
-        } else {
-            Log.d(TAG, "BAD NO TOAST: " + message);
-        }
-        enterErrorState("sync failed");
+        enterErrorState(Localization.get("post.sync.failed"));
     }
 
     @Override
@@ -182,27 +178,27 @@ public class PostRequestActivity
 
     @Override
     public void processRedirection(int responseCode) {
-        enterErrorState(responseCode + "");
+        enterErrorState(Localization.get("post.redirection.error", responseCode + ""));
     }
 
     @Override
     public void processClientError(int responseCode) {
-        enterErrorState(responseCode + "");
+        enterErrorState(Localization.get("post.client.error", responseCode + ""));
     }
 
     @Override
     public void processServerError(int responseCode) {
-        enterErrorState(responseCode + "");
+        enterErrorState(Localization.get("post.server.error", responseCode + ""));
     }
 
     @Override
     public void processOther(int responseCode) {
-        enterErrorState(responseCode + "");
+        enterErrorState(Localization.get("post.unknown.response", responseCode + ""));
     }
 
     @Override
     public void handleIOException(IOException exception) {
-        enterErrorState(exception.getMessage());
+        enterErrorState(Localization.get("post.io.error", exception.getMessage()));
     }
 
     @Override
@@ -221,8 +217,8 @@ public class PostRequestActivity
                 message = Localization.get("sync.progress.purge");
                 break;
             case SimpleHttpTask.SIMPLE_HTTP_TASK_ID:
-                title = "sending post";
-                message = "sending post";
+                title = Localization.get("post.dialog.title");
+                message = Localization.get("post.dialog.body");
                 break;
             default:
                 Log.w(TAG, "taskId passed to generateProgressDialog does not match "
@@ -231,5 +227,4 @@ public class PostRequestActivity
         }
         return CustomProgressDialog.newInstance(title, message, taskId);
     }
-
 }

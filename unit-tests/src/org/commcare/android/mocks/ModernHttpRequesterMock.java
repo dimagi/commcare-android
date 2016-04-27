@@ -17,6 +17,7 @@ import java.util.List;
  */
 public class ModernHttpRequesterMock extends ModernHttpRequester {
     private static final List<Integer> responseCodeStack = new ArrayList<>();
+    private static boolean shouldNextRequestThrowIOStream = false;
 
     public ModernHttpRequesterMock(Context context, URL url,
                                    Hashtable<String, String> params,
@@ -33,9 +34,18 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
         Collections.addAll(responseCodeStack, responseCodes);
     }
 
+    public static void makeNextRequestThrowIOException() {
+        shouldNextRequestThrowIOStream = true;
+    }
+
     @Override
     protected HttpURLConnection setupConnection() throws IOException {
-        return new HttpURLConnectionMock(url, responseCodeStack.remove(0));
+        if (shouldNextRequestThrowIOStream) {
+            shouldNextRequestThrowIOStream = false;
+            return new HttpURLConnectionMock(url, responseCodeStack.remove(0), true);
+        } else {
+            return new HttpURLConnectionMock(url, responseCodeStack.remove(0), false);
+        }
     }
 }
 

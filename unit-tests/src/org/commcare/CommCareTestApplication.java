@@ -59,7 +59,9 @@ public class CommCareTestApplication extends CommCareApplication {
         ccService.createCipherPool();
         ccService.prepareStorage(symetricKey, record);
         User user = getUserFromDb(ccService, record);
-        user.setCachedPwd(cachedUserPassword);
+        if (user != null) {
+            user.setCachedPwd(cachedUserPassword);
+        }
         ccService.startSession(user, record);
 
         CommCareApplication._().setTestingService(ccService);
@@ -71,9 +73,7 @@ public class CommCareTestApplication extends CommCareApplication {
                 return u;
             }
         }
-        throw new RuntimeException("Couldn't find '"
-                + keyRecord.getUsername()
-                + "' user in test database");
+        return null;
     }
 
     public void setCachedUserPassword(String password) {

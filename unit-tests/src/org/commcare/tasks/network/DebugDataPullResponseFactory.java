@@ -21,10 +21,11 @@ public enum DebugDataPullResponseFactory implements DataPullRequester {
     INSTANCE;
 
     // data pull requests will pop off and use the top reference in this list
-    private static final List<String> xmlPayloadReferences = new ArrayList<>();
+    private final List<String> xmlPayloadReferences = new ArrayList<>();
 
     public static void setRequestPayloads(String[] payloadReferences) {
-        Collections.addAll(xmlPayloadReferences, payloadReferences);
+        INSTANCE.xmlPayloadReferences.clear();
+        Collections.addAll(INSTANCE.xmlPayloadReferences, payloadReferences);
     }
 
     @Override

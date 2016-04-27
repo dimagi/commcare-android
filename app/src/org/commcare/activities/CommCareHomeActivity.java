@@ -558,6 +558,9 @@ public class CommCareHomeActivity
                     return;
                 case MAKE_REMOTE_POST:
                     stepBackIfCancelled(resultCode);
+                    if (resultCode == RESULT_OK) {
+                        CommCareApplication._().getCurrentSessionWrapper().terminateSession();
+                    }
                     break;
                 case GET_REMOTE_DATA:
                     stepBackIfCancelled(resultCode);

@@ -11,10 +11,17 @@ import java.net.URL;
  */
 public class HttpURLConnectionMock extends HttpURLConnection {
     private final int responseCode;
+    private final InputStream inputStream;
+    public final static String ioErrorMessage = "uhh ohh, io error oh";
 
-    public HttpURLConnectionMock(URL url, int responseCode) {
+    public HttpURLConnectionMock(URL url, int responseCode, boolean shouldStreamThrow) {
         super(url);
         this.responseCode = responseCode;
+        if (shouldStreamThrow) {
+            this.inputStream = null;
+        } else {
+            this.inputStream = new ByteArrayInputStream("".getBytes());
+        }
     }
 
     @Override
@@ -39,6 +46,10 @@ public class HttpURLConnectionMock extends HttpURLConnection {
 
     @Override
     public InputStream getInputStream() throws IOException {
-        return new ByteArrayInputStream("".getBytes());
+        if (inputStream == null) {
+            throw new IOException(ioErrorMessage);
+        } else {
+            return inputStream;
+        }
     }
 }

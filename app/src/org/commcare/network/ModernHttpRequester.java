@@ -65,7 +65,7 @@ public class ModernHttpRequester {
                         "Trying to make authenticated http request without proper credentials";
                 throw new RuntimeException(message);
             } else if (!"https".equals(url.getProtocol())) {
-                throw new RuntimeException("Don't transmit credentials in plain text");
+                throw new PlainTextPasswordException();
             } else {
                 // make authenticated requests
                 Authenticator.setDefault(new Authenticator() {
@@ -81,6 +81,9 @@ public class ModernHttpRequester {
             // clear any prior set authenticator to make unauthed requests
             Authenticator.setDefault(null);
         }
+    }
+
+    public static class PlainTextPasswordException extends RuntimeException {
     }
 
     private static User getCurrentUser() {
