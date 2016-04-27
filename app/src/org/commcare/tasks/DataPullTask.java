@@ -25,7 +25,6 @@ import org.commcare.models.encryption.CryptUtil;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
-import org.commcare.network.HttpRequestGenerator;
 import org.commcare.network.RemoteDataPullResponse;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.services.CommCareSessionService;
@@ -94,7 +93,7 @@ public abstract class DataPullTask<R>
         this.password = password;
         this.context = context;
         this.taskId = DATA_PULL_TASK_ID;
-        this.dataPullRequester = new DataPullResponseFactory();
+        this.dataPullRequester = CommCareApplication._().getDataPullRequester();
         this.restoreSession = restoreOldSession;
 
         TAG = DataPullTask.class.getSimpleName();

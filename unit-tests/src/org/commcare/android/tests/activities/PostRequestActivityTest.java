@@ -8,21 +8,21 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.activities.PostRequestActivity;
 import org.commcare.activities.QueryRequestActivity;
 import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.mocks.HttpRequestEndpointsMock;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.session.CommCareSession;
+import org.commcare.tasks.network.DebugDataPullResponseFactory;
 import org.javarosa.core.model.instance.ExternalDataInstance;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
-import org.robolectric.shadows.ShadowToast;
 
 import java.io.InputStream;
 import java.util.Hashtable;
@@ -46,7 +46,9 @@ public class PostRequestActivityTest {
 
     @Test
     public void makeSuccessfulPostRequestTest() {
-        ModernHttpRequesterMock.setResponseCodes(new Integer[] {200});
+        ModernHttpRequesterMock.setResponseCodes(new Integer[]{200});
+        HttpRequestEndpointsMock.setCaseFetchResponseCodes(new Integer[]{200});
+        DebugDataPullResponseFactory.setRequestPayloads(new String[]{"jr://resource/commcare-apps/case_search_and_claim/empty_restore.xml"});
 
         AndroidSessionWrapper sessionWrapper =
                 CommCareApplication._().getCurrentSessionWrapper();
@@ -77,16 +79,6 @@ public class PostRequestActivityTest {
                         .create().start().resume().get();
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
-        Assert.assertEquals("claim successful", ShadowToast.getTextOfLatestToast());
-
-        /*
-        ShadowActivity shadowFormEntryActivity = navigateFormEntry(formEntryIntent);
-
-        // trigger CommCareHomeActivity.onActivityResult for the completion of
-        // FormEntryActivity
-        shadowActivity.receiveResult(formEntryIntent,
-                shadowFormEntryActivity.getResultCode(),
-                shadowFormEntryActivity.getResultIntent());
-        */
+        assertTrue(postRequestActivity.isFinishing());
     }
 }

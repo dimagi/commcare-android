@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
@@ -178,8 +177,7 @@ public class PostRequestActivity
 
     @Override
     public void processSuccess(int responseCode, InputStream responseData) {
-        Toast.makeText(this, "claim successful", Toast.LENGTH_LONG).show();
-        //performSync();
+        performSync();
     }
 
     @Override

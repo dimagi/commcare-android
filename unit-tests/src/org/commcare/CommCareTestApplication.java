@@ -6,8 +6,10 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
+import org.commcare.network.DataPullRequester;
 import org.commcare.network.ModernHttpRequester;
 import org.commcare.services.CommCareSessionService;
+import org.commcare.tasks.network.DebugDataPullResponseFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 import org.junit.Assert;
@@ -84,5 +86,10 @@ public class CommCareTestApplication extends CommCareApplication {
                                                         boolean isAuthenticatedRequest,
                                                         boolean isPostRequest) {
         return new ModernHttpRequesterMock(context, url, params, isAuthenticatedRequest, isPostRequest);
+    }
+
+    @Override
+    public DataPullRequester getDataPullRequester(){
+        return DebugDataPullResponseFactory.INSTANCE;
     }
 }
