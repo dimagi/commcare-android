@@ -1,8 +1,6 @@
 package org.commcare.activities;
 
 import android.content.Intent;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -120,11 +118,7 @@ public class PostRequestActivity
         if (!hasTaskLaunched && !inErrorState) {
             SimpleHttpTask syncTask = new SimpleHttpTask(this, url, params, true);
             syncTask.connect((ConnectorWithHttpResponseProcessor)this);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                syncTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            } else {
-                syncTask.execute();
-            }
+            syncTask.executeParallel();
             hasTaskLaunched = true;
         }
     }

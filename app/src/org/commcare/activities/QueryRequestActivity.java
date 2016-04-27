@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -211,19 +212,27 @@ public class QueryRequestActivity
 
     @Override
     public void processSuccess(int responseCode, InputStream responseData) {
-        TreeElement root = null;
-        String instanceId = "patients";
+        Pair<ExternalDataInstance, String> instanceOrError =
+                buildExternalDataInstance(responseData,
+                        remoteQuerySessionManager.getStorageInstanceName());
+        if (instanceOrError.first == null) {
+            enterErrorState(instanceOrError.second);
+        } else {
+            CommCareApplication._().getCurrentSession().setQueryDatum(instanceOrError.first);
+            setResult(RESULT_OK);
+            finish();
+        }
+    }
+
+    public static Pair<ExternalDataInstance, String> buildExternalDataInstance(InputStream instanceStream, String instanceId) {
+        TreeElement root;
         try {
-            //InputStream is = getAssets().open("patients.xml");
-            root = new TreeElementParser(ElementParser.instantiateParser(responseData), 0, instanceId).parse();
+            root = new TreeElementParser(ElementParser.instantiateParser(instanceStream), 0, instanceId).parse();
         } catch (InvalidStructureException | IOException
                 | XmlPullParserException | UnfullfilledRequirementsException e) {
-
+            return new Pair<>(null, e.getMessage());
         }
-        ExternalDataInstance instance = ExternalDataInstance.buildFromRemote(instanceId, root);
-        CommCareApplication._().getCurrentSession().setQueryDatum(instance);
-        setResult(RESULT_OK);
-        finish();
+        return new Pair<>(ExternalDataInstance.buildFromRemote(instanceId, root), "");
     }
 
     @Override

@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="16" descriptor="Media Suite File">
+  <media path="../../commcare/audio">
+    <resource descriptor="Audio File: module1_case_list_form_en.mp3" id="media-5b991d8e6443605d8c5f7f8945ab8300-module1_case_list_form_en.mp3" version="16">
+      <location authority="local">./commcare/audio/module1_case_list_form_en.mp3</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareAudio/76c8d737b019994fbe1671b77a1a38da/module1_case_list_form_en.mp3</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module1_case_list_form_en.png" id="media-3b29a1b3196b16bbe035f27e8e6f7376-module1_case_list_form_en.png" version="16">
+      <location authority="local">./commcare/image/module1_case_list_form_en.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/7d5a3b625fb43cb0af98f6a635ac245b/module1_case_list_form_en.png</location>
+    </resource>
+  </media>
+  <media path="../../commcare/audio">
+    <resource descriptor="Audio File: module1b_case_list_form_en.mp3" id="media-5b991d8e6443605d8c5f7f8945ab8300-module1b_case_list_form_en.mp3" version="16">
+      <location authority="local">./commcare/audio/module1b_case_list_form_en.mp3</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareAudio/76c8d737b019994fbe1671b77a1a38da/module1b_case_list_form_en.mp3</location>
+    </resource>
+  </media>
+  <media path="../../commcare/image">
+    <resource descriptor="Image File: module1b_case_list_form_en.png" id="media-3b29a1b3196b16bbe035f27e8e6f7376-module1b_case_list_form_en.png" version="16">
+      <location authority="local">./commcare/image/module1b_case_list_form_en.png</location>
+      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/7d5a3b625fb43cb0af98f6a635ac245b/module1b_case_list_form_en.png</location>
+    </resource>
+  </media>
+</suite>

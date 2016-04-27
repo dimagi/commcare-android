@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<profile version="16"
+         update="https://www.commcarehq.org/a/flipper/apps/download/0983304cd2c0760178fed759e3a7dcf9/media_profile.ccpr?latest=true"
+         requiredMajor="2"
+         requiredMinor="25"
+         uniqueid="84375d17b8dea25cb111b0fedf083511"
+         name="village-health2"
+         descriptor="Profile File">
+    <property key="BackupMode" value="file_mode"/>
+    <property key="backup-url" value="file:///E:/CommCare.Backup"/>
+    <property key="restore-url" value="file:///E:/CommCare.Backup"/>
+    <property key="ota-restore-url" value="https://www.commcarehq.org/a/flipper/phone/restore/"/>
+    <property key="ota-restore-url-testing" value="https://www.commcarehq.org/a/flipper/phone/restore/"/>
+    <property key="PostURL" value="https://www.commcarehq.org/a/flipper/receiver/secure/0983304cd2c0760178fed759e3a7dcf9/" force="true"/>
+    <property key="PostTestURL" value="https://www.commcarehq.org/a/flipper/receiver/secure/0983304cd2c0760178fed759e3a7dcf9/" force="true"/>
+    <property key="key_server" value="https://www.commcarehq.org/a/flipper/phone/keys/"/>
+    <property key="cur_locale" value="en"/>
+    <property key="cc_user_domain" value="flipper.commcarehq.org"/>
+    <property key="jr_openrosa_api" value="1.0"/>
+
+    <!-- Properties configured on CommCare HQ 1.0 -->
+    
+        <property key="cc-days-form-retain" value="-1" force="true"/>
+    
+        <property key="cc-show-saved" value="yes" force="true"/>
+    
+        <property key="restore-tolerance" value="loose"/>
+    
+        <property key="cc-user-mode" value="cc-u-normal"/>
+    
+        <property key="cc-fuzzy-search-enabled" value="yes"/>
+    
+        <property key="cc-autoup-freq" value="freq-never"/>
+    
+        <property key="purge-freq" value="0"/>
+    
+        <property key="server-tether" value="push-only"/>
+    
+        <property key="user_reg_server" value="required"/>
+    
+        <property key="extra_key_action" value="audio"/>
+    
+        <property key="log_prop_daily" value="log_never"/>
+    
+        <property key="ViewStyle" value="v_chatterbox"/>
+    
+        <property key="cc-login-duration-seconds" value="86400"/>
+    
+        <property key="cc-resize-images" value="none" force="true"/>
+    
+        <property key="cc-entry-mode" value="cc-entry-quick"/>
+    
+        <property key="cc-send-procedure" value="cc-send-http"/>
+    
+        <property key="cc-login-images" value="No"/>
+    
+        <property key="log_prop_weekly" value="log_short"/>
+    
+        <property key="cc-show-incomplete" value="yes" force="true"/>
+    
+        <property key="cc-send-unsent" value="cc-su-auto" force="true"/>
+    
+        <property key="loose_media" value="no"/>
+    
+        <property key="password_format" value="n"/>
+    
+        <property key="unsent-number-limit" value="5"/>
+    
+        <property key="cc-content-valid" value="no"/>
+    
+        <property key="logenabled" value="Enabled"/>
+    
+
+    <!-- end -->
+
+    
+
+    <features>
+        <checkoff active="true"/>
+        <reminders active="false">
+            <time>0</time>
+        </reminders>
+        <package active="false"/>
+        
+            <sense active="false" />
+        
+        <users active="true">
+            
+        </users>
+    </features>
+
+    <suite><resource id="suite" version="16">
+        
+            <location authority="local">./suite.xml</location>
+        
+        <location authority="remote">https://www.commcarehq.org/a/flipper/apps/download/0983304cd2c0760178fed759e3a7dcf9/suite.xml</location>
+    </resource></suite>
+    
+    <suite><resource id="media-suite" version="16">
+        
+            <location authority="local">./media_suite.xml</location>
+        
+        <location authority="remote">https://www.commcarehq.org/a/flipper/apps/download/0983304cd2c0760178fed759e3a7dcf9/media_suite.xml</location>
+    </resource></suite>
+    
+</profile>
