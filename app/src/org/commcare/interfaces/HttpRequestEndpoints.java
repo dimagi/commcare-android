@@ -22,4 +22,6 @@ public interface HttpRequestEndpoints {
     HttpResponse postData(String url, MultipartEntity entity) throws ClientProtocolException, IOException;
 
     InputStream simpleGet(URL url) throws IOException;
+
+    void abortCurrentRequest();
 }
