@@ -1,8 +1,6 @@
 package org.commcare.activities;
 
 import android.graphics.Color;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.util.Pair;
 import android.util.Log;
@@ -14,7 +12,6 @@ import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.interfaces.HttpResponseProcessor;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.network.ModernHttpRequester;
@@ -24,6 +21,7 @@ import org.commcare.suite.model.DisplayUnit;
 import org.commcare.suite.model.RemoteQueryDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.tasks.SimpleHttpTask;
+import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -55,7 +53,7 @@ import java.util.Map;
  */
 @ManagedUi(R.layout.http_request_layout)
 public class QueryRequestActivity
-        extends CommCareActivity<QueryRequestActivity>
+        extends SessionAwareCommCareActivity<QueryRequestActivity>
         implements HttpResponseProcessor {
     private static final String TAG = QueryRequestActivity.class.getSimpleName();
 
@@ -146,12 +144,8 @@ public class QueryRequestActivity
                 enterErrorState(Localization.get("post.not.using.https", url.toString()));
                 return;
             }
-            httpTask.connect((ConnectorWithHttpResponseProcessor)this);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                httpTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-            } else {
-                httpTask.execute();
-            }
+            httpTask.connect((CommCareTaskConnector)this);
+            httpTask.executeParallel();
         }
     }
 
@@ -271,7 +265,7 @@ public class QueryRequestActivity
     public CustomProgressDialog generateProgressDialog(int taskId) {
         String title, message;
         switch (taskId) {
-            case 1:
+            case SimpleHttpTask.SIMPLE_HTTP_TASK_ID:
                 title = Localization.get("query.dialog.title");
                 message = Localization.get("query.dialog.body");
                 break;

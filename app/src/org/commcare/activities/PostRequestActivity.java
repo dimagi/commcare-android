@@ -13,6 +13,7 @@ import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.network.ModernHttpRequester;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.SimpleHttpTask;
+import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -33,7 +34,7 @@ import java.util.Hashtable;
  */
 @ManagedUi(R.layout.http_request_layout)
 public class PostRequestActivity
-        extends CommCareActivity<PostRequestActivity>
+        extends SessionAwareCommCareActivity<PostRequestActivity>
         implements ConnectorWithHttpResponseProcessor<PostRequestActivity>,
         ConnectorWithResultCallback<PostRequestActivity> {
     private static final String TAG = PostRequestActivity.class.getSimpleName();
@@ -115,15 +116,15 @@ public class PostRequestActivity
 
     private void makePostRequest() {
         if (!hasTaskLaunched && !inErrorState) {
-            SimpleHttpTask syncTask;
+            SimpleHttpTask postTask;
             try {
-                syncTask = new SimpleHttpTask(this, url, params, true);
+                postTask = new SimpleHttpTask(this, url, params, true);
             } catch (ModernHttpRequester.PlainTextPasswordException e) {
                 enterErrorState(Localization.get("post.not.using.https", url.toString()));
                 return;
             }
-            syncTask.connect((ConnectorWithHttpResponseProcessor)this);
-            syncTask.executeParallel();
+            postTask.connect((CommCareTaskConnector)this);
+            postTask.executeParallel();
             hasTaskLaunched = true;
         }
     }

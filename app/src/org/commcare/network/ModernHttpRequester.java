@@ -2,7 +2,6 @@ package org.commcare.network;
 
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 
 import org.commcare.CommCareApplication;
 import org.commcare.interfaces.HttpResponseProcessor;
@@ -98,7 +97,6 @@ public class ModernHttpRequester {
         HttpURLConnection httpConnection = null;
         try {
             httpConnection = setupConnection();
-            httpConnection.connect();
             processResponse(httpConnection);
         } catch (IOException e) {
             responseProcessor.handleIOException(e);
@@ -113,33 +111,41 @@ public class ModernHttpRequester {
         HttpURLConnection httpConnection;
         if (isPostRequest) {
             httpConnection = (HttpURLConnection)url.openConnection();
+            setupConnectionInner(httpConnection);
             httpConnection.setRequestMethod("POST");
-            buildPostPayload(httpConnection);
             httpConnection.setDoOutput(true);
+            buildPostPayload(httpConnection);
         } else {
             URL urlWithQuery = buildUrlWithParams();
             httpConnection = (HttpURLConnection)urlWithQuery.openConnection();
+            setupConnectionInner(httpConnection);
             httpConnection.setRequestMethod("GET");
         }
 
+        return httpConnection;
+    }
+
+    private static void setupConnectionInner(HttpURLConnection httpConnection) {
         httpConnection.setConnectTimeout(GlobalConstants.CONNECTION_TIMEOUT);
         httpConnection.setReadTimeout(GlobalConstants.CONNECTION_SO_TIMEOUT);
         httpConnection.setDoInput(true);
         httpConnection.setInstanceFollowRedirects(true);
-        return httpConnection;
     }
 
     private void buildPostPayload(HttpURLConnection httpConnection) throws IOException {
+        String paramsString = buildUrlWithParams().getQuery();
+        int bodySize = paramsString.length();
+        httpConnection.setFixedLengthStreamingMode(bodySize);
+        httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        httpConnection.setRequestProperty("Content-Length", bodySize + "");
+        // write to connection
         OutputStream os = httpConnection.getOutputStream();
         BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(os, "UTF-8"));
-        String paramsString = buildUrlWithParams().getQuery();
         writer.write(paramsString);
         writer.flush();
         writer.close();
         os.close();
-        httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        httpConnection.setRequestProperty("Content-Length", paramsString.length() + "");
     }
 
     private URL buildUrlWithParams() throws MalformedURLException {
@@ -191,16 +197,6 @@ public class ModernHttpRequester {
                 dataSizeGuess = Integer.parseInt(lengthHeader);
             } catch (Exception e) {
                 dataSizeGuess = -1;
-            }
-        }
-        if (dataSizeGuess == -1) {
-            // 0 uses default chunk size
-            httpConnection.setChunkedStreamingMode(0);
-        } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                httpConnection.setFixedLengthStreamingMode(dataSizeGuess);
-            } else {
-                httpConnection.setFixedLengthStreamingMode((int)dataSizeGuess);
             }
         }
         return dataSizeGuess;
