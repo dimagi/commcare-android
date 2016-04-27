@@ -25,6 +25,7 @@ import org.commcare.models.encryption.CryptUtil;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
+import org.commcare.network.HttpRequestGenerator;
 import org.commcare.network.RemoteDataPullResponse;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.services.CommCareSessionService;
@@ -118,7 +119,7 @@ public abstract class DataPullTask<R>
             CommCareApplication._().releaseUserResourcesAndServices();
         }
     }
-    private HttpRequestGenerator requestor;
+    private HttpRequestEndpoints requestor;
 
     @Override
     protected ResultAndError<PullTaskResult> doTaskBackground(Void... params) {

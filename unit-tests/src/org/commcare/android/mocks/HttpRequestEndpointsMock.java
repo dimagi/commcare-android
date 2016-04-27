@@ -49,4 +49,8 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
         throw new RuntimeException("Not yet mocked");
     }
 
+    @Override
+    public void abortCurrentRequest() {
+        throw new RuntimeException("Not yet mocked");
+    }
 }

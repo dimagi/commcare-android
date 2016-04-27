@@ -371,6 +371,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         con.setInstanceFollowRedirects(true);
     }
 
+    @Override
     public void abortCurrentRequest() {
         if (currentRequest != null) {
             try {
