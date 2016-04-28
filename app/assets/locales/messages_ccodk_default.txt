@@ -102,7 +102,7 @@ home.menu.disable.analytics=Opt Out of Analytics
 home.menu.pin.set=Set My PIN
 home.menu.pin.change=Change My PIN
 
-app.manager.menu.superuser=Authenticate as Superuser
+app.manager.menu.claim.seat=Enable Multiple Application Seating
 app.manager.menu.refresh.properties=Refresh Properties for All Apps
 superuser.auth.menu.revoke=Revoke Authentication
 

@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,11 +16,9 @@ import org.commcare.CommCareApplication;
 import org.commcare.adapters.AppManagerAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.services.CommCareSessionService;
-import org.commcare.tasks.UpdatePropertiesTask;
 import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.AlertDialogFactory;
-import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -39,10 +36,10 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
 
     public static final String KEY_LAUNCH_FROM_MANAGER = "from_manager";
 
-    private static final int SUPERUSER_AUTH = 1;
+    private static final int MULTIPLE_APPS_AUTH = 1;
 
     private static final int MENU_CONNECTION_DIAGNOSTIC = 0;
-    private static final int MENU_SUPERUSER_AUTH = 1;
+    private static final int MENU_ENABLE_MULTIPLE_APPS_SEAT = 1;
     private static final int MENU_REFRESH_PROPERTIES = 2;
 
     @Override
@@ -62,7 +59,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, Localization.get("home.menu.connection.diagnostic"));
-        menu.add(0, MENU_SUPERUSER_AUTH, 1, Localization.get("app.manager.menu.superuser"));
+        menu.add(0, MENU_ENABLE_MULTIPLE_APPS_SEAT, 1, Localization.get("app.manager.menu.claim.seat"));
         menu.add(0, MENU_REFRESH_PROPERTIES, 2, Localization.get("app.manager.menu.refresh.properties"));
         return true;
     }
@@ -74,9 +71,9 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                 Intent i = new Intent(this, ConnectionDiagnosticActivity.class);
                 startActivity(i);
                 return true;
-            case MENU_SUPERUSER_AUTH:
-                i = new Intent(this, SuperuserAuthActivity.class);
-                startActivityForResult(i, SUPERUSER_AUTH);
+            case MENU_ENABLE_MULTIPLE_APPS_SEAT:
+                i = new Intent(this, AppManagerSeatClaimingActivity.class);
+                startActivityForResult(i, MULTIPLE_APPS_AUTH);
                 return true;
             case MENU_REFRESH_PROPERTIES:
                 FormAndDataSyncer.refreshPropertiesForAllInstalledApps(this);
@@ -156,7 +153,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
                 return;
-            case SUPERUSER_AUTH:
+            case MULTIPLE_APPS_AUTH:
                 if (resultCode == RESULT_OK) {
                     Toast.makeText(this, "Authentication Succeeded!", Toast.LENGTH_LONG).show();
                 }

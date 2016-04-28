@@ -15,6 +15,8 @@ import org.commcare.models.encryption.AndroidSignedPermissionVerifier;
 import org.commcare.suite.model.SignedPermission;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.locale.Localization;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 /**
@@ -65,19 +67,34 @@ public class AppManagerSeatClaimingActivity extends Activity {
         switch(requestCode) {
             case BARCODE_CAPTURE:
                 if (resultCode == RESULT_OK) {
-                    String usernameAuthenticatedWith = processScanResult(data.getStringExtra("SCAN_RESULT"));
+                    processJsonScanResult(data.getStringExtra("SCAN_RESULT"));
+                    /*String usernameAuthenticatedWith = processScanResult(data.getStringExtra("SCAN_RESULT"));
                     if (usernameAuthenticatedWith != null) {
                         CommCareApplication._().enableSuperUserMode(usernameAuthenticatedWith);
                         setResult(RESULT_OK);
                         finish();
                     } else {
                         Toast.makeText(this, "Authentication Failed", Toast.LENGTH_LONG).show();
-                    }
+                    }*/
                 }
                 else {
                     Toast.makeText(this, "Authentication Failed", Toast.LENGTH_LONG).show();
                 }
                 break;
+        }
+    }
+
+    private static void processJsonScanResult(String scanResult) {
+        try {
+            JSONObject obj = new JSONObject(scanResult);
+            String URL = obj.getString("URL");
+            String username = obj.getString("username");
+            String signature = obj.getString("signature");
+            System.out.println(URL);
+            System.out.println(username);
+            System.out.println(signature);
+        } catch (JSONException e) {
+
         }
     }
 
