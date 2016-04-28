@@ -72,6 +72,17 @@
             </intent-filter>
         </activity>
 
+        <!-- For legacy reasons: alias to the old launch name. If you remove this,
+         updating from below 2.27 will remove launchers from the homescreen -->
+        <activity-alias
+            android:name=".activities.DispatchActivity"
+            android:targetActivity="org.commcare.activities.DispatchActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+
         <activity
             android:name="org.commcare.activities.AppManagerActivity"
             android:label="@string/manager_activity_name"
