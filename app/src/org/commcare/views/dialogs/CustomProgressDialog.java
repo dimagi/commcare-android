@@ -60,6 +60,7 @@ public class CustomProgressDialog extends DialogFragment {
 
     //for cancel button
     private boolean usingCancelButton;
+    private Button cancelButton;
 
     //for progress bar
     private boolean usingHorizontalProgressBar;
@@ -82,6 +83,13 @@ public class CustomProgressDialog extends DialogFragment {
 
     public void addCancelButton() {
         usingCancelButton = true;
+    }
+
+    public void removeCancelButton() {
+        usingCancelButton = false;
+        if (cancelButton != null) {
+            cancelButton.setVisibility(View.INVISIBLE);
+        }
     }
 
     public void setCancelable() {
@@ -157,7 +165,7 @@ public class CustomProgressDialog extends DialogFragment {
         messageView.setText(message);
 
         if (usingCancelButton) {
-            Button cancelButton = setupCancelButton(view);
+            cancelButton = setupCancelButton(view);
             if (wasCancelPressed) {
                 setCancellingText(titleView, messageView, cancelButton);
             }
