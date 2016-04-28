@@ -670,7 +670,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void initUIController() {
-        uiController = new LoginActivityUIController(this);
+        if (CommCareApplication._().isConsumerApp()) {
+            uiController = new BlankLoginActivityUIController(this);
+        } else {
+            uiController = new LoginActivityUIController(this);
+        }
     }
 
     @Override

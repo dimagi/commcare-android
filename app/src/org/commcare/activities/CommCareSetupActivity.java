@@ -732,7 +732,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             return null;
         }
         if (isSingleAppBuild()) {
-            return generateStandaloneInstallDialog(taskId);
+            return CustomProgressDialog.newInstance("Starting Up", "Initializing your application...", taskId);
         } else {
             return generateNormalInstallDialog(taskId);
         }
@@ -748,14 +748,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         boolean isChecked = (lastDialog != null) && lastDialog.isChecked();
         dialog.addCheckbox(checkboxText, isChecked);
         dialog.addProgressBar();
-        return dialog;
-    }
-
-    private CustomProgressDialog generateStandaloneInstallDialog(int taskId) {
-        String title = "Starting Up";
-        String message = "Initializing your application...";
-        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
-        dialog.setCancelable(false);
         return dialog;
     }
 

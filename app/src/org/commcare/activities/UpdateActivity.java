@@ -320,7 +320,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             return null;
         }
         if (CommCareApplication._().isConsumerApp()) {
-            return generateConsumerAppUpdateDialog(taskId);
+            return CustomProgressDialog.newInstance("Starting Up", "Initializing your application...", taskId);
         } else {
             return generateNormalUpdateDialog(taskId);
         }
@@ -331,14 +331,6 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         String message = Localization.get("updates.installing.message");
         CustomProgressDialog dialog =
                 CustomProgressDialog.newInstance(title, message, taskId);
-        dialog.setCancelable(false);
-        return dialog;
-    }
-
-    private static CustomProgressDialog generateConsumerAppUpdateDialog(int taskId) {
-        String title = "Starting Up";
-        String message = "Initializing your application...";
-        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
         dialog.setCancelable(false);
         return dialog;
     }
