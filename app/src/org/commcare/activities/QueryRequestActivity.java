@@ -34,6 +34,7 @@ import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.TreeElementParser;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -111,8 +112,11 @@ public class QueryRequestActivity
         }
     }
 
-    private void buildPromptEntry(LinearLayout promptsLayout, String promptId, DisplayUnit displayUnit) {
-        Hashtable<String, String> userAnswers = remoteQuerySessionManager.getUserAnswers();
+    private void buildPromptEntry(LinearLayout promptsLayout,
+                                  String promptId,
+                                  DisplayUnit displayUnit) {
+        Hashtable<String, String> userAnswers =
+                remoteQuerySessionManager.getUserAnswers();
         promptsLayout.addView(createPromptEntry(displayUnit));
 
         EditText promptEditText = new EditText(this);
@@ -134,8 +138,7 @@ public class QueryRequestActivity
     }
 
     private void makeQueryRequest() {
-        errorMessage = "";
-        inErrorState = false;
+        clearErrorState();
         URL url = null;
         String urlString = remoteQuerySessionManager.getBaseUrl();
         try {
@@ -155,6 +158,11 @@ public class QueryRequestActivity
             httpTask.connect((CommCareTaskConnector)this);
             httpTask.executeParallel();
         }
+    }
+
+    private void clearErrorState() {
+        errorMessage = "";
+        inErrorState = false;
     }
 
     private void enterErrorState(String message) {
@@ -241,10 +249,12 @@ public class QueryRequestActivity
         }
     }
 
-    public static Pair<ExternalDataInstance, String> buildExternalDataInstance(InputStream instanceStream, String instanceId) {
+    public static Pair<ExternalDataInstance, String> buildExternalDataInstance(InputStream instanceStream,
+                                                                               String instanceId) {
         TreeElement root;
         try {
-            root = new TreeElementParser(ElementParser.instantiateParser(instanceStream), 0, instanceId).parse();
+            KXmlParser baseParser = ElementParser.instantiateParser(instanceStream);
+            root = new TreeElementParser(baseParser, 0, instanceId).parse();
         } catch (InvalidStructureException | IOException
                 | XmlPullParserException | UnfullfilledRequirementsException e) {
             return new Pair<>(null, e.getMessage());
