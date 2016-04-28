@@ -53,7 +53,7 @@ import java.util.Map;
  */
 @ManagedUi(R.layout.http_request_layout)
 public class QueryRequestActivity
-        extends SessionAwareCommCareActivity<QueryRequestActivity>
+        extends SaveSessionCommCareActivity<QueryRequestActivity>
         implements HttpResponseProcessor {
     private static final String TAG = QueryRequestActivity.class.getSimpleName();
 

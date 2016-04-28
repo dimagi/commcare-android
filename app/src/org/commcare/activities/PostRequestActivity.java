@@ -34,7 +34,7 @@ import java.util.Hashtable;
  */
 @ManagedUi(R.layout.http_request_layout)
 public class PostRequestActivity
-        extends SessionAwareCommCareActivity<PostRequestActivity>
+        extends SaveSessionCommCareActivity<PostRequestActivity>
         implements ConnectorWithHttpResponseProcessor<PostRequestActivity>,
         ConnectorWithResultCallback<PostRequestActivity> {
     private static final String TAG = PostRequestActivity.class.getSimpleName();
