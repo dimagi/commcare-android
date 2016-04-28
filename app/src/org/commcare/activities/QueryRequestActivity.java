@@ -107,13 +107,21 @@ public class QueryRequestActivity
         Hashtable<String, DisplayUnit> userInputDisplays =
                 remoteQuerySessionManager.getNeededUserInputDisplays();
         for (Map.Entry<String, DisplayUnit> displayEntry : userInputDisplays.entrySet()) {
-            promptsLayout.addView(createPromptEntry(displayEntry.getValue()));
-
-            EditText promptEditText = new EditText(this);
-            promptEditText.setBackgroundResource(R.drawable.login_edit_text);
-            promptsLayout.addView(promptEditText);
-            promptsBoxes.put(displayEntry.getKey(), promptEditText);
+            buildPromptEntry(promptsLayout, displayEntry.getKey(), displayEntry.getValue());
         }
+    }
+
+    private void buildPromptEntry(LinearLayout promptsLayout, String promptId, DisplayUnit displayUnit) {
+        Hashtable<String, String> userAnswers = remoteQuerySessionManager.getUserAnswers();
+        promptsLayout.addView(createPromptEntry(displayUnit));
+
+        EditText promptEditText = new EditText(this);
+        if (userAnswers.containsKey(promptId)) {
+            promptEditText.setText(userAnswers.get(promptId));
+        }
+        promptEditText.setBackgroundResource(R.drawable.login_edit_text);
+        promptsLayout.addView(promptEditText);
+        promptsBoxes.put(promptId, promptEditText);
     }
 
     private void answerPrompts() {
@@ -164,6 +172,8 @@ public class QueryRequestActivity
     @Override
     protected void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
+
+        answerPrompts();
 
         savedInstanceState.putSerializable(ANSWERED_USER_PROMPTS_KEY,
                 remoteQuerySessionManager.getUserAnswers());

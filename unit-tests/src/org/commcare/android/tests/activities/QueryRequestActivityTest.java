@@ -3,6 +3,7 @@ package org.commcare.android.tests.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.opengl.Visibility;
+import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -31,6 +32,7 @@ import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
+import org.robolectric.util.ActivityController;
 
 import java.util.Hashtable;
 
@@ -68,7 +70,7 @@ public class QueryRequestActivityTest {
     public void makeSuccessfulQueryRequestTest() {
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{200});
         ModernHttpRequesterMock.setExpectedUrls(new String[]{"https://www.fake.com/patient_search/?patient_id=123&name=francisco&device_id=000000000000000"});
-        DebugDataPullResponseFactory.setRequestPayloads(new String[]{"jr://resource/commcare-apps/case_search_and_claim/good-query-result.xml"});
+        ModernHttpRequesterMock.setRequestPayloads(new String[]{"jr://resource/commcare-apps/case_search_and_claim/good-query-result.xml"});
 
         AndroidSessionWrapper sessionWrapper =
                 CommCareApplication._().getCurrentSessionWrapper();
@@ -90,10 +92,8 @@ public class QueryRequestActivityTest {
         Button queryButton = (Button)queryRequestActivity.findViewById(R.id.request_button);
         queryButton.performClick();
 
-        /*
         assertEquals(Activity.RESULT_OK,
                 Shadows.shadowOf(queryRequestActivity).getResultCode());
-                */
         assertTrue(queryRequestActivity.isFinishing());
     }
 
@@ -101,7 +101,7 @@ public class QueryRequestActivityTest {
     public void makeQueryWithBadServerPayloadTest() {
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{200});
         ModernHttpRequesterMock.setExpectedUrls(new String[]{"https://www.fake.com/patient_search/?patient_id=123&name=francisco&device_id=000000000000000"});
-        DebugDataPullResponseFactory.setRequestPayloads(new String[]{"jr://resource/commcare-apps/case_search_and_claim/bad-query-result.xml"});
+        ModernHttpRequesterMock.setRequestPayloads(new String[]{"jr://resource/commcare-apps/case_search_and_claim/bad-query-result.xml"});
 
         AndroidSessionWrapper sessionWrapper =
                 CommCareApplication._().getCurrentSessionWrapper();
@@ -125,6 +125,39 @@ public class QueryRequestActivityTest {
 
         TextView errorMessage = (TextView)queryRequestActivity.findViewById(R.id.error_message);
         assertEquals(View.VISIBLE, errorMessage.getVisibility());
-        assertEquals(Localization.get("query.response.format.error"), errorMessage.getText());
+        assertTrue(((String)errorMessage.getText()).contains(Localization.get("query.response.format.error", "")));
+    }
+
+    @Test
+    public void reloadQueryActivityStateTest() {
+        AndroidSessionWrapper sessionWrapper =
+                CommCareApplication._().getCurrentSessionWrapper();
+        CommCareSession session = sessionWrapper.getSession();
+        session.setCommand("patient-search");
+
+        Intent queryActivityIntent =
+                new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
+
+        ActivityController<QueryRequestActivity> controller =
+                Robolectric.buildActivity(QueryRequestActivity.class)
+                        .withIntent(queryActivityIntent).create().start().resume();
+        QueryRequestActivity queryRequestActivity = controller.get();
+
+        LinearLayout promptsLayout = (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
+        EditText patientId = (EditText)promptsLayout.getChildAt(1);
+        patientId.setText("123");
+
+        Bundle savedInstanceState = new Bundle();
+        controller.saveInstanceState(savedInstanceState);
+
+        controller.resume();
+        queryRequestActivity = Robolectric.buildActivity(QueryRequestActivity.class)
+                .withIntent(queryActivityIntent).create(savedInstanceState).start().resume().get();
+        promptsLayout = (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
+        patientId = (EditText)promptsLayout.getChildAt(1);
+        assertEquals("123", patientId.getText().toString());
+
+        patientId = (EditText)promptsLayout.getChildAt(3);
+        assertEquals("", patientId.getText().toString());
     }
 }
