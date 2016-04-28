@@ -19,6 +19,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -30,9 +33,6 @@ import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.FormsProviderAPI;
@@ -158,6 +158,7 @@ public class CommCareHomeActivity
     private boolean loginExtraWasConsumed;
     private static final String EXTRA_CONSUMED_KEY = "login_extra_was_consumed";
     private boolean isRestoringSession = false;
+    private boolean isSyncUserLaunched = false;
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
@@ -168,7 +169,7 @@ public class CommCareHomeActivity
         ACRAUtil.registerAppData();
         uiController.setupUI();
         sessionNavigator = new SessionNavigator(this);
-        formAndDataSyncer = new FormAndDataSyncer(this);
+        formAndDataSyncer = new FormAndDataSyncer();
 
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();
@@ -1050,7 +1051,7 @@ public class CommCareHomeActivity
     private void sendFormsOrSync(boolean userTriggeredSync) {
         boolean formsSentToServer = checkAndStartUnsentFormsTask(true, userTriggeredSync);
         if(!formsSentToServer) {
-            formAndDataSyncer.syncData(false, userTriggeredSync);
+            formAndDataSyncer.syncData(this, false, userTriggeredSync);
         }
     }
 
@@ -1059,11 +1060,12 @@ public class CommCareHomeActivity
      */
     private boolean checkAndStartUnsentFormsTask(final boolean syncAfterwards,
                                                  boolean userTriggered) {
+        isSyncUserLaunched = userTriggered;
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         FormRecord[] records = StorageUtils.getUnsentRecords(storage);
 
         if(records.length > 0) {
-            formAndDataSyncer.processAndSendForms(records, syncAfterwards, userTriggered);
+            formAndDataSyncer.processAndSendForms(this, records, syncAfterwards, userTriggered);
             return true;
         } else {
             return false;
@@ -1326,25 +1328,31 @@ public class CommCareHomeActivity
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         String title, message;
+        CustomProgressDialog dialog;
         switch (taskId) {
             case ProcessAndSendTask.SEND_PHASE_ID:
                 title = Localization.get("sync.progress.submitting.title");
                 message = Localization.get("sync.progress.submitting");
+                dialog = CustomProgressDialog.newInstance(title, message, taskId);
                 break;
             case ProcessAndSendTask.PROCESSING_PHASE_ID:
                 title = Localization.get("form.entry.processing.title");
                 message = Localization.get("form.entry.processing");
+                dialog = CustomProgressDialog.newInstance(title, message, taskId);
+                dialog.addProgressBar();
                 break;
             case DataPullTask.DATA_PULL_TASK_ID:
                 title = Localization.get("sync.progress.title");
                 message = Localization.get("sync.progress.purge");
+                dialog = CustomProgressDialog.newInstance(title, message, taskId);
+                if (isSyncUserLaunched) {
+                    // allow users to cancel syncs that they launched
+                    dialog.addCancelButton();
+                }
+                isSyncUserLaunched = false;
                 break;
             default:
                 return super.generateProgressDialog(taskId);
-        }
-        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
-        if (taskId == ProcessAndSendTask.PROCESSING_PHASE_ID) {
-            dialog.addProgressBar();
         }
         return dialog;
     }

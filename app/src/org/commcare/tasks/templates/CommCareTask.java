@@ -170,6 +170,12 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
         }
     }
 
+    /**
+     * Attempts to kill long running processes prematurely in the task
+     */
+    public void tryAbort() {
+    }
+
     protected void transitionPhase(int newTaskId) {
         synchronized (connectorLock) {
             if (newTaskId != taskId) {

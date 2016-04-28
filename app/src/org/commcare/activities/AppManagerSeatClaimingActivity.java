@@ -20,7 +20,7 @@ import org.javarosa.core.services.locale.Localization;
 /**
  * Created by amstone326 on 4/7/16.
  */
-public class SuperuserAuthActivity extends Activity {
+public class AppManagerSeatClaimingActivity extends Activity {
 
     public static final int BARCODE_CAPTURE = 1;
 
