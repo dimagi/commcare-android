@@ -1,9 +1,9 @@
 package org.commcare.android.database.user.models;
 
-import org.commcare.android.models.AndroidSessionWrapper;
+import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.android.storage.framework.Persisted;
-import org.commcare.android.storage.framework.Persisting;
-import org.commcare.android.storage.framework.Table;
+import org.commcare.models.framework.Persisting;
+import org.commcare.models.framework.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
 import org.commcare.session.CommCareSession;
@@ -92,9 +92,9 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
         String descriptor = "";
         for (StackFrameStep step : session.getFrame().getSteps()) {
             descriptor += step.getType() + " ";
-            if (step.getType() == SessionFrame.STATE_COMMAND_ID) {
+            if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
                 descriptor += step.getId() + " ";
-            } else if (step.getType() == SessionFrame.STATE_DATUM_VAL || step.getType() == SessionFrame.STATE_DATUM_COMPUTED) {
+            } else if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) || SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType())) {
                 descriptor += step.getId() + " " + step.getValue() + " ";
             }
         }

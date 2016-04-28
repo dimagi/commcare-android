@@ -1,15 +1,15 @@
 package org.commcare.android.util;
 
+import org.commcare.CommCareApp;
+import org.commcare.CommCareApplication;
+import org.commcare.CommCareTestApp;
+import org.commcare.android.mocks.CommCareTaskConnectorFake;
+import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
-import org.commcare.android.database.user.DemoUserBuilder;
-import org.commcare.android.mocks.CommCareTaskConnectorFake;
-import org.commcare.android.resource.AppInstallStatus;
-import org.commcare.android.tasks.ResourceEngineTask;
-import org.commcare.dalvik.application.CommCareApp;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.application.CommCareTestApp;
-import org.commcare.dalvik.services.CommCareSessionService;
+import org.commcare.models.database.user.DemoUserBuilder;
+import org.commcare.services.CommCareSessionService;
+import org.commcare.tasks.ResourceEngineTask;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
@@ -31,15 +31,15 @@ public class TestAppInstaller {
     private final CommCareTaskConnectorFake<Object> fakeConnector =
             new CommCareTaskConnectorFake<>();
 
-    public TestAppInstaller(String resourceFilepath,
-                            String username,
-                            String password) {
+    private TestAppInstaller(String resourceFilepath,
+                             String username,
+                             String password) {
         this.resourceFilepath = resourceFilepath;
         this.username = username;
         this.password = password;
     }
 
-    public void installAppAndLogin() {
+    private void installAppAndLogin() {
         installApp();
 
         buildTestUser();
@@ -127,7 +127,7 @@ public class TestAppInstaller {
         return null;
     }
 
-    public static void setupPrototypeFactory() {
+    private static void setupPrototypeFactory() {
         // Sets DB to use an in-memory store for class serialization tagging.
         // This avoids the need to use apk reflection to perform read/writes
         TestUtils.initializeStaticTestStorage();

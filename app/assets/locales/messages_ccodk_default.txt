@@ -28,6 +28,8 @@ verify.retry=Retry
 verify.checking=Verifying media...
 verify.check.failed=Validation failed for an unknown reason
 
+barcode.reader.missing=No barcode reader available! You can install one from the android market.
+
 install.barcode.top=Welcome to CommCare!
 install.barcode.bottom=Please choose an installation method below
 install.manual=Please enter the URL
@@ -43,6 +45,8 @@ install.bad.login=Login to Existing App
 install.appprofile=Enter your app code
 install.perms.rationale.message=CommCare requires at least external storage read & write permissions in order to store form submissions.
 install.perms.denied.message=Crucial permissions denied ${0} times.\n\n If requesting permissions here fails, please enable permissions under Android's 'Settings -> Apps -> CommCare -> Permissions'.
+
+install.choose.local.app=Available Apps
 
 upgrade.button.retry=Retry Upgrade
 upgrade.button.startover=Restart Upgrade
@@ -75,7 +79,7 @@ home.forms.incomplete=Incomplete
 home.forms.incomplete.indicator=${1} (${0})  
 home.forms.saved=Saved
 home.sync=Sync with Server
-home.sync.indicator=${1} (${0})
+home.unsent.forms.indicator=Unsent Forms: ${0}
 home.logout=Log out of CommCare
 home.report=Report an Issue
 
@@ -140,6 +144,7 @@ form.entry.processing.title=Processing Form
 form.entry.complete.save.success=Form successfully completed
 form.entry.incomplete.save.success=Form saved as incomplete
 form.entry.save.error=Sorry, form save failed. Please contact technical support to look into the issue.
+form.entry.finish.button=FINISH
 
 login.attempt.badcred=Username or password are incorrect. Please try again.
 
@@ -278,7 +283,8 @@ bulk.form.dump.success=${1} forms dumped successfully
 mult.install.error=Unexpected Error installing the multimedia! Please try again. Error Text: ${0}  
 
 login.menu.demo=Enter as Demo User
-login.menu.password.mode=Switch to Password Login Mode
+login.menu.password.mode=Forgot PIN?
+
 main.sync.demo=You cannot sync data down from the server when logged in in demo mode
 
 main.sync.demo.has.forms=Your forms have been submitted to the server; however, you cannot retrieve forms from the server in Demo mode.
@@ -308,6 +314,9 @@ select.menu.map=View on Map
 
 select.detail.title=Details
 select.list.title=Select
+select.detail.callout.title=Select phone number action
+select.detail.callout.call=Call
+select.detail.callout.sms=Send SMS
 
 home.logged.in.message=Logged In: ${0}
 notification.logged.in=Logged Into ${0}
@@ -315,6 +324,8 @@ notification.logged.in=Logged Into ${0}
 title.datum.wrapper=[${0}]
 
 activity.task.error.generic=Unexpected error! Please try again.
+activity.task.cancelling.title=Cancelling: ${0}
+activity.task.cancelling.message=Cancelling...
 
 dialog.ok=OK
 
@@ -371,6 +382,7 @@ no.file.browser=Your device does not have a file browser installed. Please downl
 
 callout.failure.dialer=Device is not currently configured to make telephone calls
 callout.failure.sms=SMS app not found
+callout.missing=No application found for action: ${0}
 
 analytics.opt.out.title=Opt out of Google Analytics?
 analytics.opt.out.message=This application uses Google Analytics to anonymously track usage data within the application. If you do not want your usage data to be tracked, you can disable it at any time.
@@ -387,7 +399,7 @@ pin.dialog.not.now=No, but ask again on next login
 pin.dialog.never=No, and don't ask again
 pin.dialog.extra.info=After creating a PIN, you will be prompted to log in with that instead of your full password, on all future log-ins. If you ever forget your PIN, you can always revert to logging in with your normal password.
 pin.dialog.set.later.title=Setting A PIN Later
-pin.dialog.set.later.message=You access the PIN create screen at any time from the home screen options menu.
+pin.dialog.set.later.message=You can access the PIN create screen at any time from the home screen options menu.
 pin.continue.button=CONTINUE
 pin.confirm.button=CONFIRM
 pin.directive.new=Enter a 4-digit PIN
@@ -401,7 +413,14 @@ pin.auth.failed.password=Entered password was incorrect. Please try again.
 pin.auth.prompt.pin=Enter your current PIN
 pin.auth.prompt.password=Enter your password
 pin.auth.enter.button=ENTER
+pin.primed.mode.message=You will use the PIN you create here to log into CommCare on all future log-ins.
 
+refresh.build.base.message=Refreshing to your latest build...
+refresh.build.up.to.date=Your app is already up to date, so no refresh occurred.
+refresh.build.update.error=An error occurred while attempting to update, so no refresh occurred.
+refresh.build.update.canceled=The update was canceled, so no refresh occurred.
+refresh.build.session.error=The refresh build utility cannot be used when you are not logged in, so no refresh occurred.
+refresh.build.settings.error=No refresh occurred. In order to use this utility, please turn on the "Enable Session Saving" setting in the Developer Preferences menu.
 
 #Put these into their own file
 
@@ -409,7 +428,13 @@ login.attempt.fail.auth.title=Invalid Username or Password
 login.attempt.fail.auth.detail=Your username or password was not recognized, please type them again and retry.
 
 login.attempt.fail.pin.title=Invalid PIN
-login.attempt.fail.pin.detail=You entered an incorrect PIN for the given username.
+login.attempt.fail.pin.detail=Please enter the 4 digit PIN number that you chose, or select "Forgot PIN?" in the options menu to login with your password instead.
+
+login.attempt.fail.empty.pw.title=Empty Password
+login.attempt.fail.empty.pw.detail=You did not enter a password.
+
+login.attempt.fail.empty.pin.title=Empty PIN
+login.attempt.fail.empty.pin.detail=You did not enter a PIN.
 
 login.attempt.fail.changed.title=Password Changed since Last Login
 login.attempt.fail.changed.detail=You've logged in with a new password since you're last login. You may need to log in with your old credentials to ensure you have no unsent data.
@@ -443,7 +468,11 @@ notification.restore.unknown.detail=CommCare had trouble dealing with something 
 notification.restore.unknown.action=Try to log in again. If you receive this message again, force close the application from the Manage Applications menu on the phone. If the error persists, contact technical support.
 
 notification.restore.baddata.title=Bad Server Response
-notification.restore.baddata.detail=CommCare had trouble processing the network response. Please try again. 
+notification.restore.baddata.detail=CommCare had trouble processing the network response. Please try again.
+
+notification.restore.data.requires.intervention.title=Bad Server Response
+notification.restore.data.requires.intervention.detail=CommCare tried to sync invalid data from the server. This may have been caused by a misconfiguration in your app and must be fixed in order to log in. Please contact your supervisor or CommCare support.
+notification.restore.data.requires.intervention.action=\nTechnical details:\n${0}
 
 notification.install.installed.title=App Succesfully Installed
 notification.install.installed.detail=Your app install is up to date.
@@ -568,7 +597,6 @@ archive.install.title=Unzipping your Application Resources
 archive.install.progress=Unzipped ${0} out of ${1} resources
 archive.install.state.empty=Please select a CCZ file to begin
 archive.install.state.ready=Offline installer ready, press install to begin
-archive.install.state.done=Your CCZ file has been installed
 archive.install.state.invalid.path=The file path selected is not a valid CCZ file. Please select a valid file.
 archive.install.cancelled=Offline installation cancelled
 archive.install.bad=The selected CCZ file is not valid. Please choose a valid ccz file.
@@ -603,6 +631,13 @@ wifi.direct.connect.failed=Connecting failed, please retry
 wifi.direct.error.wiping.forms=Error wiping forms: ${0}
 wifi.direct.connect.success=Successfully connected to peer
 
+wifi.direct.pull.successful=Record pull successful, attempting to zip files...
+wifi.direct.pull.unsuccessful=Pulling records from storage failed.
+wifi.direct.submit.button=Submit
+wifi.direct.send.button=Send
+wifi.direct.discover.button=Discover
+wifi.direct.change.mode.button=Change Mode
+
 wifi.direct.zip.task.title=Zipping Forms...
 wifi.direct.zip.task.message=CommCare is compressing your data for transfer
 wifi.direct.unzip.task.title=Unzipping Forms...
@@ -615,9 +650,11 @@ wifi.direct.receive.task.title=Started Receiving Files
 wifi.direct.receive.task.message=CommCare is receiving files
 wifi.direct.wipe.task.title=Wiping Forms
 wifi.direct.wipe.task.message=Cleaning up after transfer
+wifi.direct.pull.task.title=Pulling Forms
+wifi.direct.pull.task.message=Pulling forms from record storage.
 
 wifi.direct.status.transfer.header=You are in Transfer Form Mode
-wifi.direct.status.transfer.count=Device has ${0} unsent forms.
+wifi.direct.status.transfer.count=Device has ${0} local forms and ${1} received forms.
 wifi.direct.status.transfer.message=This will allow you to transfer forms from this device to another device via Wi-Fi Direct
 
 wifi.direct.status.receive.header=You are in Receive Form Mode
@@ -627,6 +664,8 @@ wifi.direct.status.receive.message=This will allow you to receive forms on this 
 wifi.direct.status.submit.header=You are in Submit Form Mode
 wifi.direct.status.submit.count=Device has ${0} unsubmitted forms.
 wifi.direct.status.submit.message=This mode will allow you to submit forms to the CommCare Server if you have an internet connection.
+
+form.transfer.no.forms=No forms to send.
 
 
 form.attachment.invalid=Invalid filetype choosen. Please select a valid multimedia file.
@@ -645,8 +684,21 @@ permission.all.message=CommCare needs permissions to read/write forms to memory,
 permission.all.denial.message=CommCare doesn't have the necessary permissions. Please enable via 'Settings -> Apps'
 permission.case.callout.title=Permissions for calling & messaging
 permission.case.callout.message=CommCare needs call & messaging permissions to enable communication with cases.
+permission.case.callout.denied=Permissions denied for calling & messaging from case detail screen.
 permission.sms.install.title=Permission for obtaining SMS app code
 permission.sms.install.message=CommCare would like to scan your recent messages for an app install code.
 permission.form.gps.title=Permission to capture location during form entry
 permission.form.gps.message=CommCare would like to capture your location and provide it to forms you complete.
 permission.acquire.required=Acquire Required Permissions
+
+custom.acknowledgement=
+case.error.self.index=Case '${0}' cannot index itself. In order to login you must change the case on the server.
+
+intent.barcode.get=Get Barcode
+intent.barcode.update=Update Barcode
+intent.callout.get=Get Data
+intent.callout.update=Update Data
+intent.callout.cancelled=Question callout cancelled
+intent.callout.unable.to.process=Unable to process callout result
+
+

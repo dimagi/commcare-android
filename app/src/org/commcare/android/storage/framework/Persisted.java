@@ -1,5 +1,6 @@
 package org.commcare.android.storage.framework;
 
+import org.commcare.models.framework.Persisting;
 import org.commcare.modern.models.MetaField;
 import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;

@@ -14,9 +14,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.content.ContextCompat;
 
-import org.commcare.dalvik.application.CommCareApplication;
-import org.javarosa.core.model.Action;
+import org.commcare.CommCareApplication;
+import org.commcare.utils.GeoUtils;
 import org.javarosa.core.model.FormDef;
+import org.javarosa.core.model.actions.Action;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.condition.Recalculate;
 import org.javarosa.core.model.data.AnswerDataFactory;
@@ -27,7 +28,6 @@ import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.ExtWrapNullable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
-import org.odk.collect.android.utilities.GeoUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -43,7 +43,8 @@ import java.util.TimerTask;
  */
 @SuppressWarnings("ResourceType")
 public class PollSensorAction extends Action implements LocationListener {
-    private static final String name = "pollsensor";
+
+    public static final String ELEMENT_NAME = "pollsensor";
     public static final String KEY_UNRESOLVED_XPATH = "unresolved_xpath";
     public static final String XPATH_ERROR_ACTION = "poll_sensor_xpath_error_action";
     private TreeReference target;
@@ -70,11 +71,11 @@ public class PollSensorAction extends Action implements LocationListener {
     }
 
     public PollSensorAction() {
-        super(name);
+        super(ELEMENT_NAME);
     }
 
     public PollSensorAction(TreeReference target) {
-        super(name);
+        super(ELEMENT_NAME);
         this.target = target;
     }
 

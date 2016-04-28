@@ -1,10 +1,10 @@
 package org.commcare.xml;
 
-import org.commcare.android.crypt.CryptUtil;
-import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.android.util.Base64;
-import org.commcare.android.util.Base64DecoderException;
 import org.commcare.data.xml.TransactionParser;
+import org.commcare.models.encryption.ByteEncrypter;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.utils.Base64;
+import org.commcare.utils.Base64DecoderException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
 import org.joda.time.format.ISODateTimeFormat;
@@ -68,7 +68,7 @@ public abstract class KeyRecordParser extends TransactionParser<ArrayList<UserKe
                 throw new InvalidStructureException("Invalid AES key in key record", parser);
             }
 
-            byte[] wrappedKey = CryptUtil.wrapByteArrayWithString(theKey, currentpwd);
+            byte[] wrappedKey = ByteEncrypter.wrapByteArrayWithString(theKey, currentpwd);
             UserKeyRecord record = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(currentpwd), wrappedKey, valid, expires, uuid, UserKeyRecord.TYPE_NEW);
 
             keyRecords.add(record);

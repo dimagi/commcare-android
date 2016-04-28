@@ -5,11 +5,11 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import org.commcare.android.storage.framework.Persisted;
-import org.commcare.android.storage.framework.Persisting;
-import org.commcare.android.storage.framework.Table;
-import org.commcare.dalvik.odk.provider.InstanceProviderAPI.InstanceColumns;
+import org.commcare.models.framework.Persisting;
+import org.commcare.models.framework.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.modern.models.MetaField;
+import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 
 import java.io.FileNotFoundException;
 import java.util.Date;
@@ -190,5 +190,11 @@ public class FormRecord extends Persisted implements EncryptedModel {
     @Override
     public String toString() {
         return String.format("Form Record[%s][Status: %s]\n[Form: %s]\n[Last Modified: %s]", this.recordId, this.status, this.xmlns, this.lastModified.toString());
+    }
+
+    public void setArchivedFormToUnsent() {
+        if(STATUS_SAVED.equals(this.getStatus())) {
+            this.status = STATUS_UNSENT;
+        }
     }
 }

@@ -5,30 +5,28 @@ import android.os.Environment;
 import android.util.Log;
 import android.widget.ImageButton;
 
+import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareHomeActivity;
+import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.database.SqlStorage;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.mocks.FormAndDataSyncerFake;
-import org.commcare.android.models.AndroidSessionWrapper;
 import org.commcare.android.tests.queries.CaseDbQueryTest;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.dalvik.activities.CommCareHomeActivity;
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.models.database.SqlStorage;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionNavigator;
+import org.commcare.views.QuestionsView;
+import org.commcare.views.widgets.IntegerWidget;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.odk.collect.android.activities.FormEntryActivity;
-import org.odk.collect.android.views.ODKView;
-import org.odk.collect.android.widgets.IntegerWidget;
 import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
@@ -53,16 +51,9 @@ public class FormRecordProcessingTest {
 
     @Before
     public void setup() {
-        // needed to resolve "jr://resource" type references
-        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
-
-        TestUtils.initializeStaticTestStorage();
-        TestAppInstaller.setupPrototypeFactory();
-
-        TestAppInstaller appTestInstaller =
-                new TestAppInstaller("jr://resource/commcare-apps/form_save_regressions/profile.ccpr",
-                        "test", "123");
-        appTestInstaller.installAppAndLogin();
+        TestAppInstaller.initInstallAndLogin(
+                "jr://resource/commcare-apps/form_save_regressions/profile.ccpr",
+                "test", "123");
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
 
@@ -127,7 +118,7 @@ public class FormRecordProcessingTest {
         CommCareHomeActivity homeActivity =
                 Robolectric.buildActivity(CommCareHomeActivity.class).create().get();
         // make sure we don't actually submit forms by using a fake form submitter
-        homeActivity.setFormAndDataSyncer(new FormAndDataSyncerFake(homeActivity));
+        homeActivity.setFormAndDataSyncer(new FormAndDataSyncerFake());
         SessionNavigator sessionNavigator = homeActivity.getSessionNavigator();
         sessionNavigator.startNextSessionStep();
         return homeActivity;
@@ -142,8 +133,8 @@ public class FormRecordProcessingTest {
         ImageButton nextButton = (ImageButton)formEntryActivity.findViewById(R.id.nav_btn_next);
 
         // enter an answer for the question
-        ODKView odkView = formEntryActivity.getODKView();
-        IntegerWidget cohort = (IntegerWidget)odkView.getWidgets().get(0);
+        QuestionsView questionsView = formEntryActivity.getODKView();
+        IntegerWidget cohort = (IntegerWidget)questionsView.getWidgets().get(0);
         cohort.setAnswer("2");
 
         nextButton.performClick();

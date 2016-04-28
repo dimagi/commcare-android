@@ -2,11 +2,9 @@ package org.commcare.android.resource.installers;
 
 import android.util.Pair;
 
-import org.commcare.android.logging.AndroidLogger;
-import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.android.util.AndroidStreamUtil;
-import org.commcare.android.util.FileUtil;
-import org.commcare.dalvik.application.CommCareApplication;
+import org.commcare.CommCareApplication;
+import org.commcare.engine.resource.installers.LocalStorageUnavailableException;
+import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
@@ -15,6 +13,9 @@ import org.commcare.resources.model.ResourceLocation;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.AndroidStreamUtil;
+import org.commcare.utils.FileUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;

@@ -1,9 +1,9 @@
 package org.commcare.android.resource.installers;
 
-import org.commcare.android.util.AndroidCommCarePlatform;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.utils.AndroidCommCarePlatform;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.externalizable.DeserializationException;

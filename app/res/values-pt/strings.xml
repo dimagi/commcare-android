@@ -23,7 +23,6 @@
     <string name="audio_file_error">Não foi especificado arquivo de áudio</string>
     <string name="audio_file_invalid">Arquivo de áudio %s inválido.</string>
     <string name="backup">voltar para a anterior agora</string>
-    <string name="barcode_scanner_error">Desculpe, scanner de código de barras não instalado</string>
     <string name="cancel">Cancelar</string>
     <string name="cancel_loading_form">Cancelar</string>
     <string name="cancel_location">Cancelar</string>
@@ -72,7 +71,6 @@
     <string name="forms">Formulários vazios</string>
     <string name="form_renamed">%1$s foi renomeado %2$s.</string>
     <string name="getting_location">Carregando Localização</string>
-    <string name="get_barcode">Capturar Código de Barra</string>
     <string name="get_forms">Carregar Formulário em Branco</string>
     <string name="get_location">Gravar Localização</string>
     <string name="provider_disabled_error">Desculpe, provedor de localização desabilitado!</string>
@@ -182,5 +180,4 @@
     <string name="no_gps_title">Location Data Disabled</string>
     <string name="no_gps_message">The location providers on this device are currently disabled. Do you want to change those settings?</string>
     <string name="change_settings">Change Settings</string>
-    <string name="intent_callout_button">Usar Aplicativo</string>
 </resources>

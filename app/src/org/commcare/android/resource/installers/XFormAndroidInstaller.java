@@ -9,16 +9,20 @@ import android.net.Uri;
 import android.os.RemoteException;
 import android.util.Log;
 
-import org.commcare.android.logging.AndroidLogger;
-import org.commcare.android.logic.GlobalConstants;
-import org.commcare.android.util.AndroidCommCarePlatform;
-import org.commcare.dalvik.application.CommCareApplication;
-import org.commcare.dalvik.odk.provider.FormsProviderAPI;
+import org.commcare.CommCareApplication;
+import org.commcare.engine.extensions.IntentExtensionParser;
+import org.odk.collect.android.jr.extensions.PollSensorAction;
+import org.commcare.engine.extensions.PollSensorExtensionParser;
+import org.commcare.engine.extensions.XFormExtensionUtils;
+import org.commcare.logging.AndroidLogger;
+import org.commcare.provider.FormsProviderAPI;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -33,9 +37,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.javarosa.form.api.FormEntryCaption;
 import org.javarosa.xform.parse.XFormParseException;
 import org.javarosa.xform.parse.XFormParser;
-import org.odk.collect.android.jr.extensions.IntentExtensionParser;
-import org.odk.collect.android.jr.extensions.PollSensorExtensionParser;
-import org.odk.collect.android.jr.extensions.XFormExtensionUtils;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -73,7 +74,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
         //Ugh. Really need to sync up the Xform libs between ccodk and odk.
         XFormParser.registerHandler("intent", new IntentExtensionParser());
-        XFormParser.registerStructuredAction("pollsensor", new PollSensorExtensionParser());
+        XFormParser.registerActionHandler(PollSensorAction.ELEMENT_NAME, new PollSensorExtensionParser());
 
         FormDef formDef;
         try {

@@ -46,7 +46,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>27</item>
+        <item>28</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -54,19 +54,19 @@
     <string name="expirenotification">CommCare Login Expired</string>
     <string name="submission_notification_title">Submitting Data</string>
     <string name="submission_logs_title">Submitting CommCare Logs</string>
-    <string name="form_record_url"></string>
+    <string name="form_record_url"/>
 
     <item name="login_screen_hide_all_cuttoff" type="integer">200</item>
     <item name="login_screen_hide_banner_cuttoff" type="integer">250</item>
 
     <string name="url_prompt">Choose a URL</string>
 
-    <string name="aboutdialog">%s\n\n
-_Copyright 2015, Dimagi inc, All rights reserved_ \n\n
+    <string name="about_dialog" formatted="false">%s\n\n
+_Copyright 2016, Dimagi inc, All rights reserved_ \n\n
 
 ---------------- \n\n
 __Acknowledgements:__ \n\n
-
+%s
 Some images in CommCare are graciously used under Creative Commons Licensing from thenounproject.com collection:\n\n
 * “Door” symbol by Tak Imoto \n
 * “Pencil” symbol by Creologica \n
@@ -77,7 +77,7 @@ Some images in CommCare are graciously used under Creative Commons Licensing fro
 
 _Android MapView Balloons_ project used under the Apache Software License 2.0. \n
 Author: Jeff Gilfelt \n
-Copyright (c) 2012 readyState Software Ltd.</string>
+Copyright © 2012 readyState Software Ltd.</string>
     <string name="notification_message_title">CommCare Notification</string>
 
     <string-array name="frequency_vals">
@@ -97,6 +97,16 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string-array name="pref_enabled_labels">
         <item>Enabled</item>
         <item>Disabled</item>
+    </string-array>
+    <string-array name="pref_load_form_payload_as_vals">
+        <item>incomplete</item>
+        <item>unsent</item>
+        <item>saved</item>
+    </string-array>
+    <string-array name="pref_load_form_payload_as_labels">
+        <item>Incomplete</item>
+        <item>Unsent</item>
+        <item>Saved</item>
     </string-array>
     <string-array name="target_density_labels">
         <item>DENSITY_LOW</item>
@@ -146,7 +156,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="audio_file_error" cc:translatable="true">No audio file was specified.</string>
     <string name="audio_file_invalid" cc:translatable="true">File: %s is not a valid audio file.</string>
     <string name="backup" cc:translatable="true">back to\nprevious\nprompt</string>
-    <string name="barcode_scanner_error" cc:translatable="true">Sorry, Barcode Scanner is not installed!</string>
     <string name="cancel" cc:translatable="true">CANCEL</string>
     <string name="cancel_loading_form" cc:translatable="true">Cancel</string>
     <string name="cancel_location" cc:translatable="true">Cancel</string>
@@ -196,7 +205,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="forms" cc:translatable="true">Blank Forms</string>
     <string name="form_renamed" cc:translatable="true">%1$s was renamed %2$s.</string>
     <string name="getting_location" cc:translatable="true">Loading Location</string>
-    <string name="get_barcode" cc:translatable="true">Get Barcode</string>
     <string name="get_forms" cc:translatable="true">Get Blank Form</string>
     <string name="get_location" cc:translatable="true">Record Location</string>
     <string name="provider_disabled_error" cc:translatable="true">Sorry, Location providers are disabled!</string>
@@ -307,8 +315,6 @@ Copyright (c) 2012 readyState Software Ltd.</string>
     <string name="no_gps_title" cc:translatable="true">Location Data Disabled</string>
     <string name="no_gps_message" cc:translatable="true">The location providers on this device are currently disabled. Do you want to change those settings?</string>
     <string name="change_settings" cc:translatable="true">Change Settings</string>
-    <string name="intent_callout_button" cc:translatable="true">Get Data</string>
-    <string name="intent_callout_button_update" cc:translatable="true">Update Data</string>
     <string name="finding_location" cc:translatable="true">Finding Location...</string>
     <string name="found_location" cc:translatable="true">Location Found!</string>
     <string name="preference_help_mode_tray" cc:translatable="true">Display Rich Help Inline</string>

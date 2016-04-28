@@ -2,9 +2,9 @@ package org.commcare.android.mocks;
 
 import android.util.Log;
 
+import org.commcare.activities.CommCareHomeActivity;
+import org.commcare.activities.FormAndDataSyncer;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.dalvik.activities.CommCareHomeActivity;
-import org.commcare.dalvik.activities.FormAndDataSyncer;
 
 /**
  * Fake object that prevent tests from communicating with server to pull or submit data
@@ -14,19 +14,20 @@ import org.commcare.dalvik.activities.FormAndDataSyncer;
 public class FormAndDataSyncerFake extends FormAndDataSyncer {
     private final String TAG = FormAndDataSyncerFake.class.getSimpleName();
 
-    public FormAndDataSyncerFake(CommCareHomeActivity activity) {
-        super(activity);
+    public FormAndDataSyncerFake() {
     }
 
     @Override
-    public void processAndSendForms(FormRecord[] records,
+    public void processAndSendForms(CommCareHomeActivity activity,
+                                    FormRecord[]records,
                                     final boolean syncAfterwards,
                                     final boolean userTriggered) {
         Log.d(TAG, "faking form processing and sending");
     }
 
     @Override
-    public void syncData(boolean formsToSend,
+    public void syncData(CommCareHomeActivity activity,
+                         boolean formsToSend,
                          boolean userTriggeredSync) {
         Log.d(TAG, "faking data sync");
     }
