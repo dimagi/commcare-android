@@ -69,6 +69,9 @@ public class DispatchActivity extends FragmentActivity {
             shortcutExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
         }
 
+        // Note: It is important that this check happens in onCreate, and not at the time that
+        // the value is actually used, because we only want to check for changed app files on a
+        // new creation of the DispatchActivity, not every time it resumes
         shouldCheckForLocalAppFilesChange = CommCareApplication._().isConsumerApp();
     }
 
@@ -111,8 +114,6 @@ public class DispatchActivity extends FragmentActivity {
 
     private void checkForChangedAppFiles() {
         Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
-        i.putExtra(UpdateActivity.KEY_PROCEED_AUTOMATICALLY, true);
-        i.putExtra(UpdateActivity.KEY_LOCAL_UPDATE, true);
         startActivity(i);
     }
 

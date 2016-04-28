@@ -30,8 +30,7 @@ import org.javarosa.core.services.locale.Localization;
 public class UpdateActivity extends CommCareActivity<UpdateActivity>
         implements TaskListener<Integer, AppInstallStatus>, WithUIController {
 
-    public static final String KEY_PROCEED_AUTOMATICALLY = "proceed-automatically-with-update";
-    public static final String KEY_LOCAL_UPDATE = "is-local-update";
+    public static final String KEY_FROM_LATEST_BUILD_ACTIVITY = "from-test-latest-build-util";
 
     private static final String TAG = UpdateActivity.class.getSimpleName();
     private static final String TASK_CANCELLING_KEY = "update_task_cancelling";
@@ -45,6 +44,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private UpdateUIController uiController;
 
     private boolean proceedAutomatically;
+    private boolean isLocalUpdate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +52,12 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
         uiController.setupUI();
 
-        proceedAutomatically = getIntent().getBooleanExtra(KEY_PROCEED_AUTOMATICALLY, false);
+        if (getIntent().getBooleanExtra(KEY_FROM_LATEST_BUILD_ACTIVITY, false)) {
+            proceedAutomatically = true;
+        } else if (CommCareApplication._().isConsumerApp()) {
+            proceedAutomatically = true;
+            isLocalUpdate = true;
+        }
 
         loadSavedInstanceState(savedInstanceState);
 
@@ -223,7 +228,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         try {
             updateTask = UpdateTask.getNewInstance();
             updateTask.startPinnedNotification(this);
-            if (getIntent().getBooleanExtra(KEY_LOCAL_UPDATE, false)) {
+            if (isLocalUpdate) {
                 updateTask.setAsLocalUpdate();
             }
             updateTask.registerTaskListener(this);
@@ -314,6 +319,14 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     + "any valid possibilities in CommCareSetupActivity");
             return null;
         }
+        if (CommCareApplication._().isConsumerApp()) {
+            return generateConsumerAppUpdateDialog(taskId);
+        } else {
+            return generateNormalUpdateDialog(taskId);
+        }
+    }
+
+    private static CustomProgressDialog generateNormalUpdateDialog(int taskId) {
         String title = Localization.get("updates.installing.title");
         String message = Localization.get("updates.installing.message");
         CustomProgressDialog dialog =
@@ -322,14 +335,22 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         return dialog;
     }
 
+    private static CustomProgressDialog generateConsumerAppUpdateDialog(int taskId) {
+        String title = "Starting Up";
+        String message = "Initializing your application...";
+        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
+        dialog.setCancelable(false);
+        return dialog;
+    }
+
     private void logoutOnSuccessfulUpdate() {
         final String upgradeFinishedText =
                 Localization.get("updates.install.finished");
-        Toast.makeText(this, upgradeFinishedText, Toast.LENGTH_LONG).show();
         CommCareApplication._().expireUserSession();
         if (proceedAutomatically) {
             finishWithResult(RefreshToLatestBuildActivity.UPDATE_SUCCESS);
         } else {
+            Toast.makeText(this, upgradeFinishedText, Toast.LENGTH_LONG).show();
             setResult(RESULT_OK);
             this.finish();
         }
@@ -343,7 +364,11 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     @Override
     public void initUIController() {
         boolean fromAppManager = getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
-        uiController = new UpdateUIController(this, fromAppManager);
+        if (CommCareApplication._().isConsumerApp()) {
+            uiController = new BlankUpdateUIController(this, fromAppManager);
+        } else {
+            uiController = new UpdateUIController(this, fromAppManager);
+        }
     }
 
     @Override
