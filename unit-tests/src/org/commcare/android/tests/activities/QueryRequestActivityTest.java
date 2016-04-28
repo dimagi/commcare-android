@@ -110,9 +110,11 @@ public class QueryRequestActivityTest {
 
         Intent queryActivityIntent =
                 new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
-        QueryRequestActivity queryRequestActivity =
-                Robolectric.buildActivity(QueryRequestActivity.class).withIntent(queryActivityIntent)
-                        .create().start().resume().get();
+
+        ActivityController<QueryRequestActivity> controller =
+                Robolectric.buildActivity(QueryRequestActivity.class)
+                        .withIntent(queryActivityIntent).create().start().resume();
+        QueryRequestActivity queryRequestActivity = controller.get();
 
         LinearLayout promptsLayout = (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
         EditText patientId = (EditText)promptsLayout.getChildAt(1);
@@ -124,6 +126,16 @@ public class QueryRequestActivityTest {
         queryButton.performClick();
 
         TextView errorMessage = (TextView)queryRequestActivity.findViewById(R.id.error_message);
+        assertEquals(View.VISIBLE, errorMessage.getVisibility());
+        assertTrue(((String)errorMessage.getText()).contains(Localization.get("query.response.format.error", "")));
+
+        Bundle savedInstanceState = new Bundle();
+        controller.saveInstanceState(savedInstanceState);
+
+        queryRequestActivity = Robolectric.buildActivity(QueryRequestActivity.class)
+                .withIntent(queryActivityIntent).create(savedInstanceState).start().resume().get();
+
+        errorMessage = (TextView)queryRequestActivity.findViewById(R.id.error_message);
         assertEquals(View.VISIBLE, errorMessage.getVisibility());
         assertTrue(((String)errorMessage.getText()).contains(Localization.get("query.response.format.error", "")));
     }
@@ -150,7 +162,6 @@ public class QueryRequestActivityTest {
         Bundle savedInstanceState = new Bundle();
         controller.saveInstanceState(savedInstanceState);
 
-        controller.resume();
         queryRequestActivity = Robolectric.buildActivity(QueryRequestActivity.class)
                 .withIntent(queryActivityIntent).create(savedInstanceState).start().resume().get();
         promptsLayout = (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);

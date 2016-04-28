@@ -101,6 +101,10 @@ public class QueryRequestActivity
                 makeQueryRequest();
             }
         });
+
+        if (inErrorState) {
+            enterErrorState();
+        }
     }
 
     private void buildPromptUI() {
