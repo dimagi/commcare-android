@@ -26,6 +26,7 @@ import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.network.RemoteDataPullResponse;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.templates.CommCareTask;
@@ -137,12 +138,11 @@ public abstract class DataPullTask<R>
             CommCareApp app = CommCareApplication._().getCurrentApp();
             SharedPreferences prefs = app.getAppPreferences();
 
-            String keyServer = prefs.getString("key_server", null);
-
             mTotalItems = -1;
             mCurrentProgress = -1;
 
             //Whether or not we should be generating the first key
+            String keyServer = CommCarePreferences.getKeyServer();
             boolean useExternalKeys = !(keyServer == null || keyServer.equals(""));
 
             boolean loginNeeded = true;

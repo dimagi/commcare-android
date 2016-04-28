@@ -474,4 +474,12 @@ public class CommCarePreferences
                     Localization.get("no.file.browser"), false);
         }
     }
+
+    public static String getKeyServer() {
+        if (CommCareApplication._().isConsumerApp()) {
+            return null;
+        } else {
+            return CommCareApplication._().getCurrentApp().getAppPreferences().getString("key_server", null);
+        }
+    }
 }
