@@ -51,7 +51,7 @@
 
     <application
         android:allowBackup="false"
-        tools:replace="android:label,android:icon"
+        tools:replace="android:label,android:icon, android:allowBackup"
         android:name="org.commcare.CommCareApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/application_name"

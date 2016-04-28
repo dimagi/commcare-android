@@ -51,7 +51,7 @@ dependencies {
     compile project(':commcare')
     compile fileTree(dir: 'app/libs', include: '*.jar')
     compile(name: 'htmlspanner-custom', ext: 'aar')
-    compile(name: 'zebra-print-interface', ext: 'aar')
+    compile(name: 'android-zebra-interface-1.0', ext: 'aar')
     compile 'com.android.support:cardview-v7:23.2.1'
     compile 'com.android.support:recyclerview-v7:23.2.1'
     compile 'com.android.support:support-v4:23.2.1'

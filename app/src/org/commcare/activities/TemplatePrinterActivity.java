@@ -20,7 +20,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.util.FileUtil;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.TemplatePrinterTask;
