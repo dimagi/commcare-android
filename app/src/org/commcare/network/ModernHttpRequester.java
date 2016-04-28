@@ -96,7 +96,7 @@ public class ModernHttpRequester {
     public void request() {
         HttpURLConnection httpConnection = null;
         try {
-            httpConnection = setupConnection();
+            httpConnection = setupConnection(buildUrl());
             processResponse(httpConnection);
         } catch (IOException e) {
             responseProcessor.handleIOException(e);
@@ -107,17 +107,22 @@ public class ModernHttpRequester {
         }
     }
 
-    protected HttpURLConnection setupConnection() throws IOException {
-        HttpURLConnection httpConnection;
+    private URL buildUrl() throws IOException {
         if (isPostRequest) {
-            httpConnection = (HttpURLConnection)url.openConnection();
+            return url;
+        } else {
+            return buildUrlWithParams();
+        }
+    }
+
+    protected HttpURLConnection setupConnection(URL builtUrl) throws IOException {
+        HttpURLConnection httpConnection = (HttpURLConnection)builtUrl.openConnection();
+        if (isPostRequest) {
             setupConnectionInner(httpConnection);
             httpConnection.setRequestMethod("POST");
             httpConnection.setDoOutput(true);
             buildPostPayload(httpConnection);
         } else {
-            URL urlWithQuery = buildUrlWithParams();
-            httpConnection = (HttpURLConnection)urlWithQuery.openConnection();
             setupConnectionInner(httpConnection);
             httpConnection.setRequestMethod("GET");
         }

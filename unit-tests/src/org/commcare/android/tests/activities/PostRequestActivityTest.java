@@ -141,7 +141,7 @@ public class PostRequestActivityTest {
 
     @Test
     public void ioErrorInResponseFromServerTest() {
-        ModernHttpRequesterMock.makeNextRequestThrowIOException();
+        ModernHttpRequesterMock.setRequestPayloads(new String[]{null});
         assertPostFailureMessage(Localization.get("post.io.error", HttpURLConnectionMock.ioErrorMessage), 200);
     }
 
@@ -173,7 +173,7 @@ public class PostRequestActivityTest {
         CommCareSession session = sessionWrapper.getSession();
         session.setCommand("patient-search");
         InputStream is =
-                PostRequestActivity.class.getClassLoader().getResourceAsStream("commcare-apps/case_search_and_claim/patients.xml");
+                PostRequestActivity.class.getClassLoader().getResourceAsStream("commcare-apps/case_search_and_claim/good-query-result.xml");
         Pair<ExternalDataInstance, String> instanceOrError =
                 QueryRequestActivity.buildExternalDataInstance(is, "patients");
         session.setQueryDatum(instanceOrError.first);

@@ -172,7 +172,13 @@ public class QueryRequestActivity
     }
 
     private static RemoteQuerySessionManager buildQuerySessionManager(AndroidSessionWrapper sessionWrapper) {
-        SessionDatum datum = sessionWrapper.getSession().getNeededDatum();
+        SessionDatum datum;
+        try {
+            datum = sessionWrapper.getSession().getNeededDatum();
+        } catch (NullPointerException e) {
+            // tried loading session info when it wasn't there
+            return null;
+        }
         if (datum instanceof RemoteQueryDatum) {
             return new RemoteQuerySessionManager((RemoteQueryDatum)datum, sessionWrapper.getEvaluationContext());
         } else {

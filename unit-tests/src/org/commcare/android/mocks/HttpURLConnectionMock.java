@@ -14,14 +14,26 @@ public class HttpURLConnectionMock extends HttpURLConnection {
     private final InputStream inputStream;
     public final static String ioErrorMessage = "uhh ohh, io error oh";
 
-    public HttpURLConnectionMock(URL url, int responseCode, boolean shouldStreamThrow) {
+    private HttpURLConnectionMock(URL url, int responseCode,
+                                  InputStream inputStream) {
         super(url);
+
         this.responseCode = responseCode;
-        if (shouldStreamThrow) {
-            this.inputStream = null;
-        } else {
-            this.inputStream = new ByteArrayInputStream("".getBytes());
-        }
+        this.inputStream = inputStream;
+    }
+
+    public static HttpURLConnectionMock mockWithStream(URL url, int responseCode,
+                                                       InputStream inputStream) {
+        return new HttpURLConnectionMock(url, responseCode, inputStream);
+    }
+
+    public static HttpURLConnectionMock mockWithEmptyStream(URL url, int responseCode) {
+        return new HttpURLConnectionMock(url, responseCode,
+                new ByteArrayInputStream("".getBytes()));
+    }
+
+    public static HttpURLConnectionMock mockWithErroringStream(URL url, int responseCode) {
+        return new HttpURLConnectionMock(url, responseCode, null);
     }
 
     @Override
