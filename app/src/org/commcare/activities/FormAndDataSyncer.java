@@ -41,6 +41,12 @@ public class FormAndDataSyncer {
 
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
+                if (CommCareApplication._().isConsumerApp()) {
+                    // if this is a consumer app we don't want to show anything in the UI about
+                    // sending forms, or do a sync afterward
+                    return;
+                }
+
                 if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
                     receiver.finish();
                     return;

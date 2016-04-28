@@ -300,10 +300,13 @@ public class CommCarePreferences
     }
 
     public static boolean isIncompleteFormsEnabled() {
+        if (CommCareApplication._().isConsumerApp()) {
+            return false;
+        }
+
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         //If there is a setting for form management it takes precedence
         if (properties.contains(ENABLE_INCOMPLETE_FORMS)) {
-
             return properties.getString(ENABLE_INCOMPLETE_FORMS, YES).equals(YES);
         }
 
