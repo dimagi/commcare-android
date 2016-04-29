@@ -304,6 +304,7 @@ demo.mode.feature.unavailable=Sorry, this app uses a feature that is not availab
 select.search.label=Search:
 select.search.status=${0} of ${1} results for your search: "${2}"
 select.callout.search.status=${0} of ${1} results for callout result
+select.callout.search.invalid=Invalid callout response
 select.detail.confirm=Continue
 select.detail.bypass=Done
 select.address.show=Show Address

@@ -28,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
@@ -638,6 +639,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 handleSearchStringCallout(intent);
             } else if (SimprintsCalloutProcessing.isIdentificationResponse(intent)) {
                 handleFingerprintMatchCallout(intent);
+            } else {
+                Toast.makeText(this,
+                        Localization.get("select.callout.search.invalid"),
+                        Toast.LENGTH_SHORT).show();
             }
         }
     }
