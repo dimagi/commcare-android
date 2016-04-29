@@ -40,7 +40,7 @@ import java.util.Vector;
  * @author ctsims
  */
 public class EntityView extends LinearLayout {
-    private ArrayList<View> views;
+    private final ArrayList<View> views;
     private ArrayList<String> forms;
     private String[] searchTerms;
     private final ArrayList<String> mHints;
@@ -93,25 +93,26 @@ public class EntityView extends LinearLayout {
     /**
      * Creates row entry for column headers
      */
-    private EntityView(Context context, Detail d, String[] headerText,
+    private EntityView(Context context, Detail d, String[] columnTitles,
                        boolean hasCalloutResponseData) {
         super(context);
 
         DetailField calloutResponseDetailField = null;
-        if (hasCalloutResponseData) {
-            if (d.getCallout() != null) {
-                calloutResponseDetailField = d.getCallout().getResponseDetail();
-                String[] headerTextWithCalloutResponse = new String[headerText.length + 1];
-                System.arraycopy(headerText, 0, headerTextWithCalloutResponse, 0, headerText.length);
-                headerText = headerTextWithCalloutResponse;
-                headerText[headerText.length - 1] = calloutResponseDetailField.getHeader().evaluate();
-            }
+        if (hasCalloutResponseData && d.getCallout() != null) {
+            calloutResponseDetailField = d.getCallout().getResponseDetail();
+            String[] headerTextWithCalloutResponse =
+                    new String[columnTitles.length + 1];
+            System.arraycopy(columnTitles, 0,
+                    headerTextWithCalloutResponse, 0, columnTitles.length);
+            columnTitles = headerTextWithCalloutResponse;
+            columnTitles[columnTitles.length - 1] =
+                    calloutResponseDetailField.getHeader().evaluate();
         }
 
-        int viewCount = headerText.length;
-        this.views = new ArrayList<>(viewCount);
-        this.mHints = new ArrayList<>(viewCount);
-        String[] headerForms = new String[viewCount];
+        int columnCount = columnTitles.length;
+        this.views = new ArrayList<>(columnCount);
+        this.mHints = new ArrayList<>(columnCount);
+        String[] headerForms = new String[columnCount];
 
         int i = 0;
         for (DetailField field : d.getFields()) {
@@ -122,17 +123,20 @@ public class EntityView extends LinearLayout {
 
         if (calloutResponseDetailField != null) {
             mHints.add(calloutResponseDetailField.getHeaderWidthHint());
-            headerForms[viewCount-1] = calloutResponseDetailField.getHeaderForm();
+            headerForms[columnCount-1] = calloutResponseDetailField.getHeaderForm();
         }
 
-        int[] colors = AndroidUtil.getThemeColorIDs(getContext(), new int[]{R.attr.entity_view_header_background_color, R.attr.entity_view_header_text_color});
+        int[] colors = AndroidUtil.getThemeColorIDs(getContext(),
+                new int[]{R.attr.entity_view_header_background_color,
+                        R.attr.entity_view_header_text_color});
         
         if (colors[0] != -1) {
             this.setBackgroundColor(colors[0]);
         }
 
-        for (int col = 0; col < viewCount; ++col) {
-            views.add(addCell(col, headerText[col], headerForms[col], mHints.get(col), null, colors[1], false));
+        for (int col = 0; col < columnCount; ++col) {
+            views.add(addCell(col, columnTitles[col], headerForms[col],
+                    mHints.get(col), null, colors[1], false));
         }
     }
 
