@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -78,7 +79,8 @@ public class GridWidget extends QuestionWidget {
         // The max width of an icon in a given column. Used to line
         // up the columns and automatically fit the columns in when
         // they are chosen automatically
-        int maxColumnWidth = -1;
+        int maxImageWidth = -1;
+        int maxImageHeight = -1;
 
         for (int i = 0; i < mItems.size(); i++) {
             imageViews[i] = new ImageView(getContext());
@@ -87,7 +89,7 @@ public class GridWidget extends QuestionWidget {
         // Build view
         for (int i = 0; i < mItems.size(); i++) {
             SelectChoice sc = mItems.get(i);
-            // Read the image sizes and set maxColumnWidth. This allows us to make sure all of our
+            // Read the image sizes and set maxImageWidth. This allows us to make sure all of our
             // columns are going to fit
             String imageURI =
                     mPrompt.getSpecialFormSelectChoiceText(sc, FormEntryCaption.TEXT_FORM_IMAGE);
@@ -109,11 +111,12 @@ public class GridWidget extends QuestionWidget {
                                 MediaUtil
                                         .getBitmapScaledToContainer(imageFile, screenHeight, screenWidth);
                         if (b != null) {
-
-                            if (b.getWidth() > maxColumnWidth) {
-                                maxColumnWidth = b.getWidth();
+                            if (b.getWidth() > maxImageWidth) {
+                                maxImageWidth = b.getWidth();
                             }
-
+                            if (b.getHeight() > maxImageHeight) {
+                                maxImageHeight = b.getHeight();
+                            }
                         }
                     }
                 } catch (InvalidReferenceException e) {
@@ -147,14 +150,27 @@ public class GridWidget extends QuestionWidget {
             }
         });
 
-        // Use the user's choice for num columns, otherwise automatically decide.
+        Display display = ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
+                .getDefaultDisplay();
+        int screenWidth = display.getWidth();
+        int screenHeight = display.getHeight();
+
+        // Use the user's choice for num columns, otherwise decide based upon what will fit.
+        int maxColumnsThatWillFit = screenWidth / maxImageWidth;
         if (numColumns > 0) {
             gridview.setNumColumns(numColumns);
         } else {
-            gridview.setNumColumns(GridView.AUTO_FIT);
+            gridview.setNumColumns(maxColumnsThatWillFit);
         }
 
-        gridview.setColumnWidth(maxColumnWidth);
+        // Because grid views are designed to scroll rather than wrap their contents, we have to
+        // explicitly set the view's size 
+        int numRowsThatWillBeUsed = (mItems.size() / maxColumnsThatWillFit) + 1;
+        int approxTotalHeightNeeded = numRowsThatWillBeUsed * maxImageHeight;
+        GridView.LayoutParams params = new GridView.LayoutParams(screenWidth - 5, approxTotalHeightNeeded + 5);
+        gridview.setLayoutParams(params);
+
+        gridview.setColumnWidth(maxImageWidth);
         gridview.setHorizontalSpacing(2);
         gridview.setVerticalSpacing(2);
         gridview.setGravity(Gravity.LEFT);
