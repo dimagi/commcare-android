@@ -1,6 +1,11 @@
 m1.case_long.case_name_1.header=Name
 m1.case_long.title=Cases
+
 m1.case_short.case_name_1.header=Name
 m1.case_short.title=Cases
+
+m1.case_short_no_column.title=Cases
+m1.case_short_no_column.case_name_1.header=Name
+
 modules.m1=Follow Up
 m1.case_short.callout.header=Accuracy

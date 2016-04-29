@@ -1,100 +1,148 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<suite version="18" descriptor="Suite File">
-  <locale language="default">
-    <resource id="app_default_strings" version="18" descriptor="Translations: Default Language">
-      <location authority="local">./default/app_strings.txt</location>
-    </resource>
-  </locale>
-  <detail id="m1_case_short">
-    <title>
-      <text>
-        <locale id="m1.case_short.title"/>
-      </text>
-    </title>
-    <lookup type="text/plain" action="com.simprints.id.IDENTIFY" name="Scan fingerprint">
-      <extra key="deviceId" value="123"/>
-      <extra key="apiKey" value="000"/>
-      <extra key="packageName" value="foo"/>
-      <response key="fake"/>
-      <field>
-        <header>
-          <text>
-            <locale id="m1.case_short.callout.header"/>
-          </text>
-        </header>
-        <template>
-          <text>
-            <xpath function="@case_id"/>
-          </text>
-        </template>
-      </field>
-    </lookup>
-    <field>
-      <header>
+<suite descriptor="Suite File" version="18">
+    <locale language="default">
+        <resource descriptor="Translations: Default Language" id="app_default_strings" version="18">
+            <location authority="local">./default/app_strings.txt</location>
+        </resource>
+    </locale>
+    <detail id="m1_case_short">
+        <title>
+            <text>
+                <locale id="m1.case_short.title"/>
+            </text>
+        </title>
+        <lookup name="Scan fingerprint" action="com.simprints.id.IDENTIFY" type="text/plain">
+            <extra key="deviceId" value="123"/>
+            <extra key="apiKey" value="000"/>
+            <extra key="packageName" value="foo"/>
+            <response key="fake"/>
+            <field>
+                <header>
+                    <text>
+                        <locale id="m1.case_short.callout.header"/>
+                    </text>
+                </header>
+                <template>
+                    <text>
+                        <xpath function="@case_id"/>
+                    </text>
+                </template>
+            </field>
+        </lookup>
+        <field>
+            <header>
+                <text>
+                    <locale id="m1.case_short.case_name_1.header"/>
+                </text>
+            </header>
+            <template>
+                <text>
+                    <xpath function="case_name"/>
+                </text>
+            </template>
+            <sort direction="ascending" order="1" type="string">
+                <text>
+                    <xpath function="case_name"/>
+                </text>
+            </sort>
+        </field>
+    </detail>
+    <detail id="m1_case_long">
+        <title>
+            <text>
+                <locale id="m1.case_long.title"/>
+            </text>
+        </title>
+        <field>
+            <header>
+                <text>
+                    <locale id="m1.case_long.case_name_1.header"/>
+                </text>
+            </header>
+            <template>
+                <text>
+                    <xpath function="case_name"/>
+                </text>
+            </template>
+        </field>
+    </detail>
+    <detail id="m1_case_short_no_column">
+        <title>
+            <text>
+                <locale id="m1.case_short.title"/>
+            </text>
+        </title>
+        <lookup name="Scan fingerprint" action="com.simprints.id.IDENTIFY" type="text/plain">
+            <extra key="deviceId" value="123"/>
+            <extra key="apiKey" value="000"/>
+            <extra key="packageName" value="foo"/>
+            <response key="fake"/>
+            <field>
+                <header width="0">
+                    <text>
+                        <locale id="m1.case_short.callout.header"/>
+                    </text>
+                </header>
+                <template width="0">
+                    <text>
+                        <xpath function="@case_id"/>
+                    </text>
+                </template>
+            </field>
+        </lookup>
+        <field>
+            <header>
+                <text>
+                    <locale id="m1.case_short.case_name_1.header"/>
+                </text>
+            </header>
+            <template>
+                <text>
+                    <xpath function="case_name"/>
+                </text>
+            </template>
+            <sort direction="ascending" order="1" type="string">
+                <text>
+                    <xpath function="case_name"/>
+                </text>
+            </sort>
+        </field>
+    </detail>
+    <entry>
+        <form>http://openrosa.org/formdesigner/52D111C9-79C6-403F-BF4C-D24B64A872E2</form>
+        <command id="m1-f0">
+            <text>
+                <locale id="forms.m1f0"/>
+            </text>
+        </command>
+        <instance id="casedb" src="jr://instance/casedb"/>
+        <session>
+            <datum detail-confirm="m1_case_long"
+                   detail-select="m1_case_short"
+                   id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='case'][@status='open']" value="./@case_id"/>
+        </session>
+    </entry>
+    <entry>
+        <form>http://openrosa.org/formdesigner/11FAC65A-F2CD-427F-A870-CF126336AAB5</form>
+        <command id="m1-f1">
+            <text>
+                <locale id="forms.m1f0"/>
+            </text>
+        </command>
+        <instance id="casedb" src="jr://instance/casedb"/>
+        <session>
+            <datum detail-confirm="m1_case_long"
+                   detail-select="m1_case_short_no_column"
+                   id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='case'][@status='open']"
+                   value="./@case_id"/>
+        </session>
+    </entry>
+
+    <menu id="m1">
         <text>
-          <locale id="m1.case_short.case_name_1.header"/>
+            <locale id="modules.m1"/>
         </text>
-      </header>
-      <template>
-        <text>
-          <xpath function="case_name"/>
-        </text>
-      </template>
-      <sort type="string" order="1" direction="ascending">
-        <text>
-          <xpath function="case_name"/>
-        </text>
-      </sort>
-    </field>
-    <action>
-      <display>
-        <text>
-        </text>
-      </display>
-      <stack>
-        <push>
-          <command value="'m0-f0'"/>
-          <datum id="case_id_new_case_0" value="uuid()"/>
-          <datum id="return_to" value="'m1'"/>
-        </push>
-      </stack>
-    </action>
-  </detail>
-  <detail id="m1_case_long">
-    <title>
-      <text>
-        <locale id="m1.case_long.title"/>
-      </text>
-    </title>
-    <field>
-      <header>
-        <text>
-          <locale id="m1.case_long.case_name_1.header"/>
-        </text>
-      </header>
-      <template>
-        <text>
-          <xpath function="case_name"/>
-        </text>
-      </template>
-    </field>
-  </detail>
-  <entry>
-    <form>http://openrosa.org/formdesigner/52D111C9-79C6-403F-BF4C-D24B64A872E2</form>
-    <command id="m1-f0">
-      <text>
-        <locale id="forms.m1f0"/>
-      </text>
-    </command>
-    <instance id="casedb" src="jr://instance/casedb"/>
-    <session>
-      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='case'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long"/>
-    </session>
-  </entry>
-  <menu id="m1">
-    <text>
-      <locale id="modules.m1"/>
-    </text>
-    <command id="m1-f0"/>
-  </menu>
+        <command id="m1-f0"/>
+        <command id="m1-f1"/>
+    </menu>
 </suite>

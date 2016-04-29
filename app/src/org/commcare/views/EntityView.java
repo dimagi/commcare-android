@@ -85,7 +85,7 @@ public class EntityView extends LinearLayout {
             views.add(addCell(col, field, forms.get(col), mHints.get(col), sortField, -1, true));
         }
 
-        addExtraData(extraData);
+        addExtraData(d.getCallout().getResponseDetail(), extraData);
 
         this.mFuzzySearchEnabled = mFuzzySearchEnabled;
     }
@@ -160,7 +160,7 @@ public class EntityView extends LinearLayout {
                          String hint, String sortField,
                          int textColor, boolean shouldRefresh) {
         View view = null;
-        if (hint == null || !hint.startsWith("0")) {
+        if (isNonZeroWidth(hint)) {
             ViewId uniqueId = new ViewId(rowId, columnIndex, false);
             view = initView(data, form, uniqueId, sortField);
             view.setId(AndroidUtil.generateViewId());
@@ -207,20 +207,25 @@ public class EntityView extends LinearLayout {
         this.searchTerms = terms;
     }
 
-    public void setExtraData(String newExtraData) {
+    public void setExtraData(DetailField responseDetail, String newExtraData) {
         if (extraData != null) {
             removeExtraData();
         }
-        addExtraData(newExtraData);
+        addExtraData(responseDetail, newExtraData);
     }
 
-    private void addExtraData(String newExtraData) {
-        if (newExtraData != null && !"".equals(newExtraData)) {
+    private void addExtraData(DetailField responseDetail, String newExtraData) {
+        String hint = responseDetail.getTemplateWidthHint();
+        if (isNonZeroWidth(hint) && newExtraData != null && !"".equals(newExtraData)) {
             extraData = newExtraData;
             views.add(addCell(views.size(), newExtraData, "", "", "", -1, false));
-            mHints.add(null);
-            forms.add("");
+            mHints.add(hint);
+            forms.add(responseDetail.getTemplateForm());
         }
+    }
+
+    private static boolean isNonZeroWidth(String hintText) {
+        return hintText == null || !hintText.startsWith("0");
     }
 
     private void removeExtraData() {

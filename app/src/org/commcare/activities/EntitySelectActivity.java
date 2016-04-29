@@ -1097,10 +1097,12 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     public void onEvalLocationChanged() {
+        /*
         boolean loaded = loadEntities();
         if (!loaded) {
             locationChangedWhileLoading = true;
         }
+        */
     }
 
     public static HereFunctionHandler getHereFunctionHandler() {

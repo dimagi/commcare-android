@@ -32,6 +32,7 @@ import org.robolectric.Robolectric;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
+import org.robolectric.shadows.ShadowListView;
 
 import java.util.ArrayList;
 
@@ -60,12 +61,12 @@ public class EntityListCalloutDataTest {
     }
 
     @Test
-    public void testAttachCalloutResultToEntityList() {
-        launchEntitySelectActivity();
+    public void testAttachCalloutResultToListTest() {
+        launchEntitySelectActivity("m1-f0");
 
-        loadAdapter();
+        loadList();
         // TODO PLM: This fails non-deterministically; haven't figured out how to fix it
-        Assert.assertEquals(8, adapter.getCurrentCount());
+        Assert.assertEquals(8, adapter.getCount());
 
         EntityView entityView = (EntityView)adapter.getView(0, null, null);
         int entityColumnCount = entityView.getChildCount();
@@ -88,9 +89,33 @@ public class EntityListCalloutDataTest {
         assertEquals(8, adapter.getCurrentCount());
     }
 
-    private void launchEntitySelectActivity() {
+    @Test
+    public void testCalloutResultWithNoColumnTest() {
+        launchEntitySelectActivity("m1-f1");
+
+        loadList();
+        // TODO PLM: This fails non-deterministically; haven't figured out how to fix it
+        Assert.assertEquals(8, adapter.getCount());
+
+        EntityView entityView = (EntityView)adapter.getView(0, null, null);
+        int entityColumnCount = entityView.getChildCount();
+
+        performFingerprintCallout();
+
+        // ensure that the entity list is filtered by the received callout
+        // result data (fingerprint identification list with confidence score)
+        assertEquals(5, adapter.getCurrentCount());
+        assertTrue(adapter.isFilteringByCalloutResult());
+        assertTrue(adapter.hasCalloutResponseData());
+
+        // Ensure response data isn't shown to the user, since the width is set to 0
+        entityView = (EntityView)adapter.getView(0, null, null);
+        assertEquals(entityColumnCount, entityView.getChildCount());
+    }
+
+    private void launchEntitySelectActivity(String command) {
         ShadowActivity shadowHomeActivity =
-                ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m1-f0");
+                ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch(command);
 
         Intent entitySelectIntent = shadowHomeActivity.getNextStartedActivity();
 
@@ -103,7 +128,7 @@ public class EntityListCalloutDataTest {
                 .withIntent(entitySelectIntent).create().start().resume().get();
     }
 
-    private void loadAdapter() {
+    private void loadList() {
         // wait for entities to load
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
@@ -115,6 +140,9 @@ public class EntityListCalloutDataTest {
         ListView entityList =
                 (ListView)entitySelectActivity.findViewById(R.id.screen_entity_select_list);
         adapter = (EntityListAdapter)entityList.getAdapter();
+
+        ShadowListView shadowListView = Shadows.shadowOf(entityList);
+        shadowListView.populateItems();
     }
 
     private void performFingerprintCallout() {

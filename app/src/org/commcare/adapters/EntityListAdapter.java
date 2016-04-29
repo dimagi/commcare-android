@@ -265,14 +265,13 @@ public class EntityListAdapter implements ListAdapter {
                     getExtraData(entity));
         } else {
             emv.setSearchTerms(currentSearchTerms);
-            emv.setExtraData(getExtraData(entity));
+            emv.setExtraData(detail.getCallout().getResponseDetail(), getExtraData(entity));
             emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);
         }
         return emv;
     }
 
     private String getExtraData(Entity<TreeReference> entity) {
-
         if (entity.extraKey != null) {
             return externalData.get(entity.extraKey);
         } else {
