@@ -153,7 +153,6 @@ public class GridWidget extends QuestionWidget {
         Display display = ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
                 .getDefaultDisplay();
         int screenWidth = display.getWidth();
-        int screenHeight = display.getHeight();
 
         // Use the user's choice for num columns, otherwise decide based upon what will fit.
         int maxColumnsThatWillFit = screenWidth / maxImageWidth;
@@ -164,7 +163,7 @@ public class GridWidget extends QuestionWidget {
         }
 
         // Because grid views are designed to scroll rather than wrap their contents, we have to
-        // explicitly set the view's size 
+        // explicitly set the view's size
         int numRowsThatWillBeUsed = (mItems.size() / maxColumnsThatWillFit) + 1;
         int approxTotalHeightNeeded = numRowsThatWillBeUsed * maxImageHeight;
         GridView.LayoutParams params = new GridView.LayoutParams(screenWidth - 5, approxTotalHeightNeeded + 5);
