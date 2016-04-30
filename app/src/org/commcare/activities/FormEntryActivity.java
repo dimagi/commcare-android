@@ -1292,7 +1292,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     }
                 }
         );
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     private void saveFormToDisk(boolean exit) {
@@ -1413,7 +1413,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             items = new DialogChoiceItem[] {stayInFormItem, quitFormItem};
         }
         dialog.setChoiceItems(items);
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     private void discardChangesAndExit() {
@@ -1505,7 +1505,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         );
 
         dialog.setChoiceItems(choiceItems);
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     @Override

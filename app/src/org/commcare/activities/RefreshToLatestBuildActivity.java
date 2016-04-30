@@ -24,7 +24,7 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Aliza Stone (astone@dimagi.com)
  */
-public class RefreshToLatestBuildActivity extends Activity {
+public class RefreshToLatestBuildActivity extends CommCareActivity {
 
     public static final String KEY_FROM_LATEST_BUILD_ACTIVITY = "from-test-latest-build-util";
     public static final String KEY_UPDATE_ATTEMPT_RESULT = "result-of-update-attempt";
@@ -114,7 +114,7 @@ public class RefreshToLatestBuildActivity extends Activity {
         };
 
         AlertDialogFactory factory = AlertDialogFactory.getBasicAlertFactory(this, title, message, listener);
-        factory.showDialog();
+        showAlertDialog(factory);
     }
 
     private String getCurrentUserPassword() throws SessionUnavailableException {

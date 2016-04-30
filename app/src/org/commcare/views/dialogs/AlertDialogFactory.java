@@ -15,12 +15,7 @@ import org.javarosa.core.services.locale.Localization;
 /**
  * Created by amstone326 on 10/9/15.
  */
-public class AlertDialogFactory {
-
-    private final AlertDialog dialog;
-    private final View view;
-    private DialogInterface.OnCancelListener cancelListener;
-    private boolean isCancelable = false;
+public class AlertDialogFactory extends CommCareAlertDialog {
 
     public AlertDialogFactory(Context context, String title, String msg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -31,8 +26,8 @@ public class AlertDialogFactory {
         TextView messageView = (TextView)view.findViewById(R.id.dialog_message);
         messageView.setText(msg);
 
-        this.dialog = builder.create();
-        dialog.setCancelable(false); // false by default, can change using makeCancelable()
+        dialog = builder.create();
+        isCancelable = false;
     }
 
     /**
@@ -82,37 +77,6 @@ public class AlertDialogFactory {
         return factory;
     }
 
-    public AlertDialog getDialog() {
-        finalizeView();
-        return this.dialog;
-    }
-
-    public void showDialog() {
-        finalizeView();
-        dialog.show();
-    }
-
-    private void finalizeView() {
-        dialog.setView(this.view);
-    }
-
-    private void makeCancelable() {
-        isCancelable = true;
-        dialog.setCancelable(true);
-    }
-
-    public void setOnCancelListener(DialogInterface.OnCancelListener cancelListener) {
-        makeCancelable();
-        this.cancelListener = cancelListener;
-        dialog.setOnCancelListener(cancelListener);
-    }
-
-    public void performCancel(DialogInterface dialog) {
-        if (cancelListener != null) {
-            cancelListener.onCancel(dialog);
-        }
-    }
-
     public void setIcon(int resId) {
         ImageView icon = (ImageView)view.findViewById(R.id.dialog_title).findViewById(R.id.dialog_title_icon);
         icon.setImageResource(resId);
@@ -155,7 +119,4 @@ public class AlertDialogFactory {
         neutralButton.setVisibility(View.VISIBLE);
     }
 
-    public boolean isCancelable() {
-        return isCancelable;
-    }
 }

@@ -57,7 +57,7 @@ public class AndroidShortcuts extends Activity {
                 sc.finish();
             }
         });
-        dialog.show();
+        dialog.showDialog();
     }
 
     private DialogChoiceItem[] getChoiceItemList(final PaneledChoiceDialog dialog) {

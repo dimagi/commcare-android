@@ -124,7 +124,7 @@ public class CallOutActivity extends FragmentActivity
                 finish();
             }
         });
-        dialog.show();
+        dialog.showDialog();
     }
 
     @Override

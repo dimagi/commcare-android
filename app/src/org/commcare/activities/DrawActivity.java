@@ -321,7 +321,7 @@ public class DrawActivity extends Activity {
             }
         });
 
-        dialog.show();
+        dialog.showDialog();
     }
 
     private static class DrawView extends View {

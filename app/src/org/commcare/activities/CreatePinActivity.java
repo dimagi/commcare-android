@@ -198,7 +198,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
             }
         });
 
-        factory.showDialog();
+        showAlertDialog(factory);
     }
 
     public static TextWatcher getPinTextWatcher(final Button confirmButton) {

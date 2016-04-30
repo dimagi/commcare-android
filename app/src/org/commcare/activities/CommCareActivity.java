@@ -43,8 +43,10 @@ import org.commcare.utils.SessionStateUninitException;
 import org.commcare.views.ManagedUiFramework;
 import org.commcare.views.dialogs.AlertDialogFactory;
 import org.commcare.views.dialogs.AlertDialogFragment;
+import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogController;
+import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.media.AudioController;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
@@ -588,12 +590,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     @Override
-    public void showAlertDialog(AlertDialogFactory f) {
+    public void showAlertDialog(CommCareAlertDialog d) {
         if (getCurrentAlertDialog() != null) {
             // Means we already have an alert dialog on screen
             return;
         }
-        AlertDialogFragment dialog = AlertDialogFragment.fromFactory(f);
+        AlertDialogFragment dialog = AlertDialogFragment.fromCommCareAlertDialog(d);
         if (areFragmentsPaused) {
             alertDialogToShowOnResume = dialog;
         } else {

@@ -28,7 +28,7 @@ import org.commcare.views.dialogs.AlertDialogFactory;
  * @author amstone
  */
 
-public class SingleAppManagerActivity extends Activity {
+public class SingleAppManagerActivity extends CommCareActivity {
 
     private ApplicationRecord appRecord;
     private static final int LOGOUT_FOR_UPDATE = 0;
@@ -130,7 +130,7 @@ public class SingleAppManagerActivity extends Activity {
                 if (resultCode == RESULT_CANCELED) {
                     String title = getString(R.string.media_not_verified);
                     String msg = getString(R.string.skipped_verification_warning_2);
-                    AlertDialogFactory.getBasicAlertFactory(this, title, msg, null).showDialog();
+                    showAlertDialog(AlertDialogFactory.getBasicAlertFactory(this, title, msg, null));
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
@@ -257,7 +257,7 @@ public class SingleAppManagerActivity extends Activity {
         };
         factory.setPositiveButton(getString(R.string.ok), listener);
         factory.setNegativeButton(getString(R.string.cancel), listener);
-        factory.showDialog();
+        showAlertDialog(factory);
     }
 
     /**
@@ -291,6 +291,6 @@ public class SingleAppManagerActivity extends Activity {
         };
         factory.setPositiveButton(getString(R.string.ok), listener);
         factory.setNegativeButton(getString(R.string.cancel), listener);
-        factory.showDialog();
+        showAlertDialog(factory);
     }
 }

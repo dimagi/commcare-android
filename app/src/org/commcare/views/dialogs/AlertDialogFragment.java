@@ -14,17 +14,18 @@ import android.support.v4.app.DialogFragment;
  */
 public class AlertDialogFragment extends DialogFragment {
 
-    private AlertDialogFactory factory;
+    private CommCareAlertDialog underlyingDialog;
 
-    public static AlertDialogFragment fromFactory(AlertDialogFactory f) {
+    public static AlertDialogFragment fromCommCareAlertDialog(CommCareAlertDialog d) {
+        d.finalizeView();
         AlertDialogFragment frag = new AlertDialogFragment();
-        frag.setFactory(f);
-        frag.setCancelable(f.isCancelable());
+        frag.setUnderlyingDialog(d);
+        frag.setCancelable(d.isCancelable());
         return frag;
     }
 
-    private void setFactory(AlertDialogFactory f) {
-        this.factory = f;
+    private void setUnderlyingDialog(CommCareAlertDialog d) {
+        this.underlyingDialog = d;
     }
 
     @Override
@@ -35,13 +36,18 @@ public class AlertDialogFragment extends DialogFragment {
 
     @Override
     public void onCancel(DialogInterface dialog) {
-        factory.performCancel(dialog);
+        underlyingDialog.performCancel(dialog);
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        underlyingDialog.performDismiss(dialog);
     }
 
     @Override
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        return factory.getDialog();
+        return underlyingDialog.getDialog();
     }
 
     @Override

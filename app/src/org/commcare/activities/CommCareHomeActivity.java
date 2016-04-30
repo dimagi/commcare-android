@@ -303,14 +303,14 @@ public class CommCareHomeActivity
 
         dialog.setChoiceItems(new DialogChoiceItem[]{createPinChoice, nextTimeChoice, notAgainChoice});
         dialog.addCollapsibleInfoPane(Localization.get("pin.dialog.extra.info"));
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     private void showPinFutureAccessDialog() {
         AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactory(this,
                 Localization.get("pin.dialog.set.later.title"),
                 Localization.get("pin.dialog.set.later.message"), null);
-        f.showDialog();
+        showAlertDialog(f);
     }
 
     private void launchPinAuthentication() {
@@ -744,9 +744,9 @@ public class CommCareHomeActivity
     }
 
     private void showSessionRefreshWarning() {
-        AlertDialogFactory.getBasicAlertFactory(this,
+        showAlertDialog(AlertDialogFactory.getBasicAlertFactory(this,
                 Localization.get("session.refresh.error.title"),
-                Localization.get("session.refresh.error.message"), null).showDialog();
+                Localization.get("session.refresh.error.message"), null));
     }
 
     private void showDemoModeWarning() {
