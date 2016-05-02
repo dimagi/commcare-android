@@ -108,10 +108,8 @@ public class EntityListAdapter implements ListAdapter {
             if (sort.length != 0) {
                 sort(sort);
             }
-            filterByString("");
-        } else {
-            setCurrent(new ArrayList<>(full));
         }
+        setCurrent(new ArrayList<>(full));
 
         if (android.os.Build.VERSION.SDK_INT >= 14) {
             mImageLoader = new CachingAsyncImageLoader(context);
