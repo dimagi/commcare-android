@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.interfaces.FormSavedListener;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.encryption.EncryptionIO;
@@ -31,6 +32,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -102,8 +104,12 @@ public class SaveToDiskTask extends
             e.printStackTrace();
             return new ResultAndError<>(SaveStatus.SAVE_ERROR,
                     "Something is blocking acesss to the submission file in " + FormEntryActivity.mInstancePath);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch(UnsupportedEncodingException uee) {
+            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Form contains invalid data encoding\n\n" + ForceCloseLogger.getStackTrace(uee));
+            return new ResultAndError<>(SaveStatus.SAVE_ERROR,
+                    "Form contains invalidly encoded text! Unable to save contents.");
+        }  catch (IOException e) {
+            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "I/O Error when serializing form\n\n" + ForceCloseLogger.getStackTrace(e));
             return new ResultAndError<>(SaveStatus.SAVE_ERROR,
                     "Unable to write xml to " + FormEntryActivity.mInstancePath);
         } catch (FormInstanceTransactionException e) {
