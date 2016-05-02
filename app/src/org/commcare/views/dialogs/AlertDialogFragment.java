@@ -38,11 +38,13 @@ public class AlertDialogFragment extends DialogFragment {
 
     @Override
     public void onCancel(DialogInterface dialog) {
+        super.onCancel(dialog);
         underlyingDialog.performCancel(dialog);
     }
 
     @Override
     public void onDismiss(DialogInterface dialog) {
+        super.onDismiss(dialog);
         underlyingDialog.performDismiss(dialog);
     }
 
