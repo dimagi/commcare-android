@@ -739,6 +739,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         menu.findItem(MENU_SORT).setEnabled(adapter != null);
         // hide sorting menu when using async loading strategy
         menu.findItem(MENU_SORT).setVisible((shortSelect == null || !shortSelect.useAsyncStrategy()));
+        menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication._().isConsumerApp());
 
         return super.onPrepareOptionsMenu(menu);
     }

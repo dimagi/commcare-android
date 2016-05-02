@@ -8,13 +8,13 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.adapters.MenuAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.views.ManagedUi;
@@ -31,6 +31,8 @@ public class MenuList extends SaveSessionCommCareActivity implements OnItemClick
     // removed the UiElement annotation here because it was causing a crash @ loadFields() in CommCareActivity
     private TextView header;
 
+    private boolean isRootModuleMenu;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,6 +41,7 @@ public class MenuList extends SaveSessionCommCareActivity implements OnItemClick
 
         if (menuId == null) {
             menuId = Menu.ROOT_MENU_ID;
+            isRootModuleMenu = true;
         }
 
         if (header == null) {
@@ -66,6 +69,11 @@ public class MenuList extends SaveSessionCommCareActivity implements OnItemClick
     public String getActivityTitle() {
         //return adapter.getMenuTitle();
         return null;
+    }
+
+    @Override
+    public boolean isBackEnabled() {
+        return !(CommCareApplication._().isConsumerApp() && isRootModuleMenu);
     }
 
     /**
