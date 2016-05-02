@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -18,7 +17,7 @@ import org.commcare.adapters.AppManagerAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -128,7 +127,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                     String title = getString(R.string.media_not_verified);
                     String msg = getString(R.string.skipped_verification_warning);
                     showAlertDialog(
-                            AlertDialogFactory.getBasicAlertFactory(
+                            StandardAlertDialog.getBasicAlertDialog(
                                     this, title, msg, new DialogInterface.OnClickListener() {
 
                         @Override
@@ -166,7 +165,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     private void triggerLogoutWarning() {
         String title = getString(R.string.logging_out);
         String message = getString(R.string.logout_warning);
-        AlertDialogFactory factory = new AlertDialogFactory(this, title, message);
+        StandardAlertDialog d = new StandardAlertDialog(this, title, message);
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -178,8 +177,8 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
             }
 
         };
-        factory.setPositiveButton(getString(R.string.ok), listener);
-        factory.setNegativeButton(getString(R.string.cancel), listener);
-        showAlertDialog(factory);
+        d.setPositiveButton(getString(R.string.ok), listener);
+        d.setNegativeButton(getString(R.string.cancel), listener);
+        showAlertDialog(d);
     }
 }

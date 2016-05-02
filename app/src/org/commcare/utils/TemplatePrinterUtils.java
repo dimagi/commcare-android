@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import org.commcare.models.encryption.CryptUtil;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -146,7 +146,7 @@ public abstract class TemplatePrinterUtils {
      */
     public static void showAlertDialog(final Activity activity, String title, String msg,
                                        final boolean finishActivity) {
-        AlertDialogFactory.getBasicAlertFactory(activity, title, msg, new DialogInterface.OnClickListener() {
+        StandardAlertDialog.getBasicAlertDialog(activity, title, msg, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 if (finishActivity) {
@@ -158,7 +158,7 @@ public abstract class TemplatePrinterUtils {
 
     public static void showPrintStatusDialog(final Activity activity, String title, String msg,
                                              final boolean printInitiated) {
-        AlertDialogFactory.getBasicAlertFactory(activity, title, msg,
+        StandardAlertDialog.getBasicAlertDialog(activity, title, msg,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

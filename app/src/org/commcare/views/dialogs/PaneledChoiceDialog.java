@@ -15,8 +15,9 @@ import android.widget.TextView;
 import org.commcare.dalvik.R;
 
 /**
- * A dialog to use for any instance in which the user is being given a choice between multiple
- * options; the N choice options will be displayed in a vertically-oriented list
+ * An implementation of CommCareAlertDialog for use in any instance in which the user is being
+ * given a choice between multiple options; the N choice options will be displayed in a
+ * vertically-oriented list
  *
  * @author amstone
  */

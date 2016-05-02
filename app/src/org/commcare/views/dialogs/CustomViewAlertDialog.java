@@ -6,7 +6,9 @@ import android.content.DialogInterface;
 import android.view.View;
 
 /**
- * Created by amstone326 on 5/2/16.
+ * An implementation of CommCareAlertDialog for which the dialog's entire view is created custom
+ *
+ * @author amstone
  */
 public class CustomViewAlertDialog extends CommCareAlertDialog {
 

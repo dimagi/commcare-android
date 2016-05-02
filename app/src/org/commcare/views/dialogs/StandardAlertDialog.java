@@ -13,11 +13,14 @@ import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 
 /**
- * Created by amstone326 on 10/9/15.
+ * An implementation of CommCareAlertDialog that utilizes a pre-set view template, with the ability
+ * to customize basic fields (title, message, buttons, listeners, etc.)
+ *
+ * @author amstone
  */
-public class AlertDialogFactory extends CommCareAlertDialog {
+public class StandardAlertDialog extends CommCareAlertDialog {
 
-    public AlertDialogFactory(Context context, String title, String msg) {
+    public StandardAlertDialog(Context context, String title, String msg) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         view = LayoutInflater.from(context).inflate(R.layout.custom_alert_dialog, null);
 
@@ -36,9 +39,9 @@ public class AlertDialogFactory extends CommCareAlertDialog {
      * @param positiveButtonListener - the onClickListener to apply to the positive button. If
      *                               null, applies a default listener of just dismissing the dialog
      */
-    public static AlertDialogFactory getBasicAlertFactory(Context context, String title, String msg,
+    public static StandardAlertDialog getBasicAlertDialog(Context context, String title, String msg,
                                                           DialogInterface.OnClickListener positiveButtonListener) {
-        AlertDialogFactory factory = new AlertDialogFactory(context, title, msg);
+        StandardAlertDialog d = new StandardAlertDialog(context, title, msg);
         if (positiveButtonListener == null) {
             positiveButtonListener = new DialogInterface.OnClickListener() {
                 @Override
@@ -47,8 +50,8 @@ public class AlertDialogFactory extends CommCareAlertDialog {
                 }
             };
         }
-        factory.setPositiveButton(Localization.get("dialog.ok"), positiveButtonListener);
-        return factory;
+        d.setPositiveButton(Localization.get("dialog.ok"), positiveButtonListener);
+        return d;
     }
 
     /**
@@ -60,9 +63,9 @@ public class AlertDialogFactory extends CommCareAlertDialog {
      * @param positiveButtonListener - the onClickListener to apply to the positive button. If
      *                               null, applies a default listener of just dismissing the dialog
      */
-    public static AlertDialogFactory getBasicAlertFactoryWithIcon(Context context, String title, String msg, int iconResId,
+    public static StandardAlertDialog getBasicAlertDialogWithIcon(Context context, String title, String msg, int iconResId,
                                                                   DialogInterface.OnClickListener positiveButtonListener) {
-        AlertDialogFactory factory = new AlertDialogFactory(context, title, msg);
+        StandardAlertDialog d = new StandardAlertDialog(context, title, msg);
         if (positiveButtonListener == null) {
             positiveButtonListener = new DialogInterface.OnClickListener() {
                 @Override
@@ -71,9 +74,9 @@ public class AlertDialogFactory extends CommCareAlertDialog {
                 }
             };
         }
-        factory.setPositiveButton(Localization.get("dialog.ok"), positiveButtonListener);
-        factory.setIcon(iconResId);
-        return factory;
+        d.setPositiveButton(Localization.get("dialog.ok"), positiveButtonListener);
+        d.setIcon(iconResId);
+        return d;
     }
 
     public void setIcon(int resId) {

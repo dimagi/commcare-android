@@ -5,18 +5,23 @@ import android.content.DialogInterface;
 import android.view.View;
 
 /**
- * Created by amstone326 on 4/30/16.
+ * Framework for all alert-type dialogs used across CommCare. Any specific implementations
+ * of an alert dialog in CommCare should subclass this class.
+ *
+ * The showing and persistence of all CommCareAlertDialogs should be managed by the implementation
+ * of the DialogController interface in CommCareActivity wherever possible (e.g. wherever the
+ * context of a dialog is a CommCareActivity)
+ *
  */
 public abstract class CommCareAlertDialog {
 
     protected AlertDialog dialog;
     protected DialogInterface.OnCancelListener cancelListener;
     protected DialogInterface.OnDismissListener dismissListener;
-
-    // false by default, can be overriden by calling setOnCancelListener(), or by subclass
+    protected View view;
+    // false by default, can be overridden by calling setOnCancelListener(), or by subclass
     // definitions if desired
     protected boolean isCancelable;
-    protected View view;
 
     public void finalizeView() {
         dialog.setCancelable(isCancelable);

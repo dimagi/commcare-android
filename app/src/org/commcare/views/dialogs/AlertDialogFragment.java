@@ -7,7 +7,9 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 
 /**
- * Dialog that persists across screen orientation changes, wraps AlertDialogFactory
+ * Wrapper for CommCareAlertDialogs that allows them to persist across screen orientation changes,
+ * by creating a DialogFragment from a CommCareAlertDialog at the time of actually showing the
+ * dialog
  *
  * @author Phillip Mates (pmates@dimagi.com)
  * @author Aliza Stone (astone@dimagi.com)

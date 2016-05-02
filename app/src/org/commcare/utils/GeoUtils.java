@@ -11,7 +11,7 @@ import android.support.v4.content.ContextCompat;
 
 import org.commcare.activities.CommCareActivity;
 import org.commcare.dalvik.R;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.model.data.GeoPointData;
 import org.javarosa.core.model.data.UncastData;
 
@@ -90,7 +90,7 @@ public class GeoUtils {
      */
     public static void showNoGpsDialog(CommCareActivity activity,
                                        DialogInterface.OnClickListener onChange) {
-        AlertDialogFactory factory = setupAlertFactory(activity, onChange, null);
+        StandardAlertDialog factory = setupAlertFactory(activity, onChange, null);
         activity.showAlertDialog(factory);
     }
 
@@ -103,17 +103,17 @@ public class GeoUtils {
     public static void showNoGpsDialog(Activity activity,
                                        DialogInterface.OnClickListener onChange,
                                        DialogInterface.OnCancelListener onCancel) {
-        AlertDialogFactory factory = setupAlertFactory(activity, onChange, onCancel);
+        StandardAlertDialog factory = setupAlertFactory(activity, onChange, onCancel);
 
         // NOTE PLM: this dialog will not persist through orientation changes.
         factory.showDialog();
     }
 
-    private static AlertDialogFactory setupAlertFactory(Context context,
-                                                        DialogInterface.OnClickListener onChange,
-                                                        DialogInterface.OnCancelListener onCancel) {
-        AlertDialogFactory factory =
-                new AlertDialogFactory(context,
+    private static StandardAlertDialog setupAlertFactory(Context context,
+                                                         DialogInterface.OnClickListener onChange,
+                                                         DialogInterface.OnCancelListener onCancel) {
+        StandardAlertDialog factory =
+                new StandardAlertDialog(context,
                         context.getString(R.string.no_gps_title),
                         context.getString(R.string.no_gps_message));
         factory.setPositiveButton(context.getString(R.string.change_settings), onChange);

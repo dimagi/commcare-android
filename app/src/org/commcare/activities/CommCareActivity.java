@@ -41,12 +41,11 @@ import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.views.ManagedUiFramework;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.AlertDialogFragment;
 import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogController;
-import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.media.AudioController;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
@@ -246,7 +245,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private void showPendingUserMessage() {
         String[] messageAndTitle = CommCareApplication._().getPendingUserMessage();
         if (messageAndTitle != null) {
-            showAlertDialog(AlertDialogFactory.getBasicAlertFactory(
+            showAlertDialog(StandardAlertDialog.getBasicAlertDialog(
                     this, messageAndTitle[1], messageAndTitle[0], null));
             CommCareApplication._().clearPendingUserMessage();
         }
@@ -396,9 +395,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 }
             }
         };
-        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactoryWithIcon(this, title,
-                message, android.R.drawable.ic_dialog_info, listener);
-        showAlertDialog(f);
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
+                message, android.R.drawable.ic_dialog_info, listener));
     }
 
     @Override

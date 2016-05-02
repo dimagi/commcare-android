@@ -28,7 +28,7 @@ import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.commcare.utils.UriToFilePath;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -257,7 +257,7 @@ public class CommCarePreferences
     }
 
     private void showAnalyticsOptOutDialog() {
-        AlertDialogFactory f = new AlertDialogFactory(this,
+        StandardAlertDialog f = new StandardAlertDialog(this,
                 Localization.get("analytics.opt.out.title"),
                 Localization.get("analytics.opt.out.message"));
 
