@@ -17,12 +17,15 @@ import java.util.List;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class DebugDataPullResponseFactory implements DataPullRequester {
+public enum DebugDataPullResponseFactory implements DataPullRequester {
+    INSTANCE;
+
     // data pull requests will pop off and use the top reference in this list
     private final List<String> xmlPayloadReferences = new ArrayList<>();
 
-    public DebugDataPullResponseFactory(String[] payloadReferences) {
-        Collections.addAll(xmlPayloadReferences, payloadReferences);
+    public static void setRequestPayloads(String[] payloadReferences) {
+        INSTANCE.xmlPayloadReferences.clear();
+        Collections.addAll(INSTANCE.xmlPayloadReferences, payloadReferences);
     }
 
     @Override

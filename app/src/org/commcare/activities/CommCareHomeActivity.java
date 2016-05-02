@@ -28,6 +28,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
@@ -84,7 +85,8 @@ import java.util.Vector;
 
 public class CommCareHomeActivity
         extends SessionAwareCommCareActivity<CommCareHomeActivity>
-        implements SessionNavigationResponder, WithUIController {
+        implements SessionNavigationResponder, WithUIController,
+        ConnectorWithResultCallback<CommCareHomeActivity> {
 
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
@@ -1053,7 +1055,7 @@ public class CommCareHomeActivity
     private void sendFormsOrSync(boolean userTriggeredSync) {
         boolean formsSentToServer = checkAndStartUnsentFormsTask(true, userTriggeredSync);
         if(!formsSentToServer) {
-            formAndDataSyncer.syncData(this, false, userTriggeredSync);
+            formAndDataSyncer.syncData(this, this, false, userTriggeredSync);
         }
     }
 
@@ -1067,7 +1069,7 @@ public class CommCareHomeActivity
         FormRecord[] records = StorageUtils.getUnsentRecords(storage);
 
         if(records.length > 0) {
-            formAndDataSyncer.processAndSendForms(this, records, syncAfterwards, userTriggered);
+            formAndDataSyncer.processAndSendForms(this, this, records, syncAfterwards, userTriggered);
             return true;
         } else {
             return false;
@@ -1138,12 +1140,15 @@ public class CommCareHomeActivity
         showAlertDialog(factory);
     }
 
-    void displayMessage(String message) {
-        displayMessage(message, false);
+    @Override
+    public void reportSuccess(String message) {
+        displayMessage(message, false, false);
     }
 
-    void displayMessage(String message, boolean bad) {
-        displayMessage(message, bad, false);
+
+    @Override
+    public void reportFailure(String message, boolean showPopupNotification) {
+        displayMessage(message, true, !showPopupNotification);
     }
 
     void displayMessage(String message, boolean bad, boolean suppressToast) {

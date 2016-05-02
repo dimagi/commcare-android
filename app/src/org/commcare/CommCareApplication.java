@@ -72,6 +72,8 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.framework.Table;
 import org.commcare.models.legacy.LegacyInstallUtils;
+import org.commcare.network.DataPullRequester;
+import org.commcare.network.DataPullResponseFactory;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.provider.ProviderUtils;
@@ -1476,4 +1478,7 @@ public class CommCareApplication extends Application {
         return false;
     }
 
+    public DataPullRequester getDataPullRequester(){
+        return DataPullResponseFactory.INSTANCE;
+    }
 }

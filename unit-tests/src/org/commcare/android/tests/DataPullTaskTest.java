@@ -117,10 +117,9 @@ public class DataPullTaskTest {
     private static void runDataPull(Integer[] resultCodes, String[] payloadResources) {
         HttpRequestEndpointsMock.setCaseFetchResponseCodes(resultCodes);
 
-        DebugDataPullResponseFactory dataPullRequestor =
-                new DebugDataPullResponseFactory(payloadResources);
+        DebugDataPullResponseFactory.setRequestPayloads(payloadResources);
         DataPullTask<Object> task =
-                new DataPullTask<Object>("test", "123", "fake.server.com", RuntimeEnvironment.application, dataPullRequestor) {
+                new DataPullTask<Object>("test", "123", "fake.server.com", RuntimeEnvironment.application, DebugDataPullResponseFactory.INSTANCE) {
                     @Override
                     protected void deliverResult(Object o, ResultAndError<PullTaskResult> pullTaskResultResultAndError) {
                         dataPullResult = pullTaskResultResultAndError;

@@ -3,6 +3,7 @@ package org.commcare.android.util;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApp;
+import org.commcare.CommCareTestApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.mocks.CommCareTaskConnectorFake;
@@ -119,6 +120,7 @@ public class TestAppInstaller {
 
     public static void login(String username, String password) {
         CommCareApp ccApp = CommCareApplication._().getCurrentApp();
+        ((CommCareTestApplication)CommCareApplication._()).setCachedUserPassword(password);
         UserKeyRecord keyRecord =
                 UserKeyRecord.getCurrentValidRecordByPassword(ccApp, username, password, true);
         CommCareApplication._().startUserSession(keyRecord.unWrapKey(password), keyRecord, false);

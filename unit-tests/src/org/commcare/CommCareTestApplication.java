@@ -3,7 +3,9 @@ package org.commcare;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
+import org.commcare.network.DataPullRequester;
 import org.commcare.services.CommCareSessionService;
+import org.commcare.tasks.network.DebugDataPullResponseFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 import org.junit.Assert;
@@ -12,6 +14,9 @@ import org.junit.Assert;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class CommCareTestApplication extends CommCareApplication {
+
+    private String cachedUserPassword;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -46,7 +51,11 @@ public class CommCareTestApplication extends CommCareApplication {
         CommCareSessionService ccService = new CommCareSessionService();
         ccService.createCipherPool();
         ccService.prepareStorage(symetricKey, record);
-        ccService.startSession(getUserFromDb(ccService, record), record);
+        User user = getUserFromDb(ccService, record);
+        if (user != null) {
+            user.setCachedPwd(cachedUserPassword);
+        }
+        ccService.startSession(user, record);
 
         CommCareApplication._().setTestingService(ccService);
     }
@@ -58,5 +67,14 @@ public class CommCareTestApplication extends CommCareApplication {
             }
         }
         return null;
+    }
+
+    public void setCachedUserPassword(String password) {
+        cachedUserPassword = password;
+    }
+
+    @Override
+    public DataPullRequester getDataPullRequester(){
+        return DebugDataPullResponseFactory.INSTANCE;
     }
 }
