@@ -13,6 +13,8 @@ public abstract class CommCareAlertDialog {
     protected DialogInterface.OnCancelListener cancelListener;
     protected DialogInterface.OnDismissListener dismissListener;
 
+    // false by default, can be overriden by calling setOnCancelListener(), or by subclass
+    // definitions if desired
     protected boolean isCancelable;
     protected View view;
 

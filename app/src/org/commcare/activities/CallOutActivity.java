@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import org.commcare.interfaces.RuntimePermissionRequester;
+import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
@@ -137,12 +138,12 @@ public class CallOutActivity extends FragmentActivity
     private void dispatchActionWithPermissions() {
         if (missingPhonePermission()) {
             if (shouldShowPhonePermissionRationale()) {
-                AlertDialog dialog =
+                CommCareAlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(this, this,
                                 CALL_OR_SMS_PERMISSION_REQUEST,
                                 Localization.get("permission.case.callout.title"),
                                 Localization.get("permission.case.callout.message"));
-                dialog.show();
+                dialog.showDialog();
             } else {
                 requestNeededPermissions(CALL_OR_SMS_PERMISSION_REQUEST);
             }

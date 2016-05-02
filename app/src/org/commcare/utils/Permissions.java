@@ -9,6 +9,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 import org.commcare.interfaces.RuntimePermissionRequester;
+import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.javarosa.core.services.locale.Localization;
 
@@ -37,12 +38,12 @@ public class Permissions {
 
         if (missingAppPermission(activity, permissions)) {
             if (shouldShowPermissionRationale(activity, permissions)) {
-                AlertDialog dialog =
+                CommCareAlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(activity, permRequester,
                                 permRequestCode,
                                 Localization.get("permission.all.title"),
                                 Localization.get("permission.all.message"));
-                dialog.show();
+                dialog.showDialog();
             } else {
                 permRequester.requestNeededPermissions(permRequestCode);
             }

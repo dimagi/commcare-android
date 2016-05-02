@@ -45,6 +45,7 @@ import org.commcare.tasks.RetrieveParseVerifyMessageTask;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ManagedUi;
+import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.commcare.views.notifications.NotificationMessage;
@@ -496,12 +497,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.READ_SMS)) {
-                AlertDialog dialog =
-                        DialogCreationHelpers.buildPermissionRequestDialog(this, this,
+                DialogCreationHelpers.buildPermissionRequestDialog(this, this,
                                 SMS_PERMISSIONS_REQUEST,
                                 Localization.get("permission.sms.install.title"),
-                                Localization.get("permission.sms.install.message"));
-                dialog.show();
+                                Localization.get("permission.sms.install.message")).showDialog();
             } else {
                 requestNeededPermissions(SMS_PERMISSIONS_REQUEST);
             }

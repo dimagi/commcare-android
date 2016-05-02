@@ -64,6 +64,7 @@ import org.commcare.utils.StorageUtils;
 import org.commcare.views.HorizontalMediaView;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.DialogCreationHelpers;
@@ -1303,7 +1304,7 @@ public class CommCareHomeActivity
     }
 
     private void showAboutCommCareDialog() {
-        AlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this);
+        CommCareAlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this);
 
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
@@ -1319,7 +1320,8 @@ public class CommCareHomeActivity
             }
 
         });
-        dialog.show();
+
+        showAlertDialog(dialog);
     }
 
     private boolean hasP2p() {

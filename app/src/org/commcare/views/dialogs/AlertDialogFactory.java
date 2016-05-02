@@ -27,7 +27,6 @@ public class AlertDialogFactory extends CommCareAlertDialog {
         messageView.setText(msg);
 
         dialog = builder.create();
-        isCancelable = false;
     }
 
     /**
