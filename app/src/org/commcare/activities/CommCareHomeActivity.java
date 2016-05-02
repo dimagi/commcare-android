@@ -164,6 +164,8 @@ public class CommCareHomeActivity
 
     private boolean sessionNavigationProceedingAfterOnResume;
 
+    private boolean shouldFinish;
+
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
         super.onCreateSessionSafe(savedInstanceState);
@@ -495,8 +497,12 @@ public class CommCareHomeActivity
                         if (currentState.getSession().getCommand() == null) {
                             //Needed a command, and didn't already have one. Stepping back from
                             //an empty state, Go home!
-                            currentState.reset();
-                            uiController.refreshView();
+                            if (CommCareApplication._().isConsumerApp()) {
+                                shouldFinish = true;
+                            } else {
+                                currentState.reset();
+                                uiController.refreshView();
+                            }
                             return;
                         } else {
                             currentState.getSession().stepBack();
@@ -1080,6 +1086,11 @@ public class CommCareHomeActivity
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (shouldFinish) {
+            this.finish();
+            return;
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             refreshActionBar();
