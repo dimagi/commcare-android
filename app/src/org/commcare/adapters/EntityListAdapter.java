@@ -91,13 +91,10 @@ public class EntityListAdapter implements ListAdapter {
         }
 
         this.full = full;
-        setCurrent(new ArrayList<Entity<TreeReference>>());
         this.references = references;
-
         this.context = activity;
         this.observers = new ArrayList<>();
-
-        mNodeFactory = factory;
+        this.mNodeFactory = factory;
 
         //TODO: I am a bad person and I should feel bad. This should get encapsulated 
         //somewhere in the factory as a callback (IE: How to sort/or whether to or  something)
@@ -109,7 +106,6 @@ public class EntityListAdapter implements ListAdapter {
                 sort(sort);
             }
         }
-        setCurrent(new ArrayList<>(full));
 
         if (android.os.Build.VERSION.SDK_INT >= 14) {
             mImageLoader = new CachingAsyncImageLoader(context);
@@ -117,8 +113,10 @@ public class EntityListAdapter implements ListAdapter {
             mImageLoader = null;
         }
 
-        usesGridView = detail.usesGridView();
+        this.usesGridView = detail.usesGridView();
         this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();
+
+        setCurrent(new ArrayList<>(full));
     }
 
     /**
@@ -129,6 +127,7 @@ public class EntityListAdapter implements ListAdapter {
         if (actionsCount > 0) {
             actionsStartPosition = current.size();
         }
+        update();
     }
 
     void clearSearch() {
@@ -140,7 +139,6 @@ public class EntityListAdapter implements ListAdapter {
         setCurrent(full);
         isFilteringByCalloutResult = false;
         externalData.clear();
-        update();
     }
 
     private void sort(int[] fields) {

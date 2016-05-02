@@ -57,7 +57,6 @@ public abstract class EntityFiltererBase {
             @Override
             public void run() {
                 adapter.setCurrent(getMatchList());
-                adapter.update();
             }
         });
     }
