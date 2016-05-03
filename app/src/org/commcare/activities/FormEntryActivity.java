@@ -1550,14 +1550,16 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void saveInlineVideoState() {
-        for (int i = 0; i < questionsView.getWidgets().size(); i++) {
-            QuestionWidget q = questionsView.getWidgets().get(i);
-            if (q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID) != null) {
-                VideoView inlineVideo = (VideoView)q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
-                if (inlineVideo.isPlaying()) {
-                    indexOfWidgetWithVideoPlaying = i;
-                    positionOfVideoProgress = inlineVideo.getCurrentPosition();
-                    return;
+        if (questionsView != null) {
+            for (int i = 0; i < questionsView.getWidgets().size(); i++) {
+                QuestionWidget q = questionsView.getWidgets().get(i);
+                if (q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID) != null) {
+                    VideoView inlineVideo = (VideoView)q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
+                    if (inlineVideo.isPlaying()) {
+                        indexOfWidgetWithVideoPlaying = i;
+                        positionOfVideoProgress = inlineVideo.getCurrentPosition();
+                        return;
+                    }
                 }
             }
         }
@@ -1710,7 +1712,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         } else {
             // we've just loaded a saved form, so start in the hierarchy view
-            Intent i = new Intent(FormEntryActivity.this, FormHierarchyActivity.class);
+            Intent i = new Intent(this, FormHierarchyActivity.class);
             startActivityForResult(i, HIERARCHY_ACTIVITY_FIRST_START);
             return; // so we don't show the intro screen before jumping to the hierarchy
         }
