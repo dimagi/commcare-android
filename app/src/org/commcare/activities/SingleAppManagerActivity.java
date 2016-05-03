@@ -35,6 +35,12 @@ public class SingleAppManagerActivity extends Activity {
     private static final int LOGOUT_FOR_VERIFY_MM = 1;
     private static final int LOGOUT_FOR_ARCHIVE = 2;
 
+    private static final int UPGRADE_APP = 0;
+    private static final int MISSING_MEDIA_ACTIVITY = 1;
+    private static final int SEAT_APP_ACTIVITY = 2;
+
+    boolean launchUpdateAfterSeating;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -116,7 +122,7 @@ public class SingleAppManagerActivity extends Activity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
-            case CommCareHomeActivity.UPGRADE_APP:
+            case UPGRADE_APP:
                 if (resultCode == RESULT_CANCELED) {
                     UpdateTask task = UpdateTask.getRunningInstance();
                     if (task != null) {
@@ -125,7 +131,7 @@ public class SingleAppManagerActivity extends Activity {
                     }
                 }
                 return;
-            case DispatchActivity.MISSING_MEDIA_ACTIVITY:
+            case MISSING_MEDIA_ACTIVITY:
                 refresh();
                 if (resultCode == RESULT_CANCELED) {
                     String title = getString(R.string.media_not_verified);
@@ -133,6 +139,15 @@ public class SingleAppManagerActivity extends Activity {
                     AlertDialogFactory.getBasicAlertFactory(this, title, msg, null).showDialog();
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
+                }
+                return;
+            case SEAT_APP_ACTIVITY:
+                if (resultCode == RESULT_OK) {
+                    if (launchUpdateAfterSeating) {
+                        launchUpdateActivity();
+                    } else {
+                        launchVerificationActivity();
+                    }
                 }
                 return;
         }
@@ -203,7 +218,15 @@ public class SingleAppManagerActivity extends Activity {
      * Opens the MM verification activity for the selected app
      */
     private void verifyResources() {
-        CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
+        if (!CommCareApplication._().isSeated(appRecord)) {
+            launchUpdateAfterSeating = false;
+            seatApp();
+        } else {
+            launchVerificationActivity();
+        }
+    }
+
+    private void launchVerificationActivity() {
         Intent i = new Intent(this, CommCareVerificationActivity.class);
         i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
         this.startActivityForResult(i, DispatchActivity.MISSING_MEDIA_ACTIVITY);
@@ -231,7 +254,21 @@ public class SingleAppManagerActivity extends Activity {
      * Conducts an update for the selected app
      */
     private void update() {
-        CommCareApplication._().initializeAppResources(new CommCareApp(appRecord));
+        if (!CommCareApplication._().isSeated(appRecord)) {
+            launchUpdateAfterSeating = true;
+            seatApp();
+        } else {
+            launchUpdateActivity();
+        }
+    }
+
+    private void seatApp() {
+        Intent i = new Intent(this, SeatAppActivity.class);
+        i.putExtra(SeatAppActivity.KEY_APP_TO_SEAT, appRecord.getUniqueId());
+        this.startActivityForResult(i, SEAT_APP_ACTIVITY);
+    }
+
+    private void launchUpdateActivity() {
         Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
         i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
         startActivityForResult(i, CommCareHomeActivity.UPGRADE_APP);
