@@ -12,11 +12,13 @@ import java.net.PasswordAuthentication;
 import java.net.URL;
 
 /**
+ * Makes simple redirect-following GET requests that can be authenticated or not
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class SimpleGetRequest {
+class SimpleGetRequest {
 
-    public static InputStream makeRequest(final String username,
+    protected static InputStream makeRequest(final String username,
                                           final String password,
                                           URL url) throws IOException {
         if (username == null || password == null) {
