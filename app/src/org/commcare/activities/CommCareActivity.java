@@ -376,6 +376,9 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
+    /**
+     * Display exception details as a pop-up to the user.
+     */
     public void displayException(String title, String message) {
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
