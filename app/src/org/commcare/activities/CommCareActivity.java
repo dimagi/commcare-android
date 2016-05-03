@@ -376,14 +376,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
-    /**
-     * Display exception details as a pop-up to the user.
-     *
-     * @param e Exception to handle
-     */
-    public void displayException(Exception e) {
-        String title =  Localization.get("notification.case.predicate.title");
-        String message = Localization.get("notification.case.predicate.action", new String[]{e.getMessage()});
+    public void displayException(String title, String message) {
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
@@ -397,6 +390,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactoryWithIcon(this, title,
                 message, android.R.drawable.ic_dialog_info, listener);
         showAlertDialog(f);
+    }
+
+    public void displayCaseListFilterException(Exception e) {
+        displayException(
+                Localization.get("notification.case.predicate.title"),
+                Localization.get("notification.case.predicate.action", new String[]{e.getMessage()}));
     }
 
     @Override

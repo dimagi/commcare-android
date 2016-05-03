@@ -821,8 +821,9 @@ public class CommCareHomeActivity
             case SessionNavigator.LAUNCH_CONFIRM_DETAIL:
                 launchConfirmDetail(asw);
                 break;
-            case SessionNavigator.EXCEPTION_THROWN:
-                displayException(sessionNavigator.getCurrentException());
+            case SessionNavigator.XPATH_EXCEPTION_THROWN:
+                UserfacingErrorHandling
+                        .logErrorAndShowDialog(this, sessionNavigator.getCurrentException(), false);
         }
     }
 
