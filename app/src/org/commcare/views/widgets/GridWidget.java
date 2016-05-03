@@ -43,7 +43,7 @@ public class GridWidget extends QuestionWidget {
     // The possible select choices
     private final String[] choices;
 
-    // The Gridview that will hol the icons
+    // The Gridview that will hold the icons
     private final GridView gridview;
 
     // Defines which icon is selected
@@ -146,17 +146,6 @@ public class GridWidget extends QuestionWidget {
                 }
             }
         });
-
-        // Read the screen dimensions and fit the grid view to them. It is important that the grid
-        // view
-        // knows how far out it can stretch.
-        Display display =
-                ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
-                        .getDefaultDisplay();
-        int screenWidth = display.getWidth();
-        int screenHeight = display.getHeight();
-        GridView.LayoutParams params = new GridView.LayoutParams(screenWidth - 5, screenHeight - 5);
-        gridview.setLayoutParams(params);
 
         // Use the user's choice for num columns, otherwise automatically decide.
         if (numColumns > 0) {
