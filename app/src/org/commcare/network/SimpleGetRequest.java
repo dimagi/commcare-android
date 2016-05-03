@@ -14,7 +14,7 @@ import java.net.URL;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class ModernHttpRequest {
+public class SimpleGetRequest {
 
     public static InputStream makeRequest(final String username,
                                           final String password,
