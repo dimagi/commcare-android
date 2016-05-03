@@ -1712,7 +1712,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         } else {
             // we've just loaded a saved form, so start in the hierarchy view
-            Intent i = new Intent(FormEntryActivity.this, FormHierarchyActivity.class);
+            Intent i = new Intent(this, FormHierarchyActivity.class);
             startActivityForResult(i, HIERARCHY_ACTIVITY_FIRST_START);
             return; // so we don't show the intro screen before jumping to the hierarchy
         }

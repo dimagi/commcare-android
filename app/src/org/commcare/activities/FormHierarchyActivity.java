@@ -32,7 +32,6 @@ public class FormHierarchyActivity extends ListActivity {
     private Button jumpPreviousButton;
     private List<HierarchyElement> formList;
     private TextView mPath;
-    private FormIndex mStartIndex;
     public final static int RESULT_XPATH_ERROR = RESULT_FIRST_USER + 1;
 
     @Override
@@ -41,9 +40,6 @@ public class FormHierarchyActivity extends ListActivity {
         setContentView(R.layout.hierarchy_layout);
 
         addActionBarBackArrow();
-
-        // We use a static FormEntryController to make jumping faster.
-        mStartIndex = FormEntryActivity.mFormController.getFormIndex();
 
         setTitle(Localization.get("form.hierarchy"));
 
@@ -77,6 +73,9 @@ public class FormHierarchyActivity extends ListActivity {
                 finish();
             }
         });
+
+        // We use a static FormEntryController to make jumping faster.
+        final FormIndex mStartIndex = FormEntryActivity.mFormController.getFormIndex();
 
         // kinda slow, but works.
         // this scrolls to the last question the user was looking at
