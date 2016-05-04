@@ -29,10 +29,11 @@ public class Permissions {
      *                        permission requests
      * @param permRequester   performs user-facing permission request system calls
      * @param permRequestCode make the permission request using this request code
+     * @return Was the user asked for permissions?
      */
-    public static void acquireAllAppPermissions(Activity activity,
-                                                RuntimePermissionRequester permRequester,
-                                                int permRequestCode) {
+    public static boolean acquireAllAppPermissions(Activity activity,
+                                                   RuntimePermissionRequester permRequester,
+                                                   int permRequestCode) {
         String[] permissions = getAppPermissions();
 
         if (missingAppPermission(activity, permissions)) {
@@ -46,6 +47,9 @@ public class Permissions {
             } else {
                 permRequester.requestNeededPermissions(permRequestCode);
             }
+            return true;
+        } else {
+            return false;
         }
     }
 
