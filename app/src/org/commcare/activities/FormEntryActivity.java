@@ -43,6 +43,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormFileSystemHelpers;
@@ -53,6 +54,7 @@ import org.commcare.activities.components.FormRelevancyUpdating;
 import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.views.media.MediaLayout;
 import org.odk.collect.android.jr.extensions.IntentCallout;
 import org.odk.collect.android.jr.extensions.PollSensorAction;
 import org.commcare.interfaces.AdvanceToNextListener;
@@ -83,7 +85,7 @@ import org.commcare.utils.UriToFilePath;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.ResizingImageView;
 import org.commcare.views.UserfacingErrorHandling;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.HorizontalPaneledChoiceDialog;
@@ -172,6 +174,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
     public static final String KEY_FORM_ENTRY_SESSION = "form_entry_session";
     public static final String KEY_RECORD_FORM_ENTRY_SESSION = "record_form_entry_session";
+    private static final String KEY_WIDGET_WITH_VIDEO_PLAYING = "index-of-widget-with-video-playing-on-pause";
+    private static final String KEY_POSITION_OF_VIDEO_PLAYING = "position-of-video-playing-on-pause";
 
     /**
      * Intent extra flag to track if this form is an archive. Used to trigger
@@ -222,6 +226,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     // used to limit forward/backward swipes to one per question
     private boolean isAnimatingSwipe;
     private boolean isDialogShowing;
+
+    private int indexOfWidgetWithVideoPlaying = -1;
+    private int positionOfVideoProgress = -1;
 
     private FormLoaderTask<FormEntryActivity> mFormLoaderTask;
     private SaveToDiskTask mSaveToDiskTask;
@@ -412,6 +419,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
         saveFormEntrySession(outState);
         outState.putBoolean(KEY_RECORD_FORM_ENTRY_SESSION, recordEntrySession);
+
+        if (indexOfWidgetWithVideoPlaying != -1) {
+            outState.putInt(KEY_WIDGET_WITH_VIDEO_PLAYING, indexOfWidgetWithVideoPlaying);
+            outState.putInt(KEY_POSITION_OF_VIDEO_PLAYING, positionOfVideoProgress);
+        }
 
         if(symetricKey != null) {
             try {
@@ -1280,7 +1292,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     }
                 }
         );
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     private void saveFormToDisk(boolean exit) {
@@ -1401,7 +1413,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             items = new DialogChoiceItem[] {stayInFormItem, quitFormItem};
         }
         dialog.setChoiceItems(items);
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     private void discardChangesAndExit() {
@@ -1420,8 +1432,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             question = question.substring(0, 50) + "...";
         }
         String msg = StringUtils.getStringSpannableRobust(this, R.string.clearanswer_confirm, question).toString();
-        AlertDialogFactory factory = new AlertDialogFactory(this, title, msg);
-        factory.setIcon(android.R.drawable.ic_dialog_info);
+        StandardAlertDialog d = new StandardAlertDialog(this, title, msg);
+        d.setIcon(android.R.drawable.ic_dialog_info);
 
         DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
 
@@ -1438,9 +1450,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 dialog.dismiss();
             }
         };
-        factory.setPositiveButton(StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);
-        factory.setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.clear_answer_no), quitListener);
-        showAlertDialog(factory);
+        d.setPositiveButton(StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);
+        d.setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.clear_answer_no), quitListener);
+        showAlertDialog(d);
     }
 
     /**
@@ -1493,7 +1505,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         );
 
         dialog.setChoiceItems(choiceItems);
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     @Override
@@ -1533,6 +1545,43 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (mLocationServiceIssueReceiver != null) {
             unregisterReceiver(mLocationServiceIssueReceiver);
         }
+
+        saveInlineVideoState();
+    }
+
+    private void saveInlineVideoState() {
+        if (questionsView != null) {
+            for (int i = 0; i < questionsView.getWidgets().size(); i++) {
+                QuestionWidget q = questionsView.getWidgets().get(i);
+                if (q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID) != null) {
+                    VideoView inlineVideo = (VideoView)q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
+                    if (inlineVideo.isPlaying()) {
+                        indexOfWidgetWithVideoPlaying = i;
+                        positionOfVideoProgress = inlineVideo.getCurrentPosition();
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    private void restoreInlineVideoState() {
+        if (indexOfWidgetWithVideoPlaying != -1) {
+            QuestionWidget widgetWithVideoToResume = questionsView.getWidgets().get(indexOfWidgetWithVideoPlaying);
+            VideoView inlineVideo = (VideoView)widgetWithVideoToResume.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
+            if (inlineVideo != null) {
+                inlineVideo.seekTo(positionOfVideoProgress);
+                inlineVideo.start();
+            } else {
+                Logger.log(AndroidLogger.SOFT_ASSERT,
+                        "No inline video was found at the question widget index for which a " +
+                                "video had been playing before the activity was paused");
+            }
+
+            // Reset values now that we have restored
+            indexOfWidgetWithVideoPlaying = -1;
+            positionOfVideoProgress = -1;
+        }
     }
 
     @Override
@@ -1552,6 +1601,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // clear pending callout post onActivityResult processing
             mFormController.setPendingCalloutFormIndex(null);
         }
+
+        restoreInlineVideoState();
     }
 
     private void loadForm() {
@@ -1661,7 +1712,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         } else {
             // we've just loaded a saved form, so start in the hierarchy view
-            Intent i = new Intent(FormEntryActivity.this, FormHierarchyActivity.class);
+            Intent i = new Intent(this, FormHierarchyActivity.class);
             startActivityForResult(i, HIERARCHY_ACTIVITY_FIRST_START);
             return; // so we don't show the intro screen before jumping to the hierarchy
         }
@@ -2142,6 +2193,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             restoreFormEntrySession(savedInstanceState);
 
             recordEntrySession = savedInstanceState.getBoolean(KEY_RECORD_FORM_ENTRY_SESSION, false);
+            if (savedInstanceState.containsKey(KEY_WIDGET_WITH_VIDEO_PLAYING)) {
+                indexOfWidgetWithVideoPlaying = savedInstanceState.getInt(KEY_WIDGET_WITH_VIDEO_PLAYING);
+                positionOfVideoProgress = savedInstanceState.getInt(KEY_POSITION_OF_VIDEO_PLAYING);
+            }
         }
     }
 

@@ -851,7 +851,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private void createSortMenu() {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, Localization.get("select.menu.sort"));
         dialog.setChoiceItems(getSortOptionsList(dialog));
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     private DialogChoiceItem[] getSortOptionsList(final PaneledChoiceDialog dialog) {
@@ -1067,7 +1067,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     public void deliverLoadError(Exception e) {
-        displayException(e);
+        displayCaseListFilterException(e);
     }
 
     @Override

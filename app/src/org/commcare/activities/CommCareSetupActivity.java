@@ -3,7 +3,6 @@ package org.commcare.activities;
 import android.Manifest;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -186,9 +185,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 "startAllowed is: " + startAllowed + " "
         );
 
-        Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
-
-        performSMSInstall(false);
+        boolean askingForPerms =
+                Permissions.acquireAllAppPermissions(this, this,
+                        Permissions.ALL_PERMISSIONS_REQUEST);
+        if (!askingForPerms) {
+            // With basic perms satisfied, ask user to allow SMS reading for
+            // sms app install code
+            performSMSInstall(false);
+        }
     }
 
     private void loadStateFromInstance(Bundle savedInstanceState) {
@@ -496,12 +500,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.READ_SMS)) {
-                AlertDialog dialog =
-                        DialogCreationHelpers.buildPermissionRequestDialog(this, this,
+                DialogCreationHelpers.buildPermissionRequestDialog(this, this,
                                 SMS_PERMISSIONS_REQUEST,
                                 Localization.get("permission.sms.install.title"),
-                                Localization.get("permission.sms.install.message"));
-                dialog.show();
+                                Localization.get("permission.sms.install.message")).showNonPersistentDialog();
             } else {
                 requestNeededPermissions(SMS_PERMISSIONS_REQUEST);
             }
@@ -833,6 +835,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             CommCareApplication._().prepareTemporaryStorage();
             uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
             uiStateScreenTransition();
+
+            // Since SMS asks for more permissions, call was delayed until here
+            performSMSInstall(false);
         }
     }
 
