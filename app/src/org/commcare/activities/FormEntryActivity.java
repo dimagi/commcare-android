@@ -85,7 +85,7 @@ import org.commcare.utils.UriToFilePath;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.ResizingImageView;
 import org.commcare.views.UserfacingErrorHandling;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.HorizontalPaneledChoiceDialog;
@@ -1291,7 +1291,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     }
                 }
         );
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     private void saveFormToDisk(boolean exit) {
@@ -1412,7 +1412,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             items = new DialogChoiceItem[] {stayInFormItem, quitFormItem};
         }
         dialog.setChoiceItems(items);
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     private void discardChangesAndExit() {
@@ -1431,8 +1431,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             question = question.substring(0, 50) + "...";
         }
         String msg = StringUtils.getStringSpannableRobust(this, R.string.clearanswer_confirm, question).toString();
-        AlertDialogFactory factory = new AlertDialogFactory(this, title, msg);
-        factory.setIcon(android.R.drawable.ic_dialog_info);
+        StandardAlertDialog d = new StandardAlertDialog(this, title, msg);
+        d.setIcon(android.R.drawable.ic_dialog_info);
 
         DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
 
@@ -1449,9 +1449,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 dialog.dismiss();
             }
         };
-        factory.setPositiveButton(StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);
-        factory.setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.clear_answer_no), quitListener);
-        showAlertDialog(factory);
+        d.setPositiveButton(StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);
+        d.setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.clear_answer_no), quitListener);
+        showAlertDialog(d);
     }
 
     /**
@@ -1504,7 +1504,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         );
 
         dialog.setChoiceItems(choiceItems);
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     @Override
@@ -1549,14 +1549,16 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void saveInlineVideoState() {
-        for (int i = 0; i < questionsView.getWidgets().size(); i++) {
-            QuestionWidget q = questionsView.getWidgets().get(i);
-            if (q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID) != null) {
-                VideoView inlineVideo = (VideoView)q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
-                if (inlineVideo.isPlaying()) {
-                    indexOfWidgetWithVideoPlaying = i;
-                    positionOfVideoProgress = inlineVideo.getCurrentPosition();
-                    return;
+        if (questionsView != null) {
+            for (int i = 0; i < questionsView.getWidgets().size(); i++) {
+                QuestionWidget q = questionsView.getWidgets().get(i);
+                if (q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID) != null) {
+                    VideoView inlineVideo = (VideoView)q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
+                    if (inlineVideo.isPlaying()) {
+                        indexOfWidgetWithVideoPlaying = i;
+                        positionOfVideoProgress = inlineVideo.getCurrentPosition();
+                        return;
+                    }
                 }
             }
         }
@@ -1709,7 +1711,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         } else {
             // we've just loaded a saved form, so start in the hierarchy view
-            Intent i = new Intent(FormEntryActivity.this, FormHierarchyActivity.class);
+            Intent i = new Intent(this, FormHierarchyActivity.class);
             startActivityForResult(i, HIERARCHY_ACTIVITY_FIRST_START);
             return; // so we don't show the intro screen before jumping to the hierarchy
         }

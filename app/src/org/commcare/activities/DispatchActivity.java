@@ -15,7 +15,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
@@ -367,7 +367,7 @@ public class DispatchActivity extends FragmentActivity {
         String title = "Storage is Corrupt :/";
         String message = "Sorry, something really bad has happened, and the app can't start up. " +
                 "With your permission CommCare can try to repair itself if you have network access.";
-        AlertDialogFactory factory = new AlertDialogFactory(this, title, message);
+        StandardAlertDialog d = new StandardAlertDialog(this, title, message);
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
@@ -381,8 +381,8 @@ public class DispatchActivity extends FragmentActivity {
                 }
             }
         };
-        factory.setPositiveButton("Enter Recovery Mode", listener);
-        factory.setNegativeButton("Shut Down", listener);
-        return factory.getDialog();
+        d.setPositiveButton("Enter Recovery Mode", listener);
+        d.setNegativeButton("Shut Down", listener);
+        return d.getDialog();
     }
 }

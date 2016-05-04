@@ -48,7 +48,7 @@ import org.commcare.tasks.ZipTask;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.StorageUtils;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -208,7 +208,7 @@ public class CommCareWiFiDirectActivity
     }
 
     private void showDialog(Activity activity, String title, String message) {
-        AlertDialogFactory factory = new AlertDialogFactory(activity, title, message);
+        StandardAlertDialog d = new StandardAlertDialog(activity, title, message);
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -226,10 +226,10 @@ public class CommCareWiFiDirectActivity
                 dialog.dismiss();
             }
         };
-        factory.setNeutralButton(localize("wifi.direct.receive.forms"), listener);
-        factory.setNegativeButton(localize("wifi.direct.transfer.forms"), listener);
-        factory.setPositiveButton(localize("wifi.direct.submit.forms"), listener);
-        showAlertDialog(factory);
+        d.setNeutralButton(localize("wifi.direct.receive.forms"), listener);
+        d.setNegativeButton(localize("wifi.direct.transfer.forms"), listener);
+        d.setPositiveButton(localize("wifi.direct.submit.forms"), listener);
+        showAlertDialog(d);
     }
 
     private void beSender() {
