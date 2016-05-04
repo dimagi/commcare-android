@@ -6,7 +6,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 
 import org.commcare.CommCareApplication;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -36,13 +36,13 @@ public class UnrecoverableErrorActivity extends Activity {
         if (useExtraMessage) {
             message = message + "\n\n" + Localization.get("app.handled.error.explanation");
         }
-        AlertDialogFactory factory = new AlertDialogFactory(this, title, message);
+        StandardAlertDialog d = new StandardAlertDialog(this, title, message);
         DialogInterface.OnClickListener buttonListener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
                 CommCareApplication.restartCommCare(UnrecoverableErrorActivity.this);
             }
         };
-        factory.setPositiveButton(Localization.get("app.storage.missing.button"), buttonListener);
-        return factory.getDialog();
+        d.setPositiveButton(Localization.get("app.storage.missing.button"), buttonListener);
+        return d.getDialog();
     }
 }

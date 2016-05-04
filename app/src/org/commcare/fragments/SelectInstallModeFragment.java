@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.android.nsd.MicroNode;
 import org.commcare.android.nsd.NSDDiscoveryTools;
@@ -133,7 +134,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
             count++;
         }
         chooseApp.setChoiceItems(items);
-        chooseApp.show();
+        ((CommCareActivity)getActivity()).showAlertDialog(chooseApp);
     }
 
     @Override

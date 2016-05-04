@@ -6,7 +6,7 @@ import android.content.DialogInterface;
 import org.commcare.activities.CommCareActivity;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.utils.StringUtils;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.xpath.XPathException;
 
 /**
@@ -39,7 +39,7 @@ public class UserfacingErrorHandling {
 
     public static void createErrorDialog(final CommCareActivity activity, String errorMsg,
                                          String dialogTitle, final boolean shouldExit) {
-        AlertDialogFactory factory = new AlertDialogFactory(activity, dialogTitle, errorMsg);
+        StandardAlertDialog factory = new StandardAlertDialog(activity, dialogTitle, errorMsg);
         factory.setIcon(android.R.drawable.ic_dialog_info);
 
         DialogInterface.OnCancelListener cancelListener =
