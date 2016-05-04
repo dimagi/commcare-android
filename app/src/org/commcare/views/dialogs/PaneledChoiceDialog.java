@@ -15,23 +15,22 @@ import android.widget.TextView;
 import org.commcare.dalvik.R;
 
 /**
- * A dialog to use for any instance in which the user is being given a choice between multiple
- * options; the N choice options will be displayed in a vertically-oriented list
+ * An implementation of CommCareAlertDialog for use in any instance in which the user is being
+ * given a choice between multiple options; the N choice options will be displayed in a
+ * vertically-oriented list
  *
  * @author amstone
  */
-public class PaneledChoiceDialog {
+public class PaneledChoiceDialog extends CommCareAlertDialog {
 
-    protected final View view;
     protected final Context context;
-    private final AlertDialog dialog;
 
     public PaneledChoiceDialog(Context context, String title) {
         this.context = context;
         this.dialog = new AlertDialog.Builder(context).create();
         this.view = LayoutInflater.from(context).inflate(getLayoutFile(), null);
         setTitle(title);
-        dialog.setCancelable(true); // cancelable by default
+        isCancelable = true; // cancelable by default
     }
 
     protected int getLayoutFile() {
@@ -64,7 +63,7 @@ public class PaneledChoiceDialog {
     }
 
     public void makeNotCancelable() {
-        dialog.setCancelable(false);
+        isCancelable = false;
     }
 
     public void addButton(String text, View.OnClickListener listener) {
@@ -72,19 +71,6 @@ public class PaneledChoiceDialog {
         button.setText(text);
         button.setVisibility(View.VISIBLE);
         button.setOnClickListener(listener);
-    }
-
-    public void show() {
-        dialog.setView(view);
-        dialog.show();
-    }
-
-    public void setOnCancelListener(DialogInterface.OnCancelListener listener) {
-        dialog.setOnCancelListener(listener);
-    }
-
-    public void setOnDismissListener(DialogInterface.OnDismissListener listener) {
-        dialog.setOnDismissListener(listener);
     }
 
     public void dismiss() {
@@ -116,4 +102,5 @@ public class PaneledChoiceDialog {
             extraInfoContent.setVisibility(View.VISIBLE);
         }
     }
+
 }

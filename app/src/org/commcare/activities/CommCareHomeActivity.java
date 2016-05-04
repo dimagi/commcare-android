@@ -67,7 +67,8 @@ import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.views.HorizontalMediaView;
 import org.commcare.views.UserfacingErrorHandling;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
+import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.DialogCreationHelpers;
@@ -112,7 +113,6 @@ public class CommCareHomeActivity
     private static final int MODEL_RESULT = 4;
 
     private static final int GET_INCOMPLETE_FORM = 16;
-    public static final int UPGRADE_APP = 32;
     public static final int REPORT_PROBLEM_ACTIVITY = 64;
     public static final int QUERY = 128;
 
@@ -310,14 +310,13 @@ public class CommCareHomeActivity
 
         dialog.setChoiceItems(new DialogChoiceItem[]{createPinChoice, nextTimeChoice, notAgainChoice});
         dialog.addCollapsibleInfoPane(Localization.get("pin.dialog.extra.info"));
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     private void showPinFutureAccessDialog() {
-        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactory(this,
+        StandardAlertDialog.getBasicAlertDialog(this,
                 Localization.get("pin.dialog.set.later.title"),
-                Localization.get("pin.dialog.set.later.message"), null);
-        f.showDialog();
+                Localization.get("pin.dialog.set.later.message"), null).showNonPersistentDialog();
     }
 
     private void launchPinAuthentication() {
@@ -768,9 +767,9 @@ public class CommCareHomeActivity
     }
 
     private void showSessionRefreshWarning() {
-        AlertDialogFactory.getBasicAlertFactory(this,
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this,
                 Localization.get("session.refresh.error.title"),
-                Localization.get("session.refresh.error.message"), null).showDialog();
+                Localization.get("session.refresh.error.message"), null));
     }
 
     private void showDemoModeWarning() {
@@ -795,10 +794,9 @@ public class CommCareHomeActivity
     }
 
     private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
-        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactoryWithIcon(this,
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this,
                 Localization.get("app.handled.error.title"), errorMsg,
-                android.R.drawable.ic_dialog_info, errorListener);
-        showAlertDialog(f);
+                android.R.drawable.ic_dialog_info, errorListener));
     }
 
     @Override
@@ -851,8 +849,9 @@ public class CommCareHomeActivity
             case SessionNavigator.START_SYNC_REQUEST:
                 launchRemoteSync(asw);
                 break;
-            case SessionNavigator.EXCEPTION_THROWN:
-                displayException(sessionNavigator.getCurrentException());
+            case SessionNavigator.XPATH_EXCEPTION_THROWN:
+                UserfacingErrorHandling
+                        .logErrorAndShowDialog(this, sessionNavigator.getCurrentException(), false);
         }
     }
 
@@ -1164,7 +1163,7 @@ public class CommCareHomeActivity
         final AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         String title = Localization.get("app.workflow.incomplete.continue.title");
         String msg = Localization.get("app.workflow.incomplete.continue");
-        AlertDialogFactory factory = new AlertDialogFactory(this, title, msg);
+        StandardAlertDialog d = new StandardAlertDialog(this, title, msg);
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
@@ -1185,10 +1184,10 @@ public class CommCareHomeActivity
                 dialog.dismiss();
             }
         };
-        factory.setPositiveButton(Localization.get("option.yes"), listener);
-        factory.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"), listener);
-        factory.setNeutralButton(Localization.get("option.no"), listener);
-        showAlertDialog(factory);
+        d.setPositiveButton(Localization.get("option.yes"), listener);
+        d.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"), listener);
+        d.setNeutralButton(Localization.get("option.no"), listener);
+        showAlertDialog(d);
     }
 
     @Override
@@ -1358,7 +1357,7 @@ public class CommCareHomeActivity
     }
 
     private void showAboutCommCareDialog() {
-        AlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this);
+        CommCareAlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this);
 
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
@@ -1374,7 +1373,8 @@ public class CommCareHomeActivity
             }
 
         });
-        dialog.show();
+
+        showAlertDialog(dialog);
     }
 
     private boolean hasP2p() {
