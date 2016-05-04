@@ -57,8 +57,9 @@ public class AlertDialogFragment extends DialogFragment {
     @Override
     public void onDestroyView() {
         // Ohh, you know, just a 5 year old Android bug ol' G hasn't fixed yet
-        if (getDialog() != null && getRetainInstance())
+        if (getDialog() != null && getRetainInstance()) {
             getDialog().setDismissMessage(null);
+        }
         super.onDestroyView();
     }
 }
