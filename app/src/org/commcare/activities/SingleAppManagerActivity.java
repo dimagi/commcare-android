@@ -39,12 +39,17 @@ public class SingleAppManagerActivity extends Activity {
     private static final int MISSING_MEDIA_ACTIVITY = 1;
     private static final int SEAT_APP_ACTIVITY = 2;
 
-    boolean launchUpdateAfterSeating;
+    private static final String KEY_LAUNCH_UPDATE_AFTER_SEATING = "launch-update-after-seating";
+    private boolean launchUpdateAfterSeating;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.single_app_view);
+
+        if (savedInstanceState != null) {
+            launchUpdateAfterSeating = savedInstanceState.getBoolean(KEY_LAUNCH_UPDATE_AFTER_SEATING);
+        }
 
         // Retrieve the app record that should be represented by this activity
         int position = getIntent().getIntExtra("position", -1);
@@ -67,6 +72,11 @@ public class SingleAppManagerActivity extends Activity {
     protected void onResume() {
         super.onResume();
         refresh();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean(KEY_LAUNCH_UPDATE_AFTER_SEATING, launchUpdateAfterSeating);
     }
 
     /**
@@ -229,7 +239,7 @@ public class SingleAppManagerActivity extends Activity {
     private void launchVerificationActivity() {
         Intent i = new Intent(this, CommCareVerificationActivity.class);
         i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
-        this.startActivityForResult(i, DispatchActivity.MISSING_MEDIA_ACTIVITY);
+        this.startActivityForResult(i, MISSING_MEDIA_ACTIVITY);
     }
 
     /**
@@ -271,7 +281,7 @@ public class SingleAppManagerActivity extends Activity {
     private void launchUpdateActivity() {
         Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
         i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
-        startActivityForResult(i, CommCareHomeActivity.UPGRADE_APP);
+        startActivityForResult(i, UPGRADE_APP);
     }
 
     /**
