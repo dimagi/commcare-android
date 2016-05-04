@@ -21,6 +21,8 @@ import org.javarosa.core.services.locale.Localization;
 public class SeatAppActivity extends Activity {
 
     private static final String KEY_IN_PROGRESS = "initialization_in_progress";
+    public final static String KEY_APP_TO_SEAT = "app_to_seat";
+
     private boolean inProgress;
 
     @Override
@@ -35,7 +37,7 @@ public class SeatAppActivity extends Activity {
 
         if (!inProgress) {
 
-            String idOfAppToSeat = getIntent().getStringExtra(LoginActivity.KEY_APP_TO_SEAT);
+            String idOfAppToSeat = getIntent().getStringExtra(KEY_APP_TO_SEAT);
             ApplicationRecord record = CommCareApplication._().getAppById(idOfAppToSeat);
 
             if (record == null) {

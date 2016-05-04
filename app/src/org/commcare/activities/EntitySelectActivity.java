@@ -48,7 +48,6 @@ import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.EntityDatum;
-import org.commcare.suite.model.SessionDatum;
 import org.commcare.tasks.EntityLoaderListener;
 import org.commcare.tasks.EntityLoaderTask;
 import org.commcare.utils.AndroidInstanceInitializer;
@@ -991,7 +990,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     public void deliverLoadError(Exception e) {
-        displayException(e);
+        displayCaseListFilterException(e);
     }
 
     @Override
