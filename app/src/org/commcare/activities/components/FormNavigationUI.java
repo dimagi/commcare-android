@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
+import android.text.Spannable;
 import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -24,6 +25,7 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logic.FormController;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.utils.MarkupUtil;
 import org.commcare.views.ClippingFrame;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.UserfacingErrorHandling;
@@ -244,6 +246,10 @@ public class FormNavigationUI {
             for (FloatingLabel type : labelTypes) {
                 if (type.getAppearance().equals(hint)) {
                     String widgetText = widget.getPrompt().getQuestionText();
+                    String markdownWidgetText = widget.getPrompt().getQuestionText();
+                    if(markdownWidgetText != null){
+                        widgetText = markdownWidgetText;
+                    }
                     if (widgetText != null && widgetText.length() < 15) {
                         smallLabels.add(new Pair<>(widgetText, type));
                     } else {
@@ -271,7 +277,9 @@ public class FormNavigationUI {
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1);
                 TextView left = (TextView)View.inflate(activity, R.layout.component_floating_label, null);
                 left.setLayoutParams(lp);
-                left.setText(smallLabels.get(i).first + "; " + smallLabels.get(i + 1).first);
+                Spannable firstLabel = MarkupUtil.returnMarkdown(activity, smallLabels.get(i).first);
+                Spannable secondLabel = MarkupUtil.returnMarkdown(activity, smallLabels.get(i+1).first);
+                left.setText(firstLabel + "; " + secondLabel);
                 left.setBackgroundResource(smallLabels.get(i).second.resourceId);
                 left.setPadding(pixels, 2 * pixels, pixels, 2 * pixels);
                 left.setTextColor(smallLabels.get(i).second.colorId);
@@ -288,7 +296,7 @@ public class FormNavigationUI {
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
             view.setLayoutParams(lp);
             view.setPadding(pixels, 2 * pixels, pixels, 2 * pixels);
-            view.setText(largeLabels.get(i).first);
+            view.setText(MarkupUtil.returnMarkdown(activity, largeLabels.get(i).first));
             view.setBackgroundResource(largeLabels.get(i).second.resourceId);
             view.setTextColor(largeLabels.get(i).second.colorId);
             view.setMinimumHeight(minHeight);
