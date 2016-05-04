@@ -11,6 +11,7 @@ import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.MigrationException;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.android.database.global.models.ApplicationRecordV2;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.global.models.ApplicationRecordV1;
 import org.commcare.provider.ProviderUtils;
@@ -44,6 +45,11 @@ class GlobalDatabaseUpgrader {
                 oldVersion = 4;
             }
         }
+        if (oldVersion == 4) {
+            if (upgradeFourFive(db)) {
+                oldVersion = 5;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -57,10 +63,13 @@ class GlobalDatabaseUpgrader {
         }
     }
 
+    /**
+     * Convert ApplicationRecord db from ApplicationRecordV1 to ApplicationRecordV2
+     */
     private boolean upgradeTwoThree(SQLiteDatabase db) {
         db.beginTransaction();
 
-        //First, migrate the old ApplicationRecord in storage to the new version being used for
+        // First, migrate the old ApplicationRecord in storage to the new version being used for
         // multiple apps.
         try {
             SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
@@ -68,7 +77,7 @@ class GlobalDatabaseUpgrader {
                     ApplicationRecordV1.class,
                     new ConcreteAndroidDbHelper(c, db));
 
-            if (multipleInstalledAppRecords(storage)) {
+            if (multipleInstalledAppRecordsBeforeMultipleApps(storage)) {
                 // If a device has multiple installed ApplicationRecords before the multiple apps
                 // db upgrade has occurred, something has definitely gone wrong
                 throw new MigrationException(true);
@@ -76,8 +85,8 @@ class GlobalDatabaseUpgrader {
 
             for (Persistable r : storage) {
                 ApplicationRecordV1 oldRecord = (ApplicationRecordV1) r;
-                ApplicationRecord newRecord =
-                        new ApplicationRecord(oldRecord.getApplicationId(), oldRecord.getStatus());
+                ApplicationRecordV2 newRecord =
+                        new ApplicationRecordV2(oldRecord.getApplicationId(), oldRecord.getStatus());
                 //set this new record to have same ID as the old one
                 newRecord.setID(oldRecord.getID());
                 //set default values for the new fields
@@ -120,6 +129,31 @@ class GlobalDatabaseUpgrader {
     }
 
     /**
+     * Add field to ApplicationRecord to support making multiple apps a paid feature
+     */
+    private boolean upgradeFourFive(SQLiteDatabase db) {
+        db.beginTransaction();
+
+        try {
+            SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
+                    ApplicationRecord.STORAGE_KEY,
+                    ApplicationRecordV2.class,
+                    new ConcreteAndroidDbHelper(c, db));
+            for (Persistable r : storage) {
+                ApplicationRecordV2 oldRecord = (ApplicationRecordV2)r;
+                ApplicationRecord newRecord = ApplicationRecord.fromV2Record(oldRecord);
+                newRecord.setID(oldRecord.getID());
+                storage.write(newRecord);
+            }
+            db.setTransactionSuccessful();
+            return true;
+        }
+        finally {
+            db.endTransaction();
+        }
+    }
+
+    /**
      * Prior to multiple application seating, the FormsProvider and the InstanceProvider were both
      * using one global database for all forms/instances. Now that we can have multiple apps
      * installed at once, we need to have one forms db and one instances db per app. This method
@@ -140,7 +174,7 @@ class GlobalDatabaseUpgrader {
         return true;
     }
 
-    private static boolean multipleInstalledAppRecords(SqlStorage<Persistable> storage) {
+    private static boolean multipleInstalledAppRecordsBeforeMultipleApps(SqlStorage<Persistable> storage) {
         int count = 0;
         for (Persistable p : storage) {
             ApplicationRecordV1 r = (ApplicationRecordV1) p;
@@ -151,13 +185,13 @@ class GlobalDatabaseUpgrader {
         return (count > 1);
     }
 
-    private static ApplicationRecord getInstalledAppRecord(Context c, SQLiteDatabase db) {
+    private static ApplicationRecordV2 getInstalledAppRecord(Context c, SQLiteDatabase db) {
         SqlStorage<Persistable> storage = new SqlStorage<Persistable>(
                 ApplicationRecord.STORAGE_KEY,
-                ApplicationRecord.class,
+                ApplicationRecordV2.class,
                 new ConcreteAndroidDbHelper(c, db));
         for (Persistable p : storage) {
-            ApplicationRecord r = (ApplicationRecord) p;
+            ApplicationRecordV2 r = (ApplicationRecordV2) p;
             if (r.getStatus() == ApplicationRecord.STATUS_INSTALLED) {
                 return r;
             }

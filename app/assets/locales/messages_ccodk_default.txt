@@ -102,6 +102,10 @@ home.menu.disable.analytics=Opt Out of Analytics
 home.menu.pin.set=Set My PIN
 home.menu.pin.change=Change My PIN
 
+app.manager.menu.claim.seat=Enable Multiple Application Seating
+app.manager.menu.refresh.properties=Refresh Properties for All Apps
+superuser.auth.menu.revoke=Revoke Authentication
+
 home.developer.options.enabled=Developer Mode Enabled
 
 menu.save.session=Save Your Session
@@ -286,6 +290,7 @@ login.menu.demo=Enter as Demo User
 login.menu.password.mode=Forgot PIN?
 
 main.sync.demo=You cannot sync data down from the server when logged in in demo mode
+login.menu.app.manager=Go To App Manager
 
 main.sync.demo.has.forms=Your forms have been submitted to the server; however, you cannot retrieve forms from the server in Demo mode.
 main.sync.demo.no.forms=You have no forms to submit and you cannot retrieve forms from the server in Demo mode. 
@@ -512,6 +517,20 @@ notification.install.duplicate.title=This app is already installed
 notification.install.duplicate.detail=The app you are trying to install already exists on this device.
 notification.install.duplicate.action=Navigate to the drop-down menu on your log-in screen and look for the app you are attempting to install. If you still can't find the app you're looking for, contact your supervisor.
 
+notification.install.multapp.violation.new.title=Multiple App Installation Not Allowed
+notification.install.multapp.violation.new.detail=The app you are trying to install is not compatible with multiple apps, and you already have 1 or more apps installed on your device.
+notification.install.multapp.violation.new.action=In order to install this app, you must uninstall all apps currently on your device, or upgrade the project space for this app.
+
+notification.install.multapp.violation.existing.title=Multiple App Installation Not Allowed
+notification.install.multapp.violation.existing.detail=One or more of your currently installed apps are not compatible with multiple apps.
+notification.install.multapp.violation.existing.action=In order to install additional apps, you must uninstall or upgrade that app first.
+
+notification.install.multapp.violation.upgrade.title=Upgrade not allowed
+notification.install.multapp.violation.upgrade.detail=Your app has been downgraded and is no longer compatible with multiple apps.
+notification.install.multapp.violation.upgrade.action=In order to update this app, you must uninstall any other apps that require multiple apps compatibility, or upgrade the pricing plan for this app's domain.
+
+notification.install.multapp.refresh.option.message=If you have recently upgraded the pricing plan for one or more of your apps to a plan that supports multiple apps, and believe you have received this message in error, select "Refresh" below and then try again.
+
 notification.install.uptodate.title=The App is Up to Date
 notification.install.uptodate.detail=A newer version of the app is not available
 
@@ -572,6 +591,31 @@ notification.network.timeout.action=Wait a short period and try your request aga
 notification.server.error.title=Server Error
 notification.server.error.detail=The server had an error processing your data
 notification.server.error.action=Please try again later. If the problem persists, contact technical support.
+
+notification.properties.update.error.request.title=Could not perform property update
+notification.properties.update.error.request.detail=There was a problem submitting your request to the server.
+notification.properties.update.error.request.action=Please verify that you have a valid internet connection and then try again. If the problem persists, try again later or contact technical support.
+
+notification.properties.update.error.parsing.title=Could not perform property update
+notification.properties.update.error.parsing.detail=There was a problem processing the property update.
+notification.properties.update.error.parsing.action=Please try again later, or contact technical support if the problem persists.
+
+notification.properties.update.error.endpoint.title=Could not perform property update
+notification.properties.update.error.endpoint.detail=This app is from an outdated build that is not compatible with this feature.
+notification.properties.update.error.endpoint.action=To use the property update feature, please make a new build of your app.
+
+notification.properties.update.error.version.title=Could not perform property update
+notification.properties.update.error.version.detail=The version of CommCare you are running is no longer compatible with the property update feature.
+notification.properties.update.error.version.action=To update your properties successfully, you must update to a newer version of CommCare.
+
+notification.properties.update.partial.success.title=Some properties not updated
+notification.properties.update.partial.success.detail=Some of your properties were not updated because they are protected, and we could not verify that their values came from Dimagi's server.
+notification.properties.update.partial.success.action=If you believe this occurred in error, please contact technical support.
+
+properties.update.dialog.title=Property Update in Progress
+properties.update.dialog.message=Refreshing your app's properties from the server
+properties.update.error.toast=Could not perform property update for ${0}
+properties.update.success.toast=Properties updated successfully for ${0}!
 
 crash.warning.button=Restart CommCare
 crash.warning.header=CommCare crashed and needs to restart.

@@ -257,6 +257,11 @@ public class GoogleAnalyticsUtils {
                 .build());
     }
 
+    public static void reportSuperUserEnabled(String username) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_ADVANCED_USAGE,
+                GoogleAnalyticsFields.ACTION_SUPER_USER_ENABLED, username);
+    }
+
     public static void createPreferenceOnClickListeners(PreferenceManager prefManager,
                                                         Map<String, String> menuIdToAnalyticsEvent, String category) {
 

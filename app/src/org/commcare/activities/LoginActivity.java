@@ -55,12 +55,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
         RuntimePermissionRequester, WithUIController {
 
-    private static final String TAG = LoginActivity.class.getSimpleName();
-
     private static final int MENU_DEMO = Menu.FIRST;
     private static final int MENU_ABOUT = Menu.FIRST + 1;
     private static final int MENU_PERMISSIONS = Menu.FIRST + 2;
     private static final int MENU_PASSWORD_MODE = Menu.FIRST + 3;
+    private static final int MENU_APP_MANAGER = Menu.FIRST + 4;
 
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public final static String KEY_LAST_APP = "id-last-seated-app";
@@ -419,6 +418,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         menu.add(0, MENU_ABOUT, 1, Localization.get("home.menu.about")).setIcon(android.R.drawable.ic_menu_help);
         menu.add(0, MENU_PERMISSIONS, 1, Localization.get("permission.acquire.required")).setIcon(android.R.drawable.ic_menu_manage);
         menu.add(0, MENU_PASSWORD_MODE, 1, Localization.get("login.menu.password.mode"));
+        menu.add(0, MENU_APP_MANAGER, 1, Localization.get("login.menu.app.manager"));
         return true;
     }
 
@@ -447,6 +447,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 return true;
             case MENU_PASSWORD_MODE:
                 uiController.manualSwitchToPasswordMode();
+                return true;
+            case MENU_APP_MANAGER:
+                Intent i = new Intent(this, AppManagerActivity.class);
+                startActivity(i);
                 return true;
             default:
                 return otherResult;
@@ -504,9 +508,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                         Localization.get("updates.installing.message"), taskId);
                 break;
             default:
-                Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                        + "any valid possibilities in LoginActivity");
-                return null;
+                return super.generateProgressDialog(taskId);
         }
         return dialog;
     }

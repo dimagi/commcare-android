@@ -7,9 +7,12 @@ import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.views.SquareButtonWithText;
+import org.commcare.views.notifications.MessageTag;
+import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -121,9 +124,20 @@ class UpdateUIController implements CommCareActivityUIController {
     }
 
     protected void checkFailedUiState() {
+        checkFailedUiState(null);
+    }
+
+    protected void checkFailedUiState(AppInstallStatus installStatus) {
         idleUiState();
         currentUIState = UIState.FailedCheck;
-        updateProgressText(Localization.get("updates.check.failed"));
+        if (installStatus == null) {
+            updateProgressText(Localization.get("updates.check.failed"));
+        } else {
+            updateProgressText(Localization.get("notification.for.details.wrapper",
+                    new String[]{Localization.get("updates.check.failed")}));
+            activity.showMultipleAppsCompatErrorDialog(installStatus);
+        }
+
     }
 
     protected void downloadingUiState() {

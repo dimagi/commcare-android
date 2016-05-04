@@ -16,7 +16,7 @@ public class LocalStorageUnavailableException extends UnfullfilledRequirementsEx
     private final String reference;
 
     public LocalStorageUnavailableException(String message, String reference) {
-        super(message, CommCareElementParser.SEVERITY_ENVIRONMENT, REQUIREMENT_WRITEABLE_REFERENCE);
+        super(message, UnfullfilledRequirementsException.SEVERITY_ENVIRONMENT, REQUIREMENT_WRITEABLE_REFERENCE);
         this.reference = reference;
     }
 

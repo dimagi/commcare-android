@@ -39,7 +39,6 @@ import java.util.Vector;
 
 @ManagedUi(R.layout.screen_form_dump)
 public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommCareFormDumpActivity> {
-    private static final String TAG = CommCareFormDumpActivity.class.getSimpleName();
     public static final String DUMP_FORMS_ERROR = "DUMP_FORMS_ERROR";
 
     @UiElement(value = R.id.screen_bulk_form_prompt, locale = "bulk.form.prompt")
@@ -276,9 +275,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
             title = Localization.get("bulk.send.dialog.title");
             message = Localization.get("bulk.send.dialog.progress", new String[]{"0"});
         } else {
-            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                    + "any valid possibilities in CommCareFormDumpActivity");
-            return null;
+            return super.generateProgressDialog(taskId);
         }
         return CustomProgressDialog.newInstance(title, message, taskId);
     }

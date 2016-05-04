@@ -1,10 +1,10 @@
 package org.commcare.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -15,9 +15,13 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.services.CommCareSessionService;
+import org.commcare.tasks.UpdatePropertiesTask;
 import org.commcare.tasks.UpdateTask;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.CustomProgressDialog;
+import org.javarosa.core.services.locale.Localization;
 
 
 /**
@@ -28,12 +32,14 @@ import org.commcare.views.dialogs.AlertDialogFactory;
  * @author amstone
  */
 
-public class SingleAppManagerActivity extends Activity {
+public class SingleAppManagerActivity extends CommCareActivity {
 
     private ApplicationRecord appRecord;
     private static final int LOGOUT_FOR_UPDATE = 0;
     private static final int LOGOUT_FOR_VERIFY_MM = 1;
     private static final int LOGOUT_FOR_ARCHIVE = 2;
+
+    private static final String TAG = SingleAppManagerActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,10 +50,8 @@ public class SingleAppManagerActivity extends Activity {
         int position = getIntent().getIntExtra("position", -1);
         appRecord = getAppForPosition(position);
         if (appRecord == null) {
-            // Implies that this appRecord has been uninstalled since last we launched
-            // SingleAppManagerActivity, so redirect to AppManagerActivity
-            Intent i = new Intent(getApplicationContext(), AppManagerActivity.class);
-            startActivity(i);
+            // Implies that this appRecord has been uninstalled since last we were last here,
+            // so go back to AppManagerActivity
             finish();
         }
 
@@ -70,7 +74,7 @@ public class SingleAppManagerActivity extends Activity {
      * activity, based upon the position
      */
     private ApplicationRecord getAppForPosition(int position) {
-        ApplicationRecord[] currentApps = CommCareApplication._().appRecordArray();
+        ApplicationRecord[] currentApps = MultipleAppsUtil.appRecordArray();
         if (position < 0 || position >= currentApps.length) {
             return null;
         } else {
@@ -90,7 +94,7 @@ public class SingleAppManagerActivity extends Activity {
             warning.setVisibility(View.GONE);
         }
 
-        // Updates text of the validate button based on the current state of the app's resources
+        // Updates visibility of the validate button based on the current state of the app's resources
         Button validateButton = (Button)findViewById(R.id.verify_button);
         if (appRecord.resourcesValidated()) {
             validateButton.setVisibility(View.INVISIBLE);
@@ -140,12 +144,13 @@ public class SingleAppManagerActivity extends Activity {
     }
 
     /**
-     * Uninstalls the selected app
+     * Uninstalls the selected app and relaunches the App Manager
      */
     private void uninstall() {
         CommCareApplication._().expireUserSession();
         CommCareApplication._().uninstall(appRecord);
-        CommCareApplication.restartCommCare(SingleAppManagerActivity.this);
+        CommCareApplication.restartCommCare(SingleAppManagerActivity.this,
+                SingleAppManagerActivity.class);
     }
 
     /**
@@ -235,6 +240,24 @@ public class SingleAppManagerActivity extends Activity {
         Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
         i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
         startActivityForResult(i, CommCareHomeActivity.UPGRADE_APP);
+    }
+
+    /**
+     * onClick method for Refresh Properties button
+     *
+     * @param v linter sees this as unused, but is required for a button to find its onClick method
+     */
+    public void refreshPropertiesClicked(View v) {
+        try {
+            CommCareSessionService s = CommCareApplication._().getSession();
+            if (s.isActive()) {
+                triggerLogoutWarning(LOGOUT_FOR_UPDATE);
+            } else {
+                FormAndDataSyncer.refreshPropertiesFromServer(this, appRecord);
+            }
+        } catch (SessionUnavailableException e) {
+            FormAndDataSyncer.refreshPropertiesFromServer(this, appRecord);
+        }
     }
 
     /**

@@ -6,9 +6,9 @@ import org.commcare.models.framework.Table;
 import org.commcare.modern.models.MetaField;
 
 /**
- * The version of ApplicationRecord that exists in databases on any pre- multiple apps version
- * of CommCare. This class is used to read and make available an ApplicationRecord that exists in
- * such a database (for database upgrade purposes).
+ * The version of ApplicationRecord that exists in databases on CommCare versions before 2.23.
+ * (before multiple apps was introduced). This class is used to read and make available an
+ * ApplicationRecord that exists in such a database (for database upgrade purposes).
  *
  * @author amstone
  */

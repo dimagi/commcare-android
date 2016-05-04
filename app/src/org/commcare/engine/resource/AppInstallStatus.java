@@ -10,6 +10,20 @@ public enum AppInstallStatus implements MessageTag {
      */
     DuplicateApp("notification.install.duplicate"),
 
+    /**
+     * Error caused by attempting to install an app that is not multiple apps-compatible, with
+     * other apps already installed on the phone
+     */
+    MultipleAppsViolation_New("notification.install.multapp.violation.new"),
+
+    /**
+     * Error caused by attempting to install an app while there are 1 or more apps already installed
+     * that are not multiple-apps compatible
+     */
+    MultipleAppsViolation_Existing("notification.install.multapp.violation.existing"),
+
+    MultipleAppsViolation_Upgrade("notification.install.multapp.violation.upgrade"),
+
     // Statuses unique to app updating
     /**
      * Update has been downloaded into update table

@@ -6,6 +6,7 @@ import android.content.SharedPreferences.Editor;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
+import org.commcare.models.encryption.AndroidSignedPermissionVerifier;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceInitializationException;
@@ -14,9 +15,10 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.suite.model.Profile;
 import org.commcare.suite.model.PropertySetter;
+import org.commcare.suite.model.SignedPermission;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.DummyResourceTable;
-import org.commcare.xml.CommCareElementParser;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.xml.ProfileParser;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -47,13 +49,14 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     @Override
     public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
         try {
-
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
-            ProfileParser parser = new ProfileParser(local.getStream(), instance, instance.getGlobalResourceTable(), null,
-                    Resource.RESOURCE_STATUS_INSTALLED, false);
+            ProfileParser parser =
+                    new ProfileParser(local.getStream(), instance, instance.getGlobalResourceTable(),
+                            null, Resource.RESOURCE_STATUS_INSTALLED, false);
 
             Profile p = parser.parse();
+            p.verifySignedPermissions(new AndroidSignedPermissionVerifier());
             instance.setProfile(p);
 
             return true;
@@ -75,10 +78,12 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
 
-            ProfileParser parser = new ProfileParser(local.getStream(), instance, table, r.getRecordGuid(),
+            ProfileParser parser =
+                    new ProfileParser(local.getStream(), instance, table, r.getRecordGuid(),
                     Resource.RESOURCE_STATUS_UNINITIALIZED, false);
 
             Profile p = parser.parse();
+            p.verifySignedPermissions(new AndroidSignedPermissionVerifier());
 
             if (!upgrade) {
                 initProperties(p);
@@ -86,6 +91,12 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             }
 
             table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
+
+            if (upgrade) {
+                verifyMultipleAppsComplianceOnUpgrade(p);
+            } else {
+                verifyMultipleAppsComplianceOnInstall(p);
+            }
             return true;
         } catch (XmlPullParserException | InvalidReferenceException | IOException e) {
             e.printStackTrace();
@@ -96,26 +107,75 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         return false;
     }
 
+    private static void verifyMultipleAppsComplianceOnInstall(Profile profile)
+            throws UnfullfilledRequirementsException {
+        if (CommCareApplication._().isSuperUserEnabled()) {
+            return;
+        }
+
+        String compatibilityValue = profile.getMultipleAppsCompatibility();
+        if (SignedPermission.MULT_APPS_IGNORE_VALUE.equals(compatibilityValue)) {
+            // If the new app is set to "ignore", we can install no matter what
+            return;
+        }
+        if (!MultipleAppsUtil.appInstallationAllowed()) {
+            throw new UnfullfilledRequirementsException("One or more of your currently installed" +
+                    "apps are not compatible with multiple apps. In order to install additional" +
+                    "apps, you must uninstall or upgrade that app first",
+                    UnfullfilledRequirementsException.SEVERITY_PROMPT,
+                    UnfullfilledRequirementsException.REQUIREMENT_MULTIPLE_APPS_COMPAT_EXISTING);
+        } else if (!compatibilityValue.equals(SignedPermission.MULT_APPS_ENABLED_VALUE) &&
+                MultipleAppsUtil.multipleAppsCompatibilityRequiredForInstall()) {
+            throw new UnfullfilledRequirementsException("The app you are trying to install is not" +
+                    "compatible with multiple apps, and you already have 1 or more apps installed " +
+                    "on your device. In order to install this app, you must uninstall all apps " +
+                    "currently on your device, or upgrade the project space for this app.",
+                    UnfullfilledRequirementsException.SEVERITY_PROMPT,
+                    UnfullfilledRequirementsException.REQUIREMENT_MULTIPLE_APPS_COMPAT_NEW);
+        }
+    }
+
+    private static void verifyMultipleAppsComplianceOnUpgrade(Profile profile)
+            throws UnfullfilledRequirementsException {
+        if (CommCareApplication._().isSuperUserEnabled()) {
+            return;
+        }
+
+        String compatibilityValue = profile.getMultipleAppsCompatibility();
+        if (SignedPermission.MULT_APPS_IGNORE_VALUE.equals(compatibilityValue)) {
+            // If the new version is set to "ignore", we can update no matter what
+            return;
+        }
+        if (!compatibilityValue.equals(SignedPermission.MULT_APPS_ENABLED_VALUE) &&
+                MultipleAppsUtil.multipleAppsCompatibilityRequiredForUpgrade(profile.getUniqueId())) {
+            throw new UnfullfilledRequirementsException("Your app has been downgraded and is no " +
+                    "longer compatible with multiple apps",
+                    UnfullfilledRequirementsException.SEVERITY_PROMPT,
+                    UnfullfilledRequirementsException.REQUIREMENT_MULTIPLE_APPS_COMPAT_UPGRADE);
+        }
+    }
+
     // Check that this app is not already installed on the phone
-    private void checkDuplicate(Profile p) throws UnfullfilledRequirementsException {
+    private static void checkDuplicate(Profile p) throws UnfullfilledRequirementsException {
         String newAppId = p.getUniqueId();
-        ArrayList<ApplicationRecord> installedApps = CommCareApplication._().
-                getInstalledAppRecords();
+        ArrayList<ApplicationRecord> installedApps = CommCareApplication._().getInstalledAppRecords();
         for (ApplicationRecord record : installedApps) {
             if (record.getUniqueId().equals(newAppId)) {
                 throw new UnfullfilledRequirementsException(
                         "The app you are trying to install already exists on this device",
-                        CommCareElementParser.SEVERITY_PROMPT, true);
+                        UnfullfilledRequirementsException.SEVERITY_PROMPT,
+                        UnfullfilledRequirementsException.REQUIREMENT_NO_DUPLICATE_APPS);
             }
         }
     }
 
-    private void initProperties(Profile profile) {
+    private static void initProperties(Profile profile) {
         // TODO Baaaaaad. Encapsulate this better!!!
         SharedPreferences prefs = CommCareApp.currentSandbox.getAppPreferences();
         Editor editor = prefs.edit();
         for (PropertySetter p : profile.getPropertySetters()) {
-            editor.putString(p.getKey(), p.isForce() ? p.getValue() : prefs.getString(p.getKey(), p.getValue()));
+            editor.putString(p.getKey(), p.isForce() ?
+                    p.getValue() : prefs.getString(p.getKey(), p.getValue()));
         }
         editor.commit();
     }
@@ -130,7 +190,9 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
             //Create a parser with no side effects
-            ProfileParser parser = new ProfileParser(local.getStream(), null, new DummyResourceTable(), null, Resource.RESOURCE_STATUS_INSTALLED, false);
+            ProfileParser parser =
+                    new ProfileParser(local.getStream(), null, new DummyResourceTable(), null,
+                            Resource.RESOURCE_STATUS_INSTALLED, false);
 
             //Parse just the file (for the properties)
             Profile p = parser.parse();
@@ -165,4 +227,5 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
     public boolean requiresRuntimeInitialization() {
         return true;
     }
+
 }

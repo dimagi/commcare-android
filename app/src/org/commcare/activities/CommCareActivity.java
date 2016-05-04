@@ -25,6 +25,7 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.fragments.ContainerFragment;
@@ -34,6 +35,7 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.tasks.UpdatePropertiesTask;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.utils.AndroidUtil;
@@ -46,6 +48,8 @@ import org.commcare.views.dialogs.AlertDialogFragment;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogController;
 import org.commcare.views.media.AudioController;
+import org.commcare.views.notifications.NotificationMessage;
+import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -567,7 +571,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        //dummy method for compilation, implementation handled in those subclasses that need it
+        if (taskId == UpdatePropertiesTask.UPDATE_PROPERTIES_TASK_ID) {
+            String title = Localization.get("properties.update.dialog.title");
+            String message = Localization.get("properties.update.dialog.message");
+            return CustomProgressDialog.newInstance(title, message, taskId);
+        }
         return null;
     }
 
@@ -818,5 +826,30 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     public void setStateHolder(TaskConnectorFragment<R> stateHolder) {
         this.stateHolder = stateHolder;
+    }
+
+    public void showMultipleAppsCompatErrorDialog(AppInstallStatus errorStatus) {
+        NotificationMessage notification = NotificationMessageFactory.message(errorStatus);
+
+        String dialogMessage = notification.getDetails() + "\n\n" +
+                Localization.get("notification.install.multapp.refresh.option.message");
+        AlertDialogFactory factory = new AlertDialogFactory(this, notification.getTitle(), dialogMessage);
+
+        factory.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        factory.setNeutralButton("REFRESH", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                FormAndDataSyncer.refreshPropertiesForAllInstalledApps(CommCareActivity.this);
+            }
+        });
+
+        factory.showDialog();
     }
 }

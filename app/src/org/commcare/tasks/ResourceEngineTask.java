@@ -91,11 +91,16 @@ public abstract class ResourceEngineTask<R>
             } catch (UnfullfilledRequirementsException e) {
                 if (e.isDuplicateException()) {
                     return AppInstallStatus.DuplicateApp;
+                } else if (e.isMultipleAppsViolationByNew()) {
+                    return AppInstallStatus.MultipleAppsViolation_New;
+                } else if (e.isMultipleAppsViolationByExisting()) {
+                    return AppInstallStatus.MultipleAppsViolation_Existing;
                 } else {
                     badReqCode = e.getRequirementCode();
                     vAvailable = e.getAvailableVesionString();
                     vRequired = e.getRequiredVersionString();
-                    majorIsProblem = e.getRequirementCode() == CommCareElementParser.REQUIREMENT_MAJOR_APP_VERSION;
+                    majorIsProblem = e.getRequirementCode() ==
+                            UnfullfilledRequirementsException.REQUIREMENT_MAJOR_APP_VERSION;
 
                     ResourceInstallUtils.logInstallError(e,
                             "App resources are incompatible with this device|");

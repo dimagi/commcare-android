@@ -900,9 +900,7 @@ public class CommCareWiFiDirectActivity
                 message = localize("wifi.direct.pull.task.message").toString();
                 break;
             default:
-                Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                        + "any valid possibilities in CommCareWifiDirectActivity");
-                return null;
+                return super.generateProgressDialog(taskId);
         }
         return CustomProgressDialog.newInstance(title, message, taskId);
     }

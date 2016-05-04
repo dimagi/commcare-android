@@ -17,6 +17,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.tasks.VerificationTask;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.SizeBoundVector;
@@ -31,7 +32,6 @@ import java.util.Vector;
 public class CommCareVerificationActivity
         extends CommCareActivity<CommCareVerificationActivity>
         implements OnClickListener {
-    private static final String TAG = CommCareVerificationActivity.class.getSimpleName();
 
     private TextView missingMediaPrompt;
     private static final int MENU_UNZIP = Menu.FIRST;
@@ -121,7 +121,7 @@ public class CommCareVerificationActivity
         // then something was done on the Manager screen that means we no longer want to be here --
         // VerificationActivity should be displayed to a user only if we were explicitly sent from
         // the manager, or if the state of installed apps calls for it
-        boolean shouldBeHere = fromManager || fromSettings || CommCareApplication._().shouldSeeMMVerification();
+        boolean shouldBeHere = fromManager || fromSettings || MultipleAppsUtil.shouldSeeMMVerification();
         if (!shouldBeHere) {
             // send back to dispatch activity
             setResult(RESULT_OK);
@@ -285,9 +285,7 @@ public class CommCareVerificationActivity
             }
             return dialog;
         }
-        Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                + "any valid possibilities in CommCareVerificationActivity");
-        return null;
+        return super.generateProgressDialog(taskId);
     }
 
     @Override

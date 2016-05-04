@@ -31,7 +31,6 @@ import org.javarosa.core.services.locale.Localization;
  */
 @ManagedUi(R.layout.connection_diagnostic)
 public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<ConnectionDiagnosticActivity> {
-    private static final String TAG = ConnectionDiagnosticActivity.class.getSimpleName();
 
     public static final String logUnsetPostURLMessage = "CCHQ ping test: post URL not set.";
 
@@ -160,9 +159,7 @@ public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<C
             dialog.setCancelable();
             return dialog;
         } else {
-            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                    + "any valid possibilities in ConnectionDiagnosticActivity");
-            return null;
+            return super.generateProgressDialog(taskId);
         }
     }
 }

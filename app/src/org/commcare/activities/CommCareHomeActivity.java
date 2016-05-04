@@ -12,7 +12,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
-import android.util.Log;
 import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,6 +51,7 @@ import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.SendTask;
+import org.commcare.tasks.UpdatePropertiesTask;
 import org.commcare.tasks.WipeTask;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
@@ -85,8 +85,6 @@ import java.util.Vector;
 public class CommCareHomeActivity
         extends SessionAwareCommCareActivity<CommCareHomeActivity>
         implements SessionNavigationResponder, WithUIController {
-
-    private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
     /**
      * Request code for launching a menu list or menu grid
@@ -1354,9 +1352,7 @@ public class CommCareHomeActivity
                 isSyncUserLaunched = false;
                 break;
             default:
-                Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                        + "any valid possibilities in CommCareHomeActivity");
-                return null;
+                return super.generateProgressDialog(taskId);
         }
         return dialog;
     }

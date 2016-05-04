@@ -33,7 +33,6 @@ import java.io.File;
  */
 @ManagedUi(R.layout.screen_multimedia_inflater)
 public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActivity> {
-    private static final String TAG = InstallArchiveActivity.class.getSimpleName();
 
     private static final int REQUEST_FILE_LOCATION = 1;
 
@@ -195,9 +194,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
             String message = Localization.get("archive.install.unzip");
             return CustomProgressDialog.newInstance(title, message, taskId);
         } else {
-            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                    + "any valid possibilities in InstallArchiveActivity");
-            return null;
+            return super.generateProgressDialog(taskId);
         }
     }
 }

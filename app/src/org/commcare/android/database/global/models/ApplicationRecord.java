@@ -8,12 +8,12 @@ import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;
 import org.commcare.modern.models.MetaField;
 import org.commcare.suite.model.Profile;
+import org.commcare.suite.model.SignedPermission;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
 /**
- * An Application Record tracks an individual CommCare app on the current
- * install.
+ * An Application Record tracks an individual CommCare app on the current install.
  *
  * @author ctsims
  * @author amstone
@@ -56,6 +56,8 @@ public class ApplicationRecord extends Persisted {
     private boolean preMultipleAppsProfile;
     @Persisting(9)
     private int versionNumber;
+    @Persisting(10)
+    private String multipleAppsCompatibility;
 
     /**
      * Deserialization only
@@ -87,24 +89,12 @@ public class ApplicationRecord extends Persisted {
         return uniqueId;
     }
 
-    public void setUniqueId(String id) {
-        this.uniqueId = id;
-    }
-
     public String getDisplayName() {
         return this.displayName;
     }
 
-    public void setDisplayName(String appName) {
-        this.displayName = appName;
-    }
-
     public int getVersionNumber() {
         return this.versionNumber;
-    }
-
-    public void setVersionNumber(int version) {
-        this.versionNumber = version;
     }
 
     public void setArchiveStatus(boolean b) {
@@ -161,6 +151,17 @@ public class ApplicationRecord extends Persisted {
         return this.convertedViaDbUpgrader;
     }
 
+    public String getMultipleAppsCompatibility() {
+        if (multipleAppsCompatibility == null) {
+            return SignedPermission.MULT_APPS_DISABLED_VALUE;
+        }
+        return multipleAppsCompatibility;
+    }
+
+    public void setMultipleAppsCompatibility(String value) {
+        multipleAppsCompatibility = value;
+    }
+
     /**
      * Used when this record is either first installed, or upgraded from an old version, to set all
      * properties of the record that come from its profile file
@@ -179,8 +180,8 @@ public class ApplicationRecord extends Persisted {
         }
         this.versionNumber = p.getVersion();
         this.preMultipleAppsProfile = p.isOldVersion();
+        this.multipleAppsCompatibility = p.getMultipleAppsCompatibility();
     }
-
 
     // region: methods used only in the upgrade process for an ApplicationRecord, should not be
     // touched otherwise
@@ -194,5 +195,30 @@ public class ApplicationRecord extends Persisted {
     }
 
     // endregion
+
+    public static ApplicationRecord fromV2Record(ApplicationRecordV2 v2record) {
+        ApplicationRecord newRecord = new ApplicationRecord(
+                v2record.applicationId, v2record.status, v2record.uniqueId, v2record.displayName,
+                v2record.resourcesValidated, v2record.isArchived, v2record.convertedViaDbUpgrader,
+                v2record.preMultipleAppsProfile, v2record.versionNumber);
+        newRecord.multipleAppsCompatibility = SignedPermission.MULT_APPS_DISABLED_VALUE;
+        return newRecord;
+    }
+
+    // For conversion on upgrade only
+    private ApplicationRecord(String applicationId, int status, String uniqueId, String displayName,
+                              boolean resourcesValidated, boolean isArchived,
+                              boolean convertedViaDbUpgrader, boolean preMultipleAppsProfile,
+                              int versionNumber) {
+        this.applicationId = applicationId;
+        this.status = status;
+        this.uniqueId = uniqueId;
+        this.displayName = displayName;
+        this.resourcesValidated = resourcesValidated;
+        this.isArchived = isArchived;
+        this.convertedViaDbUpgrader = convertedViaDbUpgrader;
+        this.preMultipleAppsProfile = preMultipleAppsProfile;
+        this.versionNumber = versionNumber;
+    }
 
 }

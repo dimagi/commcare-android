@@ -89,6 +89,7 @@ import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.ODKPropertyManager;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionStateUninitException;
@@ -144,6 +145,9 @@ public class CommCareApplication extends Application {
     public static final int STATE_MIGRATION_FAILED = 16;
     public static final int STATE_MIGRATION_QUESTIONABLE = 32;
 
+    private static final String KEY_SUPERUSER_ENABLED = "superuser-mode-enabled";
+    private static final String KEY_AUTHENTICATED_SUPERUSER_USERNAME = "username-of-authenticated-superuser";
+
     private static final String ACTION_PURGE_NOTIFICATIONS = "CommCareApplication_purge";
 
     private int dbState;
@@ -197,7 +201,7 @@ public class CommCareApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        //Sets the static strategy for the deserializtion code to be
+        //Sets the static strategy for the deserialization code to be
         //based on an optimized md5 hasher. Major speed improvements.
         AndroidClassHasher.registerAndroidClassHashStrategy();
         AndroidUtil.initializeStaticHandlers();
@@ -276,9 +280,16 @@ public class CommCareApplication extends Application {
     }
 
     public static void restartCommCare(Activity activity) {
-        Intent intent = new Intent(activity, DispatchActivity.class);
+        restartCommCare(activity, DispatchActivity.class);
+    }
 
-        // Make sure that the new stack starts with a dispatch activity, and clear everything
+    /**
+     * Reboot CommCare and start up again by launching the given class
+     */
+    public static void restartCommCare(Activity activity, Class c) {
+        Intent intent = new Intent(activity, c);
+
+        // Make sure that the new stack starts with the given class, and clear everything
         // between.
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
                 Intent.FLAG_ACTIVITY_SINGLE_TOP |
@@ -476,7 +487,7 @@ public class CommCareApplication extends Application {
         String lastAppId = prefs.getString(LoginActivity.KEY_LAST_APP, "");
         if (!"".equals(lastAppId)) {
             // If there is a 'last app' set in shared preferences, try to initialize that application.
-            ApplicationRecord lastApp = getAppById(lastAppId);
+            ApplicationRecord lastApp = MultipleAppsUtil.getAppById(lastAppId);
             if (lastApp == null || !lastApp.isUsable()) {
                 // This app record could be null if it has since been uninstalled, or unusable if
                 // it has since been archived, etc. In either case, just revert to picking the
@@ -496,7 +507,7 @@ public class CommCareApplication extends Application {
      * if there is one
      */
     public void initFirstUsableAppRecord() {
-        for (ApplicationRecord record : getUsableAppRecords()) {
+        for (ApplicationRecord record : MultipleAppsUtil.getUsableAppRecords()) {
             initializeAppResources(new CommCareApp(record));
             break;
         }
@@ -546,73 +557,6 @@ public class CommCareApplication extends Application {
 
         });
         return records;
-    }
-
-    /**
-     * @return all ApplicationRecords that have status installed and are NOT archived
-     */
-    private ArrayList<ApplicationRecord> getVisibleAppRecords() {
-        ArrayList<ApplicationRecord> visible = new ArrayList<>();
-        for (ApplicationRecord r : getInstalledAppRecords()) {
-            if (r.isVisible()) {
-                visible.add(r);
-            }
-        }
-        return visible;
-    }
-
-    /**
-     * @return all ApplicationRecords that are installed AND are not archived AND have MM verified
-     */
-    public ArrayList<ApplicationRecord> getUsableAppRecords() {
-        ArrayList<ApplicationRecord> ready = new ArrayList<>();
-        for (ApplicationRecord r : getInstalledAppRecords()) {
-            if (r.isUsable()) {
-                ready.add(r);
-            }
-        }
-        return ready;
-    }
-
-    /**
-     * @return whether the user should be sent to CommCareVerificationActivity. Current logic is
-     * that this should occur only if there is exactly one visible app and it is missing its MM
-     * (because we are then assuming the user is not currently using multiple apps functionality)
-     */
-    public boolean shouldSeeMMVerification() {
-        return (CommCareApplication._().getVisibleAppRecords().size() == 1 &&
-                CommCareApplication._().getUsableAppRecords().size() == 0);
-    }
-
-    public boolean usableAppsPresent() {
-        return getUsableAppRecords().size() > 0;
-    }
-
-    /**
-     * @return the list of all installed apps as an array
-     */
-    public ApplicationRecord[] appRecordArray() {
-        ArrayList<ApplicationRecord> appList = CommCareApplication._().getInstalledAppRecords();
-        ApplicationRecord[] appArray = new ApplicationRecord[appList.size()];
-        int index = 0;
-        for (ApplicationRecord r : appList) {
-            appArray[index++] = r;
-        }
-        return appArray;
-    }
-
-    /**
-     * @param uniqueId - the uniqueId of the ApplicationRecord being sought
-     * @return the ApplicationRecord corresponding to the given id, if it exists. Otherwise,
-     * return null
-     */
-    public ApplicationRecord getAppById(String uniqueId) {
-        for (ApplicationRecord r : getInstalledAppRecords()) {
-            if (r.getUniqueId().equals(uniqueId)) {
-                return r;
-            }
-        }
-        return null;
     }
 
     /**
@@ -1474,6 +1418,32 @@ public class CommCareApplication extends Application {
             return true;
         }
         return false;
+    }
+
+    public void enableSuperUserMode(String usernameOfSuperuserAuthenticated) {
+        GoogleAnalyticsUtils.reportSuperUserEnabled(usernameOfSuperuserAuthenticated);
+        Logger.log(AndroidLogger.TYPE_USER,
+                "Superuser mode was enabled using username " + usernameOfSuperuserAuthenticated);
+
+        PreferenceManager.getDefaultSharedPreferences(this).edit()
+                .putBoolean(KEY_SUPERUSER_ENABLED, true).commit();
+        PreferenceManager.getDefaultSharedPreferences(this).edit()
+                .putString(KEY_AUTHENTICATED_SUPERUSER_USERNAME, usernameOfSuperuserAuthenticated).commit();
+    }
+
+    public void disableSuperUserMode() {
+        PreferenceManager.getDefaultSharedPreferences(this).edit()
+                .putBoolean(KEY_SUPERUSER_ENABLED, false).commit();
+    }
+
+    public boolean isSuperUserEnabled() {
+        return PreferenceManager.getDefaultSharedPreferences(this)
+                .getBoolean(KEY_SUPERUSER_ENABLED, false);
+    }
+
+    public String getAuthenticatedSuperuserUsername() {
+        return PreferenceManager.getDefaultSharedPreferences(this)
+                .getString(KEY_AUTHENTICATED_SUPERUSER_USERNAME, "");
     }
 
 }

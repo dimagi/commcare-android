@@ -1,0 +1,83 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+	<h:head>
+		<h:title>Register A Warehouse</h:title>
+		<model>
+			<instance>
+				<data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/D6B5A26A-FADF-40BF-92A8-518EB2F814A2" uiVersion="1" version="48" name="Register A Warehouse">
+					<Name/>
+					<Location/>
+					<Gender/>
+					<stock_of_soil/>
+					<stock_of_seed/>
+					<stock_of_fertilizer/>
+				<case xmlns="http://commcarehq.org/case/transaction/v2" case_id="" date_modified="" user_id=""><create><case_name/><owner_id/><case_type>warehouse</case_type></create><update><gender/><location/><stock_of_fertilizer/><stock_of_seed/><stock_of_soil/></update></case><orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+			</instance><instance id="commcaresession" src="jr://instance/session"/>
+			<bind nodeset="/data/Name" type="xsd:string" required="true()"/>
+			<bind nodeset="/data/Location" type="xsd:string"/>
+			<bind nodeset="/data/Gender"/>
+			<bind nodeset="/data/stock_of_soil"/>
+			<bind nodeset="/data/stock_of_seed"/>
+			<bind nodeset="/data/stock_of_fertilizer"/>
+			<setvalue event="xforms-ready" ref="/data/stock_of_soil" value="0"/>
+			<setvalue event="xforms-ready" ref="/data/stock_of_seed" value="0"/>
+			<setvalue event="xforms-ready" ref="/data/stock_of_fertilizer" value="0"/>
+			<itext>
+				<translation lang="en" default="">
+					<text id="Name-label">
+						<value>Name</value>
+						<value form="image">jr://file/commcare/image/data/Name.png</value>
+					</text>
+					<text id="Location-label">
+						<value>Location</value>
+					</text>
+					<text id="Gender-label">
+						<value>Gender</value>
+					</text>
+					<text id="Gender-female-label">
+						<value>Female</value>
+					</text>
+					<text id="Gender-male-label">
+						<value>Male</value>
+					</text>
+				</translation>
+				<translation lang="es">
+					<text id="Name-label">
+						<value>Name</value>
+						<value form="image">jr://file/commcare/image/data/Name.png</value>
+					</text>
+					<text id="Location-label">
+						<value>Location</value>
+					</text>
+					<text id="Gender-label">
+						<value>Gender</value>
+					</text>
+					<text id="Gender-female-label">
+						<value>Female</value>
+					</text>
+					<text id="Gender-male-label">
+						<value>Male</value>
+					</text>
+				</translation>
+			</itext>
+		<bind calculate="/data/meta/timeEnd" nodeset="/data/case/@date_modified" type="xsd:dateTime"/><bind calculate="/data/meta/userID" nodeset="/data/case/@user_id"/><setvalue event="xforms-ready" ref="/data/case/@case_id" value="instance('commcaresession')/session/data/case_id_new_warehouse_0"/><bind calculate="/data/Name" nodeset="/data/case/create/case_name"/><bind calculate="/data/meta/userID" nodeset="/data/case/create/owner_id"/><bind calculate="/data/Gender" nodeset="/data/case/update/gender" relevant="count(/data/Gender) &gt; 0"/><bind calculate="/data/Location" nodeset="/data/case/update/location" relevant="count(/data/Location) &gt; 0"/><bind calculate="/data/stock_of_fertilizer" nodeset="/data/case/update/stock_of_fertilizer" relevant="count(/data/stock_of_fertilizer) &gt; 0"/><bind calculate="/data/stock_of_seed" nodeset="/data/case/update/stock_of_seed" relevant="count(/data/stock_of_seed) &gt; 0"/><bind calculate="/data/stock_of_soil" nodeset="/data/case/update/stock_of_soil" relevant="count(/data/stock_of_soil) &gt; 0"/><setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+	</h:head>
+	<h:body>
+		<input ref="/data/Name">
+			<label ref="jr:itext('Name-label')"/>
+		</input>
+		<input ref="/data/Location">
+			<label ref="jr:itext('Location-label')"/>
+		</input>
+		<select1 ref="/data/Gender">
+			<label ref="jr:itext('Gender-label')"/>
+			<item>
+				<label ref="jr:itext('Gender-female-label')"/>
+				<value>female</value>
+			</item>
+			<item>
+				<label ref="jr:itext('Gender-male-label')"/>
+				<value>male</value>
+			</item>
+		</select1>
+	</h:body>
+</h:html>

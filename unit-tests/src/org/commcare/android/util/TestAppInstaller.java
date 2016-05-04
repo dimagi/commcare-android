@@ -3,7 +3,7 @@ package org.commcare.android.util;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApp;
-import org.commcare.android.mocks.CommCareTaskConnectorFake;
+import org.commcare.android.mocks.MockCommCareTaskConnector;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -28,8 +28,7 @@ public class TestAppInstaller {
     private final String password;
     private final String resourceFilepath;
 
-    private final CommCareTaskConnectorFake<Object> fakeConnector =
-            new CommCareTaskConnectorFake<>();
+    private final MockCommCareTaskConnector<Object> fakeConnector = new MockCommCareTaskConnector();
 
     private TestAppInstaller(String resourceFilepath,
                              String username,
@@ -39,17 +38,16 @@ public class TestAppInstaller {
         this.password = password;
     }
 
-    private void installAppAndLogin() {
-        installApp();
-
-        buildTestUser();
-
-        login(username, password);
+    public static void initInstallAndLogin(String appPath,
+                                           String username,
+                                           String password) {
+        initInstallAndLogin(appPath, username, password, null);
     }
 
     public static void initInstallAndLogin(String appPath,
                                            String username,
-                                           String password) {
+                                           String password,
+                                           TestResourceEngineTaskListener receiver) {
         // needed to resolve "jr://resource" type references
         ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
 
@@ -59,7 +57,19 @@ public class TestAppInstaller {
         TestAppInstaller appTestInstaller =
                 new TestAppInstaller(
                         appPath, username, password);
-        appTestInstaller.installAppAndLogin();
+        appTestInstaller.installAppAndLogin(receiver);
+    }
+
+    private void installAppAndLogin(TestResourceEngineTaskListener receiver) {
+        if (receiver == null) {
+            installApp();
+        } else {
+            installAppWithReceiver(receiver);
+        }
+
+        buildTestUser();
+
+        login(username, password);
     }
 
     private void installApp() {
@@ -73,6 +83,7 @@ public class TestAppInstaller {
                     @Override
                     protected void deliverResult(Object receiver,
                                                  AppInstallStatus result) {
+                        String s = "";
                     }
 
                     @Override
@@ -91,6 +102,41 @@ public class TestAppInstaller {
 
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
+    }
+
+    private void installAppWithReceiver(TestResourceEngineTaskListener receiver) {
+        ApplicationRecord newRecord =
+                new ApplicationRecord(PropertyUtils.genUUID().replace("-", ""),
+                        ApplicationRecord.STATUS_UNINITIALIZED);
+
+        CommCareApp app = new CommCareTestApp(new CommCareApp(newRecord));
+        ResourceEngineTask<TestResourceEngineTaskListener> task =
+                new ResourceEngineTask<TestResourceEngineTaskListener>(app, -1, false) {
+                    @Override
+                    protected void deliverResult(TestResourceEngineTaskListener receiver,
+                                                 AppInstallStatus result) {
+                        receiver.onTaskCompletion(result);
+                    }
+
+                    @Override
+                    protected void deliverUpdate(TestResourceEngineTaskListener receiver,
+                                                 int[]... update) {
+                    }
+
+                    @Override
+                    protected void deliverError(TestResourceEngineTaskListener receiver,
+                                                Exception e) {
+                        throw new RuntimeException("App failed to install during test");
+                    }
+                };
+
+        MockCommCareTaskConnector connector = MockCommCareTaskConnector.getTaskConnectorWithReceiver(receiver);
+        task.connect(connector);
+        task.execute(resourceFilepath);
+
+        Robolectric.flushBackgroundThreadScheduler();
+        Robolectric.flushForegroundThreadScheduler();
+
     }
 
     private void buildTestUser() {

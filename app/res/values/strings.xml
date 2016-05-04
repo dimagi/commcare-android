@@ -11,7 +11,7 @@
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
 
-    <!-- region: All strings for multiple apps -->
+    <!-- region: All strings for multiple apps and app-agnostic properties -->
 
     <string name="manager_activity_name">App Manager</string>
     <string name="install_app">Install An App</string>
@@ -19,6 +19,7 @@
     <string name="archive_app">Archive</string>
     <string name="unarchive_app">Unarchive</string>
     <string name="update_app">Update</string>
+    <string name="refresh_properties">Refresh Properties</string>
     <string name="update_canceled">Your update was paused</string>
     <string name="update_pinned_notification">Update downloading</string>
     <string name="verify_resources">Validate Multimedia</string>
@@ -41,6 +42,11 @@
     <string name="migration_definite_failure">CommCare was unable to migrate your app data for an upgrade. To resolve this issue, please uninstall CommCare from your device and then relaunch it.</string>
     <string name="migration_possible_failure">CommCare was unable to migrate all of your data during an application upgrade. Please restart CommCare to try to fix this. If this message persists, you may need to \'Clear data\' for CommCare in your device\'s Settings menu.</string>
     <string name="migration_failure_title">Migration Error</string>
+
+    <string name="superuser_auth_instructions">To authenticate as your Dimagi web superuser, visit {URL} in your web browser and then scan the barcode that appears there</string>
+    <string name="authenticate_button_text">AUTHENTICATE</string>
+    <string name="authenticated_text">You are authenticated as a superuser under username %s</string>
+    <string name="not_authenticated_text">You are not authenticated as a superuser</string>
 
     <!-- endregion -->
 

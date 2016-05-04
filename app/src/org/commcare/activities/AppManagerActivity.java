@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,6 +16,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.adapters.AppManagerAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.services.CommCareSessionService;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.AlertDialogFactory;
 import org.javarosa.core.services.locale.Localization;
@@ -30,10 +30,17 @@ import org.javarosa.core.services.locale.Localization;
  * @author amstone326
  */
 
-public class AppManagerActivity extends Activity implements OnItemClickListener {
+public class AppManagerActivity extends CommCareActivity implements OnItemClickListener {
+
+    private static final String TAG = AppManagerActivity.class.getSimpleName();
 
     public static final String KEY_LAUNCH_FROM_MANAGER = "from_manager";
+
+    private static final int MULTIPLE_APPS_AUTH = 1;
+
     private static final int MENU_CONNECTION_DIAGNOSTIC = 0;
+    private static final int MENU_ENABLE_MULTIPLE_APPS_SEAT = 1;
+    private static final int MENU_REFRESH_PROPERTIES = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +58,9 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, Localization.get("home.menu.connection.diagnostic")).setIcon(android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, Localization.get("home.menu.connection.diagnostic"));
+        menu.add(0, MENU_ENABLE_MULTIPLE_APPS_SEAT, 1, Localization.get("app.manager.menu.claim.seat"));
+        menu.add(0, MENU_REFRESH_PROPERTIES, 2, Localization.get("app.manager.menu.refresh.properties"));
         return true;
     }
 
@@ -62,10 +71,15 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                 Intent i = new Intent(this, ConnectionDiagnosticActivity.class);
                 startActivity(i);
                 return true;
+            case MENU_ENABLE_MULTIPLE_APPS_SEAT:
+                i = new Intent(this, AppManagerSeatClaimingActivity.class);
+                startActivityForResult(i, MULTIPLE_APPS_AUTH);
+                return true;
+            case MENU_REFRESH_PROPERTIES:
+                FormAndDataSyncer.refreshPropertiesForAllInstalledApps(this);
         }
         return super.onOptionsItemSelected(item);
     }
-
 
     /**
      * Refresh the list of installed apps
@@ -73,7 +87,7 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
     private void refreshView() {
         ListView lv = (ListView)findViewById(R.id.apps_list_view);
         lv.setAdapter(new AppManagerAdapter(this, android.R.layout.simple_list_item_1,
-                CommCareApplication._().appRecordArray()));
+                MultipleAppsUtil.appRecordArray()));
     }
 
     /**
@@ -139,6 +153,11 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
                 return;
+            case MULTIPLE_APPS_AUTH:
+                if (resultCode == RESULT_OK) {
+                    Toast.makeText(this, "Authentication Succeeded!", Toast.LENGTH_LONG).show();
+                }
+                return;
         }
         super.onActivityResult(requestCode, resultCode, intent);
     }
@@ -180,4 +199,5 @@ public class AppManagerActivity extends Activity implements OnItemClickListener 
         factory.setNegativeButton(getString(R.string.cancel), listener);
         factory.showDialog();
     }
+
 }

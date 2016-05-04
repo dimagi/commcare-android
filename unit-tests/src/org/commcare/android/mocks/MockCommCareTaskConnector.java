@@ -1,5 +1,6 @@
 package org.commcare.android.mocks;
 
+import org.commcare.android.util.TestResourceEngineTaskListener;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 
@@ -8,7 +9,22 @@ import org.commcare.tasks.templates.CommCareTaskConnector;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class CommCareTaskConnectorFake<R> implements CommCareTaskConnector<R> {
+public class MockCommCareTaskConnector<R> implements CommCareTaskConnector<R> {
+
+    private R receiver;
+
+    public MockCommCareTaskConnector() {
+
+    }
+
+    private MockCommCareTaskConnector(R receiver) {
+        this.receiver = receiver;
+    }
+
+    public static MockCommCareTaskConnector<TestResourceEngineTaskListener> getTaskConnectorWithReceiver(TestResourceEngineTaskListener receiver) {
+        return new MockCommCareTaskConnector(receiver);
+    }
+
     @Override
     public void connectTask(CommCareTask task) {
 
@@ -31,7 +47,7 @@ public class CommCareTaskConnectorFake<R> implements CommCareTaskConnector<R> {
 
     @Override
     public R getReceiver() {
-        return null;
+        return receiver;
     }
 
     @Override

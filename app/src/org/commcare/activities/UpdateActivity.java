@@ -189,9 +189,13 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                 return;
             }
         } else {
-            // Gives user generic failure warning; even if update staging
-            // failed for a specific reason like xml syntax
-            uiController.checkFailedUiState();
+            if (result == AppInstallStatus.MultipleAppsViolation_Upgrade) {
+                uiController.checkFailedUiState(AppInstallStatus.MultipleAppsViolation_Upgrade);
+            } else {
+                // Gives user generic failure warning; even if update staging
+                // failed for a specific reason like xml syntax
+                uiController.checkFailedUiState();
+            }
             if (proceedAutomatically) {
                 unregisterTask();
                 finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
@@ -305,9 +309,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (taskId != DIALOG_UPGRADE_INSTALL) {
-            Log.w(TAG, "taskId passed to generateProgressDialog does not match "
-                    + "any valid possibilities in CommCareSetupActivity");
-            return null;
+            return super.generateProgressDialog(taskId);
         }
         String title = Localization.get("updates.installing.title");
         String message = Localization.get("updates.installing.message");
