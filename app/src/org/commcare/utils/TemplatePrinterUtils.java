@@ -153,7 +153,7 @@ public abstract class TemplatePrinterUtils {
                     activity.finish();
                 }
             }
-        }).showDialog();
+        }).showNonPersistentDialog();
     }
 
     public static void showPrintStatusDialog(final Activity activity, String title, String msg,
@@ -170,7 +170,7 @@ public abstract class TemplatePrinterUtils {
                         activity.setResult(Activity.RESULT_OK, intent);
                         activity.finish();
                     }
-                }).showDialog();
+                }).showNonPersistentDialog();
 
     }
 

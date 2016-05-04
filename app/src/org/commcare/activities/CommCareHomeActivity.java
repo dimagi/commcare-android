@@ -310,7 +310,7 @@ public class CommCareHomeActivity
     private void showPinFutureAccessDialog() {
         StandardAlertDialog.getBasicAlertDialog(this,
                 Localization.get("pin.dialog.set.later.title"),
-                Localization.get("pin.dialog.set.later.message"), null).showDialog();
+                Localization.get("pin.dialog.set.later.message"), null).showNonPersistentDialog();
     }
 
     private void launchPinAuthentication() {

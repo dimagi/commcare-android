@@ -280,7 +280,7 @@ public class CommCarePreferences
                     }
                 });
 
-        f.showDialog();
+        f.showNonPersistentDialog();
     }
 
 

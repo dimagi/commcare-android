@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnCancelListener;
 import android.content.Intent;
@@ -125,7 +124,7 @@ public class CallOutActivity extends FragmentActivity
                 finish();
             }
         });
-        dialog.showDialog();
+        dialog.showNonPersistentDialog();
     }
 
     @Override
@@ -143,7 +142,7 @@ public class CallOutActivity extends FragmentActivity
                                 CALL_OR_SMS_PERMISSION_REQUEST,
                                 Localization.get("permission.case.callout.title"),
                                 Localization.get("permission.case.callout.message"));
-                dialog.showDialog();
+                dialog.showNonPersistentDialog();
             } else {
                 requestNeededPermissions(CALL_OR_SMS_PERMISSION_REQUEST);
             }

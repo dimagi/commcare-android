@@ -17,7 +17,7 @@ public abstract class CommCareAlertDialog {
 
     protected AlertDialog dialog;
     protected DialogInterface.OnCancelListener cancelListener;
-    protected DialogInterface.OnDismissListener dismissListener;
+    private DialogInterface.OnDismissListener dismissListener;
     protected View view;
     // false by default, can be overridden by calling setOnCancelListener(), or by subclass
     // definitions if desired
@@ -25,6 +25,9 @@ public abstract class CommCareAlertDialog {
 
     public void finalizeView() {
         dialog.setCancelable(isCancelable);
+        if (isCancelable) {
+            dialog.setOnCancelListener(cancelListener);
+        }
         dialog.setView(view);
     }
 
@@ -46,7 +49,6 @@ public abstract class CommCareAlertDialog {
 
     public void setOnCancelListener(DialogInterface.OnCancelListener listener) {
         isCancelable = true;
-        dialog.setOnCancelListener(listener);
         cancelListener = listener;
     }
 
@@ -61,7 +63,7 @@ public abstract class CommCareAlertDialog {
 
     // IMPORTANT: Should ONLY be used to show dialogs in activities that are NOT CommCareActivities
     // (and therefore cannot use the DialogController infrastructure set up there)
-    public void showDialog() {
+    public void showNonPersistentDialog() {
         finalizeView();
         dialog.show();
     }

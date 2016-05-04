@@ -106,7 +106,7 @@ public class GeoUtils {
         StandardAlertDialog factory = setupAlertFactory(activity, onChange, onCancel);
 
         // NOTE PLM: this dialog will not persist through orientation changes.
-        factory.showDialog();
+        factory.showNonPersistentDialog();
     }
 
     private static StandardAlertDialog setupAlertFactory(Context context,

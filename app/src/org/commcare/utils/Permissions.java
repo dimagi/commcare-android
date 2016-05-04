@@ -2,7 +2,6 @@ package org.commcare.utils;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
@@ -43,7 +42,7 @@ public class Permissions {
                                 permRequestCode,
                                 Localization.get("permission.all.title"),
                                 Localization.get("permission.all.message"));
-                dialog.showDialog();
+                dialog.showNonPersistentDialog();
             } else {
                 permRequester.requestNeededPermissions(permRequestCode);
             }
