@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -17,7 +16,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 
 
 /**
@@ -28,7 +27,7 @@ import org.commcare.views.dialogs.AlertDialogFactory;
  * @author amstone
  */
 
-public class SingleAppManagerActivity extends Activity {
+public class SingleAppManagerActivity extends CommCareActivity {
 
     private ApplicationRecord appRecord;
     private static final int LOGOUT_FOR_UPDATE = 0;
@@ -146,7 +145,7 @@ public class SingleAppManagerActivity extends Activity {
                 if (resultCode == RESULT_CANCELED) {
                     String title = getString(R.string.media_not_verified);
                     String msg = getString(R.string.skipped_verification_warning_2);
-                    AlertDialogFactory.getBasicAlertFactory(this, title, msg, null).showDialog();
+                    showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this, title, msg, null));
                 } else if (resultCode == RESULT_OK) {
                     Toast.makeText(this, R.string.media_verified, Toast.LENGTH_LONG).show();
                 }
@@ -291,7 +290,7 @@ public class SingleAppManagerActivity extends Activity {
      * @param v linter sees this as unused, but is required for a button to find its onClick method
      */
     public void rebootAlertDialog(View v) {
-        AlertDialogFactory factory = new AlertDialogFactory(this, getString(R.string.uninstalling),
+        StandardAlertDialog d = new StandardAlertDialog(this, getString(R.string.uninstalling),
                 getString(R.string.uninstall_reboot_warning));
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
@@ -302,9 +301,9 @@ public class SingleAppManagerActivity extends Activity {
                 }
             }
         };
-        factory.setPositiveButton(getString(R.string.ok), listener);
-        factory.setNegativeButton(getString(R.string.cancel), listener);
-        factory.showDialog();
+        d.setPositiveButton(getString(R.string.ok), listener);
+        d.setNegativeButton(getString(R.string.cancel), listener);
+        showAlertDialog(d);
     }
 
     /**
@@ -312,7 +311,7 @@ public class SingleAppManagerActivity extends Activity {
      * session being logged out
      */
     private void triggerLogoutWarning(final int actionKey) {
-        AlertDialogFactory factory = new AlertDialogFactory(this, getString(R.string.logging_out),
+        StandardAlertDialog d = new StandardAlertDialog(this, getString(R.string.logging_out),
                 getString(R.string.logout_warning));
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
 
@@ -336,8 +335,8 @@ public class SingleAppManagerActivity extends Activity {
             }
 
         };
-        factory.setPositiveButton(getString(R.string.ok), listener);
-        factory.setNegativeButton(getString(R.string.cancel), listener);
-        factory.showDialog();
+        d.setPositiveButton(getString(R.string.ok), listener);
+        d.setNegativeButton(getString(R.string.cancel), listener);
+        showAlertDialog(d);
     }
 }

@@ -439,7 +439,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                         false, LoginMode.PASSWORD);
                 return true;
             case MENU_ABOUT:
-                DialogCreationHelpers.buildAboutCommCareDialog(this).show();
+                DialogCreationHelpers.buildAboutCommCareDialog(this).showNonPersistentDialog();
                 return true;
             case MENU_PERMISSIONS:
                 Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);

@@ -3,7 +3,6 @@ package org.commcare.activities;
 import android.Manifest;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -496,12 +495,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.READ_SMS)) {
-                AlertDialog dialog =
-                        DialogCreationHelpers.buildPermissionRequestDialog(this, this,
+                DialogCreationHelpers.buildPermissionRequestDialog(this, this,
                                 SMS_PERMISSIONS_REQUEST,
                                 Localization.get("permission.sms.install.title"),
-                                Localization.get("permission.sms.install.message"));
-                dialog.show();
+                                Localization.get("permission.sms.install.message")).showNonPersistentDialog();
             } else {
                 requestNeededPermissions(SMS_PERMISSIONS_REQUEST);
             }
