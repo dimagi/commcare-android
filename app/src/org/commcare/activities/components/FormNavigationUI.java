@@ -246,7 +246,7 @@ public class FormNavigationUI {
             for (FloatingLabel type : labelTypes) {
                 if (type.getAppearance().equals(hint)) {
                     String widgetText = widget.getPrompt().getQuestionText();
-                    String markdownWidgetText = widget.getPrompt().getQuestionText();
+                    String markdownWidgetText = widget.getPrompt().getMarkdownText();
                     if(markdownWidgetText != null){
                         widgetText = markdownWidgetText;
                     }
