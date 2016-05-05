@@ -85,15 +85,6 @@ public class MediaLayout extends RelativeLayout {
                        final String qrCodeContent, String inlineVideoURI) {
         viewText = text;
 
-        RelativeLayout.LayoutParams textParams =
-                new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-        RelativeLayout.LayoutParams audioParams =
-                new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
-        RelativeLayout.LayoutParams videoParams =
-                new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
         RelativeLayout.LayoutParams questionTextPaneParams =
                 new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
 
@@ -110,73 +101,10 @@ public class MediaLayout extends RelativeLayout {
         }
 
         // Then set up the video button
-        if (videoURI != null) {
-            videoButton = new ImageButton(getContext());
-            videoButton.setImageResource(android.R.drawable.ic_media_play);
-            videoButton.setOnClickListener(new OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String videoFilename = "";
-                    try {
-                        videoFilename =
-                                ReferenceManager._().DeriveReference(videoURI).getLocalURI();
-                    } catch (InvalidReferenceException e) {
-                        Log.e(TAG, "Invalid reference exception");
-                        e.printStackTrace();
-                    }
+        setupVideoButton(videoURI);
 
-                    File videoFile = new File(videoFilename);
-                    if (!videoFile.exists()) {
-                        // We should have a video clip, but the file doesn't exist.
-                        String errorMsg =
-                                getContext().getString(R.string.file_missing, videoFilename);
-                        Log.e(TAG, errorMsg);
-                        Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
-                        return;
-                    }
-
-                    Intent i = new Intent("android.intent.action.VIEW");
-                    i.setDataAndType(Uri.fromFile(videoFile), "video/*");
-                    try {
-                        String uri = Uri.fromFile(videoFile).getPath().replaceAll("^.*\\/", "");
-                        Logger.log("media", "start " + uri);
-                        getContext().startActivity(i);
-                    } catch (ActivityNotFoundException e) {
-                        Toast.makeText(getContext(),
-                                getContext().getString(R.string.activity_not_found, "view video"),
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-            videoButton.setId(VIDEO_BUTTON_ID);
-        }
-
-        // Add the audioButton and videoButton (if applicable) and view
-        // (containing text) to the relative layout.
-        if (audioButton != null && videoButton == null) {
-            audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
-            questionTextPane.addView(audioButton, audioParams);
-        } else if (audioButton == null && videoButton != null) {
-            videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            textParams.addRule(RelativeLayout.LEFT_OF, videoButton.getId());
-            questionTextPane.addView(videoButton, videoParams);
-        } else if (audioButton != null && videoButton != null) {
-            audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
-            videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            videoParams.addRule(RelativeLayout.BELOW, audioButton.getId());
-            questionTextPane.addView(audioButton, audioParams);
-            questionTextPane.addView(videoButton, videoParams);
-        } else {
-            //Audio and Video are both null, let text bleed to right
-            textParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-        }
         boolean textVisible = (viewText.getVisibility() != GONE);
-        if (textVisible) {
-            textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            questionTextPane.addView(viewText, textParams);
-        }
+        addAudioVideoButtonsToView(questionTextPane, textVisible);
 
         // Now set up the center view, it is either an image, a QR Code, or an inline video
         String errorMsg = null;
@@ -250,7 +178,6 @@ public class MediaLayout extends RelativeLayout {
         }
 
         if (mediaPane != null) {
-
             if (!textVisible) {
                 this.addView(questionTextPane, questionTextPaneParams);
                 if (audioButton != null) {
@@ -276,6 +203,87 @@ public class MediaLayout extends RelativeLayout {
             }
         } else {
             this.addView(questionTextPane, questionTextPaneParams);
+        }
+    }
+
+    private void setupVideoButton(final String videoURI) {
+        if (videoURI != null) {
+            videoButton = new ImageButton(getContext());
+            videoButton.setImageResource(android.R.drawable.ic_media_play);
+            videoButton.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String videoFilename = "";
+                    try {
+                        videoFilename =
+                                ReferenceManager._().DeriveReference(videoURI).getLocalURI();
+                    } catch (InvalidReferenceException e) {
+                        Log.e(TAG, "Invalid reference exception");
+                        e.printStackTrace();
+                    }
+
+                    File videoFile = new File(videoFilename);
+                    if (!videoFile.exists()) {
+                        // We should have a video clip, but the file doesn't exist.
+                        String errorMsg =
+                                getContext().getString(R.string.file_missing, videoFilename);
+                        Log.e(TAG, errorMsg);
+                        Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    Intent i = new Intent("android.intent.action.VIEW");
+                    i.setDataAndType(Uri.fromFile(videoFile), "video/*");
+                    try {
+                        String uri = Uri.fromFile(videoFile).getPath().replaceAll("^.*\\/", "");
+                        Logger.log("media", "start " + uri);
+                        getContext().startActivity(i);
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(getContext(),
+                                getContext().getString(R.string.activity_not_found, "view video"),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+            videoButton.setId(VIDEO_BUTTON_ID);
+        }
+    }
+
+    private void addAudioVideoButtonsToView(RelativeLayout questionTextPane,
+                                            boolean textVisible) {
+        RelativeLayout.LayoutParams textParams =
+                new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+        RelativeLayout.LayoutParams audioParams =
+                new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+        RelativeLayout.LayoutParams videoParams =
+                new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+
+        // Add the audioButton and videoButton (if applicable) and view
+        // (containing text) to the relative layout.
+        if (audioButton != null && videoButton == null) {
+            audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
+            questionTextPane.addView(audioButton, audioParams);
+        } else if (audioButton == null && videoButton != null) {
+            videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            textParams.addRule(RelativeLayout.LEFT_OF, videoButton.getId());
+            questionTextPane.addView(videoButton, videoParams);
+        } else if (audioButton != null && videoButton != null) {
+            audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
+            videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+            videoParams.addRule(RelativeLayout.BELOW, audioButton.getId());
+            questionTextPane.addView(audioButton, audioParams);
+            questionTextPane.addView(videoButton, videoParams);
+        } else {
+            //Audio and Video are both null, let text bleed to right
+            textParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+        }
+        if (textVisible) {
+            textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+            questionTextPane.addView(viewText, textParams);
         }
     }
 
@@ -343,7 +351,6 @@ public class MediaLayout extends RelativeLayout {
                 videoView.setId(INLINE_VIDEO_PANE_ID);
                 return videoView;
             }
-
         } catch (InvalidReferenceException ire) {
             Log.e(TAG, "invalid video reference exception");
             ire.printStackTrace();
