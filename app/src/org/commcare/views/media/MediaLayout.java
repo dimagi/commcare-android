@@ -61,18 +61,18 @@ public class MediaLayout extends RelativeLayout {
     @IdRes
     private static final int MISSING_IMAGE_ID = 234873453;
 
-    private TextView mView_Text;
-    private AudioButton mAudioButton;
-    private ImageButton mVideoButton;
-    private TextView mMissingImage;
+    private TextView viewText;
+    private AudioButton audioButton;
+    private ImageButton videoButton;
+    private TextView missingImageText;
 
     public MediaLayout(Context c) {
         super(c);
 
-        mView_Text = null;
-        mAudioButton = null;
-        mMissingImage = null;
-        mVideoButton = null;
+        viewText = null;
+        audioButton = null;
+        missingImageText = null;
+        videoButton = null;
     }
 
     public void setAVT(TextView text, String audioURI, String imageURI,
@@ -83,7 +83,7 @@ public class MediaLayout extends RelativeLayout {
     public void setAVT(TextView text, String audioURI, String imageURI,
                        final String videoURI, final String bigImageURI,
                        final String qrCodeContent, String inlineVideoURI) {
-        mView_Text = text;
+        viewText = text;
 
         RelativeLayout.LayoutParams textParams =
                 new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
@@ -104,16 +104,16 @@ public class MediaLayout extends RelativeLayout {
         questionTextPane.setId(QUESTION_TEXT_PANE_ID);
 
         if (audioURI != null) {
-            mAudioButton = new AudioButton(getContext(), audioURI, true);
+            audioButton = new AudioButton(getContext(), audioURI, true);
             // random ID to be used by the relative layout.
-            mAudioButton.setId(AUDIO_BUTTON_ID);
+            audioButton.setId(AUDIO_BUTTON_ID);
         }
 
         // Then set up the video button
         if (videoURI != null) {
-            mVideoButton = new ImageButton(getContext());
-            mVideoButton.setImageResource(android.R.drawable.ic_media_play);
-            mVideoButton.setOnClickListener(new OnClickListener() {
+            videoButton = new ImageButton(getContext());
+            videoButton.setImageResource(android.R.drawable.ic_media_play);
+            videoButton.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     String videoFilename = "";
@@ -148,34 +148,34 @@ public class MediaLayout extends RelativeLayout {
                     }
                 }
             });
-            mVideoButton.setId(VIDEO_BUTTON_ID);
+            videoButton.setId(VIDEO_BUTTON_ID);
         }
 
         // Add the audioButton and videoButton (if applicable) and view
         // (containing text) to the relative layout.
-        if (mAudioButton != null && mVideoButton == null) {
+        if (audioButton != null && videoButton == null) {
             audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            textParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
-            questionTextPane.addView(mAudioButton, audioParams);
-        } else if (mAudioButton == null && mVideoButton != null) {
+            textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
+            questionTextPane.addView(audioButton, audioParams);
+        } else if (audioButton == null && videoButton != null) {
             videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            textParams.addRule(RelativeLayout.LEFT_OF, mVideoButton.getId());
-            questionTextPane.addView(mVideoButton, videoParams);
-        } else if (mAudioButton != null && mVideoButton != null) {
+            textParams.addRule(RelativeLayout.LEFT_OF, videoButton.getId());
+            questionTextPane.addView(videoButton, videoParams);
+        } else if (audioButton != null && videoButton != null) {
             audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            textParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
+            textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
             videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            videoParams.addRule(RelativeLayout.BELOW, mAudioButton.getId());
-            questionTextPane.addView(mAudioButton, audioParams);
-            questionTextPane.addView(mVideoButton, videoParams);
+            videoParams.addRule(RelativeLayout.BELOW, audioButton.getId());
+            questionTextPane.addView(audioButton, audioParams);
+            questionTextPane.addView(videoButton, videoParams);
         } else {
             //Audio and Video are both null, let text bleed to right
             textParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
         }
-        boolean textVisible = (mView_Text.getVisibility() != GONE);
+        boolean textVisible = (viewText.getVisibility() != GONE);
         if (textVisible) {
             textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-            questionTextPane.addView(mView_Text, textParams);
+            questionTextPane.addView(viewText, textParams);
         }
 
         // Now set up the center view, it is either an image, a QR Code, or an inline video
@@ -237,11 +237,11 @@ public class MediaLayout extends RelativeLayout {
                 if (errorMsg != null) {
                     // errorMsg is only set when an error has occured
                     Log.e(TAG, errorMsg);
-                    mMissingImage = new TextView(getContext());
-                    mMissingImage.setText(errorMsg);
-                    mMissingImage.setPadding(10, 10, 10, 10);
-                    mMissingImage.setId(MISSING_IMAGE_ID);
-                    mediaPane = mMissingImage;
+                    missingImageText = new TextView(getContext());
+                    missingImageText.setText(errorMsg);
+                    missingImageText.setPadding(10, 10, 10, 10);
+                    missingImageText.setId(MISSING_IMAGE_ID);
+                    mediaPane = missingImageText;
                 }
             } catch (InvalidReferenceException e) {
                 Log.e(TAG, "image invalid reference exception");
@@ -253,12 +253,12 @@ public class MediaLayout extends RelativeLayout {
 
             if (!textVisible) {
                 this.addView(questionTextPane, questionTextPaneParams);
-                if (mAudioButton != null) {
-                    mediaPaneParams.addRule(RelativeLayout.LEFT_OF, mAudioButton.getId());
+                if (audioButton != null) {
+                    mediaPaneParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
                     questionTextPane.addView(mediaPane, mediaPaneParams);
                 }
-                if (mVideoButton != null) {
-                    mediaPaneParams.addRule(RelativeLayout.LEFT_OF, mVideoButton.getId());
+                if (videoButton != null) {
+                    mediaPaneParams.addRule(RelativeLayout.LEFT_OF, videoButton.getId());
                     questionTextPane.addView(mediaPane, mediaPaneParams);
                 }
             } else {
@@ -352,11 +352,11 @@ public class MediaLayout extends RelativeLayout {
     }
 
     private TextView getMissingImageView(String errorMessage) {
-        mMissingImage = new TextView(getContext());
-        mMissingImage.setText(errorMessage);
-        mMissingImage.setPadding(10, 10, 10, 10);
-        mMissingImage.setId(MISSING_IMAGE_ID);
-        return mMissingImage;
+        missingImageText = new TextView(getContext());
+        missingImageText.setText(errorMessage);
+        missingImageText.setPadding(10, 10, 10, 10);
+        missingImageText.setId(MISSING_IMAGE_ID);
+        return missingImageText;
     }
 
     private boolean useResizingImageView() {
@@ -378,13 +378,13 @@ public class MediaLayout extends RelativeLayout {
         int maxHeight = metrics.heightPixels;
 
         // subtract height for textview and buttons, if present
-        if (mView_Text != null) {
-            maxHeight = maxHeight - mView_Text.getHeight();
+        if (viewText != null) {
+            maxHeight = maxHeight - viewText.getHeight();
         }
-        if (mVideoButton != null) {
-            maxHeight = maxHeight - mVideoButton.getHeight();
-        } else if (mAudioButton != null) {
-            maxHeight = maxHeight - mAudioButton.getHeight();
+        if (videoButton != null) {
+            maxHeight = maxHeight - videoButton.getHeight();
+        } else if (audioButton != null) {
+            maxHeight = maxHeight - audioButton.getHeight();
         }
 
         // reduce by third for safety
@@ -398,15 +398,15 @@ public class MediaLayout extends RelativeLayout {
     public void addDivider(ImageView v) {
         RelativeLayout.LayoutParams dividerParams =
                 new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        if (mMissingImage != null) {
-            dividerParams.addRule(RelativeLayout.BELOW, mMissingImage.getId());
-        } else if (mVideoButton != null) {
-            dividerParams.addRule(RelativeLayout.BELOW, mVideoButton.getId());
-        } else if (mAudioButton != null) {
-            dividerParams.addRule(RelativeLayout.BELOW, mAudioButton.getId());
-        } else if (mView_Text != null) {
+        if (missingImageText != null) {
+            dividerParams.addRule(RelativeLayout.BELOW, missingImageText.getId());
+        } else if (videoButton != null) {
+            dividerParams.addRule(RelativeLayout.BELOW, videoButton.getId());
+        } else if (audioButton != null) {
+            dividerParams.addRule(RelativeLayout.BELOW, audioButton.getId());
+        } else if (viewText != null) {
             // No picture
-            dividerParams.addRule(RelativeLayout.BELOW, mView_Text.getId());
+            dividerParams.addRule(RelativeLayout.BELOW, viewText.getId());
         } else {
             Log.e(TAG, "Tried to add divider to uninitialized ATVWidget");
             return;
@@ -418,8 +418,8 @@ public class MediaLayout extends RelativeLayout {
     protected void onWindowVisibilityChanged(int visibility) {
         super.onWindowVisibilityChanged(visibility);
         if (visibility != View.VISIBLE) {
-            if (mAudioButton != null) {
-                mAudioButton.endPlaying();
+            if (audioButton != null) {
+                audioButton.endPlaying();
             }
         }
     }
