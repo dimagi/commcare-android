@@ -191,20 +191,22 @@ public class MediaLayout extends RelativeLayout {
 
         // Add the audioButton and videoButton (if applicable) and view
         // (containing text) to the relative layout.
-        if (audioButton != null && videoButton == null) {
-            audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
-            questionTextPane.addView(audioButton, audioParams);
-        } else if (audioButton == null && videoButton != null) {
+        if (audioButton != null ) {
+            if (videoButton == null) {
+                audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+                textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
+                questionTextPane.addView(audioButton, audioParams);
+            } else {
+                audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+                textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
+                videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+                videoParams.addRule(RelativeLayout.BELOW, audioButton.getId());
+                questionTextPane.addView(audioButton, audioParams);
+                questionTextPane.addView(videoButton, videoParams);
+            }
+        } else if (videoButton != null) {
             videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
             textParams.addRule(RelativeLayout.LEFT_OF, videoButton.getId());
-            questionTextPane.addView(videoButton, videoParams);
-        } else if (audioButton != null && videoButton != null) {
-            audioParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            textParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
-            videoParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-            videoParams.addRule(RelativeLayout.BELOW, audioButton.getId());
-            questionTextPane.addView(audioButton, audioParams);
             questionTextPane.addView(videoButton, videoParams);
         } else {
             //Audio and Video are both null, let text bleed to right
