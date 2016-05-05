@@ -39,7 +39,7 @@ import java.io.File;
  * @author carlhartung
  */
 public class MediaLayout extends RelativeLayout {
-    private static final String t = "AVTLayout";
+    private static final String TAG = MediaLayout.class.getSimpleName();
 
     @IdRes
     public static final int INLINE_VIDEO_PANE_ID = 99999;
@@ -104,7 +104,7 @@ public class MediaLayout extends RelativeLayout {
                         videoFilename =
                                 ReferenceManager._().DeriveReference(videoURI).getLocalURI();
                     } catch (InvalidReferenceException e) {
-                        Log.e(t, "Invalid reference exception");
+                        Log.e(TAG, "Invalid reference exception");
                         e.printStackTrace();
                     }
 
@@ -113,7 +113,7 @@ public class MediaLayout extends RelativeLayout {
                         // We should have a video clip, but the file doesn't exist.
                         String errorMsg =
                                 getContext().getString(R.string.file_missing, videoFilename);
-                        Log.e(t, errorMsg);
+                        Log.e(TAG, errorMsg);
                         Toast.makeText(getContext(), errorMsg, Toast.LENGTH_LONG).show();
                         return;
                     }
@@ -227,7 +227,7 @@ public class MediaLayout extends RelativeLayout {
 
                 if (errorMsg != null) {
                     // errorMsg is only set when an error has occured
-                    Log.e(t, errorMsg);
+                    Log.e(TAG, errorMsg);
                     mMissingImage = new TextView(getContext());
                     mMissingImage.setText(errorMsg);
                     mMissingImage.setPadding(10, 10, 10, 10);
@@ -235,7 +235,7 @@ public class MediaLayout extends RelativeLayout {
                     mediaPane = mMissingImage;
                 }
             } catch (InvalidReferenceException e) {
-                Log.e(t, "image invalid reference exception");
+                Log.e(TAG, "image invalid reference exception");
                 e.printStackTrace();
             }
         }
@@ -316,7 +316,7 @@ public class MediaLayout extends RelativeLayout {
             }
 
         } catch (InvalidReferenceException ire) {
-            Log.e(t, "invalid video reference exception");
+            Log.e(TAG, "invalid video reference exception");
             ire.printStackTrace();
             return getMissingImageView("Invalid reference: " + ire.getReferenceString());
         }
@@ -379,7 +379,7 @@ public class MediaLayout extends RelativeLayout {
             // No picture
             dividerParams.addRule(RelativeLayout.BELOW, mView_Text.getId());
         } else {
-            Log.e(t, "Tried to add divider to uninitialized ATVWidget");
+            Log.e(TAG, "Tried to add divider to uninitialized ATVWidget");
             return;
         }
         addView(v, dividerParams);
