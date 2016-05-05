@@ -107,12 +107,10 @@ public class MediaLayout extends RelativeLayout {
         addAudioVideoButtonsToView(questionTextPane, textVisible);
 
         // Now set up the center view, it is either an image, a QR Code, or an inline video
-        String errorMsg = null;
         View mediaPane = null;
 
         if (inlineVideoURI != null) {
             mediaPane = getInlineVideoView(inlineVideoURI, mediaPaneParams);
-
         } else if (qrCodeContent != null) {
             Bitmap image;
             int minimumDim = getScreenMinimumDimension();
@@ -134,47 +132,7 @@ public class MediaLayout extends RelativeLayout {
                 e.printStackTrace();
             }
         } else if (imageURI != null) {
-            try {
-                int[] maxBounds = getMaxCenterViewBounds();
-                final String imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
-                final File imageFile = new File(imageFilename);
-                if (imageFile.exists()) {
-                    Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI, maxBounds[0],
-                            maxBounds[1]);
-                    if (b != null) {
-                        ImageView mImageView = new ImageView(getContext());
-                        if (useResizingImageView()) {
-                            mImageView = new ResizingImageView(getContext(), imageURI, bigImageURI);
-                            mImageView.setAdjustViewBounds(true);
-                            mImageView.setMaxWidth(maxBounds[0]);
-                            mImageView.setMaxHeight(maxBounds[1]);
-                        } else {
-                            mImageView.setScaleType(ImageView.ScaleType.CENTER);
-                        }
-                        mImageView.setPadding(10, 10, 10, 10);
-                        mImageView.setImageBitmap(b);
-                        mImageView.setId(IMAGE_VIEW_ID);
-                        mediaPane = mImageView;
-                    }
-                } else {
-                    // An error hasn't been logged. We should have an image, but the file doesn't
-                    // exist.
-                    errorMsg = getContext().getString(R.string.file_missing, imageFile);
-                }
-
-                if (errorMsg != null) {
-                    // errorMsg is only set when an error has occured
-                    Log.e(TAG, errorMsg);
-                    missingImageText = new TextView(getContext());
-                    missingImageText.setText(errorMsg);
-                    missingImageText.setPadding(10, 10, 10, 10);
-                    missingImageText.setId(MISSING_IMAGE_ID);
-                    mediaPane = missingImageText;
-                }
-            } catch (InvalidReferenceException e) {
-                Log.e(TAG, "image invalid reference exception");
-                e.printStackTrace();
-            }
+            mediaPane = setupImage(imageURI, bigImageURI);
         }
 
         if (mediaPane != null) {
@@ -285,6 +243,53 @@ public class MediaLayout extends RelativeLayout {
             textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             questionTextPane.addView(viewText, textParams);
         }
+    }
+
+    private View setupImage(String imageURI, String bigImageURI) {
+        String errorMsg = null;
+        View mediaPane = null;
+        try {
+            int[] maxBounds = getMaxCenterViewBounds();
+            final String imageFilename = ReferenceManager._().DeriveReference(imageURI).getLocalURI();
+            final File imageFile = new File(imageFilename);
+            if (imageFile.exists()) {
+                Bitmap b = MediaUtil.inflateDisplayImage(getContext(), imageURI, maxBounds[0],
+                        maxBounds[1]);
+                if (b != null) {
+                    ImageView mImageView = new ImageView(getContext());
+                    if (useResizingImageView()) {
+                        mImageView = new ResizingImageView(getContext(), imageURI, bigImageURI);
+                        mImageView.setAdjustViewBounds(true);
+                        mImageView.setMaxWidth(maxBounds[0]);
+                        mImageView.setMaxHeight(maxBounds[1]);
+                    } else {
+                        mImageView.setScaleType(ImageView.ScaleType.CENTER);
+                    }
+                    mImageView.setPadding(10, 10, 10, 10);
+                    mImageView.setImageBitmap(b);
+                    mImageView.setId(IMAGE_VIEW_ID);
+                    mediaPane = mImageView;
+                }
+            } else {
+                // An error hasn't been logged. We should have an image, but the file doesn't
+                // exist.
+                errorMsg = getContext().getString(R.string.file_missing, imageFile);
+            }
+
+            if (errorMsg != null) {
+                // errorMsg is only set when an error has occured
+                Log.e(TAG, errorMsg);
+                missingImageText = new TextView(getContext());
+                missingImageText.setText(errorMsg);
+                missingImageText.setPadding(10, 10, 10, 10);
+                missingImageText.setId(MISSING_IMAGE_ID);
+                mediaPane = missingImageText;
+            }
+        } catch (InvalidReferenceException e) {
+            Log.e(TAG, "image invalid reference exception");
+            e.printStackTrace();
+        }
+        return mediaPane;
     }
 
     @SuppressWarnings("deprecation")
