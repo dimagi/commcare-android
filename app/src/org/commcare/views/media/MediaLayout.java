@@ -342,9 +342,10 @@ public class MediaLayout extends RelativeLayout {
     private boolean useResizingImageView() {
         // only allow ResizingImageView to be used if not also using smart inflation
         return !CommCarePreferences.isSmartInflationEnabled() &&
-                (ResizingImageView.resizeMethod.equals("full") ||
-                        ResizingImageView.resizeMethod.equals("half") ||
-                        ResizingImageView.resizeMethod.equals("width"));
+                (ResizingImageView.resizeMethod != null &&
+                        (ResizingImageView.resizeMethod.equals("full") ||
+                                ResizingImageView.resizeMethod.equals("half") ||
+                                ResizingImageView.resizeMethod.equals("width")));
     }
 
     /**
