@@ -4,8 +4,10 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Point;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.support.annotation.IdRes;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -185,15 +187,7 @@ public class MediaLayout extends RelativeLayout {
 
         } else if (qrCodeContent != null) {
             Bitmap image;
-            Display display =
-                    ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
-                            .getDefaultDisplay();
-
-            //see if we're doing a new QR code display
-            int screenWidth = display.getWidth();
-            int screenHeight = display.getHeight();
-
-            int minimumDim = Math.min(screenWidth, screenHeight);
+            int minimumDim = getScreenMinimumDimension();
 
             try {
                 QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(qrCodeContent, minimumDim);
@@ -283,6 +277,26 @@ public class MediaLayout extends RelativeLayout {
         } else {
             this.addView(questionTextPane, questionTextPaneParams);
         }
+    }
+
+    @SuppressWarnings("deprecation")
+    private int getScreenMinimumDimension() {
+        Display display =
+                ((WindowManager)getContext().getSystemService(Context.WINDOW_SERVICE))
+                        .getDefaultDisplay();
+
+        int width, height;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB_MR2) {
+            width = display.getWidth();
+            height = display.getHeight();
+        } else {
+            Point screenDims = new Point();
+            display.getSize(screenDims);
+            width = screenDims.x;
+            height = screenDims.y;
+        }
+
+        return Math.min(width, height);
     }
 
     /**
