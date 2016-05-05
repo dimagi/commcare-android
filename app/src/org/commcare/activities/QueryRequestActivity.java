@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
@@ -250,6 +251,8 @@ public class QueryRequestActivity
         if (instanceOrError.first == null) {
             enterErrorState(Localization.get("query.response.format.error",
                     instanceOrError.second));
+        } else if (isResponseEmpty(instanceOrError.first)) {
+            Toast.makeText(this, Localization.get("query.response.empty"), Toast.LENGTH_SHORT).show();
         } else {
             CommCareApplication._().getCurrentSession().setQueryDatum(instanceOrError.first);
             setResult(RESULT_OK);
@@ -268,6 +271,10 @@ public class QueryRequestActivity
             return new Pair<>(null, e.getMessage());
         }
         return new Pair<>(ExternalDataInstance.buildFromRemote(instanceId, root), "");
+    }
+
+    private boolean isResponseEmpty(ExternalDataInstance instance) {
+        return !instance.getRoot().hasChildren();
     }
 
     @Override

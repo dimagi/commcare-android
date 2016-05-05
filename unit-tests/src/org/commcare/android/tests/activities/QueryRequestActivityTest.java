@@ -20,6 +20,7 @@ import org.commcare.dalvik.R;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.session.CommCareSession;
 import org.javarosa.core.services.locale.Localization;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +28,7 @@ import org.robolectric.Robolectric;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
+import org.robolectric.shadows.ShadowToast;
 import org.robolectric.util.ActivityController;
 
 import static org.junit.Assert.assertEquals;
@@ -44,8 +46,6 @@ public class QueryRequestActivityTest {
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/case_search_and_claim/profile.ccpr",
                 "test", "123");
-
-        setSessionCommand("patient-search");
     }
 
     /**
@@ -71,6 +71,8 @@ public class QueryRequestActivityTest {
      */
     @Test
     public void makeSuccessfulQueryRequestTest() {
+        setSessionCommand("patient-search");
+
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{200});
         ModernHttpRequesterMock.setExpectedUrls(
                 new String[]{"https://www.fake.com/patient_search/?patient_id=123&name=francisco&device_id=000000000000000"});
@@ -104,6 +106,8 @@ public class QueryRequestActivityTest {
      */
     @Test
     public void makeQueryWithBadServerPayloadTest() {
+        setSessionCommand("patient-search");
+
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{200});
         ModernHttpRequesterMock.setExpectedUrls(
                 new String[]{"https://www.fake.com/patient_search/?patient_id=123&name=francisco&device_id=000000000000000"});
@@ -134,12 +138,15 @@ public class QueryRequestActivityTest {
         String expectedErrorPart = Localization.get("query.response.format.error", "");
         assertTrue(((String)errorMessage.getText()).contains(expectedErrorPart));
 
+        // serialize app state into bundle
         Bundle savedInstanceState = new Bundle();
         controller.saveInstanceState(savedInstanceState);
 
+        // start new activity with serialized app state
         queryRequestActivity = Robolectric.buildActivity(QueryRequestActivity.class)
                 .withIntent(queryActivityIntent).setup(savedInstanceState).get();
 
+        // check that the error message is still there
         errorMessage = (TextView)queryRequestActivity.findViewById(R.id.error_message);
         assertEquals(View.VISIBLE, errorMessage.getVisibility());
         assertTrue(((String)errorMessage.getText()).contains(expectedErrorPart));
@@ -151,6 +158,8 @@ public class QueryRequestActivityTest {
      */
     @Test
     public void reloadQueryActivityStateTest() {
+        setSessionCommand("patient-search");
+
         Intent queryActivityIntent =
                 new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
 
@@ -164,17 +173,66 @@ public class QueryRequestActivityTest {
         EditText patientId = (EditText)promptsLayout.getChildAt(1);
         patientId.setText("123");
 
+        // serialize app state into bundle
         Bundle savedInstanceState = new Bundle();
         controller.saveInstanceState(savedInstanceState);
 
+        // start new activity with serialized app state
         queryRequestActivity = Robolectric.buildActivity(QueryRequestActivity.class)
                 .withIntent(queryActivityIntent).setup(savedInstanceState).get();
+
+        // check that the query prompts are filled out still
         promptsLayout = (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
         patientId = (EditText)promptsLayout.getChildAt(1);
         assertEquals("123", patientId.getText().toString());
 
         patientId = (EditText)promptsLayout.getChildAt(3);
         assertEquals("", patientId.getText().toString());
+    }
+
+    /**
+     * Make query with empty response, which should result in a toast, not advancing forward
+     */
+    @Test
+    public void receiveEmptyQueryResultTest() {
+        setSessionCommand("patient-search");
+
+        ModernHttpRequesterMock.setResponseCodes(new Integer[]{200, 200, 200});
+        ModernHttpRequesterMock.setExpectedUrls(
+                new String[]{"https://www.fake.com/patient_search/?name=francisco&device_id=000000000000000"});
+        ModernHttpRequesterMock.setRequestPayloads(
+                new String[]{"jr://resource/commcare-apps/case_search_and_claim/empty-query-result-one-tag.xml",
+                        "jr://resource/commcare-apps/case_search_and_claim/empty-query-result-two-tags.xml",
+                        "jr://resource/commcare-apps/case_search_and_claim/single-query-result.xml"});
+
+        Intent queryActivityIntent =
+                new Intent(RuntimeEnvironment.application, QueryRequestActivity.class);
+
+        ActivityController<QueryRequestActivity> controller =
+                Robolectric.buildActivity(QueryRequestActivity.class)
+                        .withIntent(queryActivityIntent).setup();
+        QueryRequestActivity queryRequestActivity = controller.get();
+
+        LinearLayout promptsLayout =
+                (LinearLayout)queryRequestActivity.findViewById(R.id.query_prompts);
+        EditText patientName = (EditText)promptsLayout.getChildAt(3);
+        patientName.setText("francisco");
+
+        Button queryButton =
+                (Button)queryRequestActivity.findViewById(R.id.request_button);
+        queryButton.performClick();
+
+        Assert.assertEquals(Localization.get("query.response.empty"),
+                ShadowToast.getTextOfLatestToast());
+
+        queryButton.performClick();
+        Assert.assertEquals(Localization.get("query.response.empty"),
+                ShadowToast.getTextOfLatestToast());
+
+        queryButton.performClick();
+        assertEquals(Activity.RESULT_OK,
+                Shadows.shadowOf(queryRequestActivity).getResultCode());
+        assertTrue(queryRequestActivity.isFinishing());
     }
 
     private static void setSessionCommand(String command) {
