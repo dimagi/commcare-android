@@ -85,9 +85,6 @@ public class MediaLayout extends RelativeLayout {
                        final String qrCodeContent, String inlineVideoURI) {
         viewText = text;
 
-        RelativeLayout.LayoutParams questionTextPaneParams =
-                new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-
         RelativeLayout.LayoutParams mediaPaneParams =
                 new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 
@@ -135,33 +132,7 @@ public class MediaLayout extends RelativeLayout {
             mediaPane = setupImage(imageURI, bigImageURI);
         }
 
-        if (mediaPane != null) {
-            if (!textVisible) {
-                this.addView(questionTextPane, questionTextPaneParams);
-                if (audioButton != null) {
-                    mediaPaneParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
-                    questionTextPane.addView(mediaPane, mediaPaneParams);
-                }
-                if (videoButton != null) {
-                    mediaPaneParams.addRule(RelativeLayout.LEFT_OF, videoButton.getId());
-                    questionTextPane.addView(mediaPane, mediaPaneParams);
-                }
-            } else {
-                if (DeveloperPreferences.imageAboveTextEnabled()) {
-                    mediaPaneParams.addRule(CENTER_HORIZONTAL);
-                    this.addView(mediaPane, mediaPaneParams);
-                    questionTextPaneParams.addRule(RelativeLayout.BELOW, mediaPane.getId());
-                    this.addView(questionTextPane, questionTextPaneParams);
-                } else {
-                    this.addView(questionTextPane, questionTextPaneParams);
-                    mediaPaneParams.addRule(RelativeLayout.BELOW, questionTextPane.getId());
-                    mediaPaneParams.addRule(CENTER_HORIZONTAL);
-                    this.addView(mediaPane, mediaPaneParams);
-                }
-            }
-        } else {
-            this.addView(questionTextPane, questionTextPaneParams);
-        }
+        addElementsToView(mediaPane, mediaPaneParams, questionTextPane, textVisible);
     }
 
     private void setupVideoButton(final String videoURI) {
@@ -290,6 +261,41 @@ public class MediaLayout extends RelativeLayout {
             e.printStackTrace();
         }
         return mediaPane;
+    }
+
+    private void addElementsToView(View mediaPane,
+                                   RelativeLayout.LayoutParams mediaPaneParams,
+                                   RelativeLayout questionTextPane,
+                                   boolean textVisible) {
+        RelativeLayout.LayoutParams questionTextPaneParams =
+                new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        if (mediaPane != null) {
+            if (!textVisible) {
+                this.addView(questionTextPane, questionTextPaneParams);
+                if (audioButton != null) {
+                    mediaPaneParams.addRule(RelativeLayout.LEFT_OF, audioButton.getId());
+                    questionTextPane.addView(mediaPane, mediaPaneParams);
+                }
+                if (videoButton != null) {
+                    mediaPaneParams.addRule(RelativeLayout.LEFT_OF, videoButton.getId());
+                    questionTextPane.addView(mediaPane, mediaPaneParams);
+                }
+            } else {
+                if (DeveloperPreferences.imageAboveTextEnabled()) {
+                    mediaPaneParams.addRule(CENTER_HORIZONTAL);
+                    this.addView(mediaPane, mediaPaneParams);
+                    questionTextPaneParams.addRule(RelativeLayout.BELOW, mediaPane.getId());
+                    this.addView(questionTextPane, questionTextPaneParams);
+                } else {
+                    this.addView(questionTextPane, questionTextPaneParams);
+                    mediaPaneParams.addRule(RelativeLayout.BELOW, questionTextPane.getId());
+                    mediaPaneParams.addRule(CENTER_HORIZONTAL);
+                    this.addView(mediaPane, mediaPaneParams);
+                }
+            }
+        } else {
+            this.addView(questionTextPane, questionTextPaneParams);
+        }
     }
 
     @SuppressWarnings("deprecation")
