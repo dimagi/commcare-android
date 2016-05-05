@@ -1,8 +1,11 @@
 #!/bin/sh
-# args: $1 = domain, $2 = username, $3 = password
+# args: $1 = domain, $2 = app_id, $3 = path to asset dir
 # download and extract commcare app with id of $1
 
+DOMAIN=$1
+APP_ID=$2
 ASSET_DIR=$3/direct_install
+
 echo "Downloading $1 (id $2) into $ASSET_DIR"
 
 mkdir -p $ASSET_DIR
