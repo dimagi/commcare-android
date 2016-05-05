@@ -233,7 +233,7 @@ public class QueryRequestActivity
         text.setPadding(0, 0, 0, 7);
 
         MediaLayout helpLayout = new MediaLayout(this);
-        helpLayout.setAVT(text, displayData.getAudioURI(), displayData.getImageURI(), null, null);
+        helpLayout.setAVT(text, displayData.getAudioURI(), displayData.getImageURI(), true);
         helpLayout.setPadding(padding, padding, padding, padding);
         text.setTextColor(Color.BLACK);
 
