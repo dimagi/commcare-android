@@ -44,6 +44,21 @@ public class MediaLayout extends RelativeLayout {
     @IdRes
     public static final int INLINE_VIDEO_PANE_ID = 99999;
 
+    @IdRes
+    private static final int QUESTION_TEXT_PANE_ID = 2342134;
+
+    @IdRes
+    private static final int AUDIO_BUTTON_ID = 3245345;
+
+    @IdRes
+    private static final int VIDEO_BUTTON_ID = 234982340;
+
+    @IdRes
+    private static final int IMAGE_VIEW_ID = 23423534;
+
+    @IdRes
+    private static final int MISSING_IMAGE_ID = 234873453;
+
     private TextView mView_Text;
     private AudioButton mAudioButton;
     private ImageButton mVideoButton;
@@ -84,12 +99,12 @@ public class MediaLayout extends RelativeLayout {
                 new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
 
         RelativeLayout questionTextPane = new RelativeLayout(this.getContext());
-        questionTextPane.setId(2342134);
+        questionTextPane.setId(QUESTION_TEXT_PANE_ID);
 
         if (audioURI != null) {
             mAudioButton = new AudioButton(getContext(), audioURI, true);
             // random ID to be used by the relative layout.
-            mAudioButton.setId(3245345);
+            mAudioButton.setId(AUDIO_BUTTON_ID);
         }
 
         // Then set up the video button
@@ -131,7 +146,7 @@ public class MediaLayout extends RelativeLayout {
                     }
                 }
             });
-            mVideoButton.setId(234982340);
+            mVideoButton.setId(VIDEO_BUTTON_ID);
         }
 
         // Add the audioButton and videoButton (if applicable) and view
@@ -190,7 +205,7 @@ public class MediaLayout extends RelativeLayout {
                 mImageView.setAdjustViewBounds(true);
                 mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                 mImageView.setImageBitmap(image);
-                mImageView.setId(23423534);
+                mImageView.setId(IMAGE_VIEW_ID);
 
                 mediaPane = mImageView;
             } catch (Exception e) {
@@ -211,12 +226,12 @@ public class MediaLayout extends RelativeLayout {
                             mImageView.setAdjustViewBounds(true);
                             mImageView.setMaxWidth(maxBounds[0]);
                             mImageView.setMaxHeight(maxBounds[1]);
-                        } else{
+                        } else {
                             mImageView.setScaleType(ImageView.ScaleType.CENTER);
                         }
                         mImageView.setPadding(10, 10, 10, 10);
                         mImageView.setImageBitmap(b);
-                        mImageView.setId(23423534);
+                        mImageView.setId(IMAGE_VIEW_ID);
                         mediaPane = mImageView;
                     }
                 } else {
@@ -231,7 +246,7 @@ public class MediaLayout extends RelativeLayout {
                     mMissingImage = new TextView(getContext());
                     mMissingImage.setText(errorMsg);
                     mMissingImage.setPadding(10, 10, 10, 10);
-                    mMissingImage.setId(234873453);
+                    mMissingImage.setId(MISSING_IMAGE_ID);
                     mediaPane = mMissingImage;
                 }
             } catch (InvalidReferenceException e) {
@@ -326,7 +341,7 @@ public class MediaLayout extends RelativeLayout {
         mMissingImage = new TextView(getContext());
         mMissingImage.setText(errorMessage);
         mMissingImage.setPadding(10, 10, 10, 10);
-        mMissingImage.setId(234873453);
+        mMissingImage.setId(MISSING_IMAGE_ID);
         return mMissingImage;
     }
 
