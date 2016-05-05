@@ -121,7 +121,7 @@ public class QueryRequestActivity
                                   DisplayUnit displayUnit) {
         Hashtable<String, String> userAnswers =
                 remoteQuerySessionManager.getUserAnswers();
-        promptsLayout.addView(createPromptEntry(displayUnit));
+        promptsLayout.addView(createPromptMedia(displayUnit));
 
         EditText promptEditText = new EditText(this);
         if (userAnswers.containsKey(promptId)) {
@@ -222,17 +222,18 @@ public class QueryRequestActivity
         }
     }
 
-    private MediaLayout createPromptEntry(DisplayUnit display) {
-        DisplayData mData = display.evaluate();
-        String str = Localizer.processArguments(mData.getName(), new String[]{""}).trim();
+    private MediaLayout createPromptMedia(DisplayUnit display) {
+        DisplayData displayData = display.evaluate();
+        String promptText =
+                Localizer.processArguments(displayData.getName(), new String[]{""}).trim();
         TextView text = new TextView(getApplicationContext());
-        text.setText(str);
+        text.setText(promptText);
 
         int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
         text.setPadding(0, 0, 0, 7);
 
         MediaLayout helpLayout = new MediaLayout(this);
-        helpLayout.setAVT(text, mData.getAudioURI(), mData.getImageURI(), null, null);
+        helpLayout.setAVT(text, displayData.getAudioURI(), displayData.getImageURI(), null, null);
         helpLayout.setPadding(padding, padding, padding, padding);
         text.setTextColor(Color.BLACK);
 
