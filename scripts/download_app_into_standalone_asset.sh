@@ -1,3 +1,5 @@
+#!/bin/sh
+# args: $1 = domain, $2 = username, $3 = password
 # download and extract commcare app with id of $1
 
 ASSET_DIR=$3/direct_install
