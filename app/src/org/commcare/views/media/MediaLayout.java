@@ -109,25 +109,7 @@ public class MediaLayout extends RelativeLayout {
         if (inlineVideoURI != null) {
             mediaPane = getInlineVideoView(inlineVideoURI, mediaPaneParams);
         } else if (qrCodeContent != null) {
-            Bitmap image;
-            int minimumDim = getScreenMinimumDimension();
-
-            try {
-                QRCodeEncoder qrCodeEncoder = new QRCodeEncoder(qrCodeContent, minimumDim);
-
-                image = qrCodeEncoder.encodeAsBitmap();
-
-                ImageView mImageView = new ImageView(getContext());
-                mImageView.setPadding(10, 10, 10, 10);
-                mImageView.setAdjustViewBounds(true);
-                mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                mImageView.setImageBitmap(image);
-                mImageView.setId(IMAGE_VIEW_ID);
-
-                mediaPane = mImageView;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            mediaPane = setupQRView(qrCodeContent);
         } else if (imageURI != null) {
             mediaPane = setupImage(imageURI, bigImageURI);
         }
@@ -216,6 +198,29 @@ public class MediaLayout extends RelativeLayout {
             textParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
             questionTextPane.addView(viewText, textParams);
         }
+    }
+
+    private View setupQRView(String qrCodeContent) {
+        Bitmap image;
+        int minimumDim = getScreenMinimumDimension();
+
+        try {
+            QRCodeEncoder qrCodeEncoder =
+                    new QRCodeEncoder(qrCodeContent, minimumDim);
+
+            image = qrCodeEncoder.encodeAsBitmap();
+
+            ImageView imageView = new ImageView(getContext());
+            imageView.setPadding(10, 10, 10, 10);
+            imageView.setAdjustViewBounds(true);
+            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            imageView.setImageBitmap(image);
+            imageView.setId(IMAGE_VIEW_ID);
+            return imageView;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private View setupImage(String imageURI, String bigImageURI) {
