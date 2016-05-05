@@ -185,9 +185,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 "startAllowed is: " + startAllowed + " "
         );
 
-        Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
-
-        performSMSInstall(false);
+        boolean askingForPerms =
+                Permissions.acquireAllAppPermissions(this, this,
+                        Permissions.ALL_PERMISSIONS_REQUEST);
+        if (!askingForPerms) {
+            // With basic perms satisfied, ask user to allow SMS reading for
+            // sms app install code
+            performSMSInstall(false);
+        }
     }
 
     private void loadStateFromInstance(Bundle savedInstanceState) {
@@ -830,6 +835,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             CommCareApplication._().prepareTemporaryStorage();
             uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
             uiStateScreenTransition();
+
+            // Since SMS asks for more permissions, call was delayed until here
+            performSMSInstall(false);
         }
     }
 
