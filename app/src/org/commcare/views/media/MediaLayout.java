@@ -279,7 +279,6 @@ public class MediaLayout extends RelativeLayout {
      *                         mutated by this method
      */
     private View getInlineVideoView(String inlineVideoURI, RelativeLayout.LayoutParams viewLayoutParams) {
-        String error;
         try {
             final String videoFilename = ReferenceManager._().DeriveReference(inlineVideoURI).getLocalURI();
 
@@ -287,7 +286,7 @@ public class MediaLayout extends RelativeLayout {
 
             File videoFile = new File(videoFilename);
             if (!videoFile.exists()) {
-                error = "No video file found at: " + videoFilename;
+                return getMissingImageView("No video file found at: " + videoFilename);
             } else {
                 //NOTE: This has odd behavior when you have a text input on the screen
                 //since clicking the video view to bring up controls has weird effects.
@@ -319,18 +318,16 @@ public class MediaLayout extends RelativeLayout {
         } catch (InvalidReferenceException ire) {
             Log.e(t, "invalid video reference exception");
             ire.printStackTrace();
-            error = "Invalid reference: " + ire.getReferenceString();
+            return getMissingImageView("Invalid reference: " + ire.getReferenceString());
         }
+    }
 
-        if (error != null) {
-            mMissingImage = new TextView(getContext());
-            mMissingImage.setText(error);
-            mMissingImage.setPadding(10, 10, 10, 10);
-            mMissingImage.setId(234873453);
-            return mMissingImage;
-        } else {
-            return null;
-        }
+    private TextView getMissingImageView(String errorMessage) {
+        mMissingImage = new TextView(getContext());
+        mMissingImage.setText(errorMessage);
+        mMissingImage.setPadding(10, 10, 10, 10);
+        mMissingImage.setId(234873453);
+        return mMissingImage;
     }
 
     private boolean useResizingImageView() {
