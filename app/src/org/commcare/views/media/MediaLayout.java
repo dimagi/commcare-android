@@ -47,7 +47,6 @@ public class MediaLayout extends RelativeLayout {
     private TextView mView_Text;
     private AudioButton mAudioButton;
     private ImageButton mVideoButton;
-    private final ResizingImageView mImageView;
     private TextView mMissingImage;
 
     public MediaLayout(Context c) {
@@ -55,7 +54,6 @@ public class MediaLayout extends RelativeLayout {
 
         mView_Text = null;
         mAudioButton = null;
-        mImageView = null;
         mMissingImage = null;
         mVideoButton = null;
     }
@@ -220,10 +218,6 @@ public class MediaLayout extends RelativeLayout {
                         mImageView.setImageBitmap(b);
                         mImageView.setId(23423534);
                         mediaPane = mImageView;
-                    } else if (errorMsg == null) {
-                        // An error hasn't been logged and loading the image failed, so it's likely
-                        // a bad file.
-                        errorMsg = getContext().getString(R.string.file_invalid, imageFile);
                     }
                 } else {
                     // An error hasn't been logged. We should have an image, but the file doesn't
@@ -378,9 +372,7 @@ public class MediaLayout extends RelativeLayout {
     public void addDivider(ImageView v) {
         RelativeLayout.LayoutParams dividerParams =
                 new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
-        if (mImageView != null) {
-            dividerParams.addRule(RelativeLayout.BELOW, mImageView.getId());
-        } else if (mMissingImage != null) {
+        if (mMissingImage != null) {
             dividerParams.addRule(RelativeLayout.BELOW, mMissingImage.getId());
         } else if (mVideoButton != null) {
             dividerParams.addRule(RelativeLayout.BELOW, mVideoButton.getId());
