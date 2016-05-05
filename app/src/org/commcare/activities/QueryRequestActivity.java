@@ -91,6 +91,22 @@ public class QueryRequestActivity
         }
     }
 
+    private static RemoteQuerySessionManager buildQuerySessionManager(AndroidSessionWrapper sessionWrapper) {
+        SessionDatum datum;
+        try {
+            datum = sessionWrapper.getSession().getNeededDatum();
+        } catch (NullPointerException e) {
+            // tried loading session info when it wasn't there
+            return null;
+        }
+        if (datum instanceof RemoteQueryDatum) {
+            return new RemoteQuerySessionManager((RemoteQueryDatum)datum,
+                    sessionWrapper.getEvaluationContext());
+        } else {
+            return null;
+        }
+    }
+
     private void setupUI() {
         buildPromptUI();
 
@@ -132,6 +148,24 @@ public class QueryRequestActivity
         promptsBoxes.put(promptId, promptEditText);
     }
 
+    private MediaLayout createPromptMedia(DisplayUnit display) {
+        DisplayData displayData = display.evaluate();
+        String promptText =
+                Localizer.processArguments(displayData.getName(), new String[]{""}).trim();
+        TextView text = new TextView(getApplicationContext());
+        text.setText(promptText);
+
+        int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
+        text.setPadding(0, 0, 0, 7);
+
+        MediaLayout helpLayout = new MediaLayout(this);
+        helpLayout.setAVT(text, displayData.getAudioURI(), displayData.getImageURI(), true);
+        helpLayout.setPadding(padding, padding, padding, padding);
+        text.setTextColor(Color.BLACK);
+
+        return helpLayout;
+    }
+
     private void answerPrompts() {
         for (Map.Entry<String, EditText> promptEntry : promptsBoxes.entrySet()) {
             String promptText = promptEntry.getValue().getText().toString();
@@ -154,7 +188,8 @@ public class QueryRequestActivity
         if (url != null) {
             SimpleHttpTask httpTask;
             try {
-                httpTask = new SimpleHttpTask(this, url, remoteQuerySessionManager.getRawQueryParams(), false);
+                httpTask = new SimpleHttpTask(this, url,
+                        remoteQuerySessionManager.getRawQueryParams(), false);
             } catch (ModernHttpRequester.PlainTextPasswordException e) {
                 enterErrorState(Localization.get("post.not.using.https", url.toString()));
                 return;
@@ -181,33 +216,6 @@ public class QueryRequestActivity
         errorTextView.setVisibility(View.VISIBLE);
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
-
-        answerPrompts();
-
-        savedInstanceState.putSerializable(ANSWERED_USER_PROMPTS_KEY,
-                remoteQuerySessionManager.getUserAnswers());
-        savedInstanceState.putString(ERROR_MESSAGE_KEY, errorMessage);
-        savedInstanceState.putBoolean(IN_ERROR_STATE_KEY, inErrorState);
-    }
-
-    private static RemoteQuerySessionManager buildQuerySessionManager(AndroidSessionWrapper sessionWrapper) {
-        SessionDatum datum;
-        try {
-            datum = sessionWrapper.getSession().getNeededDatum();
-        } catch (NullPointerException e) {
-            // tried loading session info when it wasn't there
-            return null;
-        }
-        if (datum instanceof RemoteQueryDatum) {
-            return new RemoteQuerySessionManager((RemoteQueryDatum)datum, sessionWrapper.getEvaluationContext());
-        } else {
-            return null;
-        }
-    }
-
     private void loadStateFromSavedInstance(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             errorMessage = savedInstanceState.getString(ERROR_MESSAGE_KEY);
@@ -222,22 +230,16 @@ public class QueryRequestActivity
         }
     }
 
-    private MediaLayout createPromptMedia(DisplayUnit display) {
-        DisplayData displayData = display.evaluate();
-        String promptText =
-                Localizer.processArguments(displayData.getName(), new String[]{""}).trim();
-        TextView text = new TextView(getApplicationContext());
-        text.setText(promptText);
+    @Override
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
 
-        int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
-        text.setPadding(0, 0, 0, 7);
+        answerPrompts();
 
-        MediaLayout helpLayout = new MediaLayout(this);
-        helpLayout.setAVT(text, displayData.getAudioURI(), displayData.getImageURI(), true);
-        helpLayout.setPadding(padding, padding, padding, padding);
-        text.setTextColor(Color.BLACK);
-
-        return helpLayout;
+        savedInstanceState.putSerializable(ANSWERED_USER_PROMPTS_KEY,
+                remoteQuerySessionManager.getUserAnswers());
+        savedInstanceState.putString(ERROR_MESSAGE_KEY, errorMessage);
+        savedInstanceState.putBoolean(IN_ERROR_STATE_KEY, inErrorState);
     }
 
     @Override
@@ -246,7 +248,8 @@ public class QueryRequestActivity
                 buildExternalDataInstance(responseData,
                         remoteQuerySessionManager.getStorageInstanceName());
         if (instanceOrError.first == null) {
-            enterErrorState(Localization.get("query.response.format.error", instanceOrError.second));
+            enterErrorState(Localization.get("query.response.format.error",
+                    instanceOrError.second));
         } else {
             CommCareApplication._().getCurrentSession().setQueryDatum(instanceOrError.first);
             setResult(RESULT_OK);
