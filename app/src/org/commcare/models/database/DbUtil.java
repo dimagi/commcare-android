@@ -75,35 +75,39 @@ public class DbUtil {
         DexFile df = new DexFile(new File(zpath));
         for (Enumeration<String> en = df.entries(); en.hasMoreElements(); ) {
             String cn = en.nextElement();
-            try {
-                for (String packageName : packageNames) {
-                    if (cn.startsWith(packageName) && !cn.contains(".test.") && !cn.contains("readystatesoftware")) {
-                        //TODO: These optimize by preventing us from statically loading classes we don't need, but they take a _long_ time to run.
-                        //Maybe we should skip this and/or roll it into initializing the factory itself.
-                        Class prototype = Class.forName(cn);
-                        if (prototype.isInterface()) {
-                            continue;
-                        }
-                        boolean emptyc = false;
-                        for (Constructor<?> cons : prototype.getConstructors()) {
-                            if (cons.getParameterTypes().length == 0) {
-                                emptyc = true;
-                            }
-                        }
-                        if (!emptyc) {
-                            continue;
-                        }
-                        if (Externalizable.class.isAssignableFrom(prototype)) {
-                            classNames.add(cn);
-                        }
-                    }
-                }
-            } catch (Error | Exception e) {
-
-            }
+            loadClass(cn, packageNames, classNames);
         }
 
         return classNames;
+    }
+
+    private static void loadClass(String cn, String[] packageNames, ArrayList<String> classNames) {
+        try {
+            for (String packageName : packageNames) {
+                if (cn.startsWith(packageName) && !cn.contains(".test.") && !cn.contains("readystatesoftware")) {
+                    //TODO: These optimize by preventing us from statically loading classes we don't need, but they take a _long_ time to run.
+                    //Maybe we should skip this and/or roll it into initializing the factory itself.
+                    Class prototype = Class.forName(cn);
+                    if (prototype.isInterface()) {
+                        continue;
+                    }
+                    boolean emptyc = false;
+                    for (Constructor<?> cons : prototype.getConstructors()) {
+                        if (cons.getParameterTypes().length == 0) {
+                            emptyc = true;
+                        }
+                    }
+                    if (!emptyc) {
+                        continue;
+                    }
+                    if (Externalizable.class.isAssignableFrom(prototype)) {
+                        classNames.add(cn);
+                    }
+                }
+            }
+        } catch (Error | Exception e) {
+
+        }
     }
 
     /**
