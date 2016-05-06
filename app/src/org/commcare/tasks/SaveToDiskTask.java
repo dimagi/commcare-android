@@ -23,9 +23,11 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.transport.payload.ByteArrayPayload;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XFormSerializingVisitor;
+import org.javarosa.xform.util.XFormSerializer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -104,10 +106,10 @@ public class SaveToDiskTask extends
             e.printStackTrace();
             return new ResultAndError<>(SaveStatus.SAVE_ERROR,
                     "Something is blocking acesss to the submission file in " + FormEntryActivity.mInstancePath);
-        } catch(UnsupportedEncodingException uee) {
-            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Form contains invalid data encoding\n\n" + ForceCloseLogger.getStackTrace(uee));
+        } catch(XFormSerializer.UnsupportedUnicodeSurrogatesException e) {
+            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Form contains invalid data encoding\n\n" + ForceCloseLogger.getStackTrace(e));
             return new ResultAndError<>(SaveStatus.SAVE_ERROR,
-                    "Form contains invalidly encoded text! Unable to save contents.");
+                    Localization.get("form.entry.save.invalid.unicode", e.getMessage()));
         }  catch (IOException e) {
             Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "I/O Error when serializing form\n\n" + ForceCloseLogger.getStackTrace(e));
             return new ResultAndError<>(SaveStatus.SAVE_ERROR,
