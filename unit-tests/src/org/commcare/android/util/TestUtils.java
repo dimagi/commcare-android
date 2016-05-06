@@ -3,6 +3,7 @@ package org.commcare.android.util;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareTestApplication;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -160,7 +161,7 @@ public class TestUtils {
     }
 
     public static PrototypeFactory getStaticPrototypeFactory(){
-        return DbUtil.getPrototypeFactory(RuntimeEnvironment.application);
+        return CommCareTestApplication._().getPrototypeFactory(RuntimeEnvironment.application);
     }
     
     /**

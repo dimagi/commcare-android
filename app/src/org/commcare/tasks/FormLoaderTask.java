@@ -297,7 +297,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             DataInputStream dis = new DataInputStream(new BufferedInputStream(fis));
 
             // read serialized formdef into new formdef
-            fd.readExternal(dis, DbUtil.getPrototypeFactory(context));
+            fd.readExternal(dis, CommCareApplication._().getPrototypeFactory(context));
             dis.close();
         } catch (Throwable e) {
             e.printStackTrace();

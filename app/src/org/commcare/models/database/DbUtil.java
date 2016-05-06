@@ -54,13 +54,11 @@ public class DbUtil {
 
         factory = new AndroidPrototypeFactory(tree);
         return factory;
-
     }
 
     /**
      * Scans all classes accessible from the context class loader which belong to the given package and subpackages.
      */
-    @SuppressWarnings("unchecked")
     private static List<String> getClasses(String[] packageNames, Context c)
             throws IOException {
         ArrayList<String> classNames = new ArrayList<>();
