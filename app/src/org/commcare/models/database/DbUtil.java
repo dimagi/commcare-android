@@ -28,6 +28,7 @@ public class DbUtil {
     public final static String orphanFileTableName = "OrphanedFiles";
 
     private static PrototypeFactory factory;
+    private static final String[] packageNames = new String[]{"org.javarosa", "org.commcare", "org.odk.collect"};
 
     public static void setDBUtilsPrototypeFactory(PrototypeFactory factory) {
         DbUtil.factory = factory;
@@ -44,7 +45,7 @@ public class DbUtil {
         PrefixTree tree = new PrefixTree();
 
         try {
-            List<String> classes = getClasses(new String[]{"org.javarosa", "org.commcare", "org.odk.collect"}, c);
+            List<String> classes = getClasses(c);
             for (String cl : classes) {
                 tree.addString(cl);
             }
@@ -59,7 +60,7 @@ public class DbUtil {
     /**
      * Scans all classes accessible from the context class loader which belong to the given package and subpackages.
      */
-    private static List<String> getClasses(String[] packageNames, Context c)
+    private static List<String> getClasses(Context c)
             throws IOException {
         ArrayList<String> classNames = new ArrayList<>();
 
@@ -73,13 +74,13 @@ public class DbUtil {
         DexFile df = new DexFile(new File(zpath));
         for (Enumeration<String> en = df.entries(); en.hasMoreElements(); ) {
             String cn = en.nextElement();
-            loadClass(cn, packageNames, classNames);
+            loadClass(cn, classNames);
         }
 
         return classNames;
     }
 
-    private static void loadClass(String cn, String[] packageNames, ArrayList<String> classNames) {
+    public static void loadClass(String cn, List<String> classNames) {
         try {
             for (String packageName : packageNames) {
                 if (cn.startsWith(packageName) && !cn.contains(".test.") && !cn.contains("readystatesoftware")) {
