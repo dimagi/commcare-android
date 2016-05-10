@@ -57,9 +57,12 @@ public class TestUtils {
         //based on an optimized md5 hasher. Major speed improvements.
         DbUtil.setDBUtilsPrototypeFactory(new LivePrototypeFactory(new AndroidClassHasher()));
         AndroidUtil.initializeStaticHandlers();
-        
+        disableSqlOptimizations();
+    }
+
+    public static void disableSqlOptimizations() {
         // For now, disable the optimizations, since they require in-depth SQL code that
-        // we need better shadows for 
+        // we need better shadows for
         SqlStorage.STORAGE_OPTIMIZATIONS_ACTIVE = false;
     }
     

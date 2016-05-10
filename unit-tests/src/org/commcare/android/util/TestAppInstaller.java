@@ -53,9 +53,6 @@ public class TestAppInstaller {
         // needed to resolve "jr://resource" type references
         ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
 
-        TestUtils.initializeStaticTestStorage();
-        TestAppInstaller.setupPrototypeFactory();
-
         TestAppInstaller appTestInstaller =
                 new TestAppInstaller(
                         appPath, username, password);
@@ -125,11 +122,5 @@ public class TestAppInstaller {
             }
         }
         return null;
-    }
-
-    private static void setupPrototypeFactory() {
-        // Sets DB to use an in-memory store for class serialization tagging.
-        // This avoids the need to use apk reflection to perform read/writes
-        TestUtils.initializeStaticTestStorage();
     }
 }

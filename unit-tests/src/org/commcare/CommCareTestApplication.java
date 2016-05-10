@@ -3,10 +3,12 @@ package org.commcare;
 import android.content.Context;
 import android.util.Log;
 
+import org.commcare.android.util.TestUtils;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
+import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -52,6 +54,8 @@ public class CommCareTestApplication extends CommCareApplication {
 
     @Override
     public PrototypeFactory getPrototypeFactory(Context c) {
+        TestUtils.disableSqlOptimizations();
+
         if (testPrototypeFactor != null) {
             return testPrototypeFactor;
         }
