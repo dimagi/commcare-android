@@ -112,9 +112,13 @@ public class DispatchActivity extends FragmentActivity {
         outState.putBoolean(EXTRA_CONSUMED_KEY, shortcutExtraWasConsumed);
     }
 
-    private void checkForChangedAppFiles() {
+    private void checkForChangedCCZ() {
         Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
         startActivity(i);
+    }
+
+    private void checkForChangedRestoreFile() {
+
     }
 
     private void dispatch() {
@@ -124,7 +128,8 @@ public class DispatchActivity extends FragmentActivity {
         }
 
         if (shouldCheckForLocalAppFilesChange) {
-            checkForChangedAppFiles();
+            checkForChangedCCZ();
+            checkForChangedRestoreFile();
             shouldCheckForLocalAppFilesChange = false;
         }
 
