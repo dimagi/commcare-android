@@ -4,6 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import org.commcare.android.util.TestUtils;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
@@ -63,12 +64,13 @@ public class CommCareTestApplication extends CommCareApplication {
         }
 
         ArrayList<String> classNames = new ArrayList<>();
-        String baseODK = "/home/mates/dimagi/commcare-odk/build/intermediates/classes/commcare/debug/";
-        String baseJR = "/home/mates/dimagi/javarosa/build/classes/main/";
-        String baseCC = "/home/mates/dimagi/commcare/build/classes/main/";
-        processTest(baseODK, classNames);
-        processTest(baseCC, classNames);
-        processTest(baseJR, classNames);
+        // Sort of hack-y way to get the classfile dirs
+        String baseODK = BuildConfig.BUILD_DIR + "/intermediates/classes/commcare/debug/";
+        String baseJR = BuildConfig.PROJECT_DIR + "/../javarosa/build/classes/main/";
+        String baseCC = BuildConfig.PROJECT_DIR + "/../commcare/build/classes/main/";
+        addExternalizableClassesFromDir(baseODK, classNames);
+        addExternalizableClassesFromDir(baseCC, classNames);
+        addExternalizableClassesFromDir(baseJR, classNames);
         PrefixTree tree = new PrefixTree();
 
         try {
@@ -84,27 +86,23 @@ public class CommCareTestApplication extends CommCareApplication {
     }
 
 
-    private static void processTest(String baseClassPath, List<String> list) {
-        ArrayList<String> classNames = new ArrayList<>();
+    private static void addExternalizableClassesFromDir(String baseClassPath,
+                                                        List<String> externClasses) {
         try {
             File f = new File(baseClassPath);
             ArrayList<File> files = new ArrayList<>();
             getFilesInDir(f, files);
             for (File file : files) {
-                String fullName = file.getAbsolutePath();
-                String className1 = fullName.replace(baseClassPath, "");
-                String className2 = className1.replace("/", ".").replace(".class", "");
-                String className3 = className2.replace(".class", "");
-                classNames.add(className3);
+                String className = file.getAbsolutePath()
+                        .replace(baseClassPath, "")
+                        .replace("/", ".")
+                        .replace(".class", "")
+                        .replace(".class", "");
+                DbUtil.loadClass(className, externClasses);
             }
         } catch (Exception e) {
             Log.w(TAG, e.getMessage());
         }
-
-        for (String className : classNames) {
-            DbUtil.loadClass(className, list);
-        }
-        Log.w(TAG, classNames.get(0));
     }
 
     private static void getFilesInDir(File currentFile, ArrayList<File> acc) {

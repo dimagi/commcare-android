@@ -10,6 +10,7 @@ import android.util.Log;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.logging.ForceCloseLogger;
+import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.engine.extensions.CalendaredDateFormatHandler;
 import org.commcare.engine.extensions.IntentExtensionParser;
 import org.odk.collect.android.jr.extensions.PollSensorAction;
@@ -164,8 +165,7 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         } catch (FileNotFoundException e) {
             throw new RuntimeException("Error reading XForm file");
         }
-        XFormParser.registerHandler("intent", new IntentExtensionParser());
-        XFormParser.registerActionHandler(PollSensorAction.ELEMENT_NAME, new PollSensorExtensionParser());
+        XFormAndroidInstaller.registerAndroidLevelFormParsers();
         FormDef fd = XFormExtensionUtils.getFormFromInputStream(fis);
         if (fd == null) {
             throw new RuntimeException("Error reading XForm file");

@@ -1,7 +1,8 @@
 package org.commcare.android.tests.processing;
 
-import org.commcare.CommCareApplication;
+import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.javarosa.core.model.FormDef;
@@ -20,13 +21,14 @@ import java.io.IOException;
  *
  * @author ctsims
  */
-@Config(application = CommCareApplication.class,
+@Config(application = CommCareTestApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class FormStorageTest {
+
     @Before
-    public void setupTests() {
-        TestUtils.initializeStaticTestStorage();
+    public void setup() {
+        XFormAndroidInstaller.registerAndroidLevelFormParsers();
     }
 
     @Test
