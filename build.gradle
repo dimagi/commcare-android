@@ -257,11 +257,13 @@ android {
             // Builds commcare w/ ccz app packaged in the apk.
             // Must be invoked from command-line w/ args pointing to app domain &
             // id
+            def uniquePackageIdentifier = getStandalonePackageIdentifier(ccDomainSafe, isConsumerApp)
+            def appDisplayName = getStandaloneApplicationName(ccDomainSafe, isConsumerApp)
 
-            applicationId "org.commcare.${ccDomainSafe}"
+            applicationId "org.commcare.${uniquePackageIdentifier}"
             project.ext.STANDALONE_APP_ID = applicationId
-            resValue "string", "application_name", ccDomainSafe
-            def odkProviderStr = "org.commcare.${ccDomainSafe}.provider.odk"
+            resValue "string", "application_name", appDisplayName
+            def odkProviderStr = "org.commcare.${uniquePackageIdentifier}.provider.odk"
             manifestPlaceholders = [odkProvider: odkProviderStr]
 
             buildConfigField "boolean", "IS_SINGLE_APP_BUILD", "true"
@@ -418,6 +420,26 @@ def numbersToLetters(String version) {
         }
     }
     return words.toString();
+}
+
+def getStandalonePackageIdentifier(ccDomainSafe, isConsumerApp) {
+    if (project.hasProperty('application_name')) {
+        return ccDomainSafe + "." + application_name.replaceAll(" ", "").toLowerCase();
+    } else if ("true".equals(isConsumerApp)) {
+        throw new InvalidUserDataException("An application_name property must be provided for consumer app standalone builds")
+    } else {
+        return ccDomainSafe;
+    }
+}
+
+def getStandaloneApplicationName(ccDomainSafe, isConsumerApp) {
+    if (project.hasProperty('application_name')) {
+        return application_name;
+    } else if ("true".equals(isConsumerApp)) {
+        throw new InvalidUserDataException("An application_name property must be provided for consumer app standalone builds")
+    } else {
+        return ccDomainSafe;
+    }
 }
 
 // must be at bottom of file to fix some stupid google bug
