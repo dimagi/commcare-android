@@ -16,11 +16,12 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
+import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.encryption.CryptUtil;
 import org.commcare.models.encryption.ByteEncrypter;
+import org.commcare.models.encryption.CryptUtil;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
@@ -104,7 +105,7 @@ public abstract class DataPullTask<R>
         this(username, password, server, context, false);
     }
 
-    private DataPullTask(String username, String password,
+    public DataPullTask(String username, String password,
                          String server, Context context,
                          DataPullRequester dataPullRequester) {
         this(username, password, server, context);
@@ -118,7 +119,7 @@ public abstract class DataPullTask<R>
             CommCareApplication._().releaseUserResourcesAndServices();
         }
     }
-    private HttpRequestGenerator requestor;
+    private HttpRequestEndpoints requestor;
 
     @Override
     protected ResultAndError<PullTaskResult> doTaskBackground(Void... params) {
@@ -158,7 +159,7 @@ public abstract class DataPullTask<R>
             //This should be per _user_, not per app
             prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
 
-            requestor = new HttpRequestGenerator(username, password);
+            requestor = dataPullRequester.getHttpGenerator(username, password);
 
             AndroidTransactionParserFactory factory = new AndroidTransactionParserFactory(context, requestor) {
                 boolean publishedAuth = false;
@@ -386,7 +387,7 @@ public abstract class DataPullTask<R>
     }
 
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
-    private Pair<Integer, String> recover(HttpRequestGenerator requestor, AndroidTransactionParserFactory factory) {
+    private Pair<Integer, String> recover(HttpRequestEndpoints requestor, AndroidTransactionParserFactory factory) {
         this.publishProgress(PROGRESS_RECOVERY_NEEDED);
 
         Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Triggered");
