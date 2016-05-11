@@ -52,8 +52,11 @@ import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.tasks.PullTaskReceiver;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.SendTask;
 import org.commcare.tasks.WipeTask;
+import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
@@ -64,7 +67,8 @@ import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.views.HorizontalMediaView;
 import org.commcare.views.UserfacingErrorHandling;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
+import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.DialogCreationHelpers;
@@ -86,7 +90,7 @@ import java.util.Vector;
 public class CommCareHomeActivity
         extends SessionAwareCommCareActivity<CommCareHomeActivity>
         implements SessionNavigationResponder, WithUIController,
-        ConnectorWithResultCallback<CommCareHomeActivity> {
+        PullTaskReceiver, ConnectorWithResultCallback<CommCareHomeActivity> 
 
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
@@ -107,7 +111,6 @@ public class CommCareHomeActivity
     private static final int MODEL_RESULT = 4;
 
     private static final int GET_INCOMPLETE_FORM = 16;
-    public static final int UPGRADE_APP = 32;
     public static final int REPORT_PROBLEM_ACTIVITY = 64;
 
     private static final int DUMP_FORMS_ACTIVITY=512;
@@ -305,14 +308,13 @@ public class CommCareHomeActivity
 
         dialog.setChoiceItems(new DialogChoiceItem[]{createPinChoice, nextTimeChoice, notAgainChoice});
         dialog.addCollapsibleInfoPane(Localization.get("pin.dialog.extra.info"));
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     private void showPinFutureAccessDialog() {
-        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactory(this,
+        StandardAlertDialog.getBasicAlertDialog(this,
                 Localization.get("pin.dialog.set.later.title"),
-                Localization.get("pin.dialog.set.later.message"), null);
-        f.showDialog();
+                Localization.get("pin.dialog.set.later.message"), null).showNonPersistentDialog();
     }
 
     private void launchPinAuthentication() {
@@ -746,9 +748,9 @@ public class CommCareHomeActivity
     }
 
     private void showSessionRefreshWarning() {
-        AlertDialogFactory.getBasicAlertFactory(this,
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this,
                 Localization.get("session.refresh.error.title"),
-                Localization.get("session.refresh.error.message"), null).showDialog();
+                Localization.get("session.refresh.error.message"), null));
     }
 
     private void showDemoModeWarning() {
@@ -773,10 +775,9 @@ public class CommCareHomeActivity
     }
 
     private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
-        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactoryWithIcon(this,
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this,
                 Localization.get("app.handled.error.title"), errorMsg,
-                android.R.drawable.ic_dialog_info, errorListener);
-        showAlertDialog(f);
+                android.R.drawable.ic_dialog_info, errorListener));
     }
 
     @Override
@@ -823,8 +824,9 @@ public class CommCareHomeActivity
             case SessionNavigator.LAUNCH_CONFIRM_DETAIL:
                 launchConfirmDetail(asw);
                 break;
-            case SessionNavigator.EXCEPTION_THROWN:
-                displayException(sessionNavigator.getCurrentException());
+            case SessionNavigator.XPATH_EXCEPTION_THROWN:
+                UserfacingErrorHandling
+                        .logErrorAndShowDialog(this, sessionNavigator.getCurrentException(), false);
         }
     }
 
@@ -1055,7 +1057,7 @@ public class CommCareHomeActivity
     private void sendFormsOrSync(boolean userTriggeredSync) {
         boolean formsSentToServer = checkAndStartUnsentFormsTask(true, userTriggeredSync);
         if(!formsSentToServer) {
-            formAndDataSyncer.syncData(this, false, userTriggeredSync);
+            formAndDataSyncer.syncDataForLoggedInUser(this, false, userTriggeredSync);
         }
     }
 
@@ -1113,7 +1115,7 @@ public class CommCareHomeActivity
         final AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         String title = Localization.get("app.workflow.incomplete.continue.title");
         String msg = Localization.get("app.workflow.incomplete.continue");
-        AlertDialogFactory factory = new AlertDialogFactory(this, title, msg);
+        StandardAlertDialog d = new StandardAlertDialog(this, title, msg);
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
@@ -1134,10 +1136,10 @@ public class CommCareHomeActivity
                 dialog.dismiss();
             }
         };
-        factory.setPositiveButton(Localization.get("option.yes"), listener);
-        factory.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"), listener);
-        factory.setNeutralButton(Localization.get("option.no"), listener);
-        showAlertDialog(factory);
+        d.setPositiveButton(Localization.get("option.yes"), listener);
+        d.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"), listener);
+        d.setNeutralButton(Localization.get("option.no"), listener);
+        showAlertDialog(d);
     }
 
     @Override
@@ -1316,7 +1318,7 @@ public class CommCareHomeActivity
     }
 
     private void showAboutCommCareDialog() {
-        AlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this);
+        CommCareAlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this);
 
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
@@ -1332,7 +1334,8 @@ public class CommCareHomeActivity
             }
 
         });
-        dialog.show();
+
+        showAlertDialog(dialog);
     }
 
     private boolean hasP2p() {
@@ -1411,4 +1414,81 @@ public class CommCareHomeActivity
         return this.uiController;
     }
 
+    @Override
+    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
+                                     boolean userTriggeredSync, boolean formsToSend) {
+        getUIController().refreshView();
+
+        DataPullTask.PullTaskResult result = resultAndErrorMessage.data;
+        String reportSyncLabel = result.getCorrespondingGoogleAnalyticsLabel();
+        int reportSyncValue = result.getCorrespondingGoogleAnalyticsValue();
+
+        switch (result) {
+            case AUTH_FAILED:
+                displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
+                break;
+            case BAD_DATA:
+            case BAD_DATA_REQUIRES_INTERVENTION:
+                displayMessage(Localization.get("sync.fail.bad.data"), true);
+                break;
+            case DOWNLOAD_SUCCESS:
+                if (formsToSend) {
+                    reportSyncValue = GoogleAnalyticsFields.VALUE_WITH_SEND_FORMS;
+                } else {
+                    reportSyncValue = GoogleAnalyticsFields.VALUE_JUST_PULL_DATA;
+                }
+                displayMessage(Localization.get("sync.success.synced"));
+                break;
+            case SERVER_ERROR:
+                displayMessage(Localization.get("sync.fail.server.error"));
+                break;
+            case UNREACHABLE_HOST:
+                displayMessage(Localization.get("sync.fail.bad.network"), true);
+                break;
+            case CONNECTION_TIMEOUT:
+                displayMessage(Localization.get("sync.fail.timeout"), true);
+                break;
+            case UNKNOWN_FAILURE:
+                displayMessage(Localization.get("sync.fail.unknown"), true);
+                break;
+        }
+
+        if (userTriggeredSync) {
+            GoogleAnalyticsUtils.reportSyncAttempt(
+                    GoogleAnalyticsFields.ACTION_USER_SYNC_ATTEMPT,
+                    reportSyncLabel, reportSyncValue);
+        } else {
+            GoogleAnalyticsUtils.reportSyncAttempt(
+                    GoogleAnalyticsFields.ACTION_AUTO_SYNC_ATTEMPT,
+                    reportSyncLabel, reportSyncValue);
+        }
+        //TODO: What if the user info was updated?
+    }
+
+    @Override
+    public void handlePullTaskUpdate(Integer... update) {
+        if (update[0] == DataPullTask.PROGRESS_STARTED) {
+            updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
+            updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_AUTHED) {
+            updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
+            updateProgress(Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING_COMPLETE) {
+            hideTaskCancelButton();
+        } else if (update[0] == DataPullTask.PROGRESS_PROCESSING) {
+            updateProgress(Localization.get("sync.process.processing", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
+            updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
+            updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
+            updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
+        }
+    }
+
+    @Override
+    public void handlePullTaskError(Exception e) {
+        displayMessage(Localization.get("sync.fail.unknown"), true);
+    }
 }

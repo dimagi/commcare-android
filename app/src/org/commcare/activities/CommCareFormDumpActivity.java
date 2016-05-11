@@ -23,7 +23,7 @@ import org.commcare.utils.FileUtil;
 import org.commcare.utils.StorageUtils;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
@@ -187,7 +187,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
     }
 
     private void showWarningMessage() {
-        AlertDialogFactory factory = new AlertDialogFactory(this,
+        StandardAlertDialog d = new StandardAlertDialog(this,
                 Localization.get("bulk.form.alert.title"), Localization.get("bulk.form.warning"));
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
@@ -200,9 +200,9 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                 }
             }
         };
-        factory.setPositiveButton("OK", listener);
-        factory.setNegativeButton("NO", listener);
-        showAlertDialog(factory);
+        d.setPositiveButton("OK", listener);
+        d.setNegativeButton("NO", listener);
+        showAlertDialog(d);
     }
 
     private void updateCounters() {
