@@ -1469,6 +1469,9 @@ public class CommCareHomeActivity
     public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
                                      boolean userTriggeredSync, boolean formsToSend) {
         getUIController().refreshView();
+        if (CommCareApplication._().isConsumerApp()) {
+            return;
+        }
 
         DataPullTask.PullTaskResult result = resultAndErrorMessage.data;
         String reportSyncLabel = result.getCorrespondingGoogleAnalyticsLabel();

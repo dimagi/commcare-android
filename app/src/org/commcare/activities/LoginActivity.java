@@ -603,6 +603,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void handlePullTaskUpdate(Integer... update) {
+        if (CommCareApplication._().isConsumerApp()) {
+            return;
+        }
         if (update[0] == DataPullTask.PROGRESS_STARTED) {
             updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
         } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
