@@ -14,6 +14,7 @@ import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.tasks.PullTaskReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
@@ -59,7 +60,7 @@ public class FormAndDataSyncer {
                     receiver.displayMessage(label);
 
                     if (syncAfterwards) {
-                        syncData(receiver, true, userTriggered);
+                        syncDataForLoggedInUser(receiver, true, userTriggered);
                     }
                 } else if (result != FormUploadUtil.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
@@ -101,9 +102,50 @@ public class FormAndDataSyncer {
                 context.getString(R.string.PostURL));
     }
 
-    public void syncData(final CommCareHomeActivity activity,
+    public <I extends CommCareActivity & PullTaskReceiver> void syncData(final I activity,
                          final boolean formsToSend,
-                         final boolean userTriggeredSync) {
+                         final boolean userTriggeredSync,
+                         String server,
+                         String username,
+                         String password) {
+
+        DataPullTask<PullTaskReceiver> mDataPullTask = new DataPullTask<PullTaskReceiver>(
+                username,
+                password,
+                server,
+                activity) {
+
+            @Override
+            protected void deliverResult(PullTaskReceiver receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
+                receiver.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend);
+            }
+
+            @Override
+            protected void deliverUpdate(PullTaskReceiver receiver, Integer... update) {
+                receiver.handlePullTaskUpdate(update);
+            }
+
+            @Override
+            protected void deliverError(PullTaskReceiver receiver,
+                                        Exception e) {
+                receiver.handlePullTaskError(e);
+            }
+        };
+
+        mDataPullTask.connect(activity);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            mDataPullTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
+        } else {
+            mDataPullTask.execute();
+        }
+
+    }
+
+    public void syncDataForLoggedInUser(
+            final CommCareHomeActivity activity,
+            final boolean formsToSend,
+            final boolean userTriggeredSync) {
+
         User u;
         try {
             u = CommCareApplication._().getSession().getLoggedInUser();
@@ -125,98 +167,8 @@ public class FormAndDataSyncer {
         }
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        DataPullTask<CommCareHomeActivity> mDataPullTask = new DataPullTask<CommCareHomeActivity>(
-                u.getUsername(),
-                u.getCachedPwd(),
-                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY,
-                        activity.getString(R.string.ota_restore_url)),
-                activity) {
-
-            @Override
-            protected void deliverResult(CommCareHomeActivity receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
-                receiver.getUIController().refreshView();
-
-                PullTaskResult result = resultAndErrorMessage.data;
-                String reportSyncLabel = result.getCorrespondingGoogleAnalyticsLabel();
-                int reportSyncValue = result.getCorrespondingGoogleAnalyticsValue();
-
-                //TODO: SHARES _A LOT_ with login activity. Unify into service
-                switch (result) {
-                    case AUTH_FAILED:
-                        receiver.displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
-                        break;
-                    case BAD_DATA:
-                    case BAD_DATA_REQUIRES_INTERVENTION:
-                        receiver.displayMessage(Localization.get("sync.fail.bad.data"), true);
-                        break;
-                    case DOWNLOAD_SUCCESS:
-                        if (formsToSend) {
-                            reportSyncValue = GoogleAnalyticsFields.VALUE_WITH_SEND_FORMS;
-                        } else {
-                            reportSyncValue = GoogleAnalyticsFields.VALUE_JUST_PULL_DATA;
-                        }
-                        receiver.displayMessage(Localization.get("sync.success.synced"));
-                        break;
-                    case SERVER_ERROR:
-                        receiver.displayMessage(Localization.get("sync.fail.server.error"));
-                        break;
-                    case UNREACHABLE_HOST:
-                        receiver.displayMessage(Localization.get("sync.fail.bad.network"), true);
-                        break;
-                    case CONNECTION_TIMEOUT:
-                        receiver.displayMessage(Localization.get("sync.fail.timeout"), true);
-                        break;
-                    case UNKNOWN_FAILURE:
-                        receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
-                        break;
-                }
-
-                if (userTriggeredSync) {
-                    GoogleAnalyticsUtils.reportSyncAttempt(
-                            GoogleAnalyticsFields.ACTION_USER_SYNC_ATTEMPT,
-                            reportSyncLabel, reportSyncValue);
-                } else {
-                    GoogleAnalyticsUtils.reportSyncAttempt(
-                            GoogleAnalyticsFields.ACTION_AUTO_SYNC_ATTEMPT,
-                            reportSyncLabel, reportSyncValue);
-                }
-                //TODO: What if the user info was updated?
-            }
-
-            @Override
-            protected void deliverUpdate(CommCareHomeActivity receiver, Integer... update) {
-                if (update[0] == DataPullTask.PROGRESS_STARTED) {
-                    receiver.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
-                    receiver.updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_AUTHED) {
-                    receiver.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
-                    receiver.updateProgress(Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING_COMPLETE) {
-                    receiver.hideTaskCancelButton();
-                } else if (update[0] == DataPullTask.PROGRESS_PROCESSING) {
-                    receiver.updateProgress(Localization.get("sync.process.processing", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
-                    receiver.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
-                    receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
-                } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
-                    receiver.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
-                }
-            }
-
-            @Override
-            protected void deliverError(CommCareHomeActivity receiver,
-                                        Exception e) {
-                receiver.displayMessage(Localization.get("sync.fail.unknown"), true);
-            }
-        };
-
-        mDataPullTask.connect(activity);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mDataPullTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            mDataPullTask.execute();
-        }
+        syncData(activity, formsToSend, userTriggeredSync,
+                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY, activity.getString(R.string.ota_restore_url)),
+                u.getUsername(), u.getCachedPwd());
     }
 }
