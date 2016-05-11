@@ -12,6 +12,8 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 import org.javarosa.xpath.parser.XPathSyntaxException;
 import org.kxml2.kdom.Element;
+import org.odk.collect.android.jr.extensions.AndroidXFormExtensions;
+import org.odk.collect.android.jr.extensions.IntentCallout;
 
 import java.util.Hashtable;
 import java.util.Vector;
@@ -42,7 +44,8 @@ public class IntentExtensionParser implements IElementHandler {
 
         Log.d(TAG, "0123 extention parser appearance is: " + appearance);
 
-        String label = e.getAttributeValue(null, "button-label");
+        String getButtonLabel = e.getAttributeValue(null, "button-label");
+        String updateButtonLabel = e.getAttributeValue(null, "update-button-label");
 
         Hashtable<String, XPathExpression> extras = new Hashtable<>();
         Hashtable<String, Vector<TreeReference>> response = new Hashtable<>();
@@ -73,7 +76,8 @@ public class IntentExtensionParser implements IElementHandler {
             }
         }
 
-        form.getExtension(AndroidXFormExtensions.class).registerIntent(id, new IntentCallout(className, extras, response, type, component, data, label, appearance));
+        final IntentCallout parsedIntentCallout =
+                new IntentCallout(className, extras, response, type, component, data, getButtonLabel, updateButtonLabel, appearance);
+        form.getExtension(AndroidXFormExtensions.class).registerIntent(id, parsedIntentCallout);
     }
-
 }

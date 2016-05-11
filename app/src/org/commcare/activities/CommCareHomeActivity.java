@@ -20,6 +20,9 @@ import android.view.View;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -31,9 +34,6 @@ import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.app.models.UserKeyRecord;
-import org.commcare.models.database.user.models.FormRecord;
-import org.commcare.models.database.user.models.SessionStateDescriptor;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.FormsProviderAPI;
@@ -42,6 +42,7 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigationResponder;
 import org.commcare.session.SessionNavigator;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
@@ -50,8 +51,11 @@ import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.tasks.ProcessAndSendTask;
+import org.commcare.tasks.PullTaskReceiver;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.SendTask;
 import org.commcare.tasks.WipeTask;
+import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
@@ -62,7 +66,8 @@ import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
 import org.commcare.views.HorizontalMediaView;
 import org.commcare.views.UserfacingErrorHandling;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
+import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.DialogCreationHelpers;
@@ -83,7 +88,7 @@ import java.util.Vector;
 
 public class CommCareHomeActivity
         extends SessionAwareCommCareActivity<CommCareHomeActivity>
-        implements SessionNavigationResponder, WithUIController {
+        implements SessionNavigationResponder, WithUIController, PullTaskReceiver {
 
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
@@ -104,7 +109,6 @@ public class CommCareHomeActivity
     private static final int MODEL_RESULT = 4;
 
     private static final int GET_INCOMPLETE_FORM = 16;
-    public static final int UPGRADE_APP = 32;
     public static final int REPORT_PROBLEM_ACTIVITY = 64;
 
     private static final int DUMP_FORMS_ACTIVITY=512;
@@ -159,6 +163,7 @@ public class CommCareHomeActivity
     private boolean loginExtraWasConsumed;
     private static final String EXTRA_CONSUMED_KEY = "login_extra_was_consumed";
     private boolean isRestoringSession = false;
+    private boolean isSyncUserLaunched = false;
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
@@ -169,7 +174,7 @@ public class CommCareHomeActivity
         ACRAUtil.registerAppData();
         uiController.setupUI();
         sessionNavigator = new SessionNavigator(this);
-        formAndDataSyncer = new FormAndDataSyncer(this);
+        formAndDataSyncer = new FormAndDataSyncer();
 
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();
@@ -301,14 +306,13 @@ public class CommCareHomeActivity
 
         dialog.setChoiceItems(new DialogChoiceItem[]{createPinChoice, nextTimeChoice, notAgainChoice});
         dialog.addCollapsibleInfoPane(Localization.get("pin.dialog.extra.info"));
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     private void showPinFutureAccessDialog() {
-        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactory(this,
+        StandardAlertDialog.getBasicAlertDialog(this,
                 Localization.get("pin.dialog.set.later.title"),
-                Localization.get("pin.dialog.set.later.message"), null);
-        f.showDialog();
+                Localization.get("pin.dialog.set.later.message"), null).showNonPersistentDialog();
     }
 
     private void launchPinAuthentication() {
@@ -742,9 +746,9 @@ public class CommCareHomeActivity
     }
 
     private void showSessionRefreshWarning() {
-        AlertDialogFactory.getBasicAlertFactory(this,
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this,
                 Localization.get("session.refresh.error.title"),
-                Localization.get("session.refresh.error.message"), null).showDialog();
+                Localization.get("session.refresh.error.message"), null));
     }
 
     private void showDemoModeWarning() {
@@ -769,10 +773,9 @@ public class CommCareHomeActivity
     }
 
     private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
-        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactoryWithIcon(this,
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this,
                 Localization.get("app.handled.error.title"), errorMsg,
-                android.R.drawable.ic_dialog_info, errorListener);
-        showAlertDialog(f);
+                android.R.drawable.ic_dialog_info, errorListener));
     }
 
     @Override
@@ -819,8 +822,9 @@ public class CommCareHomeActivity
             case SessionNavigator.LAUNCH_CONFIRM_DETAIL:
                 launchConfirmDetail(asw);
                 break;
-            case SessionNavigator.EXCEPTION_THROWN:
-                displayException(sessionNavigator.getCurrentException());
+            case SessionNavigator.XPATH_EXCEPTION_THROWN:
+                UserfacingErrorHandling
+                        .logErrorAndShowDialog(this, sessionNavigator.getCurrentException(), false);
         }
     }
 
@@ -897,24 +901,27 @@ public class CommCareHomeActivity
     private void launchConfirmDetail(AndroidSessionWrapper asw) {
         CommCareSession session = asw.getSession();
         SessionDatum selectDatum = session.getNeededDatum();
-        TreeReference contextRef = sessionNavigator.getCurrentAutoSelection();
-        if (this.getString(R.string.panes).equals("two")
-                && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            // Large tablet in landscape: send to entity select activity
-            // (awesome mode, with case pre-selected) instead of entity detail
-            Intent i = getSelectIntent(session);
-            String caseId = SessionDatum.getCaseIdFromReference(
-                    contextRef, selectDatum, asw.getEvaluationContext());
-            i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, caseId);
-            startActivityForResult(i, GET_CASE);
-        } else {
-            // Launch entity detail activity
-            Intent detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
-            EntityDetailUtils.populateDetailIntent(
-                    detailIntent, contextRef, selectDatum, asw);
-            addPendingDataExtra(detailIntent, session);
-            addPendingDatumIdExtra(detailIntent, session);
-            startActivityForResult(detailIntent, GET_CASE);
+        if (selectDatum instanceof EntityDatum) {
+            EntityDatum entityDatum = (EntityDatum) selectDatum;
+            TreeReference contextRef = sessionNavigator.getCurrentAutoSelection();
+            if (this.getString(R.string.panes).equals("two")
+                    && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                // Large tablet in landscape: send to entity select activity
+                // (awesome mode, with case pre-selected) instead of entity detail
+                Intent i = getSelectIntent(session);
+                String caseId = EntityDatum.getCaseIdFromReference(
+                        contextRef, entityDatum, asw.getEvaluationContext());
+                i.putExtra(EntitySelectActivity.EXTRA_ENTITY_KEY, caseId);
+                startActivityForResult(i, GET_CASE);
+            } else {
+                // Launch entity detail activity
+                Intent detailIntent = new Intent(getApplicationContext(), EntityDetailActivity.class);
+                EntityDetailUtils.populateDetailIntent(
+                        detailIntent, contextRef, entityDatum, asw);
+                addPendingDataExtra(detailIntent, session);
+                addPendingDatumIdExtra(detailIntent, session);
+                startActivityForResult(detailIntent, GET_CASE);
+            }
         }
     }
 
@@ -1048,7 +1055,7 @@ public class CommCareHomeActivity
     private void sendFormsOrSync(boolean userTriggeredSync) {
         boolean formsSentToServer = checkAndStartUnsentFormsTask(true, userTriggeredSync);
         if(!formsSentToServer) {
-            formAndDataSyncer.syncData(false, userTriggeredSync);
+            formAndDataSyncer.syncDataForLoggedInUser(this, false, userTriggeredSync);
         }
     }
 
@@ -1057,11 +1064,12 @@ public class CommCareHomeActivity
      */
     private boolean checkAndStartUnsentFormsTask(final boolean syncAfterwards,
                                                  boolean userTriggered) {
+        isSyncUserLaunched = userTriggered;
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         FormRecord[] records = StorageUtils.getUnsentRecords(storage);
 
         if(records.length > 0) {
-            formAndDataSyncer.processAndSendForms(records, syncAfterwards, userTriggered);
+            formAndDataSyncer.processAndSendForms(this, records, syncAfterwards, userTriggered);
             return true;
         } else {
             return false;
@@ -1105,7 +1113,7 @@ public class CommCareHomeActivity
         final AndroidCommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
         String title = Localization.get("app.workflow.incomplete.continue.title");
         String msg = Localization.get("app.workflow.incomplete.continue");
-        AlertDialogFactory factory = new AlertDialogFactory(this, title, msg);
+        StandardAlertDialog d = new StandardAlertDialog(this, title, msg);
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
@@ -1126,10 +1134,10 @@ public class CommCareHomeActivity
                 dialog.dismiss();
             }
         };
-        factory.setPositiveButton(Localization.get("option.yes"), listener);
-        factory.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"), listener);
-        factory.setNeutralButton(Localization.get("option.no"), listener);
-        showAlertDialog(factory);
+        d.setPositiveButton(Localization.get("option.yes"), listener);
+        d.setNegativeButton(Localization.get("app.workflow.incomplete.continue.option.delete"), listener);
+        d.setNeutralButton(Localization.get("option.no"), listener);
+        showAlertDialog(d);
     }
 
     void displayMessage(String message) {
@@ -1297,7 +1305,7 @@ public class CommCareHomeActivity
     }
 
     private void showAboutCommCareDialog() {
-        AlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this);
+        CommCareAlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this);
 
         dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
@@ -1313,7 +1321,8 @@ public class CommCareHomeActivity
             }
 
         });
-        dialog.show();
+
+        showAlertDialog(dialog);
     }
 
     private boolean hasP2p() {
@@ -1324,27 +1333,33 @@ public class CommCareHomeActivity
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         String title, message;
+        CustomProgressDialog dialog;
         switch (taskId) {
             case ProcessAndSendTask.SEND_PHASE_ID:
                 title = Localization.get("sync.progress.submitting.title");
                 message = Localization.get("sync.progress.submitting");
+                dialog = CustomProgressDialog.newInstance(title, message, taskId);
                 break;
             case ProcessAndSendTask.PROCESSING_PHASE_ID:
                 title = Localization.get("form.entry.processing.title");
                 message = Localization.get("form.entry.processing");
+                dialog = CustomProgressDialog.newInstance(title, message, taskId);
+                dialog.addProgressBar();
                 break;
             case DataPullTask.DATA_PULL_TASK_ID:
                 title = Localization.get("sync.progress.title");
                 message = Localization.get("sync.progress.purge");
+                dialog = CustomProgressDialog.newInstance(title, message, taskId);
+                if (isSyncUserLaunched) {
+                    // allow users to cancel syncs that they launched
+                    dialog.addCancelButton();
+                }
+                isSyncUserLaunched = false;
                 break;
             default:
                 Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                         + "any valid possibilities in CommCareHomeActivity");
                 return null;
-        }
-        CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
-        if (taskId == ProcessAndSendTask.PROCESSING_PHASE_ID) {
-            dialog.addProgressBar();
         }
         return dialog;
     }
@@ -1386,4 +1401,81 @@ public class CommCareHomeActivity
         return this.uiController;
     }
 
+    @Override
+    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
+                                     boolean userTriggeredSync, boolean formsToSend) {
+        getUIController().refreshView();
+
+        DataPullTask.PullTaskResult result = resultAndErrorMessage.data;
+        String reportSyncLabel = result.getCorrespondingGoogleAnalyticsLabel();
+        int reportSyncValue = result.getCorrespondingGoogleAnalyticsValue();
+
+        switch (result) {
+            case AUTH_FAILED:
+                displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
+                break;
+            case BAD_DATA:
+            case BAD_DATA_REQUIRES_INTERVENTION:
+                displayMessage(Localization.get("sync.fail.bad.data"), true);
+                break;
+            case DOWNLOAD_SUCCESS:
+                if (formsToSend) {
+                    reportSyncValue = GoogleAnalyticsFields.VALUE_WITH_SEND_FORMS;
+                } else {
+                    reportSyncValue = GoogleAnalyticsFields.VALUE_JUST_PULL_DATA;
+                }
+                displayMessage(Localization.get("sync.success.synced"));
+                break;
+            case SERVER_ERROR:
+                displayMessage(Localization.get("sync.fail.server.error"));
+                break;
+            case UNREACHABLE_HOST:
+                displayMessage(Localization.get("sync.fail.bad.network"), true);
+                break;
+            case CONNECTION_TIMEOUT:
+                displayMessage(Localization.get("sync.fail.timeout"), true);
+                break;
+            case UNKNOWN_FAILURE:
+                displayMessage(Localization.get("sync.fail.unknown"), true);
+                break;
+        }
+
+        if (userTriggeredSync) {
+            GoogleAnalyticsUtils.reportSyncAttempt(
+                    GoogleAnalyticsFields.ACTION_USER_SYNC_ATTEMPT,
+                    reportSyncLabel, reportSyncValue);
+        } else {
+            GoogleAnalyticsUtils.reportSyncAttempt(
+                    GoogleAnalyticsFields.ACTION_AUTO_SYNC_ATTEMPT,
+                    reportSyncLabel, reportSyncValue);
+        }
+        //TODO: What if the user info was updated?
+    }
+
+    @Override
+    public void handlePullTaskUpdate(Integer... update) {
+        if (update[0] == DataPullTask.PROGRESS_STARTED) {
+            updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
+            updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_AUTHED) {
+            updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
+            updateProgress(Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING_COMPLETE) {
+            hideTaskCancelButton();
+        } else if (update[0] == DataPullTask.PROGRESS_PROCESSING) {
+            updateProgress(Localization.get("sync.process.processing", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
+            updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
+            updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
+            updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
+        }
+    }
+
+    @Override
+    public void handlePullTaskError(Exception e) {
+        displayMessage(Localization.get("sync.fail.unknown"), true);
+    }
 }

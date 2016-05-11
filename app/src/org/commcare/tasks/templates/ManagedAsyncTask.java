@@ -1,6 +1,7 @@
 package org.commcare.tasks.templates;
 
 import android.os.AsyncTask;
+import android.os.Build;
 
 import java.util.ArrayList;
 
@@ -11,7 +12,6 @@ import java.util.ArrayList;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-
 public abstract class ManagedAsyncTask<Params, Progress, Result>
         extends AsyncTask<Params, Progress, Result> {
 
@@ -67,6 +67,18 @@ public abstract class ManagedAsyncTask<Params, Progress, Result>
 
         synchronized (livingTasks) {
             livingTasks.remove(this);
+        }
+    }
+
+    /**
+     * Uses true parallelization to execute async tasks, requires extreme care
+     * with data synchronization!
+     */
+    public void executeParallel(Params... params) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, params);
+        } else {
+            execute(params);
         }
     }
 }

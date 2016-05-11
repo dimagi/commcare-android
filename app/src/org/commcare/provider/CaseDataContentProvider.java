@@ -10,7 +10,7 @@ import android.support.annotation.NonNull;
 import org.commcare.CommCareApplication;
 import org.commcare.cases.model.Case;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.ACase;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -39,7 +39,7 @@ import java.util.Vector;
 public class CaseDataContentProvider extends ContentProvider {
     
     //Valid sql selectors
-    final HashMap<String, String> caseMetaIndexTable = new HashMap<>();
+    private final HashMap<String, String> caseMetaIndexTable = new HashMap<>();
     
     
     //TODO: Caching - Use a cache table here or use an LRU or other system provided cache?

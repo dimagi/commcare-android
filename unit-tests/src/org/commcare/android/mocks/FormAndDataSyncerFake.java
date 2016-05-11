@@ -2,9 +2,11 @@ package org.commcare.android.mocks;
 
 import android.util.Log;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareHomeActivity;
 import org.commcare.activities.FormAndDataSyncer;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.tasks.PullTaskReceiver;
 
 /**
  * Fake object that prevent tests from communicating with server to pull or submit data
@@ -14,20 +16,31 @@ import org.commcare.models.database.user.models.FormRecord;
 public class FormAndDataSyncerFake extends FormAndDataSyncer {
     private final String TAG = FormAndDataSyncerFake.class.getSimpleName();
 
-    public FormAndDataSyncerFake(CommCareHomeActivity activity) {
-        super(activity);
+    public FormAndDataSyncerFake() {
     }
 
     @Override
-    public void processAndSendForms(FormRecord[] records,
+    public void processAndSendForms(CommCareHomeActivity activity,
+                                    FormRecord[]records,
                                     final boolean syncAfterwards,
                                     final boolean userTriggered) {
         Log.d(TAG, "faking form processing and sending");
     }
 
     @Override
-    public void syncData(boolean formsToSend,
-                         boolean userTriggeredSync) {
+    public void syncDataForLoggedInUser(CommCareHomeActivity activity,
+                                        boolean formsToSend,
+                                        boolean userTriggeredSync) {
+        Log.d(TAG, "faking data sync");
+    }
+
+    @Override
+    public <I extends CommCareActivity & PullTaskReceiver> void syncData(final I activity,
+                                                                         final boolean formsToSend,
+                                                                         final boolean userTriggeredSync,
+                                                                         String server,
+                                                                         String username,
+                                                                         String password) {
         Log.d(TAG, "faking data sync");
     }
 }

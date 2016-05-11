@@ -61,7 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 SquareButtonWithText:backgroundColor="@color/cc_brand_color"
-                SquareButtonWithText:img="@drawable/update_recheck"
+                SquareButtonWithText:img="@drawable/check_update"
                 SquareButtonWithText:subtitle=""
                 SquareButtonWithText:textColor="@color/white"/>
 
@@ -79,7 +79,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 SquareButtonWithText:backgroundColor="@color/cc_attention_positive_color"
-                SquareButtonWithText:img="@drawable/install_start"
+                SquareButtonWithText:img="@drawable/apply_update"
                 SquareButtonWithText:subtitle=""
                 SquareButtonWithText:textColor="@color/white"/>
         </LinearLayout>

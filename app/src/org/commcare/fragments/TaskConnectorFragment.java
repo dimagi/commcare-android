@@ -64,6 +64,7 @@ public class TaskConnectorFragment<R> extends Fragment {
     public void cancelTask() {
         if (currentTask != null) {
             currentTask.cancel(false);
+            currentTask.tryAbort();
         }
     }
 

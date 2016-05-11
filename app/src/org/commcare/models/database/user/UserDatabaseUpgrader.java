@@ -8,7 +8,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ForceCloseLogEntry;
 import org.commcare.cases.ledger.Ledger;
-import org.commcare.logging.AndroidLogEntry;
+import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
@@ -16,17 +16,17 @@ import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.SqlStorageIterator;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
-import org.commcare.models.database.global.models.ApplicationRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.migration.FixtureSerializationMigration;
-import org.commcare.models.database.user.models.ACase;
-import org.commcare.models.database.user.models.ACasePreV6Model;
-import org.commcare.models.database.user.models.AUser;
+import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.ACasePreV6Model;
+import org.commcare.android.database.user.models.AUser;
 import org.commcare.models.database.user.models.CaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
-import org.commcare.models.database.user.models.FormRecord;
-import org.commcare.models.database.user.models.FormRecordV1;
-import org.commcare.models.database.user.models.GeocodeCacheModel;
-import org.commcare.models.database.user.models.SessionStateDescriptor;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecordV1;
+import org.commcare.android.database.user.models.GeocodeCacheModel;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 
@@ -432,7 +432,7 @@ class UserDatabaseUpgrader {
         return (count > 1);
     }
 
-    public static ApplicationRecord getInstalledAppRecord() {
+    private static ApplicationRecord getInstalledAppRecord() {
         SqlStorage<ApplicationRecord> storage =
                 CommCareApplication._().getGlobalStorage(ApplicationRecord.class);
         for (Persistable p : storage) {

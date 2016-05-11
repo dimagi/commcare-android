@@ -681,7 +681,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
     /**
      * @return An iterator which can provide a list of all of the indices in this table.
      */
-    protected SqlStorageIterator<T> getCoveringIndexIterator(SQLiteDatabase db, int minValue, int maxValue, int countValue) {
+    private SqlStorageIterator<T> getCoveringIndexIterator(SQLiteDatabase db, int minValue, int maxValue, int countValue) {
         //So here's what we're doing:
         //Build a select statement that has all of the numbers from 1 to 100k
         //Filter it to contain our real boundaries

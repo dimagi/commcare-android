@@ -4,7 +4,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.UserStorageClosedException;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.javarosa.core.services.Logger;
 
 import java.text.SimpleDateFormat;
@@ -109,7 +109,7 @@ public class StorageUtils {
         //The records should now be in order and we can pass to the next phase 
         FormRecord[] records = new FormRecord[ids.size()];
         for (int i = 0; i < ids.size(); ++i) {
-            records[i] = storage.read(ids.elementAt(i).intValue());
+            records[i] = storage.read(ids.elementAt(i));
         }
         return records;
     }

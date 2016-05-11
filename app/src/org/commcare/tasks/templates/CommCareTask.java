@@ -9,7 +9,8 @@ import org.javarosa.core.services.Logger;
 /**
  * @author ctsims
  */
-public abstract class CommCareTask<Params, Progress, Result, Receiver> extends ManagedAsyncTask<Params, Progress, Result> {
+public abstract class CommCareTask<Params, Progress, Result, Receiver>
+        extends ManagedAsyncTask<Params, Progress, Result> {
     protected static String TAG;
 
     public static final int GENERIC_TASK_ID = 32;
@@ -25,7 +26,7 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver> extends M
     //Wait for 2 seconds for something to reconnnect for now (very high)
     private static final int ALLOWABLE_CONNECTOR_ACQUISITION_DELAY = 2000;
 
-    public CommCareTask() {
+    protected CommCareTask() {
         TAG = CommCareTask.class.getSimpleName();
     }
 
@@ -167,6 +168,12 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver> extends M
             this.connector = connector;
             this.connector.connectTask(this);
         }
+    }
+
+    /**
+     * Attempts to kill long running processes prematurely in the task
+     */
+    public void tryAbort() {
     }
 
     protected void transitionPhase(int newTaskId) {

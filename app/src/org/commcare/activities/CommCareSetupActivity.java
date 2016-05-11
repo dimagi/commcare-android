@@ -3,7 +3,6 @@ package org.commcare.activities;
 import android.Manifest;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -36,7 +35,7 @@ import org.commcare.fragments.SelectInstallModeFragment;
 import org.commcare.fragments.SetupEnterURLFragment;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
-import org.commcare.models.database.global.models.ApplicationRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.ResourceEngineTask;
@@ -186,9 +185,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 "startAllowed is: " + startAllowed + " "
         );
 
-        Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
-
-        performSMSInstall(false);
+        boolean askingForPerms =
+                Permissions.acquireAllAppPermissions(this, this,
+                        Permissions.ALL_PERMISSIONS_REQUEST);
+        if (!askingForPerms) {
+            // With basic perms satisfied, ask user to allow SMS reading for
+            // sms app install code
+            performSMSInstall(false);
+        }
     }
 
     private void loadStateFromInstance(Bundle savedInstanceState) {
@@ -361,7 +365,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         setReadyToInstall(result);
     }
 
-    public void setReadyToInstall(String reference) {
+    private void setReadyToInstall(String reference) {
         incomingRef = reference;
         this.uiState = UiState.READY_TO_INSTALL;
 
@@ -496,12 +500,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.READ_SMS)) {
-                AlertDialog dialog =
-                        DialogCreationHelpers.buildPermissionRequestDialog(this, this,
+                DialogCreationHelpers.buildPermissionRequestDialog(this, this,
                                 SMS_PERMISSIONS_REQUEST,
                                 Localization.get("permission.sms.install.title"),
-                                Localization.get("permission.sms.install.message"));
-                dialog.show();
+                                Localization.get("permission.sms.install.message")).showNonPersistentDialog();
             } else {
                 requestNeededPermissions(SMS_PERMISSIONS_REQUEST);
             }
@@ -705,7 +707,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void updateResourceProgress(int done, int total, int phase) {
-        updateProgress(Localization.get("profile.found", new String[]{"" + done, "" + total}), DIALOG_INSTALL_PROGRESS);
+        // perform safe localization because the localization dictionary might
+        // be the resource currently being installed.
+        String installProgressText =
+                Localization.getWithDefault("profile.found",
+                        new String[]{"" + done, "" + total},
+                        "Application found. Loading resources...");
+        updateProgress(installProgressText, DIALOG_INSTALL_PROGRESS);
         updateProgressBar(done, total, DIALOG_INSTALL_PROGRESS);
     }
 
@@ -827,6 +835,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             CommCareApplication._().prepareTemporaryStorage();
             uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
             uiStateScreenTransition();
+
+            // Since SMS asks for more permissions, call was delayed until here
+            performSMSInstall(false);
         }
     }
 

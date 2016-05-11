@@ -51,7 +51,7 @@ import org.commcare.engine.references.ArchiveFileRoot;
 import org.commcare.engine.references.AssetFileRoot;
 import org.commcare.engine.references.JavaHttpRoot;
 import org.commcare.engine.resource.ResourceInstallUtils;
-import org.commcare.logging.AndroidLogEntry;
+import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.PreInitLogger;
 import org.commcare.logging.XPathErrorEntry;
@@ -66,9 +66,9 @@ import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.MigrationException;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
-import org.commcare.models.database.app.models.UserKeyRecord;
+import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.models.database.global.DatabaseGlobalOpenHelper;
-import org.commcare.models.database.global.models.ApplicationRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.framework.Table;
 import org.commcare.models.legacy.LegacyInstallUtils;
@@ -190,6 +190,8 @@ public class CommCareApplication extends Application {
     private String messageForUserOnDispatch;
     private String titleForUserMessage;
 
+    // Indicates that a build refresh action has been triggered, but not yet completed
+    private boolean latestBuildRefreshPending;
 
     @Override
     public void onCreate() {
@@ -1066,7 +1068,7 @@ public class CommCareApplication extends Application {
             UpdateTask updateTask = UpdateTask.getNewInstance();
             updateTask.startPinnedNotification(this);
             updateTask.setAsAutoUpdate();
-            updateTask.execute(ref);
+            updateTask.executeParallel(ref);
         } catch (IllegalStateException e) {
             Log.w(TAG, "Trying trigger auto-update when it is already running. " +
                     "Should only happen if the user triggered a manual update before this fired.");
@@ -1460,6 +1462,18 @@ public class CommCareApplication extends Application {
             ForceCloseLogger.registerStorage(
                     this.getGlobalStorage(ForceCloseLogEntry.STORAGE_KEY, ForceCloseLogEntry.class));
         }
+    }
+
+    public void setPendingRefreshToLatestBuild(boolean b) {
+        this.latestBuildRefreshPending = b;
+    }
+
+    public boolean checkPendingBuildRefresh() {
+        if (this.latestBuildRefreshPending) {
+            this.latestBuildRefreshPending = false;
+            return true;
+        }
+        return false;
     }
 
 }

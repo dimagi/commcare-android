@@ -1,23 +1,10 @@
-/*
- * Copyright (C) 2009 University of Washington
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License. You may obtain a copy of the License at
- * 
- * http://www.apache.org/licenses/LICENSE-2.0
- * 
- * Unless required by applicable law or agreed to in writing, software distributed under the License
- * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
- * or implied. See the License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.commcare.views.widgets;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.text.SpannableString;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -28,12 +15,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.activities.FormEntryActivity;
-import org.commcare.dalvik.R;
-import org.commcare.engine.extensions.IntentCallout;
+import org.odk.collect.android.jr.extensions.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
-import org.commcare.utils.StringUtils;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
-
 
 /**
  * Widget that allows user to scan barcodes and add them to the form.
@@ -59,9 +44,9 @@ public class BarcodeWidget extends IntentWidget {
         setOrientation(LinearLayout.VERTICAL);
         launchIntentButton = new Button(getContext());
         WidgetUtils.setupButton(launchIntentButton,
-                StringUtils.getStringSpannableRobust(getContext(), R.string.get_barcode),
+                getButtonLabel(),
                 mAnswerFontsize,
-                !prompt.isReadOnly());
+                !mPrompt.isReadOnly());
 
         // launch barcode capture intent on click
         launchIntentButton.setOnClickListener(new View.OnClickListener() {
@@ -71,11 +56,10 @@ public class BarcodeWidget extends IntentWidget {
                 try {
                     ((Activity)getContext()).startActivityForResult(i,
                             FormEntryActivity.BARCODE_CAPTURE);
-                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+                    pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
-                            StringUtils.getStringSpannableRobust(getContext(),
-                                    R.string.barcode_scanner_error),
+                            Localization.get("barcode.reader.missing"),
                             Toast.LENGTH_SHORT).show();
                 }
             }
@@ -83,11 +67,10 @@ public class BarcodeWidget extends IntentWidget {
         addView(launchIntentButton);
     }
 
-
     @Override
     public void clearAnswer() {
         mStringAnswer.setText(null);
-        launchIntentButton.setText(StringUtils.getStringSpannableRobust(getContext(), R.string.get_barcode));
+        launchIntentButton.setText(new SpannableString(Localization.get("intent.barcode.get")));
     }
 
     @Override
@@ -98,7 +81,7 @@ public class BarcodeWidget extends IntentWidget {
             mStringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
             mStringAnswer.setGravity(Gravity.CENTER);
 
-            String s = prompt.getAnswerText();
+            String s = mPrompt.getAnswerText();
             if (s != null) {
                 mStringAnswer.setText(s);
             }
@@ -108,5 +91,4 @@ public class BarcodeWidget extends IntentWidget {
             super.makeTextView();
         }
     }
-
 }

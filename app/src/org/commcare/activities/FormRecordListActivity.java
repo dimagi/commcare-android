@@ -39,8 +39,8 @@ import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.logic.ArchivedFormRemoteRestore;
 import org.commcare.models.FormRecordProcessor;
 import org.commcare.models.database.UserStorageClosedException;
-import org.commcare.models.database.user.models.FormRecord;
-import org.commcare.models.database.user.models.SessionStateDescriptor;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormRecordCleanupTask;
@@ -52,7 +52,7 @@ import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.views.IncompleteFormRecordView;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -78,9 +78,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     public static final String KEY_INITIAL_RECORD_ID = "cc_initial_rec_id";
 
     private AndroidCommCarePlatform platform;
-
     private IncompleteFormListAdapter adapter;
-
     private PurgeStaleArchivedFormsTask purgeTask;
 
     private int initialSelection = -1;
@@ -182,6 +180,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 incompleteMode = true;
                 //special case, no special filtering options
                 adapter.setFormFilter(FormRecordFilter.Incomplete);
+                adapter.resetRecords();
             }
         } else {
             FormRecordFilter[] filters = FormRecordFilter.values();
@@ -260,7 +259,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
     }
 
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -290,7 +288,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     public String getActivityTitle() {
-
         if (adapter == null) {
             return Localization.get("app.workflow.saved.heading");
         }
@@ -307,7 +304,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
      */
     public void refreshView() {
         disableSearch();
-        adapter.resetRecords();
         listView.setAdapter(adapter);
     }
 
@@ -380,9 +376,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
             finish();
         } else {
-            AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactory(this, "Form Missing",
-                    Localization.get("form.record.gone.message"), null);
-            showAlertDialog(f);
+            showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this, "Form Missing",
+                    Localization.get("form.record.gone.message"), null));
         }
     }
 
@@ -449,9 +444,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             title = Localization.get("app.workflow.forms.scan.title.invalid");
         }
         int resId = result.first ? R.drawable.checkmark : R.drawable.redx;
-        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactoryWithIcon(this, title,
-                result.second, resId, null);
-        showAlertDialog(f);
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
+                result.second, resId, null));
     }
 
     /**

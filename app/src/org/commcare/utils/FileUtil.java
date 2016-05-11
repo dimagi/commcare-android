@@ -12,12 +12,15 @@ import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.Pair;
 
+import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
+import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.PropertyUtils;
 
 import java.io.File;
@@ -33,6 +36,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.Vector;
 
 import javax.crypto.Cipher;
@@ -298,7 +302,6 @@ public class FileUtil {
         }
     }
 
-
     /*
      * if we are on KitKat we need use the new API to find the mounted roots, then append our application
      * specific path that we're allowed to write to
@@ -342,6 +345,24 @@ public class FileUtil {
                 return getExternalMounts().get(0);
             }
             return null;
+        }
+    }
+
+    public static Properties loadProperties(File file) throws IOException{
+        Properties prop = new Properties();
+        InputStream input = null;
+        try {
+            input = new FileInputStream(file);
+            prop.load(input);
+            return prop;
+        } finally {
+            if (input != null) {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -435,8 +456,12 @@ public class FileUtil {
             return false;
         }
 
-        Bitmap bitmap = BitmapFactory.decodeFile(originalImage.getAbsolutePath());
-        Bitmap scaledBitmap = getBitmapScaledByMaxDimen(bitmap, maxDimen);
+        Pair<Bitmap, Boolean> bitmapAndScaledBool = MediaUtil.inflateImageSafe(originalImage.getAbsolutePath());
+        if (bitmapAndScaledBool.second) {
+            Logger.log(AndroidLogger.TYPE_FORM_ENTRY,
+                    "An image captured during form entry was too large to be processed at its original size, and had to be downsized");
+        }
+        Bitmap scaledBitmap = getBitmapScaledByMaxDimen(bitmapAndScaledBool.first, maxDimen);
         if (scaledBitmap != null) {
             // Write this scaled bitmap to the final file location
             FileOutputStream out = null;

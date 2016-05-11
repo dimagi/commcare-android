@@ -9,8 +9,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.util.Pair;
 import android.util.Log;
-import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,14 +26,16 @@ import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.interfaces.WithUIController;
-import org.commcare.models.database.app.models.UserKeyRecord;
-import org.commcare.models.database.global.models.ApplicationRecord;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ManageKeyRecordTask;
+import org.commcare.tasks.PullTaskReceiver;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ViewUtil;
@@ -52,7 +54,7 @@ import java.util.ArrayList;
  */
 public class LoginActivity extends CommCareActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
-        RuntimePermissionRequester, WithUIController {
+        RuntimePermissionRequester, WithUIController, PullTaskReceiver {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 
@@ -67,7 +69,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public final static String KEY_ENTERED_PW_OR_PIN = "entered-password-or-pin";
 
     private static final int SEAT_APP_ACTIVITY = 0;
-    public final static String KEY_APP_TO_SEAT = "app_to_seat";
     public final static String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
 
     public final static String LOGIN_MODE = "login-mode";
@@ -154,16 +155,23 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      *                       upon successful login
      */
     protected void initiateLoginAttempt(boolean restoreSession) {
-        if (uiController.getEnteredPasswordOrPin().equals("")) {
-            raiseLoginMessage(StockMessages.Auth_EmptyPassword, false);
+        LoginMode loginMode = uiController.getLoginMode();
+
+        if ("".equals(uiController.getEnteredPasswordOrPin()) &&
+                loginMode != LoginMode.PRIMED) {
+            if (loginMode == LoginMode.PASSWORD) {
+                raiseLoginMessage(StockMessages.Auth_EmptyPassword, false);
+            } else {
+                raiseLoginMessage(StockMessages.Auth_EmptyPin, false);
+            }
             return;
         }
 
         uiController.clearErrorMessage();
         ViewUtil.hideVirtualKeyboard(LoginActivity.this);
 
-        if (uiController.getLoginMode() == LoginMode.PASSWORD) {
-            DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPasswordOrPin());
+        if (loginMode == LoginMode.PASSWORD) {
+            DevSessionRestorer.tryAutoLoginPasswordSave(uiController.getEnteredPasswordOrPin(), false);
         }
 
         if (ResourceInstallUtils.isUpdateReadyToInstall()) {
@@ -189,77 +197,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         // alternate route where we log in locally and sync (with unsent form
         // submissions) more centrally.
 
-        DataPullTask<LoginActivity> dataPuller =
-                new DataPullTask<LoginActivity>(getUniformUsername(), uiController.getEnteredPasswordOrPin(),
-                        prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY,
-                                LoginActivity.this.getString(R.string.ota_restore_url)),
-                        LoginActivity.this) {
-                    @Override
-                    protected void deliverResult(LoginActivity receiver, PullTaskResult result) {
-                        if (result == null) {
-                            // The task crashed unexpectedly
-                            receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
-                            return;
-                        }
-
-                        switch (result) {
-                            case AUTH_FAILED:
-                                receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
-                                break;
-                            case BAD_DATA:
-                                receiver.raiseLoginMessage(StockMessages.Remote_BadRestore, true);
-                                break;
-                            case STORAGE_FULL:
-                                receiver.raiseLoginMessage(StockMessages.Storage_Full, true);
-                                break;
-                            case DOWNLOAD_SUCCESS:
-                                if (!tryLocalLogin(true, uiController.isRestoreSessionChecked())) {
-                                    receiver.raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
-                                }
-                                break;
-                            case UNREACHABLE_HOST:
-                                receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork, true);
-                                break;
-                            case CONNECTION_TIMEOUT:
-                                receiver.raiseLoginMessage(StockMessages.Remote_Timeout, true);
-                                break;
-                            case SERVER_ERROR:
-                                receiver.raiseLoginMessage(StockMessages.Remote_ServerError, true);
-                                break;
-                            case UNKNOWN_FAILURE:
-                                receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
-                                break;
-                        }
-                    }
-
-                    @Override
-                    protected void deliverUpdate(LoginActivity receiver, Integer... update) {
-                        if (update[0] == DataPullTask.PROGRESS_STARTED) {
-                            receiver.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
-                        } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
-                            receiver.updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
-                        } else if (update[0] == DataPullTask.PROGRESS_AUTHED) {
-                            receiver.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
-                        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
-                            receiver.updateProgress(Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
-                        } else if (update[0] == DataPullTask.PROGRESS_PROCESSING) {
-                            receiver.updateProgress(Localization.get("sync.process.processing", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
-                            receiver.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
-                        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
-                            receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
-                        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
-                            receiver.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
-                        }
-                    }
-
-                    @Override
-                    protected void deliverError(LoginActivity receiver, Exception e) {
-                        receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
-                    }
-                };
-
-        dataPuller.connect(this);
-        dataPuller.execute();
+        (new FormAndDataSyncer()).syncData(this, false, false,
+                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY, LoginActivity.this.getString(R.string.ota_restore_url)),
+                getUniformUsername(),
+                uiController.getEnteredPasswordOrPin());
     }
 
     @Override
@@ -318,7 +259,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     private void tryAutoLogin() {
         Pair<String, String> userAndPass =
-                DevSessionRestorer.getAutoLoginCreds();
+                DevSessionRestorer.getAutoLoginCreds(forceAutoLogin());
         if (userAndPass != null) {
             uiController.setUsername(userAndPass.first);
             uiController.setPasswordOrPin(userAndPass.second);
@@ -330,6 +271,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 initiateLoginAttempt(true);
             }
         }
+    }
+
+    private boolean forceAutoLogin() {
+        return CommCareApplication._().checkPendingBuildRefresh();
     }
 
     private String getUniformUsername() {
@@ -422,7 +367,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                         false, LoginMode.PASSWORD);
                 return true;
             case MENU_ABOUT:
-                DialogCreationHelpers.buildAboutCommCareDialog(this).show();
+                DialogCreationHelpers.buildAboutCommCareDialog(this).showNonPersistentDialog();
                 return true;
             case MENU_PERMISSIONS:
                 Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
@@ -433,6 +378,15 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             default:
                 return otherResult;
         }
+    }
+
+    @Override
+    public void raiseLoginMessageWithInfo(MessageTag messageTag, String additionalInfo, boolean showTop) {
+        NotificationMessage message =
+                NotificationMessageFactory.message(messageTag,
+                        new String[]{null, null, additionalInfo},
+                        NOTIFICATION_MESSAGE_LOGIN);
+        raiseMessage(message, showTop);
     }
 
     @Override
@@ -522,7 +476,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
             // Launch the activity to seat the new app
             Intent i = new Intent(this, SeatAppActivity.class);
-            i.putExtra(KEY_APP_TO_SEAT, appId);
+            i.putExtra(SeatAppActivity.KEY_APP_TO_SEAT, appId);
             this.startActivityForResult(i, SEAT_APP_ACTIVITY);
         }
     }
@@ -589,5 +543,74 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public CommCareActivityUIController getUIController() {
         return this.uiController;
+    }
+
+    @Override
+    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage, boolean userTriggeredSync, boolean formsToSend) {
+        DataPullTask.PullTaskResult result = resultAndErrorMessage.data;
+        if (result == null) {
+            // The task crashed unexpectedly
+            raiseLoginMessage(StockMessages.Restore_Unknown, true);
+            return;
+        }
+
+        switch (result) {
+            case AUTH_FAILED:
+                raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
+                break;
+            case BAD_DATA_REQUIRES_INTERVENTION:
+                raiseLoginMessageWithInfo(StockMessages.Remote_BadRestoreRequiresIntervention, resultAndErrorMessage.errorMessage, true);
+                break;
+            case BAD_DATA:
+                raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore, resultAndErrorMessage.errorMessage, true);
+                break;
+            case STORAGE_FULL:
+                raiseLoginMessage(StockMessages.Storage_Full, true);
+                break;
+            case DOWNLOAD_SUCCESS:
+                if (!tryLocalLogin(true, uiController.isRestoreSessionChecked())) {
+                    raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
+                }
+                break;
+            case UNREACHABLE_HOST:
+                raiseLoginMessage(StockMessages.Remote_NoNetwork, true);
+                break;
+            case CONNECTION_TIMEOUT:
+                raiseLoginMessage(StockMessages.Remote_Timeout, true);
+                break;
+            case SERVER_ERROR:
+                raiseLoginMessage(StockMessages.Remote_ServerError, true);
+                break;
+            case UNKNOWN_FAILURE:
+                raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
+                break;
+        }
+    }
+
+    @Override
+    public void handlePullTaskUpdate(Integer... update) {
+        if (update[0] == DataPullTask.PROGRESS_STARTED) {
+            updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
+            updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_AUTHED) {
+            updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
+            updateProgress(Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING_COMPLETE) {
+            hideTaskCancelButton();
+        } else if (update[0] == DataPullTask.PROGRESS_PROCESSING) {
+            updateProgress(Localization.get("sync.process.processing", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
+            updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
+            updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
+            updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
+        }
+    }
+
+    @Override
+    public void handlePullTaskError(Exception e) {
+        raiseLoginMessage(StockMessages.Restore_Unknown, true);
     }
 }

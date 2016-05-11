@@ -10,7 +10,6 @@ import android.webkit.WebView;
 import android.widget.LinearLayout;
 
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.graph.activities.GraphActivity;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
 import org.commcare.graph.view.c3.AxisConfiguration;
@@ -40,10 +39,6 @@ public class GraphView {
         mContext = context;
         mTitle = title;
         mIsFullScreen = isFullScreen;
-    }
-
-    public Intent getIntent(String html) {
-        return getIntent(html, GraphActivity.class);
     }
 
     public Intent getIntent(String html, Class className) {

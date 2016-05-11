@@ -34,6 +34,7 @@ import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.utils.AndroidUtil;
@@ -208,10 +209,10 @@ public class BreadcrumbBarFragment extends Fragment {
     private View findAndLoadCaseTile(final Activity activity) {
         final View holder = LayoutInflater.from(activity).inflate(R.layout.com_tile_holder, null);
         final Pair<View, TreeReference> tileData = this.loadTile(activity);
-        View tile = tileData == null ? null : tileData.first;
-        if (tile == null) {
+        if (tileData == null || tileData.first == null) {
             return null;
         }
+        View tile = tileData.first;
 
         final String inlineDetail = (String)tile.getTag();
 
@@ -278,8 +279,8 @@ public class BreadcrumbBarFragment extends Fragment {
 
             if (SessionFrame.STATE_DATUM_VAL.equals(step.getType())) {
                 //Only add steps which have a tile.
-                SessionDatum d = asw.getSession().findDatumDefinition(step.getId());
-                if (d != null && d.getPersistentDetail() != null) {
+                EntityDatum entityDatum = asw.getSession().findDatumDefinition(step.getId());
+                if (entityDatum != null && entityDatum.getPersistentDetail() != null) {
                     stepToFrame = step;
                 }
             }
@@ -385,23 +386,23 @@ public class BreadcrumbBarFragment extends Fragment {
         }
 
         //check to make sure we can look up this child
-        SessionDatum d = asw.getSession().findDatumDefinition(stepToFrame.getId());
-        if (d == null || d.getPersistentDetail() == null) {
+        EntityDatum entityDatum = asw.getSession().findDatumDefinition(stepToFrame.getId());
+        if (entityDatum == null || entityDatum.getPersistentDetail() == null) {
             return null;
         }
 
         //Make sure there is a valid reference to the entity we can build
-        Detail detail = asw.getSession().getDetail(d.getPersistentDetail());
+        Detail detail = asw.getSession().getDetail(entityDatum.getPersistentDetail());
 
         EvaluationContext ec = asw.getEvaluationContext();
 
-        TreeReference ref = d.getEntityFromID(ec, stepToFrame.getValue());
+        TreeReference ref = entityDatum.getEntityFromID(ec, stepToFrame.getValue());
         if (ref == null) {
             return null;
         }
 
         Pair<View, TreeReference> r = buildContextTile(detail, ref, asw);
-        r.first.setTag(d.getInlineDetail());
+        r.first.setTag(entityDatum.getInlineDetail());
         return r;
     }
 

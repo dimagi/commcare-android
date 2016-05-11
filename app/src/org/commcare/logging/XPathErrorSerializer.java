@@ -4,12 +4,9 @@ import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.log.StreamLogSerializer;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.storage.EntityFilter;
-import org.javarosa.core.util.SortedIntSet;
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;
-import java.util.Hashtable;
 
 /**
  * Convert xpath error logs to xml
@@ -61,7 +58,7 @@ public class XPathErrorSerializer
             AndroidLogSerializer.writeText("msg", errorEntry.getMessage(), serializer);
             AndroidLogSerializer.writeText("user_id", errorEntry.getUserId(), serializer);
             AndroidLogSerializer.writeText("session", errorEntry.getSessionPath(), serializer);
-            AndroidLogSerializer.writeText("version", errorEntry.getAppVersion() + "", serializer);
+            AndroidLogSerializer.writeText("app_build", errorEntry.getAppVersion() + "", serializer);
             AndroidLogSerializer.writeText("app_id", errorEntry.getAppId(), serializer);
             AndroidLogSerializer.writeText("expr", errorEntry.getExpression(), serializer);
         } catch (Exception e) {

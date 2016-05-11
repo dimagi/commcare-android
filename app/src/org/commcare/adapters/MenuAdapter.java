@@ -18,8 +18,8 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.suite.model.SessionDatum;
@@ -182,7 +182,7 @@ public class MenuAdapter implements ListAdapter {
         if (tempItem instanceof Menu) {
             return ((Menu) tempItem).getId().hashCode();
         } else {
-            return ((FormEntry) tempItem).getCommandId().hashCode();
+            return ((Entry) tempItem).getCommandId().hashCode();
         }
     }
 
@@ -219,8 +219,7 @@ public class MenuAdapter implements ListAdapter {
         return menuListItem;
     }
 
-    public void setupAudioButton(AudioButton mAudioButton, MenuDisplayable menuDisplayable){
-
+    private void setupAudioButton(AudioButton mAudioButton, MenuDisplayable menuDisplayable){
         // set up audio
         final String audioURI = menuDisplayable.getAudioURI();
         String audioFilename = "";
@@ -275,13 +274,13 @@ public class MenuAdapter implements ListAdapter {
         }
     }
 
-    protected NavIconState getIconState(MenuDisplayable menuDisplayable){
+    private NavIconState getIconState(MenuDisplayable menuDisplayable){
         NavIconState iconChoice = NavIconState.NEXT;
 
         //figure out some icons
-        if (menuDisplayable instanceof FormEntry) {
-            SessionDatum datum = asw.getSession().getNeededDatum((FormEntry) menuDisplayable);
-            if (datum == null || datum.getNodeset() == null) {
+        if (menuDisplayable instanceof Entry) {
+            SessionDatum datum = asw.getSession().getNeededDatum((Entry) menuDisplayable);
+            if (datum == null || !(datum instanceof EntityDatum)) {
                 iconChoice = NavIconState.JUMP;
             }
         }
@@ -311,7 +310,7 @@ public class MenuAdapter implements ListAdapter {
     /*
      * Helper to build the TextView for the HorizontalMediaView constructor
      */
-    String textViewHelper(MenuDisplayable e) {
+    private static String textViewHelper(MenuDisplayable e) {
         return e.getDisplayText();
     }
 

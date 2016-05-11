@@ -18,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
+import android.util.Pair;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,9 +36,10 @@ import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.services.WiFiDirectBroadcastReceiver;
+import org.commcare.tasks.FormRecordToFileTask;
 import org.commcare.tasks.FormTransferTask;
 import org.commcare.tasks.SendTask;
 import org.commcare.tasks.UnzipTask;
@@ -46,7 +48,7 @@ import org.commcare.tasks.ZipTask;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.StorageUtils;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -83,12 +85,12 @@ public class CommCareWiFiDirectActivity
 
     private WiFiDirectUIController uiController;
 
-    public static String baseDirectory;
-    public static String sourceDirectory;
-    public static String sourceZipDirectory;
+    private static String baseDirectory;
+    private static String toBeTransferredDirectory;
+    private static String zipFilePath;
     private static String receiveDirectory;
     private static String receiveZipDirectory;
-    private static String writeDirectory;
+    private static String toBeSubmittedDirectory;
 
     private TextView myStatusText;
     private TextView formCountText;
@@ -115,11 +117,13 @@ public class CommCareWiFiDirectActivity
         String baseDir = this.getFilesDir().getAbsolutePath();
 
         baseDirectory = baseDir + "/" + Localization.get("wifi.direct.base.folder");
-        sourceDirectory = baseDirectory + "/source";
-        sourceZipDirectory = baseDirectory + "/zipSource.zip";
+        // these are the two folders where form record folders can live.
+        toBeTransferredDirectory = baseDirectory + "/transfer";
+        toBeSubmittedDirectory = baseDirectory + "/submit";
+        // these are temporary paths for storing received and unzipped forms
+        zipFilePath = baseDirectory + "/formRecordZip.zip";
         receiveDirectory = baseDirectory + "/receive";
         receiveZipDirectory = receiveDirectory + "/zipDest";
-        writeDirectory = baseDirectory + "/write";
 
         mManager = (WifiP2pManager)getSystemService(Context.WIFI_P2P_SERVICE);
         mChannel = mManager.initialize(this, getMainLooper(), null);
@@ -204,7 +208,7 @@ public class CommCareWiFiDirectActivity
     }
 
     private void showDialog(Activity activity, String title, String message) {
-        AlertDialogFactory factory = new AlertDialogFactory(activity, title, message);
+        StandardAlertDialog d = new StandardAlertDialog(activity, title, message);
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -222,10 +226,10 @@ public class CommCareWiFiDirectActivity
                 dialog.dismiss();
             }
         };
-        factory.setNeutralButton(localize("wifi.direct.receive.forms"), listener);
-        factory.setNegativeButton(localize("wifi.direct.transfer.forms"), listener);
-        factory.setPositiveButton(localize("wifi.direct.submit.forms"), listener);
-        showAlertDialog(factory);
+        d.setNeutralButton(localize("wifi.direct.receive.forms"), listener);
+        d.setNegativeButton(localize("wifi.direct.transfer.forms"), listener);
+        d.setPositiveButton(localize("wifi.direct.submit.forms"), listener);
+        showAlertDialog(d);
     }
 
     private void beSender() {
@@ -360,10 +364,10 @@ public class CommCareWiFiDirectActivity
         mWipeTask.connect(CommCareWiFiDirectActivity.this);
         mWipeTask.execute();
 
-        FileUtil.deleteFileOrDir(new File(sourceDirectory));
-        FileUtil.deleteFileOrDir(new File(sourceZipDirectory));
+        FileUtil.deleteFileOrDir(new File(toBeTransferredDirectory));
+        FileUtil.deleteFileOrDir(new File(zipFilePath));
 
-        Logger.log(TAG, "Deleting dirs " + sourceDirectory + " and " + sourceZipDirectory);
+        Logger.log(TAG, "Deleting dirs " + toBeTransferredDirectory + " and " + zipFilePath);
 
         this.cachedRecords = null;
 
@@ -382,7 +386,7 @@ public class CommCareWiFiDirectActivity
 
         final String url = this.getString(R.string.PostURL);
 
-        File receiveFolder = new File(writeDirectory);
+        File receiveFolder = new File(toBeSubmittedDirectory);
 
         if (!receiveFolder.isDirectory() || !receiveFolder.exists()) {
             myStatusText.setText(Localization.get("wifi.direct.submit.missing", new String[]{receiveFolder.getPath()}));
@@ -398,7 +402,7 @@ public class CommCareWiFiDirectActivity
 
         final int formsOnSD = files.length;
 
-        //if there're no forms to dump, just return
+        //if there're no forms to submit, just return
         if (formsOnSD == 0) {
             myStatusText.setText(Localization.get("bulk.form.no.unsynced"));
             transplantStyle(myStatusText, R.layout.template_text_notification_problem);
@@ -491,8 +495,8 @@ public class CommCareWiFiDirectActivity
         };
 
         mUnzipTask.connect(CommCareWiFiDirectActivity.this);
-        Logger.log(TAG, "executing task with: " + fn + " , " + writeDirectory);
-        mUnzipTask.execute(fn, writeDirectory);
+        Logger.log(TAG, "executing task with: " + fn + " , " + toBeSubmittedDirectory);
+        mUnzipTask.execute(fn, toBeSubmittedDirectory);
     }
 
     /* if successful, broadcasts WIFI_P2P_Peers_CHANGED_ACTION intent with list of peers
@@ -586,7 +590,7 @@ public class CommCareWiFiDirectActivity
     public void prepareFileTransfer() {
         Logger.log(TAG, "Preparing File Transfer");
 
-        CommCareWiFiDirectActivity.deleteIfExists(sourceZipDirectory);
+        CommCareWiFiDirectActivity.deleteIfExists(zipFilePath);
 
         final WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.wifi_manager_fragment);
@@ -595,21 +599,52 @@ public class CommCareWiFiDirectActivity
             myStatusText.setText(localize("wifi.direct.no.group"));
             return;
         }
-
-        zipFiles();
+        moveFormRecordsToFiles();
     }
 
-    private void onZipSuccesful(FormRecord[] records) {
-        Logger.log(TAG, "Successfully zipped files of size: " + records.length);
+    private void moveReceivedFiles() {
+        File receiveFolder = new File(toBeSubmittedDirectory);
+        if (!receiveFolder.isDirectory() || !receiveFolder.exists()) {
+            // we haven't received any transfers, just return.
+            return;
+        }
+        // We've received transferred forms. Move them into the to be zipped directory.
+        File[] originFiles = receiveFolder.listFiles();
+        File[] destinationFiles = new File[originFiles.length];
+        for(int i=0; i< originFiles.length; i++){
+            destinationFiles[i] = new File(toBeTransferredDirectory, originFiles[i].getName());
+        }
+        try {
+            Log.d(TAG, "We have " + originFiles.length + " toBeSubmitted files to transfer");
+            for (int i=0; i< originFiles.length; i++) {
+                FileUtil.copyFileDeep(originFiles[i], destinationFiles[i]);
+                Log.d(TAG, "Transferred " + originFiles[i] + " to " + destinationFiles[i]);
+            }
+        } catch(IOException e){
+            // if we catch an error, delete all the new files we've copied over
+            for (File destinationFile : destinationFiles) {
+                if(destinationFile.exists()){
+                    FileUtil.deleteFileOrDir(destinationFile);
+                }
+            }
+        }
+        // Delete all the to be submitted files, we have them copied for transfer.
+        for (File originFile : originFiles) {
+            if(originFile.exists()){
+                FileUtil.deleteFileOrDir(originFile);
+            }
+        }
+    }
+
+    private void onZipSuccesful() {
         myStatusText.setText(localize("wifi.direct.zip.successful"));
-        this.cachedRecords = records;
         updateStatusText();
         sendFiles();
     }
 
     private void onZipError() {
-        FileUtil.deleteFileOrDir(new File(sourceDirectory));
-        Log.d(CommCareWiFiDirectActivity.TAG, "Zip unsuccesful");
+        FileUtil.deleteFileOrDir(new File(toBeTransferredDirectory));
+        Log.d(CommCareWiFiDirectActivity.TAG, "Zip unsuccessful");
     }
 
     private void onUnzipSuccessful(Integer result) {
@@ -621,9 +656,46 @@ public class CommCareWiFiDirectActivity
         updateStatusText();
     }
 
+
+    private void onRecordPullCompleted(Pair<Long, FormRecord[]> result) {
+        // for the time being we're going to ignore the result of the record pull and proceed regardless
+        myStatusText.setText(localize("wifi.direct.pull.successful"));
+        if(result != null){
+            // we didn't pull any form records to file system, this is fine.
+            this.cachedRecords = result.second;
+        }
+        updateStatusText();
+        moveReceivedFiles();
+        zipFiles();
+    }
+
+    private void moveFormRecordsToFiles(){
+        Logger.log(TAG, "Getting records from storage");
+        FormRecordToFileTask formRecordToFileTask = new FormRecordToFileTask(this, toBeTransferredDirectory) {
+            @Override
+            protected void deliverResult(CommCareWiFiDirectActivity receiver, Pair<Long, FormRecord[]> result) {
+                receiver.onRecordPullCompleted(result);
+            }
+
+            @Override
+            protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {
+                receiver.updateProgress(update[0], taskId);
+                receiver.myStatusText.setText(update[0]);
+            }
+
+            @Override
+            protected void deliverError(CommCareWiFiDirectActivity receiver, Exception e) {
+                receiver.myStatusText.setText(localize("wifi.direct.pull.unsuccessful", e.getMessage()));
+                receiver.transplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
+            }
+        };
+        formRecordToFileTask.connect(this);
+        formRecordToFileTask.execute();
+    }
+
     private void zipFiles() {
         Logger.log(TAG, "Zipping Files");
-        ZipTask mZipTask = new ZipTask(this) {
+        ZipTask mZipTask = new ZipTask(toBeTransferredDirectory, zipFilePath) {
             @Override
             protected void deliverUpdate(CommCareWiFiDirectActivity receiver, String... update) {
                 receiver.updateProgress(update[0], taskId);
@@ -637,9 +709,9 @@ public class CommCareWiFiDirectActivity
             }
 
             @Override
-            protected void deliverResult(CommCareWiFiDirectActivity receiver, FormRecord[] result) {
-                if (result != null) {
-                    receiver.onZipSuccesful(result);
+            protected void deliverResult(CommCareWiFiDirectActivity receiver, ZipTaskResult result) {
+                if (result == ZipTaskResult.Success) {
+                    receiver.onZipSuccesful();
                 } else {
                     receiver.onZipError();
                     receiver.transplantStyle(receiver.myStatusText, R.layout.template_text_notification_problem);
@@ -661,7 +733,7 @@ public class CommCareWiFiDirectActivity
 
         String address = fragment.getHostAddress();
 
-        FormTransferTask mTransferTask = new FormTransferTask(address, sourceZipDirectory, 8988) {
+        FormTransferTask mTransferTask = new FormTransferTask(address, zipFilePath, 8988) {
 
             @Override
             protected void deliverResult(CommCareWiFiDirectActivity receiver,
@@ -718,7 +790,7 @@ public class CommCareWiFiDirectActivity
         int numUnsyncedForms = ids.size();
         int numUnsubmittedForms;
 
-        File wDirectory = new File(writeDirectory);
+        File wDirectory = new File(toBeSubmittedDirectory);
 
         if (!wDirectory.exists() || !wDirectory.isDirectory()) {
             numUnsubmittedForms = 0;
@@ -728,7 +800,8 @@ public class CommCareWiFiDirectActivity
 
         if (mState.equals(wdState.send)) {
             stateHeaderText.setText(localize("wifi.direct.status.transfer.header"));
-            formCountText.setText(localize("wifi.direct.status.transfer.count", "" + numUnsyncedForms));
+            formCountText.setText(localize("wifi.direct.status.transfer.count",
+                    new String[] {"" + numUnsyncedForms, "" + numUnsubmittedForms}));
             stateStatusText.setText(localize("wifi.direct.status.transfer.message"));
         } else if (mState.equals(wdState.receive)) {
             stateHeaderText.setText(localize("wifi.direct.status.receive.header"));
@@ -821,6 +894,10 @@ public class CommCareWiFiDirectActivity
             case WipeTask.WIPE_TASK_ID:
                 title = localize("wifi.direct.wipe.task.title").toString();
                 message = localize("wifi.direct.wipe.task.message").toString();
+                break;
+            case FormRecordToFileTask.PULL_TASK_ID:
+                title = localize("wifi.direct.pull.task.title").toString();
+                message = localize("wifi.direct.pull.task.message").toString();
                 break;
             default:
                 Log.w(TAG, "taskId passed to generateProgressDialog does not match "

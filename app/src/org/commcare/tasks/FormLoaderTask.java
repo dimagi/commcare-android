@@ -12,7 +12,7 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.engine.extensions.CalendaredDateFormatHandler;
 import org.commcare.engine.extensions.IntentExtensionParser;
-import org.commcare.engine.extensions.PollSensorAction;
+import org.odk.collect.android.jr.extensions.PollSensorAction;
 import org.commcare.engine.extensions.PollSensorExtensionParser;
 import org.commcare.engine.extensions.XFormExtensionUtils;
 import org.commcare.logging.AndroidLogger;
@@ -31,6 +31,8 @@ import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.RootTranslator;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.services.locale.Localizer;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.form.api.FormEntryModel;
 import org.javarosa.xform.parse.XFormParseException;
@@ -171,6 +173,17 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         return fd;
     }
 
+    private String getSystemLocale() {
+        Localizer mLocalizer = Localization.getGlobalLocalizerAdvanced();
+
+        if(mLocalizer != null) {
+            return mLocalizer.getLocale();
+        } else{
+            Logger.log("formloader", "Could not get the localizer");
+        }
+        return null;
+    }
+
     private FormEntryController initFormDef(FormDef formDef) {
         formDef.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler((Context)activity));
         // create FormEntryController from formdef
@@ -187,9 +200,9 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         if (FormEntryActivity.mInstancePath != null) {
             // This order is important. Import data, then initialize.
             importData(FormEntryActivity.mInstancePath, fec);
-            formDef.initialize(false, iif);
+            formDef.initialize(false, iif, getSystemLocale());
         } else {
-            formDef.initialize(true, iif);
+            formDef.initialize(true, iif, getSystemLocale());
         }
         if (mReadOnly) {
             formDef.getInstance().getRoot().setEnabled(false);

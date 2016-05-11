@@ -6,7 +6,7 @@ import android.net.Uri;
 
 import org.commcare.CommCareApplication;
 import org.commcare.data.xml.TransactionParser;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.utils.FileUtil;

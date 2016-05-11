@@ -4,7 +4,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.utils.FormUploadUtil;
 import org.javarosa.core.services.Logger;
 import org.joda.time.DateTime;
@@ -175,8 +175,6 @@ public class PurgeStaleArchivedFormsTask
      *
      * The method identifies forms saved in a specific date window that need to be resubmitted
      * and performs the resubmission.
-     *
-     * @param app
      */
     private static void performUnsentAttachmentHotfix(CommCareApp app) {
         if(app.getAppPreferences().getBoolean(KEY_HAS_PERFORMED_HOTFIX_CHECK, false)) {

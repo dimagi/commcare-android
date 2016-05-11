@@ -13,5 +13,7 @@ public interface DataPullController {
 
     void raiseLoginMessage(MessageTag messageTag, boolean showTop);
 
+    void raiseLoginMessageWithInfo(MessageTag messageTag, String additionalInfo, boolean showTop);
+
     void raiseMessage(NotificationMessage message, boolean showTop);
 }

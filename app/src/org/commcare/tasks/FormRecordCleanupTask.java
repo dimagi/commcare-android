@@ -15,9 +15,9 @@ import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.ACase;
-import org.commcare.models.database.user.models.FormRecord;
-import org.commcare.models.database.user.models.SessionStateDescriptor;
+import org.commcare.android.database.user.models.ACase;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.util.CommCarePlatform;
@@ -176,11 +176,11 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      * @throws UnfullfilledRequirementsException Parsing encountered a platform
      *                                           versioning problem
      */
-    public static void updateAndWriteUnindexedRecordTo(Context context,
-                                                       CommCarePlatform platform,
-                                                       FormRecord oldRecord,
-                                                       SqlStorage<FormRecord> storage,
-                                                       String saveStatus)
+    private static void updateAndWriteUnindexedRecordTo(Context context,
+                                                        CommCarePlatform platform,
+                                                        FormRecord oldRecord,
+                                                        SqlStorage<FormRecord> storage,
+                                                        String saveStatus)
             throws InvalidStructureException, IOException,
             XmlPullParserException, UnfullfilledRequirementsException {
 
@@ -323,10 +323,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      * Remove form record and associated session state descriptor from storage
      * and delete form instance files linked to the form record.
      */
-    public static void wipeRecord(Context context, int sessionId,
-                                  int formRecordId,
-                                  SqlStorage<FormRecord> frStorage,
-                                  SqlStorage<SessionStateDescriptor> ssdStorage) {
+    private static void wipeRecord(Context context, int sessionId,
+                                   int formRecordId,
+                                   SqlStorage<FormRecord> frStorage,
+                                   SqlStorage<SessionStateDescriptor> ssdStorage) {
         if (sessionId != -1) {
             try {
                 SessionStateDescriptor ssd = ssdStorage.read(sessionId);

@@ -2,13 +2,13 @@ package org.commcare.utils;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
 import org.commcare.interfaces.RuntimePermissionRequester;
+import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
 import org.javarosa.core.services.locale.Localization;
 
@@ -29,23 +29,27 @@ public class Permissions {
      *                        permission requests
      * @param permRequester   performs user-facing permission request system calls
      * @param permRequestCode make the permission request using this request code
+     * @return Was the user asked for permissions?
      */
-    public static void acquireAllAppPermissions(Activity activity,
-                                                RuntimePermissionRequester permRequester,
-                                                int permRequestCode) {
+    public static boolean acquireAllAppPermissions(Activity activity,
+                                                   RuntimePermissionRequester permRequester,
+                                                   int permRequestCode) {
         String[] permissions = getAppPermissions();
 
         if (missingAppPermission(activity, permissions)) {
             if (shouldShowPermissionRationale(activity, permissions)) {
-                AlertDialog dialog =
+                CommCareAlertDialog dialog =
                         DialogCreationHelpers.buildPermissionRequestDialog(activity, permRequester,
                                 permRequestCode,
                                 Localization.get("permission.all.title"),
                                 Localization.get("permission.all.message"));
-                dialog.show();
+                dialog.showNonPersistentDialog();
             } else {
                 permRequester.requestNeededPermissions(permRequestCode);
             }
+            return true;
+        } else {
+            return false;
         }
     }
 

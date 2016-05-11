@@ -9,7 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.suite.model.Text;
 import org.commcare.utils.MarkupUtil;
 
@@ -18,19 +18,21 @@ import java.util.Date;
 import java.util.Hashtable;
 
 /**
+ * Individual form listing view for the incomplete & saved forms lists
+ *
  * @author ctsims
  */
 public class IncompleteFormRecordView extends LinearLayout {
 
     public final TextView mPrimaryTextView;
-    public final TextView mLowerTextView;
+    private final TextView mLowerTextView;
     public final TextView mRightTextView;
-    public final TextView mUpperRight;
+    private final TextView mUpperRight;
 
-    final Hashtable<String, Text> names;
-    final Date start;
+    private final Hashtable<String, Text> names;
+    private final Date start;
 
-    final Drawable rightHandSync;
+    private final Drawable rightHandSync;
 
     public IncompleteFormRecordView(Context context, Hashtable<String, Text> names) {
         super(context);
@@ -46,7 +48,6 @@ public class IncompleteFormRecordView extends LinearLayout {
         mPrimaryTextView.setTextAppearance(context, android.R.style.TextAppearance_Large);
         mUpperRight.setTextAppearance(context, android.R.style.TextAppearance_Large);
 
-
         LayoutParams l = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
         addView(vg, l);
 
@@ -58,9 +59,9 @@ public class IncompleteFormRecordView extends LinearLayout {
     public void setParams(FormRecord record, String dataTitle, Long timestamp) {
         if (names.containsKey(record.getFormNamespace())) {
             Text name = names.get(record.getFormNamespace());
-            mPrimaryTextView.setText(MarkupUtil.styleSpannable(IncompleteFormRecordView.this.getContext(), name.evaluate()));
+            mPrimaryTextView.setText(MarkupUtil.styleSpannable(getContext(), name.evaluate()));
         } else {
-            mPrimaryTextView.setText(MarkupUtil.localizeStyleSpannable(IncompleteFormRecordView.this.getContext(), "form.record.gone"));
+            mPrimaryTextView.setText(MarkupUtil.localizeStyleSpannable(getContext(), "form.record.gone"));
         }
 
         if (dataTitle != null) {
@@ -74,7 +75,7 @@ public class IncompleteFormRecordView extends LinearLayout {
             mRightTextView.setText("Never");
         }
         if (FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
-            mUpperRight.setText(MarkupUtil.localizeStyleSpannable(IncompleteFormRecordView.this.getContext(), "form.record.unsent"));
+            mUpperRight.setText(MarkupUtil.localizeStyleSpannable(getContext(), "form.record.unsent"));
             mUpperRight.setTextAppearance(getContext(), R.style.WarningTextStyle);
             mUpperRight.setCompoundDrawablesWithIntrinsicBounds(null, null, rightHandSync, null);
         } else {

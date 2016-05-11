@@ -11,7 +11,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,6 +27,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public final static String HOME_REPORT_ENABLED = "cc-home-report";
     public final static String AUTO_PURGE_ENABLED = "cc-auto-purge";
     public final static String LOAD_FORM_PAYLOAD_AS = "cc-form-payload-status";
+    public final static String DETAIL_TAB_SWIPE_ACTION_ENABLED = "cc-detail-final-swipe-enabled";
     /**
      * Stores last used password and performs auto-login when that password is
      * present
@@ -46,6 +47,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      * triggers.
      */
     public final static String FIRE_TRIGGERS_ON_SAVE = "cc-fire-triggers-on-save";
+    public final static String ANIMATE_FORM_SUBMIT_BUTTON = "cc-animate-form-submit-button";
     public final static String ALTERNATE_QUESTION_LAYOUT_ENABLED = "cc-alternate-question-text-format";
 
     public final static String OFFER_PIN_FOR_LOGIN = "cc-offer-pin-for-login";
@@ -71,7 +73,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     private static void populatePrefKeyToEventLabelMapping() {
         prefKeyToAnalyticsEvent.put(SUPERUSER_ENABLED, GoogleAnalyticsFields.LABEL_DEV_MODE);
-        prefKeyToAnalyticsEvent.put(ACTION_BAR_ENABLED, GoogleAnalyticsFields.LABEL_ACTION_BAR);;
+        prefKeyToAnalyticsEvent.put(ACTION_BAR_ENABLED, GoogleAnalyticsFields.LABEL_ACTION_BAR);
         prefKeyToAnalyticsEvent.put(NAV_UI_ENABLED, GoogleAnalyticsFields.LABEL_NAV_UI);
         prefKeyToAnalyticsEvent.put(LIST_REFRESH_ENABLED, GoogleAnalyticsFields.LABEL_ENTITY_LIST_REFRESH);
         prefKeyToAnalyticsEvent.put(NEWEST_APP_VERSION_ENABLED, GoogleAnalyticsFields.LABEL_NEWEST_APP_VERSION);
@@ -81,9 +83,11 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         prefKeyToAnalyticsEvent.put(MARKDOWN_ENABLED, GoogleAnalyticsFields.LABEL_MARKDOWN);
         prefKeyToAnalyticsEvent.put(ALTERNATE_QUESTION_LAYOUT_ENABLED, GoogleAnalyticsFields.LABEL_IMAGE_ABOVE_TEXT);
         prefKeyToAnalyticsEvent.put(FIRE_TRIGGERS_ON_SAVE, GoogleAnalyticsFields.LABEL_TRIGGERS_ON_SAVE);
+        prefKeyToAnalyticsEvent.put(ANIMATE_FORM_SUBMIT_BUTTON, GoogleAnalyticsFields.LABEL_ANIMATE_FORM_SUBMIT_BUTTON);
         prefKeyToAnalyticsEvent.put(HOME_REPORT_ENABLED, GoogleAnalyticsFields.LABEL_REPORT_BUTTON_ENABLED);
         prefKeyToAnalyticsEvent.put(AUTO_PURGE_ENABLED, GoogleAnalyticsFields.LABEL_AUTO_PURGE);
         prefKeyToAnalyticsEvent.put(LOAD_FORM_PAYLOAD_AS, GoogleAnalyticsFields.LABEL_LOAD_FORM_PAYLOAD_AS);
+        prefKeyToAnalyticsEvent.put(DETAIL_TAB_SWIPE_ACTION_ENABLED, GoogleAnalyticsFields.LABEL_DETAIL_TAB_SWIPE_ACTION);
     }
 
     @Override
@@ -200,7 +204,12 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
 
     public static boolean shouldFireTriggersOnSave() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return properties.getString(FIRE_TRIGGERS_ON_SAVE, CommCarePreferences.YES).equals(CommCarePreferences.YES);
+        return properties.getString(FIRE_TRIGGERS_ON_SAVE, CommCarePreferences.NO).equals(CommCarePreferences.YES);
+    }
+
+    public static boolean shouldAnimateFormSubmitButton() {
+        SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
+        return properties.getString(ANIMATE_FORM_SUBMIT_BUTTON, CommCarePreferences.NO).equals(CommCarePreferences.YES);
     }
 
     public static boolean isAutoLoginEnabled() {
@@ -241,5 +250,13 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public static String formLoadPayloadStatus() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         return properties.getString(LOAD_FORM_PAYLOAD_AS, FormRecord.STATUS_SAVED);
+    }
+
+    /**
+     * Feature flag to control whether swiping in case detail tabs can trigger
+     * exit from the case detail screen
+     */
+    public static boolean isDetailTabSwipeActionEnabled() {
+        return doesPropertyMatch(DETAIL_TAB_SWIPE_ACTION_ENABLED, CommCarePreferences.YES, CommCarePreferences.YES);
     }
 }

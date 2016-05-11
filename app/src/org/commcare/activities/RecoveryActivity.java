@@ -15,7 +15,7 @@ import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.utils.FormUploadUtil;
@@ -83,7 +83,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
                                     return;
                                 }
 
-                                int successfulSends = this.getSuccesfulSends();
+                                int successfulSends = this.getSuccessfulSends();
 
                                 if (result == FormUploadUtil.FULL_SUCCESS) {
                                     receiver.displayMessage("Send succesful. All  " + successfulSends + " forms were submitted");
@@ -137,7 +137,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         });
     }
 
-    protected void displayMessage(String text) {
+    private void displayMessage(String text) {
         txtUserMessage.setText(text);
     }
 

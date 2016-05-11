@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.Spannable;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.Pair;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
@@ -24,12 +25,12 @@ import android.widget.SearchView;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.database.user.models.ACase;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.fragments.ContainerFragment;
 import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.models.database.user.models.ACase;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
@@ -40,8 +41,9 @@ import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.views.ManagedUiFramework;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.AlertDialogFragment;
+import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogController;
 import org.commcare.views.media.AudioController;
@@ -59,10 +61,14 @@ import org.javarosa.core.util.NoLocalizedTextException;
 public abstract class CommCareActivity<R> extends FragmentActivity
         implements CommCareTaskConnector<R>, DialogController, OnGestureListener {
 
+    private static String TAG = CommCareActivity.class.getSimpleName();
+
     private static final String KEY_PROGRESS_DIALOG_FRAG = "progress-dialog-fragment";
     private static final String KEY_ALERT_DIALOG_FRAG = "alert-dialog-fragment";
 
-    TaskConnectorFragment<R> stateHolder;
+    int invalidTaskIdMessageThrown = -2;
+    private TaskConnectorFragment<R> stateHolder;
+
 
     // Fields for implementing task transitions for CommCareTaskConnector
     private boolean inTaskTransition;
@@ -73,7 +79,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
      */
     private boolean dismissLastDialogAfterTransition = true;
 
-    protected AlertDialogFragment alertDialogToShowOnResume;
+    private AlertDialogFragment alertDialogToShowOnResume;
 
     private GestureDetector mGestureDetector;
 
@@ -239,7 +245,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private void showPendingUserMessage() {
         String[] messageAndTitle = CommCareApplication._().getPendingUserMessage();
         if (messageAndTitle != null) {
-            showAlertDialog(AlertDialogFactory.getBasicAlertFactory(
+            showAlertDialog(StandardAlertDialog.getBasicAlertDialog(
                     this, messageAndTitle[1], messageAndTitle[0], null));
             CommCareApplication._().clearPendingUserMessage();
         }
@@ -373,12 +379,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     /**
      * Display exception details as a pop-up to the user.
-     *
-     * @param e Exception to handle
      */
-    public void displayException(Exception e) {
-        String title =  Localization.get("notification.case.predicate.title");
-        String message = Localization.get("notification.case.predicate.action", new String[]{e.getMessage()});
+    public void displayException(String title, String message) {
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
@@ -389,9 +391,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 }
             }
         };
-        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactoryWithIcon(this, title,
-                message, android.R.drawable.ic_dialog_info, listener);
-        showAlertDialog(f);
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
+                message, android.R.drawable.ic_dialog_info, listener));
+    }
+
+    public void displayCaseListFilterException(Exception e) {
+        displayException(
+                Localization.get("notification.case.predicate.title"),
+                Localization.get("notification.case.predicate.action", new String[]{e.getMessage()}));
     }
 
     @Override
@@ -496,10 +503,15 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             if (mProgressDialog.getTaskId() == taskId) {
                 mProgressDialog.updateMessage(updateText);
             } else {
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
-                        "Attempting to update a progress dialog whose taskId does not match the"
-                                + "task for which the update message was intended.");
+                warnInvalidProgressUpdate(taskId);
             }
+        }
+    }
+
+    public void hideTaskCancelButton() {
+        CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
+        if (mProgressDialog != null) {
+            mProgressDialog.removeCancelButton();
         }
     }
 
@@ -510,10 +522,20 @@ public abstract class CommCareActivity<R> extends FragmentActivity
             if (mProgressDialog.getTaskId() == taskId) {
                 mProgressDialog.updateProgressBar(progress, max);
             } else {
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
-                        "Attempting to update a progress dialog whose taskId does not match the"
-                                + "task for which the update message was intended.");
+                warnInvalidProgressUpdate(taskId);
             }
+        }
+    }
+
+    private void warnInvalidProgressUpdate(int taskId) {
+        String message = "Attempting to update a progress dialog whose taskId (" + taskId +
+                " does not match the task for which the update message was intended.";
+
+        if(invalidTaskIdMessageThrown != taskId) {
+            invalidTaskIdMessageThrown = taskId;
+            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, message);
+        } else {
+            Log.w(TAG, message);
         }
     }
 
@@ -568,12 +590,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     @Override
-    public void showAlertDialog(AlertDialogFactory f) {
+    public void showAlertDialog(CommCareAlertDialog d) {
         if (getCurrentAlertDialog() != null) {
             // Means we already have an alert dialog on screen
             return;
         }
-        AlertDialogFragment dialog = AlertDialogFragment.fromFactory(f);
+        AlertDialogFragment dialog = AlertDialogFragment.fromCommCareAlertDialog(d);
         if (areFragmentsPaused) {
             alertDialogToShowOnResume = dialog;
         } else {

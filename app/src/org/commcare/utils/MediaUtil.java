@@ -192,19 +192,20 @@ public class MediaUtil {
      *                             isn't way bigger than necessary, rather than creating a bitmap
      *                             of an exact size based on a target width and height. In this
      *                             case, targetWidth and targetHeight are ignored and the 2nd case
-     *                             above is used.
-     * @return A bitmap representation of the given image file, scaled down such that the new
+     *                             below is used.
+     * @return A bitmap representation of the given image file, scaled such that the new
      * dimensions of the image are the SMALLER of the following 2 options:
      * 1) targetHeight and targetWidth
      * 2) the largest dimensions for which the original aspect ratio is maintained, without
-     * exceeding either boundingWidth or boundingHeight
+     * exceeding either boundingWidth or boundingHeight (or just the original dimensions if the
+     * image already roughly fits in the bounds)
      */
     private static Bitmap getBitmapScaledByTargetOrContainer(String imageFilepath,
                                                              int originalHeight, int originalWidth,
                                                              int targetHeight, int targetWidth,
                                                              int boundingHeight, int boundingWidth,
                                                              boolean scaleByContainerOnly) {
-        Pair<Integer, Integer> dimensImposedByContainer = getDimensImposedByContainer(
+        Pair<Integer, Integer> dimensImposedByContainer = getRoughDimensImposedByContainer(
                 originalHeight, originalWidth, boundingHeight, boundingWidth);
 
         int newWidth, newHeight;
@@ -216,10 +217,8 @@ public class MediaUtil {
             newHeight = Math.min(dimensImposedByContainer.second, targetHeight);
         }
 
-        int approximateScaleFactor = originalWidth / newWidth;
-        if (approximateScaleFactor == 0) {
-            approximateScaleFactor = 1;
-        }
+        int approximateScaleFactor = getApproxScaleFactor(newWidth, originalWidth);
+
         try {
             BitmapFactory.Options o = new BitmapFactory.Options();
             o.inSampleSize = approximateScaleFactor;
@@ -236,20 +235,35 @@ public class MediaUtil {
         } catch (OutOfMemoryError e) {
             // OOM encountered trying to decode the bitmap, so we know we need to scale down by
             // a larger factor
-            return performSafeScaleDown(imageFilepath, approximateScaleFactor + 1, 0);
+            return performSafeScaleDown(imageFilepath, approximateScaleFactor + 1, 1).first;
+        }
+    }
+
+    private static int getApproxScaleFactor(int newWidth, int originalWidth) {
+        if (newWidth == 0) {
+            return 1;
+        } else {
+            int scale = originalWidth / newWidth;
+            if (scale == 0) {
+                return 1;
+            }
+            return scale;
         }
     }
 
     /**
-     * @return The original dimens if they both fit within the bounds. Otherwise, return the
-     * smallest dimensions that both preserve the original aspect ratio, and still fill the
-     * container
+     * @return The smallest dimensions that both preserve the original aspect ratio, and mean
+     * that the image still fills the container. It is unimportant to scale down exactly to the
+     * container size; we just don't want to be creating a bitmap that is way bigger than necessary.
      */
-    private static Pair<Integer, Integer> getDimensImposedByContainer(int originalHeight,
-                                                                      int originalWidth,
-                                                                      int boundingHeight,
-                                                                      int boundingWidth) {
-        if (originalHeight < boundingHeight && originalWidth < boundingWidth) {
+    private static Pair<Integer, Integer> getRoughDimensImposedByContainer(int originalHeight,
+                                                                           int originalWidth,
+                                                                           int boundingHeight,
+                                                                           int boundingWidth) {
+        if (originalHeight < boundingHeight || originalWidth < boundingWidth) {
+            // Since this is only meant to be a rough scale-down to keep the image from being way
+            // too large, we only want to scale down if both dimensions are currently exceeding
+            // their bounds
             return new Pair<>(originalWidth, originalHeight);
         }
 
@@ -257,12 +271,12 @@ public class MediaUtil {
         double widthScaleDownFactor =  (double)boundingWidth / originalWidth;
         // Choosing the larger of the scale down factors, so that the image still fills the entire
         // container
-        double dominantScaleDownFactor = Math.max(heightScaleDownFactor, heightScaleDownFactor);
+        double dominantScaleDownFactor = Math.max(widthScaleDownFactor, heightScaleDownFactor);
 
         int widthImposedByContainer = (int)Math.round(originalWidth * dominantScaleDownFactor);
         int heightImposedByContainer = (int)Math.round(originalHeight * dominantScaleDownFactor);
         return new Pair<>(widthImposedByContainer, heightImposedByContainer);
-
+        
     }
 
     /**
@@ -290,7 +304,7 @@ public class MediaUtil {
         } catch (OutOfMemoryError e) {
             // Just inflating the image at its original size caused an OOM error, don't have a
             // choice but to scale down
-            return performSafeScaleDown(imageFilepath, 2, 1);
+            return performSafeScaleDown(imageFilepath, 2, 1).first;
         }
     }
 
@@ -313,18 +327,29 @@ public class MediaUtil {
     }
 
     /**
-     * @return A scaled-down bitmap for the given image file, progressively increasing the
-     * scale-down factor by 1 until allocating memory for the bitmap does not cause an OOM error
+     * Inflate an image file into a bitmap, attempting first to inflate it at its full size,
+     * but progressively scaling down if an OutOfMemoryError is encountered
+     *
+     * @return the bitmap, plus a boolean value representing whether the image had to be downsized
      */
-    private static Bitmap performSafeScaleDown(String imageFilepath, int scale, int depth) {
+    public static Pair<Bitmap, Boolean> inflateImageSafe(String imageFilepath) {
+        return performSafeScaleDown(imageFilepath, 1, 0);
+    }
+
+    /**
+     * @return A scaled-down bitmap for the given image file, progressively increasing the
+     * scale-down factor by 1 until allocating memory for the bitmap does not cause an OOM error,
+     * and a boolean value representing whether the image had to be downsized
+     */
+    private static Pair<Bitmap, Boolean> performSafeScaleDown(String imageFilepath, int scale, int depth) {
         if (depth == 5) {
             // Limit the number of recursive calls
-            return null;
+            return new Pair<>(null, true);
         }
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = scale;
         try {
-            return BitmapFactory.decodeFile(imageFilepath, options);
+            return new Pair<>(BitmapFactory.decodeFile(imageFilepath, options), scale > 1);
         } catch (OutOfMemoryError e) {
             return performSafeScaleDown(imageFilepath, scale + 1, depth + 1);
         }

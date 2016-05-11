@@ -8,12 +8,9 @@ import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.log.StreamLogSerializer;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.storage.EntityFilter;
-import org.javarosa.core.util.SortedIntSet;
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.IOException;
-import java.util.Hashtable;
 
 /**
  * Convert force close error logs to xml.
@@ -66,7 +63,7 @@ public class ForceCloseLogSerializer extends StreamLogSerializer implements Devi
                     forceCloseEntry.getType(), serializer);
             AndroidLogSerializer.writeText("msg",
                     forceCloseEntry.getMessage(), serializer);
-            AndroidLogSerializer.writeText("build_number",
+            AndroidLogSerializer.writeText("app_build",
                     forceCloseEntry.getAppBuildNumber() + "", serializer);
             AndroidLogSerializer.writeText("android_version",
                     forceCloseEntry.getAndroidVersion(), serializer);
@@ -76,6 +73,8 @@ public class ForceCloseLogSerializer extends StreamLogSerializer implements Devi
                     forceCloseEntry.getReadableSession(), serializer);
             AndroidLogSerializer.writeText("session_serialized",
                     forceCloseEntry.getSerializedSessionString(), serializer);
+            AndroidLogSerializer.writeText("app_id", forceCloseEntry.getAppId(), serializer);
+            AndroidLogSerializer.writeText("user_id", forceCloseEntry.getUserId(), serializer);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

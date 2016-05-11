@@ -6,12 +6,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
 
-import org.commcare.logging.AndroidLogEntry;
+import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.logging.DeviceReportRecord;
-import org.commcare.models.database.user.models.FormRecord;
-import org.commcare.models.database.user.models.GeocodeCacheModel;
-import org.commcare.models.database.user.models.SessionStateDescriptor;
+import org.commcare.android.javarosa.DeviceReportRecord;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.database.user.models.GeocodeCacheModel;
+import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.resources.model.Resource;
 import org.javarosa.core.services.Logger;
 
@@ -23,7 +23,7 @@ import org.javarosa.core.services.Logger;
  */
 public class LegacyCommCareUpgrader {
 
-    final Context context;
+    private final Context context;
 
     public LegacyCommCareUpgrader(Context c) {
         this.context = c;
@@ -83,7 +83,7 @@ public class LegacyCommCareUpgrader {
         return true;
     }
 
-    public boolean upgradeOneTwo(SQLiteDatabase database) {
+    private boolean upgradeOneTwo(SQLiteDatabase database) {
         database.beginTransaction();
         LegacyTableBuilder builder = new LegacyTableBuilder("UPGRADE_RESOURCE_TABLE");
         builder.addData(new Resource());

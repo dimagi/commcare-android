@@ -1,5 +1,6 @@
 package org.commcare.logging;
 
+import org.commcare.android.javarosa.AndroidLogEntry;
 import org.commcare.models.database.SqlStorage;
 import org.javarosa.core.log.LogEntry;
 import org.javarosa.core.log.StreamLogSerializer;
@@ -15,7 +16,7 @@ import java.util.Hashtable;
  */
 public class AndroidLogPurger<T extends AndroidLogEntry> implements StreamLogSerializer.Purger {
 
-    private SqlStorage<T> logStorage;
+    private final SqlStorage<T> logStorage;
 
     public AndroidLogPurger(SqlStorage<T> logStorage) {
         this.logStorage = logStorage;
