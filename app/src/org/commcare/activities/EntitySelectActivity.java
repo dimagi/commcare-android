@@ -472,6 +472,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     public boolean loadEntities() {
+        if (adapter != null) {
+            // Store extra data to be reloaded upon load task completion
+            adapter.saveExternalDataToSession();
+        }
+
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
             EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
             entityLoader.attachListener(this);
