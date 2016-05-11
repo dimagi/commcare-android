@@ -26,9 +26,9 @@ public class FormAndDataSyncerFake extends FormAndDataSyncer {
     }
 
     @Override
-    public void syncData(CommCareHomeActivity activity,
-                         boolean formsToSend,
-                         boolean userTriggeredSync) {
+    public void syncDataForLoggedInUser(CommCareHomeActivity activity,
+                                        boolean formsToSend,
+                                        boolean userTriggeredSync) {
         Log.d(TAG, "faking data sync");
     }
 }
