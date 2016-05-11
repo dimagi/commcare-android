@@ -92,6 +92,7 @@ ext {
                     "HaAJkjpnc165Os+aYwIDAQAB"
     QA_BETA_APP_ID = ""
     STANDALONE_APP_ID = ""
+    LTS_APP_ID = ""
     COMMCARE_APP_ID = ""
 }
 
@@ -227,6 +228,21 @@ android {
             // use the settings from defaultConfig
         }
 
+        lts {
+            // long term support build of CommCare
+            applicationId "org.commcare.lts"
+            project.ext.LTS_APP_ID = applicationId
+
+            // setup content provider strings correctly to not conflict with other apps
+            def odkProviderStr = "org.commcare.lts.provider.odk"
+            manifestPlaceholders = [odkProvider: odkProviderStr]
+            buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
+            buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
+
+            // set the app name
+            resValue "string", "application_name", " CommCare LTS"
+        }
+
         qabeta {
             // app w/ id tied to commcare version, so you can install standalone,
             // next to play store version
@@ -306,6 +322,8 @@ afterEvaluate {
     processQabetaReleaseGoogleServices.dependsOn switchGoogleServicesQabeta
     processStandaloneDebugGoogleServices.dependsOn switchGoogleServicesStandalone
     processStandaloneReleaseGoogleServices.dependsOn switchGoogleServicesStandalone
+    processLtsDebugGoogleServices.dependsOn switchGoogleServicesLts
+    processLtsReleaseGoogleServices.dependsOn switchGoogleServicesLts
     processCommcareDebugGoogleServices.dependsOn switchGoogleServicesCommcare
     processCommcareReleaseGoogleServices.dependsOn switchGoogleServicesCommcare
 }
@@ -322,6 +340,20 @@ task switchGoogleServicesCommcare(type: Copy) {
     outputs.files.setFrom(file("$projectDir/google-services.json"))
     from file("templates/google-services.json")
     filter(ReplaceTokens, tokens: [applicationId: project.ext.COMMCARE_APP_ID])
+    into projectDir
+}
+
+task switchGoogleServicesLts(type: Copy) {
+    description = 'Switches package name in google-services.json to match Lts package name'
+
+    /**
+     * This is an awkward workaround for a Windows build error that occurs when you try
+     * to copy something into the root directory (containing the .gradle folder). Don't
+     * change it without testing on a windows machine
+     */
+    outputs.files.setFrom(file("$projectDir/google-services.json"))
+    from file("templates/google-services.json")
+    filter(ReplaceTokens, tokens: [applicationId: project.ext.LTS_APP_ID])
     into projectDir
 }
 
