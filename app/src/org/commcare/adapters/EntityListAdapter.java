@@ -136,8 +136,8 @@ public class EntityListAdapter implements ListAdapter {
     }
 
     public void clearExternalData() {
-        setCurrent(full);
         isFilteringByCalloutResult = false;
+        setCurrent(full);
         externalData.clear();
     }
 
