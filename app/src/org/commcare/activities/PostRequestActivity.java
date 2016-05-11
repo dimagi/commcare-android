@@ -12,6 +12,8 @@ import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.network.ModernHttpRequester;
 import org.commcare.tasks.DataPullTask;
+import org.commcare.tasks.PullTaskReceiver;
+import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.SimpleHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.ManagedUi;
@@ -36,6 +38,7 @@ import java.util.Hashtable;
 public class PostRequestActivity
         extends SaveSessionCommCareActivity<PostRequestActivity>
         implements ConnectorWithHttpResponseProcessor<PostRequestActivity>,
+        PullTaskReceiver,
         ConnectorWithResultCallback<PostRequestActivity> {
     private static final String TAG = PostRequestActivity.class.getSimpleName();
 
@@ -110,8 +113,7 @@ public class PostRequestActivity
     }
 
     private void performSync() {
-        FormAndDataSyncer formAndDataSyncer = new FormAndDataSyncer();
-        formAndDataSyncer.syncData(this, this, false, false);
+        (new FormAndDataSyncer()).syncDataForLoggedInUser(this, false, false);
     }
 
     private void makePostRequest() {
@@ -224,5 +226,20 @@ public class PostRequestActivity
                 return null;
         }
         return CustomProgressDialog.newInstance(title, message, taskId);
+    }
+
+    @Override
+    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndError, boolean userTriggeredSync, boolean formsToSend) {
+        SyncUIHandling.handleSyncResult(this, resultAndError, userTriggeredSync, formsToSend);
+    }
+
+    @Override
+    public void handlePullTaskUpdate(Integer... update) {
+        SyncUIHandling.handleSyncUpdate(this, update);
+    }
+
+    @Override
+    public void handlePullTaskError(Exception e) {
+        reportFailure(Localization.get("sync.fail.unknown"), true);
     }
 }

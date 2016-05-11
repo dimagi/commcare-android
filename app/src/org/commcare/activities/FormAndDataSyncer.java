@@ -9,6 +9,7 @@ import android.os.Build;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.preferences.CommCarePreferences;
@@ -103,11 +104,11 @@ public class FormAndDataSyncer {
     }
 
     public <I extends CommCareActivity & PullTaskReceiver> void syncData(final I activity,
-                         final boolean formsToSend,
-                         final boolean userTriggeredSync,
-                         String server,
-                         String username,
-                         String password) {
+                                                                         final boolean formsToSend,
+                                                                         final boolean userTriggeredSync,
+                                                                         String server,
+                                                                         String username,
+                                                                         String password) {
 
         DataPullTask<PullTaskReceiver> mDataPullTask = new DataPullTask<PullTaskReceiver>(
                 username,
@@ -116,7 +117,8 @@ public class FormAndDataSyncer {
                 activity) {
 
             @Override
-            protected void deliverResult(PullTaskReceiver receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
+            protected void deliverResult(PullTaskReceiver receiver,
+                                         ResultAndError<PullTaskResult> resultAndErrorMessage) {
                 receiver.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend);
             }
 
@@ -136,8 +138,9 @@ public class FormAndDataSyncer {
         mDataPullTask.executeParallel();
     }
 
-    public void syncDataForLoggedInUser(
-            final CommCareHomeActivity activity,
+    public <I extends CommCareActivity & PullTaskReceiver & ConnectorWithResultCallback>
+    void syncDataForLoggedInUser(
+            final I activity,
             final boolean formsToSend,
             final boolean userTriggeredSync) {
 
@@ -153,9 +156,9 @@ public class FormAndDataSyncer {
             if (userTriggeredSync) {
                 // Remind the user that there's no syncing in demo mode.
                 if (formsToSend) {
-                    activity.displayMessage(Localization.get("main.sync.demo.has.forms"), true, true);
+                    activity.reportFailure(Localization.get("main.sync.demo.has.forms"), false);
                 } else {
-                    activity.displayMessage(Localization.get("main.sync.demo.no.forms"), true, true);
+                    activity.reportFailure(Localization.get("main.sync.demo.no.forms"), false);
                 }
             }
             return;
