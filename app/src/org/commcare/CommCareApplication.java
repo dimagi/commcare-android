@@ -1068,7 +1068,7 @@ public class CommCareApplication extends Application {
             UpdateTask updateTask = UpdateTask.getNewInstance();
             updateTask.startPinnedNotification(this);
             updateTask.setAsAutoUpdate();
-            updateTask.execute(ref);
+            updateTask.executeParallel(ref);
         } catch (IllegalStateException e) {
             Log.w(TAG, "Trying trigger auto-update when it is already running. " +
                     "Should only happen if the user triggered a manual update before this fired.");
