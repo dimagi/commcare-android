@@ -1,9 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<suite version="53" descriptor="Media Suite File">
-  <media path="../../commcare/image/data">
-    <resource descriptor="Image File: Name.png" id="media-729912a6e494bc9df665034d468ac7c8-Name.png" version="46">
-      <location authority="local">./commcare/image/data/Name.png</location>
-      <location authority="remote">https://www.commcarehq.org/hq/multimedia/file/CommCareImage/56001579f226a525e32f3378bb5b0b75/Name.png</location>
-    </resource>
-  </media>
-</suite>
