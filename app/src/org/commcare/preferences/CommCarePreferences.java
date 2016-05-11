@@ -480,6 +480,7 @@ public class CommCarePreferences
 
     public static String getKeyServer() {
         if (CommCareApplication._().isConsumerApp()) {
+            // So that we don't attempt to do any remote key management in a consumer app
             return null;
         } else {
             return CommCareApplication._().getCurrentApp().getAppPreferences().getString("key_server", null);

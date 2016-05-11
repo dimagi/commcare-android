@@ -371,7 +371,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             case MENU_DEMO:
                 DemoUserBuilder.build(this, CommCareApplication._().getCurrentApp());
                 tryLocalLogin(DemoUserBuilder.DEMO_USERNAME, DemoUserBuilder.DEMO_PASSWORD, false,
-                        false, LoginMode.PASSWORD);                return true;
+                        false, LoginMode.PASSWORD);
+                return true;
             case MENU_ABOUT:
                 DialogCreationHelpers.buildAboutCommCareDialog(this).showNonPersistentDialog();
                 return true;
