@@ -102,7 +102,7 @@ public class FormAndDataSyncer {
                 context.getString(R.string.PostURL));
     }
 
-    public void syncData(final CommCareActivity activity,
+    public <I extends CommCareActivity & PullTaskReceiver> void syncData(final I activity,
                          final boolean formsToSend,
                          final boolean userTriggeredSync,
                          String server,
@@ -141,9 +141,11 @@ public class FormAndDataSyncer {
 
     }
 
-    public void syncDataForLoggedInUser(final CommCareHomeActivity activity,
-                                        final boolean formsToSend,
-                                        final boolean userTriggeredSync) {
+    public void syncDataForLoggedInUser(
+            final CommCareHomeActivity activity,
+            final boolean formsToSend,
+            final boolean userTriggeredSync) {
+
         User u;
         try {
             u = CommCareApplication._().getSession().getLoggedInUser();
@@ -165,7 +167,8 @@ public class FormAndDataSyncer {
         }
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-        syncData(activity, formsToSend, userTriggeredSync, u.getUsername(), u.getCachedPwd(),
-                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY, activity.getString(R.string.ota_restore_url)));
+        syncData(activity, formsToSend, userTriggeredSync,
+                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY, activity.getString(R.string.ota_restore_url)),
+                u.getUsername(), u.getCachedPwd());
     }
 }
