@@ -57,14 +57,14 @@ public class FormAndDataSyncer {
                         label = Localization.get("sync.success.sent",
                                 new String[]{String.valueOf(successfulSends)});
                     }
-                    receiver.displayMessage(label);
+                    receiver.reportSuccess(label);
 
                     if (syncAfterwards) {
                         syncDataForLoggedInUser(receiver, true, userTriggered);
                     }
                 } else if (result != FormUploadUtil.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
-                    receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
+                    receiver.reportFailure(Localization.get("sync.fail.unsent"), true);
                 }
             }
 
@@ -74,7 +74,7 @@ public class FormAndDataSyncer {
 
             @Override
             protected void deliverError(CommCareHomeActivity receiver, Exception e) {
-                receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
+                receiver.reportFailure(Localization.get("sync.fail.unsent"), true);
             }
         };
 
@@ -133,12 +133,7 @@ public class FormAndDataSyncer {
         };
 
         mDataPullTask.connect(activity);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mDataPullTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            mDataPullTask.execute();
-        }
-
+        mDataPullTask.executeParallel();
     }
 
     public void syncDataForLoggedInUser(
