@@ -90,7 +90,7 @@ import java.util.Vector;
 public class CommCareHomeActivity
         extends SessionAwareCommCareActivity<CommCareHomeActivity>
         implements SessionNavigationResponder, WithUIController,
-        PullTaskReceiver, ConnectorWithResultCallback<CommCareHomeActivity> 
+        PullTaskReceiver, ConnectorWithResultCallback<CommCareHomeActivity> {
 
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
