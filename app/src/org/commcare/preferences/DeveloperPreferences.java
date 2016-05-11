@@ -2,6 +2,7 @@ package org.commcare.preferences;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.PreferenceManager;
 
 import org.commcare.CommCareApp;
@@ -34,6 +35,16 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      */
     public final static String ENABLE_AUTO_LOGIN = "cc-enable-auto-login";
     public final static String ENABLE_SAVE_SESSION = "cc-enable-session-saving";
+
+    /**
+     * Stores the navigation and form entry sessions as one string for user manipulation
+     */
+    public final static String EDIT_SAVE_SESSION = "__edit_session_save";
+    /**
+     * Spacer to distinguish between the saved navigation session and form entry session
+     */
+    private static final String NAV_AND_FORM_SESSION_SPACER = "@@@@@";
+
     /**
      * Does the user want to download the latest app version deployed (built),
      * not just the latest app version released (starred)?
@@ -69,6 +80,8 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         populatePrefKeyToEventLabelMapping();
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(
                 prefMgr, prefKeyToAnalyticsEvent, GoogleAnalyticsFields.CATEGORY_DEV_PREFS);
+
+        setSessionEditText();
     }
 
     private static void populatePrefKeyToEventLabelMapping() {
@@ -90,6 +103,12 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         prefKeyToAnalyticsEvent.put(DETAIL_TAB_SWIPE_ACTION_ENABLED, GoogleAnalyticsFields.LABEL_DETAIL_TAB_SWIPE_ACTION);
     }
 
+    private void setSessionEditText() {
+        EditTextPreference savedSessionEditTextPreference =
+                (EditTextPreference)findPreference(EDIT_SAVE_SESSION);
+        savedSessionEditTextPreference.setText(getSessionStateFromPrefs());
+    }
+
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_DEV_PREFS,
@@ -100,9 +119,17 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                     DevSessionRestorer.clearPassword(sharedPreferences);
                 }
                 break;
+            case EDIT_SAVE_SESSION:
+                String sessionString =
+                        CommCareApplication._().getCurrentApp().getAppPreferences().getString(EDIT_SAVE_SESSION, "");
+                if (!"".equals(sessionString)) {
+                    setSessionStateFromEditText(sessionString);
+                }
+                break;
             case ENABLE_SAVE_SESSION:
                 if (!isSessionSavingEnabled()) {
                     DevSessionRestorer.clearSession();
+                    setSessionEditText();
                 }
                 break;
             case LOAD_FORM_PAYLOAD_AS:
@@ -114,6 +141,27 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 }
                 break;
         }
+    }
+
+    private static String getSessionStateFromPrefs() {
+        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        String navSession = prefs.getString(CommCarePreferences.CURRENT_SESSION, "");
+        String formEntrySession = prefs.getString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, "");
+        if ("".equals(navSession) && "".equals(formEntrySession)) {
+            return "";
+        } else {
+            return navSession + NAV_AND_FORM_SESSION_SPACER + formEntrySession;
+        }
+    }
+
+    private static void setSessionStateFromEditText(String sessionString) {
+        SharedPreferences.Editor editor =
+                CommCareApplication._().getCurrentApp().getAppPreferences().edit();
+        String[] sessionParts = sessionString.split(NAV_AND_FORM_SESSION_SPACER);
+
+        editor.putString(CommCarePreferences.CURRENT_SESSION, sessionParts[0]);
+        editor.putString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, sessionParts[1]);
+        editor.commit();
     }
 
     private static String getEditPrefLabel(String key) {

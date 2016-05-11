@@ -43,6 +43,11 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-enable-session-saving"
         android:title="Enable Session Saving"/>
+    <EditTextPreference
+        android:dialogTitle="Edit Saved Session"
+        android:enabled="true"
+        android:key="__edit_session_save"
+        android:title="Edit Saved Session"/>
     <ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
