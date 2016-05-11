@@ -1055,7 +1055,7 @@ public class CommCareHomeActivity
     private void sendFormsOrSync(boolean userTriggeredSync) {
         boolean formsSentToServer = checkAndStartUnsentFormsTask(true, userTriggeredSync);
         if(!formsSentToServer) {
-            formAndDataSyncer.syncData(this, this, false, userTriggeredSync);
+            formAndDataSyncer.syncData(this, false, userTriggeredSync);
         }
     }
 
@@ -1069,7 +1069,7 @@ public class CommCareHomeActivity
         FormRecord[] records = StorageUtils.getUnsentRecords(storage);
 
         if(records.length > 0) {
-            formAndDataSyncer.processAndSendForms(this, this, records, syncAfterwards, userTriggered);
+            formAndDataSyncer.processAndSendForms(this, records, syncAfterwards, userTriggered);
             return true;
         } else {
             return false;
@@ -1149,6 +1149,14 @@ public class CommCareHomeActivity
     @Override
     public void reportFailure(String message, boolean showPopupNotification) {
         displayMessage(message, true, !showPopupNotification);
+    }
+
+    void displayMessage(String message) {
+        displayMessage(message, false);
+    }
+
+    void displayMessage(String message, boolean bad) {
+        displayMessage(message, bad, false);
     }
 
     void displayMessage(String message, boolean bad, boolean suppressToast) {
