@@ -7,6 +7,7 @@ import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -85,10 +86,12 @@ import org.commcare.tasks.UpdateTask;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
+import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
+import org.commcare.utils.ManagerShortcut;
 import org.commcare.utils.ODKPropertyManager;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionStateUninitException;
@@ -251,6 +254,10 @@ public class CommCareApplication extends Application {
         ACRAUtil.initACRA(this);
         if (!GoogleAnalyticsUtils.versionIncompatible()) {
             analyticsInstance = GoogleAnalytics.getInstance(this);
+        }
+
+        if (isConsumerApp()) {
+            disableShortcuts();
         }
     }
 
@@ -1478,6 +1485,14 @@ public class CommCareApplication extends Application {
 
     public boolean isConsumerApp() {
         return BuildConfig.IS_CONSUMER_APP;
+    }
+
+    private void disableShortcuts() {
+        PackageManager pm = getPackageManager();
+        ComponentName androidShortcutComponent = new ComponentName(getPackageName(), AndroidShortcuts.class.getName());
+        ComponentName managerShortcutComponent = new ComponentName(getPackageName(), ManagerShortcut.class.getName());
+        pm.setComponentEnabledSetting(androidShortcutComponent, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
+        pm.setComponentEnabledSetting(managerShortcutComponent, PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
     }
 
 }
