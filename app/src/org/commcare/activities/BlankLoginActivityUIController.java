@@ -10,7 +10,7 @@ import org.commcare.preferences.CommCarePreferences;
 import java.util.ArrayList;
 
 /**
- * Created by amstone326 on 4/28/16.
+ * UIController for running LoginActivity without showing anything on the screen
  */
 public class BlankLoginActivityUIController extends LoginActivityUIController {
 

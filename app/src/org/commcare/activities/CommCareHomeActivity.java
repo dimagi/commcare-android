@@ -19,7 +19,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
@@ -57,11 +56,9 @@ import org.commcare.tasks.PullTaskReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.SendTask;
 import org.commcare.tasks.WipeTask;
-import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
-import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
@@ -193,7 +190,7 @@ public class CommCareHomeActivity
         processFromLoginLaunch();
 
         if (CommCareApplication._().isConsumerApp()) {
-            checkForChangedRestoreFile();
+            checkForChangedLocalRestoreFile();
         }
     }
 
@@ -251,7 +248,7 @@ public class CommCareHomeActivity
         }
     }
 
-    private void checkForChangedRestoreFile() {
+    private void checkForChangedLocalRestoreFile() {
         try {
             User loggedInUser = CommCareApplication._().getSession().getLoggedInUser();
             if (!loggedInUser.getLastSyncToken().equals(getSyncTokenOfLocalRestoreFile())) {

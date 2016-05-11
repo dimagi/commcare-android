@@ -5,7 +5,7 @@ import android.os.Bundle;
 import org.commcare.dalvik.R;
 
 /**
- * Created by amstone326 on 4/28/16.
+ * UIController for running UpdateActivity without showing anything on the screen
  */
 public class BlankUpdateUIController extends UpdateUIController {
 
