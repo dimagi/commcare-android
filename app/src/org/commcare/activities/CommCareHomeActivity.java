@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
@@ -56,6 +57,7 @@ import org.commcare.tasks.WipeTask;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
+import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
@@ -180,6 +182,10 @@ public class CommCareHomeActivity
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();
         processFromLoginLaunch();
+
+        if (CommCareApplication._().isConsumerApp()) {
+            checkForChangedRestoreFile();
+        }
     }
 
     private void loadInstanceState(Bundle savedInstanceState) {
@@ -234,6 +240,10 @@ public class CommCareHomeActivity
 
             checkForPinLaunchConditions();
         }
+    }
+
+    private void checkForChangedRestoreFile() {
+
     }
 
     // See if we should launch either the pin choice dialog, or the create pin activity directly

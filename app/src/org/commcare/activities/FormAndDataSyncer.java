@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -11,6 +12,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.network.DebugDataPullResponseFactory;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
@@ -18,7 +20,11 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
+
+import java.io.IOException;
 
 /**
  * Processes and submits forms and syncs data with server
@@ -224,5 +230,35 @@ public class FormAndDataSyncer {
         } else {
             mDataPullTask.execute();
         }
+    }
+
+    public static void performLocalRestore(CommCareActivity context, String username, String password) {
+        String localRestoreFile = "jr://asset/local_restore_payload.xml";
+        try {
+            ReferenceManager._().DeriveReference(localRestoreFile).getStream();
+        } catch (InvalidReferenceException | IOException e) {
+            throw new RuntimeException("Local restore file missing");
+        }
+        DebugDataPullResponseFactory localDataPullRequester =
+                new DebugDataPullResponseFactory(localRestoreFile);
+        DataPullTask<LoginActivity> pullTask =
+                new DataPullTask<LoginActivity>(username, password,
+                        "fake-server-that-is-never-used",
+                        context, localDataPullRequester) {
+
+                    @Override
+                    protected void deliverResult(LoginActivity receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
+                    }
+
+                    @Override
+                    protected void deliverUpdate(LoginActivity loginActivity, Integer... update) {
+                    }
+
+                    @Override
+                    protected void deliverError(LoginActivity loginActivity, Exception e) {
+                    }
+                };
+        pullTask.connect(context);
+        pullTask.execute();
     }
 }

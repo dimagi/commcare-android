@@ -117,10 +117,6 @@ public class DispatchActivity extends FragmentActivity {
         startActivity(i);
     }
 
-    private void checkForChangedRestoreFile() {
-
-    }
-
     private void dispatch() {
         if (isDbInBadState()) {
             // appropriate error dialog has been triggered, don't continue w/ dispatch
@@ -129,7 +125,6 @@ public class DispatchActivity extends FragmentActivity {
 
         if (shouldCheckForLocalAppFilesChange) {
             checkForChangedCCZ();
-            checkForChangedRestoreFile();
             shouldCheckForLocalAppFilesChange = false;
         }
 

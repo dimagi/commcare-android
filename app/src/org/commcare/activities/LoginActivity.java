@@ -195,7 +195,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public void startDataPull() {
         if (CommCareApplication._().isConsumerApp()) {
-            performLocalRestore();
+            FormAndDataSyncer.performLocalRestore(this, getUniformUsername(), uiController.getEnteredPasswordOrPin());
         } else {
             performOtaRestore();
         }
@@ -250,39 +250,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
         dataPuller.connect(this);
         dataPuller.execute();
-    }
-
-    private void performLocalRestore() {
-        String localRestoreFile = "jr://asset/local_restore_payload.xml";
-        try {
-            ReferenceManager._().DeriveReference(localRestoreFile).getStream();
-        } catch (InvalidReferenceException | IOException e) {
-            throw new RuntimeException("Local restore file missing");
-        }
-        DebugDataPullResponseFactory localDataPullRequester =
-                new DebugDataPullResponseFactory(localRestoreFile);
-        DataPullTask<LoginActivity> pullTask =
-                new DataPullTask<LoginActivity>(getUniformUsername(),
-                        uiController.getEnteredPasswordOrPin(), "fake-server-that-is-never-used",
-                        this, localDataPullRequester) {
-
-                    @Override
-                    protected void deliverResult(LoginActivity receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
-                        handlePullTaskResult(receiver, resultAndErrorMessage);
-                    }
-
-                    @Override
-                    protected void deliverUpdate(LoginActivity loginActivity, Integer... update) {
-
-                    }
-
-                    @Override
-                    protected void deliverError(LoginActivity loginActivity, Exception e) {
-
-                    }
-                };
-        pullTask.connect(this);
-        pullTask.execute();
     }
 
     private void handlePullTaskResult(LoginActivity receiver, ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage) {
