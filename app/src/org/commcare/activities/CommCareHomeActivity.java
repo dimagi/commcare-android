@@ -27,6 +27,7 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
@@ -79,10 +80,17 @@ import org.commcare.views.notifications.NotificationMessageFactory.StockMessages
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.xml.ElementParser;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.kxml2.io.KXmlParser;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -246,7 +254,35 @@ public class CommCareHomeActivity
     }
 
     private void checkForChangedRestoreFile() {
+        try {
+            User loggedInUser = CommCareApplication._().getSession().getLoggedInUser();
+            if (!loggedInUser.getLastSyncToken().equals(getSyncTokenOfLocalRestoreFile())) {
+                formAndDataSyncer.performLocalRestore(this, loggedInUser.getUsername(), loggedInUser.getCachedPwd());
+            }
+        } catch (SessionUnavailableException sue) {
+            return;
+        }
+    }
 
+    private String getSyncTokenOfLocalRestoreFile() {
+        try {
+            InputStream is = ReferenceManager._().DeriveReference(SingleAppInstallation.LOCAL_RESTORE_REFERENCE).getStream();
+            KXmlParser parser = ElementParser.instantiateParser(is);
+            parser.next();
+            int eventType = parser.getEventType();
+            do {
+                if (eventType == KXmlParser.START_TAG) {
+                    if (parser.getName().toLowerCase().equals("restore_id")) {
+                        parser.next();
+                        return parser.getText();
+                    }
+                }
+                eventType = parser.next();
+            } while (eventType != KXmlParser.END_DOCUMENT);
+        } catch (IOException | XmlPullParserException | InvalidReferenceException e) {
+            return null;
+        }
+        return null;
     }
 
     // See if we should launch either the pin choice dialog, or the create pin activity directly

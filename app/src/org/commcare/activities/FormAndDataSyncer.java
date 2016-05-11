@@ -10,8 +10,11 @@ import android.os.Build;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
+import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.network.DataPullRequester;
+import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.DebugDataPullResponseFactory;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
@@ -114,18 +117,26 @@ public class FormAndDataSyncer {
                 context.getString(R.string.PostURL));
     }
 
-    public <I extends CommCareActivity & PullTaskReceiver> void syncData(final I activity,
-                         final boolean formsToSend,
-                         final boolean userTriggeredSync,
-                         String server,
-                         String username,
-                         String password) {
+    private <I extends CommCareActivity & PullTaskReceiver> void syncData(
+            final I activity, final boolean formsToSend,
+            final boolean userTriggeredSync, String server,
+            String username, String password) {
+
+        syncData(activity, formsToSend, userTriggeredSync, server, username, password, new DataPullResponseFactory());
+    }
+
+    private <I extends CommCareActivity & PullTaskReceiver> void syncData(
+            final I activity, final boolean formsToSend,
+            final boolean userTriggeredSync, String server,
+            String username, String password,
+            DataPullRequester dataPullRequester) {
 
         DataPullTask<PullTaskReceiver> mDataPullTask = new DataPullTask<PullTaskReceiver>(
                 username,
                 password,
                 server,
-                activity) {
+                activity,
+                dataPullRequester) {
 
             @Override
             protected void deliverResult(PullTaskReceiver receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
@@ -184,33 +195,28 @@ public class FormAndDataSyncer {
                 u.getUsername(), u.getCachedPwd());
     }
 
-    public static void performLocalRestore(CommCareActivity context, String username, String password) {
-        String localRestoreFile = "jr://asset/local_restore_payload.xml";
+    public void performOtaRestore(LoginActivity context, String username, String password) {
+        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        syncData(context, false, false,
+                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY, context.getString(R.string.ota_restore_url)),
+                username,
+                password);
+    }
+
+    public <I extends CommCareActivity & PullTaskReceiver> void performLocalRestore(
+            I context,
+            String username,
+            String password) {
+
         try {
-            ReferenceManager._().DeriveReference(localRestoreFile).getStream();
+            ReferenceManager._().DeriveReference(
+                    SingleAppInstallation.LOCAL_RESTORE_REFERENCE).getStream();
         } catch (InvalidReferenceException | IOException e) {
             throw new RuntimeException("Local restore file missing");
         }
+
         DebugDataPullResponseFactory localDataPullRequester =
-                new DebugDataPullResponseFactory(localRestoreFile);
-        DataPullTask<LoginActivity> pullTask =
-                new DataPullTask<LoginActivity>(username, password,
-                        "fake-server-that-is-never-used",
-                        context, localDataPullRequester) {
-
-                    @Override
-                    protected void deliverResult(LoginActivity receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
-                    }
-
-                    @Override
-                    protected void deliverUpdate(LoginActivity loginActivity, Integer... update) {
-                    }
-
-                    @Override
-                    protected void deliverError(LoginActivity loginActivity, Exception e) {
-                    }
-                };
-        pullTask.connect(context);
-        pullTask.execute();
+                new DebugDataPullResponseFactory(SingleAppInstallation.LOCAL_RESTORE_REFERENCE);
+        syncData(context, false, false, "fake-server-that-is-never-used", username, password, localDataPullRequester);
     }
 }

@@ -89,6 +89,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private String passwordOrPinBeforeRotation;
 
     private LoginActivityUIController uiController;
+    private FormAndDataSyncer formAndDataSyncer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +102,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         uiController.setupUI();
+        formAndDataSyncer = new FormAndDataSyncer();
 
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -196,65 +198,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public void startDataPull() {
         if (CommCareApplication._().isConsumerApp()) {
-            FormAndDataSyncer.performLocalRestore(this, getUniformUsername(), uiController.getEnteredPasswordOrPin());
+            formAndDataSyncer.performLocalRestore(this, getUniformUsername(), uiController.getEnteredPasswordOrPin());
         } else {
-            performOtaRestore();
-        }
-    }
-
-    private void performOtaRestore() {
-        // We should go digest auth this user on the server and see whether to
-        // pull them down.
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-
-        // TODO: we don't actually always want to do this. We need to have an
-        // alternate route where we log in locally and sync (with unsent form
-        // submissions) more centrally.
-
-        (new FormAndDataSyncer()).syncData(this, false, false,
-                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY, LoginActivity.this.getString(R.string.ota_restore_url)),
-                getUniformUsername(),
-                uiController.getEnteredPasswordOrPin());
-    }
-
-    private void handlePullTaskResult(LoginActivity receiver, ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage) {
-        DataPullTask.PullTaskResult result = resultAndErrorMessage.data;
-        if (result == null) {
-            // The task crashed unexpectedly
-            receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
-            return;
-        }
-
-        switch (result) {
-            case AUTH_FAILED:
-                receiver.raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
-                break;
-            case BAD_DATA_REQUIRES_INTERVENTION:
-                receiver.raiseLoginMessageWithInfo(StockMessages.Remote_BadRestoreRequiresIntervention, resultAndErrorMessage.errorMessage, true);
-                break;
-            case BAD_DATA:
-                receiver.raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore, resultAndErrorMessage.errorMessage, true);
-                break;
-            case STORAGE_FULL:
-                receiver.raiseLoginMessage(StockMessages.Storage_Full, true);
-                break;
-            case DOWNLOAD_SUCCESS:
-                if (!tryLocalLogin(true, uiController.isRestoreSessionChecked())) {
-                    receiver.raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
-                }
-                break;
-            case UNREACHABLE_HOST:
-                receiver.raiseLoginMessage(StockMessages.Remote_NoNetwork, true);
-                break;
-            case CONNECTION_TIMEOUT:
-                receiver.raiseLoginMessage(StockMessages.Remote_Timeout, true);
-                break;
-            case SERVER_ERROR:
-                receiver.raiseLoginMessage(StockMessages.Remote_ServerError, true);
-                break;
-            case UNKNOWN_FAILURE:
-                receiver.raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
-                break;
+            formAndDataSyncer.performOtaRestore(this, getUniformUsername(), uiController.getEnteredPasswordOrPin());
         }
     }
 

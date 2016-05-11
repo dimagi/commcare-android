@@ -13,6 +13,7 @@ import org.javarosa.core.util.PropertyUtils;
  */
 public class SingleAppInstallation {
     public static final String SINGLE_APP_REFERENCE = "jr://asset/direct_install/profile.ccpr";
+    public static final String LOCAL_RESTORE_REFERENCE = "jr://asset/local_restore_payload.xml";
 
     /**
      * Install the app present in "assets/direct_install/", without offering
