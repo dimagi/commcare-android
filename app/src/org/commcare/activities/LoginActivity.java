@@ -68,7 +68,6 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     public final static String KEY_ENTERED_PW_OR_PIN = "entered-password-or-pin";
 
     private static final int SEAT_APP_ACTIVITY = 0;
-    public final static String KEY_APP_TO_SEAT = "app_to_seat";
     public final static String USER_TRIGGERED_LOGOUT = "user-triggered-logout";
 
     public final static String LOGIN_MODE = "login-mode";
@@ -440,7 +439,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                         false, LoginMode.PASSWORD);
                 return true;
             case MENU_ABOUT:
-                DialogCreationHelpers.buildAboutCommCareDialog(this).show();
+                DialogCreationHelpers.buildAboutCommCareDialog(this).showNonPersistentDialog();
                 return true;
             case MENU_PERMISSIONS:
                 Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
@@ -549,7 +548,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
             // Launch the activity to seat the new app
             Intent i = new Intent(this, SeatAppActivity.class);
-            i.putExtra(KEY_APP_TO_SEAT, appId);
+            i.putExtra(SeatAppActivity.KEY_APP_TO_SEAT, appId);
             this.startActivityForResult(i, SEAT_APP_ACTIVITY);
         }
     }

@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.support.annotation.IdRes;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
@@ -39,6 +40,9 @@ import java.io.File;
  */
 public class MediaLayout extends RelativeLayout {
     private static final String t = "AVTLayout";
+
+    @IdRes
+    public static final int INLINE_VIDEO_PANE_ID = 99999;
 
     private TextView mView_Text;
     private AudioButton mAudioButton;
@@ -314,6 +318,7 @@ public class MediaLayout extends RelativeLayout {
                 viewLayoutParams.width = maxBounds[0];
                 viewLayoutParams.height = maxBounds[1];
 
+                videoView.setId(INLINE_VIDEO_PANE_ID);
                 return videoView;
             }
 
