@@ -35,6 +35,7 @@ import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ManageKeyRecordTask;
+import org.commcare.tasks.PullTaskReceiver;
 import org.commcare.tasks.ResultAndError;
 
 import org.commcare.utils.ACRAUtil;
@@ -59,7 +60,7 @@ import java.util.ArrayList;
  */
 public class LoginActivity extends CommCareActivity<LoginActivity>
         implements OnItemSelectedListener, DataPullController,
-        RuntimePermissionRequester, WithUIController {
+        RuntimePermissionRequester, WithUIController, PullTaskReceiver {
 
     private static final String TAG = LoginActivity.class.getSimpleName();
 
@@ -210,46 +211,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         // alternate route where we log in locally and sync (with unsent form
         // submissions) more centrally.
 
-        DataPullTask<LoginActivity> dataPuller =
-                new DataPullTask<LoginActivity>(getUniformUsername(), uiController.getEnteredPasswordOrPin(),
-                        prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY,
-                                LoginActivity.this.getString(R.string.ota_restore_url)),
-                        LoginActivity.this) {
-                    @Override
-                    protected void deliverResult(LoginActivity receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
-                        handlePullTaskResult(receiver, resultAndErrorMessage);
-                    }
-
-                    @Override
-                    protected void deliverUpdate(LoginActivity receiver, Integer... update) {
-                        if (update[0] == DataPullTask.PROGRESS_STARTED) {
-                            receiver.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
-                        } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
-                            receiver.updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
-                        } else if (update[0] == DataPullTask.PROGRESS_AUTHED) {
-                            receiver.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
-                        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
-                            receiver.updateProgress(Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
-                        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING_COMPLETE) {
-                            receiver.hideTaskCancelButton();
-                        } else if (update[0] == DataPullTask.PROGRESS_PROCESSING) {
-                            receiver.updateProgress(Localization.get("sync.process.processing", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
-                            receiver.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
-                        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
-                            receiver.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
-                        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
-                            receiver.updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
-                        }
-                    }
-
-                    @Override
-                    protected void deliverError(LoginActivity receiver, Exception e) {
-                        receiver.raiseLoginMessage(StockMessages.Restore_Unknown, true);
-                    }
-                };
-
-        dataPuller.connect(this);
-        dataPuller.execute();
+        (new FormAndDataSyncer()).syncData(this, false, false,
+                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY, LoginActivity.this.getString(R.string.ota_restore_url)),
+                getUniformUsername(),
+                uiController.getEnteredPasswordOrPin());
     }
 
     private void handlePullTaskResult(LoginActivity receiver, ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage) {
@@ -646,5 +611,74 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public CommCareActivityUIController getUIController() {
         return this.uiController;
+    }
+
+    @Override
+    public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage, boolean userTriggeredSync, boolean formsToSend) {
+        DataPullTask.PullTaskResult result = resultAndErrorMessage.data;
+        if (result == null) {
+            // The task crashed unexpectedly
+            raiseLoginMessage(StockMessages.Restore_Unknown, true);
+            return;
+        }
+
+        switch (result) {
+            case AUTH_FAILED:
+                raiseLoginMessage(StockMessages.Auth_BadCredentials, false);
+                break;
+            case BAD_DATA_REQUIRES_INTERVENTION:
+                raiseLoginMessageWithInfo(StockMessages.Remote_BadRestoreRequiresIntervention, resultAndErrorMessage.errorMessage, true);
+                break;
+            case BAD_DATA:
+                raiseLoginMessageWithInfo(StockMessages.Remote_BadRestore, resultAndErrorMessage.errorMessage, true);
+                break;
+            case STORAGE_FULL:
+                raiseLoginMessage(StockMessages.Storage_Full, true);
+                break;
+            case DOWNLOAD_SUCCESS:
+                if (!tryLocalLogin(true, uiController.isRestoreSessionChecked())) {
+                    raiseLoginMessage(StockMessages.Auth_CredentialMismatch, true);
+                }
+                break;
+            case UNREACHABLE_HOST:
+                raiseLoginMessage(StockMessages.Remote_NoNetwork, true);
+                break;
+            case CONNECTION_TIMEOUT:
+                raiseLoginMessage(StockMessages.Remote_Timeout, true);
+                break;
+            case SERVER_ERROR:
+                raiseLoginMessage(StockMessages.Remote_ServerError, true);
+                break;
+            case UNKNOWN_FAILURE:
+                raiseLoginMessageWithInfo(StockMessages.Restore_Unknown, resultAndErrorMessage.errorMessage, true);
+                break;
+        }
+    }
+
+    @Override
+    public void handlePullTaskUpdate(Integer... update) {
+        if (update[0] == DataPullTask.PROGRESS_STARTED) {
+            updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
+            updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_AUTHED) {
+            updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
+            updateProgress(Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING_COMPLETE) {
+            hideTaskCancelButton();
+        } else if (update[0] == DataPullTask.PROGRESS_PROCESSING) {
+            updateProgress(Localization.get("sync.process.processing", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
+            updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
+            updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
+        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
+            updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
+        }
+    }
+
+    @Override
+    public void handlePullTaskError(Exception e) {
+        raiseLoginMessage(StockMessages.Restore_Unknown, true);
     }
 }
