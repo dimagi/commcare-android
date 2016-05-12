@@ -148,6 +148,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private static final HereFunctionHandler hereFunctionHandler = new HereFunctionHandler();
     private boolean containsHereFunction = false;
     private boolean locationChangedWhileLoading = false;
+    private boolean hideActions;
 
     // Handler for displaying alert dialog when no location providers are found
     private final LocationNotificationHandler locationNotificationHandler =
@@ -167,6 +168,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         refreshTimer = new EntitySelectRefreshTimer();
         asw = CommCareApplication._().getCurrentSessionWrapper();
         session = asw.getSession();
+        hideActions = session.isSyncCommand(session.getCommand());
 
         // avoid session dependent when there is no command
         if (session.getCommand() != null) {
@@ -689,7 +691,13 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
         });
 
-        if (shortSelect != null) {
+        setupActionOptionsMenu(menu);
+
+        return true;
+    }
+
+    private void setupActionOptionsMenu(Menu menu) {
+        if (shortSelect != null && !hideActions) {
             int actionIndex = MENU_ACTION;
             for (Action action : shortSelect.getCustomActions()) {
                 if (action != null) {
@@ -702,8 +710,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 EntitySelectCalloutSetup.setupImageLayout(this, barcodeItem, shortSelect.getCallout().getImage());
             }
         }
-
-        return true;
     }
 
     /**
@@ -852,7 +858,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
 
-        adapter = new EntityListAdapter(EntitySelectActivity.this, detail, references, entities, order, factory);
+        adapter = new EntityListAdapter(this, detail, references, entities, order, factory, hideActions);
 
         view.setAdapter(adapter);
         adapter.registerDataSetObserver(this.mListStateObserver);
