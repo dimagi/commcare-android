@@ -1722,6 +1722,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         try {
             FormEntrySessionReplayer.tryReplayingFormEntry(mFormController.getFormEntryController(),
                     formEntryRestoreSession);
+            formEntryRestoreSession = null;
         } catch (FormEntrySessionReplayer.ReplayError e) {
             UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), EXIT);
         }
