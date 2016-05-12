@@ -162,6 +162,9 @@ public class PostRequestActivityTest {
         assertTrue(postRequestActivity.isFinishing());
     }
 
+    /**
+     * Launch post request through session dispatch
+     */
     @Test
     public void makeSuccessfulPostRequestTest() {
         ModernHttpRequesterMock.setResponseCodes(new Integer[]{200});

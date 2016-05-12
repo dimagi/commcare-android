@@ -85,8 +85,10 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.xpath.XPathTypeMismatchException;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 

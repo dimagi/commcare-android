@@ -52,7 +52,6 @@ import org.commcare.engine.references.AssetFileRoot;
 import org.commcare.engine.references.JavaHttpRoot;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.android.javarosa.AndroidLogEntry;
-import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.PreInitLogger;
 import org.commcare.logging.XPathErrorEntry;
@@ -75,7 +74,6 @@ import org.commcare.models.framework.Table;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
-import org.commcare.network.HttpRequestGenerator;
 import org.commcare.network.ModernHttpRequester;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DevSessionRestorer;
@@ -119,8 +117,8 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Set;
 import java.util.Vector;
 
@@ -1484,7 +1482,7 @@ public class CommCareApplication extends Application {
     }
 
     public ModernHttpRequester buildModernHttpRequester(Context context, URL url,
-                                                        Hashtable<String, String> params,
+                                                        HashMap<String, String> params,
                                                         boolean isAuthenticatedRequest,
                                                         boolean isPostRequest) {
         return new ModernHttpRequester(context, url, params, isAuthenticatedRequest, isPostRequest);

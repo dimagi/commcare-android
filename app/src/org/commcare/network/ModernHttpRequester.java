@@ -2,6 +2,7 @@ package org.commcare.network;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.interfaces.HttpResponseProcessor;
@@ -22,7 +23,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -32,14 +33,15 @@ import java.util.Map;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ModernHttpRequester {
+    private static final String TAG = ModernHttpRequester.class.getSimpleName();
     private final boolean isPostRequest;
     private final Context context;
     private HttpResponseProcessor responseProcessor;
     protected final URL url;
-    private final Hashtable<String, String> params;
+    private final HashMap<String, String> params;
 
     public ModernHttpRequester(Context context, URL url,
-                               Hashtable<String, String> params,
+                               HashMap<String, String> params,
                                boolean isAuthenticatedRequest,
                                boolean isPostRequest) {
         this.isPostRequest = isPostRequest;
@@ -99,6 +101,7 @@ public class ModernHttpRequester {
             httpConnection = setupConnection(buildUrl());
             processResponse(httpConnection);
         } catch (IOException e) {
+            e.printStackTrace();
             responseProcessor.handleIOException(e);
         } finally {
             if (httpConnection != null) {
@@ -116,6 +119,7 @@ public class ModernHttpRequester {
     }
 
     protected HttpURLConnection setupConnection(URL builtUrl) throws IOException {
+        Log.d(TAG, builtUrl.toString());
         HttpURLConnection httpConnection = (HttpURLConnection)builtUrl.openConnection();
         if (isPostRequest) {
             setupConnectionInner(httpConnection);
@@ -139,6 +143,7 @@ public class ModernHttpRequester {
 
     private void buildPostPayload(HttpURLConnection httpConnection) throws IOException {
         String paramsString = buildUrlWithParams().getQuery();
+        Log.d(TAG, paramsString);
         int bodySize = paramsString.length();
         httpConnection.setFixedLengthStreamingMode(bodySize);
         httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
@@ -183,13 +188,20 @@ public class ModernHttpRequester {
     }
 
     private InputStream getResponseStream(HttpURLConnection con) throws IOException {
+        InputStream connectionStream;
+        try {
+            connectionStream = con.getInputStream();
+        } catch (IOException e) {
+            return null;
+        }
+
         long dataSizeGuess = setContentLengthProps(con);
         BitCache cache = BitCacheFactory.getCache(context, dataSizeGuess);
 
         cache.initializeCache();
 
         OutputStream cacheOut = cache.getCacheStream();
-        AndroidStreamUtil.writeFromInputToOutput(con.getInputStream(), cacheOut);
+        AndroidStreamUtil.writeFromInputToOutput(connectionStream, cacheOut);
 
         return cache.retrieveCache();
     }

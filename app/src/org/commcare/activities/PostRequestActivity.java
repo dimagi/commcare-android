@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 /**
  * Perform post request to external server and trigger a sync upon success.
@@ -56,7 +56,7 @@ public class PostRequestActivity
     private TextView errorMessageBox;
 
     private URL url;
-    private Hashtable<String, String> params;
+    private HashMap<String, String> params;
     private String errorMessage;
     private boolean hasTaskLaunched;
     private boolean inErrorState;
@@ -91,7 +91,8 @@ public class PostRequestActivity
             } catch (MalformedURLException e) {
                 enterErrorState(Localization.get("post.malformed.url", urlString));
             }
-            params = (Hashtable<String, String>)intent.getSerializableExtra(PARAMS_KEY);
+            Object o = intent.getSerializableExtra(PARAMS_KEY);
+            params = (HashMap<String, String>)o;
         } else {
             enterErrorState(Localization.get("post.generic.error"));
         }

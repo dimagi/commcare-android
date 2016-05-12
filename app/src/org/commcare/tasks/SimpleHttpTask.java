@@ -10,6 +10,7 @@ import org.commcare.tasks.templates.CommCareTask;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Hashtable;
 
 /**
@@ -29,7 +30,7 @@ public class SimpleHttpTask
     private IOException ioException;
 
     public SimpleHttpTask(Context context, URL url,
-                          Hashtable<String, String> params,
+                          HashMap<String, String> params,
                           boolean isPostRequest) {
         taskId = SIMPLE_HTTP_TASK_ID;
         requestor = CommCareApplication._().buildModernHttpRequester(context, url,

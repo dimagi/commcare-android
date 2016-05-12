@@ -42,6 +42,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -190,7 +191,8 @@ public class QueryRequestActivity
             SimpleHttpTask httpTask;
             try {
                 httpTask = new SimpleHttpTask(this, url,
-                        remoteQuerySessionManager.getRawQueryParams(), false);
+                                new HashMap<>(remoteQuerySessionManager.getRawQueryParams()),
+                                false);
             } catch (ModernHttpRequester.PlainTextPasswordException e) {
                 enterErrorState(Localization.get("post.not.using.https", url.toString()));
                 return;
