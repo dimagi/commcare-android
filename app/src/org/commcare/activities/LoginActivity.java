@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -240,8 +241,8 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         if (CommCareApplication._().isConsumerApp()) {
-            uiController.setUsername("t1");
-            uiController.setPasswordOrPin("123");
+            uiController.setUsername(BuildConfig.CONSUMER_APP_USERNAME);
+            uiController.setPasswordOrPin(BuildConfig.CONSUMER_APP_PASSWORD);
             localLoginOrPullAndLogin(false);
         } else {
             tryAutoLogin();

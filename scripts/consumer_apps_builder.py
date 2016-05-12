@@ -2,6 +2,8 @@
 import subprocess 
 import xml.etree.ElementTree as ET
 
+# Script to build the .apks for all consumer apps, off of the latest release build of CommCare on jenkins
+
 #Apps are 5-tuples consisting of (app_id, domain, build_number, username, password)
 APPS_LIST = [
 	("a370e321169d2555a86d3e174f3024c2", "aliza-test", 53, "t1", "123"), 
@@ -21,12 +23,14 @@ def download_restore_file(domain, username, password):
 	subprocess.call(["./scripts/download_restore_into_standalone_asset.sh", domain, username, password, RELATIVE_PATH_TO_ASSETS_DIR])
 
 
-def assemble_apk(domain, build_number):
+def assemble_apk(domain, build_number, username, password):
 	subprocess.call(["gradle", "assembleStandaloneDebug", 
 		"-Pcc_domain={}".format(domain), 
 		"-Papplication_name={}".format(get_app_name_from_profile()), 
 		"-Pis_consumer_app=true", 
-		"-PversionCode={}".format(build_number), "--stacktrace"])
+		"-PversionCode={}".format(build_number),
+		"-Pusername={}".format(username),
+		"-Ppassword={}".format(password)])
 
 
 def get_app_name_from_profile():
@@ -42,7 +46,7 @@ def move_apk(app_id):
 for (app_id, domain, build_number, username, password) in APPS_LIST:
 	download_ccz(app_id, domain, build_number)
 	download_restore_file(domain, username, password)
-	assemble_apk(domain, build_number)
+	assemble_apk(domain, build_number, username, password)
 	move_apk(app_id)
 
 
