@@ -1476,6 +1476,11 @@ public class CommCareApplication extends Application {
         return false;
     }
 
+    /**
+     * A consumer app is a CommCare build flavor in which the .ccz and restore file for a specific
+     * app and user have been pre-packaged along with CommCare into a custom .apk, and placed on
+     * the Play Store under a custom name/branding scheme.
+     */
     public boolean isConsumerApp() {
         return BuildConfig.IS_CONSUMER_APP;
     }

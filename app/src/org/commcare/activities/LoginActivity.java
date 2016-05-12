@@ -20,7 +20,6 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.dalvik.R;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -29,8 +28,6 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DemoUserBuilder;
-import org.commcare.network.DebugDataPullResponseFactory;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
@@ -47,12 +44,8 @@ import org.commcare.views.notifications.MessageTag;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
-import org.kxml2.io.KXmlParser;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 /**

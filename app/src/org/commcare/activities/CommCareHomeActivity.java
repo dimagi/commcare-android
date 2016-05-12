@@ -60,6 +60,7 @@ import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.ConnectivityStatus;
+import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
@@ -190,7 +191,7 @@ public class CommCareHomeActivity
         processFromLoginLaunch();
 
         if (CommCareApplication._().isConsumerApp()) {
-            checkForChangedLocalRestoreFile();
+            ConsumerAppsUtil.checkForChangedLocalRestoreFile(this);
         }
     }
 
@@ -246,38 +247,6 @@ public class CommCareHomeActivity
 
             checkForPinLaunchConditions();
         }
-    }
-
-    private void checkForChangedLocalRestoreFile() {
-        try {
-            User loggedInUser = CommCareApplication._().getSession().getLoggedInUser();
-            if (!loggedInUser.getLastSyncToken().equals(getSyncTokenOfLocalRestoreFile())) {
-                formAndDataSyncer.performLocalRestore(this, loggedInUser.getUsername(), loggedInUser.getCachedPwd());
-            }
-        } catch (SessionUnavailableException sue) {
-            return;
-        }
-    }
-
-    private String getSyncTokenOfLocalRestoreFile() {
-        try {
-            InputStream is = ReferenceManager._().DeriveReference(SingleAppInstallation.LOCAL_RESTORE_REFERENCE).getStream();
-            KXmlParser parser = ElementParser.instantiateParser(is);
-            parser.next();
-            int eventType = parser.getEventType();
-            do {
-                if (eventType == KXmlParser.START_TAG) {
-                    if (parser.getName().toLowerCase().equals("restore_id")) {
-                        parser.next();
-                        return parser.getText();
-                    }
-                }
-                eventType = parser.next();
-            } while (eventType != KXmlParser.END_DOCUMENT);
-        } catch (IOException | XmlPullParserException | InvalidReferenceException e) {
-            return null;
-        }
-        return null;
     }
 
     // See if we should launch either the pin choice dialog, or the create pin activity directly
@@ -1440,6 +1409,10 @@ public class CommCareHomeActivity
         } else {
             throw new RuntimeException("On principal of design, only meant for testing purposes");
         }
+    }
+
+    public FormAndDataSyncer getFormAndDataSyncer() {
+        return formAndDataSyncer;
     }
 
     @Override

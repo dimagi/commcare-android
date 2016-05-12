@@ -51,11 +51,12 @@ public class DispatchActivity extends FragmentActivity {
     private boolean shortcutExtraWasConsumed;
 
     private static final String EXTRA_CONSUMED_KEY = "shortcut_extra_was_consumed";
+    private static final String KEY_APP_FILES_CHECK_OCCURRED = "check-for-changed-app-files-occurred";
 
     // Used for soft assert for login redirection bug
     private boolean waitingForActivityResultFromLogin;
 
-    boolean shouldCheckForLocalAppFilesChange;
+    boolean alreadyCheckedForAppFilesChange;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,12 +68,8 @@ public class DispatchActivity extends FragmentActivity {
 
         if (savedInstanceState != null) {
             shortcutExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
+            alreadyCheckedForAppFilesChange = savedInstanceState.getBoolean(KEY_APP_FILES_CHECK_OCCURRED);
         }
-
-        // Note: It is important that this check happens in onCreate, and not at the time that
-        // the value is actually used, because we only want to check for changed app files on a
-        // new creation of the DispatchActivity, not every time it resumes
-        shouldCheckForLocalAppFilesChange = CommCareApplication._().isConsumerApp();
     }
 
     /**
@@ -110,9 +107,11 @@ public class DispatchActivity extends FragmentActivity {
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(EXTRA_CONSUMED_KEY, shortcutExtraWasConsumed);
+        outState.putBoolean(KEY_APP_FILES_CHECK_OCCURRED, alreadyCheckedForAppFilesChange);
     }
 
     private void checkForChangedCCZ() {
+        alreadyCheckedForAppFilesChange = true;
         Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
         startActivity(i);
     }
@@ -123,9 +122,8 @@ public class DispatchActivity extends FragmentActivity {
             return;
         }
 
-        if (shouldCheckForLocalAppFilesChange) {
+        if (CommCareApplication._().isConsumerApp() && !alreadyCheckedForAppFilesChange) {
             checkForChangedCCZ();
-            shouldCheckForLocalAppFilesChange = false;
         }
 
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();

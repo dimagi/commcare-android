@@ -229,7 +229,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             updateTask = UpdateTask.getNewInstance();
             updateTask.startPinnedNotification(this);
             if (isLocalUpdate) {
-                updateTask.setAsLocalUpdate();
+                updateTask.setLocalAuthority();
             }
             updateTask.registerTaskListener(this);
         } catch (IllegalStateException e) {

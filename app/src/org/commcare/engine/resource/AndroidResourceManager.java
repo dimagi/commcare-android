@@ -62,6 +62,8 @@ public class AndroidResourceManager extends ResourceManager {
      *
      * @param profileRef Reference that resolves to the profile file used to
      *                   seed the update
+     * @param profileAuthority The authority from which the app resources for the update are
+     *                         coming (local vs. remote)
      * @return UpdateStaged upon update download, UpToDate if no new update,
      * otherwise an error status.
      */
@@ -141,7 +143,7 @@ public class AndroidResourceManager extends ResourceManager {
             UnresolvedResourceException,
             InstallCancelledException {
         tempUpgradeTable.destroy();
-        loadProfileIntoTable(tempUpgradeTable, profileRef);
+        loadRemoteAuthorityProfileIntoTable(tempUpgradeTable, profileRef);
         Resource tempProfile =
                 tempUpgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 

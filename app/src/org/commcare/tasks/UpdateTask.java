@@ -46,12 +46,13 @@ public class UpdateTask
     private boolean taskWasCancelledByUser = false;
     private int currentProgress = 0;
     private int maxProgress = 0;
-    boolean isLocalUpdate;
+    private int authority;
 
     private UpdateTask() {
         TAG = UpdateTask.class.getSimpleName();
         app = CommCareApplication._().getCurrentApp();
         AndroidCommCarePlatform platform = app.getCommCarePlatform();
+        authority = Resource.RESOURCE_AUTHORITY_REMOTE;
 
         resourceManager =
                 new AndroidResourceManager(platform);
@@ -136,7 +137,6 @@ public class UpdateTask
         String profileRefWithParams =
                 ResourceInstallUtils.addParamsToProfileReference(profileRef);
 
-        int authority = isLocalUpdate ? Resource.RESOURCE_AUTHORITY_LOCAL : Resource.RESOURCE_AUTHORITY_REMOTE;
         return resourceManager.checkAndPrepareUpgradeResources(profileRefWithParams, authority);
     }
 
@@ -238,8 +238,8 @@ public class UpdateTask
         wasTriggeredByAutoUpdate = true;
     }
 
-    public void setAsLocalUpdate() {
-        isLocalUpdate = true;
+    public void setLocalAuthority() {
+        authority = Resource.RESOURCE_AUTHORITY_LOCAL;
     }
 
     /**

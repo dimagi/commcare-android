@@ -1,7 +1,6 @@
 package org.commcare.activities;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
@@ -11,11 +10,9 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
-import org.commcare.logging.analytics.GoogleAnalyticsFields;
-import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
-import org.commcare.network.DebugDataPullResponseFactory;
+import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
@@ -215,8 +212,8 @@ public class FormAndDataSyncer {
             throw new RuntimeException("Local restore file missing");
         }
 
-        DebugDataPullResponseFactory localDataPullRequester =
-                new DebugDataPullResponseFactory(SingleAppInstallation.LOCAL_RESTORE_REFERENCE);
+        LocalDataPullResponseFactory localDataPullRequester =
+                new LocalDataPullResponseFactory(SingleAppInstallation.LOCAL_RESTORE_REFERENCE);
         syncData(context, false, false, "fake-server-that-is-never-used", username, password, localDataPullRequester);
     }
 }

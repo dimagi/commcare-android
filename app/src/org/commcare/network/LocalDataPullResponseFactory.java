@@ -9,10 +9,10 @@ import java.io.IOException;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class DebugDataPullResponseFactory implements DataPullRequester {
+public class LocalDataPullResponseFactory implements DataPullRequester {
     private final String xmlPayloadReference;
 
-    public DebugDataPullResponseFactory(String xmlPayloadReference) {
+    public LocalDataPullResponseFactory(String xmlPayloadReference) {
         this.xmlPayloadReference = xmlPayloadReference;
     }
 
@@ -21,6 +21,6 @@ public class DebugDataPullResponseFactory implements DataPullRequester {
                                                       HttpRequestGenerator requestor,
                                                       String server,
                                                       boolean includeSyncToken) throws IOException {
-        return new DebugDataPullResponse(xmlPayloadReference);
+        return new LocalDataPullResponse(xmlPayloadReference);
     }
 }
