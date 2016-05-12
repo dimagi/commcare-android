@@ -25,6 +25,7 @@ import org.commcare.tasks.SimpleHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
+import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.media.MediaLayout;
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -115,6 +116,7 @@ public class QueryRequestActivity
         queryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                ViewUtil.hideVirtualKeyboard(QueryRequestActivity.this);
                 answerPrompts();
                 makeQueryRequest();
             }
@@ -169,6 +171,8 @@ public class QueryRequestActivity
     }
 
     private void answerPrompts() {
+        remoteQuerySessionManager.clearAnswers();
+
         for (Map.Entry<String, EditText> promptEntry : promptsBoxes.entrySet()) {
             String promptText = promptEntry.getValue().getText().toString();
             if (!"".equals(promptText)) {
