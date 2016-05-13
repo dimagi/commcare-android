@@ -415,7 +415,7 @@ public class CommCareHomeActivity
                 case MEDIA_VALIDATOR_ACTIVITY:
                     if(resultCode == RESULT_CANCELED){
                         return;
-                    } else if (resultCode == RESULT_OK){
+                    } else if (resultCode == RESULT_OK && !CommCareApplication._().isConsumerApp()) {
                         Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
                         return;
                     }

@@ -325,7 +325,7 @@ public class DispatchActivity extends FragmentActivity {
                     // exit the app if media wasn't validated on automatic
                     // validation check.
                     shouldFinish = true;
-                } else if (resultCode == RESULT_OK) {
+                } else if (resultCode == RESULT_OK && !CommCareApplication._().isConsumerApp()) {
                     Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
                 }
                 return;
