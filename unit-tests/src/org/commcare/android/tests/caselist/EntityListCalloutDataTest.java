@@ -65,7 +65,6 @@ public class EntityListCalloutDataTest {
         launchEntitySelectActivity("m1-f0");
 
         loadList();
-        // TODO PLM: This fails non-deterministically; haven't figured out how to fix it
         Assert.assertEquals(8, adapter.getCount());
 
         EntityView entityView = (EntityView)adapter.getView(0, null, null);
@@ -94,7 +93,6 @@ public class EntityListCalloutDataTest {
         launchEntitySelectActivity("m1-f1");
 
         loadList();
-        // TODO PLM: This fails non-deterministically; haven't figured out how to fix it
         Assert.assertEquals(8, adapter.getCount());
 
         EntityView entityView = (EntityView)adapter.getView(0, null, null);

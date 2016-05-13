@@ -140,9 +140,9 @@ public class EntityView extends LinearLayout {
                 new String[columnTitles.length + 1];
         System.arraycopy(columnTitles, 0,
                 headerTextWithCalloutResponse, 0, columnTitles.length);
-        columnTitles = headerTextWithCalloutResponse;
-        columnTitles[columnTitles.length - 1] =
+        headerTextWithCalloutResponse[columnTitles.length - 1] =
                 calloutResponseDetailField.getHeader().evaluate();
+        return headerTextWithCalloutResponse;
     }
 
     public static EntityView buildEntryEntityView(Context context, Detail detail,
