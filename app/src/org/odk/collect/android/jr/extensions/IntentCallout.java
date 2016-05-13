@@ -7,6 +7,7 @@ import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.util.Log;
 
+import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.model.Constants;
@@ -75,7 +76,7 @@ public class IntentCallout implements Externalizable {
      */
     public IntentCallout(String className, Hashtable<String, XPathExpression> refs,
                          Hashtable<String, Vector<TreeReference>> responseToRefMap, String type,
-                         String component, String data, String buttonLabel, 
+                         String component, String data, String buttonLabel,
                          String updateButtonLabel, String appearance) {
         this.className = className;
         this.refs = refs;
@@ -123,10 +124,32 @@ public class IntentCallout implements Externalizable {
     public boolean processResponse(Intent intent, TreeReference intentQuestionRef, File destination) {
         if (intentInvalid(intent)) {
             return false;
+        } else if (SimprintsCalloutProcessing.isRegistrationResponse(intent)) {
+            return SimprintsCalloutProcessing.processRegistrationResponse(formDef, intent, intentQuestionRef, responseToRefMap);
+        } else {
+            return processOdkResponse(intent, intentQuestionRef, destination);
+        }
+    }
+
+    private static boolean intentInvalid(Intent intent) {
+        if (intent == null) {
+            return true;
+        }
+        try {
+            // force unparcelling to check if we are missing classes to
+            // correctly process callout response
+            intent.hasExtra(INTENT_RESULT_VALUE);
+        } catch (BadParcelableException e) {
+            Log.w(TAG, "unable to unparcel intent: " + e.getMessage());
+            return true;
         }
 
+        return false;
+    }
+
+    private boolean processOdkResponse(Intent intent, TreeReference intentQuestionRef, File destination) {
         String result = intent.getStringExtra(INTENT_RESULT_VALUE);
-        setNodeValue(intentQuestionRef, result);
+        setNodeValue(formDef, intentQuestionRef, result);
 
         //see if we have a return bundle
         Bundle response = intent.getBundleExtra(INTENT_RESULT_BUNDLE);
@@ -153,20 +176,20 @@ public class IntentCallout implements Externalizable {
         return (result != null);
     }
 
-    private void setNodeValue(TreeReference reference, String stringValue) {
+    public static void setNodeValue(FormDef formDef, TreeReference reference, String stringValue) {
         // todo: this code is very similar to SetValueAction.processAction, could be unified?
         if (stringValue != null) {
             EvaluationContext evaluationContext = new EvaluationContext(formDef.getEvaluationContext(), reference);
             AbstractTreeElement node = evaluationContext.resolveReference(reference);
             int dataType = node.getDataType();
 
-            setValueInFormDef(reference, stringValue, dataType);
+            setValueInFormDef(formDef, reference, stringValue, dataType);
         } else {
             formDef.setValue(null, reference);
         }
     }
 
-    private void setValueInFormDef(TreeReference ref, String responseValue, int dataType) {
+    public static void setValueInFormDef(FormDef formDef, TreeReference ref, String responseValue, int dataType) {
         IAnswerData val = Recalculate.wrapData(responseValue, dataType);
         if (val != null) {
             val = AnswerDataFactory.templateByDataType(dataType).cast(val.uncast());
@@ -174,26 +197,10 @@ public class IntentCallout implements Externalizable {
         formDef.setValue(val, ref);
     }
 
-    private static boolean intentInvalid(Intent intent) {
-        if (intent == null) {
-            return true;
-        }
-        try {
-            // force unparcelling to check if we are missing classes to
-            // correctly process callout response
-            intent.hasExtra(INTENT_RESULT_VALUE);
-        } catch (BadParcelableException e) {
-            Log.w(TAG, "unable to unparcel intent: " + e.getMessage());
-            return true;
-        }
-
-        return false;
-    }
-
     private void processResponseItem(TreeReference ref, String responseValue,
                                      TreeReference contextRef, File destinationFile) {
-        EvaluationContext context = new EvaluationContext(formDef.getEvaluationContext(), contextRef);
         TreeReference fullRef = ref.contextualize(contextRef);
+        EvaluationContext context = new EvaluationContext(formDef.getEvaluationContext(), contextRef);
         AbstractTreeElement node = context.resolveReference(fullRef);
 
         if (node == null) {
@@ -206,7 +213,7 @@ public class IntentCallout implements Externalizable {
         if (dataType == Constants.DATATYPE_BINARY) {
             storePointerToFileResponse(fullRef, responseValue, destinationFile);
         } else {
-            setValueInFormDef(fullRef, responseValue, dataType);
+            setValueInFormDef(formDef, fullRef, responseValue, dataType);
         }
     }
 
