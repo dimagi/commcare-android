@@ -343,6 +343,7 @@ task switchGoogleServicesCommcare(type: Copy) {
 
 task switchGoogleServicesStandalone(type: Copy) {
     description = 'Switches package name in google-services.json to match Standalone package name'
+    outputs.upToDateWhen { false }
 
     /**
      * This is an awkward workaround for a Windows build error that occurs when you try
