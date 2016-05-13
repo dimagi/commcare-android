@@ -12,15 +12,16 @@ import java.net.PasswordAuthentication;
 import java.net.URL;
 
 /**
- * Make simple get request that follows redirects and uses modern http libs
+ * Makes simple redirect-following GET requests that can be authenticated or not
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class SimpleGetRequest {
+class SimpleGetRequest {
 
-    public static InputStream makeRequest(final String username,
-                                          final String password,
-                                          URL url) throws IOException {
+    protected static InputStream makeRequest(final String username,
+                                             final String password,
+                                             URL url) throws IOException {
         if (username == null || password == null) {
             // clear any prior set authenticator to make unauthed requests
             Authenticator.setDefault(null);

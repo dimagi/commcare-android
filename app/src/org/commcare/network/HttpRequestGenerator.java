@@ -102,7 +102,7 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         }
     }
 
-    public static String buildDomainUser(String username) {
+    protected static String buildDomainUser(String username) {
         if (username != null) {
             SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
