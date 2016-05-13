@@ -203,6 +203,10 @@ android {
             assets.srcDirs = ['app/assets']
         }
 
+        commcare {
+            manifest.srcFile 'app/CommcareAndroidManifest.xml'
+        }
+
         standalone {
             res.srcDirs = ['app/standalone/res']
             assets.srcDirs = ['app/standalone/assets']
