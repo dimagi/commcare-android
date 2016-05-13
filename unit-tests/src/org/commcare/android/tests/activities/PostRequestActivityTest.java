@@ -33,7 +33,7 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
 import java.io.InputStream;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -83,7 +83,7 @@ public class PostRequestActivityTest {
         if (url != null) {
             postLaunchIntent.putExtra(PostRequestActivity.URL_KEY, url);
             postLaunchIntent.putExtra(PostRequestActivity.PARAMS_KEY,
-                    new Hashtable<String, String>());
+                    new HashMap<String, String>());
         }
         return Robolectric.buildActivity(PostRequestActivity.class).withIntent(postLaunchIntent)
                 .create().start().resume().get();
@@ -141,6 +141,7 @@ public class PostRequestActivityTest {
 
     @Test
     public void ioErrorInResponseFromServerTest() {
+        ModernHttpRequesterMock.setResponseCodes(new Integer[]{200});
         ModernHttpRequesterMock.setRequestPayloads(new String[]{null});
         assertPostFailureMessage(Localization.get("post.io.error", HttpURLConnectionMock.ioErrorMessage), 200);
     }
@@ -191,8 +192,8 @@ public class PostRequestActivityTest {
         assertTrue(intentActivityName.equals(PostRequestActivity.class.getName()));
 
         assertEquals("https://www.fake.com/claim_patient/", postActivityIntent.getStringExtra(PostRequestActivity.URL_KEY));
-        Hashtable<String, String> postUrlParams =
-                (Hashtable<String, String>)postActivityIntent.getSerializableExtra(PostRequestActivity.PARAMS_KEY);
+        HashMap<String, String> postUrlParams =
+                (HashMap<String, String>)postActivityIntent.getSerializableExtra(PostRequestActivity.PARAMS_KEY);
         assertEquals("321", postUrlParams.get("selected_case_id"));
 
         PostRequestActivity postRequestActivity =

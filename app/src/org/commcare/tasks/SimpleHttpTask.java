@@ -4,6 +4,7 @@ import android.content.Context;
 
 import org.commcare.CommCareApplication;
 import org.commcare.interfaces.HttpResponseProcessor;
+import org.commcare.interfaces.ResponseStreamAccessor;
 import org.commcare.network.ModernHttpRequester;
 import org.commcare.tasks.templates.CommCareTask;
 
@@ -11,7 +12,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
-import java.util.Hashtable;
 
 /**
  * Makes get/post request and delegates http response to receiver on completion
@@ -20,7 +20,7 @@ import java.util.Hashtable;
  */
 public class SimpleHttpTask
         extends CommCareTask<Void, Void, Void, HttpResponseProcessor>
-        implements HttpResponseProcessor {
+        implements HttpResponseProcessor, ResponseStreamAccessor {
 
     public static final int SIMPLE_HTTP_TASK_ID = 11;
 
@@ -54,7 +54,7 @@ public class SimpleHttpTask
             ModernHttpRequester.processResponse(
                     httpResponseProcessor,
                     responseCode,
-                    responseDataStream);
+                    this);
         }
     }
 
@@ -99,5 +99,10 @@ public class SimpleHttpTask
     @Override
     public void handleIOException(IOException exception) {
         this.ioException = exception;
+    }
+
+    @Override
+    public InputStream getResponseStream() throws IOException {
+        return responseDataStream;
     }
 }

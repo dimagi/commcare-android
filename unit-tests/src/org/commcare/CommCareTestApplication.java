@@ -15,7 +15,7 @@ import org.javarosa.core.services.storage.Persistable;
 import org.junit.Assert;
 
 import java.net.URL;
-import java.util.Hashtable;
+import java.util.HashMap;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com).
@@ -82,14 +82,14 @@ public class CommCareTestApplication extends CommCareApplication {
 
     @Override
     public ModernHttpRequester buildModernHttpRequester(Context context, URL url,
-                                                        Hashtable<String, String> params,
+                                                        HashMap<String, String> params,
                                                         boolean isAuthenticatedRequest,
                                                         boolean isPostRequest) {
         return new ModernHttpRequesterMock(context, url, params, isAuthenticatedRequest, isPostRequest);
     }
 
     @Override
-    public DataPullRequester getDataPullRequester(){
+    public DataPullRequester getDataPullRequester() {
         return DebugDataPullResponseFactory.INSTANCE;
     }
 }

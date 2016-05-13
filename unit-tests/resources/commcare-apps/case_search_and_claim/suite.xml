@@ -1,45 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <suite version="16" descriptor="Suite File">
-  <xform>
-    <resource id="a6c0ec1b9b57986515f5ab2f64d7b71297861831" version="1" descriptor="Form: (Module Pregnancy) - Registration">
-      <location authority="local">./modules-0/forms-0.xml</location>
-      <location authority="remote">./modules-0/forms-0.xml</location>
-    </resource>
-  </xform>
-  <xform>
-    <resource id="c9aa4eac9716ab3de24ce4e3f38da0f455b71eb2" version="1" descriptor="Form: (Module Pregnancy) - Home Visit">
-      <location authority="local">./modules-0/forms-1.xml</location>
-      <location authority="remote">./modules-0/forms-1.xml</location>
-    </resource>
-  </xform>
-  <xform>
-    <resource id="5d8ba52f0bd455203311ef66598ec6fa29898e58" version="1" descriptor="Form: (Module Pregnancy) - Birth Outcome">
-      <location authority="local">./modules-0/forms-2.xml</location>
-      <location authority="remote">./modules-0/forms-2.xml</location>
-    </resource>
-  </xform>
-  <xform>
-    <resource id="e1f870ef46c9ec0781806ef24ff0537ad604c816" version="16" descriptor="Form: (Module Visit) - Copy of Home Visit">
-      <location authority="local">./modules-1/forms-0.xml</location>
-      <location authority="remote">./modules-1/forms-0.xml</location>
-    </resource>
-  </xform>
-  <xform>
-    <resource id="4d50ae3d37f31e3a41a91a25b2667b10796af957" version="16" descriptor="Form: (Module Visit) - Copy of Birth Outcome">
-      <location authority="local">./modules-1/forms-1.xml</location>
-      <location authority="remote">./modules-1/forms-1.xml</location>
-    </resource>
-  </xform>
   <locale language="default">
     <resource id="app_default_strings" version="16" descriptor="Translations: Default Language">
       <location authority="local">./default/app_strings.txt</location>
-      <location authority="remote">./default/app_strings.txt</location>
-    </resource>
-  </locale>
-  <locale language="en">
-    <resource id="app_en_strings" version="16" descriptor="Translations: English">
-      <location authority="local">./en/app_strings.txt</location>
-      <location authority="remote">./en/app_strings.txt</location>
     </resource>
   </locale>
   <detail id="patient_short">
@@ -190,33 +153,7 @@
     <action>
       <display>
         <text>
-          <locale id="case_list_form.m1"/>
-        </text>
-        <text form="image">
-          <locale id="case_list_form.m1.icon"/>
-        </text>
-        <text form="audio">
-          <locale id="case_list_form.m1.audio"/>
-        </text>
-      </display>
-      <stack>
-        <push>
-          <command value="'m0-f0'"/>
-          <datum id="case_id_new_pregnancy_0" value="uuid()"/>
-          <datum id="return_to" value="'m1'"/>
-        </push>
-      </stack>
-    </action>
-    <action>
-      <display>
-        <text>
           <locale id="case_list_form.m1.b"/>
-        </text>
-        <text form="image">
-          <locale id="case_list_form.m1.b.icon"/>
-        </text>
-        <text form="audio">
-          <locale id="case_list_form.m1.b.audio"/>
         </text>
       </display>
       <stack>
@@ -334,24 +271,12 @@
             <text>
               <locale id="query.name"/>
             </text>
-            <text form="image">
-              <locale id="case_list_form.m1.icon"/>
-            </text>
-            <text form="audio">
-              <locale id="case_list_form.m1.audio"/>
-            </text>
           </display>
         </prompt>
         <prompt key="patient_id">
           <display>
             <text>
               <locale id="query.id"/>
-            </text>
-            <text form="image">
-              <locale id="case_list_form.m1.icon"/>
-            </text>
-            <text form="audio">
-              <locale id="case_list_form.m1.audio"/>
             </text>
           </display>
         </prompt>

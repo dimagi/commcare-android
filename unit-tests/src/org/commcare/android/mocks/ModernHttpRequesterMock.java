@@ -4,7 +4,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
-import android.test.suitebuilder.annotation.Suppress;
 
 import org.commcare.network.ModernHttpRequester;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -16,7 +15,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -30,7 +29,7 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
     private static final List<String> requestPayloadStack = new ArrayList<>();
 
     public ModernHttpRequesterMock(Context context, URL url,
-                                   Hashtable<String, String> params,
+                                   HashMap<String, String> params,
                                    boolean isAuthenticatedRequest,
                                    boolean isPostRequest) {
         super(context, url, params, isAuthenticatedRequest, isPostRequest);

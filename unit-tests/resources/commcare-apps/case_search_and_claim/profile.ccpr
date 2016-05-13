@@ -69,38 +69,9 @@
         <property key="cc-content-valid" value="no"/>
     
         <property key="logenabled" value="Enabled"/>
-    
-
     <!-- end -->
 
-    
-
-    <features>
-        <checkoff active="true"/>
-        <reminders active="false">
-            <time>0</time>
-        </reminders>
-        <package active="false"/>
-        
-            <sense active="false" />
-        
-        <users active="true">
-            
-        </users>
-    </features>
-
     <suite><resource id="suite" version="16">
-        
-            <location authority="local">./suite.xml</location>
-        
-        <location authority="remote">https://www.commcarehq.org/a/flipper/apps/download/0983304cd2c0760178fed759e3a7dcf9/suite.xml</location>
+        <location authority="local">./suite.xml</location>
     </resource></suite>
-    
-    <suite><resource id="media-suite" version="16">
-        
-            <location authority="local">./media_suite.xml</location>
-        
-        <location authority="remote">https://www.commcarehq.org/a/flipper/apps/download/0983304cd2c0760178fed759e3a7dcf9/media_suite.xml</location>
-    </resource></suite>
-    
 </profile>

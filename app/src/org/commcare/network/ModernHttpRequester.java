@@ -6,6 +6,7 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.interfaces.HttpResponseProcessor;
+import org.commcare.interfaces.ResponseStreamAccessor;
 import org.commcare.utils.AndroidStreamUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
@@ -32,13 +33,14 @@ import java.util.Map;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class ModernHttpRequester {
+public class ModernHttpRequester implements ResponseStreamAccessor {
     private static final String TAG = ModernHttpRequester.class.getSimpleName();
     private final boolean isPostRequest;
     private final Context context;
     private HttpResponseProcessor responseProcessor;
     protected final URL url;
     private final HashMap<String, String> params;
+    private HttpURLConnection httpConnection;
 
     public ModernHttpRequester(Context context, URL url,
                                HashMap<String, String> params,
@@ -96,10 +98,9 @@ public class ModernHttpRequester {
     }
 
     public void request() {
-        HttpURLConnection httpConnection = null;
         try {
             httpConnection = setupConnection(buildUrl());
-            processResponse(httpConnection);
+            processResponse();
         } catch (IOException e) {
             e.printStackTrace();
             responseProcessor.handleIOException(e);
@@ -166,15 +167,22 @@ public class ModernHttpRequester {
         return new URL(b.build().toString());
     }
 
-    private void processResponse(HttpURLConnection con) throws IOException {
-        int responseCode = con.getResponseCode();
-        processResponse(responseProcessor, responseCode, getResponseStream(con));
+    private void processResponse() throws IOException {
+        int responseCode = httpConnection.getResponseCode();
+        processResponse(responseProcessor, responseCode, this);
     }
 
     public static void processResponse(HttpResponseProcessor responseProcessor,
                                        int responseCode,
-                                       InputStream responseStream) {
+                                       ResponseStreamAccessor streamAccessor) {
         if (responseCode >= 200 && responseCode < 300) {
+            InputStream responseStream;
+            try {
+                responseStream = streamAccessor.getResponseStream();
+            } catch (IOException e) {
+                responseProcessor.handleIOException(e);
+                return;
+            }
             responseProcessor.processSuccess(responseCode, responseStream);
         } else if (responseCode >= 300 && responseCode < 400) {
             responseProcessor.processRedirection(responseCode);
@@ -187,15 +195,11 @@ public class ModernHttpRequester {
         }
     }
 
-    private InputStream getResponseStream(HttpURLConnection con) throws IOException {
-        InputStream connectionStream;
-        try {
-            connectionStream = con.getInputStream();
-        } catch (IOException e) {
-            return null;
-        }
+    @Override
+    public InputStream getResponseStream() throws IOException {
+        InputStream connectionStream = httpConnection.getInputStream();
 
-        long dataSizeGuess = setContentLengthProps(con);
+        long dataSizeGuess = setContentLengthProps(httpConnection);
         BitCache cache = BitCacheFactory.getCache(context, dataSizeGuess);
 
         cache.initializeCache();

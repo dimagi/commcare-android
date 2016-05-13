@@ -922,7 +922,7 @@ public class CommCareHomeActivity
             Intent i = new Intent(getApplicationContext(), PostRequestActivity.class);
             i.putExtra(PostRequestActivity.URL_KEY, syncPost.getUrl());
             i.putExtra(PostRequestActivity.PARAMS_KEY,
-                    syncPost.getEvaluatedParams(asw.getEvaluationContext()));
+                    new HashMap<>(syncPost.getEvaluatedParams(asw.getEvaluationContext())));
 
             startActivityForResult(i, MAKE_REMOTE_POST);
         } else {
