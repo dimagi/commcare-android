@@ -10,6 +10,7 @@ import com.simprints.libsimprints.Identification;
 import junit.framework.Assert;
 
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareTestApplication;
 import org.commcare.activities.EntitySelectActivity;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
 import org.commcare.adapters.EntityListAdapter;
@@ -44,7 +45,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-@Config(application = CommCareApplication.class,
+@Config(application = CommCareTestApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class EntityListCalloutDataTest {
