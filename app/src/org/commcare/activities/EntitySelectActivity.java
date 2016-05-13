@@ -308,7 +308,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         clearSearchButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                adapter.clearExternalData();
+                adapter.clearCalloutResponseData();
                 refreshView();
             }
         });
@@ -472,7 +472,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public boolean loadEntities() {
         if (adapter != null) {
             // Store extra data to be reloaded upon load task completion
-            adapter.saveExternalDataToSession();
+            adapter.saveCalloutDataToSession();
         }
 
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
@@ -677,7 +677,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
      */
     private void returnWithResult(Intent intent) {
         if (adapter != null) {
-            adapter.saveExternalDataToSession();
+            adapter.saveCalloutDataToSession();
         }
         Intent i = new Intent(this.getIntent());
         i.putExtras(intent.getExtras());
@@ -967,7 +967,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             adapter.filterByString(filterString);
         }
 
-        adapter.loadExternalDataFromSession();
+        adapter.loadCalloutDataFromSession();
     }
 
     private void updateSelectedItem(boolean forceMove) {
@@ -1063,7 +1063,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private void performEntitySelect() {
         if (adapter != null) {
-            adapter.saveExternalDataToSession();
+            adapter.saveCalloutDataToSession();
         }
         Intent i = new Intent(EntitySelectActivity.this.getIntent());
         i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
