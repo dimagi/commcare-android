@@ -7,7 +7,7 @@ import org.commcare.models.NodeEntityFactory;
 import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 
@@ -20,6 +20,10 @@ import java.util.List;
 public class EntityKeyFilterer extends EntityFiltererBase {
     private final LinkedHashSet<String> orderedKeySet;
 
+    /**
+     * @param orderedKeySet Keys that are used to filter and order the Entity
+     *                      list based on the entity's 'extra key' field
+     */
     public EntityKeyFilterer(EntityListAdapter adapter,
                              NodeEntityFactory nodeFactory,
                              List<Entity<TreeReference>> fullEntityList,
@@ -39,7 +43,7 @@ public class EntityKeyFilterer extends EntityFiltererBase {
         // ordering. Don't assume one-to-one correspondence between entities
         // and keys: depending on the appliciation we might want to attach the
         // same data to multiple entities
-        Hashtable<String, List<Entity<TreeReference>>> keyToEntitiesMap =
+        HashMap<String, List<Entity<TreeReference>>> keyToEntitiesMap =
                 buildKeyToEntitiesMap(fullEntityList);
         for (String key : orderedKeySet) {
             if (keyToEntitiesMap.containsKey(key)) {
@@ -48,11 +52,17 @@ public class EntityKeyFilterer extends EntityFiltererBase {
         }
     }
 
-    private static Hashtable<String, List<Entity<TreeReference>>> buildKeyToEntitiesMap(List<Entity<TreeReference>> entityList) {
+    /**
+     * Group entities by their 'extra key' field
+     *
+     * @return A map from 'extra key' values to a list of entities that have
+     * that 'extra key'
+     */
+    private static HashMap<String, List<Entity<TreeReference>>> buildKeyToEntitiesMap(List<Entity<TreeReference>> entityList) {
         // NOTE PLM: potentially expensive in presence of large entity set;
         // could build at entity load time or forgoe ordering or constrain the
         // key to entity mapping to be one-to-one
-        Hashtable<String, List<Entity<TreeReference>>> keyToEntitiesMap = new Hashtable<>();
+        HashMap<String, List<Entity<TreeReference>>> keyToEntitiesMap = new HashMap<>();
         for (Entity<TreeReference> entity : entityList) {
             if (keyToEntitiesMap.containsKey(entity.extraKey)) {
                 keyToEntitiesMap.get(entity.extraKey).add(entity);
