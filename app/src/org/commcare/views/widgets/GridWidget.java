@@ -76,10 +76,11 @@ public class GridWidget extends QuestionWidget {
         gridview = new GridView(context);
         imageViews = new ImageView[mItems.size()];
 
-        // The max width of an icon in a given column. Used to line
-        // up the columns and automatically fit the columns in when
-        // they are chosen automatically
+        // The max width of an icon in a given column. Used to line up the columns and
+        // automatically fit the columns in when they are chosen automatically
         int maxImageWidth = -1;
+        // The max width of an icon in a given column. Used to determine the approximate total
+        // height that the entire grid view will take up
         int maxImageHeight = -1;
 
         for (int i = 0; i < mItems.size(); i++) {
