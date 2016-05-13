@@ -1,5 +1,6 @@
 package org.commcare.tasks.network;
 
+import org.apache.http.HttpResponse;
 import org.commcare.network.RemoteDataPullResponse;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -15,8 +16,9 @@ import java.io.InputStream;
 public class DebugDataPullResponse extends RemoteDataPullResponse {
     private InputStream debugStream = null;
 
-    public DebugDataPullResponse(String xmlPayloadReference) throws IOException {
-        super(200);
+    public DebugDataPullResponse(String xmlPayloadReference,
+                                 HttpResponse response) throws IOException {
+        super(null, response);
 
         try {
             debugStream =
