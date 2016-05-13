@@ -2207,7 +2207,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             formEntryRestoreSession = new FormEntrySession();
             DataInputStream objectInputStream = new DataInputStream(new ByteArrayInputStream(serializedObject));
             try {
-                formEntryRestoreSession.readExternal(objectInputStream, DbUtil.getPrototypeFactory(this));
+                formEntryRestoreSession.readExternal(objectInputStream, CommCareApplication._().getPrototypeFactory(this));
             } catch (IOException | DeserializationException e) {
                 Log.e(TAG, "failed to deserialize form entry session during saved instance restore");
             } finally {

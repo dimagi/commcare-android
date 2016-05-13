@@ -8,7 +8,7 @@
     {
       "client_info": {
         "mobilesdk_app_id": "1:768065119425:android:bf4b2396fb9805b2",
-        "client_id": "android:org.commcare.dalvik",
+        "client_id": "android:@applicationId@",
         "client_type": 1,
         "android_client_info": {
           "package_name": "@applicationId@"
