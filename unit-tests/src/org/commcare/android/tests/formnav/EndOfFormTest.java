@@ -10,15 +10,12 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.activities.CommCareHomeActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.mocks.FormAndDataSyncerFake;
+import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.session.CommCareSession;
-import org.commcare.session.SessionNavigator;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.widgets.IntegerWidget;
 import org.junit.Before;
@@ -57,9 +54,9 @@ public class EndOfFormTest {
      */
     @Test
     public void testHiddenRepeatAtEndOfForm() {
-        CommCareHomeActivity homeActivity = buildHomeActivityForFormEntryLaunch();
+        ShadowActivity shadowActivity =
+                ActivityLaunchUtils.buildHomeActivityForFormEntryLaunch("m0-f0");
 
-        ShadowActivity shadowActivity = Shadows.shadowOf(homeActivity);
         Intent formEntryIntent = shadowActivity.getNextStartedActivity();
 
         // make sure the form entry activity should be launched
@@ -74,21 +71,6 @@ public class EndOfFormTest {
                 shadowFormEntryActivity.getResultCode(),
                 shadowFormEntryActivity.getResultIntent());
         assertStoredForms();
-    }
-
-    private CommCareHomeActivity buildHomeActivityForFormEntryLaunch() {
-        AndroidSessionWrapper sessionWrapper =
-                CommCareApplication._().getCurrentSessionWrapper();
-        CommCareSession session = sessionWrapper.getSession();
-        session.setCommand("m0-f0");
-
-        CommCareHomeActivity homeActivity =
-                Robolectric.buildActivity(CommCareHomeActivity.class).create().get();
-        // make sure we don't actually submit forms by using a fake form submitter
-        homeActivity.setFormAndDataSyncer(new FormAndDataSyncerFake());
-        SessionNavigator sessionNavigator = homeActivity.getSessionNavigator();
-        sessionNavigator.startNextSessionStep();
-        return homeActivity;
     }
 
     private ShadowActivity navigateFormEntry(Intent formEntryIntent) {

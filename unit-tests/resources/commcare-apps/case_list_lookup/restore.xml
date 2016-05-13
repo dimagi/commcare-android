@@ -1,0 +1,109 @@
+<OpenRosaResponse xmlns="http://openrosa.org/http/response">
+    <fixture id="user-groups" user_id="441bdbb17001bade54aa23dcb7313950">
+        <groups/>
+    </fixture>
+    <case case_id="b319e951-03f1-4172-b662-4fb3964a0be7"
+          date_modified="2016-03-10T11:16:54.774000Z" user_id="441bdbb17001bade54aa23dcb7313950"
+          xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>case</case_type>
+            <case_name>stan</case_name>
+            <owner_id>441bdbb17001bade54aa23dcb7313950</owner_id>
+        </create>
+        <update>
+            <sample_choice_question>choice3</sample_choice_question>
+            <sample_number_question>145</sample_number_question>
+        </update>
+    </case>
+    <case case_id="8e011880-602f-4017-b9d6-ed9dcbba7516"
+          date_modified="2016-03-10T11:16:45.182000Z" user_id="441bdbb17001bade54aa23dcb7313950"
+          xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>case</case_type>
+            <case_name>ellen</case_name>
+            <owner_id>441bdbb17001bade54aa23dcb7313950</owner_id>
+        </create>
+        <update>
+            <sample_choice_question>choice1</sample_choice_question>
+            <sample_number_question>147</sample_number_question>
+        </update>
+    </case>
+    <case case_id="c44c7ade-0cec-4401-b422-4c475f0043ae"
+          date_modified="2016-03-10T11:19:50.826000Z" user_id="441bdbb17001bade54aa23dcb7313950"
+          xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>case</case_type>
+            <case_name>pat</case_name>
+            <owner_id>441bdbb17001bade54aa23dcb7313950</owner_id>
+        </create>
+        <update>
+            <sample_choice_question>choice2</sample_choice_question>
+            <sample_number_question/>
+        </update>
+    </case>
+    <case case_id="dc413cc2-f1af-4603-a267-3e304305fea9"
+          date_modified="2016-03-16T11:53:18.297000Z" user_id="441bdbb17001bade54aa23dcb7313950"
+          xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>case</case_type>
+            <case_name>ty</case_name>
+            <owner_id>441bdbb17001bade54aa23dcb7313950</owner_id>
+        </create>
+        <update>
+            <sample_choice_question>choice1</sample_choice_question>
+            <sample_number_question>2</sample_number_question>
+        </update>
+    </case>
+    <case case_id="16d31048-e8f8-40d5-a3e9-b35e9cde20da"
+          date_modified="2016-03-10T11:17:04.613000Z" user_id="441bdbb17001bade54aa23dcb7313950"
+          xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>case</case_type>
+            <case_name>gilbert</case_name>
+            <owner_id>441bdbb17001bade54aa23dcb7313950</owner_id>
+        </create>
+        <update>
+            <sample_choice_question/>
+            <sample_number_question/>
+        </update>
+    </case>
+    <case case_id="76bb4689-dd1b-4ec5-bb32-bbc9c505a681"
+          date_modified="2016-03-16T10:03:07.623000Z" user_id="441bdbb17001bade54aa23dcb7313950"
+          xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>case</case_type>
+            <case_name>andrea</case_name>
+            <owner_id>441bdbb17001bade54aa23dcb7313950</owner_id>
+        </create>
+        <update>
+            <sample_choice_question>choice1</sample_choice_question>
+            <sample_number_question>5</sample_number_question>
+        </update>
+    </case>
+    <case case_id="6b09e558-604c-4735-ac34-efbb2783b784"
+          date_modified="2016-03-10T05:26:17.260000Z" user_id="441bdbb17001bade54aa23dcb7313950"
+          xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>case</case_type>
+            <case_name>aria</case_name>
+            <owner_id>441bdbb17001bade54aa23dcb7313950</owner_id>
+        </create>
+        <update>
+            <sample_choice_question>choice1</sample_choice_question>
+            <sample_number_question>123</sample_number_question>
+        </update>
+    </case>
+    <case case_id="1c34fb3a-5942-41cb-adc0-c928e9fc2ad9"
+          date_modified="2016-03-16T10:06:59.777000Z" user_id="441bdbb17001bade54aa23dcb7313950"
+          xmlns="http://commcarehq.org/case/transaction/v2">
+        <create>
+            <case_type>case</case_type>
+            <case_name>phillip</case_name>
+            <owner_id>441bdbb17001bade54aa23dcb7313950</owner_id>
+        </create>
+        <update>
+            <sample_choice_question>choice1</sample_choice_question>
+            <sample_number_question>2</sample_number_question>
+        </update>
+    </case>
+</OpenRosaResponse>
