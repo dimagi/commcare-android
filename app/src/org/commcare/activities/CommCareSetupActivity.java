@@ -830,6 +830,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     scanSMSLinks(manualSMSInstall);
                 }
             }
+
+            if (isSingleAppBuild()) {
+                SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
+            }
         } else if (requestCode == Permissions.ALL_PERMISSIONS_REQUEST) {
             String[] requiredPerms = Permissions.getRequiredPerms();
 
@@ -845,10 +849,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             // external storage perms were enabled, so setup temp storage,
             // which fails in application setup without external storage perms.
             CommCareApplication._().prepareTemporaryStorage();
-            
-            if (isSingleAppBuild()) {
-                SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
-            } else {
+            if (!isSingleAppBuild()) {
                 uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
                 uiStateScreenTransition();
             }
