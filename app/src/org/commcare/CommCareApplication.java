@@ -61,6 +61,7 @@ import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.AndroidDbHelper;
+import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.HybridFileBackedSqlHelpers;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.MigrationException;
@@ -105,6 +106,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.storage.EntityFilter;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.PropertyUtils;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -1483,6 +1485,10 @@ public class CommCareApplication extends Application {
      */
     public boolean isConsumerApp() {
         return BuildConfig.IS_CONSUMER_APP;
+    }
+
+    public PrototypeFactory getPrototypeFactory(Context c) {
+        return DbUtil.getPrototypeFactory(c);
     }
 
 }

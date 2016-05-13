@@ -3,14 +3,12 @@ package org.commcare.android.util;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApp;
-import org.commcare.android.mocks.CommCareTaskConnectorFake;
-import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.android.mocks.CommCareTaskConnectorFake;
+import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.models.database.user.DemoUserBuilder;
-import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.ResourceEngineTask;
-import org.javarosa.core.model.User;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.javarosa.core.util.PropertyUtils;
@@ -28,7 +26,7 @@ public class TestAppInstaller {
     private final String password;
     private final String resourceFilepath;
 
-    private final CommCareTaskConnectorFake<Object> fakeConnector =
+    public final static CommCareTaskConnectorFake<Object> fakeConnector =
             new CommCareTaskConnectorFake<>();
 
     private TestAppInstaller(String resourceFilepath,
@@ -39,27 +37,43 @@ public class TestAppInstaller {
         this.password = password;
     }
 
-    private void installAppAndLogin() {
-        installApp();
-
-        buildTestUser();
-
+    /**
+     * Install an app and create / login with a (test) user
+     */
+    public static void installAppAndLogin(String appPath,
+                                          String username,
+                                          String password) {
+        installAppAndUser(appPath, username, password);
         login(username, password);
     }
 
-    public static void initInstallAndLogin(String appPath,
-                                           String username,
-                                           String password) {
-        // needed to resolve "jr://resource" type references
-        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
+    /**
+     * Install an app without creating a user
+     */
+    public static void installApp(String appPath) {
+        storageSetup();
+        TestAppInstaller appTestInstaller =
+                new TestAppInstaller(appPath, null, null);
+        appTestInstaller.installApp();
+    }
 
-        TestUtils.initializeStaticTestStorage();
-        TestAppInstaller.setupPrototypeFactory();
-
+    /**
+     * Install an app with creating a user
+     */
+    public static void installAppAndUser(String appPath,
+                                         String username,
+                                         String password) {
+        storageSetup();
         TestAppInstaller appTestInstaller =
                 new TestAppInstaller(
                         appPath, username, password);
-        appTestInstaller.installAppAndLogin();
+        appTestInstaller.installApp();
+        appTestInstaller.buildTestUser();
+    }
+
+    private static void storageSetup() {
+        // needed to resolve "jr://resource" type references
+        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
     }
 
     private void installApp() {
@@ -104,32 +118,6 @@ public class TestAppInstaller {
         CommCareApp ccApp = CommCareApplication._().getCurrentApp();
         UserKeyRecord keyRecord =
                 UserKeyRecord.getCurrentValidRecordByPassword(ccApp, username, password, true);
-        startSessionService(keyRecord, password);
-    }
-
-    private static void startSessionService(UserKeyRecord keyRecord, String password) {
-        // manually create/setup session service because robolectric doesn't
-        // really support services
-        CommCareSessionService ccService = new CommCareSessionService();
-        ccService.createCipherPool();
-        ccService.prepareStorage(keyRecord.unWrapKey(password), keyRecord);
-        ccService.startSession(getUserFromDb(ccService, keyRecord), keyRecord);
-
-        CommCareApplication._().setTestingService(ccService);
-    }
-
-    private static User getUserFromDb(CommCareSessionService ccService, UserKeyRecord keyRecord) {
-        for (User u : CommCareApplication._().getRawStorage("USER", User.class, ccService.getUserDbHandle())) {
-            if (keyRecord.getUsername().equals(u.getUsername())) {
-                return u;
-            }
-        }
-        return null;
-    }
-
-    private static void setupPrototypeFactory() {
-        // Sets DB to use an in-memory store for class serialization tagging.
-        // This avoids the need to use apk reflection to perform read/writes
-        TestUtils.initializeStaticTestStorage();
+        CommCareApplication._().startUserSession(keyRecord.unWrapKey(password), keyRecord, false);
     }
 }

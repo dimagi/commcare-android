@@ -1,5 +1,7 @@
 package org.commcare.network;
 
+import org.apache.http.HttpResponse;
+import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.tasks.DataPullTask;
 
 import java.io.IOException;
@@ -14,7 +16,16 @@ public class DataPullResponseFactory implements DataPullRequester {
     }
 
     @Override
-    public RemoteDataPullResponse makeDataPullRequest(DataPullTask task, HttpRequestGenerator requestor, String server, boolean includeSyncToken) throws IOException {
-        return new RemoteDataPullResponse(task, requestor, server, includeSyncToken);
+    public RemoteDataPullResponse makeDataPullRequest(DataPullTask task,
+                                                      HttpRequestEndpoints requestor,
+                                                      String server,
+                                                      boolean includeSyncToken) throws IOException {
+        HttpResponse response = requestor.makeCaseFetchRequest(server, includeSyncToken);
+        return new RemoteDataPullResponse(task, response);
+    }
+
+    @Override
+    public HttpRequestGenerator getHttpGenerator(String username, String password) {
+        return new HttpRequestGenerator(username, password);
     }
 }
