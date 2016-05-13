@@ -89,8 +89,8 @@ public class GridWidget extends QuestionWidget {
         // Build view
         for (int i = 0; i < mItems.size(); i++) {
             SelectChoice sc = mItems.get(i);
-            // Read the image sizes and set maxImageWidth. This allows us to make sure all of our
-            // columns are going to fit
+            // Read the image sizes and set maxImageWidth and maxImageHeight. This allows us to
+            // make sure all of our columns are going to fit
             String imageURI =
                     mPrompt.getSpecialFormSelectChoiceText(sc, FormEntryCaption.TEXT_FORM_IMAGE);
 
