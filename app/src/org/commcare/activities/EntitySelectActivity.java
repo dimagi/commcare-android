@@ -667,7 +667,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private void handleFingerprintMatchCallout(Intent intent) {
         OrderedHashtable<String, String> guidToMatchConfidenceMap =
-                SimprintsCalloutProcessing.getIdentificationData(intent);
+                SimprintsCalloutProcessing.getConfidenceMatchesFromCalloutResponse(intent);
         adapter.filterByKeyedCalloutData(guidToMatchConfidenceMap);
         refreshView();
     }

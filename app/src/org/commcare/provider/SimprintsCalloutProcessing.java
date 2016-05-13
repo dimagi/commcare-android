@@ -27,68 +27,100 @@ import java.util.Vector;
  */
 public class SimprintsCalloutProcessing {
     private static final String TAG = SimprintsCalloutProcessing.class.getSimpleName();
+    private static final String IDENTIFICATION_KEY = "identification";
+    private static final String REGISTRATION_KEY = "registration";
+    private static final String RIGHT_INDEX_XPATH_KEY = "rightIndex";
+    private static final String RIGHT_THUMB_XPATH_KEY = "rightThumb";
+    private static final String LEFT_INDEX_XPATH_KEY = "leftIndex";
+    private static final String LEFT_THUMB_XPATH_KEY = "leftThumb";
 
+    /**
+     * Fingerprint lookup response from Simprints scanner app.
+     * Idenficiation responses contain a list of top matching Case IDs with an
+     * associated confidence score.
+     */
     public static boolean isIdentificationResponse(Intent intent) {
-        return intent.hasExtra("identification");
+        return intent.hasExtra(IDENTIFICATION_KEY);
     }
 
+    /**
+     * Fingerprint registration response from Simprints scanner app.
+     * Registration responses contain fingerprint templates for the scanned fingerprints
+     */
     public static boolean isRegistrationResponse(Intent intent) {
-        return intent.hasExtra("registration");
+        return intent.hasExtra(REGISTRATION_KEY);
     }
 
-    public static OrderedHashtable<String, String> getIdentificationData(Intent intent) {
-        List<Identification> idReadings = (List)intent.getParcelableArrayListExtra("identification");
+    public static OrderedHashtable<String, String> getConfidenceMatchesFromCalloutResponse(Intent intent) {
+        List<Identification> idReadings = (List)intent.getParcelableArrayListExtra(IDENTIFICATION_KEY);
 
         Collections.sort(idReadings);
 
-        OrderedHashtable<String, String> guidToDataMap = new OrderedHashtable<>();
+        OrderedHashtable<String, String> guidToConfidenceMap = new OrderedHashtable<>();
         for (Identification id : idReadings) {
-            guidToDataMap.put(id.getGuid(), id.getConfidence() + "");
+            guidToConfidenceMap.put(id.getGuid(), id.getConfidence() + "");
         }
 
-        return guidToDataMap;
+        return guidToConfidenceMap;
     }
 
-    public static Registration getRegistrationData(Intent intent) {
-        return intent.getParcelableExtra("registration");
+    private static Registration getRegistrationData(Intent intent) {
+        return intent.getParcelableExtra(REGISTRATION_KEY);
     }
 
     public static boolean processRegistrationResponse(FormDef formDef, Intent intent, TreeReference intentQuestionRef,
                                                       Hashtable<String, Vector<TreeReference>> responseToRefMap) {
         Registration registration = getRegistrationData(intent);
 
-        Vector<TreeReference> rightIndexRef = responseToRefMap.get("rightIndex");
-        Vector<TreeReference> rightThumbRef = responseToRefMap.get("rightThumb");
-        Vector<TreeReference> leftIndexRef = responseToRefMap.get("leftIndex");
-        Vector<TreeReference> leftThumbRef = responseToRefMap.get("leftThumb");
-        int numOfFingersScanned = (registration.getTemplateLeftIndex() == null || registration.getTemplateLeftIndex().length == 0 ? 0 : 1) +
-                (registration.getTemplateRightIndex() == null || registration.getTemplateRightIndex().length == 0 ? 0 : 1) +
-                (registration.getTemplateLeftThumb() == null || registration.getTemplateLeftThumb().length == 0 ? 0 : 1) +
-                (registration.getTemplateRightThumb() == null || registration.getTemplateRightThumb().length == 0 ? 0 : 1);
+        Vector<TreeReference> rightIndexRefs = responseToRefMap.get(RIGHT_INDEX_XPATH_KEY);
+        Vector<TreeReference> rightThumbRefs = responseToRefMap.get(RIGHT_THUMB_XPATH_KEY);
+        Vector<TreeReference> leftIndexRefs = responseToRefMap.get(LEFT_INDEX_XPATH_KEY);
+        Vector<TreeReference> leftThumbRefs = responseToRefMap.get(LEFT_THUMB_XPATH_KEY);
+        int numOfFingersScanned = getFingerprintScanCount(registration);
 
-        IntentCallout.setNodeValue(formDef, intentQuestionRef, Localization.get("fingerprints.scanned", new String[] {"" + numOfFingersScanned}));
+        String resultMessage =
+                Localization.get("fingerprints.scanned", new String[]{"" + numOfFingersScanned});
+        IntentCallout.setNodeValue(formDef, intentQuestionRef, resultMessage);
 
-        if (rightIndexRef != null && !rightIndexRef.isEmpty() &&
-                rightThumbRef != null && !rightThumbRef.isEmpty() &&
-                leftIndexRef != null && !leftIndexRef.isEmpty() &&
-                leftThumbRef != null && !leftThumbRef.isEmpty()) {
-            setRefs(formDef, rightIndexRef, intentQuestionRef, registration.getTemplateRightIndex());
-            setRefs(formDef, rightThumbRef, intentQuestionRef, registration.getTemplateRightThumb());
-            setRefs(formDef, leftIndexRef, intentQuestionRef, registration.getTemplateLeftIndex());
-            setRefs(formDef, leftThumbRef, intentQuestionRef, registration.getTemplateLeftThumb());
+        if (rightIndexRefs != null && !rightIndexRefs.isEmpty() &&
+                rightThumbRefs != null && !rightThumbRefs.isEmpty() &&
+                leftIndexRefs != null && !leftIndexRefs.isEmpty() &&
+                leftThumbRefs != null && !leftThumbRefs.isEmpty()) {
+            storeFingerprintTemplate(formDef, rightIndexRefs, intentQuestionRef, registration.getTemplateRightIndex());
+            storeFingerprintTemplate(formDef, rightThumbRefs, intentQuestionRef, registration.getTemplateRightThumb());
+            storeFingerprintTemplate(formDef, leftIndexRefs, intentQuestionRef, registration.getTemplateLeftIndex());
+            storeFingerprintTemplate(formDef, leftThumbRefs, intentQuestionRef, registration.getTemplateLeftThumb());
             return true;
         } else {
             return false;
         }
     }
 
-    private static void setRefs(FormDef formDef, Vector<TreeReference> refs, TreeReference contextRef, byte[] digitTemplate) {
-        for (TreeReference ref : refs) {
-            setDigit(formDef, ref, contextRef, digitTemplate);
+    private static int getFingerprintScanCount(Registration registration) {
+        return countTemplateScanned(registration.getTemplateLeftIndex())
+                + countTemplateScanned(registration.getTemplateRightIndex())
+                + countTemplateScanned(registration.getTemplateLeftThumb())
+                + countTemplateScanned(registration.getTemplateRightThumb());
+    }
+
+    private static int countTemplateScanned(byte[] template) {
+        if (template == null || template.length == 0) {
+            return 0;
+        } else {
+            return 1;
         }
     }
 
-    private static void setDigit(FormDef formDef, TreeReference ref, TreeReference contextRef, byte[] digitTemplate) {
+    private static void storeFingerprintTemplate(FormDef formDef, Vector<TreeReference> treeRefs,
+                                                 TreeReference contextRef, byte[] digitTemplate) {
+        for (TreeReference ref : treeRefs) {
+            storeFingerprintTemplateAtReference(formDef, ref, contextRef, digitTemplate);
+        }
+    }
+
+    private static void storeFingerprintTemplateAtReference(FormDef formDef, TreeReference ref,
+                                                            TreeReference contextRef,
+                                                            byte[] digitTemplate) {
         EvaluationContext context = new EvaluationContext(formDef.getEvaluationContext(), contextRef);
         TreeReference fullRef = ref.contextualize(contextRef);
         AbstractTreeElement node = context.resolveReference(fullRef);
