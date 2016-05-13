@@ -69,7 +69,7 @@ public class NodeEntityFactory {
      */
     protected String loadCalloutDataMapKey(EvaluationContext entityContext) {
         if (detail.getCallout() != null) {
-            DetailField calloutResponseDetail = detail.getCallout().getResponseDetail();
+            DetailField calloutResponseDetail = detail.getCallout().getResponseDetailField();
             if (calloutResponseDetail != null) {
                 Object extraDataKey = calloutResponseDetail.getTemplate().evaluate(entityContext);
                 if (extraDataKey instanceof String) {

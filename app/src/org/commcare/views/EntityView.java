@@ -85,7 +85,7 @@ public class EntityView extends LinearLayout {
             views.add(addCell(col, field, forms.get(col), mHints.get(col), sortField, -1, true));
         }
 
-        addExtraData(d.getCallout().getResponseDetail(), extraData);
+        addExtraData(d.getCallout().getResponseDetailField(), extraData);
 
         this.mFuzzySearchEnabled = mFuzzySearchEnabled;
     }
@@ -99,7 +99,7 @@ public class EntityView extends LinearLayout {
 
         DetailField calloutResponseDetailField = null;
         if (hasCalloutResponseData && d.getCallout() != null) {
-            calloutResponseDetailField = d.getCallout().getResponseDetail();
+            calloutResponseDetailField = d.getCallout().getResponseDetailField();
             columnTitles = addColumnTitleForCalloutData(columnTitles, calloutResponseDetailField);
         }
 
