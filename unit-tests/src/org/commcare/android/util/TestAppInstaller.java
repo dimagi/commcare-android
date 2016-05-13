@@ -75,9 +75,6 @@ public class TestAppInstaller {
     private static void storageSetup() {
         // needed to resolve "jr://resource" type references
         ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
-
-        TestUtils.initializeStaticTestStorage();
-        TestAppInstaller.setupPrototypeFactory();
     }
 
     private void installApp() {
@@ -124,11 +121,5 @@ public class TestAppInstaller {
         UserKeyRecord keyRecord =
                 UserKeyRecord.getCurrentValidRecordByPassword(ccApp, username, password, true);
         CommCareApplication._().startUserSession(keyRecord.unWrapKey(password), keyRecord, false);
-    }
-
-    private static void setupPrototypeFactory() {
-        // Sets DB to use an in-memory store for class serialization tagging.
-        // This avoids the need to use apk reflection to perform read/writes
-        TestUtils.initializeStaticTestStorage();
     }
 }
