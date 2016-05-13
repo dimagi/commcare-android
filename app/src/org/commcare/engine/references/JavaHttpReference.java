@@ -1,5 +1,6 @@
 package org.commcare.engine.references;
 
+import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.network.HttpRequestGenerator;
 import org.javarosa.core.reference.Reference;
 
@@ -14,7 +15,7 @@ import java.net.URL;
 public class JavaHttpReference implements Reference {
 
     private final String uri;
-    private HttpRequestGenerator generator;
+    private HttpRequestEndpoints generator;
 
     public JavaHttpReference(String uri, HttpRequestGenerator generator) {
         this.uri = uri;
@@ -66,7 +67,7 @@ public class JavaHttpReference implements Reference {
 
     //TODO: This should get changed to be set from the root, don't assume this will
     //still be here indefinitely
-    public void setHttpRequestor(HttpRequestGenerator generator) {
+    public void setHttpRequestor(HttpRequestEndpoints generator) {
         this.generator = generator;
     }
 }
