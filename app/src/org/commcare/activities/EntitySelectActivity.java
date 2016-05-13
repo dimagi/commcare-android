@@ -942,6 +942,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
         if (adapter != null) {
+            // filter by additional session data (search string, callout result data)
+            // Relevant when user navigates so far forward in the session that
+            // the entity list needs to be reloaded upon returning to it
             restoreAdapterStateFromSession();
         }
 

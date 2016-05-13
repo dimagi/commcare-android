@@ -68,7 +68,7 @@ public class EntityListAdapter implements ListAdapter {
     private String[] currentSearchTerms;
     private String searchQuery = "";
 
-    private EntityFiltererBase entitySearcher = null;
+    private EntityFiltererBase entityFilterer = null;
 
     // Asyncronous image loader, allows rows with images to scroll smoothly
     private final CachingAsyncImageLoader mImageLoader;
@@ -291,8 +291,8 @@ public class EntityListAdapter implements ListAdapter {
     }
 
     public synchronized void filterByString(String filterRaw) {
-        if (entitySearcher != null) {
-            entitySearcher.cancelSearch();
+        if (entityFilterer != null) {
+            entityFilterer.cancelSearch();
         }
         // split by whitespace
         String[] searchTerms = filterRaw.split("\\s+");
@@ -301,10 +301,10 @@ public class EntityListAdapter implements ListAdapter {
         }
         currentSearchTerms = searchTerms;
         searchQuery = filterRaw;
-        entitySearcher =
+        entityFilterer =
                 new EntityStringFilterer(this, searchTerms, mAsyncMode,
                         mFuzzySearchEnabled, mNodeFactory, full, context);
-        entitySearcher.start();
+        entityFilterer.start();
     }
 
     /**
@@ -315,8 +315,8 @@ public class EntityListAdapter implements ListAdapter {
     public synchronized void filterByKeyedCalloutData(OrderedHashtable<String, String> keyToExtraDataMapping) {
         externalData = keyToExtraDataMapping;
 
-        if (entitySearcher != null) {
-            entitySearcher.cancelSearch();
+        if (entityFilterer != null) {
+            entityFilterer.cancelSearch();
         }
         LinkedHashSet<String> topMatchingCaseIds = new LinkedHashSet<>();
         for (Enumeration en = externalData.keys(); en.hasMoreElements(); ) {
@@ -325,9 +325,9 @@ public class EntityListAdapter implements ListAdapter {
         }
 
         isFilteringByCalloutResult = true;
-        entitySearcher =
+        entityFilterer =
                 new EntityKeyFilterer(this, mNodeFactory, full, context, topMatchingCaseIds);
-        entitySearcher.start();
+        entityFilterer.start();
     }
 
     void update() {
@@ -380,8 +380,8 @@ public class EntityListAdapter implements ListAdapter {
      * we need to stop doing so.
      */
     public synchronized void signalKilled() {
-        if (entitySearcher != null) {
-            entitySearcher.cancelSearch();
+        if (entityFilterer != null) {
+            entityFilterer.cancelSearch();
         }
     }
 
