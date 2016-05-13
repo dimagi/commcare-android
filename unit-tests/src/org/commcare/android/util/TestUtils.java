@@ -3,6 +3,7 @@ package org.commcare.android.util;
 import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareTestApplication;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
@@ -56,9 +57,12 @@ public class TestUtils {
         //based on an optimized md5 hasher. Major speed improvements.
         DbUtil.setDBUtilsPrototypeFactory(new LivePrototypeFactory(new AndroidClassHasher()));
         AndroidUtil.initializeStaticHandlers();
-        
+        disableSqlOptimizations();
+    }
+
+    public static void disableSqlOptimizations() {
         // For now, disable the optimizations, since they require in-depth SQL code that
-        // we need better shadows for 
+        // we need better shadows for
         SqlStorage.STORAGE_OPTIMIZATIONS_ACTIVE = false;
     }
     
@@ -160,7 +164,7 @@ public class TestUtils {
     }
 
     public static PrototypeFactory getStaticPrototypeFactory(){
-        return DbUtil.getPrototypeFactory(RuntimeEnvironment.application);
+        return CommCareTestApplication._().getPrototypeFactory(RuntimeEnvironment.application);
     }
     
     /**
