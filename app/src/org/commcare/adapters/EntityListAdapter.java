@@ -318,15 +318,15 @@ public class EntityListAdapter implements ListAdapter {
         if (entityFilterer != null) {
             entityFilterer.cancelSearch();
         }
-        LinkedHashSet<String> topMatchingCaseIds = new LinkedHashSet<>();
+        LinkedHashSet<String> keysToFilterBy = new LinkedHashSet<>();
         for (Enumeration en = calloutResponseData.keys(); en.hasMoreElements(); ) {
             String key = (String)en.nextElement();
-            topMatchingCaseIds.add(key);
+            keysToFilterBy.add(key);
         }
 
         isFilteringByCalloutResult = true;
         entityFilterer =
-                new EntityKeyFilterer(this, mNodeFactory, full, context, topMatchingCaseIds);
+                new EntityKeyFilterer(this, mNodeFactory, full, context, keysToFilterBy);
         entityFilterer.start();
     }
 
