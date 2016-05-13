@@ -106,7 +106,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     private void setSessionEditText() {
         EditTextPreference savedSessionEditTextPreference =
                 (EditTextPreference)findPreference(EDIT_SAVE_SESSION);
-        savedSessionEditTextPreference.setText(getSessionStateFromPrefs());
+        savedSessionEditTextPreference.setText(getSavedSessionStateAsString());
     }
 
     @Override
@@ -143,7 +143,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         }
     }
 
-    private static String getSessionStateFromPrefs() {
+    private static String getSavedSessionStateAsString() {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         String navSession = prefs.getString(CommCarePreferences.CURRENT_SESSION, "");
         String formEntrySession = prefs.getString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, "");
