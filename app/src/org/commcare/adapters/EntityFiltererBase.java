@@ -6,6 +6,7 @@ import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;
 import org.javarosa.core.model.instance.TreeReference;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -16,6 +17,7 @@ import java.util.List;
 public abstract class EntityFiltererBase {
     private final NodeEntityFactory nodeFactory;
     private final EntityListAdapter adapter;
+    protected final List<Entity<TreeReference>> matchList;
     protected final List<Entity<TreeReference>> fullEntityList;
     private Thread thread;
     private boolean cancelled = false;
@@ -29,6 +31,7 @@ public abstract class EntityFiltererBase {
         this.nodeFactory = nodeFactory;
         this.adapter = adapter;
         this.fullEntityList = fullEntityList;
+        this.matchList = new ArrayList<>();
     }
 
     public void start() {
@@ -56,7 +59,7 @@ public abstract class EntityFiltererBase {
         context.runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                adapter.setCurrent(getMatchList());
+                adapter.setCurrent(matchList);
             }
         });
     }
@@ -80,9 +83,4 @@ public abstract class EntityFiltererBase {
      * entities from the full list of entities
      */
     protected abstract void filter();
-
-    /**
-     * @return filter results; those entities from the full list that fulfill the filterconditions
-     */
-    protected abstract List<Entity<TreeReference>> getMatchList();
 }

@@ -25,7 +25,6 @@ import java.util.Locale;
 public class EntityStringFilterer extends EntityFiltererBase {
     private final boolean isFilterEmpty;
     private final String[] searchTerms;
-    private final List<Entity<TreeReference>> matchList;
     private final ArrayList<Pair<Integer, Integer>> matchScores = new ArrayList<>();
     private final boolean isAsyncMode;
     private final boolean isFuzzySearchEnabled;
@@ -41,10 +40,9 @@ public class EntityStringFilterer extends EntityFiltererBase {
         this.isFuzzySearchEnabled = isFuzzySearchEnabled;
         this.isFilterEmpty = searchTerms == null || searchTerms.length == 0;
         this.searchTerms = searchTerms;
+
         if (isFilterEmpty) {
-            matchList = new ArrayList<>(fullEntityList);
-        } else {
-            matchList = new ArrayList<>();
+            matchList.addAll(fullEntityList);
         }
     }
 
@@ -134,10 +132,5 @@ public class EntityStringFilterer extends EntityFiltererBase {
 
         db.setTransactionSuccessful();
         db.endTransaction();
-    }
-
-    @Override
-    protected List<Entity<TreeReference>> getMatchList() {
-        return matchList;
     }
 }

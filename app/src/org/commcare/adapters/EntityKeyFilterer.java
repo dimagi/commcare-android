@@ -19,7 +19,6 @@ import java.util.List;
  */
 public class EntityKeyFilterer extends EntityFiltererBase {
     private final LinkedHashSet<String> orderedKeySet;
-    private final List<Entity<TreeReference>> matchList = new ArrayList<>();
 
     public EntityKeyFilterer(EntityListAdapter adapter,
                              NodeEntityFactory nodeFactory,
@@ -64,10 +63,5 @@ public class EntityKeyFilterer extends EntityFiltererBase {
             }
         }
         return keyToEntitiesMap;
-    }
-
-    @Override
-    protected List<Entity<TreeReference>> getMatchList() {
-        return matchList;
     }
 }
