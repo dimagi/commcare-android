@@ -5,6 +5,7 @@ import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
 import org.apache.http.HttpResponse;
+import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.utils.AndroidStreamUtil;
 import org.commcare.utils.bitcache.BitCache;
@@ -27,27 +28,14 @@ public class RemoteDataPullResponse {
     private final HttpResponse response;
 
     /**
-     * Testing constructor used when overriding server dependent behavior
-     */
-    protected RemoteDataPullResponse(int responseCode) {
-        this.responseCode = responseCode;
-        this.task = null;
-        this.response = null;
-    }
-
-    /**
      * Makes data pulling request and keeps response for local caching
      *
-     * @param task             For progress reporting
-     * @param requestor        Handles making the http request
-     * @param server           Address of the request target
-     * @param includeSyncToken Add sync token to the request
+     * @param task     For progress reporting
+     * @param response Contains data pull response stream and status code
      */
     protected RemoteDataPullResponse(DataPullTask task,
-                                     HttpRequestGenerator requestor,
-                                     String server,
-                                     boolean includeSyncToken) throws IOException {
-        this.response = requestor.makeCaseFetchRequest(server, includeSyncToken);
+                                     HttpResponse response) throws IOException {
+        this.response = response;
         this.responseCode = response.getStatusLine().getStatusCode();
         this.task = task;
     }

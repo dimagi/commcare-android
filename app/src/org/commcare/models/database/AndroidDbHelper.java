@@ -7,6 +7,7 @@ import android.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.utils.SessionUnavailableException;
@@ -91,6 +92,6 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
     }
 
     public PrototypeFactory getPrototypeFactory() {
-        return DbUtil.getPrototypeFactory(c);
+        return CommCareApplication._().getPrototypeFactory(c);
     }
 }

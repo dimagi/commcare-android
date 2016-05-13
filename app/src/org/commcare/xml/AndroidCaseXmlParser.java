@@ -9,6 +9,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.cases.model.Case;
 import org.commcare.engine.references.JavaHttpReference;
+import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.ACase;
@@ -37,7 +38,7 @@ import java.io.IOException;
 public class AndroidCaseXmlParser extends CaseXmlParser {
     private File folder;
     private final boolean processAttachments = true;
-    private HttpRequestGenerator generator;
+    private HttpRequestEndpoints generator;
     private final EntityStorageCache mEntityCache;
     private final CaseIndexTable mCaseIndexTable;
 
@@ -54,7 +55,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
 
     public AndroidCaseXmlParser(KXmlParser parser, int[] tallies,
                                 boolean b, IStorageUtilityIndexed<Case> storage,
-                                HttpRequestGenerator generator) {
+                                HttpRequestEndpoints generator) {
         super(parser, tallies, b, storage);
         this.generator = generator;
         mEntityCache = new EntityStorageCache("case");
