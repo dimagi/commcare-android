@@ -14,7 +14,6 @@ import org.commcare.dalvik.R;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.views.ManagedUi;

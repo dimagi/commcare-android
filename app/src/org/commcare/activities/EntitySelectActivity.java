@@ -48,7 +48,6 @@ import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.EntityDatum;
-import org.commcare.suite.model.SessionDatum;
 import org.commcare.tasks.EntityLoaderListener;
 import org.commcare.tasks.EntityLoaderTask;
 import org.commcare.utils.AndroidInstanceInitializer;
@@ -786,7 +785,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private void createSortMenu() {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, Localization.get("select.menu.sort"));
         dialog.setChoiceItems(getSortOptionsList(dialog));
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     private DialogChoiceItem[] getSortOptionsList(final PaneledChoiceDialog dialog) {
@@ -991,7 +990,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     public void deliverLoadError(Exception e) {
-        displayException(e);
+        displayCaseListFilterException(e);
     }
 
     @Override
