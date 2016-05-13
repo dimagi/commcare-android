@@ -55,7 +55,7 @@ public class EntityListCalloutDataTest {
     public void setup() {
         String appProfileResource =
                 "jr://resource/commcare-apps/case_list_lookup/profile.ccpr";
-        TestAppInstaller.initInstallAndLogin(appProfileResource, "test", "123");
+        TestAppInstaller.installAppAndLogin(appProfileResource, "test", "123");
 
         TestUtils.processResourceTransactionIntoAppDb("/commcare-apps/case_list_lookup/restore.xml");
     }
