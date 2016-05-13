@@ -100,13 +100,7 @@ public class EntityView extends LinearLayout {
         DetailField calloutResponseDetailField = null;
         if (hasCalloutResponseData && d.getCallout() != null) {
             calloutResponseDetailField = d.getCallout().getResponseDetail();
-            String[] headerTextWithCalloutResponse =
-                    new String[columnTitles.length + 1];
-            System.arraycopy(columnTitles, 0,
-                    headerTextWithCalloutResponse, 0, columnTitles.length);
-            columnTitles = headerTextWithCalloutResponse;
-            columnTitles[columnTitles.length - 1] =
-                    calloutResponseDetailField.getHeader().evaluate();
+            columnTitles = addColumnTitleForCalloutData(columnTitles, calloutResponseDetailField);
         }
 
         int columnCount = columnTitles.length;
@@ -138,6 +132,17 @@ public class EntityView extends LinearLayout {
             views.add(addCell(col, columnTitles[col], headerForms[col],
                     mHints.get(col), null, colors[1], false));
         }
+    }
+
+    private static String[] addColumnTitleForCalloutData(String[] columnTitles,
+                                                         DetailField calloutResponseDetailField) {
+        String[] headerTextWithCalloutResponse =
+                new String[columnTitles.length + 1];
+        System.arraycopy(columnTitles, 0,
+                headerTextWithCalloutResponse, 0, columnTitles.length);
+        columnTitles = headerTextWithCalloutResponse;
+        columnTitles[columnTitles.length - 1] =
+                calloutResponseDetailField.getHeader().evaluate();
     }
 
     public static EntityView buildEntryEntityView(Context context, Detail detail,
