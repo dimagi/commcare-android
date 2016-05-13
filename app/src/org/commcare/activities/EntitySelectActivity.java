@@ -368,9 +368,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
-        if (adapter.isFilteringByCalloutResult()) {
-            showSearchBannerWithClearButton();
-        }
+        setSearchBannerState();
     }
 
     private void setupMapNav() {
