@@ -75,6 +75,7 @@ public class MenuAdapter implements ListAdapter {
                             continue;
                         }
                     }
+
                     if (m.getId().equals(menuID)) {
                         if (menuTitle == null) {
                             //TODO: Do I need args, here?
@@ -85,40 +86,7 @@ public class MenuAdapter implements ListAdapter {
                             }
                         }
 
-                        for (String command : m.getCommandIds()) {
-                            xpathExpression = "";
-                            XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
-                            if (mRelevantCondition != null) {
-                                xpathExpression = m.getCommandRelevanceRaw(m.indexOfCommand(command));
-                                ec = asw.getEvaluationContext();
-                                Object ret = mRelevantCondition.eval(ec);
-                                try {
-                                    if (!XPathFuncExpr.toBoolean(ret)) {
-                                        continue;
-                                    }
-                                } catch (XPathTypeMismatchException e) {
-                                    final String msg = "relevancy condition for menu item returned non-boolean value : " + ret;
-                                    XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e.getSource(), msg);
-                                    Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, msg);
-                                    throw new RuntimeException(msg);
-                                }
-                                if (!XPathFuncExpr.toBoolean(ret)) {
-                                    continue;
-                                }
-                            }
-
-                            Entry e = map.get(command);
-                            if (e.isView()) {
-                                //If this is a "view", not an "entry"
-                                //we only want to display it if all of its 
-                                //datums are not already present
-                                if (asw.getSession().getNeededDatum(e) == null) {
-                                    continue;
-                                }
-                            }
-
-                            items.add(e);
-                        }
+                        xpathExpression = addRelevantCommandEntries(m, items, map, xpathExpression);
                         continue;
                     }
                     addUnaddedMenu(menuID, m, items);
@@ -138,6 +106,47 @@ public class MenuAdapter implements ListAdapter {
 
         displayableData = new MenuDisplayable[items.size()];
         items.copyInto(displayableData);
+    }
+
+    private String addRelevantCommandEntries(Menu m, Vector<MenuDisplayable> items,
+                                             Hashtable<String, Entry> map,
+                                             String xpathExpression)
+            throws XPathSyntaxException {
+        for (String command : m.getCommandIds()) {
+            xpathExpression = "";
+            XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
+            if (mRelevantCondition != null) {
+                xpathExpression = m.getCommandRelevanceRaw(m.indexOfCommand(command));
+                EvaluationContext ec = asw.getEvaluationContext();
+                Object ret = mRelevantCondition.eval(ec);
+                try {
+                    if (!XPathFuncExpr.toBoolean(ret)) {
+                        continue;
+                    }
+                } catch (XPathTypeMismatchException e) {
+                    final String msg = "relevancy condition for menu item returned non-boolean value : " + ret;
+                    XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e.getSource(), msg);
+                    Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, msg);
+                    throw new RuntimeException(msg);
+                }
+                if (!XPathFuncExpr.toBoolean(ret)) {
+                    continue;
+                }
+            }
+
+            Entry e = map.get(command);
+            if (e.isView()) {
+                //If this is a "view", not an "entry"
+                //we only want to display it if all of its
+                //datums are not already present
+                if (asw.getSession().getNeededDatum(e) == null) {
+                    continue;
+                }
+            }
+
+            items.add(e);
+        }
+        return xpathExpression;
     }
 
     private static void addUnaddedMenu(String menuID, Menu m, Vector<MenuDisplayable> items) {
