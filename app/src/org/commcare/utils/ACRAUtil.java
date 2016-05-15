@@ -7,6 +7,7 @@ import org.acra.ACRA;
 import org.acra.ErrorReporter;
 import org.acra.config.ACRAConfiguration;
 import org.acra.config.ACRAConfigurationFactory;
+import org.acra.config.ConfigurationBuilder;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.BuildConfig;
 
@@ -36,11 +37,11 @@ public class ACRAUtil {
     public static void initACRA(Application app) {
         String url = BuildConfig.ACRA_URL;
         if (URLUtil.isValidUrl(url)) {
-            ACRAConfiguration acraConfig = new ACRAConfigurationFactory().create(app);
-            acraConfig.setFormUriBasicAuthLogin(BuildConfig.ACRA_USER);
-            acraConfig.setFormUriBasicAuthPassword(BuildConfig.ACRA_PASSWORD);
-            acraConfig.setFormUri(url);
-            ACRA.init(app, acraConfig);
+            ConfigurationBuilder acraConfigBuilder = new ConfigurationBuilder(app);
+            acraConfigBuilder.setFormUriBasicAuthLogin(BuildConfig.ACRA_USER);
+            acraConfigBuilder.setFormUriBasicAuthPassword(BuildConfig.ACRA_PASSWORD);
+            acraConfigBuilder.setFormUri(url);
+            ACRA.init(app, acraConfigBuilder.build());
             isAcraConfigured = true;
         }
     }
