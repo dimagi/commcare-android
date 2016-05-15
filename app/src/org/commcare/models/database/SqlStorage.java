@@ -471,8 +471,9 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         }
 
         try {
-            c.moveToFirst();
-            return c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
+            if (c != null && c.moveToFirst()) {
+                return c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
+            }
         } finally {
             if (c != null) {
                 c.close();
