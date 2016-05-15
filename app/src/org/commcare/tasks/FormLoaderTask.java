@@ -12,14 +12,15 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.engine.extensions.CalendaredDateFormatHandler;
-import org.commcare.engine.extensions.IntentExtensionParser;
-import org.odk.collect.android.jr.extensions.PollSensorAction;
-import org.commcare.engine.extensions.PollSensorExtensionParser;
+import org.commcare.logging.UserCausedRuntimeException;
+import org.commcare.logging.XPathErrorLogger;
+import org.commcare.views.UserfacingErrorHandling;
+import org.javarosa.xpath.XPathException;
+import org.javarosa.xpath.XPathUnhandledException;
 import org.commcare.engine.extensions.XFormExtensionUtils;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logic.FileReferenceFactory;
 import org.commcare.logic.FormController;
-import org.commcare.models.database.DbUtil;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.tasks.templates.CommCareTask;
@@ -203,7 +204,13 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             importData(FormEntryActivity.mInstancePath, fec);
         }
 
-        formDef.initialize(isNewFormInstance, iif, getSystemLocale());
+        try {
+            formDef.initialize(isNewFormInstance, iif, getSystemLocale());
+        } catch (XPathException e) {
+            XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
+            throw new UserCausedRuntimeException(e.getMessage(), e);
+        }
+
         if (mReadOnly) {
             formDef.getInstance().getRoot().setEnabled(false);
         }
