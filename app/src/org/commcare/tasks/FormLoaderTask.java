@@ -196,14 +196,14 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         }
 
         //TODO: Get a reasonable IIF object
-        // import existing data into formdef
-        if (FormEntryActivity.mInstancePath != null) {
-            // This order is important. Import data, then initialize.
+
+        boolean isNewFormInstance = FormEntryActivity.mInstancePath == null;
+
+        if (!isNewFormInstance) {
             importData(FormEntryActivity.mInstancePath, fec);
-            formDef.initialize(false, iif, getSystemLocale());
-        } else {
-            formDef.initialize(true, iif, getSystemLocale());
         }
+
+        formDef.initialize(isNewFormInstance, iif, getSystemLocale());
         if (mReadOnly) {
             formDef.getInstance().getRoot().setEnabled(false);
         }
