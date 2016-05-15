@@ -109,7 +109,7 @@ public class ForceCloseLogger {
             User user = CommCareApplication._().getSession().getLoggedInUser();
             generator = new HttpRequestGenerator(user);
         } catch (Exception e) {
-            generator = new HttpRequestGenerator();
+            generator = HttpRequestGenerator.buildNoAuthGenerator();
         }
 
         try {
