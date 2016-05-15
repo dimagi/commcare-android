@@ -76,7 +76,6 @@ public class MenuAdapter implements ListAdapter {
                         }
                     }
                     if (m.getId().equals(menuID)) {
-
                         if (menuTitle == null) {
                             //TODO: Do I need args, here?
                             try {
@@ -122,21 +121,7 @@ public class MenuAdapter implements ListAdapter {
                         }
                         continue;
                     }
-                    if (menuID.equals(m.getRoot())) {
-                        //make sure we didn't already add this ID
-                        boolean idExists = false;
-                        for (Object o : items) {
-                            if (o instanceof Menu) {
-                                if (((Menu) o).getId().equals(m.getId())) {
-                                    idExists = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (!idExists) {
-                            items.add(m);
-                        }
-                    }
+                    addUnaddedMenu(menuID, m, items);
                 } catch (XPathSyntaxException xpse) {
                     XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpathExpression, xpse.getMessage());
                     CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.bad.xpath", new String[]{xpathExpression, xpse.getMessage()}));
@@ -153,6 +138,24 @@ public class MenuAdapter implements ListAdapter {
 
         displayableData = new MenuDisplayable[items.size()];
         items.copyInto(displayableData);
+    }
+
+    private static void addUnaddedMenu(String menuID, Menu m, Vector<MenuDisplayable> items) {
+        if (menuID.equals(m.getRoot())) {
+            //make sure we didn't already add this ID
+            boolean idExists = false;
+            for (Object o : items) {
+                if (o instanceof Menu) {
+                    if (((Menu) o).getId().equals(m.getId())) {
+                        idExists = true;
+                        break;
+                    }
+                }
+            }
+            if (!idExists) {
+                items.add(m);
+            }
+        }
     }
 
     @Override
