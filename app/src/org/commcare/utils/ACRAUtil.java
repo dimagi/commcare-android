@@ -4,9 +4,6 @@ import android.app.Application;
 import android.webkit.URLUtil;
 
 import org.acra.ACRA;
-import org.acra.ErrorReporter;
-import org.acra.config.ACRAConfiguration;
-import org.acra.config.ACRAConfigurationFactory;
 import org.acra.config.ConfigurationBuilder;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.BuildConfig;
@@ -30,8 +27,13 @@ public class ACRAUtil {
      * stored for each key.
      */
     private static void addCustomData(String key, String value) {
-        ErrorReporter mReporter = ACRA.getErrorReporter();
-        mReporter.putCustomData(key, value);
+        ACRA.getErrorReporter().putCustomData(key, value);
+    }
+
+    public static void reportException(Exception e) {
+        if (isAcraConfigured) {
+            ACRA.getErrorReporter().handleException(e);
+        }
     }
 
     public static void initACRA(Application app) {
