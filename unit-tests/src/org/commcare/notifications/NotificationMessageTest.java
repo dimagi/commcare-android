@@ -20,6 +20,9 @@ import java.util.Date;
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class NotificationMessageTest {
+    /**
+     * Write NotificationMessage to parcel and read it back out again
+     */
     @Test
     public void notificationParcellingTest() {
         NotificationMessage sampleNotification =
@@ -29,7 +32,8 @@ public class NotificationMessageTest {
 
         parcel.setDataPosition(0);
 
-        NotificationMessage createdFromParcel = NotificationMessage.CREATOR.createFromParcel(parcel);
+        NotificationMessage createdFromParcel =
+                NotificationMessage.CREATOR.createFromParcel(parcel);
         Assert.assertEquals(sampleNotification, createdFromParcel);
     }
 }
