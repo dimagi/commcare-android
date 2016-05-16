@@ -51,8 +51,7 @@ public class GridMenuAdapter extends MenuAdapter {
     }
 
     @Override
-    protected void setupDefaultIcon(ImageView mIconView, MenuDisplayable menuDisplayable,
-                                    NavIconState iconChoice){
+    protected void setupDefaultIcon(ImageView mIconView, NavIconState iconChoice) {
         if (mIconView != null) {
             switch (iconChoice) {
                 case NEXT:
