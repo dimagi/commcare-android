@@ -16,7 +16,6 @@ import java.net.URL;
  *
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class SimpleGetRequest {
 class SimpleGetRequest {
 
     protected static InputStream makeRequest(final String username,
