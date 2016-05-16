@@ -256,10 +256,6 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public void triggerHandledAppExit(Context c, String message) {
-        triggerHandledAppExit(c, message, Localization.get("app.handled.error.title"));
-    }
-
     public void triggerHandledAppExit(Context c, String message, String title) {
         triggerHandledAppExit(c, message, title, true);
     }

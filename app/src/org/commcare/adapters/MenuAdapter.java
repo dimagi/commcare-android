@@ -13,6 +13,8 @@ import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareActivity;
+import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.XPathErrorLogger;
@@ -26,6 +28,7 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.Suite;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.MediaUtil;
+import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.media.AudioButton;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -51,6 +54,7 @@ import java.util.Vector;
 public class MenuAdapter implements ListAdapter {
 
     private final AndroidSessionWrapper asw;
+    private Exception loadError;
     private String errorXpathException = "";
     final Context context;
     MenuDisplayable[] displayableData;
@@ -73,14 +77,9 @@ public class MenuAdapter implements ListAdapter {
                             addUnaddedMenu(menuID, m, items);
                         }
                     }
-                } catch (XPathSyntaxException xpse) {
-                    XPathErrorLogger.INSTANCE.logErrorToCurrentApp(errorXpathException, xpse.getMessage());
-                    CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.bad.xpath", new String[]{errorXpathException, xpse.getMessage()}));
-                    displayableData = new MenuDisplayable[0];
-                    return;
-                } catch (XPathException xpe) {
-                    XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
-                    CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.xpath.err", new String[]{errorXpathException, xpe.getMessage()}));
+                } catch (CommCareInstanceInitializer.FixtureInitializationException
+                        | XPathSyntaxException | XPathException xpe) {
+                    loadError = xpe;
                     displayableData = new MenuDisplayable[0];
                     return;
                 }
@@ -89,6 +88,21 @@ public class MenuAdapter implements ListAdapter {
 
         displayableData = new MenuDisplayable[items.size()];
         items.copyInto(displayableData);
+    }
+
+    public void showAnyLoadErrors(CommCareActivity activity) {
+        if (loadError != null) {
+            String errorMessage = loadError.getMessage();
+
+            if (loadError instanceof XPathSyntaxException) {
+                XPathErrorLogger.INSTANCE.logErrorToCurrentApp(errorXpathException, loadError.getMessage());
+                errorMessage = Localization.get("app.menu.display.cond.bad.xpath", new String[]{errorXpathException, loadError.getMessage()});
+            } else if (loadError instanceof XPathException) {
+                XPathErrorLogger.INSTANCE.logErrorToCurrentApp((XPathException)loadError);
+                errorMessage = Localization.get("app.menu.display.cond.xpath.err", new String[]{errorXpathException, loadError.getMessage()});
+            }
+            UserfacingErrorHandling.createErrorDialog(activity, errorMessage, true);
+        }
     }
 
     private boolean menuIsRelevant(Menu m) throws XPathSyntaxException {
