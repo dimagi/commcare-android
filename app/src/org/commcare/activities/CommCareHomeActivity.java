@@ -123,7 +123,6 @@ public class CommCareHomeActivity
     private static final int MENU_PREFERENCES = Menu.FIRST + 2;
     private static final int MENU_ABOUT = Menu.FIRST + 3;
     // TODO PLM: move to settings page
-    private static final int MENU_DUMP_FORMS = Menu.FIRST + 6;
     private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 8;
     private static final int MENU_PIN = Menu.FIRST + 9;
 
@@ -1148,8 +1147,6 @@ public class CommCareHomeActivity
         menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
                 android.R.drawable.ic_menu_help);
         // TODO PLM: move to settings page
-        menu.add(0, MENU_DUMP_FORMS, 0, Localization.get("home.menu.formdump")).setIcon(
-                android.R.drawable.ic_menu_set_as);
         menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, Localization.get("home.menu.connection.diagnostic")).setIcon(
                 android.R.drawable.ic_menu_manage);
         menu.add(0, MENU_PIN, 0, Localization.get("home.menu.pin.set"));
@@ -1170,7 +1167,6 @@ public class CommCareHomeActivity
             menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
             menu.findItem(MENU_ABOUT).setVisible(enableMenus);
             // TODO PLM: move to settings menu
-            menu.findItem(MENU_DUMP_FORMS).setVisible(enableMenus);
             menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
             if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
                 menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
@@ -1205,9 +1201,6 @@ public class CommCareHomeActivity
                 showAboutCommCareDialog();
                 return true;
             // TODO PLM: move to settings screen
-            case MENU_DUMP_FORMS:
-                startFormDumpActivity();
-                return true;
             case MENU_CONNECTION_DIAGNOSTIC:
                 startMenuConnectionActivity();
                 return true;
@@ -1225,7 +1218,6 @@ public class CommCareHomeActivity
         menuIdToAnalyticsEvent.put(MENU_PREFERENCES, GoogleAnalyticsFields.LABEL_SETTINGS);
         menuIdToAnalyticsEvent.put(MENU_ABOUT, GoogleAnalyticsFields.LABEL_ABOUT_CC);
         // TODO PLM: move to settings screen
-        menuIdToAnalyticsEvent.put(MENU_DUMP_FORMS, GoogleAnalyticsFields.LABEL_MANAGE_SD);
         menuIdToAnalyticsEvent.put(MENU_CONNECTION_DIAGNOSTIC, GoogleAnalyticsFields.LABEL_CONNECTION_TEST);
         return menuIdToAnalyticsEvent;
     }

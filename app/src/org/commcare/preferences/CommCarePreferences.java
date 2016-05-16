@@ -52,6 +52,7 @@ public class CommCarePreferences
     private final static String REPORT_PROBLEM = "report-problem";
     private final static String VALIDATE_MEDIA = "validate-media";
     private final static String WIFI_DIRECT = "wifi-direct";
+    private final static String DUMP_FORMS = "manage-sd-card";
 
     public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
     public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
@@ -127,10 +128,12 @@ public class CommCarePreferences
         keyToTitleMap.put(REPORT_PROBLEM, "problem.report.menuitem");
         keyToTitleMap.put(VALIDATE_MEDIA, "home.menu.validate");
         keyToTitleMap.put(WIFI_DIRECT, "home.menu.wifi.direct");
+        keyToTitleMap.put(DUMP_FORMS, "home.menu.formdump");
 
         prefKeyToAnalyticsEvent.put(REPORT_PROBLEM, GoogleAnalyticsFields.LABEL_REPORT_PROBLEM);
         prefKeyToAnalyticsEvent.put(VALIDATE_MEDIA, GoogleAnalyticsFields.LABEL_VALIDATE_MM);
         prefKeyToAnalyticsEvent.put(WIFI_DIRECT, GoogleAnalyticsFields.LABEL_WIFI_DIRECT);
+        prefKeyToAnalyticsEvent.put(DUMP_FORMS, GoogleAnalyticsFields.LABEL_MANAGE_SD);
 
         prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
         prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
@@ -216,6 +219,15 @@ public class CommCarePreferences
                 }
             });
         }
+
+        Preference formDumpButton = findPreference(DUMP_FORMS);
+        formDumpButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                startFormDump();
+                return true;
+            }
+        });
     }
 
     private void createPrintPrefOnClickListener(PreferenceManager prefManager) {
@@ -545,6 +557,10 @@ public class CommCarePreferences
     }
 
     private void startWifiDirect() {
+        // TODO PLM
+    }
+
+    private void startFormDump() {
         // TODO PLM
     }
 
