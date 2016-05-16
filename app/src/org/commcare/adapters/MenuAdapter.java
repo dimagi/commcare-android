@@ -96,9 +96,7 @@ public class MenuAdapter implements ListAdapter {
         if (m.getMenuRelevance() != null) {
             errorXpathException = m.getMenuRelevanceRaw();
             EvaluationContext ec = asw.getEvaluationContext(m.getId());
-            if (!XPathFuncExpr.toBoolean(relevance.eval(ec))) {
-                return false;
-            }
+            return XPathFuncExpr.toBoolean(relevance.eval(ec));
         }
         return true;
     }
