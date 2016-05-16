@@ -10,6 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/universal_frame_tile"
         android:background="@color/cc_brand_bg"
+        android:visibility="gone"
         android:orientation="horizontal">
         <TextView
             android:id="@+id/search_results_status"

@@ -1674,11 +1674,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 }
             };
             mFormLoaderTask.connect(this);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                mFormLoaderTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, formUri);
-            } else {
-                mFormLoaderTask.execute(formUri);
-            }
+            mFormLoaderTask.executeParallel(formUri);
             hasFormLoadBeenTriggered = true;
         }
     }
