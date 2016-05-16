@@ -115,13 +115,6 @@ public class CommCareHomeActivity
     public static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
     private static final int PREFERENCES_ACTIVITY=4096;
 
-    /**
-     * Request code for launching media validator manually (Settings ->
-     * Validate Media). Should signal a return from
-     * CommCareVerificationActivity.
-     */
-    private static final int MEDIA_VALIDATOR_ACTIVITY=8192;
-
     private static final int CREATE_PIN = 16384;
     private static final int AUTHENTICATION_FOR_PIN = 32768;
 
@@ -130,7 +123,6 @@ public class CommCareHomeActivity
     private static final int MENU_PREFERENCES = Menu.FIRST + 2;
     private static final int MENU_ABOUT = Menu.FIRST + 3;
     // TODO PLM: move to settings page
-    private static final int MENU_VALIDATE_MEDIA = Menu.FIRST + 5;
     private static final int MENU_DUMP_FORMS = Menu.FIRST + 6;
     private static final int MENU_WIFI_DIRECT = Menu.FIRST + 7;
     private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 8;
@@ -397,13 +389,6 @@ public class CommCareHomeActivity
                     }
                     rebuildOptionMenu();
                     return;
-                case MEDIA_VALIDATOR_ACTIVITY:
-                    if(resultCode == RESULT_CANCELED){
-                        return;
-                    } else if (resultCode == RESULT_OK){
-                        Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
-                        return;
-                    }
                 case DUMP_FORMS_ACTIVITY:
                     if(resultCode == RESULT_CANCELED){
                         return;
@@ -1164,8 +1149,6 @@ public class CommCareHomeActivity
         menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
                 android.R.drawable.ic_menu_help);
         // TODO PLM: move to settings page
-        menu.add(0, MENU_VALIDATE_MEDIA, 0, Localization.get("home.menu.validate")).setIcon(
-                android.R.drawable.ic_menu_gallery);
         menu.add(0, MENU_DUMP_FORMS, 0, Localization.get("home.menu.formdump")).setIcon(
                 android.R.drawable.ic_menu_set_as);
         menu.add(0, MENU_WIFI_DIRECT, 0, Localization.get("home.menu.wifi.direct")).setIcon(
@@ -1190,7 +1173,6 @@ public class CommCareHomeActivity
             menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
             menu.findItem(MENU_ABOUT).setVisible(enableMenus);
             // TODO PLM: move to settings menu
-            menu.findItem(MENU_VALIDATE_MEDIA).setVisible(enableMenus);
             menu.findItem(MENU_DUMP_FORMS).setVisible(enableMenus);
             menu.findItem(MENU_WIFI_DIRECT).setVisible(enableMenus && hasP2p());
             menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
@@ -1227,9 +1209,6 @@ public class CommCareHomeActivity
                 showAboutCommCareDialog();
                 return true;
             // TODO PLM: move to settings screen
-            case MENU_VALIDATE_MEDIA:
-                startValidationActivity();
-                return true;
             case MENU_DUMP_FORMS:
                 startFormDumpActivity();
                 return true;
@@ -1253,7 +1232,6 @@ public class CommCareHomeActivity
         menuIdToAnalyticsEvent.put(MENU_PREFERENCES, GoogleAnalyticsFields.LABEL_SETTINGS);
         menuIdToAnalyticsEvent.put(MENU_ABOUT, GoogleAnalyticsFields.LABEL_ABOUT_CC);
         // TODO PLM: move to settings screen
-        menuIdToAnalyticsEvent.put(MENU_VALIDATE_MEDIA, GoogleAnalyticsFields.LABEL_VALIDATE_MM);
         menuIdToAnalyticsEvent.put(MENU_DUMP_FORMS, GoogleAnalyticsFields.LABEL_MANAGE_SD);
         menuIdToAnalyticsEvent.put(MENU_WIFI_DIRECT, GoogleAnalyticsFields.LABEL_WIFI_DIRECT);
         menuIdToAnalyticsEvent.put(MENU_CONNECTION_DIAGNOSTIC, GoogleAnalyticsFields.LABEL_CONNECTION_TEST);
@@ -1263,12 +1241,6 @@ public class CommCareHomeActivity
     public static void createPreferencesMenu(Activity activity) {
         Intent i = new Intent(activity, CommCarePreferences.class);
         activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
-    }
-
-    private void startValidationActivity() {
-        Intent i = new Intent(this, CommCareVerificationActivity.class);
-        i.putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_SETTINGS, true);
-        CommCareHomeActivity.this.startActivityForResult(i, MEDIA_VALIDATOR_ACTIVITY);
     }
 
     private void startFormDumpActivity() {

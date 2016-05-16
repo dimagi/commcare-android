@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareVerificationActivity;
 import org.commcare.activities.RecoveryActivity;
 import org.commcare.activities.ReportProblemActivity;
 import org.commcare.activities.SessionAwarePreferenceActivity;
@@ -36,6 +37,8 @@ import org.javarosa.core.util.NoLocalizedTextException;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.regexp.RE;
+
 public class CommCarePreferences
         extends SessionAwarePreferenceActivity
         implements OnSharedPreferenceChangeListener {
@@ -47,6 +50,7 @@ public class CommCarePreferences
     public final static String FREQUENCY_NEVER = "freq-never";
     public final static String FREQUENCY_DAILY = "freq-daily";
     private final static String REPORT_PROBLEM = "report-problem";
+    private final static String VALIDATE_MEDIA = "validate-media";
 
     public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
     public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
@@ -120,8 +124,10 @@ public class CommCarePreferences
 
     static {
         keyToTitleMap.put(REPORT_PROBLEM, "problem.report.menuitem");
+        keyToTitleMap.put(VALIDATE_MEDIA, "home.menu.validate");
 
         prefKeyToAnalyticsEvent.put(REPORT_PROBLEM, GoogleAnalyticsFields.LABEL_REPORT_PROBLEM);
+        prefKeyToAnalyticsEvent.put(VALIDATE_MEDIA, GoogleAnalyticsFields.LABEL_VALIDATE_MM);
 
         prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
         prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
@@ -153,6 +159,8 @@ public class CommCarePreferences
 
         setupLocalizedText();
 
+        setupButtons();
+
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(prefMgr, prefKeyToAnalyticsEvent,
                 GoogleAnalyticsFields.CATEGORY_CC_PREFS);
         // Override the default listener for the print pref key b/c it has extra behavior
@@ -171,6 +179,25 @@ public class CommCarePreferences
 
             }
         }
+    }
+    private void setupButtons() {
+        Preference validateMediaButton = findPreference(VALIDATE_MEDIA);
+        validateMediaButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                startValidationActivity();
+                return true;
+            }
+        });
+
+        Preference reportProblemButton = findPreference(REPORT_PROBLEM);
+        reportProblemButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                startReportActivity();
+                return true;
+            }
+        });
     }
 
     private void createPrintPrefOnClickListener(PreferenceManager prefManager) {
@@ -490,6 +517,12 @@ public class CommCarePreferences
 
     private void startReportActivity() {
         Intent i = new Intent(this, ReportProblemActivity.class);
+        startActivity(i);
+    }
+
+    private void startValidationActivity() {
+        Intent i = new Intent(this, CommCareVerificationActivity.class);
+        i.putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_SETTINGS, true);
         startActivity(i);
     }
 }
