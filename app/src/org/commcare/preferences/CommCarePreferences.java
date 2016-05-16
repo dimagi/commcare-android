@@ -99,13 +99,12 @@ public class CommCarePreferences
     public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
     public final static String BRAND_BANNER_HOME = "brand-banner-home";
 
-    private static final int CLEAR_USER_DATA = Menu.FIRST;
-    private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 1;
-    private static final int RECOVERY_MODE = Menu.FIRST + 2;
-    private static final int MENU_DISABLE_ANALYTICS = Menu.FIRST + 3;
-    private static final int SUPERUSER_PREFS = Menu.FIRST + 4;
-    private static final int MENU_CLEAR_SAVED_SESSION = Menu.FIRST + 5;
-
+    private static final int FORCE_LOG_SUBMIT = Menu.FIRST;
+    private static final int RECOVERY_MODE = Menu.FIRST + 1;
+    private static final int MENU_DISABLE_ANALYTICS = Menu.FIRST + 2;
+    private static final int CLEAR_USER_DATA = Menu.FIRST + 3;
+    private static final int MENU_CLEAR_SAVED_SESSION = Menu.FIRST + 4;
+    private static final int SUPERUSER_PREFS = Menu.FIRST + 5;
 
     public static final int RESULT_DATA_RESET = RESULT_FIRST_USER + 1;
 
@@ -286,14 +285,24 @@ public class CommCarePreferences
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, CLEAR_USER_DATA, 0, "Clear User Data").setIcon(
-                android.R.drawable.ic_menu_delete);
-        menu.add(0, MENU_CLEAR_SAVED_SESSION, 1, Localization.get("menu.clear.saved.session"));
-        menu.add(0, FORCE_LOG_SUBMIT, 2, "Force Log Submission").setIcon(
-                android.R.drawable.ic_menu_upload);
-        menu.add(0, RECOVERY_MODE, 3, "Recovery Mode").setIcon(android.R.drawable.ic_menu_report_image);
-        menu.add(0, SUPERUSER_PREFS, 4, "Developer Options").setIcon(android.R.drawable.ic_menu_edit);
-        menu.add(0, MENU_DISABLE_ANALYTICS, 5, Localization.get("home.menu.disable.analytics"));
+
+        menu.add(0, CLEAR_USER_DATA,
+                Menu.NONE, "Clear User Data")
+                .setIcon(android.R.drawable.ic_menu_delete);
+        menu.add(0, MENU_CLEAR_SAVED_SESSION,
+                Menu.NONE, Localization.get("menu.clear.saved.session"));
+        menu.add(0, FORCE_LOG_SUBMIT,
+                Menu.NONE, "Force Log Submission")
+                .setIcon(android.R.drawable.ic_menu_upload);
+        menu.add(0, RECOVERY_MODE,
+                Menu.NONE, "Recovery Mode")
+                .setIcon(android.R.drawable.ic_menu_report_image);
+        menu.add(0, SUPERUSER_PREFS,
+                Menu.NONE, "Developer Options")
+                .setIcon(android.R.drawable.ic_menu_edit);
+        menu.add(0, MENU_DISABLE_ANALYTICS,
+                Menu.NONE, Localization.get("home.menu.disable.analytics"))
+                .setIcon(android.R.drawable.ic_menu_close_clear_cancel);
 
         return true;
     }
