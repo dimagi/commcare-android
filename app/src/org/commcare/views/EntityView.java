@@ -21,6 +21,7 @@ import org.commcare.graph.view.GraphView;
 import org.commcare.models.AsyncEntity;
 import org.commcare.models.Entity;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DetailField;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
@@ -29,6 +30,8 @@ import org.commcare.views.media.ViewId;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -37,11 +40,13 @@ import java.util.Vector;
  * @author ctsims
  */
 public class EntityView extends LinearLayout {
-    private final View[] views;
-    private String[] forms;
+    private final ArrayList<View> views;
+    private ArrayList<String> forms;
     private String[] searchTerms;
-    private final String[] mHints;
-    private Hashtable<Long, Hashtable<Integer, View>> renderedGraphsCache;    // index => { orientation => GraphView }
+    private final ArrayList<String> mHints;
+
+    // index => { orientation => GraphView }
+    private Hashtable<Long, Hashtable<Integer, View>> renderedGraphsCache;
     private long rowId;
     public static final String FORM_AUDIO = "audio";
     public static final String FORM_IMAGE = "image";
@@ -55,12 +60,14 @@ public class EntityView extends LinearLayout {
 
     private boolean mFuzzySearchEnabled = true;
     private boolean mIsAsynchronous = false;
+    private String extraData = null;
 
     /**
      * Creates row entry for entity
      */
     private EntityView(Context context, Detail d, Entity e,
-                       String[] searchTerms, long rowId, boolean mFuzzySearchEnabled) {
+                       String[] searchTerms, long rowId,
+                       boolean mFuzzySearchEnabled, String extraData) {
         super(context);
 
         //this is bad :(
@@ -68,15 +75,17 @@ public class EntityView extends LinearLayout {
         this.searchTerms = searchTerms;
         this.renderedGraphsCache = new Hashtable<>();
         this.rowId = rowId;
-        this.views = new View[e.getNumFields()];
-        this.forms = d.getTemplateForms();
-        this.mHints = d.getTemplateSizeHints();
+        this.views = new ArrayList<>(e.getNumFields());
+        this.forms = new ArrayList<>(Arrays.asList(d.getTemplateForms()));
+        this.mHints = new ArrayList<>(Arrays.asList(d.getTemplateSizeHints()));
 
-        for (int col = 0; col < views.length; ++col) {
+        for (int col = 0; col < e.getNumFields(); ++col) {
             Object field = e.getField(col);
             String sortField = e.getSortField(col);
-            views[col] = addCell(col, field, forms[col], mHints[col], sortField, -1, true);
+            views.add(addCell(col, field, forms.get(col), mHints.get(col), sortField, -1, true));
         }
+
+        addExtraData(d.getCallout().getResponseDetailField(), extraData);
 
         this.mFuzzySearchEnabled = mFuzzySearchEnabled;
     }
@@ -84,42 +93,79 @@ public class EntityView extends LinearLayout {
     /**
      * Creates row entry for column headers
      */
-    private EntityView(Context context, Detail d, String[] headerText) {
+    private EntityView(Context context, Detail d, String[] columnTitles,
+                       boolean hasCalloutResponseData) {
         super(context);
-        this.views = new View[headerText.length];
-        this.mHints = d.getHeaderSizeHints();
-        String[] headerForms = d.getHeaderForms();
 
-        int[] colors = AndroidUtil.getThemeColorIDs(getContext(), new int[]{R.attr.entity_view_header_background_color, R.attr.entity_view_header_text_color});
+        DetailField calloutResponseDetailField = null;
+        if (hasCalloutResponseData && d.getCallout() != null) {
+            calloutResponseDetailField = d.getCallout().getResponseDetailField();
+            columnTitles = addColumnTitleForCalloutData(columnTitles, calloutResponseDetailField);
+        }
+
+        int columnCount = columnTitles.length;
+        this.views = new ArrayList<>(columnCount);
+        this.mHints = new ArrayList<>(columnCount);
+        String[] headerForms = new String[columnCount];
+
+        int i = 0;
+        for (DetailField field : d.getFields()) {
+            mHints.add(field.getHeaderWidthHint());
+            headerForms[i] = field.getHeaderForm();
+            i++;
+        }
+
+        if (calloutResponseDetailField != null) {
+            mHints.add(calloutResponseDetailField.getHeaderWidthHint());
+            headerForms[columnCount-1] = calloutResponseDetailField.getHeaderForm();
+        }
+
+        int[] colors = AndroidUtil.getThemeColorIDs(getContext(),
+                new int[]{R.attr.entity_view_header_background_color,
+                        R.attr.entity_view_header_text_color});
         
         if (colors[0] != -1) {
             this.setBackgroundColor(colors[0]);
         }
 
-        for (int col = 0; col < views.length; ++col) {
-            views[col] = addCell(col, headerText[col], headerForms[col], mHints[col], null, colors[1], false);
+        for (int col = 0; col < columnCount; ++col) {
+            views.add(addCell(col, columnTitles[col], headerForms[col],
+                    mHints.get(col), null, colors[1], false));
         }
+    }
+
+    private static String[] addColumnTitleForCalloutData(String[] columnTitles,
+                                                         DetailField calloutResponseDetailField) {
+        String[] headerTextWithCalloutResponse =
+                new String[columnTitles.length + 1];
+        System.arraycopy(columnTitles, 0,
+                headerTextWithCalloutResponse, 0, columnTitles.length);
+        headerTextWithCalloutResponse[columnTitles.length - 1] =
+                calloutResponseDetailField.getHeader().evaluate();
+        return headerTextWithCalloutResponse;
     }
 
     public static EntityView buildEntryEntityView(Context context, Detail detail,
                                                   Entity entity,
                                                   String[] searchTerms,
-                                                  long rowId, boolean isFuzzySearchEnabled) {
+                                                  long rowId, boolean isFuzzySearchEnabled,
+                                                  String extraData) {
         return new EntityView(context, detail, entity,
-                searchTerms, rowId, isFuzzySearchEnabled);
+                searchTerms, rowId, isFuzzySearchEnabled, extraData);
     }
 
     public static EntityView buildHeadersEntityView(Context context,
                                                     Detail detail,
-                                                    String[] headerText) {
-        return new EntityView(context, detail, headerText);
+                                                    String[] headerText,
+                                                    boolean hasCalloutResponseData) {
+        return new EntityView(context, detail, headerText, hasCalloutResponseData);
     }
 
     private View addCell(int columnIndex, Object data, String form,
                          String hint, String sortField,
                          int textColor, boolean shouldRefresh) {
         View view = null;
-        if (hint == null || !hint.startsWith("0")) {
+        if (isNonZeroWidth(hint)) {
             ViewId uniqueId = new ViewId(rowId, columnIndex, false);
             view = initView(data, form, uniqueId, sortField);
             view.setId(AndroidUtil.generateViewId());
@@ -166,15 +212,50 @@ public class EntityView extends LinearLayout {
         this.searchTerms = terms;
     }
 
+    public void setExtraData(DetailField responseDetail, String newExtraData) {
+        if (extraData != null) {
+            removeExtraData();
+        }
+        addExtraData(responseDetail, newExtraData);
+    }
+
+    private void addExtraData(DetailField responseDetail, String newExtraData) {
+        String hint = responseDetail.getTemplateWidthHint();
+        if (isNonZeroWidth(hint) && newExtraData != null && !"".equals(newExtraData)) {
+            extraData = newExtraData;
+            views.add(addCell(views.size(), newExtraData, "", "", "", -1, false));
+            mHints.add(hint);
+            forms.add(responseDetail.getTemplateForm());
+        }
+    }
+
+    private static boolean isNonZeroWidth(String hintText) {
+        return hintText == null || !hintText.startsWith("0");
+    }
+
+    private void removeExtraData() {
+        if (extraData != null) {
+            extraData = null;
+            removeView(views.get(views.size() - 1));
+            views.remove(views.size() - 1);
+            mHints.remove(mHints.size() - 1);
+            forms.remove(forms.size() - 1);
+        }
+    }
+
     public void refreshViewsForNewEntity(Entity e, boolean currentlySelected, long rowId) {
-        for (int i = 0; i < views.length; ++i) {
+        for (int i = 0; i < e.getNumFields(); ++i) {
             Object field = e.getField(i);
-            View view = views[i];
-            String form = forms[i];
+            View view = views.get(i);
 
             if (view != null) {
-                refreshViewForNewEntity(view, field, form, e.getSortField(i), i, rowId);
+                refreshViewForNewEntity(view, field, forms.get(i), e.getSortField(i), i, rowId);
             }
+        }
+
+        View extraDataView = views.get(views.size() - 1);
+        if (extraData != null && extraDataView != null) {
+            refreshViewForNewEntity(extraDataView, extraData, forms.get(forms.size() - 1), "", views.size() - 1, rowId);
         }
 
         if (currentlySelected) {
@@ -237,7 +318,8 @@ public class EntityView extends LinearLayout {
     private void setupText(View layout, final String text, String searchField) {
         TextView tv = (TextView) layout.findViewById(R.id.entity_view_text);
         tv.setVisibility(View.VISIBLE);
-        tv.setText(highlightSearches(searchTerms, new SpannableString(text == null ? "" : text), searchField, mFuzzySearchEnabled, mIsAsynchronous));
+        Spannable rawText = new SpannableString(text == null ? "" : text);
+        tv.setText(highlightSearches(searchTerms, rawText, searchField, mFuzzySearchEnabled, mIsAsynchronous));
     }
 
     private void addLayoutToRedrawQueue(View layout, String source) {
@@ -285,7 +367,9 @@ public class EntityView extends LinearLayout {
      * match. A background string can be provided which provides the exact data that is being
      * matched.
      */
-    public static Spannable highlightSearches(String[] searchTerms, Spannable raw, String backgroundString, boolean fuzzySearchEnabled, boolean strictMode) {
+    public static Spannable highlightSearches(String[] searchTerms, Spannable raw,
+                                              String backgroundString, boolean fuzzySearchEnabled,
+                                              boolean strictMode) {
         if (searchTerms == null) {
             return raw;
         }
@@ -435,15 +519,17 @@ public class EntityView extends LinearLayout {
      */
     private int[] calculateDetailWidths(int fullSize) {
         // Convert any percentages to pixels. Percentage columns are treated as percentage of the entire screen width.
-        int[] widths = new int[mHints.length];
-        for (int i = 0; i < mHints.length; i++) {
-            if (mHints[i] == null) {
-                widths[i] = -1;
-            } else if (mHints[i].contains("%")) {
-                widths[i] = fullSize * Integer.parseInt(mHints[i].substring(0, mHints[i].indexOf("%"))) / 100;
+        int[] widths = new int[mHints.size()];
+        int hintIndex = 0;
+        for (String hint : mHints) {
+            if (hint == null) {
+                widths[hintIndex] = -1;
+            } else if (hint.contains("%")) {
+                widths[hintIndex] = fullSize * Integer.parseInt(hint.substring(0, hint.indexOf("%"))) / 100;
             } else {
-                widths[i] = Integer.parseInt(mHints[i]);
+                widths[hintIndex] = Integer.parseInt(hint);
             }
+            hintIndex++;
         }
 
         int claimedSpace = 0;
@@ -490,12 +576,14 @@ public class EntityView extends LinearLayout {
 
         // Adjust the children view's widths based on percentage size hints
         int[] widths = calculateDetailWidths(getMeasuredWidth());
-        for (int i = 0; i < views.length; i++) {
-            if (views[i] != null) {
-                LayoutParams params = (LinearLayout.LayoutParams) views[i].getLayoutParams();
+        int i = 0;
+        for (View view : views) {
+            if (view != null) {
+                LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
                 params.width = widths[i];
-                views[i].setLayoutParams(params);
+                view.setLayoutParams(params);
             }
+            i++;
         }
 
         onMeasureCalled = true;

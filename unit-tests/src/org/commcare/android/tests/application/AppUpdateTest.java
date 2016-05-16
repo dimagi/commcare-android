@@ -3,6 +3,7 @@ package org.commcare.android.tests.application;
 import android.util.Log;
 
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
@@ -27,7 +28,7 @@ import static org.junit.Assert.fail;
 /**
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@Config(application = CommCareApplication.class,
+@Config(application = CommCareTestApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class AppUpdateTest {
@@ -36,7 +37,7 @@ public class AppUpdateTest {
 
     @Before
     public void setup() {
-        TestAppInstaller.initInstallAndLogin(
+        TestAppInstaller.installAppAndLogin(
                 buildResourceRef("base_app", "profile.ccpr"),
                 "test", "123");
 
