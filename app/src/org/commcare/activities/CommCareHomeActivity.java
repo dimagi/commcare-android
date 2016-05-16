@@ -55,7 +55,6 @@ import org.commcare.tasks.PullTaskReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.SendTask;
 import org.commcare.tasks.WipeTask;
-import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
@@ -126,15 +125,16 @@ public class CommCareHomeActivity
     private static final int CREATE_PIN = 16384;
     private static final int AUTHENTICATION_FOR_PIN = 32768;
 
-    private static final int MENU_PREFERENCES = Menu.FIRST;
-    private static final int MENU_UPDATE = Menu.FIRST + 1;
-    private static final int MENU_REPORT_PROBLEM = Menu.FIRST + 2;
-    private static final int MENU_VALIDATE_MEDIA = Menu.FIRST + 3;
-    private static final int MENU_DUMP_FORMS = Menu.FIRST + 4;
-    private static final int MENU_WIFI_DIRECT = Menu.FIRST + 5;
-    private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 6;
-    private static final int MENU_SAVED_FORMS = Menu.FIRST + 7;
-    private static final int MENU_ABOUT = Menu.FIRST + 8;
+    private static final int MENU_UPDATE = Menu.FIRST;
+    private static final int MENU_SAVED_FORMS = Menu.FIRST + 1;
+    private static final int MENU_PREFERENCES = Menu.FIRST + 2;
+    private static final int MENU_ABOUT = Menu.FIRST + 3;
+    // TODO PLM: move to settings page
+    private static final int MENU_REPORT_PROBLEM = Menu.FIRST + 4;
+    private static final int MENU_VALIDATE_MEDIA = Menu.FIRST + 5;
+    private static final int MENU_DUMP_FORMS = Menu.FIRST + 6;
+    private static final int MENU_WIFI_DIRECT = Menu.FIRST + 7;
+    private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 8;
     private static final int MENU_PIN = Menu.FIRST + 9;
 
     /**
@@ -1165,10 +1165,15 @@ public class CommCareHomeActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        menu.add(0, MENU_PREFERENCES, 0, Localization.get("home.menu.settings")).setIcon(
-                android.R.drawable.ic_menu_preferences);
         menu.add(0, MENU_UPDATE, 0, Localization.get("home.menu.update")).setIcon(
                 android.R.drawable.ic_menu_upload);
+        menu.add(0, MENU_SAVED_FORMS, 0, Localization.get("home.menu.saved.forms")).setIcon(
+                android.R.drawable.ic_menu_save);
+        menu.add(0, MENU_PREFERENCES, 0, Localization.get("home.menu.settings")).setIcon(
+                android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
+                android.R.drawable.ic_menu_help);
+        // TODO PLM: move to settings page
         menu.add(0, MENU_REPORT_PROBLEM, 0, Localization.get("problem.report.menuitem")).setIcon(
                 android.R.drawable.ic_menu_report_image);
         menu.add(0, MENU_VALIDATE_MEDIA, 0, Localization.get("home.menu.validate")).setIcon(
@@ -1179,10 +1184,6 @@ public class CommCareHomeActivity
                 android.R.drawable.ic_menu_share);
         menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, Localization.get("home.menu.connection.diagnostic")).setIcon(
                 android.R.drawable.ic_menu_manage);
-        menu.add(0, MENU_SAVED_FORMS, 0, Localization.get("home.menu.saved.forms")).setIcon(
-                android.R.drawable.ic_menu_save);
-        menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
-                android.R.drawable.ic_menu_help);
         menu.add(0, MENU_PIN, 0, Localization.get("home.menu.pin.set"));
         return true;
     }
@@ -1196,14 +1197,15 @@ public class CommCareHomeActivity
         try {
             User u = CommCareApplication._().getSession().getLoggedInUser();
             boolean enableMenus = !User.TYPE_DEMO.equals(u.getUserType());
-            menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
             menu.findItem(MENU_UPDATE).setVisible(enableMenus);
+            menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
+            menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
+            menu.findItem(MENU_ABOUT).setVisible(enableMenus);
+            // TODO PLM: move to settings menu
             menu.findItem(MENU_VALIDATE_MEDIA).setVisible(enableMenus);
             menu.findItem(MENU_DUMP_FORMS).setVisible(enableMenus);
             menu.findItem(MENU_WIFI_DIRECT).setVisible(enableMenus && hasP2p());
             menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
-            menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
-            menu.findItem(MENU_ABOUT).setVisible(enableMenus);
             if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
                 menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
             } else {
@@ -1223,13 +1225,20 @@ public class CommCareHomeActivity
                 GoogleAnalyticsFields.CATEGORY_HOME_SCREEN,
                 menuIdToAnalyticsEventLabel.get(item.getItemId()));
         switch (item.getItemId()) {
-            case MENU_PREFERENCES:
-                createPreferencesMenu(this);
-                return true;
             case MENU_UPDATE:
                 Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
                 startActivity(i);
                 return true;
+            case MENU_SAVED_FORMS:
+                goToFormArchive(false);
+                return true;
+            case MENU_PREFERENCES:
+                createPreferencesMenu(this);
+                return true;
+            case MENU_ABOUT:
+                showAboutCommCareDialog();
+                return true;
+            // TODO PLM: move to settings screen
             case MENU_REPORT_PROBLEM:
                 startReportActivity();
                 return true;
@@ -1245,12 +1254,6 @@ public class CommCareHomeActivity
             case MENU_CONNECTION_DIAGNOSTIC:
                 startMenuConnectionActivity();
                 return true;
-            case MENU_SAVED_FORMS:
-                goToFormArchive(false);
-                return true;
-            case MENU_ABOUT:
-                showAboutCommCareDialog();
-                return true;
             case MENU_PIN:
                 launchPinAuthentication();
                 return true;
@@ -1260,15 +1263,16 @@ public class CommCareHomeActivity
 
     private static Map<Integer, String> createMenuItemToEventMapping() {
         Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
-        menuIdToAnalyticsEvent.put(MENU_PREFERENCES, GoogleAnalyticsFields.LABEL_SETTINGS);
         menuIdToAnalyticsEvent.put(MENU_UPDATE, GoogleAnalyticsFields.LABEL_UPDATE_CC);
+        menuIdToAnalyticsEvent.put(MENU_SAVED_FORMS, GoogleAnalyticsFields.LABEL_SAVED_FORMS);
+        menuIdToAnalyticsEvent.put(MENU_PREFERENCES, GoogleAnalyticsFields.LABEL_SETTINGS);
+        menuIdToAnalyticsEvent.put(MENU_ABOUT, GoogleAnalyticsFields.LABEL_ABOUT_CC);
+        // TODO PLM: move to settings screen
         menuIdToAnalyticsEvent.put(MENU_REPORT_PROBLEM, GoogleAnalyticsFields.LABEL_REPORT_PROBLEM);
         menuIdToAnalyticsEvent.put(MENU_VALIDATE_MEDIA, GoogleAnalyticsFields.LABEL_VALIDATE_MM);
         menuIdToAnalyticsEvent.put(MENU_DUMP_FORMS, GoogleAnalyticsFields.LABEL_MANAGE_SD);
         menuIdToAnalyticsEvent.put(MENU_WIFI_DIRECT, GoogleAnalyticsFields.LABEL_WIFI_DIRECT);
         menuIdToAnalyticsEvent.put(MENU_CONNECTION_DIAGNOSTIC, GoogleAnalyticsFields.LABEL_CONNECTION_TEST);
-        menuIdToAnalyticsEvent.put(MENU_SAVED_FORMS, GoogleAnalyticsFields.LABEL_SAVED_FORMS);
-        menuIdToAnalyticsEvent.put(MENU_ABOUT, GoogleAnalyticsFields.LABEL_ABOUT_CC);
         return menuIdToAnalyticsEvent;
     }
 
