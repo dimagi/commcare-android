@@ -66,14 +66,12 @@ public class MenuAdapter implements ListAdapter {
             for (Menu m : s.getMenus()) {
                 errorXpathException = "";
                 try {
-                    if (menuIsntRelevant(m)) {
-                        continue;
-                    }
-
-                    if (m.getId().equals(menuID)) {
-                        addRelevantCommandEntries(m, items, map);
-                    } else {
-                        addUnaddedMenu(menuID, m, items);
+                    if (menuIsRelevant(m)) {
+                        if (m.getId().equals(menuID)) {
+                            addRelevantCommandEntries(m, items, map);
+                        } else {
+                            addUnaddedMenu(menuID, m, items);
+                        }
                     }
                 } catch (XPathSyntaxException xpse) {
                     XPathErrorLogger.INSTANCE.logErrorToCurrentApp(errorXpathException, xpse.getMessage());
@@ -93,16 +91,16 @@ public class MenuAdapter implements ListAdapter {
         items.copyInto(displayableData);
     }
 
-    private boolean menuIsntRelevant(Menu m) throws XPathSyntaxException {
+    private boolean menuIsRelevant(Menu m) throws XPathSyntaxException {
         XPathExpression relevance = m.getMenuRelevance();
         if (m.getMenuRelevance() != null) {
             errorXpathException = m.getMenuRelevanceRaw();
             EvaluationContext ec = asw.getEvaluationContext(m.getId());
             if (!XPathFuncExpr.toBoolean(relevance.eval(ec))) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
     private void addRelevantCommandEntries(Menu m, Vector<MenuDisplayable> items,
