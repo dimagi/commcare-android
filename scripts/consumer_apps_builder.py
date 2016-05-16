@@ -1,26 +1,71 @@
 
+import os
 import subprocess 
 import xml.etree.ElementTree as ET
 
 # Script to build the .apks for all consumer apps, off of the latest release build of CommCare on jenkins
+# All relative paths should be written assuming this script will be run from the PARENT directory of commcare-odk/ 
 
-#Apps are 5-tuples consisting of (app_id, domain, build_number, username, password)
-APPS_LIST = [
-	("a370e321169d2555a86d3e174f3024c2", "aliza-test", 53, "t1", "123"), 
-	("b82a236700f293976e2290aaeae778a1", "aliza-test", 17, "t1", "123"), 
-	("73d5f08b9d55fe48602906a89672c214", "aliza-test", 49, "t1", "123")
-]
 
-RELATIVE_PATH_TO_ASSETS_DIR = "./app/standalone/assets"
+# Relative path to the directory where all user-provided information and files for each consumer app lives. 
+# This directory should store a list of directories, 1 for each consumer app we are building.
+# The expected format for a single app directory is as follows:
+# - config.txt: a text file containing the following 5 pieces of information in order, on a single comma-separated line, e.g: app_id,app_domain,build_number,username,password
+# - ic_launcher.zip: a zip file generated from Android Asset Studio of the desired app icon (MUST have this exact name)
+PATH_TO_STATIC_RESOURCES_DIR = "./consumer-apps-resources"
+
+# Relative path to the standalone directory
+PATH_TO_STANDALONE_DIR = "./commcare-odk/app/standalone/"
+
+# Relative path to the directory where all app assets should be placed
+PATH_TO_ASSETS_DIR = PATH_TO_STANDALONE_DIR + "assets"
+
+
+def checkout_or_update_static_resources_repo():
+	if not os.path.exists(PATH_TO_STATIC_RESOURCES_DIR):
+		subprocess.call(["git", "clone", "https://github.com/dimagi/consumer-apps-resources"])
+	os.chdir(PATH_TO_STATIC_RESOURCES_DIR)
+	subprocess.call(["git", "pull"])
+	os.chdir('../')
+
+
+def build_apks_from_resources():
+	for (app_dir_name, sub_dir_list, files_list) in os.walk(PATH_TO_STATIC_RESOURCES_DIR):
+		if app_dir_name != PATH_TO_STATIC_RESOURCES_DIR:
+			build_apk_from_directory_contents(app_dir_name, files_list)
+
+
+def build_apk_from_directory_contents(app_sub_dir, files_list):
+	full_path_to_config_file = os.path.join(app_sub_dir, files_list[0])
+	full_path_to_zipfile = os.path.join(app_sub_dir, files_list[1])
+
+	unzip_app_icon(full_path_to_zipfile)
+	app_id, domain, build_number, username, password = get_app_fields(full_path_to_config_file)
+	password = '123' #TEMPORARY, REMOVE AFTER TESTING
+	download_ccz(app_id, domain, build_number)
+	download_restore_file(domain, username, password)
+	assemble_apk(domain, build_number, username, password)
+	move_apk(app_id)
+
+
+def unzip_app_icon(zipfile_name):
+	# -o option overwrites the existing files without prompting for confirmation
+	subprocess.call(["unzip", "-o", zipfile_name, "-d", PATH_TO_STANDALONE_DIR])
+
+
+def get_app_fields(config_filename):
+	f = open(config_filename, 'r')
+	line = f.readline().strip('\n')
+	return tuple(line.split(","))
 
 
 def download_ccz(app_id, domain, build_number):
 	#TODO: Get HQ to implement downloading a specific build
-	subprocess.call(["./scripts/download_app_into_standalone_asset.sh", domain, app_id, RELATIVE_PATH_TO_ASSETS_DIR]) 
+	subprocess.call(["./scripts/download_app_into_standalone_asset.sh", domain, app_id, PATH_TO_ASSETS_DIR]) 
 
 
 def download_restore_file(domain, username, password):
-	subprocess.call(["./scripts/download_restore_into_standalone_asset.sh", domain, username, password, RELATIVE_PATH_TO_ASSETS_DIR])
+	subprocess.call(["./scripts/download_restore_into_standalone_asset.sh", domain, username, password, PATH_TO_ASSETS_DIR])
 
 
 def assemble_apk(domain, build_number, username, password):
@@ -34,7 +79,7 @@ def assemble_apk(domain, build_number, username, password):
 
 
 def get_app_name_from_profile():
-	tree = ET.parse(RELATIVE_PATH_TO_ASSETS_DIR + '/direct_install/profile.ccpr')
+	tree = ET.parse(PATH_TO_ASSETS_DIR + '/direct_install/profile.ccpr')
 	return tree.getroot().get("name")
 
 
@@ -43,10 +88,8 @@ def move_apk(app_id):
 	subprocess.call(["mv", "./build/outputs/apk/commcare-odk-standalone-debug.apk", "./build/outputs/consumer_apks/{}.apk".format(app_id)])
 
 
-for (app_id, domain, build_number, username, password) in APPS_LIST:
-	download_ccz(app_id, domain, build_number)
-	download_restore_file(domain, username, password)
-	assemble_apk(domain, build_number, username, password)
-	move_apk(app_id)
+checkout_or_update_static_resources_repo()
+build_apks_from_resources()
+
 
 
