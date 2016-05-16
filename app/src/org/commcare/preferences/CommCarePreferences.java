@@ -101,11 +101,6 @@ public class CommCarePreferences
     // Fields for setting print template
     private static final int REQUEST_TEMPLATE = 0;
 
-    public final static String PREFS_APP_SERVER_KEY = "default_app_server";
-    public final static String PREFS_DATA_SERVER_KEY = "ota-restore-url";
-    public final static String PREFS_SUBMISSION_URL_KEY = "PostURL";
-    private final static String PREFS_KEY_SERVER_KEY = "default_key_server";
-    public final static String PREFS_FORM_RECORD_KEY = "form-record-url";
     private final static String PREFS_FUZZY_SEARCH_KEY = "cc-fuzzy-search-enabled";
     public final static String PREFS_LOCALE_KEY = "cur_locale";
     public final static String PREFS_PRINT_DOC_LOCATION = "print-doc-location";
@@ -118,15 +113,15 @@ public class CommCarePreferences
 
     public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
 
-
     public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         PreferenceManager prefMgr = getPreferenceManager();
         prefMgr.setSharedPreferencesName((CommCareApplication._().getCurrentApp().getPreferencesFilename()));
-        addPreferencesFromResource(R.xml.server_preferences);
+        addPreferencesFromResource(R.xml.commcare_preferences);
 
         GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
 
@@ -138,7 +133,8 @@ public class CommCarePreferences
         lp.setDialogTitle(Localization.get("home.menu.locale.select"));
         this.getPreferenceScreen().addPreference(lp);
         updatePreferencesText();
-        setTitle("CommCare" + " > " + "Application Preferences");
+
+        setTitle(Localization.get("settings.main.title"));
 
         populatePrefKeyToEventLabelMapping();
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(prefMgr, prefKeyToAnalyticsEvent,
@@ -148,11 +144,6 @@ public class CommCarePreferences
     }
 
     private static void populatePrefKeyToEventLabelMapping() {
-        prefKeyToAnalyticsEvent.put(PREFS_APP_SERVER_KEY, GoogleAnalyticsFields.LABEL_APP_SERVER);
-        prefKeyToAnalyticsEvent.put(PREFS_DATA_SERVER_KEY, GoogleAnalyticsFields.LABEL_DATA_SERVER);
-        prefKeyToAnalyticsEvent.put(PREFS_SUBMISSION_URL_KEY, GoogleAnalyticsFields.LABEL_SUBMISSION_SERVER);
-        prefKeyToAnalyticsEvent.put(PREFS_KEY_SERVER_KEY, GoogleAnalyticsFields.LABEL_KEY_SERVER);
-        prefKeyToAnalyticsEvent.put(PREFS_FORM_RECORD_KEY, GoogleAnalyticsFields.LABEL_FORM_RECORD_SERVER);
         prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
         prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
         prefKeyToAnalyticsEvent.put(PREFS_LOCALE_KEY, GoogleAnalyticsFields.LABEL_LOCALE);

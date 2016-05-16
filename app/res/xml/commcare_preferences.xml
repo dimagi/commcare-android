@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <Preference
+        android:key="wifi-direct"/>
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/frequency_vals_labels"
+        android:entryValues="@array/frequency_vals"
+        android:key="cc-autoup-freq"
+        android:title="Auto Update Frequency"/>
+    <Preference
+        android:key="server-settings"/>
+    <Preference
+        android:key="manage-sd-card"/>
+    <Preference
+        android:key="report-a-problem"/>
+    <PreferenceScreen
+        android:id="@+id/printlocation"
+        android:dialogTitle="Set Print Template Location"
+        android:enabled="true"
+        android:key="print-doc-location"
+        android:title="Set Print Template"/>
+    <Preference
+        android:key="validate-media"/>
+    <ListPreference
+        android:enabled="true"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-grid-menus"
+        android:title="Grid Menus Enabled"/>
+    <ListPreference
+        android:defaultValue="no"
+        android:enabled="true"
+        android:entries="@array/pref_enabled_labels"
+        android:entryValues="@array/pref_enabled_vals"
+        android:key="cc-fuzzy-search-enabled"
+        android:title="Fuzzy Search Matches"/>
+    <Preference
+        android:key="connection-test"/>
+</PreferenceScreen>
