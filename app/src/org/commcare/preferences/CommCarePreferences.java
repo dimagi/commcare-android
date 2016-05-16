@@ -37,8 +37,6 @@ import org.javarosa.core.util.NoLocalizedTextException;
 import java.util.HashMap;
 import java.util.Map;
 
-import me.regexp.RE;
-
 public class CommCarePreferences
         extends SessionAwarePreferenceActivity
         implements OnSharedPreferenceChangeListener {
@@ -169,17 +167,19 @@ public class CommCarePreferences
 
     private void setupLocalizedText() {
         PreferenceScreen screen = getPreferenceScreen();
-        int i;
-        for (i = 0; i < screen.getPreferenceCount(); i++) {
-            try {
-                String key = screen.getPreference(i).getKey();
-                String localizedString = Localization.get(keyToTitleMap.get(key));
-                screen.getPreference(i).setTitle(localizedString);
-            } catch (NoLocalizedTextException nle) {
+        for (int i = 0; i < screen.getPreferenceCount(); i++) {
+            String key = screen.getPreference(i).getKey();
+            if (keyToTitleMap.containsKey(key)) {
+                try {
+                    String localizedString = Localization.get(keyToTitleMap.get(key));
+                    screen.getPreference(i).setTitle(localizedString);
+                } catch (NoLocalizedTextException nle) {
 
+                }
             }
         }
     }
+
     private void setupButtons() {
         Preference validateMediaButton = findPreference(VALIDATE_MEDIA);
         validateMediaButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
