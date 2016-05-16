@@ -172,7 +172,7 @@ public class MenuAdapter implements ListAdapter {
 
     @Override
     public int getCount() {
-        return (displayableData.length);
+        return displayableData.length;
     }
 
     @Override
@@ -201,10 +201,8 @@ public class MenuAdapter implements ListAdapter {
     }
 
     @Override
-    public View getView(int i, View v, ViewGroup vg) {
+    public View getView(int i, View menuListItem, ViewGroup vg) {
         MenuDisplayable menuDisplayable = displayableData[i];
-
-        View menuListItem = v;
 
         if (menuListItem == null) {
             // inflate it and do not attach to parent, or we will get the 'addView not supported' exception
@@ -270,7 +268,7 @@ public class MenuAdapter implements ListAdapter {
                 mIconView.setImageBitmap(image);
                 mIconView.setAdjustViewBounds(true);
             } else {
-                setupDefaultIcon(mIconView, menuDisplayable, getIconState(menuDisplayable));
+                setupDefaultIcon(mIconView, getIconState(menuDisplayable));
             }
         }
     }
@@ -291,8 +289,7 @@ public class MenuAdapter implements ListAdapter {
         return iconChoice;
     }
 
-    protected void setupDefaultIcon(ImageView mIconView, MenuDisplayable menuDisplayable,
-                                    NavIconState iconChoice) {
+    protected void setupDefaultIcon(ImageView mIconView, NavIconState iconChoice) {
         if (mIconView != null) {
             switch (iconChoice) {
                 case NEXT:
