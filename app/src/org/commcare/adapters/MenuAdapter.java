@@ -51,6 +51,7 @@ import java.util.Vector;
 public class MenuAdapter implements ListAdapter {
 
     private final AndroidSessionWrapper asw;
+    private String errorXpathException = "";
     final Context context;
     MenuDisplayable[] displayableData;
 
@@ -64,7 +65,7 @@ public class MenuAdapter implements ListAdapter {
         asw = CommCareApplication._().getCurrentSessionWrapper();
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
-                String xpathExpression = "";
+                errorXpathException = "";
                 try {
                     if (menuIsntRelevant(m)) {
                         continue;
@@ -80,18 +81,18 @@ public class MenuAdapter implements ListAdapter {
                             }
                         }
 
-                        xpathExpression = addRelevantCommandEntries(m, items, map, xpathExpression);
+                        addRelevantCommandEntries(m, items, map);
                         continue;
                     }
                     addUnaddedMenu(menuID, m, items);
                 } catch (XPathSyntaxException xpse) {
-                    XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpathExpression, xpse.getMessage());
-                    CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.bad.xpath", new String[]{xpathExpression, xpse.getMessage()}));
+                    XPathErrorLogger.INSTANCE.logErrorToCurrentApp(errorXpathException, xpse.getMessage());
+                    CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.bad.xpath", new String[]{errorXpathException, xpse.getMessage()}));
                     displayableData = new MenuDisplayable[0];
                     return;
                 } catch (XPathException xpe) {
                     XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
-                    CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.xpath.err", new String[]{xpathExpression, xpe.getMessage()}));
+                    CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.xpath.err", new String[]{errorXpathException, xpe.getMessage()}));
                     displayableData = new MenuDisplayable[0];
                     return;
                 }
@@ -105,7 +106,7 @@ public class MenuAdapter implements ListAdapter {
     private boolean menuIsntRelevant(Menu m) throws XPathSyntaxException {
         XPathExpression relevance = m.getMenuRelevance();
         if (m.getMenuRelevance() != null) {
-            xpathExpression = m.getMenuRelevanceRaw();
+            errorXpathException = m.getMenuRelevanceRaw();
             EvaluationContext ec = asw.getEvaluationContext(m.getId());
             if (!XPathFuncExpr.toBoolean(relevance.eval(ec))) {
                 return true;
@@ -114,15 +115,14 @@ public class MenuAdapter implements ListAdapter {
         return false;
     }
 
-    private String addRelevantCommandEntries(Menu m, Vector<MenuDisplayable> items,
-                                             Hashtable<String, Entry> map,
-                                             String xpathExpression)
+    private void addRelevantCommandEntries(Menu m, Vector<MenuDisplayable> items,
+                                           Hashtable<String, Entry> map)
             throws XPathSyntaxException {
         for (String command : m.getCommandIds()) {
-            xpathExpression = "";
+            errorXpathException = "";
             XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
             if (mRelevantCondition != null) {
-                xpathExpression = m.getCommandRelevanceRaw(m.indexOfCommand(command));
+                errorXpathException = m.getCommandRelevanceRaw(m.indexOfCommand(command));
                 EvaluationContext ec = asw.getEvaluationContext();
                 Object ret = mRelevantCondition.eval(ec);
                 try {
@@ -152,7 +152,6 @@ public class MenuAdapter implements ListAdapter {
 
             items.add(e);
         }
-        return xpathExpression;
     }
 
     private static void addUnaddedMenu(String menuID, Menu m, Vector<MenuDisplayable> items) {
