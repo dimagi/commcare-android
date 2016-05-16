@@ -11,6 +11,7 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_HOME_SCREEN = "Home Screen";
     public static final String CATEGORY_FORM_ENTRY = "Form Entry";
     public static final String CATEGORY_CC_PREFS = "CommCare Preferences";
+    public static final String CATEGORY_ADVANCED_ACTIONS = "Advanced Actions";
     public static final String CATEGORY_FORM_PREFS = "Form Entry Preferences";
     public static final String CATEGORY_DEV_PREFS = "Developer Preferences";
     public static final String CATEGORY_SERVER_COMMUNICATION = "Server Communication";
@@ -106,6 +107,7 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_CONNECTION_TEST = "Connection Test";
     public static final String LABEL_SAVED_FORMS = "Saved Forms";
     public static final String LABEL_ABOUT_CC = "About CommCare";
+    public static final String LABEL_ADVANCED_ACTIONS = "Advanced Actions";
 
     // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_FORM_ENTRY
     public static final String LABEL_SAVE_FORM = "Save Form";

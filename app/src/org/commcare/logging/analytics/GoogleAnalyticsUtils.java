@@ -148,6 +148,10 @@ public class GoogleAnalyticsUtils {
         reportEvent(category, GoogleAnalyticsFields.ACTION_VIEW_PREF, label);
     }
 
+    public static void reportAdvancedActionItemClick(String action) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_ADVANCED_ACTIONS, action);
+    }
+
     /**
      * Report a user event of changing the value of an item in a preferences menu
      */

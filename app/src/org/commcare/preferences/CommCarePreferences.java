@@ -5,11 +5,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
@@ -20,15 +17,11 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.CommCareVerificationActivity;
-import org.commcare.activities.ConnectionDiagnosticActivity;
 import org.commcare.activities.RecoveryActivity;
-import org.commcare.activities.ReportProblemActivity;
 import org.commcare.activities.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
-import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.TemplatePrinterUtils;
@@ -50,11 +43,6 @@ public class CommCarePreferences
     public final static String AUTO_UPDATE_FREQUENCY = "cc-autoup-freq";
     public final static String FREQUENCY_NEVER = "freq-never";
     public final static String FREQUENCY_DAILY = "freq-daily";
-    private final static String REPORT_PROBLEM = "report-problem";
-    private final static String VALIDATE_MEDIA = "validate-media";
-    private final static String WIFI_DIRECT = "wifi-direct";
-    private final static String DUMP_FORMS = "manage-sd-card";
-    private final static String CONNECTION_TEST = "connection-test";
     private final static String SERVER_SETTINGS = "server-settings";
 
     public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
@@ -102,11 +90,8 @@ public class CommCarePreferences
     private static final int FORCE_LOG_SUBMIT = Menu.FIRST;
     private static final int RECOVERY_MODE = Menu.FIRST + 1;
     private static final int MENU_DISABLE_ANALYTICS = Menu.FIRST + 2;
-    private static final int CLEAR_USER_DATA = Menu.FIRST + 3;
-    private static final int MENU_CLEAR_SAVED_SESSION = Menu.FIRST + 4;
-    private static final int SUPERUSER_PREFS = Menu.FIRST + 5;
-
-    public static final int RESULT_DATA_RESET = RESULT_FIRST_USER + 1;
+    private static final int MENU_CLEAR_SAVED_SESSION = Menu.FIRST + 3;
+    private static final int SUPERUSER_PREFS = Menu.FIRST + 4;
 
     // Fields for setting print template
     private static final int REQUEST_TEMPLATE = 0;
@@ -120,26 +105,12 @@ public class CommCarePreferences
     public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
 
     private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
-    private static final Map<String, String> keyToTitleMap = new HashMap<>();
 
     public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
 
     public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
 
     static {
-        keyToTitleMap.put(REPORT_PROBLEM, "problem.report.menuitem");
-        keyToTitleMap.put(VALIDATE_MEDIA, "home.menu.validate");
-        keyToTitleMap.put(WIFI_DIRECT, "home.menu.wifi.direct");
-        keyToTitleMap.put(DUMP_FORMS, "home.menu.formdump");
-        keyToTitleMap.put(CONNECTION_TEST, "home.menu.connection.diagnostic");
-        keyToTitleMap.put(SERVER_SETTINGS, "settings.server.title");
-
-        prefKeyToAnalyticsEvent.put(REPORT_PROBLEM, GoogleAnalyticsFields.LABEL_REPORT_PROBLEM);
-        prefKeyToAnalyticsEvent.put(VALIDATE_MEDIA, GoogleAnalyticsFields.LABEL_VALIDATE_MM);
-        prefKeyToAnalyticsEvent.put(WIFI_DIRECT, GoogleAnalyticsFields.LABEL_WIFI_DIRECT);
-        prefKeyToAnalyticsEvent.put(DUMP_FORMS, GoogleAnalyticsFields.LABEL_MANAGE_SD);
-        prefKeyToAnalyticsEvent.put(CONNECTION_TEST, GoogleAnalyticsFields.LABEL_CONNECTION_TEST);
-
         prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
         prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
         prefKeyToAnalyticsEvent.put(PREFS_PRINT_DOC_LOCATION, GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
@@ -159,7 +130,6 @@ public class CommCarePreferences
         setTitle(Localization.get("settings.main.title"));
 
         setupLocalizedText();
-
         setupButtons();
 
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(prefMgr, prefKeyToAnalyticsEvent,
@@ -172,9 +142,9 @@ public class CommCarePreferences
         PreferenceScreen screen = getPreferenceScreen();
         for (int i = 0; i < screen.getPreferenceCount(); i++) {
             String key = screen.getPreference(i).getKey();
-            if (keyToTitleMap.containsKey(key)) {
+            if (SERVER_SETTINGS.equals(key)) {
                 try {
-                    String localizedString = Localization.get(keyToTitleMap.get(key));
+                    String localizedString = Localization.get("settings.server.title");
                     screen.getPreference(i).setTitle(localizedString);
                 } catch (NoLocalizedTextException nle) {
 
@@ -184,55 +154,6 @@ public class CommCarePreferences
     }
 
     private void setupButtons() {
-        Preference validateMediaButton = findPreference(VALIDATE_MEDIA);
-        validateMediaButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                startValidationActivity();
-                return true;
-            }
-        });
-
-        Preference reportProblemButton = findPreference(REPORT_PROBLEM);
-        reportProblemButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                startReportActivity();
-                return true;
-            }
-        });
-
-        Preference wifiDirectButton = findPreference(WIFI_DIRECT);
-        if (!hasP2p()) {
-            getPreferenceScreen().removePreference(wifiDirectButton);
-        } else {
-            wifiDirectButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    startWifiDirect();
-                    return true;
-                }
-            });
-        }
-
-        Preference formDumpButton = findPreference(DUMP_FORMS);
-        formDumpButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                startFormDump();
-                return true;
-            }
-        });
-
-        Preference connectionTestButton = findPreference(CONNECTION_TEST);
-        connectionTestButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                startConnectionTest();
-                return true;
-            }
-        });
-
         Preference serverSettingsButton = findPreference(SERVER_SETTINGS);
         serverSettingsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
@@ -286,9 +207,6 @@ public class CommCarePreferences
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
 
-        menu.add(0, CLEAR_USER_DATA,
-                Menu.NONE, "Clear User Data")
-                .setIcon(android.R.drawable.ic_menu_delete);
         menu.add(0, MENU_CLEAR_SAVED_SESSION,
                 Menu.NONE, Localization.get("menu.clear.saved.session"));
         menu.add(0, FORCE_LOG_SUBMIT,
@@ -323,11 +241,6 @@ public class CommCarePreferences
                 GoogleAnalyticsFields.CATEGORY_CC_PREFS,
                 menuIdToAnalyticsEventLabel.get(item.getItemId()));
         switch (item.getItemId()) {
-            case CLEAR_USER_DATA:
-                CommCareApplication._().clearUserData();
-                setResult(RESULT_DATA_RESET);
-                this.finish();
-                return true;
             case FORCE_LOG_SUBMIT:
                 CommCareUtil.triggerLogSubmission(this);
                 return true;
@@ -379,7 +292,6 @@ public class CommCarePreferences
 
     private static Map<Integer, String> createMenuItemToEventMapping() {
         Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
-        menuIdToAnalyticsEvent.put(CLEAR_USER_DATA, GoogleAnalyticsFields.LABEL_CLEAR_USER_DATA);
         menuIdToAnalyticsEvent.put(FORCE_LOG_SUBMIT, GoogleAnalyticsFields.LABEL_FORCE_LOG_SUBMISSION);
         menuIdToAnalyticsEvent.put(RECOVERY_MODE, GoogleAnalyticsFields.LABEL_RECOVERY_MODE);
         menuIdToAnalyticsEvent.put(SUPERUSER_PREFS, GoogleAnalyticsFields.LABEL_DEVELOPER_OPTIONS);
@@ -548,35 +460,6 @@ public class CommCarePreferences
             TemplatePrinterUtils.showAlertDialog(this, Localization.get("cannot.set.template"),
                     Localization.get("no.file.browser"), false);
         }
-    }
-
-    private void startReportActivity() {
-        Intent i = new Intent(this, ReportProblemActivity.class);
-        startActivity(i);
-    }
-
-    private void startValidationActivity() {
-        Intent i = new Intent(this, CommCareVerificationActivity.class);
-        i.putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_SETTINGS, true);
-        startActivity(i);
-    }
-
-    private void startWifiDirect() {
-        // TODO PLM
-    }
-
-    private void startFormDump() {
-        // TODO PLM
-    }
-
-    private boolean hasP2p() {
-        return Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH
-                && getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT);
-    }
-
-    private void startConnectionTest() {
-        Intent i = new Intent(this, ConnectionDiagnosticActivity.class);
-        startActivity(i);
     }
 
     private void startServerSettings() {

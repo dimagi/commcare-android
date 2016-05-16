@@ -98,6 +98,7 @@ home.menu.wifi.direct=Wifi Direct
 home.menu.connection.diagnostic=Connection Test
 home.menu.saved.forms=Saved Forms
 home.menu.about=About CommCare
+home.menu.advanced=Advanced
 home.menu.disable.analytics=Opt Out of Analytics
 home.menu.pin.set=Set My PIN
 home.menu.pin.change=Change My PIN
@@ -707,3 +708,4 @@ fingerprints.scanned=Fingerprints scanned: ${0}
 
 settings.server.title=Server Settings
 settings.main.title=CommCare > Application Preferences
+clear.user.data=Clear User Data

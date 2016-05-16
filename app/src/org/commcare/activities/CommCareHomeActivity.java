@@ -119,8 +119,9 @@ public class CommCareHomeActivity
     private static final int MENU_SAVED_FORMS = Menu.FIRST + 1;
     private static final int MENU_CHANGE_LANGUAGE = Menu.FIRST + 2;
     private static final int MENU_PREFERENCES = Menu.FIRST + 3;
-    private static final int MENU_ABOUT = Menu.FIRST + 4;
-    private static final int MENU_PIN = Menu.FIRST + 5;
+    private static final int MENU_ADVANCED = Menu.FIRST + 4;
+    private static final int MENU_ABOUT = Menu.FIRST + 5;
+    private static final int MENU_PIN = Menu.FIRST + 6;
 
     /**
      * Restart is a special CommCare return code which means that the session was invalidated in the
@@ -388,7 +389,7 @@ public class CommCareHomeActivity
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
                 case PREFERENCES_ACTIVITY:
-                    if (resultCode != CommCarePreferences.RESULT_DATA_RESET) {
+                    if (resultCode != AdvancedActionsActivity.RESULT_DATA_RESET) {
                         // rebuild home buttons in case language changed;
                         // but only if we didn't just clear user data
                         uiController.setupUI();
@@ -1152,6 +1153,8 @@ public class CommCareHomeActivity
                 android.R.drawable.ic_menu_set_as);
         menu.add(0, MENU_PREFERENCES, 0, Localization.get("home.menu.settings")).setIcon(
                 android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_ADVANCED, 0, Localization.get("home.menu.advanced")).setIcon(
+                android.R.drawable.ic_menu_edit);
         menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
                 android.R.drawable.ic_menu_help);
         menu.add(0, MENU_PIN, 0, Localization.get("home.menu.pin.set"));
@@ -1171,6 +1174,7 @@ public class CommCareHomeActivity
             menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
             menu.findItem(MENU_CHANGE_LANGUAGE).setVisible(enableMenus);
             menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
+            menu.findItem(MENU_ADVANCED).setVisible(enableMenus);
             menu.findItem(MENU_ABOUT).setVisible(enableMenus);
             if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
                 menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
@@ -1204,6 +1208,9 @@ public class CommCareHomeActivity
             case MENU_PREFERENCES:
                 createPreferencesMenu(this);
                 return true;
+            case MENU_ADVANCED:
+                startAdvancedActionsActivity();
+                return true;
             case MENU_ABOUT:
                 showAboutCommCareDialog();
                 return true;
@@ -1220,6 +1227,7 @@ public class CommCareHomeActivity
         menuIdToAnalyticsEvent.put(MENU_SAVED_FORMS, GoogleAnalyticsFields.LABEL_SAVED_FORMS);
         menuIdToAnalyticsEvent.put(MENU_CHANGE_LANGUAGE, GoogleAnalyticsFields.LABEL_LOCALE);
         menuIdToAnalyticsEvent.put(MENU_PREFERENCES, GoogleAnalyticsFields.LABEL_SETTINGS);
+        menuIdToAnalyticsEvent.put(MENU_ADVANCED, GoogleAnalyticsFields.LABEL_ABOUT_CC);
         menuIdToAnalyticsEvent.put(MENU_ABOUT, GoogleAnalyticsFields.LABEL_ABOUT_CC);
         return menuIdToAnalyticsEvent;
     }
@@ -1229,15 +1237,8 @@ public class CommCareHomeActivity
         activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
     }
 
-    private void startFormDumpActivity() {
-        Intent i = new Intent(this, CommCareFormDumpActivity.class);
-        i.putExtra(CommCareFormDumpActivity.EXTRA_FILE_DESTINATION, CommCareApplication._().getCurrentApp().storageRoot());
-        CommCareHomeActivity.this.startActivityForResult(i, DUMP_FORMS_ACTIVITY);
-    }
-
-    private void startWifiDirectActivity() {
-        Intent i = new Intent(this, CommCareWiFiDirectActivity.class);
-        CommCareHomeActivity.this.startActivityForResult(i, WIFI_DIRECT_ACTIVITY);
+    private void startAdvancedActionsActivity() {
+        startActivity(new Intent(this, AdvancedActionsActivity.class));
     }
 
     private void showAboutCommCareDialog() {
@@ -1255,10 +1256,20 @@ public class CommCareHomeActivity
                             Toast.LENGTH_SHORT).show();
                 }
             }
-
         });
 
         showAlertDialog(dialog);
+    }
+
+    private void startFormDumpActivity() {
+        Intent i = new Intent(this, CommCareFormDumpActivity.class);
+        i.putExtra(CommCareFormDumpActivity.EXTRA_FILE_DESTINATION, CommCareApplication._().getCurrentApp().storageRoot());
+        CommCareHomeActivity.this.startActivityForResult(i, DUMP_FORMS_ACTIVITY);
+    }
+
+    private void startWifiDirectActivity() {
+        Intent i = new Intent(this, CommCareWiFiDirectActivity.class);
+        CommCareHomeActivity.this.startActivityForResult(i, WIFI_DIRECT_ACTIVITY);
     }
 
     @Override
