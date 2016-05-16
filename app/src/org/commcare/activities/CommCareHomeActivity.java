@@ -124,7 +124,6 @@ public class CommCareHomeActivity
     private static final int MENU_ABOUT = Menu.FIRST + 3;
     // TODO PLM: move to settings page
     private static final int MENU_DUMP_FORMS = Menu.FIRST + 6;
-    private static final int MENU_WIFI_DIRECT = Menu.FIRST + 7;
     private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 8;
     private static final int MENU_PIN = Menu.FIRST + 9;
 
@@ -1151,8 +1150,6 @@ public class CommCareHomeActivity
         // TODO PLM: move to settings page
         menu.add(0, MENU_DUMP_FORMS, 0, Localization.get("home.menu.formdump")).setIcon(
                 android.R.drawable.ic_menu_set_as);
-        menu.add(0, MENU_WIFI_DIRECT, 0, Localization.get("home.menu.wifi.direct")).setIcon(
-                android.R.drawable.ic_menu_share);
         menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, Localization.get("home.menu.connection.diagnostic")).setIcon(
                 android.R.drawable.ic_menu_manage);
         menu.add(0, MENU_PIN, 0, Localization.get("home.menu.pin.set"));
@@ -1174,7 +1171,6 @@ public class CommCareHomeActivity
             menu.findItem(MENU_ABOUT).setVisible(enableMenus);
             // TODO PLM: move to settings menu
             menu.findItem(MENU_DUMP_FORMS).setVisible(enableMenus);
-            menu.findItem(MENU_WIFI_DIRECT).setVisible(enableMenus && hasP2p());
             menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
             if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
                 menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
@@ -1212,9 +1208,6 @@ public class CommCareHomeActivity
             case MENU_DUMP_FORMS:
                 startFormDumpActivity();
                 return true;
-            case MENU_WIFI_DIRECT:
-                startWifiDirectActivity();
-                return true;
             case MENU_CONNECTION_DIAGNOSTIC:
                 startMenuConnectionActivity();
                 return true;
@@ -1233,7 +1226,6 @@ public class CommCareHomeActivity
         menuIdToAnalyticsEvent.put(MENU_ABOUT, GoogleAnalyticsFields.LABEL_ABOUT_CC);
         // TODO PLM: move to settings screen
         menuIdToAnalyticsEvent.put(MENU_DUMP_FORMS, GoogleAnalyticsFields.LABEL_MANAGE_SD);
-        menuIdToAnalyticsEvent.put(MENU_WIFI_DIRECT, GoogleAnalyticsFields.LABEL_WIFI_DIRECT);
         menuIdToAnalyticsEvent.put(MENU_CONNECTION_DIAGNOSTIC, GoogleAnalyticsFields.LABEL_CONNECTION_TEST);
         return menuIdToAnalyticsEvent;
     }
@@ -1279,11 +1271,6 @@ public class CommCareHomeActivity
 
         showAlertDialog(dialog);
     }
-
-    private boolean hasP2p() {
-        return (android.os.Build.VERSION.SDK_INT > android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH && getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT));
-    }
-
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {

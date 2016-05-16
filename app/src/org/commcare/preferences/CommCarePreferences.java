@@ -5,7 +5,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -49,6 +51,7 @@ public class CommCarePreferences
     public final static String FREQUENCY_DAILY = "freq-daily";
     private final static String REPORT_PROBLEM = "report-problem";
     private final static String VALIDATE_MEDIA = "validate-media";
+    private final static String WIFI_DIRECT = "wifi-direct";
 
     public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
     public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
@@ -123,9 +126,11 @@ public class CommCarePreferences
     static {
         keyToTitleMap.put(REPORT_PROBLEM, "problem.report.menuitem");
         keyToTitleMap.put(VALIDATE_MEDIA, "home.menu.validate");
+        keyToTitleMap.put(WIFI_DIRECT, "home.menu.wifi.direct");
 
         prefKeyToAnalyticsEvent.put(REPORT_PROBLEM, GoogleAnalyticsFields.LABEL_REPORT_PROBLEM);
         prefKeyToAnalyticsEvent.put(VALIDATE_MEDIA, GoogleAnalyticsFields.LABEL_VALIDATE_MM);
+        prefKeyToAnalyticsEvent.put(WIFI_DIRECT, GoogleAnalyticsFields.LABEL_WIFI_DIRECT);
 
         prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
         prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
@@ -198,6 +203,19 @@ public class CommCarePreferences
                 return true;
             }
         });
+
+        Preference wifiDirectButton = findPreference(WIFI_DIRECT);
+        if (!hasP2p()) {
+            getPreferenceScreen().removePreference(wifiDirectButton);
+        } else {
+            wifiDirectButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    startWifiDirect();
+                    return true;
+                }
+            });
+        }
     }
 
     private void createPrintPrefOnClickListener(PreferenceManager prefManager) {
@@ -524,5 +542,14 @@ public class CommCarePreferences
         Intent i = new Intent(this, CommCareVerificationActivity.class);
         i.putExtra(CommCareVerificationActivity.KEY_LAUNCH_FROM_SETTINGS, true);
         startActivity(i);
+    }
+
+    private void startWifiDirect() {
+        // TODO PLM
+    }
+
+    private boolean hasP2p() {
+        return Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH
+                && getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT);
     }
 }
