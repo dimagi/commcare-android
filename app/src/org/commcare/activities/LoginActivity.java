@@ -30,6 +30,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DemoUserBuilder;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
@@ -198,7 +199,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         // submissions) more centrally.
 
         (new FormAndDataSyncer()).syncData(this, false, false,
-                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY, LoginActivity.this.getString(R.string.ota_restore_url)),
+                prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY, LoginActivity.this.getString(R.string.ota_restore_url)),
                 getUniformUsername(),
                 uiController.getEnteredPasswordOrPin());
     }

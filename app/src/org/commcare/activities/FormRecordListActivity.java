@@ -42,6 +42,7 @@ import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.tasks.FormRecordLoadListener;
@@ -63,7 +64,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         implements TextWatcher, FormRecordLoadListener, OnItemClickListener, TaskListener<Void, Void> {
     private static final String TAG = FormRecordListActivity.class.getSimpleName();
 
-    private static final String FORM_RECORD_URL = CommCarePreferences.PREFS_FORM_RECORD_KEY;
+    private static final String FORM_RECORD_URL = CommCareServerPreferences.PREFS_FORM_RECORD_KEY;
 
     private static final int OPEN_RECORD = Menu.FIRST;
     private static final int DELETE_RECORD = Menu.FIRST + 1;

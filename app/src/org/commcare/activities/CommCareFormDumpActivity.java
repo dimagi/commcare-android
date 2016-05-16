@@ -17,6 +17,7 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.SendTask;
 import org.commcare.utils.FileUtil;
@@ -89,7 +90,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
 
                 SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
                 SendTask<CommCareFormDumpActivity> mSendTask = new SendTask<CommCareFormDumpActivity>(
-                        settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, url),
+                        settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, url),
                         getFolderPath()) {
                     @Override
                     protected void deliverResult(CommCareFormDumpActivity receiver, Boolean result) {
