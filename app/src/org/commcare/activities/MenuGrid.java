@@ -15,7 +15,6 @@ import org.commcare.adapters.MenuAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.util.CommCarePlatform;
@@ -31,7 +30,6 @@ import java.io.IOException;
  * 
  * @author wspride
  */
-
 @ManagedUi(R.layout.grid_menu_layout)
 public class MenuGrid extends SaveSessionCommCareActivity implements OnItemClickListener, OnItemLongClickListener {
     private MenuAdapter adapter;

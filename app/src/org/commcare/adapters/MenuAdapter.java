@@ -44,7 +44,7 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * Adapter class to handle both Menu and Entry items
+ * Load module menu items
  *
  * @author wspride
  */
@@ -148,7 +148,7 @@ public class MenuAdapter implements ListAdapter {
             boolean idExists = false;
             for (Object o : items) {
                 if (o instanceof Menu) {
-                    if (((Menu) o).getId().equals(m.getId())) {
+                    if (((Menu)o).getId().equals(m.getId())) {
                         idExists = true;
                         break;
                     }
@@ -185,9 +185,9 @@ public class MenuAdapter implements ListAdapter {
         Object tempItem = displayableData[i];
 
         if (tempItem instanceof Menu) {
-            return ((Menu) tempItem).getId().hashCode();
+            return ((Menu)tempItem).getId().hashCode();
         } else {
-            return ((Entry) tempItem).getCommandId().hashCode();
+            return ((Entry)tempItem).getCommandId().hashCode();
         }
     }
 
@@ -204,7 +204,6 @@ public class MenuAdapter implements ListAdapter {
     public View getView(int i, View v, ViewGroup vg) {
         MenuDisplayable menuDisplayable = displayableData[i];
 
-        // inflate view
         View menuListItem = v;
 
         if (menuListItem == null) {
@@ -212,20 +211,19 @@ public class MenuAdapter implements ListAdapter {
             menuListItem = LayoutInflater.from(context).inflate(R.layout.menu_list_item_modern, vg, false);
         }
 
-        TextView rowText = (TextView) menuListItem.findViewById(R.id.row_txt);
+        TextView rowText = (TextView)menuListItem.findViewById(R.id.row_txt);
         setupTextView(rowText, menuDisplayable);
 
-        AudioButton mAudioButton = (AudioButton) menuListItem.findViewById(R.id.row_soundicon);
+        AudioButton mAudioButton = (AudioButton)menuListItem.findViewById(R.id.row_soundicon);
         setupAudioButton(mAudioButton, menuDisplayable);
 
         // set up the image, if available
-        ImageView mIconView = (ImageView) menuListItem.findViewById(R.id.row_img);
+        ImageView mIconView = (ImageView)menuListItem.findViewById(R.id.row_img);
         setupImageView(mIconView, menuDisplayable);
         return menuListItem;
     }
 
-    private void setupAudioButton(AudioButton mAudioButton, MenuDisplayable menuDisplayable){
-        // set up audio
+    private void setupAudioButton(AudioButton mAudioButton, MenuDisplayable menuDisplayable) {
         final String audioURI = menuDisplayable.getAudioURI();
         String audioFilename = "";
         if (audioURI != null && !audioURI.equals("")) {
@@ -248,13 +246,12 @@ public class MenuAdapter implements ListAdapter {
         } else {
             if (mAudioButton != null) {
                 mAudioButton.resetButton(audioURI, false);
-                ((LinearLayout) mAudioButton.getParent()).removeView(mAudioButton);
+                ((LinearLayout)mAudioButton.getParent()).removeView(mAudioButton);
             }
         }
     }
 
-    public void setupTextView(TextView textView, MenuDisplayable menuDisplayable){
-        // set up text
+    public void setupTextView(TextView textView, MenuDisplayable menuDisplayable) {
         String mQuestionText = textViewHelper(menuDisplayable);
 
         //Final change, remove any numeric context requests. J2ME uses these to
@@ -265,26 +262,25 @@ public class MenuAdapter implements ListAdapter {
         textView.setText(mQuestionText);
     }
 
-    public void setupImageView(ImageView mIconView, MenuDisplayable menuDisplayable){
+    public void setupImageView(ImageView mIconView, MenuDisplayable menuDisplayable) {
         String imageURI = menuDisplayable.getImageURI();
         Bitmap image = MediaUtil.inflateDisplayImage(context, imageURI);
         if (mIconView != null) {
-            if(image != null) {
+            if (image != null) {
                 mIconView.setImageBitmap(image);
                 mIconView.setAdjustViewBounds(true);
-            }
-            else{
+            } else {
                 setupDefaultIcon(mIconView, menuDisplayable, getIconState(menuDisplayable));
             }
         }
     }
 
-    private NavIconState getIconState(MenuDisplayable menuDisplayable){
+    private NavIconState getIconState(MenuDisplayable menuDisplayable) {
         NavIconState iconChoice = NavIconState.NEXT;
 
         //figure out some icons
         if (menuDisplayable instanceof Entry) {
-            SessionDatum datum = asw.getSession().getNeededDatum((Entry) menuDisplayable);
+            SessionDatum datum = asw.getSession().getNeededDatum((Entry)menuDisplayable);
             if (datum == null || !(datum instanceof EntityDatum)) {
                 iconChoice = NavIconState.JUMP;
             }
@@ -296,7 +292,7 @@ public class MenuAdapter implements ListAdapter {
     }
 
     protected void setupDefaultIcon(ImageView mIconView, MenuDisplayable menuDisplayable,
-                                    NavIconState iconChoice){
+                                    NavIconState iconChoice) {
         if (mIconView != null) {
             switch (iconChoice) {
                 case NEXT:
@@ -312,9 +308,6 @@ public class MenuAdapter implements ListAdapter {
         }
     }
 
-    /*
-     * Helper to build the TextView for the HorizontalMediaView constructor
-     */
     private static String textViewHelper(MenuDisplayable e) {
         return e.getDisplayText();
     }
