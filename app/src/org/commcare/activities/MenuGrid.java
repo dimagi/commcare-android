@@ -49,6 +49,7 @@ public class MenuGrid extends SaveSessionCommCareActivity implements OnItemClick
        }
        
        adapter = new GridMenuAdapter(this, platform,menuId);
+       adapter.showAnyLoadErrors(this);
        refreshView();
        
        grid.setOnItemClickListener(this);

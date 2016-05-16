@@ -51,6 +51,7 @@ public class MenuList extends SaveSessionCommCareActivity implements OnItemClick
         }
 
         adapter = new MenuAdapter(this, platform, menuId);
+        adapter.showAnyLoadErrors(this);
         refreshView();
 
         list.setOnItemClickListener(this);
