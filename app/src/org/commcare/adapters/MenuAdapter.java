@@ -62,18 +62,12 @@ public class MenuAdapter implements ListAdapter {
 
         Hashtable<String, Entry> map = platform.getMenuMap();
         asw = CommCareApplication._().getCurrentSessionWrapper();
-        EvaluationContext ec;
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
                 String xpathExpression = "";
                 try {
-                    XPathExpression relevance = m.getMenuRelevance();
-                    if (m.getMenuRelevance() != null) {
-                        xpathExpression = m.getMenuRelevanceRaw();
-                        ec = asw.getEvaluationContext(m.getId());
-                        if (!XPathFuncExpr.toBoolean(relevance.eval(ec))) {
-                            continue;
-                        }
+                    if (menuIsntRelevant(m)) {
+                        continue;
                     }
 
                     if (m.getId().equals(menuID)) {
@@ -106,6 +100,18 @@ public class MenuAdapter implements ListAdapter {
 
         displayableData = new MenuDisplayable[items.size()];
         items.copyInto(displayableData);
+    }
+
+    private boolean menuIsntRelevant(Menu m) throws XPathSyntaxException {
+        XPathExpression relevance = m.getMenuRelevance();
+        if (m.getMenuRelevance() != null) {
+            xpathExpression = m.getMenuRelevanceRaw();
+            EvaluationContext ec = asw.getEvaluationContext(m.getId());
+            if (!XPathFuncExpr.toBoolean(relevance.eval(ec))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String addRelevantCommandEntries(Menu m, Vector<MenuDisplayable> items,
