@@ -4,6 +4,8 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import org.acra.ACRA;
+import org.commcare.logging.UserCausedRuntimeException;
+import org.commcare.utils.ACRAUtil;
 import org.javarosa.core.services.Logger;
 
 /**
@@ -39,8 +41,10 @@ public abstract class CommCareTask<Params, Progress, Result, Receiver>
             Logger.log(TAG, e.getMessage());
             e.printStackTrace();
 
-            // Report to unified crash report dashboard
-            ACRA.getErrorReporter().handleException(e);
+            if (!(e instanceof UserCausedRuntimeException)) {
+                // Report crashes we know weren't caused by user misconfiguration
+                ACRAUtil.reportException(e);
+            }
 
             // Save error for reporting during post-execute
             unknownError = e;
