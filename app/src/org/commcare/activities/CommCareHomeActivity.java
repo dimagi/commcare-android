@@ -117,9 +117,10 @@ public class CommCareHomeActivity
 
     private static final int MENU_UPDATE = Menu.FIRST;
     private static final int MENU_SAVED_FORMS = Menu.FIRST + 1;
-    private static final int MENU_PREFERENCES = Menu.FIRST + 2;
-    private static final int MENU_ABOUT = Menu.FIRST + 3;
-    private static final int MENU_PIN = Menu.FIRST + 4;
+    private static final int MENU_CHANGE_LANGUAGE = Menu.FIRST + 2;
+    private static final int MENU_PREFERENCES = Menu.FIRST + 3;
+    private static final int MENU_ABOUT = Menu.FIRST + 4;
+    private static final int MENU_PIN = Menu.FIRST + 5;
 
     /**
      * Restart is a special CommCare return code which means that the session was invalidated in the
@@ -312,6 +313,18 @@ public class CommCareHomeActivity
 
     protected void goToFormArchive(boolean incomplete) {
         goToFormArchive(incomplete, null);
+    }
+
+    private void showLocaleChangeMenu() {
+        // TODO PLM
+        /*
+        lp.setEntries(ChangeLocaleUtil.getLocaleNames());
+        lp.setEntryValues(ChangeLocaleUtil.getLocaleCodes());
+        lp.setDialogTitle(Localization.get("home.menu.locale.select"));
+
+        // the set callback
+        Localization.setLocale(sharedPreferences.getString(key, "default"));
+        */
     }
 
     private void goToFormArchive(boolean incomplete, FormRecord record) {
@@ -1135,6 +1148,8 @@ public class CommCareHomeActivity
                 android.R.drawable.ic_menu_upload);
         menu.add(0, MENU_SAVED_FORMS, 0, Localization.get("home.menu.saved.forms")).setIcon(
                 android.R.drawable.ic_menu_save);
+        menu.add(0, MENU_CHANGE_LANGUAGE, 0, Localization.get("home.menu.locale.change")).setIcon(
+                android.R.drawable.ic_menu_set_as);
         menu.add(0, MENU_PREFERENCES, 0, Localization.get("home.menu.settings")).setIcon(
                 android.R.drawable.ic_menu_preferences);
         menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
@@ -1154,6 +1169,7 @@ public class CommCareHomeActivity
             boolean enableMenus = !User.TYPE_DEMO.equals(u.getUserType());
             menu.findItem(MENU_UPDATE).setVisible(enableMenus);
             menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
+            menu.findItem(MENU_CHANGE_LANGUAGE).setVisible(enableMenus);
             menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
             menu.findItem(MENU_ABOUT).setVisible(enableMenus);
             if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
@@ -1182,6 +1198,9 @@ public class CommCareHomeActivity
             case MENU_SAVED_FORMS:
                 goToFormArchive(false);
                 return true;
+            case MENU_CHANGE_LANGUAGE:
+                showLocaleChangeMenu();
+                return true;
             case MENU_PREFERENCES:
                 createPreferencesMenu(this);
                 return true;
@@ -1199,6 +1218,7 @@ public class CommCareHomeActivity
         Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
         menuIdToAnalyticsEvent.put(MENU_UPDATE, GoogleAnalyticsFields.LABEL_UPDATE_CC);
         menuIdToAnalyticsEvent.put(MENU_SAVED_FORMS, GoogleAnalyticsFields.LABEL_SAVED_FORMS);
+        menuIdToAnalyticsEvent.put(MENU_CHANGE_LANGUAGE, GoogleAnalyticsFields.LABEL_LOCALE);
         menuIdToAnalyticsEvent.put(MENU_PREFERENCES, GoogleAnalyticsFields.LABEL_SETTINGS);
         menuIdToAnalyticsEvent.put(MENU_ABOUT, GoogleAnalyticsFields.LABEL_ABOUT_CC);
         return menuIdToAnalyticsEvent;

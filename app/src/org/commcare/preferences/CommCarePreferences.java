@@ -55,6 +55,7 @@ public class CommCarePreferences
     private final static String WIFI_DIRECT = "wifi-direct";
     private final static String DUMP_FORMS = "manage-sd-card";
     private final static String CONNECTION_TEST = "connection-test";
+    private final static String SERVER_SETTINGS = "server-settings";
 
     public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
     public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
@@ -132,6 +133,7 @@ public class CommCarePreferences
         keyToTitleMap.put(WIFI_DIRECT, "home.menu.wifi.direct");
         keyToTitleMap.put(DUMP_FORMS, "home.menu.formdump");
         keyToTitleMap.put(CONNECTION_TEST, "home.menu.connection.diagnostic");
+        keyToTitleMap.put(SERVER_SETTINGS, "settings.server.title");
 
         prefKeyToAnalyticsEvent.put(REPORT_PROBLEM, GoogleAnalyticsFields.LABEL_REPORT_PROBLEM);
         prefKeyToAnalyticsEvent.put(VALIDATE_MEDIA, GoogleAnalyticsFields.LABEL_VALIDATE_MM);
@@ -141,7 +143,6 @@ public class CommCarePreferences
 
         prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
         prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
-        prefKeyToAnalyticsEvent.put(PREFS_LOCALE_KEY, GoogleAnalyticsFields.LABEL_LOCALE);
         prefKeyToAnalyticsEvent.put(PREFS_PRINT_DOC_LOCATION, GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
         prefKeyToAnalyticsEvent.put(GRID_MENUS_ENABLED, GoogleAnalyticsFields.LABEL_GRID_MENUS);
     }
@@ -155,15 +156,6 @@ public class CommCarePreferences
         addPreferencesFromResource(R.xml.commcare_preferences);
 
         GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
-
-        ListPreference lp = new ListPreference(this);
-        lp.setEntries(ChangeLocaleUtil.getLocaleNames());
-        lp.setEntryValues(ChangeLocaleUtil.getLocaleCodes());
-        lp.setTitle(Localization.get("home.menu.locale.change"));
-        lp.setKey(PREFS_LOCALE_KEY);
-        lp.setDialogTitle(Localization.get("home.menu.locale.select"));
-        this.getPreferenceScreen().addPreference(lp);
-        updatePreferencesText();
 
         setTitle(Localization.get("settings.main.title"));
 
@@ -238,6 +230,15 @@ public class CommCarePreferences
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 startConnectionTest();
+                return true;
+            }
+        });
+
+        Preference serverSettingsButton = findPreference(SERVER_SETTINGS);
+        serverSettingsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                startServerSettings();
                 return true;
             }
         });
@@ -478,9 +479,6 @@ public class CommCarePreferences
                     editPrefValue = GoogleAnalyticsFields.VALUE_DISABLED;
                 }
                 break;
-            case PREFS_LOCALE_KEY:
-                Localization.setLocale(sharedPreferences.getString(key, "default"));
-                break;
         }
 
         GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_CC_PREFS,
@@ -529,21 +527,6 @@ public class CommCarePreferences
         app.getAppPreferences().edit().putBoolean(ANALYTICS_ENABLED, false).commit();
     }
 
-    public void updatePreferencesText() {
-        PreferenceScreen screen = getPreferenceScreen();
-        int i;
-        for (i = 0; i < screen.getPreferenceCount(); i++) {
-            try {
-                String key = screen.getPreference(i).getKey();
-                String prependedKey = "preferences.title." + key;
-                String localizedString = Localization.get(prependedKey);
-                screen.getPreference(i).setTitle(localizedString);
-            } catch (NoLocalizedTextException nle) {
-
-            }
-        }
-    }
-
     private void startFileBrowser() {
         Intent chooseTemplateIntent = new Intent()
                 .setAction(Intent.ACTION_GET_CONTENT)
@@ -584,6 +567,11 @@ public class CommCarePreferences
 
     private void startConnectionTest() {
         Intent i = new Intent(this, ConnectionDiagnosticActivity.class);
+        startActivity(i);
+    }
+
+    private void startServerSettings() {
+        Intent i = new Intent(this, CommCareServerPreferences.class);
         startActivity(i);
     }
 }
