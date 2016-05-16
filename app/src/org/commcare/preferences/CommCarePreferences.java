@@ -21,6 +21,7 @@ import android.widget.Toast;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareVerificationActivity;
+import org.commcare.activities.ConnectionDiagnosticActivity;
 import org.commcare.activities.RecoveryActivity;
 import org.commcare.activities.ReportProblemActivity;
 import org.commcare.activities.SessionAwarePreferenceActivity;
@@ -53,6 +54,7 @@ public class CommCarePreferences
     private final static String VALIDATE_MEDIA = "validate-media";
     private final static String WIFI_DIRECT = "wifi-direct";
     private final static String DUMP_FORMS = "manage-sd-card";
+    private final static String CONNECTION_TEST = "connection-test";
 
     public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
     public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
@@ -129,11 +131,13 @@ public class CommCarePreferences
         keyToTitleMap.put(VALIDATE_MEDIA, "home.menu.validate");
         keyToTitleMap.put(WIFI_DIRECT, "home.menu.wifi.direct");
         keyToTitleMap.put(DUMP_FORMS, "home.menu.formdump");
+        keyToTitleMap.put(CONNECTION_TEST, "home.menu.connection.diagnostic");
 
         prefKeyToAnalyticsEvent.put(REPORT_PROBLEM, GoogleAnalyticsFields.LABEL_REPORT_PROBLEM);
         prefKeyToAnalyticsEvent.put(VALIDATE_MEDIA, GoogleAnalyticsFields.LABEL_VALIDATE_MM);
         prefKeyToAnalyticsEvent.put(WIFI_DIRECT, GoogleAnalyticsFields.LABEL_WIFI_DIRECT);
         prefKeyToAnalyticsEvent.put(DUMP_FORMS, GoogleAnalyticsFields.LABEL_MANAGE_SD);
+        prefKeyToAnalyticsEvent.put(CONNECTION_TEST, GoogleAnalyticsFields.LABEL_CONNECTION_TEST);
 
         prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
         prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
@@ -225,6 +229,15 @@ public class CommCarePreferences
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 startFormDump();
+                return true;
+            }
+        });
+
+        Preference connectionTestButton = findPreference(CONNECTION_TEST);
+        connectionTestButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                startConnectionTest();
                 return true;
             }
         });
@@ -567,5 +580,10 @@ public class CommCarePreferences
     private boolean hasP2p() {
         return Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH
                 && getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT);
+    }
+
+    private void startConnectionTest() {
+        Intent i = new Intent(this, ConnectionDiagnosticActivity.class);
+        startActivity(i);
     }
 }

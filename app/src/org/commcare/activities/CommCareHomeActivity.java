@@ -5,7 +5,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
@@ -108,11 +107,9 @@ public class CommCareHomeActivity
     private static final int MODEL_RESULT = 4;
 
     private static final int GET_INCOMPLETE_FORM = 16;
-    public static final int REPORT_PROBLEM_ACTIVITY = 64;
 
     private static final int DUMP_FORMS_ACTIVITY=512;
     private static final int WIFI_DIRECT_ACTIVITY=1024;
-    public static final int CONNECTION_DIAGNOSTIC_ACTIVITY=2048;
     private static final int PREFERENCES_ACTIVITY=4096;
 
     private static final int CREATE_PIN = 16384;
@@ -122,9 +119,7 @@ public class CommCareHomeActivity
     private static final int MENU_SAVED_FORMS = Menu.FIRST + 1;
     private static final int MENU_PREFERENCES = Menu.FIRST + 2;
     private static final int MENU_ABOUT = Menu.FIRST + 3;
-    // TODO PLM: move to settings page
-    private static final int MENU_CONNECTION_DIAGNOSTIC = Menu.FIRST + 8;
-    private static final int MENU_PIN = Menu.FIRST + 9;
+    private static final int MENU_PIN = Menu.FIRST + 4;
 
     /**
      * Restart is a special CommCare return code which means that the session was invalidated in the
@@ -408,8 +403,6 @@ public class CommCareHomeActivity
                         uiController.refreshView();
                         return;
                     }
-                case CONNECTION_DIAGNOSTIC_ACTIVITY:
-                    return;
                 case WIFI_DIRECT_ACTIVITY:
                     if(resultCode == RESULT_CANCELED){
                         return;
@@ -1146,9 +1139,6 @@ public class CommCareHomeActivity
                 android.R.drawable.ic_menu_preferences);
         menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
                 android.R.drawable.ic_menu_help);
-        // TODO PLM: move to settings page
-        menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, Localization.get("home.menu.connection.diagnostic")).setIcon(
-                android.R.drawable.ic_menu_manage);
         menu.add(0, MENU_PIN, 0, Localization.get("home.menu.pin.set"));
         return true;
     }
@@ -1166,8 +1156,6 @@ public class CommCareHomeActivity
             menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
             menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
             menu.findItem(MENU_ABOUT).setVisible(enableMenus);
-            // TODO PLM: move to settings menu
-            menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
             if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
                 menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
             } else {
@@ -1200,10 +1188,6 @@ public class CommCareHomeActivity
             case MENU_ABOUT:
                 showAboutCommCareDialog();
                 return true;
-            // TODO PLM: move to settings screen
-            case MENU_CONNECTION_DIAGNOSTIC:
-                startMenuConnectionActivity();
-                return true;
             case MENU_PIN:
                 launchPinAuthentication();
                 return true;
@@ -1217,8 +1201,6 @@ public class CommCareHomeActivity
         menuIdToAnalyticsEvent.put(MENU_SAVED_FORMS, GoogleAnalyticsFields.LABEL_SAVED_FORMS);
         menuIdToAnalyticsEvent.put(MENU_PREFERENCES, GoogleAnalyticsFields.LABEL_SETTINGS);
         menuIdToAnalyticsEvent.put(MENU_ABOUT, GoogleAnalyticsFields.LABEL_ABOUT_CC);
-        // TODO PLM: move to settings screen
-        menuIdToAnalyticsEvent.put(MENU_CONNECTION_DIAGNOSTIC, GoogleAnalyticsFields.LABEL_CONNECTION_TEST);
         return menuIdToAnalyticsEvent;
     }
 
@@ -1236,11 +1218,6 @@ public class CommCareHomeActivity
     private void startWifiDirectActivity() {
         Intent i = new Intent(this, CommCareWiFiDirectActivity.class);
         CommCareHomeActivity.this.startActivityForResult(i, WIFI_DIRECT_ACTIVITY);
-    }
-
-    private void startMenuConnectionActivity() {
-        Intent i = new Intent(this, ConnectionDiagnosticActivity.class);
-        CommCareHomeActivity.this.startActivityForResult(i, CONNECTION_DIAGNOSTIC_ACTIVITY);
     }
 
     private void showAboutCommCareDialog() {
