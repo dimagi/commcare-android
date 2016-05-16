@@ -57,7 +57,6 @@ public class MenuAdapter implements ListAdapter {
 
     public MenuAdapter(Context context, CommCarePlatform platform, String menuID) {
         this.context = context;
-        String menuTitle = null;
 
         Vector<MenuDisplayable> items = new Vector<>();
 
@@ -72,19 +71,10 @@ public class MenuAdapter implements ListAdapter {
                     }
 
                     if (m.getId().equals(menuID)) {
-                        if (menuTitle == null) {
-                            //TODO: Do I need args, here?
-                            try {
-                                menuTitle = m.getName().evaluate();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-
                         addRelevantCommandEntries(m, items, map);
-                        continue;
+                    } else {
+                        addUnaddedMenu(menuID, m, items);
                     }
-                    addUnaddedMenu(menuID, m, items);
                 } catch (XPathSyntaxException xpse) {
                     XPathErrorLogger.INSTANCE.logErrorToCurrentApp(errorXpathException, xpse.getMessage());
                     CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.bad.xpath", new String[]{errorXpathException, xpse.getMessage()}));
