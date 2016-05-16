@@ -44,107 +44,43 @@ import java.util.Hashtable;
 import java.util.Vector;
 
 /**
- * Adapter class to handle both Menu and Entry items
+ * Load module menu items
  *
  * @author wspride
  */
 public class MenuAdapter implements ListAdapter {
 
     private final AndroidSessionWrapper asw;
+    private String errorXpathException = "";
     final Context context;
     MenuDisplayable[] displayableData;
 
     public MenuAdapter(Context context, CommCarePlatform platform, String menuID) {
         this.context = context;
-        String menuTitle = null;
 
         Vector<MenuDisplayable> items = new Vector<>();
 
         Hashtable<String, Entry> map = platform.getMenuMap();
         asw = CommCareApplication._().getCurrentSessionWrapper();
-        EvaluationContext ec;
         for (Suite s : platform.getInstalledSuites()) {
             for (Menu m : s.getMenus()) {
-                String xpathExpression = "";
+                errorXpathException = "";
                 try {
-                    XPathExpression relevance = m.getMenuRelevance();
-                    if (m.getMenuRelevance() != null) {
-                        xpathExpression = m.getMenuRelevanceRaw();
-                        ec = asw.getEvaluationContext(m.getId());
-                        if (!XPathFuncExpr.toBoolean(relevance.eval(ec))) {
-                            continue;
-                        }
-                    }
-                    if (m.getId().equals(menuID)) {
-
-                        if (menuTitle == null) {
-                            //TODO: Do I need args, here?
-                            try {
-                                menuTitle = m.getName().evaluate();
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-                        for (String command : m.getCommandIds()) {
-                            xpathExpression = "";
-                            XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
-                            if (mRelevantCondition != null) {
-                                xpathExpression = m.getCommandRelevanceRaw(m.indexOfCommand(command));
-                                ec = asw.getEvaluationContext();
-                                Object ret = mRelevantCondition.eval(ec);
-                                try {
-                                    if (!XPathFuncExpr.toBoolean(ret)) {
-                                        continue;
-                                    }
-                                } catch (XPathTypeMismatchException e) {
-                                    final String msg = "relevancy condition for menu item returned non-boolean value : " + ret;
-                                    XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e.getSource(), msg);
-                                    Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, msg);
-                                    throw new RuntimeException(msg);
-                                }
-                                if (!XPathFuncExpr.toBoolean(ret)) {
-                                    continue;
-                                }
-                            }
-
-                            Entry e = map.get(command);
-                            if (e.isView()) {
-                                //If this is a "view", not an "entry"
-                                //we only want to display it if all of its 
-                                //datums are not already present
-                                if (asw.getSession().getNeededDatum(e) == null) {
-                                    continue;
-                                }
-                            }
-
-                            items.add(e);
-                        }
-                        continue;
-                    }
-                    if (menuID.equals(m.getRoot())) {
-                        //make sure we didn't already add this ID
-                        boolean idExists = false;
-                        for (Object o : items) {
-                            if (o instanceof Menu) {
-                                if (((Menu) o).getId().equals(m.getId())) {
-                                    idExists = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (!idExists) {
-                            items.add(m);
+                    if (menuIsRelevant(m)) {
+                        if (m.getId().equals(menuID)) {
+                            addRelevantCommandEntries(m, items, map);
+                        } else {
+                            addUnaddedMenu(menuID, m, items);
                         }
                     }
                 } catch (XPathSyntaxException xpse) {
-                    XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpathExpression, xpse.getMessage());
-                    CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.bad.xpath", new String[]{xpathExpression, xpse.getMessage()}));
+                    XPathErrorLogger.INSTANCE.logErrorToCurrentApp(errorXpathException, xpse.getMessage());
+                    CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.bad.xpath", new String[]{errorXpathException, xpse.getMessage()}));
                     displayableData = new MenuDisplayable[0];
                     return;
                 } catch (XPathException xpe) {
                     XPathErrorLogger.INSTANCE.logErrorToCurrentApp(xpe);
-                    CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.xpath.err", new String[]{xpathExpression, xpe.getMessage()}));
+                    CommCareApplication._().triggerHandledAppExit(context, Localization.get("app.menu.display.cond.xpath.err", new String[]{errorXpathException, xpe.getMessage()}));
                     displayableData = new MenuDisplayable[0];
                     return;
                 }
@@ -153,6 +89,73 @@ public class MenuAdapter implements ListAdapter {
 
         displayableData = new MenuDisplayable[items.size()];
         items.copyInto(displayableData);
+    }
+
+    private boolean menuIsRelevant(Menu m) throws XPathSyntaxException {
+        XPathExpression relevance = m.getMenuRelevance();
+        if (m.getMenuRelevance() != null) {
+            errorXpathException = m.getMenuRelevanceRaw();
+            EvaluationContext ec = asw.getEvaluationContext(m.getId());
+            return XPathFuncExpr.toBoolean(relevance.eval(ec));
+        }
+        return true;
+    }
+
+    private void addRelevantCommandEntries(Menu m, Vector<MenuDisplayable> items,
+                                           Hashtable<String, Entry> map)
+            throws XPathSyntaxException {
+        for (String command : m.getCommandIds()) {
+            errorXpathException = "";
+            XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
+            if (mRelevantCondition != null) {
+                errorXpathException = m.getCommandRelevanceRaw(m.indexOfCommand(command));
+                EvaluationContext ec = asw.getEvaluationContext();
+                Object ret = mRelevantCondition.eval(ec);
+                try {
+                    if (!XPathFuncExpr.toBoolean(ret)) {
+                        continue;
+                    }
+                } catch (XPathTypeMismatchException e) {
+                    final String msg = "relevancy condition for menu item returned non-boolean value : " + ret;
+                    XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e.getSource(), msg);
+                    Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, msg);
+                    throw new RuntimeException(msg);
+                }
+                if (!XPathFuncExpr.toBoolean(ret)) {
+                    continue;
+                }
+            }
+
+            Entry e = map.get(command);
+            if (e.isView()) {
+                //If this is a "view", not an "entry"
+                //we only want to display it if all of its
+                //datums are not already present
+                if (asw.getSession().getNeededDatum(e) == null) {
+                    continue;
+                }
+            }
+
+            items.add(e);
+        }
+    }
+
+    private static void addUnaddedMenu(String menuID, Menu m, Vector<MenuDisplayable> items) {
+        if (menuID.equals(m.getRoot())) {
+            //make sure we didn't already add this ID
+            boolean idExists = false;
+            for (Object o : items) {
+                if (o instanceof Menu) {
+                    if (((Menu)o).getId().equals(m.getId())) {
+                        idExists = true;
+                        break;
+                    }
+                }
+            }
+            if (!idExists) {
+                items.add(m);
+            }
+        }
     }
 
     @Override
@@ -167,7 +170,7 @@ public class MenuAdapter implements ListAdapter {
 
     @Override
     public int getCount() {
-        return (displayableData.length);
+        return displayableData.length;
     }
 
     @Override
@@ -180,9 +183,9 @@ public class MenuAdapter implements ListAdapter {
         Object tempItem = displayableData[i];
 
         if (tempItem instanceof Menu) {
-            return ((Menu) tempItem).getId().hashCode();
+            return ((Menu)tempItem).getId().hashCode();
         } else {
-            return ((Entry) tempItem).getCommandId().hashCode();
+            return ((Entry)tempItem).getCommandId().hashCode();
         }
     }
 
@@ -196,31 +199,27 @@ public class MenuAdapter implements ListAdapter {
     }
 
     @Override
-    public View getView(int i, View v, ViewGroup vg) {
+    public View getView(int i, View menuListItem, ViewGroup vg) {
         MenuDisplayable menuDisplayable = displayableData[i];
-
-        // inflate view
-        View menuListItem = v;
 
         if (menuListItem == null) {
             // inflate it and do not attach to parent, or we will get the 'addView not supported' exception
             menuListItem = LayoutInflater.from(context).inflate(R.layout.menu_list_item_modern, vg, false);
         }
 
-        TextView rowText = (TextView) menuListItem.findViewById(R.id.row_txt);
+        TextView rowText = (TextView)menuListItem.findViewById(R.id.row_txt);
         setupTextView(rowText, menuDisplayable);
 
-        AudioButton mAudioButton = (AudioButton) menuListItem.findViewById(R.id.row_soundicon);
+        AudioButton mAudioButton = (AudioButton)menuListItem.findViewById(R.id.row_soundicon);
         setupAudioButton(mAudioButton, menuDisplayable);
 
         // set up the image, if available
-        ImageView mIconView = (ImageView) menuListItem.findViewById(R.id.row_img);
+        ImageView mIconView = (ImageView)menuListItem.findViewById(R.id.row_img);
         setupImageView(mIconView, menuDisplayable);
         return menuListItem;
     }
 
-    private void setupAudioButton(AudioButton mAudioButton, MenuDisplayable menuDisplayable){
-        // set up audio
+    private void setupAudioButton(AudioButton mAudioButton, MenuDisplayable menuDisplayable) {
         final String audioURI = menuDisplayable.getAudioURI();
         String audioFilename = "";
         if (audioURI != null && !audioURI.equals("")) {
@@ -243,13 +242,12 @@ public class MenuAdapter implements ListAdapter {
         } else {
             if (mAudioButton != null) {
                 mAudioButton.resetButton(audioURI, false);
-                ((LinearLayout) mAudioButton.getParent()).removeView(mAudioButton);
+                ((LinearLayout)mAudioButton.getParent()).removeView(mAudioButton);
             }
         }
     }
 
-    public void setupTextView(TextView textView, MenuDisplayable menuDisplayable){
-        // set up text
+    public void setupTextView(TextView textView, MenuDisplayable menuDisplayable) {
         String mQuestionText = textViewHelper(menuDisplayable);
 
         //Final change, remove any numeric context requests. J2ME uses these to
@@ -260,26 +258,25 @@ public class MenuAdapter implements ListAdapter {
         textView.setText(mQuestionText);
     }
 
-    public void setupImageView(ImageView mIconView, MenuDisplayable menuDisplayable){
+    public void setupImageView(ImageView mIconView, MenuDisplayable menuDisplayable) {
         String imageURI = menuDisplayable.getImageURI();
         Bitmap image = MediaUtil.inflateDisplayImage(context, imageURI);
         if (mIconView != null) {
-            if(image != null) {
+            if (image != null) {
                 mIconView.setImageBitmap(image);
                 mIconView.setAdjustViewBounds(true);
-            }
-            else{
-                setupDefaultIcon(mIconView, menuDisplayable, getIconState(menuDisplayable));
+            } else {
+                setupDefaultIcon(mIconView, getIconState(menuDisplayable));
             }
         }
     }
 
-    private NavIconState getIconState(MenuDisplayable menuDisplayable){
+    private NavIconState getIconState(MenuDisplayable menuDisplayable) {
         NavIconState iconChoice = NavIconState.NEXT;
 
         //figure out some icons
         if (menuDisplayable instanceof Entry) {
-            SessionDatum datum = asw.getSession().getNeededDatum((Entry) menuDisplayable);
+            SessionDatum datum = asw.getSession().getNeededDatum((Entry)menuDisplayable);
             if (datum == null || !(datum instanceof EntityDatum)) {
                 iconChoice = NavIconState.JUMP;
             }
@@ -290,8 +287,7 @@ public class MenuAdapter implements ListAdapter {
         return iconChoice;
     }
 
-    protected void setupDefaultIcon(ImageView mIconView, MenuDisplayable menuDisplayable,
-                                    NavIconState iconChoice){
+    protected void setupDefaultIcon(ImageView mIconView, NavIconState iconChoice) {
         if (mIconView != null) {
             switch (iconChoice) {
                 case NEXT:
@@ -307,9 +303,6 @@ public class MenuAdapter implements ListAdapter {
         }
     }
 
-    /*
-     * Helper to build the TextView for the HorizontalMediaView constructor
-     */
     private static String textViewHelper(MenuDisplayable e) {
         return e.getDisplayText();
     }
