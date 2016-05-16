@@ -13,7 +13,7 @@
     <Preference
         android:key="manage-sd-card"/>
     <Preference
-        android:key="report-a-problem"/>
+        android:key="report-problem"/>
     <PreferenceScreen
         android:id="@+id/printlocation"
         android:dialogTitle="Set Print Template Location"

@@ -19,6 +19,7 @@ import android.widget.Toast;
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.RecoveryActivity;
+import org.commcare.activities.ReportProblemActivity;
 import org.commcare.activities.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
@@ -45,6 +46,7 @@ public class CommCarePreferences
     public final static String AUTO_UPDATE_FREQUENCY = "cc-autoup-freq";
     public final static String FREQUENCY_NEVER = "freq-never";
     public final static String FREQUENCY_DAILY = "freq-daily";
+    private final static String REPORT_PROBLEM = "report-problem";
 
     public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
     public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
@@ -110,10 +112,23 @@ public class CommCarePreferences
     public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
 
     private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
+    private static final Map<String, String> keyToTitleMap = new HashMap<>();
 
     public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
 
     public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
+
+    static {
+        keyToTitleMap.put(REPORT_PROBLEM, "problem.report.menuitem");
+
+        prefKeyToAnalyticsEvent.put(REPORT_PROBLEM, GoogleAnalyticsFields.LABEL_REPORT_PROBLEM);
+
+        prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
+        prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
+        prefKeyToAnalyticsEvent.put(PREFS_LOCALE_KEY, GoogleAnalyticsFields.LABEL_LOCALE);
+        prefKeyToAnalyticsEvent.put(PREFS_PRINT_DOC_LOCATION, GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
+        prefKeyToAnalyticsEvent.put(GRID_MENUS_ENABLED, GoogleAnalyticsFields.LABEL_GRID_MENUS);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,19 +151,26 @@ public class CommCarePreferences
 
         setTitle(Localization.get("settings.main.title"));
 
-        populatePrefKeyToEventLabelMapping();
+        setupLocalizedText();
+
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(prefMgr, prefKeyToAnalyticsEvent,
                 GoogleAnalyticsFields.CATEGORY_CC_PREFS);
         // Override the default listener for the print pref key b/c it has extra behavior
         createPrintPrefOnClickListener(prefMgr);
     }
 
-    private static void populatePrefKeyToEventLabelMapping() {
-        prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
-        prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
-        prefKeyToAnalyticsEvent.put(PREFS_LOCALE_KEY, GoogleAnalyticsFields.LABEL_LOCALE);
-        prefKeyToAnalyticsEvent.put(PREFS_PRINT_DOC_LOCATION, GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
-        prefKeyToAnalyticsEvent.put(GRID_MENUS_ENABLED, GoogleAnalyticsFields.LABEL_GRID_MENUS);
+    private void setupLocalizedText() {
+        PreferenceScreen screen = getPreferenceScreen();
+        int i;
+        for (i = 0; i < screen.getPreferenceCount(); i++) {
+            try {
+                String key = screen.getPreference(i).getKey();
+                String localizedString = Localization.get(keyToTitleMap.get(key));
+                screen.getPreference(i).setTitle(localizedString);
+            } catch (NoLocalizedTextException nle) {
+
+            }
+        }
     }
 
     private void createPrintPrefOnClickListener(PreferenceManager prefManager) {
@@ -464,5 +486,10 @@ public class CommCarePreferences
             TemplatePrinterUtils.showAlertDialog(this, Localization.get("cannot.set.template"),
                     Localization.get("no.file.browser"), false);
         }
+    }
+
+    private void startReportActivity() {
+        Intent i = new Intent(this, ReportProblemActivity.class);
+        startActivity(i);
     }
 }

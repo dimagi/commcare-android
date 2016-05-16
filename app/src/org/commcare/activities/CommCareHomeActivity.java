@@ -130,7 +130,6 @@ public class CommCareHomeActivity
     private static final int MENU_PREFERENCES = Menu.FIRST + 2;
     private static final int MENU_ABOUT = Menu.FIRST + 3;
     // TODO PLM: move to settings page
-    private static final int MENU_REPORT_PROBLEM = Menu.FIRST + 4;
     private static final int MENU_VALIDATE_MEDIA = Menu.FIRST + 5;
     private static final int MENU_DUMP_FORMS = Menu.FIRST + 6;
     private static final int MENU_WIFI_DIRECT = Menu.FIRST + 7;
@@ -446,15 +445,6 @@ public class CommCareHomeActivity
                         displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
 
                         Toast.makeText(this, "Forms successfully submitted.", Toast.LENGTH_LONG).show();
-                        uiController.refreshView();
-                        return;
-                    }
-                case REPORT_PROBLEM_ACTIVITY:
-                    if(resultCode == RESULT_CANCELED) {
-                        return;
-                    }
-                    else if(resultCode == RESULT_OK){
-                        CommCareApplication._().notifyLogsPending();
                         uiController.refreshView();
                         return;
                     }
@@ -1174,8 +1164,6 @@ public class CommCareHomeActivity
         menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
                 android.R.drawable.ic_menu_help);
         // TODO PLM: move to settings page
-        menu.add(0, MENU_REPORT_PROBLEM, 0, Localization.get("problem.report.menuitem")).setIcon(
-                android.R.drawable.ic_menu_report_image);
         menu.add(0, MENU_VALIDATE_MEDIA, 0, Localization.get("home.menu.validate")).setIcon(
                 android.R.drawable.ic_menu_gallery);
         menu.add(0, MENU_DUMP_FORMS, 0, Localization.get("home.menu.formdump")).setIcon(
@@ -1239,9 +1227,6 @@ public class CommCareHomeActivity
                 showAboutCommCareDialog();
                 return true;
             // TODO PLM: move to settings screen
-            case MENU_REPORT_PROBLEM:
-                startReportActivity();
-                return true;
             case MENU_VALIDATE_MEDIA:
                 startValidationActivity();
                 return true;
@@ -1268,7 +1253,6 @@ public class CommCareHomeActivity
         menuIdToAnalyticsEvent.put(MENU_PREFERENCES, GoogleAnalyticsFields.LABEL_SETTINGS);
         menuIdToAnalyticsEvent.put(MENU_ABOUT, GoogleAnalyticsFields.LABEL_ABOUT_CC);
         // TODO PLM: move to settings screen
-        menuIdToAnalyticsEvent.put(MENU_REPORT_PROBLEM, GoogleAnalyticsFields.LABEL_REPORT_PROBLEM);
         menuIdToAnalyticsEvent.put(MENU_VALIDATE_MEDIA, GoogleAnalyticsFields.LABEL_VALIDATE_MM);
         menuIdToAnalyticsEvent.put(MENU_DUMP_FORMS, GoogleAnalyticsFields.LABEL_MANAGE_SD);
         menuIdToAnalyticsEvent.put(MENU_WIFI_DIRECT, GoogleAnalyticsFields.LABEL_WIFI_DIRECT);
@@ -1279,11 +1263,6 @@ public class CommCareHomeActivity
     public static void createPreferencesMenu(Activity activity) {
         Intent i = new Intent(activity, CommCarePreferences.class);
         activity.startActivityForResult(i, PREFERENCES_ACTIVITY);
-    }
-
-    private void startReportActivity() {
-        Intent i = new Intent(this, ReportProblemActivity.class);
-        CommCareHomeActivity.this.startActivityForResult(i, REPORT_PROBLEM_ACTIVITY);
     }
 
     private void startValidationActivity() {
