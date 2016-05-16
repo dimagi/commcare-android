@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
+import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.XPathErrorLogger;
@@ -76,7 +77,8 @@ public class MenuAdapter implements ListAdapter {
                             addUnaddedMenu(menuID, m, items);
                         }
                     }
-                } catch (XPathSyntaxException | XPathException xpe) {
+                } catch (CommCareInstanceInitializer.FixtureInitializationException
+                        | XPathSyntaxException | XPathException xpe) {
                     loadError = xpe;
                     displayableData = new MenuDisplayable[0];
                     return;
