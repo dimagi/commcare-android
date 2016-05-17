@@ -350,10 +350,13 @@ public class CommCarePreferences
     }
 
     public static boolean isIncompleteFormsEnabled() {
+        if (CommCareApplication._().isConsumerApp()) {
+            return false;
+        }
+
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         //If there is a setting for form management it takes precedence
         if (properties.contains(ENABLE_INCOMPLETE_FORMS)) {
-
             return properties.getString(ENABLE_INCOMPLETE_FORMS, YES).equals(YES);
         }
 
@@ -470,5 +473,14 @@ public class CommCarePreferences
     private void startDeveloperOptions() {
         Intent intent = new Intent(this, DeveloperPreferences.class);
         startActivity(intent);
+    }
+
+    public static String getKeyServer() {
+        if (CommCareApplication._().isConsumerApp()) {
+            // So that we don't attempt to do any remote key management in a consumer app
+            return null;
+        } else {
+            return CommCareApplication._().getCurrentApp().getAppPreferences().getString("key_server", null);
+        }
     }
 }

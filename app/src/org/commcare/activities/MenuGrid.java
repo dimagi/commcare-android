@@ -36,6 +36,7 @@ public class MenuGrid extends SaveSessionCommCareActivity implements OnItemClick
     
     @UiElement(R.id.grid_menu_grid)
     private GridView grid;
+    private boolean isRootModuleMenu;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +47,7 @@ public class MenuGrid extends SaveSessionCommCareActivity implements OnItemClick
         
        if (menuId == null) {
            menuId = Menu.ROOT_MENU_ID;
+           isRootModuleMenu = true;
        }
        
        adapter = new GridMenuAdapter(this, platform,menuId);
@@ -67,6 +69,10 @@ public class MenuGrid extends SaveSessionCommCareActivity implements OnItemClick
         return null;
     }
 
+    @Override
+    public boolean isBackEnabled() {
+        return !(CommCareApplication._().isConsumerApp() && isRootModuleMenu);
+    }
 
     /**
      * Get form list from database and insert into view.

@@ -9,6 +9,7 @@ import com.google.android.gms.analytics.Tracker;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.CommCarePreferences;
 
 import java.util.Map;
@@ -30,6 +31,7 @@ public class GoogleAnalyticsUtils {
         getTracker().send(new HitBuilders.EventBuilder()
                 .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
+                .setCustomDimension(3, BuildConfig.FLAVOR)
                 .setCategory(category)
                 .setAction(action)
                 .build());
@@ -45,6 +47,7 @@ public class GoogleAnalyticsUtils {
         getTracker().send(new HitBuilders.EventBuilder()
                 .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
+                .setCustomDimension(3, BuildConfig.FLAVOR)
                 .setCategory(category)
                 .setAction(action)
                 .setLabel(label)
@@ -61,6 +64,7 @@ public class GoogleAnalyticsUtils {
         getTracker().send(new HitBuilders.EventBuilder()
                 .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
+                .setCustomDimension(3, BuildConfig.FLAVOR)
                 .setCategory(category)
                 .setAction(action)
                 .setLabel(label)
@@ -163,6 +167,7 @@ public class GoogleAnalyticsUtils {
         builder.setCategory(category)
                 .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
+                .setCustomDimension(3, BuildConfig.FLAVOR)
                 .setAction(GoogleAnalyticsFields.ACTION_EDIT_PREF)
                 .setLabel(label);
         if (value != -1) {
@@ -255,6 +260,7 @@ public class GoogleAnalyticsUtils {
         getTracker().send(new HitBuilders.EventBuilder()
                 .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
+                .setCustomDimension(3, BuildConfig.FLAVOR)
                 .setCategory(GoogleAnalyticsFields.CATEGORY_TIMED_EVENTS)
                 .setAction(action)
                 .setValue(value)
