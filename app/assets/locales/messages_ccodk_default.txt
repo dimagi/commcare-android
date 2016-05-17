@@ -58,7 +58,7 @@ updates.installing.title=Installing new app version
 updates.installing.message=Installing downloaded updates
 
 menu.basic=Basic Install
-menu.advanced=Advanced
+menu.advanced=Advanced Install
 menu.archive=Offline Install
 menu.sms=SMS Install
 menu.sms.not.found=Install link not found in your texts!
@@ -98,7 +98,7 @@ home.menu.wifi.direct=Wifi Direct
 home.menu.connection.diagnostic=Connection Test
 home.menu.saved.forms=Saved Forms
 home.menu.about=About CommCare
-home.menu.advanced=Advanced Actions
+home.menu.advanced=Advanced
 home.menu.disable.analytics=Opt Out of Analytics
 home.menu.pin.set=Set My PIN
 home.menu.pin.change=Change My PIN

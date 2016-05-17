@@ -87,7 +87,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
         serverSettingsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.LABEL_REPORT_PROBLEM);
+                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_REPORT_PROBLEM);
                 startReportActivity();
                 return true;
             }
@@ -97,7 +97,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
         validateMediaButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.LABEL_VALIDATE_MM);
+                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_VALIDATE_MEDIA);
                 startValidationActivity();
                 return true;
             }
@@ -108,7 +108,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
             wifiDirectButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.LABEL_WIFI_DIRECT);
+                    GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_WIFI_DIRECT);
                     startWifiDirect();
                     return true;
                 }
@@ -121,7 +121,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
         dumpFormsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.LABEL_MANAGE_SD);
+                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_MANAGE_SD);
                 startFormDump();
                 return true;
             }
@@ -131,7 +131,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
         connectionTestButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.LABEL_CONNECTION_TEST);
+                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_CONNECTION_TEST);
                 startConnectionTest();
                 return true;
             }
@@ -141,7 +141,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
         clearDataButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.LABEL_CLEAR_USER_DATA);
+                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_CLEAR_USER_DATA);
                 clearUserData();
                 return true;
             }
@@ -151,7 +151,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
         forceSubmitButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.LABEL_FORCE_LOG_SUBMISSION);
+                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_FORCE_LOG_SUBMISSION);
                 CommCareUtil.triggerLogSubmission(AdvancedActionsActivity.this);
                 return true;
             }
@@ -161,7 +161,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
         recoveryModeButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.LABEL_RECOVERY_MODE);
+                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_RECOVERY_MODE);
                 startRecoveryMode();
                 return true;
             }
@@ -172,7 +172,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
             analyticsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.LABEL_RECOVERY_MODE);
+                    GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_RECOVERY_MODE);
                     showAnalyticsOptOutDialog();
                     return true;
                 }

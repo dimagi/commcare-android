@@ -109,7 +109,6 @@ public class CommCarePreferences
 
         prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
         prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
-        prefKeyToAnalyticsEvent.put(PREFS_PRINT_DOC_LOCATION, GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
         prefKeyToAnalyticsEvent.put(GRID_MENUS_ENABLED, GoogleAnalyticsFields.LABEL_GRID_MENUS);
     }
 
@@ -179,7 +178,9 @@ public class CommCarePreferences
             developerSettingsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    // GoogleAnalyticsFields.LABEL_DEVELOPER_OPTIONS
+                    GoogleAnalyticsUtils.reportPrefItemClick(
+                            GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                            GoogleAnalyticsFields.LABEL_DEVELOPER_OPTIONS);
                     startDeveloperOptions();
                     return true;
                 }
@@ -193,7 +194,9 @@ public class CommCarePreferences
             clearSavedSessionButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
                 @Override
                 public boolean onPreferenceClick(Preference preference) {
-                    //GoogleAnalyticsFields.LABEL_CLEAR_SAVED_SESSION
+                    GoogleAnalyticsUtils.reportPrefItemClick(
+                            GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                            GoogleAnalyticsFields.LABEL_CLEAR_SAVED_SESSION);
                     DevSessionRestorer.clearSession();
                     return true;
                 }

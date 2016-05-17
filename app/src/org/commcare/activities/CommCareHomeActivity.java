@@ -1214,7 +1214,7 @@ public class CommCareHomeActivity
         menuIdToAnalyticsEvent.put(MENU_SAVED_FORMS, GoogleAnalyticsFields.LABEL_SAVED_FORMS);
         menuIdToAnalyticsEvent.put(MENU_CHANGE_LANGUAGE, GoogleAnalyticsFields.LABEL_LOCALE);
         menuIdToAnalyticsEvent.put(MENU_PREFERENCES, GoogleAnalyticsFields.LABEL_SETTINGS);
-        menuIdToAnalyticsEvent.put(MENU_ADVANCED, GoogleAnalyticsFields.LABEL_ABOUT_CC);
+        menuIdToAnalyticsEvent.put(MENU_ADVANCED, GoogleAnalyticsFields.LABEL_ADVANCED_ACTIONS);
         menuIdToAnalyticsEvent.put(MENU_ABOUT, GoogleAnalyticsFields.LABEL_ABOUT_CC);
         return menuIdToAnalyticsEvent;
     }
