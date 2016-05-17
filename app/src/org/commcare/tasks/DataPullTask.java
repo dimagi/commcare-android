@@ -27,6 +27,7 @@ import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.network.RemoteDataPullResponse;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.templates.CommCareTask;
@@ -69,7 +70,6 @@ public abstract class DataPullTask<R>
     private long mSyncStartTime;
 
     private boolean wasKeyLoggedIn;
-    private final boolean restoreSession;
 
     public static final int DATA_PULL_TASK_ID = 10;
 
@@ -86,30 +86,21 @@ public abstract class DataPullTask<R>
     public static final int PROGRESS_DOWNLOADING_COMPLETE = 512;
     private DataPullRequester dataPullRequester;
 
-    private DataPullTask(String username, String password,
-                         String server, Context context,
-                         boolean restoreOldSession) {
+    public DataPullTask(String username, String password,
+                         String server, Context context, DataPullRequester dataPullRequester) {
         this.server = server;
         this.username = username;
         this.password = password;
         this.context = context;
         this.taskId = DATA_PULL_TASK_ID;
-        this.dataPullRequester = new DataPullResponseFactory();
-        this.restoreSession = restoreOldSession;
+        this.dataPullRequester = dataPullRequester;
 
         TAG = DataPullTask.class.getSimpleName();
     }
 
     public DataPullTask(String username, String password,
                         String server, Context context) {
-        this(username, password, server, context, false);
-    }
-
-    public DataPullTask(String username, String password,
-                         String server, Context context,
-                         DataPullRequester dataPullRequester) {
-        this(username, password, server, context);
-        this.dataPullRequester = dataPullRequester;
+        this(username, password, server, context, new DataPullResponseFactory());
     }
 
     @Override
@@ -138,12 +129,11 @@ public abstract class DataPullTask<R>
             CommCareApp app = CommCareApplication._().getCurrentApp();
             SharedPreferences prefs = app.getAppPreferences();
 
-            String keyServer = prefs.getString("key_server", null);
-
             mTotalItems = -1;
             mCurrentProgress = -1;
 
             //Whether or not we should be generating the first key
+            String keyServer = CommCarePreferences.getKeyServer();
             boolean useExternalKeys = !(keyServer == null || keyServer.equals(""));
 
             boolean loginNeeded = true;
@@ -236,7 +226,7 @@ public abstract class DataPullTask<R>
                         //is encoded. Probably a better way to do this.
                         CommCareApplication._().startUserSession(
                                 ByteEncrypter.unwrapByteArrayWithString(ukr.getEncryptedKey(), password),
-                                ukr, restoreSession);
+                                ukr, false);
                         wasKeyLoggedIn = true;
                     }
 
