@@ -14,6 +14,8 @@ import xml.etree.ElementTree as ET
 # - config.txt: a text file containing the following 5 pieces of information in order, on a single comma-separated line, e.g: app_id,app_domain,build_number,username,password
 # - ic_launcher.zip: a zip file generated from Android Asset Studio of the desired app icon (MUST have this exact name)
 PATH_TO_STATIC_RESOURCES_DIR = "./consumer-apps-resources"
+CONFIG_FILE_NAME = "config.txt"
+ZIP_FILE_NAME = "ic_launcher.zip"
 
 # Path to the commcare-odk app directory
 PATH_TO_ODK_DIR = "./commcare-odk/"
@@ -41,8 +43,13 @@ def build_apks_from_resources():
 
 
 def build_apk_from_directory_contents(app_sub_dir, files_list):
-    full_path_to_config_file = os.path.join(app_sub_dir, files_list[0])
-    full_path_to_zipfile = os.path.join(app_sub_dir, files_list[1])
+    if CONFIG_FILE_NAME not in files_list:
+        raise Exception("One of the app resource directories does not contain the required config.txt file.")
+    if ZIP_FILE_NAME not in files_list:
+        raise Exception("One of the app resource directories does not contain the required ic_launcher.zip file.")
+
+    full_path_to_config_file = os.path.join(app_sub_dir, CONFIG_FILE_NAME)
+    full_path_to_zipfile = os.path.join(app_sub_dir, ZIP_FILE_NAME)
 
     unzip_app_icon(full_path_to_zipfile)
     app_id, domain, build_number, username, password = get_app_fields(full_path_to_config_file)
