@@ -14,11 +14,14 @@ import xml.etree.ElementTree as ET
 # - ic_launcher.zip: a zip file generated from Android Asset Studio of the desired app icon (MUST have this exact name)
 PATH_TO_STATIC_RESOURCES_DIR = "./consumer-apps-resources"
 
+# Relative path to the commcare-odk app directory
+PATH_TO_ODK_DIR = "./commcare-odk/"
+
 # Relative path to the standalone directory
-PATH_TO_STANDALONE_DIR = "./commcare-odk/app/standalone/"
+PATH_TO_STANDALONE_DIR = PATH_TO_ODK_DIR + "app/standalone/"
 
 # Relative path to the directory where all app assets should be placed
-PATH_TO_ASSETS_DIR = PATH_TO_STANDALONE_DIR + "assets"
+PATH_TO_ASSETS_DIR_FROM_ODK = "./app/standalone/assets/"
 
 
 def checkout_or_update_static_resources_repo():
@@ -31,7 +34,7 @@ def checkout_or_update_static_resources_repo():
 
 def build_apks_from_resources():
 	for (app_dir_name, sub_dir_list, files_list) in os.walk(PATH_TO_STATIC_RESOURCES_DIR):
-		if app_dir_name != PATH_TO_STATIC_RESOURCES_DIR:
+		if '.git' not in app_dir_name and app_dir_name != PATH_TO_STATIC_RESOURCES_DIR:
 			build_apk_from_directory_contents(app_dir_name, files_list)
 
 
@@ -42,10 +45,13 @@ def build_apk_from_directory_contents(app_sub_dir, files_list):
 	unzip_app_icon(full_path_to_zipfile)
 	app_id, domain, build_number, username, password = get_app_fields(full_path_to_config_file)
 	password = '123' #TEMPORARY, REMOVE AFTER TESTING
+	
+	os.chdir(PATH_TO_ODK_DIR)
 	download_ccz(app_id, domain, build_number)
 	download_restore_file(domain, username, password)
 	assemble_apk(domain, build_number, username, password)
 	move_apk(app_id)
+	os.chdir('../')
 
 
 def unzip_app_icon(zipfile_name):
@@ -61,11 +67,11 @@ def get_app_fields(config_filename):
 
 def download_ccz(app_id, domain, build_number):
 	#TODO: Get HQ to implement downloading a specific build
-	subprocess.call(["./scripts/download_app_into_standalone_asset.sh", domain, app_id, PATH_TO_ASSETS_DIR]) 
+	subprocess.call(["./scripts/download_app_into_standalone_asset.sh", domain, app_id, PATH_TO_ASSETS_DIR_FROM_ODK]) 
 
 
 def download_restore_file(domain, username, password):
-	subprocess.call(["./scripts/download_restore_into_standalone_asset.sh", domain, username, password, PATH_TO_ASSETS_DIR])
+	subprocess.call(["./scripts/download_restore_into_standalone_asset.sh", domain, username, password, PATH_TO_ASSETS_DIR_FROM_ODK])
 
 
 def assemble_apk(domain, build_number, username, password):
@@ -79,7 +85,7 @@ def assemble_apk(domain, build_number, username, password):
 
 
 def get_app_name_from_profile():
-	tree = ET.parse(PATH_TO_ASSETS_DIR + '/direct_install/profile.ccpr')
+	tree = ET.parse(PATH_TO_ASSETS_DIR_FROM_ODK + '/direct_install/profile.ccpr')
 	return tree.getroot().get("name")
 
 
