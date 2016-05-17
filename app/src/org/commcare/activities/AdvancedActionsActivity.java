@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -17,7 +16,6 @@ import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.SendTask;
 import org.commcare.tasks.WipeTask;
 import org.commcare.utils.CommCareUtil;
-import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
@@ -35,7 +33,6 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
     private final static String REPORT_PROBLEM = "report-problem";
     private final static String FORCE_LOG_SUBMIT = "force-log-submit";
     private final static String VALIDATE_MEDIA = "validate-media";
-    private final static String DISABLE_ANALYTICS = "disable-analytics";
     private final static String CONNECTION_TEST = "connection-test";
     private final static String RECOVERY_MODE = "recovery-mode";
     private final static String CLEAR_USER_DATA = "clear-user-data";
@@ -59,7 +56,6 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
         keyToTitleMap.put(CONNECTION_TEST, "home.menu.connection.diagnostic");
         keyToTitleMap.put(CLEAR_USER_DATA, "clear.user.data");
         keyToTitleMap.put(FORCE_LOG_SUBMIT, "force.log.submit");
-        keyToTitleMap.put(DISABLE_ANALYTICS, "home.menu.disable.analytics");
         keyToTitleMap.put(RECOVERY_MODE, "recovery.mode");
     }
 
@@ -166,20 +162,6 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
                 return true;
             }
         });
-
-        Preference analyticsButton = findPreference(DISABLE_ANALYTICS);
-        if (CommCarePreferences.isAnalyticsEnabled()) {
-            analyticsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_RECOVERY_MODE);
-                    showAnalyticsOptOutDialog();
-                    return true;
-                }
-            });
-        } else {
-            getPreferenceScreen().removePreference(analyticsButton);
-        }
     }
 
     private void startReportActivity() {
@@ -223,33 +205,6 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
         CommCareApplication._().clearUserData();
         setResult(RESULT_DATA_RESET);
         finish();
-    }
-
-    private void showAnalyticsOptOutDialog() {
-        StandardAlertDialog f = new StandardAlertDialog(this,
-                Localization.get("analytics.opt.out.title"),
-                Localization.get("analytics.opt.out.message"));
-
-        f.setPositiveButton(Localization.get("analytics.disable.button"),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        CommCarePreferences.disableAnalytics();
-                    }
-                });
-
-        f.setNegativeButton(Localization.get("option.cancel"),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-
-        f.showNonPersistentDialog();
     }
 
     @Override

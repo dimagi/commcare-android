@@ -5,7 +5,6 @@
     <Preference android:key="report-problem"/>
     <Preference android:key="force-log-submit"/>
     <Preference android:key="validate-media"/>
-    <Preference android:key="disable-analytics"/>
     <Preference android:key="connection-test"/>
     <Preference android:key="recovery-mode"/>
     <Preference android:key="clear-user-data"/>

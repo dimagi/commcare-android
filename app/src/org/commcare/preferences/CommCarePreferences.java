@@ -3,6 +3,7 @@ package org.commcare.preferences;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -27,6 +28,7 @@ import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.commcare.utils.UriToFilePath;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -45,6 +47,7 @@ public class CommCarePreferences
     private final static String SERVER_SETTINGS = "server-settings";
     private final static String DEVELOPER_SETTINGS = "developer-settings";
     private final static String CLEAR_SAVED_SESSION = "clear-saved-session";
+    private final static String DISABLE_ANALYTICS = "disable-analytics";
 
     /**
      * update/sync frequency settings
@@ -106,6 +109,7 @@ public class CommCarePreferences
         keyToTitleMap.put(SERVER_SETTINGS, "settings.server.listing");
         keyToTitleMap.put(DEVELOPER_SETTINGS, "settings.developer.options");
         keyToTitleMap.put(CLEAR_SAVED_SESSION, "menu.clear.saved.session");
+        keyToTitleMap.put(DISABLE_ANALYTICS, "home.menu.disable.analytics");
 
         prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
         prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
@@ -204,6 +208,46 @@ public class CommCarePreferences
         } else {
             getPreferenceScreen().removePreference(clearSavedSessionButton);
         }
+
+        Preference analyticsButton = findPreference(DISABLE_ANALYTICS);
+        if (CommCarePreferences.isAnalyticsEnabled()) {
+            analyticsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    showAnalyticsOptOutDialog();
+                    return true;
+                }
+            });
+        } else {
+            getPreferenceScreen().removePreference(analyticsButton);
+        }
+    }
+
+    private void showAnalyticsOptOutDialog() {
+        StandardAlertDialog f = new StandardAlertDialog(this,
+                Localization.get("analytics.opt.out.title"),
+                Localization.get("analytics.opt.out.message"));
+
+        f.setPositiveButton(Localization.get("analytics.disable.button"),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        CommCarePreferences.disableAnalytics();
+                    }
+                });
+
+        f.setNegativeButton(Localization.get("option.cancel"),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        f.showNonPersistentDialog();
     }
 
     private void createPrintPrefOnClickListener(PreferenceManager prefManager) {
