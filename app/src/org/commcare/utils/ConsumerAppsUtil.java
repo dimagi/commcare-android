@@ -2,7 +2,6 @@ package org.commcare.utils;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareHomeActivity;
-import org.commcare.activities.FormAndDataSyncer;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -31,7 +30,7 @@ public class ConsumerAppsUtil {
         }
     }
 
-    public static String getSyncTokenOfLocalRestoreFile() {
+    private static String getSyncTokenOfLocalRestoreFile() {
         try {
             InputStream is = ReferenceManager._().DeriveReference(SingleAppInstallation.LOCAL_RESTORE_REFERENCE).getStream();
             KXmlParser parser = ElementParser.instantiateParser(is);
