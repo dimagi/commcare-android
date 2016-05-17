@@ -16,6 +16,7 @@ import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -46,17 +47,15 @@ import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.suite.model.Text;
 import org.commcare.tasks.DataPullTask;
-import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.FormLoaderTask;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskReceiver;
 import org.commcare.tasks.ResultAndError;
-import org.commcare.tasks.SendTask;
-import org.commcare.tasks.WipeTask;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
+import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
@@ -316,19 +315,36 @@ public class CommCareHomeActivity
     }
 
     private void showLocaleChangeMenu() {
-        // TODO PLM
-        /*
-        lp.setEntries(ChangeLocaleUtil.getLocaleNames());
-        lp.setEntryValues(ChangeLocaleUtil.getLocaleCodes());
-        lp.setDialogTitle(Localization.get("home.menu.locale.select"));
+        final PaneledChoiceDialog dialog =
+                new PaneledChoiceDialog(this, Localization.get("home.menu.locale.select"));
 
-        // the set callback
-        Localization.setLocale(sharedPreferences.getString(key, "default"));
-        */
+        AdapterView.OnItemClickListener listClickListener = new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String[] localeCodes = ChangeLocaleUtil.getLocaleCodes();
+                if (position >= localeCodes.length) {
+                    Localization.setLocale("default");
+                } else {
+                    Localization.setLocale(localeCodes[position]);
+                }
+                // rebuild home buttons in case language changed;
+                uiController.setupUI();
+                rebuildOptionMenu();
+                dialog.dismiss();
+            }
+        };
 
-        // rebuild home buttons in case language changed;
-        uiController.setupUI();
-        rebuildOptionMenu();
+        dialog.setChoiceItems(buildLocaleChoices(), listClickListener);
+        showAlertDialog(dialog);
+    }
+
+    private static DialogChoiceItem[] buildLocaleChoices() {
+        String[] locales = ChangeLocaleUtil.getLocaleNames();
+        DialogChoiceItem[] choices =new DialogChoiceItem[locales.length];
+        for (int i = 0; i < choices.length; i++) {
+            choices[i] = DialogChoiceItem.nonListenerItem(locales[i]);
+        }
+        return choices;
     }
 
     private void goToFormArchive(boolean incomplete, FormRecord record) {

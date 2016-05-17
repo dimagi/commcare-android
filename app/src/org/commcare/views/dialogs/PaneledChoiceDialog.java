@@ -2,11 +2,12 @@ package org.commcare.views.dialogs;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
@@ -38,8 +39,18 @@ public class PaneledChoiceDialog extends CommCareAlertDialog {
     }
 
     public void setChoiceItems(DialogChoiceItem[] choiceItems) {
+        setupListAdapter(choiceItems);
+    }
+
+    public void setChoiceItems(DialogChoiceItem[] choiceItems,
+                               AdapterView.OnItemClickListener listClickListener) {
+        setupListAdapter(choiceItems).setOnItemClickListener(listClickListener);
+    }
+
+    private ListView setupListAdapter(DialogChoiceItem[] choiceItems) {
         ListView lv = (ListView)view.findViewById(R.id.choices_list_view);
         lv.setAdapter(new ChoiceDialogAdapter(context, android.R.layout.simple_list_item_1, choiceItems));
+        return lv;
     }
 
     private void setTitle(String title) {
@@ -51,7 +62,13 @@ public class PaneledChoiceDialog extends CommCareAlertDialog {
     public static void populateChoicePanel(Context context, Button choicePanel,
                                            DialogChoiceItem item, boolean iconToLeft) {
         choicePanel.setText(item.text);
-        choicePanel.setOnClickListener(item.listener);
+        if (item.listener != null) {
+            choicePanel.setOnClickListener(item.listener);
+        } else {
+            // needed to propagate clicks down to the ListView's ItemClickListener
+            choicePanel.setFocusable(false);
+            choicePanel.setClickable(false);
+        }
         if (item.iconResId != -1) {
             Drawable icon = ContextCompat.getDrawable(context, item.iconResId);
             if (iconToLeft) {
