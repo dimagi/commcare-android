@@ -75,7 +75,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
     }
 
     private void setupUI() {
-        setTitle(Localization.get("home.menu.advanced"));
+        setTitle(Localization.get("settings.advanced.title"));
         CommCarePreferences.addBackButtonToActionBar(this);
 
         CommCarePreferences.setupLocalizedText(this, keyToTitleMap);

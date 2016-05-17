@@ -103,7 +103,7 @@ public class CommCarePreferences
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
 
     static {
-        keyToTitleMap.put(SERVER_SETTINGS, "settings.server.title");
+        keyToTitleMap.put(SERVER_SETTINGS, "settings.server.listing");
         keyToTitleMap.put(DEVELOPER_SETTINGS, "settings.developer.options");
         keyToTitleMap.put(CLEAR_SAVED_SESSION, "menu.clear.saved.session");
 

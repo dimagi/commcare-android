@@ -706,9 +706,11 @@ intent.callout.cancelled=Question callout cancelled
 intent.callout.unable.to.process=Unable to process callout result
 fingerprints.scanned=Fingerprints scanned: ${0}
 
-settings.server.title=Server Settings
+settings.server.listing=Server Settings
+settings.server.title=CommCare > Server Settings
 settings.developer.options=Developer Options
 settings.main.title=CommCare > Application Preferences
+settings.advanced.title=CommCare > Advanced
 clear.user.data=Clear User Data
 force.log.submit=Force Log Submission
 recovery.mode=Recovery Mode
