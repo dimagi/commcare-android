@@ -4,12 +4,12 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.mocks.HttpRequestEndpointsMock;
+import org.commcare.network.HttpRequestEndpointsMock;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
+import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ResultAndError;
-import org.commcare.tasks.network.DebugDataPullResponseFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -117,9 +117,10 @@ public class DataPullTaskTest {
     private static void runDataPull(Integer[] resultCodes, String[] payloadResources) {
         HttpRequestEndpointsMock.setCaseFetchResponseCodes(resultCodes);
 
-        DebugDataPullResponseFactory.setRequestPayloads(payloadResources);
+        LocalDataPullResponseFactory.setRequestPayloads(payloadResources);
+
         DataPullTask<Object> task =
-                new DataPullTask<Object>("test", "123", "fake.server.com", RuntimeEnvironment.application, DebugDataPullResponseFactory.INSTANCE) {
+                new DataPullTask<Object>("test", "123", "fake.server.com", RuntimeEnvironment.application, LocalDataPullResponseFactory.INSTANCE) {
                     @Override
                     protected void deliverResult(Object o, ResultAndError<PullTaskResult> pullTaskResultResultAndError) {
                         dataPullResult = pullTaskResultResultAndError;

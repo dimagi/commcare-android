@@ -11,8 +11,8 @@ import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.network.DataPullRequester;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.services.CommCareSessionService;
-import org.commcare.tasks.network.DebugDataPullResponseFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.PrefixTree;
@@ -151,6 +151,6 @@ public class CommCareTestApplication extends CommCareApplication {
 
     @Override
     public DataPullRequester getDataPullRequester(){
-        return DebugDataPullResponseFactory.INSTANCE;
+        return LocalDataPullResponseFactory.INSTANCE;
     }
 }

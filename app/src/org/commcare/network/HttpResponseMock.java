@@ -1,4 +1,4 @@
-package org.commcare.android.mocks;
+package org.commcare.network;
 
 import org.apache.http.Header;
 import org.apache.http.HeaderIterator;

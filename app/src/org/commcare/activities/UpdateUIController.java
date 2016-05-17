@@ -26,7 +26,7 @@ class UpdateUIController implements CommCareActivityUIController {
     private TextView currentVersionText;
     private TextView progressText;
 
-    private final UpdateActivity activity;
+    protected final UpdateActivity activity;
 
     private final String applyUpdateButtonTextKey;
 
