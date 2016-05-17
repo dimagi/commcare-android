@@ -1,16 +1,20 @@
 package org.commcare.preferences;
 
+import android.app.ActionBar;
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.util.DisplayMetrics;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.commcare.CommCareApp;
@@ -104,7 +108,7 @@ public class CommCarePreferences
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
 
     static {
-        keyToTitleMap.put(SERVER_SETTINGS, "settings.server.settings");
+        keyToTitleMap.put(SERVER_SETTINGS, "settings.server.title");
         keyToTitleMap.put(DEVELOPER_SETTINGS, "settings.developer.options");
         keyToTitleMap.put(CLEAR_SAVED_SESSION, "menu.clear.saved.session");
 
@@ -124,15 +128,19 @@ public class CommCarePreferences
 
         GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
 
-        setTitle(Localization.get("settings.main.title"));
-
-        setupLocalizedText(this, keyToTitleMap);
-        setupButtons();
+        setupUI();
 
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(prefMgr, prefKeyToAnalyticsEvent,
                 GoogleAnalyticsFields.CATEGORY_CC_PREFS);
         // Override the default listener for the print pref key b/c it has extra behavior
         createPrintPrefOnClickListener(prefMgr);
+    }
+
+    private void setupUI() {
+        setTitle(Localization.get("settings.main.title"));
+        addBackButtonToActionBar(this);
+        setupLocalizedText(this, keyToTitleMap);
+        setupButtons();
     }
 
     public static void setupLocalizedText(PreferenceActivity activity,
@@ -150,6 +158,17 @@ public class CommCarePreferences
             }
         }
     }
+
+    public static void addBackButtonToActionBar(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            ActionBar actionBar = activity.getActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayShowHomeEnabled(true);
+                actionBar.setDisplayHomeAsUpEnabled(true);
+            }
+        }
+    }
+
 
     private void setupButtons() {
         Preference serverSettingsButton = findPreference(SERVER_SETTINGS);
@@ -399,5 +418,16 @@ public class CommCarePreferences
     private void startDeveloperOptions() {
         Intent intent = new Intent(this, DeveloperPreferences.class);
         startActivity(intent);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

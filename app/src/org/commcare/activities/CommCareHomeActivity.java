@@ -108,9 +108,8 @@ public class CommCareHomeActivity
 
     private static final int GET_INCOMPLETE_FORM = 16;
 
-    private static final int DUMP_FORMS_ACTIVITY=512;
-    private static final int WIFI_DIRECT_ACTIVITY=1024;
-    private static final int PREFERENCES_ACTIVITY=4096;
+    private static final int PREFERENCES_ACTIVITY=512;
+    private static final int ADVANCED_ACTIONS_ACTIVITY=1024;
 
     private static final int CREATE_PIN = 16384;
     private static final int AUTHENTICATION_FOR_PIN = 32768;
@@ -326,6 +325,10 @@ public class CommCareHomeActivity
         // the set callback
         Localization.setLocale(sharedPreferences.getString(key, "default"));
         */
+
+        // rebuild home buttons in case language changed;
+        uiController.setupUI();
+        rebuildOptionMenu();
     }
 
     private void goToFormArchive(boolean incomplete, FormRecord record) {
@@ -389,55 +392,13 @@ public class CommCareHomeActivity
             // if handling new return code (want to return to home screen) but a return at the end of your statement
             switch(requestCode) {
                 case PREFERENCES_ACTIVITY:
-                    if (resultCode != AdvancedActionsActivity.RESULT_DATA_RESET) {
-                        // rebuild home buttons in case language changed;
-                        // but only if we didn't just clear user data
-                        uiController.setupUI();
+                    if (resultCode == AdvancedActionsActivity.RESULT_DATA_RESET) {
+                        finish();
                     }
-                    rebuildOptionMenu();
                     return;
-                case DUMP_FORMS_ACTIVITY:
-                    if(resultCode == RESULT_CANCELED){
-                        return;
-                    }
-                    else if(resultCode == DumpTask.BULK_DUMP_ID){
-                        int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
-
-                        displayMessage(Localization.get("bulk.form.dump.success",new String[] {""+dumpedCount}), false, false);
-
-                        uiController.refreshView();
-                        return;
-                    }
-                    else if(resultCode == SendTask.BULK_SEND_ID){
-                        int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
-
-                        displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
-
-                        Toast.makeText(this, Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}), Toast.LENGTH_LONG).show();
-                        uiController.refreshView();
-                        return;
-                    }
-                case WIFI_DIRECT_ACTIVITY:
-                    if(resultCode == RESULT_CANCELED){
-                        return;
-                    }
-                    else if(resultCode == SendTask.BULK_SEND_ID){
-                        int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
-
-                        displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
-
-                        Toast.makeText(this, "Forms successfully submitted.", Toast.LENGTH_LONG).show();
-                        uiController.refreshView();
-                        return;
-                    } else if(resultCode == WipeTask.WIPE_TASK_ID){
-                        int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
-
-                        displayMessage(Localization.get("bulk.form.send.success",new String[] {""+dumpedCount}),false, true);
-
-                        Toast.makeText(this, "Forms successfully submitted.", Toast.LENGTH_LONG).show();
-                        uiController.refreshView();
-                        return;
-                    }
+                case ADVANCED_ACTIONS_ACTIVITY:
+                    handleAdvancedActionResult(resultCode, intent);
+                    return;
                 case GET_INCOMPLETE_FORM:
                     //TODO: We might need to load this from serialized state?
                     if(resultCode == RESULT_CANCELED) {
@@ -535,6 +496,16 @@ public class CommCareHomeActivity
             startNextSessionStepSafe();
         }
         super.onActivityResult(requestCode, resultCode, intent);
+    }
+
+    private void handleAdvancedActionResult(int resultCode, Intent intent) {
+        if (resultCode == AdvancedActionsActivity.RESULT_FORMS_PROCESSED) {
+            int formProcessCount = intent.getIntExtra(AdvancedActionsActivity.FORM_PROCESS_COUNT_KEY, 0);
+            String localizationKey = intent.getStringExtra(AdvancedActionsActivity.FORM_PROCESS_MESSAGE_KEY);
+            displayMessage(Localization.get(localizationKey, new String[]{"" + formProcessCount}), false, false);
+
+            uiController.refreshView();
+        }
     }
 
     private void startNextSessionStepSafe() {
@@ -1259,17 +1230,6 @@ public class CommCareHomeActivity
         });
 
         showAlertDialog(dialog);
-    }
-
-    private void startFormDumpActivity() {
-        Intent i = new Intent(this, CommCareFormDumpActivity.class);
-        i.putExtra(CommCareFormDumpActivity.EXTRA_FILE_DESTINATION, CommCareApplication._().getCurrentApp().storageRoot());
-        CommCareHomeActivity.this.startActivityForResult(i, DUMP_FORMS_ACTIVITY);
-    }
-
-    private void startWifiDirectActivity() {
-        Intent i = new Intent(this, CommCareWiFiDirectActivity.class);
-        CommCareHomeActivity.this.startActivityForResult(i, WIFI_DIRECT_ACTIVITY);
     }
 
     @Override
