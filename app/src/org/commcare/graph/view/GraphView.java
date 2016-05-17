@@ -174,6 +174,10 @@ public class GraphView {
     
     /**
      * Get graph's desired aspect ratio.
+     * Most graphs are drawn with aspect ratio 2:1, which is fairly arbitrary
+     * and happened to look nice for partographs. Bar graphs are drawn square - 
+     * again, arbitrary, happens to look nice for mobile UCR. Expect to revisit
+     * this eventually (make all graphs square? user-configured aspect ratio?).
      *
      * @return Ratio, expressed as a double: width / height.
      */
