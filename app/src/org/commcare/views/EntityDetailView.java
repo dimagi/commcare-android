@@ -268,10 +268,6 @@ public class EntityDetailView extends FrameLayout {
                 try {
                     graphHTML = g.getHTML((GraphData)field);
                     graphView = g.getView(graphHTML);
-                    // Most graphs are drawn with aspect ratio 2:1, which is mostly arbitrary
-                    // and happened to look nice for partographs. Bar graphs are drawn square - 
-                    // again, arbitrary, happens to look nice for mobile UCR. Expect to revisit
-                    // this eventually (make all graphs square? user-configured aspect ratio?).
                     graphLayout.setRatio((float)g.getRatio((GraphData)field), (float)1);
                 } catch (GraphException ex) {
                     graphView = new TextView(context);
