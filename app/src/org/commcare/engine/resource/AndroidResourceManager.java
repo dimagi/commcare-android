@@ -128,7 +128,7 @@ public class AndroidResourceManager extends ResourceManager {
         if (upgradeProfile == null) {
             loadProfileIntoTable(upgradeTable, profileRef, authority);
         } else {
-            loadProfileViaTemp(upgradeProfile);
+            loadProfileViaTemp(upgradeProfile, authority);
         }
     }
 
@@ -138,12 +138,12 @@ public class AndroidResourceManager extends ResourceManager {
      *
      * @param upgradeProfile the profile currently in the upgrade table.
      */
-    private void loadProfileViaTemp(Resource upgradeProfile)
+    private void loadProfileViaTemp(Resource upgradeProfile, int profileAuthority)
             throws UnfullfilledRequirementsException,
             UnresolvedResourceException,
             InstallCancelledException {
         tempUpgradeTable.destroy();
-        loadRemoteAuthorityProfileIntoTable(tempUpgradeTable, profileRef);
+        loadProfileIntoTable(tempUpgradeTable, profileRef, profileAuthority);
         Resource tempProfile =
                 tempUpgradeTable.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
 
