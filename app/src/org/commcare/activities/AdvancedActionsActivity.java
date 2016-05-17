@@ -1,14 +1,11 @@
 package org.commcare.activities;
 
-import android.app.ActionBar;
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
-import android.preference.PreferenceManager;
 import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
@@ -27,6 +24,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Menu for launching advanced CommCare actions
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {

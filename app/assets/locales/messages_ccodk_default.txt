@@ -58,7 +58,7 @@ updates.installing.title=Installing new app version
 updates.installing.message=Installing downloaded updates
 
 menu.basic=Basic Install
-menu.advanced=Advanced Install
+menu.advanced=Advanced
 menu.archive=Offline Install
 menu.sms=SMS Install
 menu.sms.not.found=Install link not found in your texts!

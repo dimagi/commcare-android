@@ -1,6 +1,5 @@
 package org.commcare.preferences;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 
@@ -15,11 +14,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * Sub-menu for managing server addresses
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class CommCareServerPreferences
-        extends SessionAwarePreferenceActivity
-        implements SharedPreferences.OnSharedPreferenceChangeListener {
+        extends SessionAwarePreferenceActivity {
 
     public final static String PREFS_APP_SERVER_KEY = "default_app_server";
     public final static String PREFS_DATA_SERVER_KEY = "ota-restore-url";
@@ -40,6 +39,7 @@ public class CommCareServerPreferences
         GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
 
         setTitle(Localization.get("settings.server.title"));
+        CommCarePreferences.addBackButtonToActionBar(this);
 
         populatePrefKeyToEventLabelMapping();
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(prefMgr, prefKeyToAnalyticsEvent,
@@ -52,31 +52,5 @@ public class CommCareServerPreferences
         prefKeyToAnalyticsEvent.put(PREFS_SUBMISSION_URL_KEY, GoogleAnalyticsFields.LABEL_SUBMISSION_SERVER);
         prefKeyToAnalyticsEvent.put(PREFS_KEY_SERVER_KEY, GoogleAnalyticsFields.LABEL_KEY_SERVER);
         prefKeyToAnalyticsEvent.put(PREFS_FORM_RECORD_KEY, GoogleAnalyticsFields.LABEL_FORM_RECORD_SERVER);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Set up a listener whenever a key changes
-        getPreferenceScreen().getSharedPreferences()
-                .registerOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        // Unregister the listener whenever a key changes
-        getPreferenceScreen().getSharedPreferences()
-                .unregisterOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        int editPrefValue = -1;
-
-        GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                prefKeyToAnalyticsEvent.get(key), editPrefValue);
     }
 }

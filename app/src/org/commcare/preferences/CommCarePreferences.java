@@ -14,6 +14,7 @@ import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -36,18 +37,25 @@ public class CommCarePreferences
         extends SessionAwarePreferenceActivity
         implements OnSharedPreferenceChangeListener {
 
-    // So these are stored in the R files, but I don't seem to be able to figure out how to pull
-    // them out cleanly?
-    public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
-    public final static String AUTO_UPDATE_FREQUENCY = "cc-autoup-freq";
-    public final static String FREQUENCY_NEVER = "freq-never";
-    public final static String FREQUENCY_DAILY = "freq-daily";
+    private final static String TAG = CommCarePreferences.class.getSimpleName();
+
+    /**
+     * Entries used as buttons; aren't actually stored preferences
+     */
     private final static String SERVER_SETTINGS = "server-settings";
     private final static String DEVELOPER_SETTINGS = "developer-settings";
     private final static String CLEAR_SAVED_SESSION = "clear-saved-session";
 
-    public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
-    public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
+    /**
+     * update/sync frequency settings
+     */
+    public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
+    public final static String AUTO_UPDATE_FREQUENCY = "cc-autoup-freq";
+    public final static String FREQUENCY_NEVER = "freq-never";
+    public final static String FREQUENCY_DAILY = "freq-daily";
+
+    public final static String LOG_LAST_DAILY_SUBMIT = "log_prop_last_daily";
+    public final static String LOG_NEXT_WEEKLY_SUBMIT = "log_prop_next_weekly";
 
     /**
      * Stores boolean flag that tells of if an auto-update is in progress, that
@@ -57,20 +65,30 @@ public class CommCarePreferences
     public final static String LAST_UPDATE_ATTEMPT = "cc-last_up";
     public final static String LAST_SYNC_ATTEMPT = "last-ota-restore";
 
+    public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
+    public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
+
     public final static String RESIZING_METHOD = "cc-resize-images";
 
     private static final String KEY_TARGET_DENSITY = "cc-inflation-target-density";
     private static final String DEFAULT_TARGET_DENSITY = "" + DisplayMetrics.DENSITY_DEFAULT;
-
-    // TODO PLM: these flags aren't provided by HQ built apps, should be replaced with LOG_WEEKLY_SUBMIT above!
-    public final static String LOG_LAST_DAILY_SUBMIT = "log_prop_last_daily";
-    public final static String LOG_NEXT_WEEKLY_SUBMIT = "log_prop_next_weekly";
 
     public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
     public final static String LAST_PASSWORD = "last_password";
     public final static String CURRENT_SESSION = "current_user_session";
     public final static String CURRENT_FORM_ENTRY_SESSION = "current_form_entry_session";
     public final static String CONTENT_VALIDATED = "cc-content-valid";
+    public static final String DUMP_FOLDER_PATH = "dump-folder-path";
+    public final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
+    public final static String LOGIN_DURATION = "cc-login-duration-seconds";
+    public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
+    public final static String BRAND_BANNER_HOME = "brand-banner-home";
+    private final static String PREFS_FUZZY_SEARCH_KEY = "cc-fuzzy-search-enabled";
+    public final static String PREFS_LOCALE_KEY = "cur_locale";
+    public final static String PREFS_PRINT_DOC_LOCATION = "print-doc-location";
+    public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
+    public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
+    public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
 
     public final static String YES = "yes";
     public final static String NO = "no";
@@ -79,30 +97,7 @@ public class CommCarePreferences
     public final static String TRUE = "True";
     public final static String FALSE = "False";
 
-    public static final String DUMP_FOLDER_PATH = "dump-folder-path";
-
-    public final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
-
-    public final static String LOGIN_DURATION = "cc-login-duration-seconds";
-
-    public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
-    public final static String BRAND_BANNER_HOME = "brand-banner-home";
-
-    // Fields for setting print template
     private static final int REQUEST_TEMPLATE = 0;
-
-    private final static String PREFS_FUZZY_SEARCH_KEY = "cc-fuzzy-search-enabled";
-    public final static String PREFS_LOCALE_KEY = "cur_locale";
-    public final static String PREFS_PRINT_DOC_LOCATION = "print-doc-location";
-
-    // Doesn't actually get shown in the CCPreferences activity, just storing the field here
-    // The 'Opt Out of Analytics' option appears in the home activity options menu
-    public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
-
-
-    public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
-
-    public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
 
     private final static Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
@@ -153,7 +148,7 @@ public class CommCarePreferences
                     String localizedString = Localization.get(prefToTitleMap.get(key));
                     screen.getPreference(i).setTitle(localizedString);
                 } catch (NoLocalizedTextException nle) {
-
+                    Log.w(TAG, "Unable to localize: " + prefToTitleMap.get(key));
                 }
             }
         }
@@ -168,7 +163,6 @@ public class CommCarePreferences
             }
         }
     }
-
 
     private void setupButtons() {
         Preference serverSettingsButton = findPreference(SERVER_SETTINGS);
@@ -247,6 +241,62 @@ public class CommCarePreferences
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Set up a listener whenever a key changes
+        getPreferenceScreen().getSharedPreferences()
+                .registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Unregister the listener whenever a key changes
+        getPreferenceScreen().getSharedPreferences()
+                .unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        int editPrefValue = -1;
+        switch (key) {
+            case AUTO_UPDATE_FREQUENCY:
+                String freq = sharedPreferences.getString(key, CommCarePreferences.FREQUENCY_NEVER);
+                if (CommCarePreferences.FREQUENCY_NEVER.equals(freq)) {
+                    editPrefValue = GoogleAnalyticsFields.VALUE_NEVER;
+                } else if (CommCarePreferences.FREQUENCY_DAILY.equals(freq)) {
+                    editPrefValue = GoogleAnalyticsFields.VALUE_DAILY;
+                } else {
+                    editPrefValue = GoogleAnalyticsFields.VALUE_WEEKLY;
+                }
+                break;
+            case PREFS_FUZZY_SEARCH_KEY:
+                if (isFuzzySearchEnabled()) {
+                    editPrefValue = GoogleAnalyticsFields.VALUE_ENABLED;
+                } else {
+                    editPrefValue = GoogleAnalyticsFields.VALUE_DISABLED;
+                }
+                break;
+        }
+
+        GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                prefKeyToAnalyticsEvent.get(key), editPrefValue);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     public static boolean isInSenseMode() {
         return (CommCareApplication._().getCommCarePlatform().getCurrentProfile() != null &&
                 CommCareApplication._().getCommCarePlatform().getCurrentProfile().isFeatureActive("sense"));
@@ -307,51 +357,6 @@ public class CommCarePreferences
         } catch (NumberFormatException e) {
             return oneDayInSecs;
         }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Set up a listener whenever a key changes
-        getPreferenceScreen().getSharedPreferences()
-                .registerOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        // Unregister the listener whenever a key changes
-        getPreferenceScreen().getSharedPreferences()
-                .unregisterOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        int editPrefValue = -1;
-        switch (key) {
-            case AUTO_UPDATE_FREQUENCY:
-                String freq = sharedPreferences.getString(key, CommCarePreferences.FREQUENCY_NEVER);
-                if (CommCarePreferences.FREQUENCY_NEVER.equals(freq)) {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_NEVER;
-                } else if (CommCarePreferences.FREQUENCY_DAILY.equals(freq)) {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_DAILY;
-                } else {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_WEEKLY;
-                }
-                break;
-            case PREFS_FUZZY_SEARCH_KEY:
-                if (isFuzzySearchEnabled()) {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_ENABLED;
-                } else {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_DISABLED;
-                }
-                break;
-        }
-
-        GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                prefKeyToAnalyticsEvent.get(key), editPrefValue);
     }
 
     public static String getResizeMethod() {
@@ -418,16 +423,5 @@ public class CommCarePreferences
     private void startDeveloperOptions() {
         Intent intent = new Intent(this, DeveloperPreferences.class);
         startActivity(intent);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // Respond to the action bar's Up/Home button
-            case android.R.id.home:
-                finish();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 }
