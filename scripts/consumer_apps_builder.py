@@ -1,5 +1,6 @@
 
 import os
+import sys
 import subprocess 
 import xml.etree.ElementTree as ET
 
@@ -37,13 +38,13 @@ def checkout_or_update_static_resources_repo():
     os.chdir('../')
 
 
-def build_apks_from_resources():
+def build_apks_from_resources(build_type):
     for (app_dir_name, sub_dir_list, files_list) in os.walk(PATH_TO_STATIC_RESOURCES_DIR):
         if '.git' not in app_dir_name and app_dir_name != PATH_TO_STATIC_RESOURCES_DIR:
-            build_apk_from_directory_contents(app_dir_name, files_list)
+            build_apk_from_directory_contents(app_dir_name, files_list, build_type)
 
 
-def build_apk_from_directory_contents(app_sub_dir, files_list):
+def build_apk_from_directory_contents(app_sub_dir, files_list, build_type):
     if CONFIG_FILE_NAME not in files_list:
         raise Exception("One of the app resource directories does not contain the required config.txt file.")
     if ZIP_FILE_NAME not in files_list:
@@ -59,7 +60,7 @@ def build_apk_from_directory_contents(app_sub_dir, files_list):
     os.chdir(PATH_TO_ODK_DIR)
     download_ccz(app_id, domain, build_number)
     download_restore_file(domain, username, password)
-    assemble_apk(domain, build_number, username, password)
+    assemble_apk(domain, build_number, username, password, build_type)
     move_apk(app_id)
     os.chdir('../')
 
@@ -84,8 +85,12 @@ def download_restore_file(domain, username, password):
     subprocess.call(["./scripts/download_restore_into_standalone_asset.sh", domain, username, password, PATH_TO_ASSETS_DIR_FROM_ODK])
 
 
-def assemble_apk(domain, build_number, username, password):
-    subprocess.call(["gradle", "assembleStandaloneDebug", 
+def assemble_apk(domain, build_number, username, password, build_type):
+    if build_type == 'd':
+        gradle_directive = "assembleStandaloneDebug"
+    else:
+        gradle_directive = "assembleStandaloneRelease"
+    subprocess.call(["gradle", gradle_directive, 
         "-Pcc_domain={}".format(domain), 
         "-Papplication_name={}".format(get_app_name_from_profile()), 
         "-Pis_consumer_app=true", 
@@ -104,8 +109,13 @@ def move_apk(app_id):
     subprocess.call(["mv", "./build/outputs/apk/commcare-odk-standalone-debug.apk", "./build/outputs/consumer_apks/{}.apk".format(app_id)])
 
 def main():
+    if len(sys.argv) < 2:
+        raise Exception("Must specify a build type. Use 'd' for debug or 'r' for release.")
+    build_type = sys.argv[1]
+    if build_type != 'd' and build_type != 'r':
+        raise Exception("Must specify a build type. Use 'd' for debug or 'r' for release.")
     checkout_or_update_static_resources_repo()
-    build_apks_from_resources()
+    build_apks_from_resources(build_type)
 
 if __name__ == "__main__":
     main()
