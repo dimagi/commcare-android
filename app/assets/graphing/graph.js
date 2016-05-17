@@ -93,7 +93,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                         key = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + time;
 
                     }
-                    var label = axis.xLabels[key] || d;
+                    var label = axis.xLabels[key] === undefined ? d : axis.xLabels[key];
                     return Math.round(label) || label;
                 };
             }

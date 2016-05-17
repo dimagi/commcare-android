@@ -10,8 +10,9 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.ConnectorWithResultCallback;
-import org.commcare.logging.analytics.GoogleAnalyticsFields;
-import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.engine.resource.installers.SingleAppInstallation;
+import org.commcare.network.DataPullRequester;
+import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
@@ -20,7 +21,11 @@ import org.commcare.tasks.ResultAndError;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
+
+import java.io.IOException;
 
 /**
  * Processes and submits forms and syncs data with server
@@ -43,6 +48,12 @@ public class FormAndDataSyncer {
 
             @Override
             protected void deliverResult(CommCareHomeActivity receiver, Integer result) {
+                if (CommCareApplication._().isConsumerApp()) {
+                    // if this is a consumer app we don't want to show anything in the UI about
+                    // sending forms, or do a sync afterward
+                    return;
+                }
+
                 if (result == ProcessAndSendTask.PROGRESS_LOGGED_OUT) {
                     receiver.finish();
                     return;
@@ -103,18 +114,26 @@ public class FormAndDataSyncer {
                 context.getString(R.string.PostURL));
     }
 
-    public <I extends CommCareActivity & PullTaskReceiver> void syncData(final I activity,
-                                                                         final boolean formsToSend,
-                                                                         final boolean userTriggeredSync,
-                                                                         String server,
-                                                                         String username,
-                                                                         String password) {
+    public <I extends CommCareActivity & PullTaskReceiver> void syncData(
+            final I activity, final boolean formsToSend,
+            final boolean userTriggeredSync, String server,
+            String username, String password) {
+
+        syncData(activity, formsToSend, userTriggeredSync, server, username, password, CommCareApplication._().getDataPullRequester());
+    }
+
+    private <I extends CommCareActivity & PullTaskReceiver> void syncData(
+            final I activity, final boolean formsToSend,
+            final boolean userTriggeredSync, String server,
+            String username, String password,
+            DataPullRequester dataPullRequester) {
 
         DataPullTask<PullTaskReceiver> mDataPullTask = new DataPullTask<PullTaskReceiver>(
                 username,
                 password,
                 server,
-                activity) {
+                activity,
+                dataPullRequester) {
 
             @Override
             protected void deliverResult(PullTaskReceiver receiver,
@@ -168,5 +187,30 @@ public class FormAndDataSyncer {
         syncData(activity, formsToSend, userTriggeredSync,
                 prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY, activity.getString(R.string.ota_restore_url)),
                 u.getUsername(), u.getCachedPwd());
+    }
+
+    public void performOtaRestore(LoginActivity context, String username, String password) {
+        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        syncData(context, false, false,
+                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY, context.getString(R.string.ota_restore_url)),
+                username,
+                password);
+    }
+
+    public <I extends CommCareActivity & PullTaskReceiver> void performLocalRestore(
+            I context,
+            String username,
+            String password) {
+
+        try {
+            ReferenceManager._().DeriveReference(
+                    SingleAppInstallation.LOCAL_RESTORE_REFERENCE).getStream();
+        } catch (InvalidReferenceException | IOException e) {
+            throw new RuntimeException("Local restore file missing");
+        }
+
+        LocalDataPullResponseFactory localDataPullRequester =
+                new LocalDataPullResponseFactory(SingleAppInstallation.LOCAL_RESTORE_REFERENCE);
+        syncData(context, false, false, "fake-server-that-is-never-used", username, password, localDataPullRequester);
     }
 }

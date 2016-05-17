@@ -19,6 +19,7 @@ import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.network.HttpCalloutTask;
 import org.commcare.network.HttpRequestGenerator;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
@@ -89,7 +90,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         this.app = app;
         this.restoreSession = restoreSession;
 
-        keyServerUrl = app.getAppPreferences().getString("key_server", null);
+        keyServerUrl = CommCarePreferences.getKeyServer();
         //long story
         keyServerUrl = "".equals(keyServerUrl) ? null : keyServerUrl;
 

@@ -1,4 +1,4 @@
-package org.commcare.android.mocks;
+package org.commcare.network;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -31,7 +31,13 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
 
     @Override
     public HttpResponse makeCaseFetchRequest(String baseUri, boolean includeStateFlags) throws ClientProtocolException, IOException {
-        return HttpResponseMock.buildHttpResponseMock(caseFetchResponseCodeStack.remove(0));
+        int responseCode;
+        if (caseFetchResponseCodeStack.size() > 0) {
+            responseCode = caseFetchResponseCodeStack.remove(0);
+        } else {
+            responseCode = 200;
+        }
+        return HttpResponseMock.buildHttpResponseMock(responseCode);
     }
 
     @Override

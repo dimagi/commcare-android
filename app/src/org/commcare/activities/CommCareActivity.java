@@ -666,7 +666,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     /**
      * Whether or not the "Back" action makes sense for this activity.
      *
-     * @return True if "Back" is a valid concept for the Activity ande should be shown
+     * @return True if "Back" is a valid concept for the Activity and should be shown
      * in the action bar if available. False otherwise.
      */
     public boolean isBackEnabled() {

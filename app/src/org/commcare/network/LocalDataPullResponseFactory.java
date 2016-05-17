@@ -1,10 +1,7 @@
-package org.commcare.tasks.network;
+package org.commcare.network;
 
 import org.apache.http.HttpResponse;
-import org.commcare.android.mocks.HttpRequestEndpointsMock;
 import org.commcare.interfaces.HttpRequestEndpoints;
-import org.commcare.network.DataPullRequester;
-import org.commcare.network.RemoteDataPullResponse;
 import org.commcare.tasks.DataPullTask;
 
 import java.io.IOException;
@@ -17,7 +14,7 @@ import java.util.List;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public enum DebugDataPullResponseFactory implements DataPullRequester {
+public enum LocalDataPullResponseFactory implements DataPullRequester {
     INSTANCE;
 
     // data pull requests will pop off and use the top reference in this list
@@ -34,7 +31,7 @@ public enum DebugDataPullResponseFactory implements DataPullRequester {
                                                       String server,
                                                       boolean includeSyncToken) throws IOException {
         HttpResponse response = requestor.makeCaseFetchRequest(server, includeSyncToken);
-        return new DebugDataPullResponse(xmlPayloadReferences.remove(0), response);
+        return new LocalDataPullResponse(xmlPayloadReferences.remove(0), response);
     }
 
     @Override
