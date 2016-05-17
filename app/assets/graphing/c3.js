@@ -3444,6 +3444,12 @@
         ];
     };
     c3_chart_internal_fn.getTextRect = function (text, cls, element) {
+        if (!text) {
+            return {
+                width: 0,
+                height: 0,
+            };
+        }
         var dummy = this.d3.select('body').append('div').classed('c3', true),
             svg = dummy.append("svg").style('visibility', 'hidden').style('position', 'fixed').style('top', 0).style('left', 0),
             font = this.d3.select(element).style('font'),
