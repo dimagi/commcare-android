@@ -95,9 +95,10 @@ def move_apk(app_id):
     subprocess.call(["mkdir", "-p", "./build/outputs/consumer_apks"]) 
     subprocess.call(["mv", "./build/outputs/apk/commcare-odk-standalone-debug.apk", "./build/outputs/consumer_apks/{}.apk".format(app_id)])
 
+def main():
+    checkout_or_update_static_resources_repo()
+    build_apks_from_resources()
 
-checkout_or_update_static_resources_repo()
-build_apks_from_resources()
-
-
+if __name__ == "__main__":
+    main()
 
