@@ -32,7 +32,8 @@ def checkout_or_update_static_resources_repo():
     if not os.path.exists(PATH_TO_STATIC_RESOURCES_DIR):
         subprocess.call(["git", "clone", "https://github.com/dimagi/consumer-apps-resources"])
     os.chdir(PATH_TO_STATIC_RESOURCES_DIR)
-    subprocess.call(["git", "pull"])
+    subprocess.call(["git", "checkout", "master"])
+    subprocess.call(["git", "pull", "origin", "master"])
     os.chdir('../')
 
 
