@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
+import org.commcare.graph.util.GraphUtil;
 import org.commcare.graph.view.c3.AxisConfiguration;
 import org.commcare.graph.view.c3.DataConfiguration;
 import org.commcare.graph.view.c3.GridConfiguration;
@@ -169,5 +170,17 @@ public class GraphView {
      */
     public static LinearLayout.LayoutParams getLayoutParams() {
         return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+    }
+    
+    /**
+     * Get graph's desired aspect ratio.
+     *
+     * @return Ratio, expressed as a double: width / height.
+     */
+    public double getRatio(GraphData data) {
+        if (GraphUtil.TYPE_BAR.equals(data.getType())) {
+            return 1;
+        }
+        return 2;
     }
 }
