@@ -1,5 +1,7 @@
 package org.commcare.activities;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -16,6 +18,7 @@ import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.SendTask;
 import org.commcare.tasks.WipeTask;
 import org.commcare.utils.CommCareUtil;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
 import java.util.HashMap;
@@ -202,9 +205,25 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
     }
 
     private void clearUserData() {
-        CommCareApplication._().clearUserData();
-        setResult(RESULT_DATA_RESET);
-        finish();
+        StandardAlertDialog d =
+                new StandardAlertDialog(this,
+                        Localization.get("clear.user.data.warning.title"),
+                        Localization.get("clear.user.data.warning.message"));
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog,
+                                int which) {
+                if (which == AlertDialog.BUTTON_POSITIVE) {
+                    CommCareApplication._().clearUserData();
+                    setResult(RESULT_DATA_RESET);
+                    finish();
+                }
+                dialog.dismiss();
+            }
+        };
+        d.setPositiveButton(getString(R.string.ok), listener);
+        d.setNegativeButton(getString(R.string.cancel), listener);
+        d.showNonPersistentDialog();
     }
 
     @Override

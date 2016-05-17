@@ -712,5 +712,7 @@ settings.developer.options=Developer Options
 settings.main.title=CommCare > Application Preferences
 settings.advanced.title=CommCare > Advanced
 clear.user.data=Clear User Data
+clear.user.data.warning.title=Clear User Data
+clear.user.data.warning.message=Are you sure you want to clear all mobile user data? All unsynced data will be lost!
 force.log.submit=Force Log Submission
 recovery.mode=Recovery Mode
