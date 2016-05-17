@@ -6,4 +6,6 @@
     <Preference android:key="report-problem"/>
     <Preference android:key="connection-test"/>
     <Preference android:key="clear-user-data"/>
+    <Preference android:key="force-log-submit"/>
+    <Preference android:key="recovery-mode"/>
 </PreferenceScreen>

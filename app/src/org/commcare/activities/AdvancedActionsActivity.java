@@ -1,19 +1,21 @@
 package org.commcare.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.preferences.CommCarePreferences;
+import org.commcare.utils.CommCareUtil;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,6 +31,9 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
     private final static String DUMP_FORMS = "manage-sd-card";
     private final static String CONNECTION_TEST = "connection-test";
     private final static String CLEAR_USER_DATA = "clear-user-data";
+    private final static String FORCE_LOG_SUBMIT = "force-log-submit";
+    private final static String RECOVERY_MODE = "recovery-mode";
+    private final static String DISABLE_ANALYTICS = "disable-analytics";
 
     public static final int RESULT_DATA_RESET = RESULT_FIRST_USER + 1;
 
@@ -41,6 +46,8 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
         keyToTitleMap.put(DUMP_FORMS, "home.menu.formdump");
         keyToTitleMap.put(CONNECTION_TEST, "home.menu.connection.diagnostic");
         keyToTitleMap.put(CLEAR_USER_DATA, "clear.user.data");
+        keyToTitleMap.put(FORCE_LOG_SUBMIT, "force.log.submit");
+        keyToTitleMap.put(DISABLE_ANALYTICS, "home.menu.disable.analytics");
     }
 
     @Override
@@ -55,23 +62,8 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
 
         setTitle(Localization.get("home.menu.advanced"));
 
-        setupLocalizedText();
+        CommCarePreferences.setupLocalizedText(this, keyToTitleMap);
         setupButtons();
-    }
-
-    private void setupLocalizedText() {
-        PreferenceScreen screen = getPreferenceScreen();
-        for (int i = 0; i < screen.getPreferenceCount(); i++) {
-            String key = screen.getPreference(i).getKey();
-            if (keyToTitleMap.containsKey(key)) {
-                try {
-                    String localizedString = Localization.get(keyToTitleMap.get(key));
-                    screen.getPreference(i).setTitle(localizedString);
-                } catch (NoLocalizedTextException nle) {
-
-                }
-            }
-        }
     }
 
     private void setupButtons() {
@@ -138,6 +130,40 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
                 return true;
             }
         });
+
+        Preference forceSubmitButton = findPreference(FORCE_LOG_SUBMIT);
+        forceSubmitButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.LABEL_FORCE_LOG_SUBMISSION);
+                CommCareUtil.triggerLogSubmission(AdvancedActionsActivity.this);
+                return true;
+            }
+        });
+
+        Preference recoveryModeButton = findPreference(RECOVERY_MODE);
+        recoveryModeButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.LABEL_RECOVERY_MODE);
+                startRecoveryMode();
+                return true;
+            }
+        });
+
+        Preference analyticsButton = findPreference(DISABLE_ANALYTICS);
+        if (CommCarePreferences.isAnalyticsEnabled()) {
+            recoveryModeButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.LABEL_RECOVERY_MODE);
+                    showAnalyticsOptOutDialog();
+                    return true;
+                }
+            });
+        } else {
+            getPreferenceScreen().removePreference(analyticsButton);
+        }
     }
 
     private void startReportActivity() {
@@ -159,6 +185,11 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
         // TODO PLM
     }
 
+    private void startRecoveryMode() {
+        Intent i = new Intent(this, RecoveryActivity.class);
+        this.startActivity(i);
+    }
+
     private boolean hasP2p() {
         return Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH
                 && getPackageManager().hasSystemFeature(PackageManager.FEATURE_WIFI_DIRECT);
@@ -173,6 +204,33 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
         CommCareApplication._().clearUserData();
         setResult(RESULT_DATA_RESET);
         finish();
+    }
+
+    private void showAnalyticsOptOutDialog() {
+        StandardAlertDialog f = new StandardAlertDialog(this,
+                Localization.get("analytics.opt.out.title"),
+                Localization.get("analytics.opt.out.message"));
+
+        f.setPositiveButton(Localization.get("analytics.disable.button"),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                        CommCarePreferences.disableAnalytics();
+                    }
+                });
+
+        f.setNegativeButton(Localization.get("option.cancel"),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+
+        f.showNonPersistentDialog();
     }
 }
 

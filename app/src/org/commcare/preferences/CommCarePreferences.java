@@ -1,32 +1,27 @@
 package org.commcare.preferences;
 
 import android.content.ActivityNotFoundException;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.util.DisplayMetrics;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.RecoveryActivity;
 import org.commcare.activities.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
-import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.commcare.utils.UriToFilePath;
-import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -44,6 +39,8 @@ public class CommCarePreferences
     public final static String FREQUENCY_NEVER = "freq-never";
     public final static String FREQUENCY_DAILY = "freq-daily";
     private final static String SERVER_SETTINGS = "server-settings";
+    private final static String DEVELOPER_SETTINGS = "developer-settings";
+    private final static String CLEAR_SAVED_SESSION = "clear-saved-session";
 
     public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
     public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
@@ -87,12 +84,6 @@ public class CommCarePreferences
     public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
     public final static String BRAND_BANNER_HOME = "brand-banner-home";
 
-    private static final int FORCE_LOG_SUBMIT = Menu.FIRST;
-    private static final int RECOVERY_MODE = Menu.FIRST + 1;
-    private static final int MENU_DISABLE_ANALYTICS = Menu.FIRST + 2;
-    private static final int MENU_CLEAR_SAVED_SESSION = Menu.FIRST + 3;
-    private static final int SUPERUSER_PREFS = Menu.FIRST + 4;
-
     // Fields for setting print template
     private static final int REQUEST_TEMPLATE = 0;
 
@@ -104,13 +95,19 @@ public class CommCarePreferences
     // The 'Opt Out of Analytics' option appears in the home activity options menu
     public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
 
-    private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
 
     public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
 
     public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
 
+    private final static Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
+    private final static Map<String, String> keyToTitleMap = new HashMap<>();
+
     static {
+        keyToTitleMap.put(SERVER_SETTINGS, "settings.server.settings");
+        keyToTitleMap.put(DEVELOPER_SETTINGS, "settings.developer.options");
+        keyToTitleMap.put(CLEAR_SAVED_SESSION, "menu.clear.saved.session");
+
         prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
         prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
         prefKeyToAnalyticsEvent.put(PREFS_PRINT_DOC_LOCATION, GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
@@ -129,7 +126,7 @@ public class CommCarePreferences
 
         setTitle(Localization.get("settings.main.title"));
 
-        setupLocalizedText();
+        setupLocalizedText(this, keyToTitleMap);
         setupButtons();
 
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(prefMgr, prefKeyToAnalyticsEvent,
@@ -138,13 +135,14 @@ public class CommCarePreferences
         createPrintPrefOnClickListener(prefMgr);
     }
 
-    private void setupLocalizedText() {
-        PreferenceScreen screen = getPreferenceScreen();
+    public static void setupLocalizedText(PreferenceActivity activity,
+                                             Map<String, String> prefToTitleMap) {
+        PreferenceScreen screen = activity.getPreferenceScreen();
         for (int i = 0; i < screen.getPreferenceCount(); i++) {
             String key = screen.getPreference(i).getKey();
-            if (SERVER_SETTINGS.equals(key)) {
+            if (prefToTitleMap.containsKey(key)) {
                 try {
-                    String localizedString = Localization.get("settings.server.title");
+                    String localizedString = Localization.get(prefToTitleMap.get(key));
                     screen.getPreference(i).setTitle(localizedString);
                 } catch (NoLocalizedTextException nle) {
 
@@ -162,6 +160,34 @@ public class CommCarePreferences
                 return true;
             }
         });
+
+        Preference developerSettingsButton = findPreference(DEVELOPER_SETTINGS);
+        if (DeveloperPreferences.isSuperuserEnabled()) {
+            developerSettingsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    // GoogleAnalyticsFields.LABEL_DEVELOPER_OPTIONS
+                    startDeveloperOptions();
+                    return true;
+                }
+            });
+        } else {
+            getPreferenceScreen().removePreference(developerSettingsButton);
+        }
+
+        Preference clearSavedSessionButton = findPreference(CLEAR_SAVED_SESSION);
+        if (DevSessionRestorer.savedSessionPresent()) {
+            clearSavedSessionButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    //GoogleAnalyticsFields.LABEL_CLEAR_SAVED_SESSION
+                    DevSessionRestorer.clearSession();
+                    return true;
+                }
+            });
+        } else {
+            getPreferenceScreen().removePreference(clearSavedSessionButton);
+        }
     }
 
     private void createPrintPrefOnClickListener(PreferenceManager prefManager) {
@@ -177,7 +203,6 @@ public class CommCarePreferences
             }
         });
     }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -201,102 +226,6 @@ public class CommCarePreferences
                 Toast.makeText(this, Localization.get("template.not.set"), Toast.LENGTH_SHORT).show();
             }
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-
-        menu.add(0, MENU_CLEAR_SAVED_SESSION,
-                Menu.NONE, Localization.get("menu.clear.saved.session"));
-        menu.add(0, FORCE_LOG_SUBMIT,
-                Menu.NONE, "Force Log Submission")
-                .setIcon(android.R.drawable.ic_menu_upload);
-        menu.add(0, RECOVERY_MODE,
-                Menu.NONE, "Recovery Mode")
-                .setIcon(android.R.drawable.ic_menu_report_image);
-        menu.add(0, SUPERUSER_PREFS,
-                Menu.NONE, "Developer Options")
-                .setIcon(android.R.drawable.ic_menu_edit);
-        menu.add(0, MENU_DISABLE_ANALYTICS,
-                Menu.NONE, Localization.get("home.menu.disable.analytics"))
-                .setIcon(android.R.drawable.ic_menu_close_clear_cancel);
-
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
-        menu.findItem(SUPERUSER_PREFS).setVisible(DeveloperPreferences.isSuperuserEnabled());
-        menu.findItem(MENU_CLEAR_SAVED_SESSION).setVisible(DevSessionRestorer.savedSessionPresent());
-        menu.findItem(MENU_DISABLE_ANALYTICS).setVisible(CommCarePreferences.isAnalyticsEnabled());
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Map<Integer, String> menuIdToAnalyticsEventLabel = createMenuItemToEventMapping();
-        GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                menuIdToAnalyticsEventLabel.get(item.getItemId()));
-        switch (item.getItemId()) {
-            case FORCE_LOG_SUBMIT:
-                CommCareUtil.triggerLogSubmission(this);
-                return true;
-            case RECOVERY_MODE:
-                Intent i = new Intent(this, RecoveryActivity.class);
-                this.startActivity(i);
-                return true;
-            case SUPERUSER_PREFS:
-                Intent intent = new Intent(this, DeveloperPreferences.class);
-                this.startActivity(intent);
-                return true;
-            case MENU_CLEAR_SAVED_SESSION:
-                DevSessionRestorer.clearSession();
-                return true;
-            case MENU_DISABLE_ANALYTICS:
-                showAnalyticsOptOutDialog();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void showAnalyticsOptOutDialog() {
-        StandardAlertDialog f = new StandardAlertDialog(this,
-                Localization.get("analytics.opt.out.title"),
-                Localization.get("analytics.opt.out.message"));
-
-        f.setPositiveButton(Localization.get("analytics.disable.button"),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        CommCarePreferences.disableAnalytics();
-                    }
-                });
-
-        f.setNegativeButton(Localization.get("option.cancel"),
-                new DialogInterface.OnClickListener() {
-
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-
-        f.showNonPersistentDialog();
-    }
-
-
-    private static Map<Integer, String> createMenuItemToEventMapping() {
-        Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
-        menuIdToAnalyticsEvent.put(FORCE_LOG_SUBMIT, GoogleAnalyticsFields.LABEL_FORCE_LOG_SUBMISSION);
-        menuIdToAnalyticsEvent.put(RECOVERY_MODE, GoogleAnalyticsFields.LABEL_RECOVERY_MODE);
-        menuIdToAnalyticsEvent.put(SUPERUSER_PREFS, GoogleAnalyticsFields.LABEL_DEVELOPER_OPTIONS);
-        menuIdToAnalyticsEvent.put(MENU_CLEAR_SAVED_SESSION, GoogleAnalyticsFields.LABEL_CLEAR_SAVED_SESSION);
-        return menuIdToAnalyticsEvent;
     }
 
     public static boolean isInSenseMode() {
@@ -465,5 +394,10 @@ public class CommCarePreferences
     private void startServerSettings() {
         Intent i = new Intent(this, CommCareServerPreferences.class);
         startActivity(i);
+    }
+
+    private void startDeveloperOptions() {
+        Intent intent = new Intent(this, DeveloperPreferences.class);
+        startActivity(intent);
     }
 }

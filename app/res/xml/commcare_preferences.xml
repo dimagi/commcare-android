@@ -27,4 +27,8 @@
         android:entryValues="@array/pref_enabled_vals"
         android:key="cc-fuzzy-search-enabled"
         android:title="Fuzzy Search Matches"/>
+    <Preference
+        android:key="clear-saved-session"/>
+    <Preference
+        android:key="developer-settings"/>
 </PreferenceScreen>
