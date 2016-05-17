@@ -4,23 +4,25 @@ import subprocess
 import xml.etree.ElementTree as ET
 
 # Script to build the .apks for all consumer apps, off of the latest release build of CommCare on jenkins
-# All relative paths should be written assuming this script will be run from the PARENT directory of commcare-odk/ 
+# All paths are written assuming this script will be run from the PARENT directory of commcare-odk/,
+# unless otherwise specified 
 
 
-# Relative path to the directory where all user-provided information and files for each consumer app lives. 
+# Path to the directory where all user-provided information and files for each consumer app lives. 
 # This directory should store a list of directories, 1 for each consumer app we are building.
 # The expected format for a single app directory is as follows:
 # - config.txt: a text file containing the following 5 pieces of information in order, on a single comma-separated line, e.g: app_id,app_domain,build_number,username,password
 # - ic_launcher.zip: a zip file generated from Android Asset Studio of the desired app icon (MUST have this exact name)
 PATH_TO_STATIC_RESOURCES_DIR = "./consumer-apps-resources"
 
-# Relative path to the commcare-odk app directory
+# Path to the commcare-odk app directory
 PATH_TO_ODK_DIR = "./commcare-odk/"
 
-# Relative path to the standalone directory
+# Path to the standalone directory
 PATH_TO_STANDALONE_DIR = PATH_TO_ODK_DIR + "app/standalone/"
 
-# Relative path to the directory where all app assets should be placed
+# Path to the directory where all app assets should be placed, RELATIVE to the commcare-odk/
+# directory, since we have cd'ed into that directory at the time this is used
 PATH_TO_ASSETS_DIR_FROM_ODK = "./app/standalone/assets/"
 
 
