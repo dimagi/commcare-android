@@ -6,11 +6,7 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareHomeActivity;
 import org.commcare.activities.FormAndDataSyncer;
 import org.commcare.android.database.user.models.FormRecord;
-<<<<<<< HEAD
 import org.commcare.interfaces.ConnectorWithResultCallback;
-=======
-import org.commcare.network.DataPullRequester;
->>>>>>> master
 import org.commcare.tasks.PullTaskReceiver;
 
 /**

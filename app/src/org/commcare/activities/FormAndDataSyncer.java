@@ -209,8 +209,7 @@ public class FormAndDataSyncer {
             throw new RuntimeException("Local restore file missing");
         }
 
-        LocalDataPullResponseFactory localDataPullRequester =
-                new LocalDataPullResponseFactory(SingleAppInstallation.LOCAL_RESTORE_REFERENCE);
-        syncData(context, false, false, "fake-server-that-is-never-used", username, password, localDataPullRequester);
+        LocalDataPullResponseFactory.setRequestPayloads(new String[]{SingleAppInstallation.LOCAL_RESTORE_REFERENCE});
+        syncData(context, false, false, "fake-server-that-is-never-used", username, password, LocalDataPullResponseFactory.INSTANCE);
     }
 }
