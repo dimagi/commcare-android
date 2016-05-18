@@ -17,6 +17,7 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.utils.FormUploadUtil;
 import org.commcare.utils.SessionUnavailableException;
@@ -66,7 +67,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
                 ProcessAndSendTask<RecoveryActivity> mProcess =
                         new ProcessAndSendTask<RecoveryActivity>(RecoveryActivity.this,
-                                settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
+                                settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
                                         RecoveryActivity.this.getString(R.string.PostURL)), true) {
 
                             @Override

@@ -52,10 +52,10 @@ dependencies {
     compile fileTree(dir: 'app/libs', include: '*.jar')
     compile(name: 'htmlspanner-custom', ext: 'aar')
     compile(name: 'simprints-lib', ext: 'aar')
-    compile 'com.android.support:cardview-v7:23.3.0'
-    compile 'com.android.support:recyclerview-v7:23.3.0'
-    compile 'com.android.support:support-v4:23.3.0'
-    compile 'com.android.support:gridlayout-v7:23.3.0'
+    compile 'com.android.support:cardview-v7:23.4.0'
+    compile 'com.android.support:recyclerview-v7:23.4.0'
+    compile 'com.android.support:support-v4:23.4.0'
+    compile 'com.android.support:gridlayout-v7:23.4.0'
     compile 'com.madgag.spongycastle:core:1.54.0.0'
     compile 'com.madgag.spongycastle:prov:1.54.0.0'
     compile 'com.google.android.gms:play-services-maps:8.4.0'
@@ -100,7 +100,10 @@ ext {
 def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : ""
 def ccDomain = project.hasProperty('cc_domain') ? cc_domain : ""
 def isConsumerApp = project.hasProperty('is_consumer_app') ? is_consumer_app : "false"
+def runDownloadScripts = project.hasProperty('run_download_scripts') ? run_download_scripts : "true"
 def ccDomainSafe = ccDomain.replaceAll("-", "")
+def consumerAppUsername = getConsumerAppUsername(isConsumerApp);
+def consumerAppPassword = getConsumerAppPassword(isConsumerApp);
 
 /**
  * Get the version code from command line param
@@ -293,9 +296,6 @@ android {
             def odkProviderStr = "org.commcare.${uniquePackageIdentifier}.provider.odk"
             manifestPlaceholders = [odkProvider: odkProviderStr]
 
-            def consumerAppUsername = getConsumerAppUsername(isConsumerApp);
-            def consumerAppPassword = getConsumerAppPassword(isConsumerApp);
-
             buildConfigField "boolean", "IS_SINGLE_APP_BUILD", "true"
             buildConfigField "boolean", "IS_CONSUMER_APP", isConsumerApp
             buildConfigField "String", "CONSUMER_APP_USERNAME", "\"${consumerAppUsername}\""
@@ -441,11 +441,46 @@ downloadCCApp << {
     }
 }
 
+
+task downloadRestoreFile(type: Exec)
+
+// task configuration phase
+downloadRestoreFile {
+    workingDir '.'
+
+    commandLine 'bash', 'scripts/download_restore_into_standalone_asset.sh', ccDomain, consumerAppUsername, consumerAppPassword, android.sourceSets.standalone.assets.srcDirs.first()
+
+    ignoreExitValue = true
+
+    doLast {
+        if (execResult.exitValue != 0) {
+            throw new GradleException("exec failed; see output above")
+        }
+    }
+}
+
+// dynamic check at task execution time
+downloadRestoreFile << {
+    if (consumerAppUsername.equals("")) {
+        throw new InvalidUserDataException("Please provide username for restore to be packaged with apk")
+    }
+    if (consumerAppPassword.equals("")) {
+        throw new InvalidUserDataException("Please provide password for restore to be packaged with apk")
+    }
+}
+
+
+
 // dynamically inject commcare app download into standalone build process
 tasks.whenTaskAdded { task ->
     if ((task.name == 'processStandaloneDebugResources' ||
-            task.name == 'processStandaloneReleaseResources') && !isConsumerApp) {
+            task.name == 'processStandaloneReleaseResources') && "true".equals(runDownloadScripts)) {
         task.dependsOn downloadCCApp
+    }
+    if ((task.name == 'processStandaloneDebugResources' ||
+            task.name == 'processStandaloneReleaseResources')
+            && "true".equals(isConsumerApp) && "true".equals(runDownloadScripts)) {
+        task.dependsOn downloadRestoreFile
     }
 }
 

@@ -19,5 +19,9 @@ public class DialogChoiceItem {
         this.iconResId = iconResId;
         this.listener = listener;
     }
+
+    public static DialogChoiceItem nonListenerItem(String text) {
+        return new DialogChoiceItem(text, -1, null);
+    }
 }
 
