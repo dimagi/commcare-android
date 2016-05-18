@@ -474,11 +474,12 @@ downloadRestoreFile << {
 // dynamically inject commcare app download into standalone build process
 tasks.whenTaskAdded { task ->
     if ((task.name == 'processStandaloneDebugResources' ||
-            task.name == 'processStandaloneReleaseResources') && runDownloadScripts) {
+            task.name == 'processStandaloneReleaseResources') && "true".equals(runDownloadScripts)) {
         task.dependsOn downloadCCApp
     }
     if ((task.name == 'processStandaloneDebugResources' ||
-            task.name == 'processStandaloneReleaseResources') && isConsumerApp && runDownloadScripts) {
+            task.name == 'processStandaloneReleaseResources')
+            && "true".equals(isConsumerApp) && "true".equals(runDownloadScripts)) {
         task.dependsOn downloadRestoreFile
     }
 }
