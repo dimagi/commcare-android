@@ -46,7 +46,6 @@ public class CommCarePreferences
      */
     private final static String SERVER_SETTINGS = "server-settings";
     private final static String DEVELOPER_SETTINGS = "developer-settings";
-    private final static String CLEAR_SAVED_SESSION = "clear-saved-session";
     private final static String DISABLE_ANALYTICS = "disable-analytics";
 
     /**
@@ -108,7 +107,6 @@ public class CommCarePreferences
     static {
         keyToTitleMap.put(SERVER_SETTINGS, "settings.server.listing");
         keyToTitleMap.put(DEVELOPER_SETTINGS, "settings.developer.options");
-        keyToTitleMap.put(CLEAR_SAVED_SESSION, "menu.clear.saved.session");
         keyToTitleMap.put(DISABLE_ANALYTICS, "home.menu.disable.analytics");
 
         prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
@@ -191,22 +189,6 @@ public class CommCarePreferences
             });
         } else {
             getPreferenceScreen().removePreference(developerSettingsButton);
-        }
-
-        Preference clearSavedSessionButton = findPreference(CLEAR_SAVED_SESSION);
-        if (DevSessionRestorer.savedSessionPresent()) {
-            clearSavedSessionButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                @Override
-                public boolean onPreferenceClick(Preference preference) {
-                    GoogleAnalyticsUtils.reportPrefItemClick(
-                            GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                            GoogleAnalyticsFields.LABEL_CLEAR_SAVED_SESSION);
-                    DevSessionRestorer.clearSession();
-                    return true;
-                }
-            });
-        } else {
-            getPreferenceScreen().removePreference(clearSavedSessionButton);
         }
 
         Preference analyticsButton = findPreference(DISABLE_ANALYTICS);

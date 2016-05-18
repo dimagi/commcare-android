@@ -14,6 +14,7 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.SendTask;
 import org.commcare.tasks.WipeTask;
@@ -39,6 +40,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
     private final static String CONNECTION_TEST = "connection-test";
     private final static String RECOVERY_MODE = "recovery-mode";
     private final static String CLEAR_USER_DATA = "clear-user-data";
+    private final static String CLEAR_SAVED_SESSION = "clear-saved-session";
 
     private final static int WIFI_DIRECT_ACTIVITY = 1;
     private final static int DUMP_FORMS_ACTIVITY = 2;
@@ -60,6 +62,7 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
         keyToTitleMap.put(CLEAR_USER_DATA, "clear.user.data");
         keyToTitleMap.put(FORCE_LOG_SUBMIT, "force.log.submit");
         keyToTitleMap.put(RECOVERY_MODE, "recovery.mode");
+        keyToTitleMap.put(CLEAR_SAVED_SESSION, "menu.clear.saved.session");
     }
 
     @Override
@@ -145,6 +148,21 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
                 return true;
             }
         });
+
+        Preference clearSavedSessionButton = findPreference(CLEAR_SAVED_SESSION);
+        if (DevSessionRestorer.savedSessionPresent()) {
+            clearSavedSessionButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_CLEAR_SAVED_SESSION);
+                    DevSessionRestorer.clearSession();
+                    return true;
+                }
+            });
+        } else {
+            getPreferenceScreen().removePreference(clearSavedSessionButton);
+        }
+
 
         Preference forceSubmitButton = findPreference(FORCE_LOG_SUBMIT);
         forceSubmitButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

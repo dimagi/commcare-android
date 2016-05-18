@@ -63,6 +63,7 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_WIFI_DIRECT = "Wifi Direct";
     public static final String ACTION_CONNECTION_TEST = "Connection Test";
     public static final String ACTION_CLEAR_USER_DATA = "Clear User Data";
+    public static final String ACTION_CLEAR_SAVED_SESSION = "Clear Saved Session";
     public static final String ACTION_FORCE_LOG_SUBMISSION = "Force Log Submission";
     public static final String ACTION_RECOVERY_MODE = "Recovery Mode";
 
@@ -83,7 +84,6 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_AUTO_UPDATE = "Auto Update Frequency";
     public static final String LABEL_FUZZY_SEARCH = "Fuzzy Search Matches";
     public static final String LABEL_PRINT_TEMPLATE = "Set Print Template";
-    public static final String LABEL_CLEAR_SAVED_SESSION = "Clear Saved Session";
     public static final String LABEL_DEVELOPER_OPTIONS = "Developer Options";
 
     // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_FORM_PREFS

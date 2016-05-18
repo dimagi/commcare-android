@@ -28,8 +28,6 @@
         android:key="cc-fuzzy-search-enabled"
         android:title="Fuzzy Search Matches"/>
     <Preference
-        android:key="clear-saved-session"/>
-    <Preference
         android:key="disable-analytics"/>
     <Preference
         android:key="developer-settings"/>
