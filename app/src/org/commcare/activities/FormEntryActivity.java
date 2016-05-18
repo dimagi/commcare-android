@@ -1876,7 +1876,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 // intermediate results before they become un-saveable.
                 CommCareApplication._().getSession().registerFormSaveCallback(this);
             } catch (SessionUnavailableException e) {
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                Log.w(TAG,
                         "Couldn't register form save callback because session doesn't exist");
             }
         }
@@ -2047,7 +2047,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         try {
             CommCareApplication._().getSession().unregisterFormSaveCallback();
         } catch (SessionUnavailableException sue) {
-            // looks like the session expired
+            // looks like the session expired, swallow exception because we
+            // might be auto-saving a form due to user session expiring
         }
 
         dismissProgressDialog();

@@ -190,8 +190,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
 
             dumpFolder = dumpDirectory;
 
-            try{
-                
+
                 results = new Long[records.length];
                 for(int i = 0; i < records.length ; ++i ) {
                     //Assume failure
@@ -237,7 +236,8 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                             }
                         }
                     } catch(SessionUnavailableException sue) {
-                        throw sue;
+                        this.cancel(false);
+                        return false;
                     } catch (Exception e) {
                         //Just try to skip for now. Hopefully this doesn't wreck the model :/
                         Logger.log(AndroidLogger.TYPE_ERROR_DESIGN, "Totally Unexpected Error during form submission" + getExceptionText(e));
@@ -251,16 +251,6 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                     }
                 }
                 
-                //this.endSubmissionProcess();
-                
-                } 
-                catch(SessionUnavailableException sue) {
-                    this.cancel(false);
-                    return false;
-                }
-            
-            //
-            //
             return true;
         } else {
             publishProgress(Localization.get("bulk.form.no.unsynced"));

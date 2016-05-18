@@ -347,11 +347,6 @@ public abstract class DataPullTask<R>
                 // TODO Auto-generated catch block
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
-            } catch (SessionUnavailableException sue) {
-                // TODO PLM: eventually take out this catch. These should be
-                // checked locally
-                //TODO: Keys were lost somehow.
-                sue.printStackTrace();
             }
             if (loginNeeded) {
                 CommCareApplication._().releaseUserResourcesAndServices();
@@ -439,13 +434,6 @@ public abstract class DataPullTask<R>
             e.printStackTrace();
             failureReason = e.getMessage();
         } catch (StorageFullException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        }
-
-        //These last two aren't a sign that the incoming data is bad, but
-        //we still can't recover from them usefully
-        catch (SessionUnavailableException e) {
             e.printStackTrace();
             failureReason = e.getMessage();
         } catch (IOException e) {

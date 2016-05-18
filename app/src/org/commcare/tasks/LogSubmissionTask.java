@@ -140,13 +140,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
         //update the last recorded record
         settings.edit().putLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, new Date().getTime()).commit();
 
-        DeviceReportRecord record;
-        try {
-            record = DeviceReportRecord.generateNewRecordStub();
-        } catch (SessionUnavailableException e) {
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "User database closed while trying to submit");
-            return false;
-        }
+        DeviceReportRecord record = DeviceReportRecord.generateNewRecordStub();
 
         //Ok, so first, we're going to write the logs to disk in an encrypted file
         try {
