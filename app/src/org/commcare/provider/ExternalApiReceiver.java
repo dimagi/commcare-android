@@ -98,11 +98,11 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     }
 
     private void performAction(final Context context, Bundle b) {
-        if (b.getString("commcareaction").equals("login")) {
+        if ("login".equals(b.getString("commcareaction"))) {
             String username = b.getString("username");
             String password = b.getString("password");
             tryLocalLogin(context, username, password);
-        } else if (b.getString("commcareaction").equals("sync")) {
+        } else if ("sync".equals(b.getString("commcareaction"))) {
             boolean formsToSend = checkAndStartUnsentTask(context);
 
             if (!formsToSend) {
