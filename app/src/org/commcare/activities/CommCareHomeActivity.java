@@ -1159,12 +1159,12 @@ public class CommCareHomeActivity
                 android.R.drawable.ic_menu_save);
         menu.add(0, MENU_CHANGE_LANGUAGE, 0, Localization.get("home.menu.locale.change")).setIcon(
                 android.R.drawable.ic_menu_set_as);
-        menu.add(0, MENU_PREFERENCES, 0, Localization.get("home.menu.settings")).setIcon(
-                android.R.drawable.ic_menu_preferences);
-        menu.add(0, MENU_ADVANCED, 0, Localization.get("home.menu.advanced")).setIcon(
-                android.R.drawable.ic_menu_edit);
         menu.add(0, MENU_ABOUT, 0, Localization.get("home.menu.about")).setIcon(
                 android.R.drawable.ic_menu_help);
+        menu.add(0, MENU_ADVANCED, 0, Localization.get("home.menu.advanced")).setIcon(
+                android.R.drawable.ic_menu_edit);
+        menu.add(0, MENU_PREFERENCES, 0, Localization.get("home.menu.settings")).setIcon(
+                android.R.drawable.ic_menu_preferences);
         menu.add(0, MENU_PIN, 0, Localization.get("home.menu.pin.set"));
         return true;
     }
