@@ -26,6 +26,7 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.WithUIController;
@@ -55,11 +56,11 @@ import org.commcare.tasks.PullTaskReceiver;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.tasks.SendTask;
 import org.commcare.tasks.WipeTask;
-import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.ConnectivityStatus;
+import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
@@ -77,10 +78,17 @@ import org.commcare.views.notifications.NotificationMessageFactory.StockMessages
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.reference.InvalidReferenceException;
+import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.xml.ElementParser;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.kxml2.io.KXmlParser;
+import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -165,6 +173,8 @@ public class CommCareHomeActivity
     private boolean isRestoringSession = false;
     private boolean isSyncUserLaunched = false;
 
+    private boolean sessionNavigationProceedingAfterOnResume;
+
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
         super.onCreateSessionSafe(savedInstanceState);
@@ -179,6 +189,10 @@ public class CommCareHomeActivity
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();
         processFromLoginLaunch();
+
+        if (CommCareApplication._().isConsumerApp()) {
+            ConsumerAppsUtil.checkForChangedLocalRestoreFile(this);
+        }
     }
 
     private void loadInstanceState(Bundle savedInstanceState) {
@@ -401,7 +415,7 @@ public class CommCareHomeActivity
                 case MEDIA_VALIDATOR_ACTIVITY:
                     if(resultCode == RESULT_CANCELED){
                         return;
-                    } else if (resultCode == RESULT_OK){
+                    } else if (resultCode == RESULT_OK && !CommCareApplication._().isConsumerApp()) {
                         Toast.makeText(this, "Media Validated!", Toast.LENGTH_LONG).show();
                         return;
                     }
@@ -552,6 +566,7 @@ public class CommCareHomeActivity
                     }
                     return;
             }
+            sessionNavigationProceedingAfterOnResume = true;
             startNextSessionStepSafe();
         }
         super.onActivityResult(requestCode, resultCode, intent);
@@ -1084,6 +1099,8 @@ public class CommCareHomeActivity
             refreshActionBar();
         }
         attemptDispatchHomeScreen();
+
+        sessionNavigationProceedingAfterOnResume = false;
     }
 
     /**
@@ -1098,6 +1115,9 @@ public class CommCareHomeActivity
                 // User was logged out somehow, so we want to return to dispatch activity
                 setResult(RESULT_OK);
                 this.finish();
+            } else if (CommCareApplication._().isConsumerApp() && !sessionNavigationProceedingAfterOnResume) {
+                // so that the user never sees the real home screen in a consumer app
+                enterRootModule();
             } else {
                 // Display the normal home screen!
                 uiController.refreshView();
@@ -1391,6 +1411,10 @@ public class CommCareHomeActivity
         }
     }
 
+    public FormAndDataSyncer getFormAndDataSyncer() {
+        return formAndDataSyncer;
+    }
+
     @Override
     public void initUIController() {
         uiController = new HomeActivityUIController(this);
@@ -1405,6 +1429,9 @@ public class CommCareHomeActivity
     public void handlePullTaskResult(ResultAndError<DataPullTask.PullTaskResult> resultAndErrorMessage,
                                      boolean userTriggeredSync, boolean formsToSend) {
         getUIController().refreshView();
+        if (CommCareApplication._().isConsumerApp()) {
+            return;
+        }
 
         DataPullTask.PullTaskResult result = resultAndErrorMessage.data;
         String reportSyncLabel = result.getCorrespondingGoogleAnalyticsLabel();
