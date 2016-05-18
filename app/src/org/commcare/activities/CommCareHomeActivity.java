@@ -176,7 +176,7 @@ public class CommCareHomeActivity
     private boolean sessionNavigationProceedingAfterOnResume;
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
         loadInstanceState(savedInstanceState);
@@ -218,7 +218,7 @@ public class CommCareHomeActivity
         }
     }
 
-    private void processFromLoginLaunch() throws SessionUnavailableException {
+    private void processFromLoginLaunch() {
         if (getIntent().getBooleanExtra(DispatchActivity.START_FROM_LOGIN, false) &&
                 !loginExtraWasConsumed) {
 
@@ -250,7 +250,7 @@ public class CommCareHomeActivity
     }
 
     // See if we should launch either the pin choice dialog, or the create pin activity directly
-    private void checkForPinLaunchConditions() throws SessionUnavailableException {
+    private void checkForPinLaunchConditions() {
 
         LoginMode loginMode = (LoginMode)getIntent().getSerializableExtra(LoginActivity.LOGIN_MODE);
 
@@ -276,7 +276,7 @@ public class CommCareHomeActivity
         }
     }
 
-    private void showPinChoiceDialog(final LoginMode loginMode) throws SessionUnavailableException {
+    private void showPinChoiceDialog(final LoginMode loginMode) {
         String promptMessage;
         UserKeyRecord currentUserRecord = CommCareApplication._().getRecordForCurrentUser();
         if (currentUserRecord.hasPinSet()) {

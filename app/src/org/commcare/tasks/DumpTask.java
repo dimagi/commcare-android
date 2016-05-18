@@ -62,7 +62,7 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
     
     private static final String[] SUPPORTED_FILE_EXTS = {".xml", ".jpg", ".3gpp", ".3gp"};
     
-    private long dumpInstance(File folder, SecretKeySpec key) throws FileNotFoundException, SessionUnavailableException{
+    private long dumpInstance(File folder, SecretKeySpec key) throws FileNotFoundException {
         File[] files = folder.listFiles();
         
         File myDir = new File(dumpFolder, folder.getName());

@@ -46,7 +46,7 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
         this.aesKey = aesKey;
     }
 
-    public static DeviceReportRecord generateNewRecordStub() throws SessionUnavailableException {
+    public static DeviceReportRecord generateNewRecordStub() {
         DeviceReportRecord slr = new DeviceReportRecord();
         slr.fileName = new File(
                 CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_LOGS))

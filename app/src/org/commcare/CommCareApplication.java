@@ -340,7 +340,7 @@ public class CommCareApplication extends Application {
         TimedStatsTracker.registerEndSession(userBeingLoggedOut);
     }
 
-    public SecretKey createNewSymmetricKey() throws SessionUnavailableException {
+    public SecretKey createNewSymmetricKey() {
         return getSession().createNewSymmetricKey();
     }
 
@@ -717,7 +717,7 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public SQLiteDatabase getUserDbHandle() throws SessionUnavailableException {
+    public SQLiteDatabase getUserDbHandle() {
         return this.getSession().getUserDbHandle();
     }
 
@@ -771,7 +771,7 @@ public class CommCareApplication extends Application {
     protected AndroidDbHelper buildUserDbHandle() {
         return new AndroidDbHelper(this.getApplicationContext()) {
             @Override
-            public SQLiteDatabase getHandle() throws SessionUnavailableException {
+            public SQLiteDatabase getHandle() {
                 SQLiteDatabase database = getUserDbHandle();
                 if (database == null) {
                     throw new SessionUnavailableException("The user database has been closed!");
@@ -1147,7 +1147,7 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public CommCareSessionService getSession() throws SessionUnavailableException {
+    public CommCareSessionService getSession() {
         long started = System.currentTimeMillis();
         //If binding is currently in process, just wait for it.
         while (mIsBinding) {
@@ -1168,7 +1168,7 @@ public class CommCareApplication extends Application {
     }
 
 
-    public UserKeyRecord getRecordForCurrentUser() throws SessionUnavailableException {
+    public UserKeyRecord getRecordForCurrentUser() {
         return getSession().getUserKeyRecord();
     }
 

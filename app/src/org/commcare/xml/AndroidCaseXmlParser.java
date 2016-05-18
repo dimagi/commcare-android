@@ -85,7 +85,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         }
     }
 
-    protected SQLiteDatabase getDbHandle() throws SessionUnavailableException {
+    protected SQLiteDatabase getDbHandle() {
         return CommCareApplication._().getUserDbHandle();
     }
 

@@ -60,7 +60,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     private String firstRoundPin;
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
         userRecord = CommCareApplication._().getRecordForCurrentUser();

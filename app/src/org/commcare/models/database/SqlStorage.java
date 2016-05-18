@@ -568,11 +568,11 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         // TODO Auto-generated method stub
     }
 
-    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to) throws SessionUnavailableException {
+    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to) {
         return cleanCopy(from, to, null);
     }
 
-    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to, LegacyInstallUtils.CopyMapper<T> mapper) throws SessionUnavailableException {
+    public static <T extends Persistable> Map<Integer, Integer> cleanCopy(SqlStorage<T> from, SqlStorage<T> to, LegacyInstallUtils.CopyMapper<T> mapper) {
         to.removeAll();
         SQLiteDatabase toDb = to.helper.getHandle();
         try {

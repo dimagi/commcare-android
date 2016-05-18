@@ -22,7 +22,7 @@ public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R
         }
     }
 
-    protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
 
     }
 
