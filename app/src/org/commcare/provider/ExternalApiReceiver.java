@@ -17,6 +17,7 @@ import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ExternalManageKeyRecordTask;
 import org.commcare.tasks.ProcessAndSendTask;
@@ -124,7 +125,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
             ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(
                     context,
-                    settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
+                    settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
                             context.getString(R.string.PostURL))) {
                 @Override
                 protected void deliverResult(Object receiver, Integer result) {
@@ -166,7 +167,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
         DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(
                 u.getUsername(),
                 u.getCachedPwd(),
-                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY,
+                prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY,
                         context.getString(R.string.ota_restore_url)),
                 context) {
 

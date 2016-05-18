@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.commcare.CommCareApplication;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
@@ -34,6 +35,7 @@ public class ReportProblemActivity extends SessionAwareCommCareActivity<ReportPr
         Logger.log(AndroidLogger.USER_REPORTED_PROBLEM, reportEntry);
         setResult(RESULT_OK);
         sendReportEmail(reportEntry);
+        CommCareApplication._().notifyLogsPending();
         finish();
     }
 

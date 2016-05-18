@@ -327,6 +327,10 @@
             android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
+            android:name="org.commcare.activities.AdvancedActionsActivity"/>
+        <activity
+            android:name="org.commcare.preferences.CommCareServerPreferences"/>
+        <activity
             android:name="org.commcare.activities.ConnectionDiagnosticActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>

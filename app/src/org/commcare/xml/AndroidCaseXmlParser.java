@@ -15,7 +15,6 @@ import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
-import org.commcare.network.HttpRequestGenerator;
 import org.commcare.utils.AndroidStreamUtil;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;

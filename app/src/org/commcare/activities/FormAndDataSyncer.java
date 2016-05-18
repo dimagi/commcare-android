@@ -13,7 +13,7 @@ import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.LocalDataPullResponseFactory;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskReceiver;
@@ -105,7 +105,7 @@ public class FormAndDataSyncer {
 
     private static String getFormPostURL(final Context context) {
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
+        return settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
                 context.getString(R.string.PostURL));
     }
 
@@ -176,14 +176,14 @@ public class FormAndDataSyncer {
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         syncData(activity, formsToSend, userTriggeredSync,
-                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY, activity.getString(R.string.ota_restore_url)),
+                prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY, activity.getString(R.string.ota_restore_url)),
                 u.getUsername(), u.getCachedPwd());
     }
 
     public void performOtaRestore(LoginActivity context, String username, String password) {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         syncData(context, false, false,
-                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY, context.getString(R.string.ota_restore_url)),
+                prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY, context.getString(R.string.ota_restore_url)),
                 username,
                 password);
     }
