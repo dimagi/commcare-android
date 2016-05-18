@@ -139,33 +139,34 @@ public class DispatchActivity extends FragmentActivity {
             }
         } else {
             // Note that the order in which these conditions are checked matters!!
-            try {
-                CommCareApplication._().getSession();
-            } catch (SessionUnavailableException sue) {
-                launchLoginScreen();
-            }
 
             ApplicationRecord currentRecord = currentApp.getAppRecord();
-            if (currentApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
-                // The seated app is damaged or corrupted
-                handleDamagedApp();
-            } else if (!currentRecord.isUsable()) {
-                // The seated app is unusable (means either it is archived or is
-                // missing its MM or both)
-                boolean unseated = handleUnusableApp(currentRecord);
-                if (unseated) {
-                    // Recurse in order to make the correct decision based on the new state
-                    dispatch();
+            try {
+                if (currentApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
+                    // The seated app is damaged or corrupted
+                    handleDamagedApp();
+                } else if (!currentRecord.isUsable()) {
+                    // The seated app is unusable (means either it is archived or is
+                    // missing its MM or both)
+                    boolean unseated = handleUnusableApp(currentRecord);
+                    if (unseated) {
+                        // Recurse in order to make the correct decision based on the new state
+                        dispatch();
+                    }
+                } else if (!CommCareApplication._().getSession().isActive()) {
+                    launchLoginScreen();
+                } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
+                    // CommCare was launched from an external app, with a session descriptor
+                    handleExternalLaunch();
+                } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT) &&
+                        !shortcutExtraWasConsumed) {
+                    // CommCare was launched from a shortcut
+                    handleShortcutLaunch();
+                } else {
+                    launchHomeScreen();
                 }
-            } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
-                // CommCare was launched from an external app, with a session descriptor
-                handleExternalLaunch();
-            } else if (this.getIntent().hasExtra(AndroidShortcuts.EXTRA_KEY_SHORTCUT) &&
-                    !shortcutExtraWasConsumed) {
-                // CommCare was launched from a shortcut
-                handleShortcutLaunch();
-            } else {
-                launchHomeScreen();
+            } catch (SessionUnavailableException sue) {
+                launchLoginScreen();
             }
         }
     }
