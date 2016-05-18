@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.commcare.activities.CrashWarningActivity;
+import org.commcare.activities.LoginActivity;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -47,7 +48,13 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
      * they can fix.
      */
     private boolean warnUserAndExit(Throwable ex) {
-        if (causedByLocalizationException(ex)) {
+        if (causedBySessionUnavailable(ex)) {
+            Intent i = new Intent(ctx, LoginActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            // i.putExtra(WARNING_MESSAGE_KEY, ex.getMessage());
+            ctx.startActivity(i);
+        } else if (causedByLocalizationException(ex)) {
             Intent i = new Intent(ctx, CrashWarningActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -61,5 +68,10 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
     private static boolean causedByLocalizationException(Throwable ex) {
         return ex != null &&
                 (ex instanceof NoLocalizedTextException || causedByLocalizationException(ex.getCause()));
+    }
+
+    private static boolean causedBySessionUnavailable(Throwable ex) {
+        return ex != null &&
+                (ex instanceof SessionUnavailableException || causedBySessionUnavailable(ex.getCause()));
     }
 }
