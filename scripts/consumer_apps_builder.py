@@ -94,6 +94,7 @@ def assemble_apk(domain, build_number, username, password, build_type):
         "-Pcc_domain={}".format(domain), 
         "-Papplication_name={}".format(get_app_name_from_profile()), 
         "-Pis_consumer_app=true", 
+        "-Prun_download_scripts=false",
         "-PversionCode={}".format(build_number),
         "-Pusername={}".format(username),
         "-Ppassword={}".format(password)])
