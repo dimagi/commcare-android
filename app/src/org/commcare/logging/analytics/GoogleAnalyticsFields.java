@@ -86,6 +86,7 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_NEWEST_APP_VERSION = "Use Newest App Version From HQ";
     public static final String LABEL_AUTO_LOGIN = "Auto-login While Debugging";
     public static final String LABEL_SESSION_SAVING = "Enable Session Saving";
+    public static final String LABEL_EDIT_SAVED_SESSION = "Edit Saved Session";
     public static final String LABEL_CSS = "CSS Enabled";
     public static final String LABEL_MARKDOWN = "Markdown Enabled";
     public static final String LABEL_IMAGE_ABOVE_TEXT = "Image Above Question Text Enabled";

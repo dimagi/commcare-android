@@ -3,6 +3,7 @@ package org.commcare.preferences;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
+import android.preference.Preference;
 import android.preference.PreferenceManager;
 
 import org.commcare.CommCareApp;
@@ -64,6 +65,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public final static String OFFER_PIN_FOR_LOGIN = "cc-offer-pin-for-login";
 
     private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
+    private Preference savedSessionEditTextPreference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +83,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(
                 prefMgr, prefKeyToAnalyticsEvent, GoogleAnalyticsFields.CATEGORY_DEV_PREFS);
 
+        savedSessionEditTextPreference = findPreference(EDIT_SAVE_SESSION);
         setSessionEditText();
     }
 
@@ -92,6 +95,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         prefKeyToAnalyticsEvent.put(NEWEST_APP_VERSION_ENABLED, GoogleAnalyticsFields.LABEL_NEWEST_APP_VERSION);
         prefKeyToAnalyticsEvent.put(ENABLE_AUTO_LOGIN, GoogleAnalyticsFields.LABEL_AUTO_LOGIN);
         prefKeyToAnalyticsEvent.put(ENABLE_SAVE_SESSION, GoogleAnalyticsFields.LABEL_SESSION_SAVING);
+        prefKeyToAnalyticsEvent.put(EDIT_SAVE_SESSION, GoogleAnalyticsFields.LABEL_EDIT_SAVED_SESSION);
         prefKeyToAnalyticsEvent.put(CSS_ENABLED, GoogleAnalyticsFields.LABEL_CSS);
         prefKeyToAnalyticsEvent.put(MARKDOWN_ENABLED, GoogleAnalyticsFields.LABEL_MARKDOWN);
         prefKeyToAnalyticsEvent.put(ALTERNATE_QUESTION_LAYOUT_ENABLED, GoogleAnalyticsFields.LABEL_IMAGE_ABOVE_TEXT);
@@ -104,9 +108,12 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     }
 
     private void setSessionEditText() {
-        EditTextPreference savedSessionEditTextPreference =
-                (EditTextPreference)findPreference(EDIT_SAVE_SESSION);
-        savedSessionEditTextPreference.setText(getSavedSessionStateAsString());
+        if (isSessionSavingEnabled()) {
+            getPreferenceScreen().addPreference(savedSessionEditTextPreference);
+            ((EditTextPreference)savedSessionEditTextPreference).setText(getSavedSessionStateAsString());
+        } else {
+            getPreferenceScreen().removePreference(savedSessionEditTextPreference);
+        }
     }
 
     @Override
@@ -129,8 +136,9 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
             case ENABLE_SAVE_SESSION:
                 if (!isSessionSavingEnabled()) {
                     DevSessionRestorer.clearSession();
-                    setSessionEditText();
                 }
+                setSessionEditText();
+
                 break;
             case LOAD_FORM_PAYLOAD_AS:
                 if (!formLoadPayloadStatus().equals(FormRecord.STATUS_SAVED)) {
