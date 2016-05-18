@@ -42,7 +42,7 @@ public interface DialogController {
     /**
      * Show the alert dialog provided by the given AlertDialogFactory
      */
-    void showAlertDialog(AlertDialogFactory factory);
+    void showAlertDialog(CommCareAlertDialog dialog);
 
     /**
      * @return the alert dialog that is currently on screen (possibly null)

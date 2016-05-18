@@ -28,22 +28,20 @@ public class NotificationMessage implements Parcelable {
         dest.writeLong(date.getTime());
     }
 
-    public static final Parcelable.Creator<NotificationMessage> CREATOR = new Parcelable.Creator<NotificationMessage>() {
+    public static final Creator<NotificationMessage> CREATOR = new Creator<NotificationMessage>() {
 
         @Override
         public NotificationMessage createFromParcel(Parcel source) {
-            String[] array = new String[3];
+            String[] array = new String[4];
             source.readStringArray(array);
             Date date = new Date(source.readLong());
             return new NotificationMessage(array[0], array[1], array[2], array[3], date);
-
         }
 
         @Override
         public NotificationMessage[] newArray(int size) {
             return new NotificationMessage[size];
         }
-
     };
 
     public NotificationMessage(String context, String title, String details, String action, Date date) {

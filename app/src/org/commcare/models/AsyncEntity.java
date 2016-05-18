@@ -61,8 +61,12 @@ public class AsyncEntity extends Entity<TreeReference> {
      */
     private final Object mAsyncLock = new Object();
 
-    public AsyncEntity(DetailField[] fields, EvaluationContext ec, TreeReference t, Hashtable<String, XPathExpression> variables, EntityStorageCache cache, String cacheIndex, String detailId) {
-        super(t);
+    public AsyncEntity(DetailField[] fields, EvaluationContext ec,
+                       TreeReference t, Hashtable<String, XPathExpression> variables,
+                       EntityStorageCache cache, String cacheIndex, String detailId,
+                       String extraKey) {
+        super(t, extraKey);
+
         this.fields = fields;
         this.data = new Object[fields.length];
         this.sortData = new String[fields.length];

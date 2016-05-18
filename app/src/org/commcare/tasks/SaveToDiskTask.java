@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.interfaces.FormSavedListener;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.encryption.EncryptionIO;
@@ -22,15 +23,18 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.transport.payload.ByteArrayPayload;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XFormSerializingVisitor;
+import org.javarosa.xform.util.XFormSerializer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -102,8 +106,12 @@ public class SaveToDiskTask extends
             e.printStackTrace();
             return new ResultAndError<>(SaveStatus.SAVE_ERROR,
                     "Something is blocking acesss to the submission file in " + FormEntryActivity.mInstancePath);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch(XFormSerializer.UnsupportedUnicodeSurrogatesException e) {
+            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Form contains invalid data encoding\n\n" + ForceCloseLogger.getStackTrace(e));
+            return new ResultAndError<>(SaveStatus.SAVE_ERROR,
+                    Localization.get("form.entry.save.invalid.unicode", e.getMessage()));
+        }  catch (IOException e) {
+            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "I/O Error when serializing form\n\n" + ForceCloseLogger.getStackTrace(e));
             return new ResultAndError<>(SaveStatus.SAVE_ERROR,
                     "Unable to write xml to " + FormEntryActivity.mInstancePath);
         } catch (FormInstanceTransactionException e) {

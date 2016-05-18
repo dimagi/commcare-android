@@ -28,6 +28,7 @@ public class DbUtil {
     public final static String orphanFileTableName = "OrphanedFiles";
 
     private static PrototypeFactory factory;
+    private static final String[] packageNames = new String[]{"org.javarosa", "org.commcare", "org.odk.collect"};
 
     public static void setDBUtilsPrototypeFactory(PrototypeFactory factory) {
         DbUtil.factory = factory;
@@ -44,7 +45,7 @@ public class DbUtil {
         PrefixTree tree = new PrefixTree();
 
         try {
-            List<String> classes = getClasses(new String[]{"org.javarosa", "org.commcare", "org.odk.collect"}, c);
+            List<String> classes = getClasses(c);
             for (String cl : classes) {
                 tree.addString(cl);
             }
@@ -54,14 +55,12 @@ public class DbUtil {
 
         factory = new AndroidPrototypeFactory(tree);
         return factory;
-
     }
 
     /**
      * Scans all classes accessible from the context class loader which belong to the given package and subpackages.
      */
-    @SuppressWarnings("unchecked")
-    private static List<String> getClasses(String[] packageNames, Context c)
+    private static List<String> getClasses(Context c)
             throws IOException {
         ArrayList<String> classNames = new ArrayList<>();
 
@@ -75,35 +74,39 @@ public class DbUtil {
         DexFile df = new DexFile(new File(zpath));
         for (Enumeration<String> en = df.entries(); en.hasMoreElements(); ) {
             String cn = en.nextElement();
-            try {
-                for (String packageName : packageNames) {
-                    if (cn.startsWith(packageName) && !cn.contains(".test.") && !cn.contains("readystatesoftware")) {
-                        //TODO: These optimize by preventing us from statically loading classes we don't need, but they take a _long_ time to run.
-                        //Maybe we should skip this and/or roll it into initializing the factory itself.
-                        Class prototype = Class.forName(cn);
-                        if (prototype.isInterface()) {
-                            continue;
-                        }
-                        boolean emptyc = false;
-                        for (Constructor<?> cons : prototype.getConstructors()) {
-                            if (cons.getParameterTypes().length == 0) {
-                                emptyc = true;
-                            }
-                        }
-                        if (!emptyc) {
-                            continue;
-                        }
-                        if (Externalizable.class.isAssignableFrom(prototype)) {
-                            classNames.add(cn);
-                        }
-                    }
-                }
-            } catch (Error | Exception e) {
-
-            }
+            loadClass(cn, classNames);
         }
 
         return classNames;
+    }
+
+    public static void loadClass(String cn, List<String> classNames) {
+        try {
+            for (String packageName : packageNames) {
+                if (cn.startsWith(packageName) && !cn.contains(".test.") && !cn.contains("readystatesoftware")) {
+                    //TODO: These optimize by preventing us from statically loading classes we don't need, but they take a _long_ time to run.
+                    //Maybe we should skip this and/or roll it into initializing the factory itself.
+                    Class prototype = Class.forName(cn);
+                    if (prototype.isInterface()) {
+                        continue;
+                    }
+                    boolean emptyc = false;
+                    for (Constructor<?> cons : prototype.getConstructors()) {
+                        if (cons.getParameterTypes().length == 0) {
+                            emptyc = true;
+                        }
+                    }
+                    if (!emptyc) {
+                        continue;
+                    }
+                    if (Externalizable.class.isAssignableFrom(prototype)) {
+                        classNames.add(cn);
+                    }
+                }
+            }
+        } catch (Error | Exception e) {
+
+        }
     }
 
     /**

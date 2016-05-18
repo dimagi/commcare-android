@@ -1,3 +1,10 @@
+function displayError(message) {
+    console.log(message);
+    var error = document.getElementById('error');
+    error.innerHTML = message;
+    error.style.display = 'block';
+}
+
 // This file expects a number of variables to be defined globally.
 // Use only in conjunction with GraphView.getView
 document.addEventListener("DOMContentLoaded", function(event) {
@@ -93,7 +100,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
                         key = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate() + " " + time;
 
                     }
-                    var label = axis.xLabels[key] || d;
+                    var label = axis.xLabels[key] === undefined ? d : axis.xLabels[key];
                     return Math.round(label) || label;
                 };
             }

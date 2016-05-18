@@ -19,7 +19,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.0.0'
+        classpath 'com.android.tools.build:gradle:2.1.0'
         classpath 'com.google.gms:google-services:2.0.0'
     }
 }
@@ -52,10 +52,11 @@ dependencies {
     compile fileTree(dir: 'app/libs', include: '*.jar')
     compile(name: 'htmlspanner-custom', ext: 'aar')
     compile(name: 'android-zebra-interface-1.0', ext: 'aar')
-    compile 'com.android.support:cardview-v7:23.2.1'
-    compile 'com.android.support:recyclerview-v7:23.2.1'
-    compile 'com.android.support:support-v4:23.2.1'
-    compile 'com.android.support:gridlayout-v7:23.2.1'
+    compile(name: 'simprints-lib', ext: 'aar')
+    compile 'com.android.support:cardview-v7:23.3.0'
+    compile 'com.android.support:recyclerview-v7:23.3.0'
+    compile 'com.android.support:support-v4:23.3.0'
+    compile 'com.android.support:gridlayout-v7:23.3.0'
     compile 'com.madgag.spongycastle:core:1.54.0.0'
     compile 'com.madgag.spongycastle:prov:1.54.0.0'
     compile 'com.google.android.gms:play-services-maps:8.4.0'
@@ -93,11 +94,13 @@ ext {
                     "HaAJkjpnc165Os+aYwIDAQAB"
     QA_BETA_APP_ID = ""
     STANDALONE_APP_ID = ""
+    LTS_APP_ID = ""
     COMMCARE_APP_ID = ""
 }
 
 def ccAppId = project.hasProperty('cc_app_id') ? cc_app_id : ""
 def ccDomain = project.hasProperty('cc_domain') ? cc_domain : ""
+def isConsumerApp = project.hasProperty('is_consumer_app') ? is_consumer_app : "false"
 def ccDomainSafe = ccDomain.replaceAll("-", "")
 
 /**
@@ -158,6 +161,9 @@ android {
         // when set, app won't show install screen and try to install
         // resources from assets folder
         buildConfigField "boolean", "IS_SINGLE_APP_BUILD", "false"
+        buildConfigField "boolean", "IS_CONSUMER_APP", "false"
+        buildConfigField "String", "CONSUMER_APP_USERNAME", "\"\""
+        buildConfigField "String", "CONSUMER_APP_PASSWORD", "\"\""
 
         buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
         buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
@@ -200,6 +206,14 @@ android {
             assets.srcDirs = ['app/assets']
         }
 
+        commcare {
+            manifest.srcFile 'app/CommcareAndroidManifest.xml'
+        }
+
+        qabeta {
+            manifest.srcFile 'app/CommcareAndroidManifest.xml'
+        }
+
         standalone {
             res.srcDirs = ['app/standalone/res']
             assets.srcDirs = ['app/standalone/assets']
@@ -226,6 +240,21 @@ android {
         commcare {
             // builds normal commcare
             // use the settings from defaultConfig
+        }
+
+        lts {
+            // long term support build of CommCare
+            applicationId "org.commcare.lts"
+            project.ext.LTS_APP_ID = applicationId
+
+            // setup content provider strings correctly to not conflict with other apps
+            def odkProviderStr = "org.commcare.lts.provider.odk"
+            manifestPlaceholders = [odkProvider: odkProviderStr]
+            buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
+            buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
+
+            // set the app name
+            resValue "string", "application_name", " CommCare LTS"
         }
 
         qabeta {
@@ -256,14 +285,22 @@ android {
             // Builds commcare w/ ccz app packaged in the apk.
             // Must be invoked from command-line w/ args pointing to app domain &
             // id
+            def uniquePackageIdentifier = getStandalonePackageIdentifier(ccDomainSafe, isConsumerApp)
+            def appDisplayName = getStandaloneApplicationName(ccDomainSafe, isConsumerApp)
 
-            applicationId "org.commcare.${ccDomainSafe}"
+            applicationId "org.commcare.${uniquePackageIdentifier}"
             project.ext.STANDALONE_APP_ID = applicationId
-            resValue "string", "application_name", ccDomainSafe
-            def odkProviderStr = "org.commcare.${ccDomainSafe}.provider.odk"
+            resValue "string", "application_name", appDisplayName
+            def odkProviderStr = "org.commcare.${uniquePackageIdentifier}.provider.odk"
             manifestPlaceholders = [odkProvider: odkProviderStr]
 
+            def consumerAppUsername = getConsumerAppUsername(isConsumerApp);
+            def consumerAppPassword = getConsumerAppPassword(isConsumerApp);
+
             buildConfigField "boolean", "IS_SINGLE_APP_BUILD", "true"
+            buildConfigField "boolean", "IS_CONSUMER_APP", isConsumerApp
+            buildConfigField "String", "CONSUMER_APP_USERNAME", "\"${consumerAppUsername}\""
+            buildConfigField "String", "CONSUMER_APP_PASSWORD", "\"${consumerAppPassword}\""
             // include this again so that the value get reloaded
             buildConfigField "String", "CC_AUTHORITY", "\"${applicationId}\""
             buildConfigField "String", "ODK_AUTHORITY", "\"${odkProviderStr}\""
@@ -275,6 +312,9 @@ android {
             minifyEnabled true
             debuggable true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
+            // used in test suite to build the prototype factory; otherwise unneeded
+            buildConfigField "String", "BUILD_DIR", "\"${buildDir}\""
+            buildConfigField "String", "PROJECT_DIR", "\"${projectDir}\""
         }
 
         release {
@@ -307,6 +347,8 @@ afterEvaluate {
     processQabetaReleaseGoogleServices.dependsOn switchGoogleServicesQabeta
     processStandaloneDebugGoogleServices.dependsOn switchGoogleServicesStandalone
     processStandaloneReleaseGoogleServices.dependsOn switchGoogleServicesStandalone
+    processLtsDebugGoogleServices.dependsOn switchGoogleServicesLts
+    processLtsReleaseGoogleServices.dependsOn switchGoogleServicesLts
     processCommcareDebugGoogleServices.dependsOn switchGoogleServicesCommcare
     processCommcareReleaseGoogleServices.dependsOn switchGoogleServicesCommcare
 }
@@ -326,8 +368,23 @@ task switchGoogleServicesCommcare(type: Copy) {
     into projectDir
 }
 
+task switchGoogleServicesLts(type: Copy) {
+    description = 'Switches package name in google-services.json to match Lts package name'
+
+    /**
+     * This is an awkward workaround for a Windows build error that occurs when you try
+     * to copy something into the root directory (containing the .gradle folder). Don't
+     * change it without testing on a windows machine
+     */
+    outputs.files.setFrom(file("$projectDir/google-services.json"))
+    from file("templates/google-services.json")
+    filter(ReplaceTokens, tokens: [applicationId: project.ext.LTS_APP_ID])
+    into projectDir
+}
+
 task switchGoogleServicesStandalone(type: Copy) {
     description = 'Switches package name in google-services.json to match Standalone package name'
+    outputs.upToDateWhen { false }
 
     /**
      * This is an awkward workaround for a Windows build error that occurs when you try
@@ -387,8 +444,8 @@ downloadCCApp << {
 
 // dynamically inject commcare app download into standalone build process
 tasks.whenTaskAdded { task ->
-    if (task.name == 'processStandaloneDebugResources' ||
-            task.name == 'processStandaloneReleaseResources') {
+    if ((task.name == 'processStandaloneDebugResources' ||
+            task.name == 'processStandaloneReleaseResources') && !isConsumerApp) {
         task.dependsOn downloadCCApp
     }
 }
@@ -416,6 +473,46 @@ def numbersToLetters(String version) {
         }
     }
     return words.toString();
+}
+
+def getStandalonePackageIdentifier(ccDomainSafe, isConsumerApp) {
+    if (project.hasProperty('application_name')) {
+        return ccDomainSafe + "." + application_name.replaceAll(" ", "").toLowerCase();
+    } else if ("true".equals(isConsumerApp)) {
+        throw new InvalidUserDataException("An application_name property must be provided for consumer app standalone builds")
+    } else {
+        return ccDomainSafe;
+    }
+}
+
+def getStandaloneApplicationName(ccDomainSafe, isConsumerApp) {
+    if (project.hasProperty('application_name')) {
+        return application_name;
+    } else if ("true".equals(isConsumerApp)) {
+        throw new InvalidUserDataException("An application_name property must be provided for consumer app standalone builds")
+    } else {
+        return ccDomainSafe;
+    }
+}
+
+def getConsumerAppUsername(isConsumerApp) {
+    if (project.hasProperty('username')) {
+        return username;
+    } else if ("true".equals(isConsumerApp)) {
+        throw new InvalidUserDataException("A username property must be provided for consumer app standalone builds")
+    } else {
+        return "";
+    }
+}
+
+def getConsumerAppPassword(isConsumerApp) {
+    if (project.hasProperty('password')) {
+        return password;
+    } else if ("true".equals(isConsumerApp)) {
+        throw new InvalidUserDataException("A password property must be provided for consumer app standalone builds")
+    } else {
+        return "";
+    }
 }
 
 // must be at bottom of file to fix some stupid google bug

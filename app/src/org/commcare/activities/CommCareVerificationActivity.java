@@ -70,7 +70,11 @@ public class CommCareVerificationActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.missing_multimedia_layout);
+        if (CommCareApplication._().isConsumerApp()) {
+            setContentView(R.layout.blank_missing_multimedia_layout);
+        } else {
+            setContentView(R.layout.missing_multimedia_layout);
+        }
 
         Button retryButton = (Button)findViewById(R.id.screen_multimedia_retry);
         retryButton.setOnClickListener(this);
@@ -247,7 +251,9 @@ public class CommCareVerificationActivity
             i.putExtra(KEY_REQUIRE_REFRESH, true);
             setResult(RESULT_OK, i);
         }
-        Toast.makeText(getApplicationContext(), Localization.get("verification.success.message"), Toast.LENGTH_SHORT).show();
+        if (!CommCareApplication._().isConsumerApp()) {
+            Toast.makeText(getApplicationContext(), Localization.get("verification.success.message"), Toast.LENGTH_SHORT).show();
+        }
         finish();
     }
 
@@ -273,6 +279,10 @@ public class CommCareVerificationActivity
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
+        if (CommCareApplication._().isConsumerApp()) {
+            return CustomProgressDialog.newInstance("Starting Up", "Initializing your application...", taskId);
+        }
+        
         if (taskId == DIALOG_VERIFY_PROGRESS) {
             CustomProgressDialog dialog =
                     CustomProgressDialog.newInstance(

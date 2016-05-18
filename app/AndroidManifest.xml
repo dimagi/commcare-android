@@ -72,17 +72,6 @@
             </intent-filter>
         </activity>
 
-        <!-- For legacy reasons: alias to the old launch name. If you remove this,
-         updating from below 2.27 will remove launchers from the homescreen -->
-        <activity-alias
-            android:name=".activities.DispatchActivity"
-            android:targetActivity="org.commcare.activities.DispatchActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
-            </intent-filter>
-        </activity-alias>
-
         <activity
             android:name="org.commcare.activities.AppManagerActivity"
             android:label="@string/manager_activity_name"
@@ -209,49 +198,6 @@
             android:name="org.commcare.activities.UpdateActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
-        <!-- Enable Shortcuts for Command Actions -->
-        <activity
-            android:name="org.commcare.utils.AndroidShortcuts"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-        <activity
-            android:name="org.commcare.utils.ManagerShortcut">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-
-        <activity-alias
-            android:name=".application.ShortcutGenerator"
-            android:label="CommCare Action"
-            android:targetActivity="org.commcare.utils.AndroidShortcuts">
-
-            <!-- This intent-filter allows your shortcuts to be created in the launcher. -->
-            <intent-filter>
-                <action android:name="android.intent.action.CREATE_SHORTCUT"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity-alias>
-
-        <activity-alias
-            android:name=".application.ManagerGenerator"
-            android:label="App Manager"
-            android:targetActivity="org.commcare.utils.ManagerShortcut">
-
-            <!-- This intent-filter allows your shortcuts to be created in the launcher. -->
-            <intent-filter>
-                <action android:name="android.intent.action.CREATE_SHORTCUT"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity-alias>
 
         <activity
             android:name="org.commcare.activities.SingleAppManagerActivity"

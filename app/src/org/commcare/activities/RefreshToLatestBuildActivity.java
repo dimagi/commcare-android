@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,7 +10,7 @@ import org.commcare.dalvik.R;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -24,9 +23,8 @@ import org.javarosa.core.services.locale.Localization;
  *
  * @author Aliza Stone (astone@dimagi.com)
  */
-public class RefreshToLatestBuildActivity extends Activity {
+public class RefreshToLatestBuildActivity extends CommCareActivity {
 
-    public static final String KEY_FROM_LATEST_BUILD_ACTIVITY = "from-test-latest-build-util";
     public static final String KEY_UPDATE_ATTEMPT_RESULT = "result-of-update-attempt";
 
     // Action status codes
@@ -113,8 +111,7 @@ public class RefreshToLatestBuildActivity extends Activity {
             }
         };
 
-        AlertDialogFactory factory = AlertDialogFactory.getBasicAlertFactory(this, title, message, listener);
-        factory.showDialog();
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this, title, message, listener));
     }
 
     private String getCurrentUserPassword() throws SessionUnavailableException {
@@ -123,7 +120,7 @@ public class RefreshToLatestBuildActivity extends Activity {
 
     private void attemptUpdate() {
         Intent i = new Intent(this, UpdateActivity.class);
-        i.putExtra(KEY_FROM_LATEST_BUILD_ACTIVITY, true);
+        i.putExtra(UpdateActivity.KEY_FROM_LATEST_BUILD_ACTIVITY, true);
         startActivityForResult(i, PERFORM_UPDATE);
     }
 

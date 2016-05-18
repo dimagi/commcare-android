@@ -41,8 +41,9 @@ import org.commcare.utils.ConnectivityStatus;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.views.ManagedUiFramework;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.AlertDialogFragment;
+import org.commcare.views.dialogs.CommCareAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogController;
 import org.commcare.views.media.AudioController;
@@ -244,7 +245,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     private void showPendingUserMessage() {
         String[] messageAndTitle = CommCareApplication._().getPendingUserMessage();
         if (messageAndTitle != null) {
-            showAlertDialog(AlertDialogFactory.getBasicAlertFactory(
+            showAlertDialog(StandardAlertDialog.getBasicAlertDialog(
                     this, messageAndTitle[1], messageAndTitle[0], null));
             CommCareApplication._().clearPendingUserMessage();
         }
@@ -378,12 +379,8 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     /**
      * Display exception details as a pop-up to the user.
-     *
-     * @param e Exception to handle
      */
-    public void displayException(Exception e) {
-        String title =  Localization.get("notification.case.predicate.title");
-        String message = Localization.get("notification.case.predicate.action", new String[]{e.getMessage()});
+    public void displayException(String title, String message) {
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
@@ -394,9 +391,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                 }
             }
         };
-        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactoryWithIcon(this, title,
-                message, android.R.drawable.ic_dialog_info, listener);
-        showAlertDialog(f);
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
+                message, android.R.drawable.ic_dialog_info, listener));
+    }
+
+    public void displayCaseListFilterException(Exception e) {
+        displayException(
+                Localization.get("notification.case.predicate.title"),
+                Localization.get("notification.case.predicate.action", new String[]{e.getMessage()}));
     }
 
     @Override
@@ -409,7 +411,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     protected void restoreLastQueryString() {
-        lastQueryString = CommCareApplication._().getCurrentSession().getCurrentFrameStepExtra(KEY_LAST_QUERY_STRING);
+        lastQueryString = (String)CommCareApplication._().getCurrentSession().getCurrentFrameStepExtra(KEY_LAST_QUERY_STRING);
     }
 
     protected void saveLastQueryString() {
@@ -588,12 +590,12 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     @Override
-    public void showAlertDialog(AlertDialogFactory f) {
+    public void showAlertDialog(CommCareAlertDialog d) {
         if (getCurrentAlertDialog() != null) {
             // Means we already have an alert dialog on screen
             return;
         }
-        AlertDialogFragment dialog = AlertDialogFragment.fromFactory(f);
+        AlertDialogFragment dialog = AlertDialogFragment.fromCommCareAlertDialog(d);
         if (areFragmentsPaused) {
             alertDialogToShowOnResume = dialog;
         } else {
@@ -633,7 +635,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
                                            ActionBarInstantiator instantiator) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             MenuInflater inflater = act.getMenuInflater();
-            inflater.inflate(org.commcare.dalvik.R.menu.activity_report_problem, menu);
+            inflater.inflate(org.commcare.dalvik.R.menu.action_bar_search_view, menu);
 
             MenuItem searchItem = menu.findItem(org.commcare.dalvik.R.id.search_action_bar);
             SearchView searchView =
@@ -663,7 +665,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     /**
      * Whether or not the "Back" action makes sense for this activity.
      *
-     * @return True if "Back" is a valid concept for the Activity ande should be shown
+     * @return True if "Back" is a valid concept for the Activity and should be shown
      * in the action bar if available. False otherwise.
      */
     public boolean isBackEnabled() {

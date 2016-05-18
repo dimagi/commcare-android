@@ -132,7 +132,6 @@ public class IntentWidget extends QuestionWidget {
             if (!"".equals(data)) {
                 intent.putExtra(IntentCallout.INTENT_RESULT_VALUE, data);
             }
-
             ((Activity)getContext()).startActivityForResult(intent, calloutId);
             pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
         } catch (ActivityNotFoundException e) {

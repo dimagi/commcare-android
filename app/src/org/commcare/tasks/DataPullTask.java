@@ -16,16 +16,18 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.engine.cases.CaseUtils;
+import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.encryption.CryptUtil;
 import org.commcare.models.encryption.ByteEncrypter;
+import org.commcare.models.encryption.CryptUtil;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.network.RemoteDataPullResponse;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.templates.CommCareTask;
@@ -68,7 +70,6 @@ public abstract class DataPullTask<R>
     private long mSyncStartTime;
 
     private boolean wasKeyLoggedIn;
-    private final boolean restoreSession;
 
     public static final int DATA_PULL_TASK_ID = 10;
 
@@ -85,30 +86,21 @@ public abstract class DataPullTask<R>
     public static final int PROGRESS_DOWNLOADING_COMPLETE = 512;
     private DataPullRequester dataPullRequester;
 
-    private DataPullTask(String username, String password,
-                         String server, Context context,
-                         boolean restoreOldSession) {
+    public DataPullTask(String username, String password,
+                         String server, Context context, DataPullRequester dataPullRequester) {
         this.server = server;
         this.username = username;
         this.password = password;
         this.context = context;
         this.taskId = DATA_PULL_TASK_ID;
-        this.dataPullRequester = new DataPullResponseFactory();
-        this.restoreSession = restoreOldSession;
+        this.dataPullRequester = dataPullRequester;
 
         TAG = DataPullTask.class.getSimpleName();
     }
 
     public DataPullTask(String username, String password,
                         String server, Context context) {
-        this(username, password, server, context, false);
-    }
-
-    private DataPullTask(String username, String password,
-                         String server, Context context,
-                         DataPullRequester dataPullRequester) {
-        this(username, password, server, context);
-        this.dataPullRequester = dataPullRequester;
+        this(username, password, server, context, new DataPullResponseFactory());
     }
 
     @Override
@@ -118,7 +110,7 @@ public abstract class DataPullTask<R>
             CommCareApplication._().releaseUserResourcesAndServices();
         }
     }
-    private HttpRequestGenerator requestor;
+    private HttpRequestEndpoints requestor;
 
     @Override
     protected ResultAndError<PullTaskResult> doTaskBackground(Void... params) {
@@ -137,12 +129,11 @@ public abstract class DataPullTask<R>
             CommCareApp app = CommCareApplication._().getCurrentApp();
             SharedPreferences prefs = app.getAppPreferences();
 
-            String keyServer = prefs.getString("key_server", null);
-
             mTotalItems = -1;
             mCurrentProgress = -1;
 
             //Whether or not we should be generating the first key
+            String keyServer = CommCarePreferences.getKeyServer();
             boolean useExternalKeys = !(keyServer == null || keyServer.equals(""));
 
             boolean loginNeeded = true;
@@ -158,7 +149,7 @@ public abstract class DataPullTask<R>
             //This should be per _user_, not per app
             prefs.edit().putLong("last-ota-restore", new Date().getTime()).commit();
 
-            requestor = new HttpRequestGenerator(username, password);
+            requestor = dataPullRequester.getHttpGenerator(username, password);
 
             AndroidTransactionParserFactory factory = new AndroidTransactionParserFactory(context, requestor) {
                 boolean publishedAuth = false;
@@ -235,7 +226,7 @@ public abstract class DataPullTask<R>
                         //is encoded. Probably a better way to do this.
                         CommCareApplication._().startUserSession(
                                 ByteEncrypter.unwrapByteArrayWithString(ukr.getEncryptedKey(), password),
-                                ukr, restoreSession);
+                                ukr, false);
                         wasKeyLoggedIn = true;
                     }
 
@@ -386,7 +377,7 @@ public abstract class DataPullTask<R>
     }
 
     //TODO: This and the normal sync share a ton of code. It's hard to really... figure out the right way to 
-    private Pair<Integer, String> recover(HttpRequestGenerator requestor, AndroidTransactionParserFactory factory) {
+    private Pair<Integer, String> recover(HttpRequestEndpoints requestor, AndroidTransactionParserFactory factory) {
         this.publishProgress(PROGRESS_RECOVERY_NEEDED);
 
         Logger.log(AndroidLogger.TYPE_USER, "Sync Recovery Triggered");

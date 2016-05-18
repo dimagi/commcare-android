@@ -6,6 +6,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
+import android.text.Spannable;
 import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -24,6 +25,7 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logic.FormController;
 import org.commcare.preferences.DeveloperPreferences;
+import org.commcare.utils.MarkupUtil;
 import org.commcare.views.ClippingFrame;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.UserfacingErrorHandling;
@@ -231,8 +233,8 @@ public class FormNavigationUI {
     private static void updateFloatingLabels(CommCareActivity activity,
                                              QuestionsView currentView) {
         //TODO: this should actually be set up to scale per screen size.
-        ArrayList<Pair<String, FloatingLabel>> smallLabels = new ArrayList<>();
-        ArrayList<Pair<String, FloatingLabel>> largeLabels = new ArrayList<>();
+        ArrayList<Pair<CharSequence, FloatingLabel>> smallLabels = new ArrayList<>();
+        ArrayList<Pair<CharSequence, FloatingLabel>> largeLabels = new ArrayList<>();
 
         FloatingLabel[] labelTypes = FloatingLabel.values();
 
@@ -243,7 +245,11 @@ public class FormNavigationUI {
             }
             for (FloatingLabel type : labelTypes) {
                 if (type.getAppearance().equals(hint)) {
-                    String widgetText = widget.getPrompt().getQuestionText();
+                    CharSequence widgetText = widget.getPrompt().getQuestionText();
+                    String markdownWidgetText = widget.getPrompt().getMarkdownText();
+                    if(markdownWidgetText != null){
+                        widgetText = MarkupUtil.returnMarkdown(activity, markdownWidgetText);
+                    }
                     if (widgetText != null && widgetText.length() < 15) {
                         smallLabels.add(new Pair<>(widgetText, type));
                     } else {
@@ -271,7 +277,7 @@ public class FormNavigationUI {
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1);
                 TextView left = (TextView)View.inflate(activity, R.layout.component_floating_label, null);
                 left.setLayoutParams(lp);
-                left.setText(smallLabels.get(i).first + "; " + smallLabels.get(i + 1).first);
+                left.setText(smallLabels.get(i).first + "; " + smallLabels.get(i+1).first);
                 left.setBackgroundResource(smallLabels.get(i).second.resourceId);
                 left.setPadding(pixels, 2 * pixels, pixels, 2 * pixels);
                 left.setTextColor(smallLabels.get(i).second.colorId);
