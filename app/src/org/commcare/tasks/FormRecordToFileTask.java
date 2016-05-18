@@ -12,6 +12,7 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.FormUploadUtil;
@@ -129,7 +130,7 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
             Properties properties = new Properties();
             SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
             // HQ likes us to submit forms to the "correct" app and user specific URL
-            String postUrl = settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
+            String postUrl = settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
                     c.getString(R.string.PostURL));
             properties.setProperty("PostURL", postUrl);
             properties.store(outputStream, null);

@@ -144,7 +144,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                 if (!formLoadPayloadStatus().equals(FormRecord.STATUS_SAVED)) {
                     // clear submission server so that 'unsent' forms that are loaded don't get sent to HQ
                     CommCareApplication._().getCurrentApp().getAppPreferences().edit()
-                            .putString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, "")
+                            .putString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, "")
                             .apply();
                 }
                 break;
