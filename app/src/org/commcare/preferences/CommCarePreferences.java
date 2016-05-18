@@ -75,22 +75,28 @@ public class CommCarePreferences
     private static final String KEY_TARGET_DENSITY = "cc-inflation-target-density";
     private static final String DEFAULT_TARGET_DENSITY = "" + DisplayMetrics.DENSITY_DEFAULT;
 
+    // Preferences the user has direct control over within CommCare
+    public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
+    public final static String PREFS_PRINT_DOC_LOCATION = "print-doc-location";
+    private final static String PREFS_FUZZY_SEARCH_KEY = "cc-fuzzy-search-enabled";
+    public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
+
+    // Preferences that are set incidentally/automatically by CommCare, based upon a user's workflow
+    public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
     public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
     public final static String LAST_PASSWORD = "last_password";
     public final static String CURRENT_SESSION = "current_user_session";
     public final static String CURRENT_FORM_ENTRY_SESSION = "current_form_entry_session";
-    public final static String CONTENT_VALIDATED = "cc-content-valid";
-    public static final String DUMP_FOLDER_PATH = "dump-folder-path";
-    public final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
-    public final static String LOGIN_DURATION = "cc-login-duration-seconds";
+
+    // Preferences that are sent down by HQ
+    public final static String PREFS_LOCALE_KEY = "cur_locale";
     public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
     public final static String BRAND_BANNER_HOME = "brand-banner-home";
-    private final static String PREFS_FUZZY_SEARCH_KEY = "cc-fuzzy-search-enabled";
-    public final static String PREFS_LOCALE_KEY = "cur_locale";
-    public final static String PREFS_PRINT_DOC_LOCATION = "print-doc-location";
-    public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
-    public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
-    public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
+    public final static String LOGIN_DURATION = "cc-login-duration-seconds";
+    public final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
+    public final static String CONTENT_VALIDATED = "cc-content-valid";
+    public static final String DUMP_FOLDER_PATH = "dump-folder-path";
+
 
     public final static String YES = "yes";
     public final static String NO = "no";
