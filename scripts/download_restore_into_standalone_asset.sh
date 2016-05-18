@@ -7,6 +7,6 @@ USERNAME=$2
 PASSWORD=$3
 ASSET_DIR=$4
 
-curl --basic -u $USERNAME@$DOMAIN.commcarehq.org:$PASSWORD "https://www.commcarehq.org/a/aliza-test/phone/restore/?version=2.0" -o "$ASSET_DIR/local_restore_payload.xml"
+curl --basic -u $USERNAME@$DOMAIN.commcarehq.org:$PASSWORD "https://www.commcarehq.org/a/$DOMAIN/phone/restore/?version=2.0" -o "$ASSET_DIR/local_restore_payload.xml"
 
 exit 0
