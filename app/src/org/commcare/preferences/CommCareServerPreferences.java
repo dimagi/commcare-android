@@ -2,6 +2,7 @@ package org.commcare.preferences;
 
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.MenuItem;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.SessionAwarePreferenceActivity;
@@ -52,5 +53,16 @@ public class CommCareServerPreferences
 
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(prefMgr, prefKeyToAnalyticsEvent,
                 GoogleAnalyticsFields.CATEGORY_SERVER_PREFS);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
