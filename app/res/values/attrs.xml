@@ -19,6 +19,10 @@
     <attr name="img" format="reference"/>
     <attr name="textColor" format="reference|color"/>
 
+    <declare-styleable name="ShrinkingLinearLayout">
+        <attr name="shrinkable_view" format="reference"/>
+    </declare-styleable>
+
     <declare-styleable name="CustomButtonWithText">
         <attr name="backgroundColor"/>
         <attr name="subtitle"/>

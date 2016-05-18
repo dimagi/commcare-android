@@ -1,25 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<org.commcare.views.ShrinkingLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                            xmlns:app="http://schemas.android.com/apk/res-auto"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
+              app:shrinkable_view="@+id/row_txt"
               android:textAppearance="@style/EntityItemText">
 
     <ImageView
         android:id="@+id/row_img"
-        android:layout_gravity="center_vertical|left"
         android:layout_width="wrap_content"
         style="@style/ListContentV2"/>
 
     <TextView
         android:id="@+id/row_txt"
-        android:layout_gravity="center_vertical|center_horizontal"
         android:layout_width="wrap_content"
+        android:layout_weight="1"
         style="@style/ListContentV2"/>
 
     <org.commcare.views.media.AudioButton
         android:id="@+id/row_soundicon"
-        android:layout_gravity="center_vertical|right"
         android:layout_width="wrap_content"
+        style="@style/ListContentV2"
         android:background="@color/transparent_background"
-        style="@style/ListContentV2"/>
-</LinearLayout>
+        />
+
+</org.commcare.views.ShrinkingLinearLayout>
