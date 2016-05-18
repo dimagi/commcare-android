@@ -90,12 +90,7 @@ public class FormAndDataSyncer {
             }
         };
 
-        try {
-            mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
-        } catch (SessionUnavailableException sue) {
-            // abort since it looks like the session expired
-            return;
-        }
+        mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
         mProcess.connect(activity);
 
         //Execute on a true multithreaded chain. We should probably replace all of our calls with this
@@ -165,14 +160,7 @@ public class FormAndDataSyncer {
             final CommCareHomeActivity activity,
             final boolean formsToSend,
             final boolean userTriggeredSync) {
-
-        User u;
-        try {
-            u = CommCareApplication._().getSession().getLoggedInUser();
-        } catch (SessionUnavailableException sue) {
-            // abort since it looks like the session expired
-            return;
-        }
+        User u = CommCareApplication._().getSession().getLoggedInUser();
 
         if (User.TYPE_DEMO.equals(u.getUserType())) {
             if (userTriggeredSync) {

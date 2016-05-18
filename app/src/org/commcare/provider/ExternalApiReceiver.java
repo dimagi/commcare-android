@@ -148,12 +148,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 }
             };
 
-            try {
-                mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
-            } catch (SessionUnavailableException e) {
-                // if the session expired don't launch the process
-                return false;
-            }
+            mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
             mProcess.connect(dummyconnector);
             mProcess.execute(records);
             return true;
@@ -164,13 +159,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     }
 
     private void syncData(final Context context) {
-        User u;
-        try {
-            u = CommCareApplication._().getSession().getLoggedInUser();
-        } catch (SessionUnavailableException e) {
-            // if the session expired don't launch the process
-            return;
-        }
+        User u = CommCareApplication._().getSession().getLoggedInUser();
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 

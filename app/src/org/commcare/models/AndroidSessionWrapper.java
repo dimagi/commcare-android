@@ -163,13 +163,7 @@ public class AndroidSessionWrapper {
         SqlStorage<FormRecord> storage = CommCareApplication._().getUserStorage(FormRecord.class);
         SqlStorage<SessionStateDescriptor> sessionStorage = CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 
-        SecretKey key;
-        try {
-            key = CommCareApplication._().createNewSymmetricKey();
-        } catch (SessionUnavailableException e) {
-            // the user db is closed
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        SecretKey key = CommCareApplication._().createNewSymmetricKey();
 
         //TODO: this has two components which can fail. be able to roll them back
 

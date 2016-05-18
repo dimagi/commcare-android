@@ -121,13 +121,8 @@ public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<C
                 if (url != null) {
                     DataSubmissionListener dataListener;
 
-                    try {
-                        dataListener =
-                                CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title);
-                    } catch (SessionUnavailableException sue) {
-                        // abort since it looks like the session expired
-                        return;
-                    }
+                    dataListener =
+                            CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title);
                     LogSubmissionTask reportSubmitter =
                             new LogSubmissionTask(
                                     true,

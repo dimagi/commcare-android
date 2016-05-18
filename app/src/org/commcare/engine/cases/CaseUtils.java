@@ -64,11 +64,7 @@ public class CaseUtils {
         }
 
         SQLiteDatabase db;
-        try {
-            db = CommCareApplication._().getUserDbHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        db = CommCareApplication._().getUserDbHandle();
 
         db.beginTransaction();
         int removedCaseCount;

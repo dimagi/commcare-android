@@ -92,11 +92,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     @Override
     public void commit(Case parsed) throws IOException {
         SQLiteDatabase db;
-        try {
-            db = getDbHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException("User database closed while parsing");
-        }
+        db = getDbHandle();
         db.beginTransaction();
         try {
             super.commit(parsed);

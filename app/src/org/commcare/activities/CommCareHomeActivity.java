@@ -1108,24 +1108,23 @@ public class CommCareHomeActivity
      */
     private void attemptDispatchHomeScreen() {
         try {
-            if (CommCareApplication._().isSyncPending(false)) {
-                // There is a sync pending
-                handlePendingSync();
-            } else if (!CommCareApplication._().getSession().isActive()) {
-                // User was logged out somehow, so we want to return to dispatch activity
-                setResult(RESULT_OK);
-                this.finish();
-            } else if (CommCareApplication._().isConsumerApp() && !sessionNavigationProceedingAfterOnResume) {
-                // so that the user never sees the real home screen in a consumer app
-                enterRootModule();
-            } else {
-                // Display the normal home screen!
-                uiController.refreshView();
-            }
+            CommCareApplication._().getSession();
         } catch (SessionUnavailableException e) {
             // User was logged out somehow, so we want to return to dispatch activity
             setResult(RESULT_OK);
             this.finish();
+            return;
+        }
+
+        if (CommCareApplication._().isSyncPending(false)) {
+            // There is a sync pending
+            handlePendingSync();
+        } else if (CommCareApplication._().isConsumerApp() && !sessionNavigationProceedingAfterOnResume) {
+            // so that the user never sees the real home screen in a consumer app
+            enterRootModule();
+        } else {
+            // Display the normal home screen!
+            uiController.refreshView();
         }
     }
 
@@ -1173,12 +1172,8 @@ public class CommCareHomeActivity
     }
 
     public static boolean isDemoUser() {
-        try {
-            User u = CommCareApplication._().getSession().getLoggedInUser();
-            return (User.TYPE_DEMO.equals(u.getUserType()));
-        } catch (SessionUnavailableException e) {
-            return false;
-        }
+        User u = CommCareApplication._().getSession().getLoggedInUser();
+        return (User.TYPE_DEMO.equals(u.getUserType()));
     }
 
     @Override
@@ -1213,26 +1208,23 @@ public class CommCareHomeActivity
         super.onPrepareOptionsMenu(menu);
         GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN);
         //In Holo theme this gets called on startup
-        try {
-            User u = CommCareApplication._().getSession().getLoggedInUser();
-            boolean enableMenus = !User.TYPE_DEMO.equals(u.getUserType());
-            menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
-            menu.findItem(MENU_UPDATE).setVisible(enableMenus);
-            menu.findItem(MENU_VALIDATE_MEDIA).setVisible(enableMenus);
-            menu.findItem(MENU_DUMP_FORMS).setVisible(enableMenus);
-            menu.findItem(MENU_WIFI_DIRECT).setVisible(enableMenus && hasP2p());
-            menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
-            menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
-            menu.findItem(MENU_ABOUT).setVisible(enableMenus);
-            if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
-                menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
-            } else {
-                menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.set"));
-            }
-            menu.findItem(MENU_PIN).setVisible(enableMenus
-                    && DeveloperPreferences.shouldOfferPinForLogin());
-        } catch (SessionUnavailableException sue) {
+        User u = CommCareApplication._().getSession().getLoggedInUser();
+        boolean enableMenus = !User.TYPE_DEMO.equals(u.getUserType());
+        menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
+        menu.findItem(MENU_UPDATE).setVisible(enableMenus);
+        menu.findItem(MENU_VALIDATE_MEDIA).setVisible(enableMenus);
+        menu.findItem(MENU_DUMP_FORMS).setVisible(enableMenus);
+        menu.findItem(MENU_WIFI_DIRECT).setVisible(enableMenus && hasP2p());
+        menu.findItem(MENU_CONNECTION_DIAGNOSTIC).setVisible(enableMenus);
+        menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
+        menu.findItem(MENU_ABOUT).setVisible(enableMenus);
+        if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
+            menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
+        } else {
+            menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.set"));
         }
+        menu.findItem(MENU_PIN).setVisible(enableMenus
+                && DeveloperPreferences.shouldOfferPinForLogin());
         return true;
     }
 

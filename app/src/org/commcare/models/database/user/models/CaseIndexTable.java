@@ -50,12 +50,7 @@ public class CaseIndexTable {
     public CaseIndexTable() {
         // TODO PLM: remove this constructor and have callers pass in result
         // from getUserDbHandle()
-        try {
-            this.db = CommCareApplication._().getUserDbHandle();
-        } catch (SessionUnavailableException e) {
-            // TODO PLM: find a way to fail elegantly here.
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        this.db = CommCareApplication._().getUserDbHandle();
     }
 
     private SQLiteDatabase db;

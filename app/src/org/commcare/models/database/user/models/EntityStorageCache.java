@@ -50,11 +50,7 @@ public class EntityStorageCache {
     public EntityStorageCache(String cacheName) {
         // TODO PLM: refactor so that error handling occurs by caller and this
         // method can call 'this'.
-        try {
-            this.db = CommCareApplication._().getUserDbHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        this.db = CommCareApplication._().getUserDbHandle();
         this.mCacheName = cacheName;
     }
 
