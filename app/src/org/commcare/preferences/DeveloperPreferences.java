@@ -2,6 +2,8 @@ package org.commcare.preferences;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
+import android.preference.Preference;
 import android.preference.PreferenceManager;
 
 import org.commcare.CommCareApp;
@@ -34,6 +36,16 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
      */
     public final static String ENABLE_AUTO_LOGIN = "cc-enable-auto-login";
     public final static String ENABLE_SAVE_SESSION = "cc-enable-session-saving";
+
+    /**
+     * Stores the navigation and form entry sessions as one string for user manipulation
+     */
+    public final static String EDIT_SAVE_SESSION = "__edit_session_save";
+    /**
+     * Spacer to distinguish between the saved navigation session and form entry session
+     */
+    private static final String NAV_AND_FORM_SESSION_SPACER = "@@@@@";
+
     /**
      * Does the user want to download the latest app version deployed (built),
      * not just the latest app version released (starred)?
@@ -53,6 +65,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
     public final static String OFFER_PIN_FOR_LOGIN = "cc-offer-pin-for-login";
 
     private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
+    private Preference savedSessionEditTextPreference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +82,9 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         populatePrefKeyToEventLabelMapping();
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(
                 prefMgr, prefKeyToAnalyticsEvent, GoogleAnalyticsFields.CATEGORY_DEV_PREFS);
+
+        savedSessionEditTextPreference = findPreference(EDIT_SAVE_SESSION);
+        setSessionEditText();
     }
 
     private static void populatePrefKeyToEventLabelMapping() {
@@ -79,6 +95,7 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         prefKeyToAnalyticsEvent.put(NEWEST_APP_VERSION_ENABLED, GoogleAnalyticsFields.LABEL_NEWEST_APP_VERSION);
         prefKeyToAnalyticsEvent.put(ENABLE_AUTO_LOGIN, GoogleAnalyticsFields.LABEL_AUTO_LOGIN);
         prefKeyToAnalyticsEvent.put(ENABLE_SAVE_SESSION, GoogleAnalyticsFields.LABEL_SESSION_SAVING);
+        prefKeyToAnalyticsEvent.put(EDIT_SAVE_SESSION, GoogleAnalyticsFields.LABEL_EDIT_SAVED_SESSION);
         prefKeyToAnalyticsEvent.put(CSS_ENABLED, GoogleAnalyticsFields.LABEL_CSS);
         prefKeyToAnalyticsEvent.put(MARKDOWN_ENABLED, GoogleAnalyticsFields.LABEL_MARKDOWN);
         prefKeyToAnalyticsEvent.put(ALTERNATE_QUESTION_LAYOUT_ENABLED, GoogleAnalyticsFields.LABEL_IMAGE_ABOVE_TEXT);
@@ -88,6 +105,15 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
         prefKeyToAnalyticsEvent.put(AUTO_PURGE_ENABLED, GoogleAnalyticsFields.LABEL_AUTO_PURGE);
         prefKeyToAnalyticsEvent.put(LOAD_FORM_PAYLOAD_AS, GoogleAnalyticsFields.LABEL_LOAD_FORM_PAYLOAD_AS);
         prefKeyToAnalyticsEvent.put(DETAIL_TAB_SWIPE_ACTION_ENABLED, GoogleAnalyticsFields.LABEL_DETAIL_TAB_SWIPE_ACTION);
+    }
+
+    private void setSessionEditText() {
+        if (isSessionSavingEnabled()) {
+            getPreferenceScreen().addPreference(savedSessionEditTextPreference);
+            ((EditTextPreference)savedSessionEditTextPreference).setText(getSavedSessionStateAsString());
+        } else {
+            getPreferenceScreen().removePreference(savedSessionEditTextPreference);
+        }
     }
 
     @Override
@@ -100,20 +126,50 @@ public class DeveloperPreferences extends SessionAwarePreferenceActivity
                     DevSessionRestorer.clearPassword(sharedPreferences);
                 }
                 break;
+            case EDIT_SAVE_SESSION:
+                String sessionString =
+                        CommCareApplication._().getCurrentApp().getAppPreferences().getString(EDIT_SAVE_SESSION, "");
+                if (!"".equals(sessionString)) {
+                    setSessionStateFromEditText(sessionString);
+                }
+                break;
             case ENABLE_SAVE_SESSION:
                 if (!isSessionSavingEnabled()) {
                     DevSessionRestorer.clearSession();
                 }
+                setSessionEditText();
+
                 break;
             case LOAD_FORM_PAYLOAD_AS:
                 if (!formLoadPayloadStatus().equals(FormRecord.STATUS_SAVED)) {
                     // clear submission server so that 'unsent' forms that are loaded don't get sent to HQ
                     CommCareApplication._().getCurrentApp().getAppPreferences().edit()
-                            .putString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, "")
+                            .putString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, "")
                             .apply();
                 }
                 break;
         }
+    }
+
+    private static String getSavedSessionStateAsString() {
+        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+        String navSession = prefs.getString(CommCarePreferences.CURRENT_SESSION, "");
+        String formEntrySession = prefs.getString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, "");
+        if ("".equals(navSession) && "".equals(formEntrySession)) {
+            return "";
+        } else {
+            return navSession + NAV_AND_FORM_SESSION_SPACER + formEntrySession;
+        }
+    }
+
+    private static void setSessionStateFromEditText(String sessionString) {
+        SharedPreferences.Editor editor =
+                CommCareApplication._().getCurrentApp().getAppPreferences().edit();
+        String[] sessionParts = sessionString.split(NAV_AND_FORM_SESSION_SPACER);
+
+        editor.putString(CommCarePreferences.CURRENT_SESSION, sessionParts[0]);
+        editor.putString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, sessionParts[1]);
+        editor.commit();
     }
 
     private static String getEditPrefLabel(String key) {
