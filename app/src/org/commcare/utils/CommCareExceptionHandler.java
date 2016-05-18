@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.commcare.activities.CrashWarningActivity;
-import org.commcare.activities.LoginActivity;
+import org.commcare.activities.DispatchActivity;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.javarosa.core.util.NoLocalizedTextException;
 
@@ -37,7 +37,7 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
         if (warnUserAndExit(ex)) {
             // You must close the crashed thread in order to start a new activity.
             System.exit(0);
-        } else {
+        } else if (!reportAndExit(ex)) {
             // Default error handling, which includes reporting to ACRA
             parent.uncaughtException(thread, ex);
         }
@@ -48,13 +48,7 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
      * they can fix.
      */
     private boolean warnUserAndExit(Throwable ex) {
-        if (causedBySessionUnavailable(ex)) {
-            Intent i = new Intent(ctx, LoginActivity.class);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            // i.putExtra(WARNING_MESSAGE_KEY, ex.getMessage());
-            ctx.startActivity(i);
-        } else if (causedByLocalizationException(ex)) {
+        if (causedByLocalizationException(ex)) {
             Intent i = new Intent(ctx, CrashWarningActivity.class);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -68,6 +62,18 @@ public class CommCareExceptionHandler implements UncaughtExceptionHandler {
     private static boolean causedByLocalizationException(Throwable ex) {
         return ex != null &&
                 (ex instanceof NoLocalizedTextException || causedByLocalizationException(ex.getCause()));
+    }
+
+    private boolean reportAndExit(Throwable ex) {
+        if (causedBySessionUnavailable(ex)) {
+            Intent i = new Intent(ctx, DispatchActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            ctx.startActivity(i);
+            // this will exit the system if the exception is logged
+            return ACRAUtil.reportException(ex);
+        }
+        return false;
     }
 
     private static boolean causedBySessionUnavailable(Throwable ex) {

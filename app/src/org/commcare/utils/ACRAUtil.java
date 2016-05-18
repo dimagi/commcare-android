@@ -30,10 +30,12 @@ public class ACRAUtil {
         ACRA.getErrorReporter().putCustomData(key, value);
     }
 
-    public static void reportException(Exception e) {
+    public static boolean reportException(Throwable e) {
         if (isAcraConfigured) {
             ACRA.getErrorReporter().handleException(e);
+            return true;
         }
+        return false;
     }
 
     public static void initACRA(Application app) {
