@@ -230,18 +230,10 @@ public class HybridFileBackedSqlStorageTest {
     }
 
     private static void clearOrphanedFiles() {
-        try {
-            HybridFileBackedSqlHelpers.removeOrphanedFiles(CommCareApplication._().getUserDbHandle());
-        } catch (SessionUnavailableException e) {
-            Assert.fail("unable to clear orphaned files");
-        }
+        HybridFileBackedSqlHelpers.removeOrphanedFiles(CommCareApplication._().getUserDbHandle());
     }
 
     private static void clearOrphanedUnencryptedFiles() {
-        try {
-            HybridFileBackedSqlHelpers.removeOrphanedFiles(CommCareApp.getAppDatabaseForTesting());
-        } catch (SessionUnavailableException e) {
-            Assert.fail("unable to clear orphaned files");
-        }
+        HybridFileBackedSqlHelpers.removeOrphanedFiles(CommCareApp.getAppDatabaseForTesting());
     }
 }

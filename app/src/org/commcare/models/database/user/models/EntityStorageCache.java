@@ -8,10 +8,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.modern.database.DatabaseHelper;
-import org.commcare.utils.SessionUnavailableException;
 
 /**
  * @author ctsims
@@ -50,11 +48,7 @@ public class EntityStorageCache {
     public EntityStorageCache(String cacheName) {
         // TODO PLM: refactor so that error handling occurs by caller and this
         // method can call 'this'.
-        try {
-            this.db = CommCareApplication._().getUserDbHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        this.db = CommCareApplication._().getUserDbHandle();
         this.mCacheName = cacheName;
     }
 

@@ -139,8 +139,9 @@ public class DispatchActivity extends FragmentActivity {
             }
         } else {
             // Note that the order in which these conditions are checked matters!!
+
+            ApplicationRecord currentRecord = currentApp.getAppRecord();
             try {
-                ApplicationRecord currentRecord = currentApp.getAppRecord();
                 if (currentApp.getAppResourceState() == CommCareApplication.STATE_CORRUPTED) {
                     // The seated app is damaged or corrupted
                     handleDamagedApp();
@@ -153,7 +154,6 @@ public class DispatchActivity extends FragmentActivity {
                         dispatch();
                     }
                 } else if (!CommCareApplication._().getSession().isActive()) {
-                    // The user is not logged in
                     launchLoginScreen();
                 } else if (this.getIntent().hasExtra(SESSION_REQUEST)) {
                     // CommCare was launched from an external app, with a session descriptor

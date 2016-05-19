@@ -12,7 +12,6 @@ import org.apache.http.entity.mime.MultipartEntity;
 import org.apache.http.entity.mime.content.ContentBody;
 import org.apache.http.entity.mime.content.FileBody;
 import org.commcare.logging.AndroidLogger;
-import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.network.DataSubmissionEntity;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.network.HttpRequestGenerator;
@@ -129,7 +128,7 @@ public class FormUploadUtil {
             String state = Environment.getExternalStorageState();
             if (!Environment.MEDIA_MOUNTED.equals(state)) {
                 // If so, just bail as if the user had logged out.
-                throw new UserStorageClosedException("External Storage Removed");
+                throw new SessionUnavailableException("External Storage Removed");
             } else {
                 throw new FileNotFoundException("No directory found at: " +
                         folder.getAbsoluteFile());

@@ -346,11 +346,6 @@ public abstract class DataPullTask<R>
                 // TODO Auto-generated catch block
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
-            } catch (SessionUnavailableException sue) {
-                // TODO PLM: eventually take out this catch. These should be
-                // checked locally
-                //TODO: Keys were lost somehow.
-                sue.printStackTrace();
             }
             if (loginNeeded) {
                 CommCareApplication._().releaseUserResourcesAndServices();
@@ -428,26 +423,9 @@ public abstract class DataPullTask<R>
         } catch (ActionableInvalidStructureException e) {
             e.printStackTrace();
             failureReason = e.getLocalizedMessage();
-        } catch (InvalidStructureException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        } catch (UnfullfilledRequirementsException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        }
-
-        //These last two aren't a sign that the incoming data is bad, but
-        //we still can't recover from them usefully
-        catch (SessionUnavailableException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        } catch (IOException e) {
+        } catch (InvalidStructureException | XmlPullParserException
+                | UnfullfilledRequirementsException | StorageFullException
+                | SessionUnavailableException | IOException e) {
             e.printStackTrace();
             failureReason = e.getMessage();
         } finally {
@@ -463,7 +441,7 @@ public abstract class DataPullTask<R>
         return new Pair<>(PROGRESS_RECOVERY_FAIL_BAD, failureReason);
     }
 
-    private void updateCurrentUser(String password) throws SessionUnavailableException {
+    private void updateCurrentUser(String password) {
         SqlStorage<User> storage = CommCareApplication._().getUserStorage("USER", User.class);
         User u = storage.getRecordForValue(User.META_USERNAME, username);
         CommCareApplication._().getSession().setCurrentUser(u, password);
@@ -481,7 +459,7 @@ public abstract class DataPullTask<R>
     }
 
     private String readInput(InputStream stream, AndroidTransactionParserFactory factory) throws InvalidStructureException, IOException,
-            XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException {
+            XmlPullParserException, UnfullfilledRequirementsException {
         DataModelPullParser parser;
 
         factory.initCaseParser();
