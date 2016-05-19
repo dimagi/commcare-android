@@ -55,7 +55,6 @@ def build_apk_from_directory_contents(app_sub_dir, files_list, build_type):
 
     unzip_app_icon(full_path_to_zipfile)
     app_id, domain, build_number, username, password = get_app_fields(full_path_to_config_file)
-    password = '123' #TEMPORARY, REMOVE AFTER TESTING
     
     os.chdir(PATH_TO_ODK_DIR)
     download_ccz(app_id, domain, build_number)
