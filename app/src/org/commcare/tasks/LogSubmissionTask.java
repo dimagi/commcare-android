@@ -18,7 +18,6 @@ import org.commcare.logging.DeviceReportWriter;
 import org.commcare.logging.XPathErrorEntry;
 import org.commcare.logging.XPathErrorSerializer;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.network.DataSubmissionEntity;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.network.HttpRequestGenerator;
@@ -123,7 +122,7 @@ public class LogSubmissionTask extends AsyncTask<Void, Long, LogSubmitOutcomes> 
             }
 
             return checkSubmissionResult(numberOfLogsToSubmit, submittedSuccesfully);
-        } catch (UserStorageClosedException e) {
+        } catch (SessionUnavailableException e) {
             // The user database closed on us
             return LogSubmitOutcomes.Error;
         }

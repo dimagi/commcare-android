@@ -8,10 +8,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.modern.database.DatabaseHelper;
-import org.commcare.utils.SessionUnavailableException;
 
 /**
  * @author ctsims

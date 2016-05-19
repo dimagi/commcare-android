@@ -4,7 +4,6 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.session.CommCareSession;
@@ -17,7 +16,6 @@ import org.commcare.suite.model.StackOperation;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.CommCareUtil;
-import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.condition.EvaluationContext;
 
 import java.util.Date;

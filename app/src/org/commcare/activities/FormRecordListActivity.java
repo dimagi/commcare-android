@@ -38,10 +38,8 @@ import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.logic.ArchivedFormRemoteRestore;
 import org.commcare.models.FormRecordProcessor;
-import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormRecordCleanupTask;
@@ -52,6 +50,7 @@ import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareUtil;
+import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.IncompleteFormRecordView;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -431,7 +430,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                     createFormRecordScanResultDialog(result);
             }
             return true;
-        } catch (UserStorageClosedException e) {
+        } catch (SessionUnavailableException e) {
             //TODO: Login and try again
             return true;
         }
