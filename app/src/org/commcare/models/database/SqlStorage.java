@@ -417,7 +417,9 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         assertCursorNonNull(c);
 
         try {
-            c.moveToFirst();
+            if (c.moveToFirst()) {
+                throw new NoSuchElementException("No record in table " + table + " for ID " + id);
+            }
             return c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
         } finally {
             c.close();
