@@ -105,6 +105,9 @@ public class GraphView {
             variables.put("type", "'" + graphData.getType() + "'");
             variables.put("config", config.toString());
 
+            // For debugging purposes, note that most minified files have un-minified equivalents in the same directory.
+            // To use them, update the references here and get rid of the ignoreAssetsPattern in build.gradle that
+            // filters them out of the APK.
             html.append(
                     "<html>" +
                             "<head>" +
