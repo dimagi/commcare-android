@@ -114,7 +114,7 @@ public class RefreshToLatestBuildActivity extends CommCareActivity {
         showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this, title, message, listener));
     }
 
-    private String getCurrentUserPassword() throws SessionUnavailableException {
+    private String getCurrentUserPassword() {
         return CommCareApplication._().getSession().getLoggedInUser().getCachedPwd();
     }
 

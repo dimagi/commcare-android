@@ -109,13 +109,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
 
                         };
 
-                try {
-                    mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
-                } catch (SessionUnavailableException sue) {
-                    // abort since it looks like the session expired
-                    displayMessage("CommCare session is no longer available.");
-                    return;
-                }
+                mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
 
                 mProcess.connect(RecoveryActivity.this);
 

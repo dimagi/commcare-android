@@ -10,10 +10,8 @@ import org.commcare.cases.model.Case;
 import org.commcare.cases.model.CaseIndex;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.modern.database.DatabaseHelper;
-import org.commcare.utils.SessionUnavailableException;
 
 import java.util.Vector;
 
@@ -50,12 +48,7 @@ public class CaseIndexTable {
     public CaseIndexTable() {
         // TODO PLM: remove this constructor and have callers pass in result
         // from getUserDbHandle()
-        try {
-            this.db = CommCareApplication._().getUserDbHandle();
-        } catch (SessionUnavailableException e) {
-            // TODO PLM: find a way to fail elegantly here.
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        this.db = CommCareApplication._().getUserDbHandle();
     }
 
     private SQLiteDatabase db;

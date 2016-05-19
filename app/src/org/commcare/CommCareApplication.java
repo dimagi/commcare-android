@@ -239,8 +239,6 @@ public class CommCareApplication extends Application {
         //we aren't going to dump our logs from the Pre-init logger until after this transition occurs.
         try {
             LegacyInstallUtils.checkForLegacyInstall(this, this.getGlobalStorage(ApplicationRecord.class));
-        } catch (SessionUnavailableException sfe) {
-            throw new RuntimeException(sfe);
         } finally {
             //No matter what happens, set up our new logger, we want those logs!
             setupLoggerStorage(false);
@@ -345,7 +343,7 @@ public class CommCareApplication extends Application {
         TimedStatsTracker.registerEndSession(userBeingLoggedOut);
     }
 
-    public SecretKey createNewSymmetricKey() throws SessionUnavailableException {
+    public SecretKey createNewSymmetricKey() {
         return getSession().createNewSymmetricKey();
     }
 
@@ -722,7 +720,7 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public SQLiteDatabase getUserDbHandle() throws SessionUnavailableException {
+    public SQLiteDatabase getUserDbHandle() {
         return this.getSession().getUserDbHandle();
     }
 
@@ -770,17 +768,13 @@ public class CommCareApplication extends Application {
     }
 
     public String getUserKeyRecordId() {
-        try {
-            return getSession().getUserKeyRecordUUID();
-        } catch (SessionUnavailableException e) {
-            throw new RuntimeException(e);
-        }
+        return getSession().getUserKeyRecordUUID();
     }
 
     protected AndroidDbHelper buildUserDbHandle() {
         return new AndroidDbHelper(this.getApplicationContext()) {
             @Override
-            public SQLiteDatabase getHandle() throws SessionUnavailableException {
+            public SQLiteDatabase getHandle() {
                 SQLiteDatabase database = getUserDbHandle();
                 if (database == null) {
                     throw new SessionUnavailableException("The user database has been closed!");
@@ -829,11 +823,7 @@ public class CommCareApplication extends Application {
 //        getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class).removeAll();
 
         final String username;
-        try {
-            username = this.getSession().getLoggedInUser().getUsername();
-        } catch (SessionUnavailableException e) {
-            return;
-        }
+        username = this.getSession().getLoggedInUser().getUsername();
 
         final Set<String> dbIdsToRemove = new HashSet<>();
 
@@ -1028,13 +1018,8 @@ public class CommCareApplication extends Application {
 
         DataSubmissionListener dataListener;
 
-        try {
-            dataListener =
-                    CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title);
-        } catch (SessionUnavailableException sue) {
-            // abort since it looks like the session expired
-            return;
-        }
+        dataListener =
+                CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title);
 
         LogSubmissionTask task = new LogSubmissionTask(
                 force || isPending(settings.getLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
@@ -1165,7 +1150,7 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public CommCareSessionService getSession() throws SessionUnavailableException {
+    public CommCareSessionService getSession() {
         long started = System.currentTimeMillis();
         //If binding is currently in process, just wait for it.
         while (mIsBinding) {
@@ -1186,7 +1171,7 @@ public class CommCareApplication extends Application {
     }
 
 
-    public UserKeyRecord getRecordForCurrentUser() throws SessionUnavailableException {
+    public UserKeyRecord getRecordForCurrentUser() {
         return getSession().getUserKeyRecord();
     }
 
