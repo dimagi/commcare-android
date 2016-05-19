@@ -19,14 +19,10 @@ import java.io.InputStream;
 public class ConsumerAppsUtil {
 
     public static void checkForChangedLocalRestoreFile(CommCareHomeActivity context) {
-        try {
-            User loggedInUser = CommCareApplication._().getSession().getLoggedInUser();
-            if (!loggedInUser.getLastSyncToken().equals(ConsumerAppsUtil.getSyncTokenOfLocalRestoreFile())) {
-                context.getFormAndDataSyncer().performLocalRestore(
-                        context, loggedInUser.getUsername(), loggedInUser.getCachedPwd());
-            }
-        } catch (SessionUnavailableException sue) {
-
+        User loggedInUser = CommCareApplication._().getSession().getLoggedInUser();
+        if (!loggedInUser.getLastSyncToken().equals(ConsumerAppsUtil.getSyncTokenOfLocalRestoreFile())) {
+            context.getFormAndDataSyncer().performLocalRestore(
+                    context, loggedInUser.getUsername(), loggedInUser.getCachedPwd());
         }
     }
 

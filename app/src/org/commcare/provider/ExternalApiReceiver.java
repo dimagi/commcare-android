@@ -99,11 +99,11 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     }
 
     private void performAction(final Context context, Bundle b) {
-        if (b.getString("commcareaction").equals("login")) {
+        if ("login".equals(b.getString("commcareaction"))) {
             String username = b.getString("username");
             String password = b.getString("password");
             tryLocalLogin(context, username, password);
-        } else if (b.getString("commcareaction").equals("sync")) {
+        } else if ("sync".equals(b.getString("commcareaction"))) {
             boolean formsToSend = checkAndStartUnsentTask(context);
 
             if (!formsToSend) {
@@ -149,12 +149,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 }
             };
 
-            try {
-                mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
-            } catch (SessionUnavailableException e) {
-                // if the session expired don't launch the process
-                return false;
-            }
+            mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
             mProcess.connect(dummyconnector);
             mProcess.execute(records);
             return true;
@@ -165,13 +160,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     }
 
     private void syncData(final Context context) {
-        User u;
-        try {
-            u = CommCareApplication._().getSession().getLoggedInUser();
-        } catch (SessionUnavailableException e) {
-            // if the session expired don't launch the process
-            return;
-        }
+        User u = CommCareApplication._().getSession().getLoggedInUser();
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 

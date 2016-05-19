@@ -236,7 +236,7 @@ public abstract class ProcessAndSendTask<R> extends CommCareTask<FormRecord, Lon
         return needToRefresh;
     }
 
-    private void sendForms(FormRecord[] records) throws SessionUnavailableException {
+    private void sendForms(FormRecord[] records) {
         for (int i = 0; i < records.length; ++i) {
             //See whether we are OK to proceed based on the last form. We're now guaranteeing
             //that forms are sent in order, so we won't proceed unless we succeed. We'll also permit

@@ -29,13 +29,9 @@ public class HybridFileBackedSqlHelpers {
                                                                  String table,
                                                                  int id) {
         Cursor c;
-        try {
-            c = helper.getHandle().query(table, HybridFileBackedSqlStorage.dataColumns,
-                    DatabaseHelper.ID_COL + "=?",
-                    new String[]{String.valueOf(id)}, null, null, null);
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        c = helper.getHandle().query(table, HybridFileBackedSqlStorage.dataColumns,
+                DatabaseHelper.ID_COL + "=?",
+                new String[]{String.valueOf(id)}, null, null, null);
 
         try {
             c.moveToFirst();
@@ -51,12 +47,7 @@ public class HybridFileBackedSqlHelpers {
     protected static String getEntryFilename(AndroidDbHelper helper,
                                              String table, int id) {
         Cursor c;
-        SQLiteDatabase db;
-        try {
-            db = helper.getHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        SQLiteDatabase db = helper.getHandle();
 
         String[] columns = new String[]{DatabaseHelper.FILE_COL};
         c = db.query(table, columns, DatabaseHelper.ID_COL + "=?",

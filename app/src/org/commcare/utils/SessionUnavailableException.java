@@ -6,7 +6,7 @@ package org.commcare.utils;
  *
  * @author ctsims
  */
-public class SessionUnavailableException extends Exception {
+public class SessionUnavailableException extends RuntimeException {
     public SessionUnavailableException() {
         super();
     }
