@@ -37,6 +37,7 @@ import org.commcare.tasks.PullTaskReceiver;
 import org.commcare.tasks.ResultAndError;
 
 import org.commcare.utils.ACRAUtil;
+import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -416,7 +417,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (CommCareApplication._().isConsumerApp()) {
-            return CustomProgressDialog.newInstance("Starting Up", "Initializing your application...", taskId);
+            return ConsumerAppsUtil.getGenericConsumerAppsProgressDialog(taskId, false);
         }
 
         CustomProgressDialog dialog;

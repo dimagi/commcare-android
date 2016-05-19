@@ -41,6 +41,7 @@ import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.ResourceEngineTask;
 import org.commcare.tasks.RetrieveParseVerifyMessageListener;
 import org.commcare.tasks.RetrieveParseVerifyMessageTask;
+import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ManagedUi;
@@ -713,11 +714,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void updateResourceProgress(int done, int total, int phase) {
         // perform safe localization because the localization dictionary might
         // be the resource currently being installed.
-        String installProgressText =
-                Localization.getWithDefault("profile.found",
-                        new String[]{"" + done, "" + total},
-                        "Application found. Loading resources...");
-        updateProgress(installProgressText, DIALOG_INSTALL_PROGRESS);
+        if (!CommCareApplication._().isConsumerApp()) {
+            // Don't change the text on the progress dialog if we are showing the generic consumer
+            // apps startup dialog
+            String installProgressText =
+                    Localization.getWithDefault("profile.found",
+                            new String[]{"" + done, "" + total},
+                            "Application found. Loading resources...");
+            updateProgress(installProgressText, DIALOG_INSTALL_PROGRESS);
+        }
         updateProgressBar(done, total, DIALOG_INSTALL_PROGRESS);
     }
 
@@ -734,7 +739,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             return null;
         }
         if (isSingleAppBuild()) {
-            return CustomProgressDialog.newInstance("Starting Up", "Initializing your application...", taskId);
+            return ConsumerAppsUtil.getGenericConsumerAppsProgressDialog(taskId, true);
         } else {
             return generateNormalInstallDialog(taskId);
         }

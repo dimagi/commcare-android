@@ -3,6 +3,7 @@ package org.commcare.utils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareHomeActivity;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
+import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -49,5 +50,14 @@ public class ConsumerAppsUtil {
             return null;
         }
         return null;
+    }
+
+    public static CustomProgressDialog getGenericConsumerAppsProgressDialog(int taskId, boolean addProgressBar) {
+        CustomProgressDialog d = CustomProgressDialog
+                .newInstance("Starting Up", "Initializing your application...", taskId);
+        if (addProgressBar) {
+            d.addProgressBar();
+        }
+        return d;
     }
 }
