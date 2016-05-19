@@ -55,13 +55,12 @@ def build_apk_from_directory_contents(app_sub_dir, files_list, build_type):
 
     unzip_app_icon(full_path_to_zipfile)
     app_id, domain, build_number, username, password = get_app_fields(full_path_to_config_file)
-    password = '123' #TEMPORARY, REMOVE AFTER TESTING
     
     os.chdir(PATH_TO_ODK_DIR)
     download_ccz(app_id, domain, build_number)
     download_restore_file(domain, username, password)
     assemble_apk(domain, build_number, username, password, build_type)
-    move_apk(app_id)
+    move_apk(app_id, build_type)
     os.chdir('../')
 
 
@@ -105,9 +104,14 @@ def get_app_name_from_profile():
     return tree.getroot().get("name")
 
 
-def move_apk(app_id):
+def move_apk(app_id, build_type):
     subprocess.call(["mkdir", "-p", "./build/outputs/consumer_apks"]) 
-    subprocess.call(["mv", "./build/outputs/apk/commcare-odk-standalone-debug.apk", "./build/outputs/consumer_apks/{}.apk".format(app_id)])
+    if build_type == 'd':
+        original_apk_filename = "./build/outputs/apk/commcare-odk-standalone-debug.apk"
+    else:
+        original_apk_filename = "./build/outputs/apk/commcare-odk-standalone-release.apk"
+    subprocess.call(["mv", original_apk_filename, "./build/outputs/consumer_apks/{}.apk".format(app_id)])
+
 
 def main():
     if len(sys.argv) < 2:

@@ -76,9 +76,7 @@ public class SingleAppInstallation {
                     @Override
                     protected void deliverUpdate(CommCareSetupActivity receiver,
                                                  int[]... update) {
-                        if (!CommCareApplication._().isConsumerApp()) {
-                            receiver.updateResourceProgress(update[0][0], update[0][1], update[0][2]);
-                        }
+                        receiver.updateResourceProgress(update[0][0], update[0][1], update[0][2]);
                     }
 
                     @Override
