@@ -196,49 +196,6 @@
             android:name="org.commcare.activities.UpdateActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
-        <!-- Enable Shortcuts for Command Actions -->
-        <activity
-            android:name="org.commcare.utils.AndroidShortcuts"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-        <activity
-            android:name="org.commcare.utils.ManagerShortcut">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity>
-
-        <activity-alias
-            android:name=".application.ShortcutGenerator"
-            android:label="CommCare Action"
-            android:targetActivity="org.commcare.utils.AndroidShortcuts">
-
-            <!-- This intent-filter allows your shortcuts to be created in the launcher. -->
-            <intent-filter>
-                <action android:name="android.intent.action.CREATE_SHORTCUT"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity-alias>
-
-        <activity-alias
-            android:name=".application.ManagerGenerator"
-            android:label="App Manager"
-            android:targetActivity="org.commcare.utils.ManagerShortcut">
-
-            <!-- This intent-filter allows your shortcuts to be created in the launcher. -->
-            <intent-filter>
-                <action android:name="android.intent.action.CREATE_SHORTCUT"/>
-
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </activity-alias>
 
         <activity
             android:name="org.commcare.activities.SingleAppManagerActivity"
@@ -369,6 +326,10 @@
             android:name="org.commcare.activities.CommCareFormDumpActivity"
             android:windowSoftInputMode="adjustPan">
         </activity>
+        <activity
+            android:name="org.commcare.activities.AdvancedActionsActivity"/>
+        <activity
+            android:name="org.commcare.preferences.CommCareServerPreferences"/>
         <activity
             android:name="org.commcare.activities.ConnectionDiagnosticActivity"
             android:windowSoftInputMode="adjustResize">

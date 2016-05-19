@@ -25,8 +25,8 @@ import org.commcare.models.encryption.CryptUtil;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
-import org.commcare.network.HttpRequestGenerator;
 import org.commcare.network.RemoteDataPullResponse;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.resources.model.CommCareOTARestoreListener;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.templates.CommCareTask;
@@ -69,7 +69,6 @@ public abstract class DataPullTask<R>
     private long mSyncStartTime;
 
     private boolean wasKeyLoggedIn;
-    private final boolean restoreSession;
 
     public static final int DATA_PULL_TASK_ID = 10;
 
@@ -86,30 +85,21 @@ public abstract class DataPullTask<R>
     public static final int PROGRESS_DOWNLOADING_COMPLETE = 512;
     private DataPullRequester dataPullRequester;
 
-    private DataPullTask(String username, String password,
-                         String server, Context context,
-                         boolean restoreOldSession) {
+    public DataPullTask(String username, String password,
+                         String server, Context context, DataPullRequester dataPullRequester) {
         this.server = server;
         this.username = username;
         this.password = password;
         this.context = context;
         this.taskId = DATA_PULL_TASK_ID;
-        this.dataPullRequester = new DataPullResponseFactory();
-        this.restoreSession = restoreOldSession;
+        this.dataPullRequester = dataPullRequester;
 
         TAG = DataPullTask.class.getSimpleName();
     }
 
     public DataPullTask(String username, String password,
                         String server, Context context) {
-        this(username, password, server, context, false);
-    }
-
-    public DataPullTask(String username, String password,
-                         String server, Context context,
-                         DataPullRequester dataPullRequester) {
-        this(username, password, server, context);
-        this.dataPullRequester = dataPullRequester;
+        this(username, password, server, context, new DataPullResponseFactory());
     }
 
     @Override
@@ -138,12 +128,11 @@ public abstract class DataPullTask<R>
             CommCareApp app = CommCareApplication._().getCurrentApp();
             SharedPreferences prefs = app.getAppPreferences();
 
-            String keyServer = prefs.getString("key_server", null);
-
             mTotalItems = -1;
             mCurrentProgress = -1;
 
             //Whether or not we should be generating the first key
+            String keyServer = CommCarePreferences.getKeyServer();
             boolean useExternalKeys = !(keyServer == null || keyServer.equals(""));
 
             boolean loginNeeded = true;
@@ -236,7 +225,7 @@ public abstract class DataPullTask<R>
                         //is encoded. Probably a better way to do this.
                         CommCareApplication._().startUserSession(
                                 ByteEncrypter.unwrapByteArrayWithString(ukr.getEncryptedKey(), password),
-                                ukr, restoreSession);
+                                ukr, false);
                         wasKeyLoggedIn = true;
                     }
 
@@ -357,11 +346,6 @@ public abstract class DataPullTask<R>
                 // TODO Auto-generated catch block
                 e.printStackTrace();
                 Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
-            } catch (SessionUnavailableException sue) {
-                // TODO PLM: eventually take out this catch. These should be
-                // checked locally
-                //TODO: Keys were lost somehow.
-                sue.printStackTrace();
             }
             if (loginNeeded) {
                 CommCareApplication._().releaseUserResourcesAndServices();
@@ -439,26 +423,9 @@ public abstract class DataPullTask<R>
         } catch (ActionableInvalidStructureException e) {
             e.printStackTrace();
             failureReason = e.getLocalizedMessage();
-        } catch (InvalidStructureException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        } catch (UnfullfilledRequirementsException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        }
-
-        //These last two aren't a sign that the incoming data is bad, but
-        //we still can't recover from them usefully
-        catch (SessionUnavailableException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        } catch (IOException e) {
+        } catch (InvalidStructureException | XmlPullParserException
+                | UnfullfilledRequirementsException | StorageFullException
+                | SessionUnavailableException | IOException e) {
             e.printStackTrace();
             failureReason = e.getMessage();
         } finally {
@@ -474,7 +441,7 @@ public abstract class DataPullTask<R>
         return new Pair<>(PROGRESS_RECOVERY_FAIL_BAD, failureReason);
     }
 
-    private void updateCurrentUser(String password) throws SessionUnavailableException {
+    private void updateCurrentUser(String password) {
         SqlStorage<User> storage = CommCareApplication._().getUserStorage("USER", User.class);
         User u = storage.getRecordForValue(User.META_USERNAME, username);
         CommCareApplication._().getSession().setCurrentUser(u, password);
@@ -492,7 +459,7 @@ public abstract class DataPullTask<R>
     }
 
     private String readInput(InputStream stream, AndroidTransactionParserFactory factory) throws InvalidStructureException, IOException,
-            XmlPullParserException, UnfullfilledRequirementsException, SessionUnavailableException {
+            XmlPullParserException, UnfullfilledRequirementsException {
         DataModelPullParser parser;
 
         factory.initCaseParser();

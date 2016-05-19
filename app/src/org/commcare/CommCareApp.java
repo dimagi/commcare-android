@@ -341,7 +341,7 @@ public class CommCareApp implements AppFilePathBuilder {
     /**
      * For testing purposes only
      */
-    public static SQLiteDatabase getAppDatabaseForTesting() throws SessionUnavailableException {
+    public static SQLiteDatabase getAppDatabaseForTesting() {
         if (BuildConfig.DEBUG) {
             return CommCareApplication._().getCurrentApp().buildAndroidDbHelper().getHandle();
         } else {

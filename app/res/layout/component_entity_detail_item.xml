@@ -4,8 +4,6 @@
               android:layout_height="wrap_content"
               android:orientation="horizontal"
               android:weightSum="10"
-              android:paddingLeft="8dp"
-              android:paddingRight="8dp"
     >
 
     <TextView
@@ -13,6 +11,7 @@
         style="@style/EntityItemTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
         android:gravity="left|center_vertical"
         android:text="Text"
         android:textStyle="bold"
@@ -30,6 +29,7 @@
             android:id="@+id/detail_value_text"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginRight="8dp"
             android:layout_gravity="right|center_vertical"
             android:gravity="left|center_vertical"
             android:padding="@dimen/content_min_margin"
@@ -43,7 +43,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="left|center_vertical"
             android:layout_marginLeft="11dp"
-            android:layout_marginRight="4dp"
+            android:layout_marginRight="12dp"
             android:drawableLeft="@drawable/sym_action_call"
             android:drawablePadding="@dimen/content_min_margin"
             android:inputType="phone"
@@ -58,13 +58,14 @@
             android:layout_gravity="left|center_vertical"
             android:src="@android:drawable/ic_media_play"
             android:layout_marginLeft="11dp"
-            android:layout_marginRight="4dp"
+            android:layout_marginRight="12dp"
             android:visibility="gone"/>
 
         <ImageView
             android:id="@+id/detail_value_image"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:layout_marginRight="8dp"
             android:layout_gravity="right|center_vertical"
             android:gravity="left|center_vertical"
             android:padding="@dimen/content_min_margin"
@@ -75,6 +76,7 @@
             android:id="@+id/callout_view"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
             android:layout_gravity="left|center_vertical"
             android:orientation="vertical"
             android:paddingBottom="4dp"
@@ -119,6 +121,7 @@
             android:id="@+id/detail_address_view"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
             android:layout_gravity="left|center_vertical"
             android:orientation="vertical"
             android:paddingBottom="4dp"
@@ -150,6 +153,7 @@
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_marginRight="8dp"
             android:weightSum="6">
 
             <TextView

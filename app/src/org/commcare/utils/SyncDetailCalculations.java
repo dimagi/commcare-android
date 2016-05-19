@@ -32,7 +32,14 @@ public class SyncDetailCalculations {
                                      HomeCardDisplayData cardDisplayData) {
 
         SqlStorage<FormRecord> formsStorage = CommCareApplication._().getUserStorage(FormRecord.class);
-        int numUnsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
+        int numUnsentForms;
+        try {
+            numUnsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
+        } catch (SessionUnavailableException e) {
+            // Addresses unexpected issue where this db lookup occurs after session ends.
+            // If possible, replace this with fix that addresses root issue
+            numUnsentForms = 0;
+        }
 
         Pair<Long, String> lastSyncTimeAndMessage = getLastSyncTimeAndMessage();
 

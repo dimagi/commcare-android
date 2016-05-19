@@ -1,30 +1,30 @@
 package org.commcare.preferences;
 
+import android.app.ActionBar;
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
-import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.util.DisplayMetrics;
-import android.view.Menu;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Toast;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.activities.RecoveryActivity;
 import org.commcare.activities.SessionAwarePreferenceActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
-import org.commcare.utils.ChangeLocaleUtil;
-import org.commcare.utils.CommCareUtil;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.commcare.utils.UriToFilePath;
@@ -39,15 +39,25 @@ public class CommCarePreferences
         extends SessionAwarePreferenceActivity
         implements OnSharedPreferenceChangeListener {
 
-    // So these are stored in the R files, but I don't seem to be able to figure out how to pull
-    // them out cleanly?
+    private final static String TAG = CommCarePreferences.class.getSimpleName();
+
+    /**
+     * Entries used as buttons; aren't actually stored preferences
+     */
+    private final static String SERVER_SETTINGS = "server-settings";
+    private final static String DEVELOPER_SETTINGS = "developer-settings";
+    private final static String DISABLE_ANALYTICS = "disable-analytics";
+
+    /**
+     * update/sync frequency settings
+     */
     public final static String AUTO_SYNC_FREQUENCY = "cc-autosync-freq";
     public final static String AUTO_UPDATE_FREQUENCY = "cc-autoup-freq";
     public final static String FREQUENCY_NEVER = "freq-never";
     public final static String FREQUENCY_DAILY = "freq-daily";
 
-    public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
-    public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
+    public final static String LOG_LAST_DAILY_SUBMIT = "log_prop_last_daily";
+    public final static String LOG_NEXT_WEEKLY_SUBMIT = "log_prop_next_weekly";
 
     /**
      * Stores boolean flag that tells of if an auto-update is in progress, that
@@ -57,20 +67,36 @@ public class CommCarePreferences
     public final static String LAST_UPDATE_ATTEMPT = "cc-last_up";
     public final static String LAST_SYNC_ATTEMPT = "last-ota-restore";
 
+    public final static String ENABLE_SAVED_FORMS = "cc-show-saved";
+    public final static String ENABLE_INCOMPLETE_FORMS = "cc-show-incomplete";
+
     public final static String RESIZING_METHOD = "cc-resize-images";
 
     private static final String KEY_TARGET_DENSITY = "cc-inflation-target-density";
     private static final String DEFAULT_TARGET_DENSITY = "" + DisplayMetrics.DENSITY_DEFAULT;
 
-    // TODO PLM: these flags aren't provided by HQ built apps, should be replaced with LOG_WEEKLY_SUBMIT above!
-    public final static String LOG_LAST_DAILY_SUBMIT = "log_prop_last_daily";
-    public final static String LOG_NEXT_WEEKLY_SUBMIT = "log_prop_next_weekly";
+    // Preferences the user has direct control over within CommCare
+    public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
+    public final static String PREFS_PRINT_DOC_LOCATION = "print-doc-location";
+    private final static String PREFS_FUZZY_SEARCH_KEY = "cc-fuzzy-search-enabled";
+    public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
 
+    // Preferences that are set incidentally/automatically by CommCare, based upon a user's workflow
+    public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
     public final static String LAST_LOGGED_IN_USER = "last_logged_in_user";
     public final static String LAST_PASSWORD = "last_password";
     public final static String CURRENT_SESSION = "current_user_session";
     public final static String CURRENT_FORM_ENTRY_SESSION = "current_form_entry_session";
+
+    // Preferences that are sent down by HQ
+    public final static String PREFS_LOCALE_KEY = "cur_locale";
+    public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
+    public final static String BRAND_BANNER_HOME = "brand-banner-home";
+    public final static String LOGIN_DURATION = "cc-login-duration-seconds";
+    public final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
     public final static String CONTENT_VALIDATED = "cc-content-valid";
+    public static final String DUMP_FOLDER_PATH = "dump-folder-path";
+
 
     public final static String YES = "yes";
     public final static String NO = "no";
@@ -79,181 +105,110 @@ public class CommCarePreferences
     public final static String TRUE = "True";
     public final static String FALSE = "False";
 
-    public static final String DUMP_FOLDER_PATH = "dump-folder-path";
-
-    public final static String LOG_ENTITY_DETAIL = "cc-log-entity-detail-enabled";
-
-    public final static String LOGIN_DURATION = "cc-login-duration-seconds";
-
-    public final static String BRAND_BANNER_LOGIN = "brand-banner-login";
-    public final static String BRAND_BANNER_HOME = "brand-banner-home";
-
-    private static final int CLEAR_USER_DATA = Menu.FIRST;
-    private static final int FORCE_LOG_SUBMIT = Menu.FIRST + 1;
-    private static final int RECOVERY_MODE = Menu.FIRST + 2;
-    private static final int MENU_DISABLE_ANALYTICS = Menu.FIRST + 3;
-    private static final int SUPERUSER_PREFS = Menu.FIRST + 4;
-    private static final int MENU_CLEAR_SAVED_SESSION = Menu.FIRST + 5;
-
-
-    public static final int RESULT_DATA_RESET = RESULT_FIRST_USER + 1;
-
-    // Fields for setting print template
     private static final int REQUEST_TEMPLATE = 0;
 
-    public final static String PREFS_APP_SERVER_KEY = "default_app_server";
-    public final static String PREFS_DATA_SERVER_KEY = "ota-restore-url";
-    public final static String PREFS_SUBMISSION_URL_KEY = "PostURL";
-    private final static String PREFS_KEY_SERVER_KEY = "default_key_server";
-    public final static String PREFS_FORM_RECORD_KEY = "form-record-url";
-    private final static String PREFS_FUZZY_SEARCH_KEY = "cc-fuzzy-search-enabled";
-    public final static String PREFS_LOCALE_KEY = "cur_locale";
-    public final static String PREFS_PRINT_DOC_LOCATION = "print-doc-location";
+    private final static Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
+    private final static Map<String, String> keyToTitleMap = new HashMap<>();
 
-    // Doesn't actually get shown in the CCPreferences activity, just storing the field here
-    // The 'Opt Out of Analytics' option appears in the home activity options menu
-    public final static String ANALYTICS_ENABLED = "cc-analytics-enabled";
+    static {
+        keyToTitleMap.put(SERVER_SETTINGS, "settings.server.listing");
+        keyToTitleMap.put(DEVELOPER_SETTINGS, "settings.developer.options");
+        keyToTitleMap.put(DISABLE_ANALYTICS, "home.menu.disable.analytics");
 
-    private static final Map<String, String> prefKeyToAnalyticsEvent = new HashMap<>();
-
-    public final static String HAS_DISMISSED_PIN_CREATION = "has-dismissed-pin-creation";
-
-
-    public final static String GRID_MENUS_ENABLED = "cc-grid-menus";
+        prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
+        prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
+        prefKeyToAnalyticsEvent.put(GRID_MENUS_ENABLED, GoogleAnalyticsFields.LABEL_GRID_MENUS);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         PreferenceManager prefMgr = getPreferenceManager();
         prefMgr.setSharedPreferencesName((CommCareApplication._().getCurrentApp().getPreferencesFilename()));
-        addPreferencesFromResource(R.xml.server_preferences);
+        addPreferencesFromResource(R.xml.commcare_preferences);
 
         GoogleAnalyticsUtils.reportPrefActivityEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
 
-        ListPreference lp = new ListPreference(this);
-        lp.setEntries(ChangeLocaleUtil.getLocaleNames());
-        lp.setEntryValues(ChangeLocaleUtil.getLocaleCodes());
-        lp.setTitle(Localization.get("home.menu.locale.change"));
-        lp.setKey(PREFS_LOCALE_KEY);
-        lp.setDialogTitle(Localization.get("home.menu.locale.select"));
-        this.getPreferenceScreen().addPreference(lp);
-        updatePreferencesText();
-        setTitle("CommCare" + " > " + "Application Preferences");
+        setupUI();
 
-        populatePrefKeyToEventLabelMapping();
         GoogleAnalyticsUtils.createPreferenceOnClickListeners(prefMgr, prefKeyToAnalyticsEvent,
                 GoogleAnalyticsFields.CATEGORY_CC_PREFS);
         // Override the default listener for the print pref key b/c it has extra behavior
         createPrintPrefOnClickListener(prefMgr);
     }
 
-    private static void populatePrefKeyToEventLabelMapping() {
-        prefKeyToAnalyticsEvent.put(PREFS_APP_SERVER_KEY, GoogleAnalyticsFields.LABEL_APP_SERVER);
-        prefKeyToAnalyticsEvent.put(PREFS_DATA_SERVER_KEY, GoogleAnalyticsFields.LABEL_DATA_SERVER);
-        prefKeyToAnalyticsEvent.put(PREFS_SUBMISSION_URL_KEY, GoogleAnalyticsFields.LABEL_SUBMISSION_SERVER);
-        prefKeyToAnalyticsEvent.put(PREFS_KEY_SERVER_KEY, GoogleAnalyticsFields.LABEL_KEY_SERVER);
-        prefKeyToAnalyticsEvent.put(PREFS_FORM_RECORD_KEY, GoogleAnalyticsFields.LABEL_FORM_RECORD_SERVER);
-        prefKeyToAnalyticsEvent.put(AUTO_UPDATE_FREQUENCY, GoogleAnalyticsFields.LABEL_AUTO_UPDATE);
-        prefKeyToAnalyticsEvent.put(PREFS_FUZZY_SEARCH_KEY, GoogleAnalyticsFields.LABEL_FUZZY_SEARCH);
-        prefKeyToAnalyticsEvent.put(PREFS_LOCALE_KEY, GoogleAnalyticsFields.LABEL_LOCALE);
-        prefKeyToAnalyticsEvent.put(PREFS_PRINT_DOC_LOCATION, GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
-        prefKeyToAnalyticsEvent.put(GRID_MENUS_ENABLED, GoogleAnalyticsFields.LABEL_GRID_MENUS);
+    private void setupUI() {
+        setTitle(Localization.get("settings.main.title"));
+        addBackButtonToActionBar(this);
+        setupLocalizedText(this, keyToTitleMap);
+        setupButtons();
     }
 
-    private void createPrintPrefOnClickListener(PreferenceManager prefManager) {
-        Preference pref = prefManager.findPreference(PREFS_PRINT_DOC_LOCATION);
-        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+    public static void setupLocalizedText(PreferenceActivity activity,
+                                             Map<String, String> prefToTitleMap) {
+        PreferenceScreen screen = activity.getPreferenceScreen();
+        for (int i = 0; i < screen.getPreferenceCount(); i++) {
+            String key = screen.getPreference(i).getKey();
+            if (prefToTitleMap.containsKey(key)) {
+                try {
+                    String localizedString = Localization.get(prefToTitleMap.get(key));
+                    screen.getPreference(i).setTitle(localizedString);
+                } catch (NoLocalizedTextException nle) {
+                    Log.w(TAG, "Unable to localize: " + prefToTitleMap.get(key));
+                }
+            }
+        }
+    }
+
+    public static void addBackButtonToActionBar(Activity activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            ActionBar actionBar = activity.getActionBar();
+            if (actionBar != null) {
+                actionBar.setDisplayShowHomeEnabled(true);
+                actionBar.setDisplayHomeAsUpEnabled(true);
+            }
+        }
+    }
+
+    private void setupButtons() {
+        Preference serverSettingsButton = findPreference(SERVER_SETTINGS);
+        serverSettingsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportPrefItemClick(
-                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                        GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
-                startFileBrowser();
+                startServerSettings();
                 return true;
             }
         });
-    }
 
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_TEMPLATE) {
-            if (resultCode == RESULT_OK && data != null) {
-                Uri uri = data.getData();
-                String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(), uri);
-                String extension = FileUtil.getExtension(filePath);
-                if (extension.equalsIgnoreCase("html")) {
-                    SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().
-                            getAppPreferences().edit();
-                    editor.putString(PREFS_PRINT_DOC_LOCATION, filePath);
-                    editor.commit();
-                    Toast.makeText(this, Localization.get("template.success"), Toast.LENGTH_SHORT).show();
-                } else {
-                    TemplatePrinterUtils.showAlertDialog(this, Localization.get("template.not.set"),
-                            Localization.get("template.warning"), false);
+        Preference developerSettingsButton = findPreference(DEVELOPER_SETTINGS);
+        if (DeveloperPreferences.isSuperuserEnabled()) {
+            developerSettingsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    GoogleAnalyticsUtils.reportPrefItemClick(
+                            GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                            GoogleAnalyticsFields.LABEL_DEVELOPER_OPTIONS);
+                    startDeveloperOptions();
+                    return true;
                 }
-            } else {
-                //No file selected
-                Toast.makeText(this, Localization.get("template.not.set"), Toast.LENGTH_SHORT).show();
-            }
+            });
+        } else {
+            getPreferenceScreen().removePreference(developerSettingsButton);
         }
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        super.onCreateOptionsMenu(menu);
-        menu.add(0, CLEAR_USER_DATA, 0, "Clear User Data").setIcon(
-                android.R.drawable.ic_menu_delete);
-        menu.add(0, MENU_CLEAR_SAVED_SESSION, 1, Localization.get("menu.clear.saved.session"));
-        menu.add(0, FORCE_LOG_SUBMIT, 2, "Force Log Submission").setIcon(
-                android.R.drawable.ic_menu_upload);
-        menu.add(0, RECOVERY_MODE, 3, "Recovery Mode").setIcon(android.R.drawable.ic_menu_report_image);
-        menu.add(0, SUPERUSER_PREFS, 4, "Developer Options").setIcon(android.R.drawable.ic_menu_edit);
-        menu.add(0, MENU_DISABLE_ANALYTICS, 5, Localization.get("home.menu.disable.analytics"));
-
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_CC_PREFS);
-        menu.findItem(SUPERUSER_PREFS).setVisible(DeveloperPreferences.isSuperuserEnabled());
-        menu.findItem(MENU_CLEAR_SAVED_SESSION).setVisible(DevSessionRestorer.savedSessionPresent());
-        menu.findItem(MENU_DISABLE_ANALYTICS).setVisible(CommCarePreferences.isAnalyticsEnabled());
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Map<Integer, String> menuIdToAnalyticsEventLabel = createMenuItemToEventMapping();
-        GoogleAnalyticsUtils.reportOptionsMenuItemEntry(
-                GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                menuIdToAnalyticsEventLabel.get(item.getItemId()));
-        switch (item.getItemId()) {
-            case CLEAR_USER_DATA:
-                CommCareApplication._().clearUserData();
-                setResult(RESULT_DATA_RESET);
-                this.finish();
-                return true;
-            case FORCE_LOG_SUBMIT:
-                CommCareUtil.triggerLogSubmission(this);
-                return true;
-            case RECOVERY_MODE:
-                Intent i = new Intent(this, RecoveryActivity.class);
-                this.startActivity(i);
-                return true;
-            case SUPERUSER_PREFS:
-                Intent intent = new Intent(this, DeveloperPreferences.class);
-                this.startActivity(intent);
-                return true;
-            case MENU_CLEAR_SAVED_SESSION:
-                DevSessionRestorer.clearSession();
-                return true;
-            case MENU_DISABLE_ANALYTICS:
-                showAnalyticsOptOutDialog();
-                return true;
+        Preference analyticsButton = findPreference(DISABLE_ANALYTICS);
+        if (CommCarePreferences.isAnalyticsEnabled()) {
+            analyticsButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                @Override
+                public boolean onPreferenceClick(Preference preference) {
+                    showAnalyticsOptOutDialog();
+                    return true;
+                }
+            });
+        } else {
+            getPreferenceScreen().removePreference(analyticsButton);
         }
-        return super.onOptionsItemSelected(item);
     }
 
     private void showAnalyticsOptOutDialog() {
@@ -283,15 +238,98 @@ public class CommCarePreferences
         f.showNonPersistentDialog();
     }
 
+    private void createPrintPrefOnClickListener(PreferenceManager prefManager) {
+        Preference pref = prefManager.findPreference(PREFS_PRINT_DOC_LOCATION);
+        pref.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+                GoogleAnalyticsUtils.reportPrefItemClick(
+                        GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                        GoogleAnalyticsFields.LABEL_PRINT_TEMPLATE);
+                startFileBrowser();
+                return true;
+            }
+        });
+    }
 
-    private static Map<Integer, String> createMenuItemToEventMapping() {
-        Map<Integer, String> menuIdToAnalyticsEvent = new HashMap<>();
-        menuIdToAnalyticsEvent.put(CLEAR_USER_DATA, GoogleAnalyticsFields.LABEL_CLEAR_USER_DATA);
-        menuIdToAnalyticsEvent.put(FORCE_LOG_SUBMIT, GoogleAnalyticsFields.LABEL_FORCE_LOG_SUBMISSION);
-        menuIdToAnalyticsEvent.put(RECOVERY_MODE, GoogleAnalyticsFields.LABEL_RECOVERY_MODE);
-        menuIdToAnalyticsEvent.put(SUPERUSER_PREFS, GoogleAnalyticsFields.LABEL_DEVELOPER_OPTIONS);
-        menuIdToAnalyticsEvent.put(MENU_CLEAR_SAVED_SESSION, GoogleAnalyticsFields.LABEL_CLEAR_SAVED_SESSION);
-        return menuIdToAnalyticsEvent;
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_TEMPLATE) {
+            if (resultCode == RESULT_OK && data != null) {
+                Uri uri = data.getData();
+                String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(), uri);
+                String extension = FileUtil.getExtension(filePath);
+                if (extension.equalsIgnoreCase("html")) {
+                    SharedPreferences.Editor editor = CommCareApplication._().getCurrentApp().
+                            getAppPreferences().edit();
+                    editor.putString(PREFS_PRINT_DOC_LOCATION, filePath);
+                    editor.commit();
+                    Toast.makeText(this, Localization.get("template.success"), Toast.LENGTH_SHORT).show();
+                } else {
+                    TemplatePrinterUtils.showAlertDialog(this, Localization.get("template.not.set"),
+                            Localization.get("template.warning"), false);
+                }
+            } else {
+                //No file selected
+                Toast.makeText(this, Localization.get("template.not.set"), Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // Set up a listener whenever a key changes
+        getPreferenceScreen().getSharedPreferences()
+                .registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        // Unregister the listener whenever a key changes
+        getPreferenceScreen().getSharedPreferences()
+                .unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        int editPrefValue = -1;
+        switch (key) {
+            case AUTO_UPDATE_FREQUENCY:
+                String freq = sharedPreferences.getString(key, CommCarePreferences.FREQUENCY_NEVER);
+                if (CommCarePreferences.FREQUENCY_NEVER.equals(freq)) {
+                    editPrefValue = GoogleAnalyticsFields.VALUE_NEVER;
+                } else if (CommCarePreferences.FREQUENCY_DAILY.equals(freq)) {
+                    editPrefValue = GoogleAnalyticsFields.VALUE_DAILY;
+                } else {
+                    editPrefValue = GoogleAnalyticsFields.VALUE_WEEKLY;
+                }
+                break;
+            case PREFS_FUZZY_SEARCH_KEY:
+                if (isFuzzySearchEnabled()) {
+                    editPrefValue = GoogleAnalyticsFields.VALUE_ENABLED;
+                } else {
+                    editPrefValue = GoogleAnalyticsFields.VALUE_DISABLED;
+                }
+                break;
+        }
+
+        GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_CC_PREFS,
+                prefKeyToAnalyticsEvent.get(key), editPrefValue);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public static boolean isInSenseMode() {
@@ -300,10 +338,13 @@ public class CommCarePreferences
     }
 
     public static boolean isIncompleteFormsEnabled() {
+        if (CommCareApplication._().isConsumerApp()) {
+            return false;
+        }
+
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         //If there is a setting for form management it takes precedence
         if (properties.contains(ENABLE_INCOMPLETE_FORMS)) {
-
             return properties.getString(ENABLE_INCOMPLETE_FORMS, YES).equals(YES);
         }
 
@@ -356,54 +397,6 @@ public class CommCarePreferences
         }
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        // Set up a listener whenever a key changes
-        getPreferenceScreen().getSharedPreferences()
-                .registerOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-
-        // Unregister the listener whenever a key changes
-        getPreferenceScreen().getSharedPreferences()
-                .unregisterOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        int editPrefValue = -1;
-        switch (key) {
-            case AUTO_UPDATE_FREQUENCY:
-                String freq = sharedPreferences.getString(key, CommCarePreferences.FREQUENCY_NEVER);
-                if (CommCarePreferences.FREQUENCY_NEVER.equals(freq)) {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_NEVER;
-                } else if (CommCarePreferences.FREQUENCY_DAILY.equals(freq)) {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_DAILY;
-                } else {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_WEEKLY;
-                }
-                break;
-            case PREFS_FUZZY_SEARCH_KEY:
-                if (isFuzzySearchEnabled()) {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_ENABLED;
-                } else {
-                    editPrefValue = GoogleAnalyticsFields.VALUE_DISABLED;
-                }
-                break;
-            case PREFS_LOCALE_KEY:
-                Localization.setLocale(sharedPreferences.getString(key, "default"));
-                break;
-        }
-
-        GoogleAnalyticsUtils.reportEditPref(GoogleAnalyticsFields.CATEGORY_CC_PREFS,
-                prefKeyToAnalyticsEvent.get(key), editPrefValue);
-    }
-
     public static String getResizeMethod() {
         SharedPreferences properties = CommCareApplication._().getCurrentApp().getAppPreferences();
         //If there is a setting for form management it takes precedence
@@ -446,21 +439,6 @@ public class CommCarePreferences
         app.getAppPreferences().edit().putBoolean(ANALYTICS_ENABLED, false).commit();
     }
 
-    public void updatePreferencesText() {
-        PreferenceScreen screen = getPreferenceScreen();
-        int i;
-        for (i = 0; i < screen.getPreferenceCount(); i++) {
-            try {
-                String key = screen.getPreference(i).getKey();
-                String prependedKey = "preferences.title." + key;
-                String localizedString = Localization.get(prependedKey);
-                screen.getPreference(i).setTitle(localizedString);
-            } catch (NoLocalizedTextException nle) {
-
-            }
-        }
-    }
-
     private void startFileBrowser() {
         Intent chooseTemplateIntent = new Intent()
                 .setAction(Intent.ACTION_GET_CONTENT)
@@ -472,6 +450,25 @@ public class CommCarePreferences
             // Means that there is no file browser installed on the device
             TemplatePrinterUtils.showAlertDialog(this, Localization.get("cannot.set.template"),
                     Localization.get("no.file.browser"), false);
+        }
+    }
+
+    private void startServerSettings() {
+        Intent i = new Intent(this, CommCareServerPreferences.class);
+        startActivity(i);
+    }
+
+    private void startDeveloperOptions() {
+        Intent intent = new Intent(this, DeveloperPreferences.class);
+        startActivity(intent);
+    }
+
+    public static String getKeyServer() {
+        if (CommCareApplication._().isConsumerApp()) {
+            // So that we don't attempt to do any remote key management in a consumer app
+            return null;
+        } else {
+            return CommCareApplication._().getCurrentApp().getAppPreferences().getString("key_server", null);
         }
     }
 }

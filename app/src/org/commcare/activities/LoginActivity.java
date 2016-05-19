@@ -20,7 +20,7 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
-import org.commcare.dalvik.R;
+import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.engine.resource.ResourceInstallUtils;
 import org.commcare.interfaces.CommCareActivityUIController;
@@ -29,13 +29,13 @@ import org.commcare.interfaces.WithUIController;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DemoUserBuilder;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.ManageKeyRecordTask;
 import org.commcare.tasks.PullTaskReceiver;
 import org.commcare.tasks.ResultAndError;
+
 import org.commcare.utils.ACRAUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ViewUtil;
@@ -83,6 +83,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private String passwordOrPinBeforeRotation;
 
     private LoginActivityUIController uiController;
+    private FormAndDataSyncer formAndDataSyncer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,6 +96,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
 
         uiController.setupUI();
+        formAndDataSyncer = new FormAndDataSyncer();
 
         if (savedInstanceState == null) {
             // Only restore last user on the initial creation
@@ -189,18 +191,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void startDataPull() {
-        // We should go digest auth this user on the server and see whether to
-        // pull them down.
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-
-        // TODO: we don't actually always want to do this. We need to have an
-        // alternate route where we log in locally and sync (with unsent form
-        // submissions) more centrally.
-
-        (new FormAndDataSyncer()).syncData(this, false, false,
-                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY, LoginActivity.this.getString(R.string.ota_restore_url)),
-                getUniformUsername(),
-                uiController.getEnteredPasswordOrPin());
+        if (CommCareApplication._().isConsumerApp()) {
+            formAndDataSyncer.performLocalRestore(this, getUniformUsername(), uiController.getEnteredPasswordOrPin());
+        } else {
+            formAndDataSyncer.performOtaRestore(this, getUniformUsername(), uiController.getEnteredPasswordOrPin());
+        }
     }
 
     @Override
@@ -245,7 +240,13 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             return;
         }
 
-        tryAutoLogin();
+        if (CommCareApplication._().isConsumerApp()) {
+            uiController.setUsername(BuildConfig.CONSUMER_APP_USERNAME);
+            uiController.setPasswordOrPin(BuildConfig.CONSUMER_APP_PASSWORD);
+            localLoginOrPullAndLogin(false);
+        } else {
+            tryAutoLogin();
+        }
     }
 
     @Override
@@ -414,6 +415,10 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
      */
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
+        if (CommCareApplication._().isConsumerApp()) {
+            return CustomProgressDialog.newInstance("Starting Up", "Initializing your application...", taskId);
+        }
+
         CustomProgressDialog dialog;
         switch (taskId) {
             case TASK_KEY_EXCHANGE:
@@ -537,7 +542,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void initUIController() {
-        uiController = new LoginActivityUIController(this);
+        if (CommCareApplication._().isConsumerApp()) {
+            uiController = new BlankLoginActivityUIController(this);
+        } else {
+            uiController = new LoginActivityUIController(this);
+        }
     }
 
     @Override
@@ -589,6 +598,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
 
     @Override
     public void handlePullTaskUpdate(Integer... update) {
+        if (CommCareApplication._().isConsumerApp()) {
+            return;
+        }
         if (update[0] == DataPullTask.PROGRESS_STARTED) {
             updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
         } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {

@@ -267,8 +267,9 @@ public class DataConfiguration extends Configuration {
             mVariables.put("barLabels", mBarLabels.toString());
 
             // Force all labels to show; C3 will hide some labels if it thinks there are too many.
+            // Skip the first and last elements, which are just spacers, not bars.
             JSONObject xLabels = new JSONObject();
-            for (int i = 0; i < mBarLabels.length(); i++) {
+            for (int i = 1; i < mBarLabels.length() - 1; i++) {
                 xLabels.put(String.valueOf(i), mBarLabels.get(i));
             }
             mData.setConfiguration("x-labels", xLabels.toString());

@@ -10,14 +10,6 @@
         android:title="CommCare Application Server"/>
 
     <EditTextPreference
-        android:id="@+id/dataserver"
-        android:defaultValue="@string/ota_restore_url"
-        android:dialogTitle="CommCare Data Server"
-        android:enabled="true"
-        android:key="ota-restore-url"
-        android:title="Data Server"/>
-
-    <EditTextPreference
         android:id="@+id/submitserver"
         android:defaultValue="@string/PostURL"
         android:dialogTitle="CommCare Submission Server"
@@ -26,38 +18,23 @@
         android:title="Submission Server"/>
 
     <EditTextPreference
-        android:defaultValue="@string/key_server"
+        android:id="@+id/dataserver"
+        android:defaultValue="@string/ota_restore_url"
+        android:dialogTitle="CommCare Data Server"
         android:enabled="true"
-        android:key="default_key_server"
-        android:title="Key Server"/>
+        android:key="ota-restore-url"
+        android:title="Data Server"/>
+
     <EditTextPreference
         android:defaultValue="@string/form_record_url"
         android:enabled="true"
         android:key="form-record-url"
         android:title="Form Record Server"/>
-    <ListPreference
+
+    <EditTextPreference
+        android:defaultValue="@string/key_server"
         android:enabled="true"
-        android:entries="@array/frequency_vals_labels"
-        android:entryValues="@array/frequency_vals"
-        android:key="cc-autoup-freq"
-        android:title="Auto Update Frequency"/>
-    <ListPreference
-        android:defaultValue="no"
-        android:enabled="true"
-        android:entries="@array/pref_enabled_labels"
-        android:entryValues="@array/pref_enabled_vals"
-        android:key="cc-fuzzy-search-enabled"
-        android:title="Fuzzy Search Matches"/>
-    <PreferenceScreen
-        android:id="@+id/printlocation"
-        android:dialogTitle="Set Print Template Location"
-        android:enabled="true"
-        android:key="print-doc-location"
-        android:title="Set Print Template"/>
-    <ListPreference
-        android:enabled="true"
-        android:entries="@array/pref_enabled_labels"
-        android:entryValues="@array/pref_enabled_vals"
-        android:key="cc-grid-menus"
-        android:title="Grid Menus Enabled"/>
+        android:key="default_key_server"
+        android:title="Key Server"/>
+
 </PreferenceScreen>

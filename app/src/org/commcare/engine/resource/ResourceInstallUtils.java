@@ -4,8 +4,10 @@ import android.content.SharedPreferences;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;
@@ -29,7 +31,8 @@ import javax.net.ssl.SSLHandshakeException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ResourceInstallUtils {
-    private static final String DEFAULT_APP_SERVER_KEY = CommCarePreferences.PREFS_APP_SERVER_KEY;
+    private static final String DEFAULT_APP_SERVER_KEY =
+            CommCareServerPreferences.PREFS_APP_SERVER_KEY;
 
     /**
      * @return Is the current app's designated upgrade table staged and ready
@@ -231,9 +234,12 @@ public class ResourceInstallUtils {
      * @return default profile reference stored in the app's shared preferences
      */
     public static String getDefaultProfileRef() {
-        CommCareApp app = CommCareApplication._().getCurrentApp();
-        SharedPreferences prefs = app.getAppPreferences();
-
-        return prefs.getString(DEFAULT_APP_SERVER_KEY, null);
+        if (CommCareApplication._().isConsumerApp()) {
+            return SingleAppInstallation.SINGLE_APP_REFERENCE;
+        } else {
+            CommCareApp app = CommCareApplication._().getCurrentApp();
+            SharedPreferences prefs = app.getAppPreferences();
+            return prefs.getString(DEFAULT_APP_SERVER_KEY, null);
+        }
     }
 }

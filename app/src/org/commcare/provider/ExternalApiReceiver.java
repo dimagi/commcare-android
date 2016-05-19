@@ -17,6 +17,7 @@ import org.commcare.android.database.global.models.AndroidSharedKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ExternalManageKeyRecordTask;
 import org.commcare.tasks.ProcessAndSendTask;
@@ -98,11 +99,11 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     }
 
     private void performAction(final Context context, Bundle b) {
-        if (b.getString("commcareaction").equals("login")) {
+        if ("login".equals(b.getString("commcareaction"))) {
             String username = b.getString("username");
             String password = b.getString("password");
             tryLocalLogin(context, username, password);
-        } else if (b.getString("commcareaction").equals("sync")) {
+        } else if ("sync".equals(b.getString("commcareaction"))) {
             boolean formsToSend = checkAndStartUnsentTask(context);
 
             if (!formsToSend) {
@@ -124,7 +125,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
             SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
             ProcessAndSendTask<Object> mProcess = new ProcessAndSendTask<Object>(
                     context,
-                    settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
+                    settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
                             context.getString(R.string.PostURL))) {
                 @Override
                 protected void deliverResult(Object receiver, Integer result) {
@@ -148,12 +149,7 @@ public class ExternalApiReceiver extends BroadcastReceiver {
                 }
             };
 
-            try {
-                mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
-            } catch (SessionUnavailableException e) {
-                // if the session expired don't launch the process
-                return false;
-            }
+            mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
             mProcess.connect(dummyconnector);
             mProcess.execute(records);
             return true;
@@ -164,20 +160,14 @@ public class ExternalApiReceiver extends BroadcastReceiver {
     }
 
     private void syncData(final Context context) {
-        User u;
-        try {
-            u = CommCareApplication._().getSession().getLoggedInUser();
-        } catch (SessionUnavailableException e) {
-            // if the session expired don't launch the process
-            return;
-        }
+        User u = CommCareApplication._().getSession().getLoggedInUser();
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
 
         DataPullTask<Object> mDataPullTask = new DataPullTask<Object>(
                 u.getUsername(),
                 u.getCachedPwd(),
-                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY,
+                prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY,
                         context.getString(R.string.ota_restore_url)),
                 context) {
 

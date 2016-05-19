@@ -1,6 +1,7 @@
 package org.commcare.engine.resource.installers;
 
 import org.commcare.CommCareApp;
+import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.engine.resource.AppInstallStatus;
 import org.commcare.android.database.global.models.ApplicationRecord;
@@ -11,7 +12,8 @@ import org.javarosa.core.util.PropertyUtils;
  * @author Phillip Mates (pmates@dimagi.com).
  */
 public class SingleAppInstallation {
-    private static final String SINGLE_APP_REFERENCE = "jr://asset/direct_install/profile.ccpr";
+    public static final String SINGLE_APP_REFERENCE = "jr://asset/direct_install/profile.ccpr";
+    public static final String LOCAL_RESTORE_REFERENCE = "jr://asset/local_restore_payload.xml";
 
     /**
      * Install the app present in "assets/direct_install/", without offering
@@ -74,7 +76,9 @@ public class SingleAppInstallation {
                     @Override
                     protected void deliverUpdate(CommCareSetupActivity receiver,
                                                  int[]... update) {
-                        receiver.updateResourceProgress(update[0][0], update[0][1], update[0][2]);
+                        if (!CommCareApplication._().isConsumerApp()) {
+                            receiver.updateResourceProgress(update[0][0], update[0][1], update[0][2]);
+                        }
                     }
 
                     @Override

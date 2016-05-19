@@ -719,7 +719,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 .setIcon(R.drawable.ic_menu_start_conversation)
                 .setEnabled(hasMultipleLanguages);
 
-
         menu.add(0, MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.form_entry_settings)).setIcon(
                 android.R.drawable.ic_menu_preferences);
 
@@ -1674,11 +1673,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 }
             };
             mFormLoaderTask.connect(this);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                mFormLoaderTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, formUri);
-            } else {
-                mFormLoaderTask.execute(formUri);
-            }
+            mFormLoaderTask.executeParallel(formUri);
             hasFormLoadBeenTriggered = true;
         }
     }
@@ -1722,6 +1717,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         try {
             FormEntrySessionReplayer.tryReplayingFormEntry(mFormController.getFormEntryController(),
                     formEntryRestoreSession);
+            formEntryRestoreSession = null;
         } catch (FormEntrySessionReplayer.ReplayError e) {
             UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), EXIT);
         }
@@ -1881,7 +1877,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 // intermediate results before they become un-saveable.
                 CommCareApplication._().getSession().registerFormSaveCallback(this);
             } catch (SessionUnavailableException e) {
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                Log.w(TAG,
                         "Couldn't register form save callback because session doesn't exist");
             }
         }
@@ -1906,17 +1902,18 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // continue closing down key pool and user database.
             CommCareApplication._().expireUserSession();
         } else if (saveStatus != null) {
+            String toastMessage = "";
             switch (saveStatus) {
                 case SAVED_COMPLETE:
-                    Toast.makeText(this, Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
+                    toastMessage = Localization.get("form.entry.complete.save.success");
                     hasSaved = true;
                     break;
                 case SAVED_INCOMPLETE:
-                    Toast.makeText(this, Localization.get("form.entry.incomplete.save.success"), Toast.LENGTH_SHORT).show();
+                    toastMessage = Localization.get("form.entry.incomplete.save.success");
                     hasSaved = true;
                     break;
                 case SAVED_AND_EXIT:
-                    Toast.makeText(this, Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
+                    toastMessage = Localization.get("form.entry.complete.save.success");
                     hasSaved = true;
                     finishReturnInstance();
                     break;
@@ -1927,9 +1924,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS);
                     return;
                 case SAVE_ERROR:
-                    UserfacingErrorHandling.createErrorDialog(this, errorMessage,
-                            Localization.get("notification.formentry.save_error.title"), EXIT);
+                    if (!CommCareApplication._().isConsumerApp()) {
+                        UserfacingErrorHandling.createErrorDialog(this, errorMessage,
+                                Localization.get("notification.formentry.save_error.title"), EXIT);
+                    }
                     return;
+            }
+            if (!"".equals(toastMessage) && !CommCareApplication._().isConsumerApp()) {
+                Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show();
             }
             refreshCurrentView();
         }
@@ -2046,7 +2048,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         try {
             CommCareApplication._().getSession().unregisterFormSaveCallback();
         } catch (SessionUnavailableException sue) {
-            // looks like the session expired
+            // looks like the session expired, swallow exception because we
+            // might be auto-saving a form due to user session expiring
         }
 
         dismissProgressDialog();

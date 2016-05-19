@@ -431,7 +431,7 @@ public class CommCareSessionService extends Service {
         }
     }
 
-    public SecretKey createNewSymmetricKey() throws SessionUnavailableException {
+    public SecretKey createNewSymmetricKey() {
         synchronized (lock) {
             // Ensure we have a key to work with
             if (!isActive()) {
@@ -441,7 +441,7 @@ public class CommCareSessionService extends Service {
         }
     }
 
-    public String getUserKeyRecordUUID() throws SessionUnavailableException {
+    public String getUserKeyRecordUUID() {
         if (key == null) {
             // key record hasn't been set, so error out
             throw new SessionUnavailableException();
@@ -450,7 +450,7 @@ public class CommCareSessionService extends Service {
         return userKeyRecordUUID;
     }
 
-    public User getLoggedInUser() throws SessionUnavailableException {
+    public User getLoggedInUser() {
         if (user == null) {
             throw new SessionUnavailableException();
         }

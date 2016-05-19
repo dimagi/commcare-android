@@ -9,7 +9,6 @@ import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.tasks.ResultAndError;
 import org.commcare.util.CommCarePlatform;
-import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.locale.Localization;
 
@@ -26,14 +25,7 @@ public class ArchivedFormRemoteRestore {
     public static void pullArchivedFormsFromServer(String remoteUrl,
                                                    final FormRecordListActivity activity,
                                                    final CommCarePlatform platform) {
-        User u;
-        try {
-            u = CommCareApplication._().getSession().getLoggedInUser();
-        } catch (SessionUnavailableException sue) {
-            // abort and let default processing happen, since it looks
-            // like the session expired.
-            return;
-        }
+        User u = CommCareApplication._().getSession().getLoggedInUser();
 
         // We should go digest auth this user on the server and see whether to pull them down.
         DataPullTask<FormRecordListActivity> pull = new DataPullTask<FormRecordListActivity>(u.getUsername(),

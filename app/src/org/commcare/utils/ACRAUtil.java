@@ -4,9 +4,7 @@ import android.app.Application;
 import android.webkit.URLUtil;
 
 import org.acra.ACRA;
-import org.acra.ErrorReporter;
-import org.acra.config.ACRAConfiguration;
-import org.acra.config.ACRAConfigurationFactory;
+import org.acra.config.ConfigurationBuilder;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.BuildConfig;
 
@@ -29,18 +27,23 @@ public class ACRAUtil {
      * stored for each key.
      */
     private static void addCustomData(String key, String value) {
-        ErrorReporter mReporter = ACRA.getErrorReporter();
-        mReporter.putCustomData(key, value);
+        ACRA.getErrorReporter().putCustomData(key, value);
+    }
+
+    public static void reportException(Exception e) {
+        if (isAcraConfigured) {
+            ACRA.getErrorReporter().handleException(e);
+        }
     }
 
     public static void initACRA(Application app) {
         String url = BuildConfig.ACRA_URL;
         if (URLUtil.isValidUrl(url)) {
-            ACRAConfiguration acraConfig = new ACRAConfigurationFactory().create(app);
-            acraConfig.setFormUriBasicAuthLogin(BuildConfig.ACRA_USER);
-            acraConfig.setFormUriBasicAuthPassword(BuildConfig.ACRA_PASSWORD);
-            acraConfig.setFormUri(url);
-            ACRA.init(app, acraConfig);
+            ConfigurationBuilder acraConfigBuilder = new ConfigurationBuilder(app);
+            acraConfigBuilder.setFormUriBasicAuthLogin(BuildConfig.ACRA_USER);
+            acraConfigBuilder.setFormUriBasicAuthPassword(BuildConfig.ACRA_PASSWORD);
+            acraConfigBuilder.setFormUri(url);
+            ACRA.init(app, acraConfigBuilder.build());
             isAcraConfigured = true;
         }
     }
