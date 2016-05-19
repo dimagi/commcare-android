@@ -25,7 +25,6 @@ import org.commcare.models.encryption.CryptUtil;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
-import org.commcare.network.HttpRequestGenerator;
 import org.commcare.network.RemoteDataPullResponse;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.resources.model.CommCareOTARestoreListener;
@@ -424,19 +423,9 @@ public abstract class DataPullTask<R>
         } catch (ActionableInvalidStructureException e) {
             e.printStackTrace();
             failureReason = e.getLocalizedMessage();
-        } catch (InvalidStructureException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        } catch (UnfullfilledRequirementsException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        } catch (StorageFullException e) {
-            e.printStackTrace();
-            failureReason = e.getMessage();
-        } catch (IOException e) {
+        } catch (InvalidStructureException | XmlPullParserException
+                | UnfullfilledRequirementsException | StorageFullException
+                | SessionUnavailableException | IOException e) {
             e.printStackTrace();
             failureReason = e.getMessage();
         } finally {
