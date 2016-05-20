@@ -16,6 +16,7 @@ import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.utils.ConnectivityStatus;
+import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 
@@ -320,7 +321,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
             return null;
         }
         if (CommCareApplication._().isConsumerApp()) {
-            return CustomProgressDialog.newInstance("Starting Up", "Initializing your application...", taskId);
+            return ConsumerAppsUtil.getGenericConsumerAppsProgressDialog(taskId, false);
         } else {
             return generateNormalUpdateDialog(taskId);
         }
