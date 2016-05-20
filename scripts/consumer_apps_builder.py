@@ -112,7 +112,7 @@ def move_apk(app_id, build_type):
         original_apk_filename = "./build/outputs/apk/commcare-odk-standalone-debug.apk"
     else:
         original_apk_filename = "./build/outputs/apk/commcare-odk-standalone-release.apk"
-    shutil.move(original_apk_filename, "{0}/{1}.apk".format(CONSUMER_APKS_DIR, app_id))
+    shutil.move(original_apk_filename, os.path.join(CONSUMER_APKS_DIR, "{}.apk".format(app_id)))
 
 
 def main():
