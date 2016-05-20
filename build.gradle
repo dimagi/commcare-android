@@ -323,6 +323,11 @@ android {
         }
     }
 
+    // Ignore un-minified graphing files
+    aaptOptions {
+        ignoreAssetsPattern "!*.max.js:!*.max.css"
+    }
+
     testOptions {
         unitTests.all {
             // Needed for robolectric tests to work with kxml for some
