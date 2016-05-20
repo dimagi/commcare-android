@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.util.Pair;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -131,14 +132,16 @@ public class QueryRequestActivity
         LinearLayout promptsLayout = (LinearLayout)findViewById(R.id.query_prompts);
         Hashtable<String, DisplayUnit> userInputDisplays =
                 remoteQuerySessionManager.getNeededUserInputDisplays();
+        int promptCount = 1;
         for (Map.Entry<String, DisplayUnit> displayEntry : userInputDisplays.entrySet()) {
-            buildPromptEntry(promptsLayout, displayEntry.getKey(), displayEntry.getValue());
+            buildPromptEntry(promptsLayout, displayEntry.getKey(),
+                    displayEntry.getValue(), promptCount++ == userInputDisplays.size());
         }
     }
 
     private void buildPromptEntry(LinearLayout promptsLayout,
                                   String promptId,
-                                  DisplayUnit displayUnit) {
+                                  DisplayUnit displayUnit, boolean isLastPrompt) {
         Hashtable<String, String> userAnswers =
                 remoteQuerySessionManager.getUserAnswers();
         promptsLayout.addView(createPromptMedia(displayUnit));
@@ -147,7 +150,13 @@ public class QueryRequestActivity
         if (userAnswers.containsKey(promptId)) {
             promptEditText.setText(userAnswers.get(promptId));
         }
+        promptEditText.setSingleLine();
         promptEditText.setBackgroundResource(R.drawable.login_edit_text);
+        if (isLastPrompt) {
+            promptEditText.setImeOptions(EditorInfo.IME_ACTION_DONE);
+        } else {
+            promptEditText.setImeOptions(EditorInfo.IME_ACTION_NEXT);
+        }
         promptsLayout.addView(promptEditText);
         promptsBoxes.put(promptId, promptEditText);
     }
