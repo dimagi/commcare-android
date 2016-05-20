@@ -146,7 +146,6 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         String paramsString = buildUrlWithParams().getQuery();
         Log.d(TAG, paramsString);
         int bodySize = paramsString.length();
-        httpConnection.setFixedLengthStreamingMode(bodySize);
         httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         httpConnection.setRequestProperty("Content-Length", bodySize + "");
         // write to connection
