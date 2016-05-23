@@ -290,6 +290,18 @@ public class FileUtil {
         }
     }
 
+    public static boolean referenceFileExists(String uri) {
+        if (uri != null && !uri.equals("")) {
+            try {
+                return new File(ReferenceManager._().DeriveReference(uri).getLocalURI()).exists();
+            } catch (InvalidReferenceException e) {
+                e.printStackTrace();
+            }
+        }
+        return false;
+    }
+
+
     /**
      * Ensure that everything between "localpart" and f exists
      * and create it if not.

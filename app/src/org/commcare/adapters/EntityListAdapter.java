@@ -1,26 +1,31 @@
 package org.commcare.adapters;
 
-import android.app.Activity;
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
-import android.support.v7.widget.CardView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareActivity;
+import org.commcare.activities.EntitySelectActivity;
 import org.commcare.dalvik.R;
 import org.commcare.models.AsyncNodeEntityFactory;
 import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DisplayData;
-import org.commcare.suite.model.DisplayUnit;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.CachingAsyncImageLoader;
+import org.commcare.utils.FileUtil;
 import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.EntityView;
@@ -46,15 +51,19 @@ import java.util.List;
 public class EntityListAdapter implements ListAdapter {
     private static final String KEY_ENTITY_LIST_EXTRA_DATA = "entity-list-data";
 
-    public static final int SPECIAL_ACTION = -2;
+    public static final int ENTITY_TYPE = 0;
+    public static final int ACTION_TYPE = 1;
+    public static final int DIVIDER_TYPE = 2;
+    public static final int DIVIDER_ID = -2;
 
-    private int actionsStartPosition = 0;
+    private int dividerPosition = 0;
     private final int actionsCount;
+    private final int dividerCount;
 
     private boolean mFuzzySearchEnabled = true;
     private boolean isFilteringByCalloutResult = false;
 
-    private final Activity context;
+    private final CommCareActivity commCareActivity;
     private final Detail detail;
 
     private final List<DataSetObserver> observers;
@@ -84,7 +93,7 @@ public class EntityListAdapter implements ListAdapter {
     // key to data mapping used to attach callout results to individual entities
     private OrderedHashtable<String, String> calloutResponseData = new OrderedHashtable<>();
 
-    public EntityListAdapter(Activity activity, Detail detail,
+    public EntityListAdapter(CommCareActivity activity, Detail detail,
                              List<TreeReference> references,
                              List<Entity<TreeReference>> full,
                              int[] sort,
@@ -92,13 +101,15 @@ public class EntityListAdapter implements ListAdapter {
         this.detail = detail;
         if (detail.getCustomActions() != null) {
             actionsCount = detail.getCustomActions().size();
+            dividerCount = 1;
         } else {
             actionsCount = 0;
+            dividerCount = 0;
         }
 
         this.full = full;
         this.references = references;
-        this.context = activity;
+        this.commCareActivity = activity;
         this.observers = new ArrayList<>();
         this.mNodeFactory = factory;
 
@@ -114,7 +125,7 @@ public class EntityListAdapter implements ListAdapter {
         }
 
         if (android.os.Build.VERSION.SDK_INT >= 14) {
-            mImageLoader = new CachingAsyncImageLoader(context);
+            mImageLoader = new CachingAsyncImageLoader(commCareActivity);
         } else {
             mImageLoader = null;
         }
@@ -131,7 +142,7 @@ public class EntityListAdapter implements ListAdapter {
     void setCurrent(List<Entity<TreeReference>> arrayList) {
         current = arrayList;
         if (actionsCount > 0) {
-            actionsStartPosition = current.size();
+            dividerPosition = current.size();
         }
         update();
     }
@@ -186,11 +197,11 @@ public class EntityListAdapter implements ListAdapter {
     }
 
     public int getFullCountWithActions() {
-        return full.size() + actionsCount;
+        return full.size() + actionsCount + dividerCount;
     }
 
     public int getCurrentCountWithActions() {
-        return current.size() + actionsCount;
+        return current.size() + actionsCount + dividerCount;
     }
 
     @Override
@@ -200,18 +211,34 @@ public class EntityListAdapter implements ListAdapter {
 
     @Override
     public long getItemId(int position) {
-        if (actionsCount > 0 && position >= actionsStartPosition) {
-            return SPECIAL_ACTION;
+        int type = getItemViewType(position);
+        switch (type) {
+            case ENTITY_TYPE:
+                return references.indexOf(current.get(position).getElement());
+            case ACTION_TYPE:
+                return dividerPosition + detail.getCustomActions().indexOf(getAction(position));
+            case DIVIDER_TYPE:
+                return DIVIDER_ID;
+            default:
+                throw new RuntimeException("Invalid view type");
         }
-        return references.indexOf(current.get(position).getElement());
+    }
+
+    private Action getAction(int position) {
+        return detail.getCustomActions().get(position - (dividerPosition + 1));
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (actionsCount > 0 && position >= actionsStartPosition) {
-            return 1;
+        if (actionsCount > 0) {
+            if (position > dividerPosition) {
+                return ACTION_TYPE;
+            } else {
+                return DIVIDER_TYPE;
+            }
+        } else {
+            return ENTITY_TYPE;
         }
-        return 0;
     }
 
     /**
@@ -220,70 +247,46 @@ public class EntityListAdapter implements ListAdapter {
      */
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (actionsCount > 0 && position >= actionsStartPosition) {
-            return getActionViewNew(position, (CardView)convertView);
-        }
-
-        Entity<TreeReference> entity = current.get(position);
-        // if we use a <grid>, setup an AdvancedEntityView
-        if (usesGridView) {
-            return getGridView(entity, (GridEntityView)convertView);
-        } else {
-            return getEntityView(entity, (EntityView)convertView, position);
+        int type = getItemViewType(position);
+        switch (type) {
+            case ENTITY_TYPE:
+                return getEntityView(position, convertView);
+            case ACTION_TYPE:
+                return getActionView(position, (FrameLayout)convertView, parent);
+            case DIVIDER_TYPE:
+                return getDividerView((LinearLayout)convertView, parent);
+            default:
+                throw new RuntimeException("Invalid view type");
         }
     }
 
-    private View getActionViewNew(int position, CardView actionCardView) {
-        if (actionCardView == null) {
-            actionCardView = (CardView) View.inflate(context, R.layout.action_card, null);
+    private View getEntityView(int position, View convertView) {
+        Entity<TreeReference> entity = current.get(position);
+
+        if (usesGridView) {
+            // if we use a <grid>, setup an AdvancedEntityView
+            return getGridView(entity, (GridEntityView)convertView);
+        } else {
+            return getListEntityView(entity, (EntityView)convertView, position);
         }
-
-        DisplayUnit actionDisplay =
-                detail.getCustomActions().get(position - actionsStartPosition).getDisplay();
-        DisplayData displayData = actionDisplay.evaluate();
-
-        String audioURI = displayData.getAudioURI();
-        if (audioURI != null) {
-            AudioButton audioButton = (AudioButton)actionCardView.findViewById(R.id.audio);
-            if (HorizontalMediaView.audioFileExists(audioURI)) {
-                audioButton.setVisibility(View.VISIBLE);
-                audioButton.resetButton(audioURI, true);
-            }
-        }
-
-        String imageURI = displayData.getImageURI();
-        if (imageURI != null) {
-            ImageView icon = (ImageView)actionCardView.findViewById(R.id.icon);
-            int iconDimension = (int)context.getResources().getDimension(R.dimen.menu_icon_size);
-            Bitmap b = MediaUtil.inflateDisplayImage(context, imageURI, iconDimension, iconDimension);
-            if (b != null) {
-                icon.setVisibility(View.VISIBLE);
-                icon.setImageBitmap(b);
-            }
-        }
-
-        TextView text = (TextView)actionCardView.findViewById(R.id.text);
-        text.setText(displayData.getName().toUpperCase());
-
-        return actionCardView;
     }
 
     private View getGridView(Entity<TreeReference> entity, GridEntityView emv) {
-        int[] titleColor = AndroidUtil.getThemeColorIDs(context, new int[]{R.attr.entity_select_title_text_color});
+        int[] titleColor = AndroidUtil.getThemeColorIDs(commCareActivity, new int[]{R.attr.entity_select_title_text_color});
         if (emv == null) {
-            emv = new GridEntityView(context, detail, entity, currentSearchTerms, mImageLoader, mFuzzySearchEnabled);
+            emv = new GridEntityView(commCareActivity, detail, entity, currentSearchTerms, mImageLoader, mFuzzySearchEnabled);
         } else {
             emv.setSearchTerms(currentSearchTerms);
-            emv.setViews(context, detail, entity);
+            emv.setViews(commCareActivity, detail, entity);
         }
         emv.setTitleTextColor(titleColor[0]);
         return emv;
     }
 
-    private View getEntityView(Entity<TreeReference> entity, EntityView emv, int position) {
+    private View getListEntityView(Entity<TreeReference> entity, EntityView emv, int position) {
         if (emv == null) {
             emv = EntityView.buildEntryEntityView(
-                    context, detail, entity,
+                    commCareActivity, detail, entity,
                     currentSearchTerms, position, mFuzzySearchEnabled,
                     getCalloutDataForEntity(entity));
         } else {
@@ -304,9 +307,58 @@ public class EntityListAdapter implements ListAdapter {
         }
     }
 
+    private View getActionView(int position, FrameLayout actionCardView, ViewGroup parent) {
+        if (actionCardView == null) {
+            actionCardView = (FrameLayout)LayoutInflater.from(parent.getContext()).inflate(R.layout.action_card, parent, false);
+        }
+
+        final Action action = getAction(position);
+        DisplayData displayData = action.getDisplay().evaluate();
+
+        String audioURI = displayData.getAudioURI();
+        if (audioURI != null) {
+            AudioButton audioButton = (AudioButton)actionCardView.findViewById(R.id.audio);
+            if (FileUtil.referenceFileExists(audioURI)) {
+                audioButton.setVisibility(View.VISIBLE);
+                audioButton.resetButton(audioURI, true);
+            }
+        }
+
+        String imageURI = displayData.getImageURI();
+        if (imageURI != null) {
+            ImageView icon = (ImageView)actionCardView.findViewById(R.id.icon);
+            int iconDimension = (int)commCareActivity.getResources().getDimension(R.dimen.menu_icon_size);
+            Bitmap b = MediaUtil.inflateDisplayImage(commCareActivity, imageURI, iconDimension, iconDimension);
+            if (b != null) {
+                icon.setVisibility(View.VISIBLE);
+                icon.setImageBitmap(b);
+            }
+        }
+
+        TextView text = (TextView)actionCardView.findViewById(R.id.text);
+        text.setText(displayData.getName().toUpperCase());
+
+        ImageButton performActionButton = (ImageButton)actionCardView.findViewById(R.id.launch_action);
+        performActionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EntitySelectActivity.triggerDetailAction(action, commCareActivity);
+            }
+        });
+
+        return actionCardView;
+    }
+
+    private LinearLayout getDividerView(LinearLayout convertView, ViewGroup parent) {
+        if (convertView == null) {
+            return (LinearLayout)LayoutInflater.from(parent.getContext()).inflate(R.layout.line_separator, parent, false);
+        }
+        return convertView;
+    }
+
     @Override
     public int getViewTypeCount() {
-        return (actionsCount > 0) ? 2 : 1;
+        return (actionsCount > 0) ? 3 : 1;
     }
 
     @Override
@@ -332,7 +384,7 @@ public class EntityListAdapter implements ListAdapter {
         searchQuery = filterRaw;
         entityFilterer =
                 new EntityStringFilterer(this, searchTerms, mAsyncMode,
-                        mFuzzySearchEnabled, mNodeFactory, full, context);
+                        mFuzzySearchEnabled, mNodeFactory, full, commCareActivity);
         entityFilterer.start();
     }
 
@@ -355,7 +407,7 @@ public class EntityListAdapter implements ListAdapter {
 
         isFilteringByCalloutResult = true;
         entityFilterer =
-                new EntityKeyFilterer(this, mNodeFactory, full, context, keysToFilterBy);
+                new EntityKeyFilterer(this, mNodeFactory, full, commCareActivity, keysToFilterBy);
         entityFilterer.start();
     }
 
@@ -412,13 +464,6 @@ public class EntityListAdapter implements ListAdapter {
         if (entityFilterer != null) {
             entityFilterer.cancelSearch();
         }
-    }
-
-    /**
-     * Get action's index in detail's list of actions given position in adapter
-     */
-    public int getActionIndex(int positionInAdapter) {
-        return positionInAdapter - (getCurrentCountWithActions() - 1);
     }
 
     public String getSearchNotificationText() {

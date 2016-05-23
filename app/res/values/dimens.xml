@@ -15,7 +15,6 @@
 
     <dimen name="title_padding">10dp</dimen>
     <dimen name="title_paddingLeft">20dp</dimen>
-    <dimen name="title_logo_pad">8dp</dimen>
     <dimen name="tab_gradient_radius">300dp</dimen>
 
     <dimen name="spacer_small">5dp</dimen>
@@ -88,4 +87,6 @@
     <dimen name="form_label_padding">8dp</dimen>
 
     <dimen name="entity_select_divider_left_inset">120dp</dimen>
+
+    <dimen name="min_button_padding">20dp</dimen>
 </resources>
