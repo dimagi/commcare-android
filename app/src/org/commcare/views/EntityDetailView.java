@@ -326,12 +326,10 @@ public class EntityDetailView extends FrameLayout {
             }
 
             // TODO: graphs in case lists
-            // TODO: center spinner
             // TODO: update minified files
             // TODO: worst case, hide spinner after 10 sec
             final ProgressBar spinner = new ProgressBar(this.getContext(), null, android.R.attr.progressBarStyleLarge);
-            LinearLayout.LayoutParams spinnerLayout = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-            spinner.setLayoutParams(spinnerLayout);
+            spinner.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
             graphLayout.removeAllViews();
             ((WebView)graphView).addJavascriptInterface(new GraphLoader((CommCareActivity) this.getContext(), new Runnable() {
                 public void run() {
