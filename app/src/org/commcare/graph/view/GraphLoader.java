@@ -1,29 +1,36 @@
 package org.commcare.graph.view;
 
 import android.app.Activity;
+import android.view.View;
 import android.webkit.JavascriptInterface;
 
 import org.commcare.activities.CommCareActivity;
+
+import java.util.TimerTask;
 
 /**
  * Created by jenniferschweers on 5/20/16.
  *
  * Interface between Android's GraphView and the JavaScript graphing code.
+ * Its responsibility is to hide a spinner that displays while the graph loads.
  */
-public class GraphLoader {
+public class GraphLoader extends TimerTask {
     Activity activity;
-    Runnable onRendered;
+    final View spinner;
 
-    public GraphLoader(Activity a, Runnable r) {
+    public GraphLoader(Activity a, View v) {
         activity = a;
-        onRendered = r;
+        spinner = v;
     }
 
-    /**
-     * Run any android code that wants to wait for the graph to finish rendering.
-     */
     @JavascriptInterface
-    public void onRendered() {
-        activity.runOnUiThread(onRendered);
+    @Override
+    public void run() {
+        activity.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                spinner.setVisibility(View.GONE);
+            }
+        });
     }
 }

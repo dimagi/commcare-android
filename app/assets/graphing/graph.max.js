@@ -204,7 +204,7 @@ var intervalID = setInterval(function() {
                 }
 
                 clearInterval(androidIntervalID);
-                Android.onRendered();
+                Android.run();
             });
         };
 
