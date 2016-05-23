@@ -29,7 +29,7 @@ import org.commcare.dalvik.R;
  * Created by ctsims on 5/18/2016.
  */
 public class ShrinkingLinearLayout extends LinearLayout {
-    int shrinkingViewId = -1;
+    private int shrinkingViewId = -1;
 
     public ShrinkingLinearLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -39,6 +39,7 @@ public class ShrinkingLinearLayout extends LinearLayout {
     private void loadViewConfig(Context context, AttributeSet attrs) {
         TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.ShrinkingLinearLayout);
         shrinkingViewId = typedArray.getResourceId(R.styleable.ShrinkingLinearLayout_shrinkable_view, -1);
+        typedArray.recycle();
     }
 
 
@@ -59,7 +60,7 @@ public class ShrinkingLinearLayout extends LinearLayout {
 
         //If after everything is measured the view is bigger than it needs to be, forget the other
         //layout directives, and have the view only request that width
-        if(dynamicView.getMeasuredWidth() > desiredWidth) {
+        if (dynamicView.getMeasuredWidth() > desiredWidth) {
             LayoutParams params = (LinearLayout.LayoutParams)dynamicView.getLayoutParams();
 
             //NOTE: Any parameters used to control the final size will need to be copied in this
