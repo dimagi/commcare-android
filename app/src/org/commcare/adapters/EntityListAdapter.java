@@ -2,6 +2,8 @@ package org.commcare.adapters;
 
 import android.app.Activity;
 import android.database.DataSetObserver;
+import android.support.v7.widget.CardView;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
@@ -227,6 +229,20 @@ public class EntityListAdapter implements ListAdapter {
         }
     }
 
+    private View getActionViewNew(int position, CardView tiav) {
+        if (tiav == null) {
+            tiav = (CardView) View.inflate(context, R.layout.action_card, null);
+        }
+        Action currentAction = detail.getCustomActions().get(position - actionsStartPosition);
+        tiav.
+        tiav.setDisplay(currentAction.getDisplay());
+        tiav.setBackgroundResource(R.drawable.list_bottom_tab);
+        //We're gonna double pad this because we want to give it some visual distinction
+        //and keep the icon more centered
+        int padding = (int)context.getResources().getDimension(R.dimen.entity_padding);
+        tiav.setPadding(padding, padding, padding, padding);
+        return tiav;
+    }
     private View getActionView(int position, HorizontalMediaView tiav) {
         if (tiav == null) {
             tiav = new HorizontalMediaView(context);
