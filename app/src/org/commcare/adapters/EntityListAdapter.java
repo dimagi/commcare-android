@@ -99,7 +99,7 @@ public class EntityListAdapter implements ListAdapter {
                              int[] sort,
                              NodeEntityFactory factory) {
         this.detail = detail;
-        if (detail.getCustomActions() != null && !detail.getCustomActions().isEmpty()) {
+        if (detail.getCustomActions() != null) {
             actionsCount = detail.getCustomActions().size();
             dividerCount = 1;
         } else {
@@ -233,12 +233,11 @@ public class EntityListAdapter implements ListAdapter {
         if (actionsCount > 0) {
             if (position > dividerPosition) {
                 return ACTION_TYPE;
-            } else {
+            } else if (position == dividerPosition) {
                 return DIVIDER_TYPE;
             }
-        } else {
-            return ENTITY_TYPE;
         }
+        return ENTITY_TYPE;
     }
 
     /**

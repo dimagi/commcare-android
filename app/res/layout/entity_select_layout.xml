@@ -77,8 +77,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:listSelector="@drawable/selector"
-            android:dividerHeight="1dp"
-            >
+            android:dividerHeight="0dp" >
         </ListView>
 
         <include layout="@layout/component_drop_shadow"/>
@@ -113,25 +112,21 @@
                 android:layout_toLeftOf="@+id/barcodeButton"
                 android:maxLines="3"
                 android:inputType="textImeMultiLine"
-                android:imeOptions="actionDone"></EditText>
+                android:imeOptions="actionDone"/>
 
             <ImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:src="@drawable/barcode"
-                android:id="@+id/barcodeButton"></ImageButton>
+                android:id="@+id/barcodeButton"/>
         </RelativeLayout>
     </LinearLayout>
-
 
     <FrameLayout
         android:id="@+id/universal_frame_tile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true">
-
     </FrameLayout>
-
-
 </RelativeLayout>
