@@ -1,9 +1,6 @@
-#chart {
-    display: none;
-}
-
 #chart-title {
     text-align: center;
+    display: none;
 }
 
 path {

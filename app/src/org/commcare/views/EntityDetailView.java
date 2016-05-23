@@ -260,17 +260,17 @@ public class EntityDetailView extends FrameLayout {
         } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {    // if graph parsing had errors, they'll be stored as a string
             // Fetch graph view from cache, or create it
             View graphView = null;
-            boolean wasCached = true;
+            boolean showSpinner = true;
             final Context context = getContext();
             int orientation = getResources().getConfiguration().orientation;
             if (graphViewsCache.get(index) != null) {
                 graphView = graphViewsCache.get(index).get(orientation);
+                showSpinner = false;
             } else {
                 graphViewsCache.put(index, new Hashtable<Integer, View>());
             }
             String graphHTML = "";
             if (graphView == null) {
-                wasCached = false;
                 GraphView g = new GraphView(context, labelText, false);
                 try {
                     graphHTML = g.getHTML((GraphData)field);
@@ -326,22 +326,20 @@ public class EntityDetailView extends FrameLayout {
             }
 
             // TODO: graphs in case lists
-            // TODO: don't show spinner unless it's really a WebView (not a TextView showing an error)
             // TODO: center spinner
             // TODO: update minified files
+            // TODO: worst case, hide spinner after 10 sec
             final ProgressBar spinner = new ProgressBar(this.getContext(), null, android.R.attr.progressBarStyleLarge);
             LinearLayout.LayoutParams spinnerLayout = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
             spinner.setLayoutParams(spinnerLayout);
-            //final View spinner = detailRow.findViewById(R.id.graph_loading);
             graphLayout.removeAllViews();
             ((WebView)graphView).addJavascriptInterface(new GraphLoader((CommCareActivity) this.getContext(), new Runnable() {
                 public void run() {
-                    System.out.println("[jls] killing a spinner");
                     spinner.setVisibility(View.GONE);
                 }
             }), "Android");
             graphLayout.addView(graphView, GraphView.getLayoutParams());
-            if (!wasCached) {
+            if (showSpinner) {
                 graphLayout.addView(spinner);
             }
 
