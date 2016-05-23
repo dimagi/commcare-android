@@ -1,25 +1,29 @@
 package org.commcare.graph.view;
 
+import android.app.Activity;
 import android.webkit.JavascriptInterface;
 
 import org.commcare.activities.CommCareActivity;
 
 /**
  * Created by jenniferschweers on 5/20/16.
+ *
+ * Interface between Android's GraphView and the JavaScript graphing code.
  */
 public class GraphLoader {
-    CommCareActivity activity;
-    Runnable thingToDo;
+    Activity activity;
+    Runnable onRendered;
 
-    /** Instantiate the interface and set the context */
-    public GraphLoader(CommCareActivity a, Runnable r) {
+    public GraphLoader(Activity a, Runnable r) {
         activity = a;
-        thingToDo = r;
+        onRendered = r;
     }
 
-    /** Show a toast from the web page */
+    /**
+     * Run any android code that wants to wait for the graph to finish rendering.
+     */
     @JavascriptInterface
-    public void showGraph() {
-        activity.runOnUiThread(thingToDo);
+    public void onRendered() {
+        activity.runOnUiThread(onRendered);
     }
 }

@@ -1,5 +1,6 @@
 package org.commcare.views;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -332,6 +333,16 @@ public class EntityDetailView extends FrameLayout {
             if (showSpinner) {
                 final ProgressBar spinner = new ProgressBar(this.getContext(), null, android.R.attr.progressBarStyleLarge);
                 spinner.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+
+                // Set up interface with JavaScript to hide the spinner once the graph has finished rendering.
+                ((WebView)graphView).addJavascriptInterface(new GraphLoader((Activity) this.getContext(), new Runnable() {
+                    public void run() {
+                        spinner.setVisibility(View.GONE);
+                    }
+                }), "Android");
+
+                // The above JavaScript interface doesn't load properly 100% of the time.
+                // Worst case, hide the spinner after ten seconds.
                 Timer spinnerTimer = new Timer();
                 spinnerTimer.schedule(new TimerTask() {
                     @Override
@@ -339,11 +350,6 @@ public class EntityDetailView extends FrameLayout {
                         spinner.setVisibility(View.GONE);
                     }
                 }, 10000);
-                ((WebView)graphView).addJavascriptInterface(new GraphLoader((CommCareActivity) this.getContext(), new Runnable() {
-                    public void run() {
-                        spinner.setVisibility(View.GONE);
-                    }
-                }), "Android");
                 graphLayout.addView(spinner);
             }
 

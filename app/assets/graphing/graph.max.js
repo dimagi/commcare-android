@@ -1,13 +1,5 @@
 // This file expects a number of variables to be defined globally.
 // Use only in conjunction with GraphView.getView
-
-function displayError(message) {
-    var error = document.getElementById('error');
-    error.innerHTML = message;
-    error.style.display = 'block';
-    throw(message);
-}
-
 var retryFrequency = 10,
     delay = 0,
     maxDelay = 10000;
@@ -199,7 +191,8 @@ var intervalID = setInterval(function() {
                 }
             }
 
-            document.getElementById("chart-title").style.display = "block";
+            // The android <=> javascript interface sometimes has a loading delay.
+            // Wait for it.
             var androidDelay = 0;
             var androidIntervalID = setInterval(function() {
                 androidDelay += retryFrequency;
@@ -211,7 +204,7 @@ var intervalID = setInterval(function() {
                 }
 
                 clearInterval(androidIntervalID);
-                Android.showGraph();
+                Android.onRendered();
             });
         };
 
@@ -300,4 +293,14 @@ function appendSymbol(parent, x, y, symbol, color) {
               .size(50))
         .style("fill", color)
         .style("stroke", color);
+}
+
+/**
+ * Display JavaScript error on device.
+ */
+function displayError(message) {
+    console.log(message);
+    var error = document.getElementById('error');
+    error.innerHTML = message;
+    error.style.display = 'block';
 }
