@@ -203,7 +203,7 @@ var intervalID = setInterval(function() {
             var androidDelay = 0;
             var androidIntervalID = setInterval(function() {
                 androidDelay += retryFrequency;
-                if (!Android) {
+                if (!window.Android) {
                     if (androidDelay > maxDelay) {
                         clearInterval(androidIntervalID);
                     }
