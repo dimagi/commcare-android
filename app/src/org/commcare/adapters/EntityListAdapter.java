@@ -2,11 +2,13 @@ package org.commcare.adapters;
 
 import android.app.Activity;
 import android.database.DataSetObserver;
+import android.graphics.Bitmap;
 import android.support.v7.widget.CardView;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.ListAdapter;
+import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
@@ -14,14 +16,16 @@ import org.commcare.models.AsyncNodeEntityFactory;
 import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;
 import org.commcare.preferences.CommCarePreferences;
-import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
+import org.commcare.suite.model.DisplayData;
+import org.commcare.suite.model.DisplayUnit;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.CachingAsyncImageLoader;
+import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
 import org.commcare.views.EntityView;
 import org.commcare.views.GridEntityView;
-import org.commcare.views.HorizontalMediaView;
+import org.commcare.views.media.AudioButton;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
@@ -217,7 +221,7 @@ public class EntityListAdapter implements ListAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         if (actionsCount > 0 && position >= actionsStartPosition) {
-            return getActionView(position, (HorizontalMediaView)convertView);
+            return getActionViewNew(position, (CardView)convertView);
         }
 
         Entity<TreeReference> entity = current.get(position);
@@ -229,32 +233,39 @@ public class EntityListAdapter implements ListAdapter {
         }
     }
 
-    private View getActionViewNew(int position, CardView tiav) {
-        if (tiav == null) {
-            tiav = (CardView) View.inflate(context, R.layout.action_card, null);
+    private View getActionViewNew(int position, CardView actionCardView) {
+        if (actionCardView == null) {
+            actionCardView = (CardView) View.inflate(context, R.layout.action_card, null);
         }
-        Action currentAction = detail.getCustomActions().get(position - actionsStartPosition);
-        tiav.
-        tiav.setDisplay(currentAction.getDisplay());
-        tiav.setBackgroundResource(R.drawable.list_bottom_tab);
-        //We're gonna double pad this because we want to give it some visual distinction
-        //and keep the icon more centered
-        int padding = (int)context.getResources().getDimension(R.dimen.entity_padding);
-        tiav.setPadding(padding, padding, padding, padding);
-        return tiav;
-    }
-    private View getActionView(int position, HorizontalMediaView tiav) {
-        if (tiav == null) {
-            tiav = new HorizontalMediaView(context);
+
+        DisplayUnit actionDisplay =
+                detail.getCustomActions().get(position - actionsStartPosition).getDisplay();
+        DisplayData displayData = actionDisplay.evaluate();
+
+        String audioURI = displayData.getAudioURI();
+        if (audioURI != null) {
+            AudioButton audioButton = (AudioButton)actionCardView.findViewById(R.id.audio);
+            if (HorizontalMediaView.audioFileExists(audioURI)) {
+                audioButton.setVisibility(View.VISIBLE);
+                audioButton.resetButton(audioURI, true);
+            }
         }
-        Action currentAction = detail.getCustomActions().get(position - actionsStartPosition);
-        tiav.setDisplay(currentAction.getDisplay());
-        tiav.setBackgroundResource(R.drawable.list_bottom_tab);
-        //We're gonna double pad this because we want to give it some visual distinction
-        //and keep the icon more centered
-        int padding = (int)context.getResources().getDimension(R.dimen.entity_padding);
-        tiav.setPadding(padding, padding, padding, padding);
-        return tiav;
+
+        String imageURI = displayData.getImageURI();
+        if (imageURI != null) {
+            ImageView icon = (ImageView)actionCardView.findViewById(R.id.icon);
+            int iconDimension = (int)context.getResources().getDimension(R.dimen.menu_icon_size);
+            Bitmap b = MediaUtil.inflateDisplayImage(context, imageURI, iconDimension, iconDimension);
+            if (b != null) {
+                icon.setVisibility(View.VISIBLE);
+                icon.setImageBitmap(b);
+            }
+        }
+
+        TextView text = (TextView)actionCardView.findViewById(R.id.text);
+        text.setText(displayData.getName().toUpperCase());
+
+        return actionCardView;
     }
 
     private View getGridView(Entity<TreeReference> entity, GridEntityView emv) {
