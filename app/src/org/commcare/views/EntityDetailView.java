@@ -45,6 +45,8 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * @author ctsims
@@ -325,19 +327,23 @@ public class EntityDetailView extends FrameLayout {
                 });
             }
 
-            // TODO: graphs in case lists
-            // TODO: update minified files
-            // TODO: worst case, hide spinner after 10 sec
-            final ProgressBar spinner = new ProgressBar(this.getContext(), null, android.R.attr.progressBarStyleLarge);
-            spinner.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
             graphLayout.removeAllViews();
-            ((WebView)graphView).addJavascriptInterface(new GraphLoader((CommCareActivity) this.getContext(), new Runnable() {
-                public void run() {
-                    spinner.setVisibility(View.GONE);
-                }
-            }), "Android");
             graphLayout.addView(graphView, GraphView.getLayoutParams());
             if (showSpinner) {
+                final ProgressBar spinner = new ProgressBar(this.getContext(), null, android.R.attr.progressBarStyleLarge);
+                spinner.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+                Timer spinnerTimer = new Timer();
+                spinnerTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        spinner.setVisibility(View.GONE);
+                    }
+                }, 10000);
+                ((WebView)graphView).addJavascriptInterface(new GraphLoader((CommCareActivity) this.getContext(), new Runnable() {
+                    public void run() {
+                        spinner.setVisibility(View.GONE);
+                    }
+                }), "Android");
                 graphLayout.addView(spinner);
             }
 
