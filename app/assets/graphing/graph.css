@@ -1,3 +1,7 @@
+#chart {
+    display: none;
+}
+
 #chart-title {
     text-align: center;
 }

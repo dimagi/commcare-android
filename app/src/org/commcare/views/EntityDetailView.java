@@ -5,21 +5,26 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.view.Display;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareGraphActivity;
 import org.commcare.dalvik.R;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
+import org.commcare.graph.view.GraphLoader;
 import org.commcare.graph.view.GraphView;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.Entity;
@@ -255,6 +260,7 @@ public class EntityDetailView extends FrameLayout {
         } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {    // if graph parsing had errors, they'll be stored as a string
             // Fetch graph view from cache, or create it
             View graphView = null;
+            boolean wasCached = true;
             final Context context = getContext();
             int orientation = getResources().getConfiguration().orientation;
             if (graphViewsCache.get(index) != null) {
@@ -264,6 +270,7 @@ public class EntityDetailView extends FrameLayout {
             }
             String graphHTML = "";
             if (graphView == null) {
+                wasCached = false;
                 GraphView g = new GraphView(context, labelText, false);
                 try {
                     graphHTML = g.getHTML((GraphData)field);
@@ -318,8 +325,25 @@ public class EntityDetailView extends FrameLayout {
                 });
             }
 
+            // TODO: graphs in case lists
+            // TODO: don't show spinner unless it's really a WebView (not a TextView showing an error)
+            // TODO: center spinner
+            // TODO: update minified files
+            final ProgressBar spinner = new ProgressBar(this.getContext(), null, android.R.attr.progressBarStyleLarge);
+            LinearLayout.LayoutParams spinnerLayout = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+            spinner.setLayoutParams(spinnerLayout);
+            //final View spinner = detailRow.findViewById(R.id.graph_loading);
             graphLayout.removeAllViews();
+            ((WebView)graphView).addJavascriptInterface(new GraphLoader((CommCareActivity) this.getContext(), new Runnable() {
+                public void run() {
+                    System.out.println("[jls] killing a spinner");
+                    spinner.setVisibility(View.GONE);
+                }
+            }), "Android");
             graphLayout.addView(graphView, GraphView.getLayoutParams());
+            if (!wasCached) {
+                graphLayout.addView(spinner);
+            }
 
             if (current != GRAPH) {
                 // Hide field label and expand value to take up full screen width

@@ -197,6 +197,8 @@ document.addEventListener("DOMContentLoaded", function(event) {
                         area.style.opacity = data.areaOpacities[yID];
                     }
                 }
+
+                Android.showGraph();
             };
 
             // Generate chart
