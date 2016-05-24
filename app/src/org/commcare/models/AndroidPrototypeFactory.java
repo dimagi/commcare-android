@@ -73,21 +73,20 @@ public class AndroidPrototypeFactory extends PrototypeFactory {
         }
     }
 
+
+    /**
+     *
+     * @param oldClassName
+     * @param newClass - Note that we are not checking for collisions with the old hash value before
+     *                 mapping this class to that hash, since the hash came from a class that
+     *                 was already in the prototype factory before the migration
+     */
     private void addMigratedClass(String oldClassName, Class newClass) {
         if (!initialized) {
             lazyInit();
         }
 
-        byte[] hash = AndroidClassHasher.getInstance().getClassnameHash(oldClassName);
-
-        if (compareHash(hash, PrototypeFactory.getWrapperTag())) {
-            throw new Error("Hash collision! " + oldClassName + " and reserved wrapper tag");
-        }
-
-        Class d = getClass(hash);
-        if (d != null && d.getName().equals(oldClassName)) {
-            throw new Error("Hash collision! " + oldClassName + " and " + d.getName());
-        }
-        prototypes.put(hashAsInteger(hash), newClass);
+        byte[] hashForOldClass = AndroidClassHasher.getInstance().getClassnameHash(oldClassName);
+        prototypes.put(hashAsInteger(hashForOldClass), newClass);
     }
 }
