@@ -5,6 +5,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 /**
  * @author ctsims
@@ -37,12 +38,12 @@ public class AndroidClassHasher extends Hasher {
     }
 
     @Override
-    public byte[] getHash(Class c) {
-        byte[] ret;
-        synchronized (mMessageDigester) {
-            ret = mMessageDigester.digest(c.getName().getBytes());
-        }
-        return ret;
+    public synchronized byte[] getHash(Class c) {
+        return mMessageDigester.digest(c.getName().getBytes());
+    }
+
+    public synchronized byte[] getClassnameHash(String className) {
+        return Arrays.copyOf(mMessageDigester.digest(className.getBytes()), CLASS_HASH_SIZE);
     }
 
     @Override

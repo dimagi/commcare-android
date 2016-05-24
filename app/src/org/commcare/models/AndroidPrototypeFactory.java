@@ -3,7 +3,9 @@ package org.commcare.models;
 import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 /**
  * This class overrides the core PrototypeFactory class primarily because we
@@ -17,6 +19,11 @@ import java.util.Hashtable;
 public class AndroidPrototypeFactory extends PrototypeFactory {
 
     private Hashtable<Integer, Class> prototypes;
+    private static final HashMap<String, Class> migratedClasses = new HashMap<>();
+
+    static {
+        //migratedClasses.put();
+    }
 
     public AndroidPrototypeFactory(PrefixTree classNames) {
         super(AndroidClassHasher.getInstance(), classNames);
@@ -29,8 +36,7 @@ public class AndroidPrototypeFactory extends PrototypeFactory {
         super.lazyInit();
     }
 
-
-    private Integer getHash(byte[] hash) {
+    private Integer hashAsInteger(byte[] hash) {
         return (hash[3]) + (hash[2] << 8) + (hash[1] << 16) + (hash[0] << 24);
     }
 
@@ -39,12 +45,37 @@ public class AndroidPrototypeFactory extends PrototypeFactory {
         if (!initialized) {
             lazyInit();
         }
-        return prototypes.get(getHash(hash));
+        return prototypes.get(hashAsInteger(hash));
     }
 
     @Override
-    public void storeHash(Class c, byte[] hash) {
-        prototypes.put(getHash(hash), c);
+    protected void storeHash(Class c, byte[] hash) {
+        prototypes.put(hashAsInteger(hash), c);
     }
 
+
+    @Override
+    protected void addMigratedClasses() {
+        for (Map.Entry<String, Class> c : migratedClasses.entrySet()) {
+            addMigratedClass(c.getKey(), c.getValue());
+        }
+    }
+
+    private void addMigratedClass(String oldClassName, Class newClass) {
+        if (!initialized) {
+            lazyInit();
+        }
+
+        byte[] hash = AndroidClassHasher.getInstance().getClassnameHash(oldClassName);
+
+        if (compareHash(hash, PrototypeFactory.getWrapperTag())) {
+            throw new Error("Hash collision! " + oldClassName + " and reserved wrapper tag");
+        }
+
+        Class d = getClass(hash);
+        if (d != null && d.getName().equals(oldClassName)) {
+            throw new Error("Hash collision! " + oldClassName + " and " + d.getName());
+        }
+        prototypes.put(hashAsInteger(hash), newClass);
+    }
 }
