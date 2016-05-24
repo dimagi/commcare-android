@@ -8,12 +8,13 @@ import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidPrototypeFactory;
-import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.network.ModernHttpRequester;
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.services.CommCareSessionService;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
@@ -107,7 +108,7 @@ public class CommCareTestApplication extends CommCareApplication {
                         .replace("/", ".")
                         .replace(".class", "")
                         .replace(".class", "");
-                DbUtil.loadClass(className, externClasses);
+                AndroidPrototypeFactorySetup.loadClass(className, externClasses);
             }
         } catch (Exception e) {
             Log.w(TAG, e.getMessage());

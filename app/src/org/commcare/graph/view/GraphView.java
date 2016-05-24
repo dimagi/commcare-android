@@ -112,7 +112,7 @@ public class GraphView {
             html.append(
                     "<html>" +
                             "<head>" +
-                            "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/c3." + affix + ".css'></link>" +
+                            "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/c3.min.css'></link>" +
                             "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph." + affix + ".css'></link>" +
                             "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
                             "<script type='text/javascript' src='file:///android_asset/graphing/c3." + affix + ".js' charset='utf-8'></script>" +

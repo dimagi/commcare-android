@@ -1,13 +1,13 @@
 
 import os
-import sys
+import shutil
 import subprocess 
+import sys
 import xml.etree.ElementTree as ET
 
 # Script to build the .apks for all consumer apps, off of the latest release build of CommCare on jenkins
 # All paths are written assuming this script will be run from the PARENT directory of commcare-odk/,
 # unless otherwise specified 
-
 
 # Path to the directory where all user-provided information and files for each consumer app lives. 
 # This directory should store a list of directories, 1 for each consumer app we are building.
@@ -105,12 +105,14 @@ def get_app_name_from_profile():
 
 
 def move_apk(app_id, build_type):
-    subprocess.call(["mkdir", "-p", "./build/outputs/consumer_apks"]) 
+    CONSUMER_APKS_DIR = "./build/outputs/consumer_apks"
+    if not os.path.exists(CONSUMER_APKS_DIR):
+        os.mkdir(CONSUMER_APKS_DIR) 
     if build_type == 'd':
         original_apk_filename = "./build/outputs/apk/commcare-odk-standalone-debug.apk"
     else:
         original_apk_filename = "./build/outputs/apk/commcare-odk-standalone-release.apk"
-    subprocess.call(["mv", original_apk_filename, "./build/outputs/consumer_apks/{}.apk".format(app_id)])
+    shutil.move(original_apk_filename, os.path.join(CONSUMER_APKS_DIR, "{}.apk".format(app_id)))
 
 
 def main():
@@ -121,6 +123,7 @@ def main():
         raise Exception("Must specify a build type. Use 'd' for debug or 'r' for release.")
     checkout_or_update_static_resources_repo()
     build_apks_from_resources(build_type)
+
 
 if __name__ == "__main__":
     main()

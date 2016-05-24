@@ -316,7 +316,6 @@ home.sync.message.last.demo=You are using CommCare in demo mode
 
 demo.mode.warning.title=Starting Demo Mode
 demo.mode.warning=You are logging into CommCare in Demo mode. Demo mode is for testing and practice only!
-demo.mode.warning.dismiss=I Understand
 
 demo.mode.feature.unavailable=Sorry, this app uses a feature that is not available in Demo mode. Please log in as a named user.
 
