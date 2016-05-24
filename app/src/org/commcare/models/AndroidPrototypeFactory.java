@@ -19,7 +19,7 @@ public class AndroidPrototypeFactory extends PrototypeFactory {
     private Hashtable<Integer, Class> prototypes;
 
     public AndroidPrototypeFactory(PrefixTree classNames) {
-        super(new AndroidClassHasher(), classNames);
+        super(AndroidClassHasher.getInstance(), classNames);
     }
 
     @Override

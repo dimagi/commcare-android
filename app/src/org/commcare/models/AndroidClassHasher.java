@@ -11,11 +11,12 @@ import java.security.NoSuchAlgorithmException;
  */
 public class AndroidClassHasher extends Hasher {
 
+    private static AndroidClassHasher instance;
     private static final int CLASS_HASH_SIZE = 4;
 
     private final MessageDigest mMessageDigester;
 
-    public AndroidClassHasher() {
+    private AndroidClassHasher() {
         try {
             mMessageDigester = java.security.MessageDigest.getInstance("MD5");
         } catch (NoSuchAlgorithmException e) {
@@ -23,8 +24,16 @@ public class AndroidClassHasher extends Hasher {
         }
     }
 
+    public synchronized static AndroidClassHasher getInstance() {
+        if (instance == null) {
+            instance = new AndroidClassHasher();
+        }
+
+        return instance;
+    }
+
     public static void registerAndroidClassHashStrategy() {
-        PrototypeFactory.setStaticHasher(new AndroidClassHasher());
+        PrototypeFactory.setStaticHasher(getInstance());
     }
 
     @Override
