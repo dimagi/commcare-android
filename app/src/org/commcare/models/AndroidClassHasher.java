@@ -27,6 +27,7 @@ public class AndroidClassHasher extends Hasher {
         PrototypeFactory.setStaticHasher(new AndroidClassHasher());
     }
 
+    @Override
     public byte[] getHash(Class c) {
         byte[] ret;
         synchronized (mMessageDigester) {
