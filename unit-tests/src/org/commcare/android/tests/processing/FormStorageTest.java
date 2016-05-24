@@ -6,7 +6,6 @@ import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidClassHasher;
-import org.commcare.models.AndroidPrototypeFactory;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -30,7 +29,8 @@ import java.io.IOException;
 @RunWith(CommCareTestRunner.class)
 public class FormStorageTest {
     private static final String[] classNames =
-            {"org.commcare.android.database.app.models.ResourceModelUpdater"
+            {       // current class names:
+                    "org.commcare.android.database.app.models.ResourceModelUpdater"
                     , "org.commcare.android.database.app.models.UserKeyRecord"
                     , "org.commcare.android.database.app.models.UserKeyRecordV1"
                     , "org.commcare.android.database.global.models.AndroidSharedKeyRecord"
@@ -45,6 +45,9 @@ public class FormStorageTest {
                     , "org.commcare.android.database.user.models.GeocodeCacheModel"
                     , "org.commcare.android.database.user.models.SessionStateDescriptor"
                     , "org.commcare.android.javarosa.AndroidLogEntry"
+                    , "org.commcare.android.javarosa.AndroidXFormExtensions"
+                    , "org.commcare.android.javarosa.IntentCallout"
+                    , "org.commcare.android.javarosa.PollSensorAction"
                     , "org.commcare.android.javarosa.DeviceReportRecord"
                     , "org.commcare.android.logging.ForceCloseLogEntry"
                     , "org.commcare.android.resource.installers.LocaleAndroidInstaller"
@@ -177,6 +180,8 @@ public class FormStorageTest {
                     , "org.javarosa.xpath.expr.XPathUnaryOpExpr"
                     , "org.javarosa.xpath.expr.XPathUnionExpr"
                     , "org.javarosa.xpath.expr.XPathVariableReference"
+
+                    // Old class names:
                     , "org.odk.collect.android.jr.extensions.AndroidXFormExtensions"
                     , "org.odk.collect.android.jr.extensions.IntentCallout"
                     , "org.odk.collect.android.jr.extensions.PollSensorAction"};

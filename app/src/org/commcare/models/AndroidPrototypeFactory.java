@@ -25,9 +25,15 @@ public class AndroidPrototypeFactory extends PrototypeFactory {
     private static final HashMap<String, Class> migratedClasses = new HashMap<>();
 
     static {
-        migratedClasses.put("org.odk.collect.android.jr.extensions.AndroidXFormExtensions", AndroidXFormExtensions.class);
-        migratedClasses.put("org.odk.collect.android.jr.extensions.IntentCallout", IntentCallout.class);
-        migratedClasses.put("org.odk.collect.android.jr.extensions.PollSensorAction", PollSensorAction.class);
+        // These class names were changed in CommCare 2.28; this migration
+        // mapping can be removed when we are sure no pre-2.28 device with
+        // saved forms is upgrading to 2.28 or higher
+        migratedClasses.put("org.odk.collect.android.jr.extensions.AndroidXFormExtensions",
+                AndroidXFormExtensions.class);
+        migratedClasses.put("org.odk.collect.android.jr.extensions.IntentCallout",
+                IntentCallout.class);
+        migratedClasses.put("org.odk.collect.android.jr.extensions.PollSensorAction",
+                PollSensorAction.class);
     }
 
     public AndroidPrototypeFactory(PrefixTree classNames) {
@@ -58,9 +64,10 @@ public class AndroidPrototypeFactory extends PrototypeFactory {
         prototypes.put(hashAsInteger(hash), c);
     }
 
-
     @Override
     protected void addMigratedClasses() {
+        // map old classname to new class. Needed to load data serialized with
+        // old classname. Subsequent writes should use the class's new name
         for (Map.Entry<String, Class> c : migratedClasses.entrySet()) {
             addMigratedClass(c.getKey(), c.getValue());
         }
