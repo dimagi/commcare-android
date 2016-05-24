@@ -1,5 +1,8 @@
 package org.commcare.models;
 
+import org.commcare.android.javarosa.AndroidXFormExtensions;
+import org.commcare.android.javarosa.IntentCallout;
+import org.commcare.android.javarosa.PollSensorAction;
 import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -22,7 +25,9 @@ public class AndroidPrototypeFactory extends PrototypeFactory {
     private static final HashMap<String, Class> migratedClasses = new HashMap<>();
 
     static {
-        //migratedClasses.put();
+        migratedClasses.put("org.odk.collect.android.jr.extensions.AndroidXFormExtensions", AndroidXFormExtensions.class);
+        migratedClasses.put("org.odk.collect.android.jr.extensions.IntentCallout", IntentCallout.class);
+        migratedClasses.put("org.odk.collect.android.jr.extensions.PollSensorAction", PollSensorAction.class);
     }
 
     public AndroidPrototypeFactory(PrefixTree classNames) {
