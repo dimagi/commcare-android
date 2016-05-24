@@ -61,10 +61,10 @@ import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.AndroidDbHelper;
-import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.HybridFileBackedSqlHelpers;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.MigrationException;
+import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -1476,6 +1476,6 @@ public class CommCareApplication extends Application {
     }
 
     public PrototypeFactory getPrototypeFactory(Context c) {
-        return DbUtil.getPrototypeFactory(c);
+        return AndroidPrototypeFactorySetup.getPrototypeFactory(c);
     }
 }

@@ -1,25 +1,31 @@
 package org.commcare.views;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.view.Display;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareGraphActivity;
 import org.commcare.dalvik.R;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
+import org.commcare.graph.view.GraphLoader;
 import org.commcare.graph.view.GraphView;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.Entity;
@@ -40,6 +46,8 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * @author ctsims
@@ -255,10 +263,12 @@ public class EntityDetailView extends FrameLayout {
         } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {    // if graph parsing had errors, they'll be stored as a string
             // Fetch graph view from cache, or create it
             View graphView = null;
+            boolean showSpinner = true;
             final Context context = getContext();
             int orientation = getResources().getConfiguration().orientation;
             if (graphViewsCache.get(index) != null) {
                 graphView = graphViewsCache.get(index).get(orientation);
+                showSpinner = false;
             } else {
                 graphViewsCache.put(index, new Hashtable<Integer, View>());
             }
@@ -320,6 +330,21 @@ public class EntityDetailView extends FrameLayout {
 
             graphLayout.removeAllViews();
             graphLayout.addView(graphView, GraphView.getLayoutParams());
+            if (showSpinner) {
+                final ProgressBar spinner = new ProgressBar(this.getContext(), null, android.R.attr.progressBarStyleLarge);
+                spinner.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+                GraphLoader graphLoader = new GraphLoader((Activity) this.getContext(), spinner);
+
+                // Set up interface that JavaScript will call to hide the spinner
+                // once the graph has finished rendering.
+                ((WebView)graphView).addJavascriptInterface(graphLoader, "Android");
+
+                // The above JavaScript interface doesn't load properly 100% of the time.
+                // Worst case, hide the spinner after ten seconds.
+                Timer spinnerTimer = new Timer();
+                spinnerTimer.schedule(graphLoader, 10000);
+                graphLayout.addView(spinner);
+            }
 
             if (current != GRAPH) {
                 // Hide field label and expand value to take up full screen width
