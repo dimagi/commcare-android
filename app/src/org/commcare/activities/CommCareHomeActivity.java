@@ -735,24 +735,9 @@ public class CommCareHomeActivity
     }
 
     private void showDemoModeWarning() {
-        AlertDialog demoModeWarning = new AlertDialog.Builder(new ContextThemeWrapper(this, android.R.style.Theme_Light)).setInverseBackgroundForced(true).create();
-        demoModeWarning.setTitle(Localization.get("demo.mode.warning.title"));
-        demoModeWarning.setCancelable(false);
-
-        DialogInterface.OnClickListener demoModeWarningListener = new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int i) {
-                // user has acknowledged demo warning
-            }
-        };
-        demoModeWarning.setButton(android.content.DialogInterface.BUTTON_POSITIVE,
-                Localization.get("demo.mode.warning.dismiss"),
-                demoModeWarningListener);
-
-        HorizontalMediaView tiav = new HorizontalMediaView(this);
-        tiav.setAVT(Localization.get("demo.mode.warning"), null, null);
-
-        demoModeWarning.setView(tiav);
-        demoModeWarning.show();
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this,
+                Localization.get("demo.mode.warning.title"), Localization.get("demo.mode.warning"),
+                android.R.drawable.ic_dialog_info, null));
     }
 
     private void createErrorDialog(String errorMsg, AlertDialog.OnClickListener errorListener) {
