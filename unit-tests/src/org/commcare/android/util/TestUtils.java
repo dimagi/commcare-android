@@ -10,7 +10,7 @@ import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.engine.cases.AndroidCaseInstanceTreeElement;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
-import org.commcare.models.database.DbUtil;
+import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.android.database.user.models.ACase;
@@ -55,7 +55,7 @@ public class TestUtils {
     public static void initializeStaticTestStorage() {
         //Sets the static strategy for the deserializtion code to be
         //based on an optimized md5 hasher. Major speed improvements.
-        DbUtil.setDBUtilsPrototypeFactory(new LivePrototypeFactory(new AndroidClassHasher()));
+        AndroidPrototypeFactorySetup.setDBUtilsPrototypeFactory(new LivePrototypeFactory(new AndroidClassHasher()));
         AndroidUtil.initializeStaticHandlers();
         disableSqlOptimizations();
     }

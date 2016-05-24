@@ -6,7 +6,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Pair;
 
 import org.commcare.models.database.AndroidTableBuilder;
-import org.commcare.models.database.DbUtil;
+import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.encryption.CryptUtil;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
@@ -141,6 +141,6 @@ public abstract class LegacyDbHelper {
     }
 
     public PrototypeFactory getPrototypeFactory() {
-        return DbUtil.getPrototypeFactory(c);
+        return AndroidPrototypeFactorySetup.getPrototypeFactory(c);
     }
 }
