@@ -76,7 +76,7 @@ public class AndroidPrototypeFactorySetup {
     public static void loadClass(String cn, List<String> classNames) {
         try {
             for (String packageName : packageNames) {
-                if (cn.startsWith(packageName) && !cn.contains(".test.") && !cn.contains("readystatesoftware")) {
+                if (cn.startsWith(packageName)) {
                     //TODO: These optimize by preventing us from statically loading classes we don't need, but they take a _long_ time to run.
                     //Maybe we should skip this and/or roll it into initializing the factory itself.
                     Class prototype = Class.forName(cn);
