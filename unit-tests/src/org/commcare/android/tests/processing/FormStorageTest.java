@@ -31,8 +31,10 @@ import java.util.List;
 @RunWith(CommCareTestRunner.class)
 public class FormStorageTest {
 
-    private static final List<String> classNames =
-            Arrays.asList(// current class names:
+    // compiled by printing out classes from DexFile at runtime
+    private static final List<String> externalizableClassNames =
+            Arrays.asList(
+                    // current class names:
                     "org.commcare.android.database.app.models.ResourceModelUpdater"
                     , "org.commcare.android.database.app.models.UserKeyRecord"
                     , "org.commcare.android.database.app.models.UserKeyRecordV1"
@@ -202,11 +204,11 @@ public class FormStorageTest {
         // make sure all classes that define externalizable are defined in the
         // static list of classes
         for (String externalizableClassname : externalizableClasses) {
-            Assert.assertTrue(classNames.contains(externalizableClassname));
+            Assert.assertTrue(externalizableClassNames.contains(externalizableClassname));
         }
         // make sure that all the classes defined in the static list are
         // present in the prototype factory
-        for (String className : classNames) {
+        for (String className : externalizableClassNames) {
             Assert.assertNotNull(pf.getClass(AndroidClassHasher.getInstance().getClassnameHash(className)));
         }
     }
