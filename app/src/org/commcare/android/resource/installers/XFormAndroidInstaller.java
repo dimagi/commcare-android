@@ -11,7 +11,7 @@ import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.engine.extensions.IntentExtensionParser;
-import org.odk.collect.android.jr.extensions.PollSensorAction;
+import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.engine.extensions.PollSensorExtensionParser;
 import org.commcare.engine.extensions.XFormExtensionUtils;
 import org.commcare.logging.AndroidLogger;
