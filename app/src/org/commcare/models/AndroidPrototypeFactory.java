@@ -9,6 +9,7 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This class overrides the core PrototypeFactory class primarily because we
@@ -73,13 +74,10 @@ public class AndroidPrototypeFactory extends PrototypeFactory {
         }
     }
 
-
     /**
-     *
-     * @param oldClassName
-     * @param newClass - Note that we are not checking for collisions with the old hash value before
-     *                 mapping this class to that hash, since the hash came from a class that
-     *                 was already in the prototype factory before the migration
+     * @param oldClassName Assumes the class name was stored in the prototype
+     *                     factory on earlier versions of CommCare. Hence
+     *                     don't check for hash collisions.
      */
     private void addMigratedClass(String oldClassName, Class newClass) {
         if (!initialized) {
@@ -88,5 +86,9 @@ public class AndroidPrototypeFactory extends PrototypeFactory {
 
         byte[] hashForOldClass = AndroidClassHasher.getInstance().getClassnameHash(oldClassName);
         prototypes.put(hashAsInteger(hashForOldClass), newClass);
+    }
+
+    public static Set<String> getMigratedClassNames() {
+        return migratedClasses.keySet();
     }
 }

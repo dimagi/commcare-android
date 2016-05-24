@@ -66,7 +66,7 @@ public class CommCareTestApplication extends CommCareApplication {
 
         // Sort of hack-y way to get the classfile dirs
         PrefixTree tree = new PrefixTree();
-        getTestPrototypeFactoryClasses();
+        initFactoryClassList();
 
         try {
             for (String cl : factoryClassNames) {
@@ -80,7 +80,7 @@ public class CommCareTestApplication extends CommCareApplication {
         return testPrototypeFactory;
     }
 
-    public static List<String> getTestPrototypeFactoryClasses() {
+    private static void initFactoryClassList() {
         if (factoryClassNames.isEmpty()) {
             String baseODK = BuildConfig.BUILD_DIR + "/intermediates/classes/commcare/debug/";
             String baseJR = BuildConfig.PROJECT_DIR + "/../javarosa/build/classes/main/";
@@ -89,8 +89,6 @@ public class CommCareTestApplication extends CommCareApplication {
             addExternalizableClassesFromDir(baseCC, factoryClassNames);
             addExternalizableClassesFromDir(baseJR, factoryClassNames);
         }
-
-        return factoryClassNames;
     }
 
     private static void addExternalizableClassesFromDir(String baseClassPath,
@@ -110,6 +108,15 @@ public class CommCareTestApplication extends CommCareApplication {
         } catch (Exception e) {
             Log.w(TAG, e.getMessage());
         }
+    }
+
+    /**
+     * @return Names of externalizable classes loaded from *.class files in the build dir
+     */
+    public static List<String> getTestPrototypeFactoryClasses() {
+        initFactoryClassList();
+
+        return factoryClassNames;
     }
 
     private static void getFilesInDir(File currentFile, ArrayList<File> acc) {
