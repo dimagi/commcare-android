@@ -26,7 +26,8 @@ import java.util.List;
  */
 public class CommCareTestApplication extends CommCareApplication {
     private static final String TAG = CommCareTestApplication.class.getSimpleName();
-    private static PrototypeFactory testPrototypeFactor;
+    private static PrototypeFactory testPrototypeFactory;
+    private static final ArrayList<String> factoryClassNames = new ArrayList<>();
 
     @Override
     public void onCreate() {
@@ -59,32 +60,38 @@ public class CommCareTestApplication extends CommCareApplication {
     public PrototypeFactory getPrototypeFactory(Context c) {
         TestUtils.disableSqlOptimizations();
 
-        if (testPrototypeFactor != null) {
-            return testPrototypeFactor;
+        if (testPrototypeFactory != null) {
+            return testPrototypeFactory;
         }
 
-        ArrayList<String> classNames = new ArrayList<>();
         // Sort of hack-y way to get the classfile dirs
-        String baseODK = BuildConfig.BUILD_DIR + "/intermediates/classes/commcare/debug/";
-        String baseJR = BuildConfig.PROJECT_DIR + "/../javarosa/build/classes/main/";
-        String baseCC = BuildConfig.PROJECT_DIR + "/../commcare/build/classes/main/";
-        addExternalizableClassesFromDir(baseODK, classNames);
-        addExternalizableClassesFromDir(baseCC, classNames);
-        addExternalizableClassesFromDir(baseJR, classNames);
         PrefixTree tree = new PrefixTree();
+        getTestPrototypeFactoryClasses();
 
         try {
-            for (String cl : classNames) {
+            for (String cl : factoryClassNames) {
                 tree.addString(cl);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        testPrototypeFactor = new AndroidPrototypeFactory(tree);
-        return testPrototypeFactor;
+        testPrototypeFactory = new AndroidPrototypeFactory(tree);
+        return testPrototypeFactory;
     }
 
+    public static List<String> getTestPrototypeFactoryClasses() {
+        if (factoryClassNames.isEmpty()) {
+            String baseODK = BuildConfig.BUILD_DIR + "/intermediates/classes/commcare/debug/";
+            String baseJR = BuildConfig.PROJECT_DIR + "/../javarosa/build/classes/main/";
+            String baseCC = BuildConfig.PROJECT_DIR + "/../commcare/build/classes/main/";
+            addExternalizableClassesFromDir(baseODK, factoryClassNames);
+            addExternalizableClassesFromDir(baseCC, factoryClassNames);
+            addExternalizableClassesFromDir(baseJR, factoryClassNames);
+        }
+
+        return factoryClassNames;
+    }
 
     private static void addExternalizableClassesFromDir(String baseClassPath,
                                                         List<String> externClasses) {

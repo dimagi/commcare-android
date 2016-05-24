@@ -18,6 +18,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Tests for the serializaiton and deserialzation of XForms.
@@ -28,8 +30,9 @@ import java.io.IOException;
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class FormStorageTest {
-    private static final String[] classNames =
-            {       // current class names:
+
+    private static final List<String> classNames =
+            Arrays.asList(// current class names:
                     "org.commcare.android.database.app.models.ResourceModelUpdater"
                     , "org.commcare.android.database.app.models.UserKeyRecord"
                     , "org.commcare.android.database.app.models.UserKeyRecordV1"
@@ -184,7 +187,7 @@ public class FormStorageTest {
                     // Old class names:
                     , "org.odk.collect.android.jr.extensions.AndroidXFormExtensions"
                     , "org.odk.collect.android.jr.extensions.IntentCallout"
-                    , "org.odk.collect.android.jr.extensions.PollSensorAction"};
+                    , "org.odk.collect.android.jr.extensions.PollSensorAction");
 
     @Before
     public void setup() {
@@ -194,6 +197,15 @@ public class FormStorageTest {
     @Test
     public void testAllExternalizablesInPrototypeFactory() {
         PrototypeFactory pf = TestUtils.getStaticPrototypeFactory();
+        List<String> externalizableClasses =
+                CommCareTestApplication.getTestPrototypeFactoryClasses();
+        // make sure all classes that define externalizable are defined in the
+        // static list of classes
+        for (String externalizableClassname : externalizableClasses) {
+            Assert.assertTrue(classNames.contains(externalizableClassname));
+        }
+        // make sure that all the classes defined in the static list are
+        // present in the prototype factory
         for (String className : classNames) {
             Assert.assertNotNull(pf.getClass(AndroidClassHasher.getInstance().getClassnameHash(className)));
         }
