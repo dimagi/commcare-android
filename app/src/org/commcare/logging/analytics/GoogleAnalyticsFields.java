@@ -20,6 +20,7 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_TIMED_EVENTS = "Timed Events";
     public static final String CATEGORY_PRE_LOGIN_STATS = "Pre-Login Stats";
     public static final String CATEGORY_MODULE_NAVIGATION = "Module Navigation";
+    public static final String CATEGORY_FEATURE_USAGE = "Feature Usage";
 
     // Actions for CATEGORY_HOME_SCREEN only
     public static final String ACTION_BUTTON = "Button Press";
@@ -66,6 +67,10 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_CLEAR_SAVED_SESSION = "Clear Saved Session";
     public static final String ACTION_FORCE_LOG_SUBMISSION = "Force Log Submission";
     public static final String ACTION_RECOVERY_MODE = "Recovery Mode";
+
+    // Actions for CATEGORY_FEATURE_USAGE
+    public static final String ACTION_LOGIN_AS_DEMO_USER = "Login as Demo User";
+    public static final String ACTION_SET_USER_PIN = "Set a User's PIN";
 
     // Labels for ACTION_BUTTON
     public static final String LABEL_START_BUTTON = "Start Button";

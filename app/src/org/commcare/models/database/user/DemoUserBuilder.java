@@ -6,6 +6,8 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.logging.analytics.GoogleAnalyticsFields;
+import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -48,10 +50,11 @@ public class DemoUserBuilder {
     }
 
     /**
-     * Create demo UserKeyRecord and User and write it the the databse
+     * Create demo UserKeyRecord and User and write it to the database
      */
     public static synchronized void build(Context context, CommCareApp ccApp) {
         (new DemoUserBuilder(context, ccApp, DEMO_USERNAME, DEMO_PASSWORD, true)).createAndWriteKeyRecordAndUser();
+        GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_LOGIN_AS_DEMO_USER);
     }
 
     /**

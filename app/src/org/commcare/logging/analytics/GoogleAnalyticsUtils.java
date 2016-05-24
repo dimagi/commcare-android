@@ -248,6 +248,16 @@ public class GoogleAnalyticsUtils {
     }
 
     /**
+     * Report usage of a specific feature
+     *
+     * @param action - Should be one of the actions listed under
+     *               "Actions for CATEGORY_FEATURE_USAGE" in GoogleAnalyticsFields.java
+     */
+    public static void reportFeatureUsage(String action) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_FEATURE_USAGE, action);
+    }
+
+    /**
      * Report the length of a certain user event/action/concept
      *
      * @param action - Communicates the event/action/concept whose length is being measured
