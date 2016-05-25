@@ -54,7 +54,7 @@ public class GraphView {
      * any changes to graph's configuration, title, etc.
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public View getView(String html) {
+    public WebView getView(String html) {
         if (BuildConfig.DEBUG) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
