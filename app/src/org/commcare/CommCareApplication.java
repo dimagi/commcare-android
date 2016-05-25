@@ -1488,5 +1488,4 @@ public class CommCareApplication extends Application {
     public PrototypeFactory getPrototypeFactory(Context c) {
         return AndroidPrototypeFactorySetup.getPrototypeFactory(c);
     }
-
 }

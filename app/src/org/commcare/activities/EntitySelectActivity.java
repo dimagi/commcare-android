@@ -71,7 +71,7 @@ import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.odk.collect.android.jr.extensions.IntentCallout;
+import org.commcare.android.javarosa.IntentCallout;
 
 import java.util.ArrayList;
 import java.util.List;

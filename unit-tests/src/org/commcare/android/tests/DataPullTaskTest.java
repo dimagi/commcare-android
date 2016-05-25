@@ -118,6 +118,7 @@ public class DataPullTaskTest {
         HttpRequestEndpointsMock.setCaseFetchResponseCodes(resultCodes);
 
         LocalDataPullResponseFactory.setRequestPayloads(payloadResources);
+
         DataPullTask<Object> task =
                 new DataPullTask<Object>("test", "123", "fake.server.com", RuntimeEnvironment.application, LocalDataPullResponseFactory.INSTANCE) {
                     @Override

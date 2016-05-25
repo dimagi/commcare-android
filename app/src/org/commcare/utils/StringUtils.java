@@ -3,6 +3,7 @@ package org.commcare.utils;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.v4.util.LruCache;
 import android.text.Spannable;
 import android.util.Pair;
@@ -156,7 +157,7 @@ public class StringUtils {
         }
     }
 
-    public static String getStringRobust(Context c, int resId, String[] args) {
+    public static String getStringRobust(Context c, int resId, @NonNull String[] args) {
         String resourceName = c.getResources().getResourceEntryName(resId);
         try {
             return Localization.get("odk_" + resourceName, args);

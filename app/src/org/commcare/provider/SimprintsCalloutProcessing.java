@@ -13,7 +13,7 @@ import org.javarosa.core.model.instance.AbstractTreeElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
-import org.odk.collect.android.jr.extensions.IntentCallout;
+import org.commcare.android.javarosa.IntentCallout;
 
 import java.util.Collections;
 import java.util.Hashtable;
