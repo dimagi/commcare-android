@@ -184,7 +184,12 @@ public class FormStorageTest {
             , "org.javarosa.xpath.expr.XPathStringLiteral"
             , "org.javarosa.xpath.expr.XPathUnaryOpExpr"
             , "org.javarosa.xpath.expr.XPathUnionExpr"
-            , "org.javarosa.xpath.expr.XPathVariableReference");
+            , "org.javarosa.xpath.expr.XPathVariableReference"
+
+            // Classes that have been migrated
+            , "org.odk.collect.android.jr.extensions.AndroidXFormExtensions"
+            , "org.odk.collect.android.jr.extensions.IntentCallout"
+            , "org.odk.collect.android.jr.extensions.PollSensorAction");
 
     @Before
     public void setup() {
@@ -209,18 +214,16 @@ public class FormStorageTest {
 
         // Ensure that any renamed externalizable classes are properly migrated
         for (String className : testExtClassnames) {
-            Assert.assertTrue(
-                    "'" + className + "' is present in the test class list, but " +
-                    "isn't present in the PrototypeFactory being used. " +
-                    "Please move '" + className + "' out of the test class list and " +
-                    "make sure it is added to AndroidPrototypeFactory.migratedClasses",
-                    extClassesInPF.contains(className));
+            Assert.assertNotNull(
+                    "The class '" + className + "' wasn't properly migrated in the prototype factory",
+                    pf.getClass(AndroidClassHasher.getInstance().getClassnameHash(className)));
         }
 
         // Simple sanity check to ensure classes were migrated properly
         for (String migratedClassName : AndroidPrototypeFactory.getMigratedClassNames()) {
             Assert.assertNotNull(
-                    "The class '" + migratedClassName + "' wasn't properly migrated in the prototype factory",
+                    "The class '" + migratedClassName + "' wasn't properly migrated in the prototype factory. " +
+                            "A migration strategy for this class should be added in AndroidPrototypeFactory.",
                     pf.getClass(AndroidClassHasher.getInstance().getClassnameHash(migratedClassName)));
         }
     }
