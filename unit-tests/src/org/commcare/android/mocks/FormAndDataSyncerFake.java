@@ -22,7 +22,7 @@ public class FormAndDataSyncerFake extends FormAndDataSyncer {
 
     @Override
     public void processAndSendForms(CommCareHomeActivity activity,
-                                    FormRecord[]records,
+                                    FormRecord[] records,
                                     final boolean syncAfterwards,
                                     final boolean userTriggered) {
         Log.d(TAG, "faking form processing and sending");

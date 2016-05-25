@@ -73,6 +73,8 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.framework.Table;
 import org.commcare.models.legacy.LegacyInstallUtils;
+import org.commcare.network.DataPullRequester;
+import org.commcare.network.DataPullResponseFactory;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.preferences.DevSessionRestorer;
@@ -1460,6 +1462,10 @@ public class CommCareApplication extends Application {
         return false;
     }
 
+    public DataPullRequester getDataPullRequester(){
+        return DataPullResponseFactory.INSTANCE;
+    }
+
     /**
      * A consumer app is a CommCare build flavor in which the .ccz and restore file for a specific
      * app and user have been pre-packaged along with CommCare into a custom .apk, and placed on
@@ -1472,5 +1478,4 @@ public class CommCareApplication extends Application {
     public PrototypeFactory getPrototypeFactory(Context c) {
         return AndroidPrototypeFactorySetup.getPrototypeFactory(c);
     }
-
 }

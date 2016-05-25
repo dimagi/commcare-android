@@ -19,7 +19,7 @@ import java.util.List;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
-    private static List<Integer> caseFetchResponseCodeStack = new ArrayList<>();
+    private final static List<Integer> caseFetchResponseCodeStack = new ArrayList<>();
 
     /**
      * Set the response code for the next N requests
