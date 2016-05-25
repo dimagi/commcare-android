@@ -223,6 +223,12 @@ public class FormStorageTest {
                     pf.getClass(AndroidClassHasher.getInstance().getClassnameHash(className)));
         }
 
+        // For completeness, make sure that migrated classes are present in the test class list used
+        for (String className : AndroidPrototypeFactory.getMigratedClassNames()) {
+            Assert.assertTrue("The migrated class '" + className + "' isn't represented in the test list",
+                    completeHistoryOfExternalizableClasses.contains(className));
+        }
+
     }
 
     @Test
