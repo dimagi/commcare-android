@@ -143,9 +143,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                 return indices;
             }
         } finally {
-            if (c != null) {
-                c.close();
-            }
+            c.close();
         }
     }
 
@@ -160,18 +158,15 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             c.moveToFirst();
             return c.getString(c.getColumnIndexOrThrow(scrubbedName));
         } finally {
-            if (c != null) {
-                c.close();
-            }
+            c.close();
         }
     }
 
     public T getRecordForValues(String[] rawFieldNames, Object[] values) throws NoSuchElementException, InvalidIndexException {
         SQLiteDatabase appDb = helper.getHandle();
 
-        Cursor c;
         Pair<String, String[]> whereClause = helper.createWhereAndroid(rawFieldNames, values, em, null);
-        c = appDb.query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, whereClause.first, whereClause.second, null, null, null);
+        Cursor c = appDb.query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, whereClause.first, whereClause.second, null, null, null);
         try {
             int queryCount = c.getCount();
             if (queryCount == 0) {
@@ -183,9 +178,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
             byte[] data = c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
             return newObject(data, c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL)));
         } finally {
-            if (c != null) {
-                c.close();
-            }
+            c.close();
         }
     }
 
@@ -271,8 +264,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
 
     @Override
     public boolean exists(int id) {
-        Cursor c;
-        c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL}, DatabaseHelper.ID_COL + "= ? ", new String[]{String.valueOf(id)}, null, null, null);
+        Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL}, DatabaseHelper.ID_COL + "= ? ", new String[]{String.valueOf(id)}, null, null, null);
 
         try {
             int queryCount = c.getCount();
@@ -282,9 +274,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
                 throw new InvalidIndexException("Invalid ID column. Multiple records found with value " + id, "ID");
             }
         } finally {
-            if (c != null) {
-                c.close();
-            }
+            c.close();
         }
         return true;
     }
@@ -419,12 +409,12 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL, DatabaseHelper.DATA_COL}, DatabaseHelper.ID_COL + "=?", new String[]{String.valueOf(id)}, null, null, null);
 
         try {
-            c.moveToFirst();
+            if (!c.moveToFirst()) {
+                throw new NoSuchElementException("No record in table " + table + " for ID " + id);
+            }
             return c.getBlob(c.getColumnIndexOrThrow(DatabaseHelper.DATA_COL));
         } finally {
-            if (c != null) {
-                c.close();
-            }
+            c.close();
         }
     }
 
@@ -449,7 +439,7 @@ public class SqlStorage<T extends Persistable> implements IStorageUtilityIndexed
         try {
             List<Pair<String, String[]>> whereParamList = AndroidTableBuilder.sqlList(ids);
             for (Pair<String, String[]> whereParams : whereParamList) {
-                int rowsRemoved = db.delete(table, DatabaseHelper.ID_COL + " IN " + whereParams.first, whereParams.second);
+                db.delete(table, DatabaseHelper.ID_COL + " IN " + whereParams.first, whereParams.second);
             }
             db.setTransactionSuccessful();
         } finally {
