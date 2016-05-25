@@ -11,9 +11,9 @@ import java.io.IOException;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-public class DataPullResponseFactory implements DataPullRequester {
-    public DataPullResponseFactory() {
-    }
+public enum DataPullResponseFactory implements DataPullRequester {
+
+    INSTANCE;
 
     @Override
     public RemoteDataPullResponse makeDataPullRequest(DataPullTask task,

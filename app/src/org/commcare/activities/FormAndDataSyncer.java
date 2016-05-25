@@ -69,14 +69,14 @@ public class FormAndDataSyncer {
                         label = Localization.get("sync.success.sent",
                                 new String[]{String.valueOf(successfulSends)});
                     }
-                    receiver.displayMessage(label);
+                    receiver.reportSuccess(label);
 
                     if (syncAfterwards) {
                         syncDataForLoggedInUser(receiver, true, userTriggered);
                     }
                 } else if (result != FormUploadUtil.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
-                    receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
+                    receiver.reportFailure(Localization.get("sync.fail.unsent"), true);
                 }
             }
 
@@ -86,7 +86,7 @@ public class FormAndDataSyncer {
 
             @Override
             protected void deliverError(CommCareHomeActivity receiver, Exception e) {
-                receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
+                receiver.reportFailure(Localization.get("sync.fail.unsent"), true);
             }
         };
 
@@ -114,7 +114,7 @@ public class FormAndDataSyncer {
             final boolean userTriggeredSync, String server,
             String username, String password) {
 
-        syncData(activity, formsToSend, userTriggeredSync, server, username, password, new DataPullResponseFactory());
+        syncData(activity, formsToSend, userTriggeredSync, server, username, password, CommCareApplication._().getDataPullRequester());
     }
 
     private <I extends CommCareActivity & PullTaskReceiver> void syncData(
@@ -148,12 +148,7 @@ public class FormAndDataSyncer {
         };
 
         mDataPullTask.connect(activity);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mDataPullTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            mDataPullTask.execute();
-        }
-
+        mDataPullTask.executeParallel();
     }
 
     public void syncDataForLoggedInUser(
@@ -200,8 +195,7 @@ public class FormAndDataSyncer {
             throw new RuntimeException("Local restore file missing");
         }
 
-        LocalDataPullResponseFactory localDataPullRequester =
-                new LocalDataPullResponseFactory(SingleAppInstallation.LOCAL_RESTORE_REFERENCE);
-        syncData(context, false, false, "fake-server-that-is-never-used", username, password, localDataPullRequester);
+        LocalDataPullResponseFactory.setRequestPayloads(new String[] {SingleAppInstallation.LOCAL_RESTORE_REFERENCE});
+        syncData(context, false, false, "fake-server-that-is-never-used", username, password, LocalDataPullResponseFactory.INSTANCE);
     }
 }
