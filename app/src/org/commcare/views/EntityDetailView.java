@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -370,14 +371,21 @@ public class EntityDetailView extends FrameLayout {
         return display.getWidth();
     }
 
+    @SuppressWarnings("AddJavascriptInterface")
     private void addSpinnerToGraph(WebView graphView, ViewGroup graphLayout) {
+        // WebView.addJavascriptInterface should not be called with minSdkVersion < 17
+        // for security reasons: JavaScript can use reflection to manipulate application
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            return;
+        }
+
         final ProgressBar spinner = new ProgressBar(this.getContext(), null, android.R.attr.progressBarStyleLarge);
         spinner.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
         GraphLoader graphLoader = new GraphLoader((Activity) this.getContext(), spinner);
 
         // Set up interface that JavaScript will call to hide the spinner
         // once the graph has finished rendering.
-        ((WebView)graphView).addJavascriptInterface(graphLoader, "Android");
+        graphView.addJavascriptInterface(graphLoader, "Android");
 
         // The above JavaScript interface doesn't load properly 100% of the time.
         // Worst case, hide the spinner after ten seconds.
