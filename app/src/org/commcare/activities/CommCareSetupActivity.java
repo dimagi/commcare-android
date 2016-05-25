@@ -654,12 +654,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     /**
      * Raise failure message and return to the home activity with cancel code
      */
-    private void fail(NotificationMessage message, boolean alwaysNotify) {
-        Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
-
-        if (alwaysNotify) {
+    private void fail(NotificationMessage message, boolean reportNotification) {
+        String toastMessage;
+        if (reportNotification) {
             CommCareApplication._().reportNotificationMessage(message);
+            toastMessage = Localization.get("notification.for.details.wrapper", new String[]{message.getTitle()});
+        } else {
+            toastMessage = message.getTitle();
         }
+        Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
 
         // Last install attempt failed, so restore to starting uistate to try again
         uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
