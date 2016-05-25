@@ -8,14 +8,12 @@ import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
 
-
 /**
  * @author wspride
  */
 public class PrototypeTest {
 
     private AndroidPrototypeFactory mFactory;
-
 
     @Before
     public void setupTests() {
@@ -27,10 +25,9 @@ public class PrototypeTest {
      */
     @Test
     public void testPrototyping() {
-
         mFactory.addClass(Case.class);
 
-        AndroidClassHasher mHasher = new AndroidClassHasher();
+        AndroidClassHasher mHasher = AndroidClassHasher.getInstance();
 
         byte[] hash = mHasher.getClassHashValue(Case.class);
 
@@ -40,7 +37,5 @@ public class PrototypeTest {
         mFactory.addClass(Case.class);
 
         assertEquals(Case.class, mFactory.getClass(hash));
-
     }
-
 }
