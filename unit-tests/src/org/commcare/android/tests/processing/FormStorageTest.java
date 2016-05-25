@@ -32,8 +32,11 @@ import java.util.List;
 @RunWith(CommCareTestRunner.class)
 public class FormStorageTest {
 
-    // compiled by printing out classes from DexFile at runtime
-    private static final List<String> testExtClassnames = Arrays.asList(
+    // Contains the names of all externalizable classes that have ever existed in CommCare, so as
+    // to ensure that users on any prior version of CommCare will be able to load their saved
+    // forms upon upgrading. When a class is migrated, it should NOT be removed from this list,
+    // but should be moved to the bottom with a comment as to what version it was migrated in
+    private static final List<String> completeHistoryOfExternalizableClasses = Arrays.asList(
             // current class names:
             "org.commcare.android.database.app.models.ResourceModelUpdater"
             , "org.commcare.android.database.app.models.UserKeyRecord"
@@ -186,7 +189,7 @@ public class FormStorageTest {
             , "org.javarosa.xpath.expr.XPathUnionExpr"
             , "org.javarosa.xpath.expr.XPathVariableReference"
 
-            // Classes that have been migrated
+            // Migrated in 2.28
             , "org.odk.collect.android.jr.extensions.AndroidXFormExtensions"
             , "org.odk.collect.android.jr.extensions.IntentCallout"
             , "org.odk.collect.android.jr.extensions.PollSensorAction");
@@ -209,23 +212,17 @@ public class FormStorageTest {
             // without updating the list used by this test.
             Assert.assertTrue(
                     "Please keep test list up-to-date by adding '" + className + "' to list",
-                    testExtClassnames.contains(className));
+                    completeHistoryOfExternalizableClasses.contains(className));
         }
 
         // Ensure that any renamed externalizable classes are properly migrated
-        for (String className : testExtClassnames) {
+        for (String className : completeHistoryOfExternalizableClasses) {
             Assert.assertNotNull(
-                    "The class '" + className + "' wasn't properly migrated in the prototype factory",
+                    "The class '" + className + "' wasn't properly migrated in the prototype factory. " +
+                            "A migration strategy for this class should be added in AndroidPrototypeFactory.",
                     pf.getClass(AndroidClassHasher.getInstance().getClassnameHash(className)));
         }
 
-        // Simple sanity check to ensure classes were migrated properly
-        for (String migratedClassName : AndroidPrototypeFactory.getMigratedClassNames()) {
-            Assert.assertNotNull(
-                    "The class '" + migratedClassName + "' wasn't properly migrated in the prototype factory. " +
-                            "A migration strategy for this class should be added in AndroidPrototypeFactory.",
-                    pf.getClass(AndroidClassHasher.getInstance().getClassnameHash(migratedClassName)));
-        }
     }
 
     @Test
