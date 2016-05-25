@@ -80,6 +80,10 @@ public class CommCareTestApplication extends CommCareApplication {
         return testPrototypeFactory;
     }
 
+    /**
+     * Get externalizable classes from *.class files in build dirs. Used to
+     * build PrototypeFactory that mirrors a prod environment
+     */
     private static void initFactoryClassList() {
         if (factoryClassNames.isEmpty()) {
             String baseODK = BuildConfig.BUILD_DIR + "/intermediates/classes/commcare/debug/";

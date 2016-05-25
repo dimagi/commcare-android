@@ -88,6 +88,9 @@ public class AndroidPrototypeFactory extends PrototypeFactory {
         prototypes.put(hashAsInteger(hashForOldClass), newClass);
     }
 
+    /**
+     * For testing purposes
+     */
     public static Set<String> getMigratedClassNames() {
         return migratedClasses.keySet();
     }

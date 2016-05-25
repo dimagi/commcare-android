@@ -33,7 +33,7 @@ import java.util.List;
 public class FormStorageTest {
 
     // compiled by printing out classes from DexFile at runtime
-    private static final List<String> externalizableClassNames = Arrays.asList(
+    private static final List<String> testExtClassnames = Arrays.asList(
             // current class names:
             "org.commcare.android.database.app.models.ResourceModelUpdater"
             , "org.commcare.android.database.app.models.UserKeyRecord"
@@ -186,10 +186,6 @@ public class FormStorageTest {
             , "org.javarosa.xpath.expr.XPathUnionExpr"
             , "org.javarosa.xpath.expr.XPathVariableReference");
 
-    static {
-        externalizableClassNames.addAll(AndroidPrototypeFactory.getMigratedClassNames());
-    }
-
     @Before
     public void setup() {
         XFormAndroidInstaller.registerAndroidLevelFormParsers();
@@ -198,19 +194,34 @@ public class FormStorageTest {
     @Test
     public void testAllExternalizablesInPrototypeFactory() {
         PrototypeFactory pf = TestUtils.getStaticPrototypeFactory();
-        List<String> externalizableClasses =
+        List<String> extClassesInPF =
                 CommCareTestApplication.getTestPrototypeFactoryClasses();
-        // make sure all classes that define externalizable are defined in the
-        // static list of classes
-        for (String externalizableClassname : externalizableClasses) {
-            // If this fails it means that a new ...
-            // This is important because if you then rename this class ...
-            Assert.assertTrue(externalizableClassNames.contains(externalizableClassname));
+
+        // Ensure all externalizable classes are present in list of classes.
+        // Enforcing this keeps the list up-to-date, which is crucial for the loop check below
+        for (String className : extClassesInPF) {
+            // Should fail if a new class implementing externalizable is added
+            // without updating the list used by this test.
+            Assert.assertTrue(
+                    "Please keep test list up-to-date by adding '" + className + "' to list",
+                    testExtClassnames.contains(className));
         }
-        // make sure that all the classes defined in the static list are
-        // present in the prototype factory
-        for (String className : externalizableClassNames) {
-            Assert.assertNotNull(pf.getClass(AndroidClassHasher.getInstance().getClassnameHash(className)));
+
+        // Ensure that any renamed externalizable classes are properly migrated
+        for (String className : testExtClassnames) {
+            Assert.assertTrue(
+                    "'" + className + "' is present in the test class list, but " +
+                    "isn't present in the PrototypeFactory being used. " +
+                    "Please move '" + className + "' out of the test class list and " +
+                    "make sure it is added to AndroidPrototypeFactory.migratedClasses",
+                    extClassesInPF.contains(className));
+        }
+
+        // Simple sanity check to ensure classes were migrated properly
+        for (String migratedClassName : AndroidPrototypeFactory.getMigratedClassNames()) {
+            Assert.assertNotNull(
+                    "The class '" + migratedClassName + "' wasn't properly migrated in the prototype factory",
+                    pf.getClass(AndroidClassHasher.getInstance().getClassnameHash(migratedClassName)));
         }
     }
 
