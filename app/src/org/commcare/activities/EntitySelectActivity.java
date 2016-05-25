@@ -174,6 +174,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         refreshTimer = new EntitySelectRefreshTimer();
         asw = CommCareApplication._().getCurrentSessionWrapper();
         session = asw.getSession();
+        // Don't show actions (e.g. 'register patient', 'claim patient') when
+        // in the middle on workflow triggered by an (sync) action.
         hideActions = session.isSyncCommand(session.getCommand());
 
         // avoid session dependent when there is no command

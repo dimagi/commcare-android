@@ -6,7 +6,7 @@
         android:left="@dimen/content_start"
         android:right="@dimen/content_start"
         android:top="@dimen/content_start"/>
-    <size android:height="48dp"></size>
+    <size android:height="48dp"/>
     <solid android:color="@color/white"/>
     <stroke
         android:color="@color/cc_neutral_bg"

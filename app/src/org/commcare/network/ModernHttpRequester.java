@@ -38,7 +38,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     private final boolean isPostRequest;
     private final Context context;
     private HttpResponseProcessor responseProcessor;
-    protected final URL url;
+    private final URL url;
     private final HashMap<String, String> params;
     private HttpURLConnection httpConnection;
 

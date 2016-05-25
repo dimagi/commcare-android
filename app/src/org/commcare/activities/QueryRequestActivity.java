@@ -75,7 +75,7 @@ public class QueryRequestActivity
     private boolean inErrorState;
     private String errorMessage;
     private RemoteQuerySessionManager remoteQuerySessionManager;
-    private Hashtable<String, EditText> promptsBoxes = new Hashtable<>();
+    private final Hashtable<String, EditText> promptsBoxes = new Hashtable<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -134,13 +134,13 @@ public class QueryRequestActivity
                 remoteQuerySessionManager.getNeededUserInputDisplays();
         int promptCount = 1;
         for (Map.Entry<String, DisplayUnit> displayEntry : userInputDisplays.entrySet()) {
+            boolean isLastPrompt = promptCount++ == userInputDisplays.size();
             buildPromptEntry(promptsLayout, displayEntry.getKey(),
-                    displayEntry.getValue(), promptCount++ == userInputDisplays.size());
+                    displayEntry.getValue(), isLastPrompt);
         }
     }
 
-    private void buildPromptEntry(LinearLayout promptsLayout,
-                                  String promptId,
+    private void buildPromptEntry(LinearLayout promptsLayout, String promptId,
                                   DisplayUnit displayUnit, boolean isLastPrompt) {
         Hashtable<String, String> userAnswers =
                 remoteQuerySessionManager.getUserAnswers();
@@ -155,6 +155,7 @@ public class QueryRequestActivity
         if (isLastPrompt) {
             promptEditText.setImeOptions(EditorInfo.IME_ACTION_DONE);
         } else {
+            // replace 'done' on keyboard with 'next'
             promptEditText.setImeOptions(EditorInfo.IME_ACTION_NEXT);
         }
         promptsLayout.addView(promptEditText);
@@ -192,27 +193,26 @@ public class QueryRequestActivity
 
     private void makeQueryRequest() {
         clearErrorState();
-        URL url = null;
+        URL url;
         String urlString = remoteQuerySessionManager.getBaseUrl();
         try {
             url = new URL(urlString);
         } catch (MalformedURLException e) {
             enterErrorState(Localization.get("post.malformed.url", urlString));
+            return;
         }
 
-        if (url != null) {
-            SimpleHttpTask httpTask;
-            try {
-                httpTask = new SimpleHttpTask(this, url,
-                                new HashMap<>(remoteQuerySessionManager.getRawQueryParams()),
-                                false);
-            } catch (ModernHttpRequester.PlainTextPasswordException e) {
-                enterErrorState(Localization.get("post.not.using.https", url.toString()));
-                return;
-            }
-            httpTask.connect((CommCareTaskConnector)this);
-            httpTask.executeParallel();
+        SimpleHttpTask httpTask;
+        try {
+            httpTask = new SimpleHttpTask(this, url,
+                    new HashMap<>(remoteQuerySessionManager.getRawQueryParams()),
+                    false);
+        } catch (ModernHttpRequester.PlainTextPasswordException e) {
+            enterErrorState(Localization.get("post.not.using.https", url.toString()));
+            return;
         }
+        httpTask.connect((CommCareTaskConnector)this);
+        httpTask.executeParallel();
     }
 
     private void clearErrorState() {
