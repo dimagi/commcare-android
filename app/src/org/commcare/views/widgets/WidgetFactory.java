@@ -10,6 +10,7 @@ import org.commcare.logic.PendingCalloutInterface;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.QuestionDataExtension;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
@@ -46,8 +47,7 @@ public class WidgetFactory {
                     if (ic == null) {
                         throw new RuntimeException("No intent callout could be found for requested id " + intentId + "!");
                     }
-                    //NOTE: No path specific stuff for now
-                    Intent i = ic.generate(form.getEvaluationContext());
+                    Intent i = ic.generate(new EvaluationContext(form.getEvaluationContext(), fep.getIndex().getReference()));
                     questionWidget = new IntentWidget(context, fep, i, ic, pendingCalloutInterface);
                     break;
                 }
