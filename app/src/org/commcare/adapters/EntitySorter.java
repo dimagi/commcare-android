@@ -2,7 +2,7 @@ package org.commcare.adapters;
 
 import org.commcare.CommCareApplication;
 import org.commcare.logging.XPathErrorLogger;
-import org.commcare.models.Entity;
+import org.commcare.modern.models.Entity;
 import org.commcare.suite.model.DetailField;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.model.Constants;

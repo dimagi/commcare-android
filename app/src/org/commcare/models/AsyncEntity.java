@@ -5,6 +5,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.modern.models.Entity;
 import org.commcare.suite.model.DetailField;
 import org.commcare.suite.model.Text;
 import org.commcare.utils.SessionUnavailableException;

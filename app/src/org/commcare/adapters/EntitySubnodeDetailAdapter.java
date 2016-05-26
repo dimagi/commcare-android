@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
 import org.commcare.interfaces.ModifiableEntityDetailAdapter;
-import org.commcare.models.Entity;
+import org.commcare.modern.models.Entity;
 import org.commcare.suite.model.Detail;
 import org.commcare.views.EntityView;
 import org.javarosa.core.model.instance.TreeReference;

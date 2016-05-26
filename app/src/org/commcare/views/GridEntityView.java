@@ -23,7 +23,7 @@ import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 import org.commcare.models.AsyncEntity;
-import org.commcare.models.Entity;
+import org.commcare.modern.models.Entity;
 import org.commcare.suite.model.Detail;
 import org.commcare.util.GridCoordinate;
 import org.commcare.util.GridStyle;

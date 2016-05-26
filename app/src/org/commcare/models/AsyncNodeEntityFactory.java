@@ -11,6 +11,8 @@ import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.models.database.user.models.EntityStorageCache;
+import org.commcare.modern.models.Entity;
+import org.commcare.modern.models.NodeEntityFactory;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
 import org.commcare.utils.SessionUnavailableException;
