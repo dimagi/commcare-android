@@ -6,12 +6,12 @@ import android.util.Log;
 import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidPrototypeFactory;
-import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.network.DataPullRequester;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.network.LocalDataPullResponseFactory;
+import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.services.CommCareSessionService;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
@@ -28,8 +28,8 @@ import java.util.List;
  */
 public class CommCareTestApplication extends CommCareApplication {
     private static final String TAG = CommCareTestApplication.class.getSimpleName();
-
-    private static PrototypeFactory testPrototypeFactor;
+    private static PrototypeFactory testPrototypeFactory;
+    private static final ArrayList<String> factoryClassNames = new ArrayList<>();
 
     private String cachedUserPassword;
 
@@ -64,32 +64,40 @@ public class CommCareTestApplication extends CommCareApplication {
     public PrototypeFactory getPrototypeFactory(Context c) {
         TestUtils.disableSqlOptimizations();
 
-        if (testPrototypeFactor != null) {
-            return testPrototypeFactor;
+        if (testPrototypeFactory != null) {
+            return testPrototypeFactory;
         }
 
-        ArrayList<String> classNames = new ArrayList<>();
         // Sort of hack-y way to get the classfile dirs
-        String baseODK = BuildConfig.BUILD_DIR + "/intermediates/classes/commcare/debug/";
-        String baseJR = BuildConfig.PROJECT_DIR + "/../javarosa/build/classes/main/";
-        String baseCC = BuildConfig.PROJECT_DIR + "/../commcare/build/classes/main/";
-        addExternalizableClassesFromDir(baseODK, classNames);
-        addExternalizableClassesFromDir(baseCC, classNames);
-        addExternalizableClassesFromDir(baseJR, classNames);
         PrefixTree tree = new PrefixTree();
+        initFactoryClassList();
 
         try {
-            for (String cl : classNames) {
+            for (String cl : factoryClassNames) {
                 tree.addString(cl);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        testPrototypeFactor = new AndroidPrototypeFactory(tree);
-        return testPrototypeFactor;
+        testPrototypeFactory = new AndroidPrototypeFactory(tree);
+        return testPrototypeFactory;
     }
 
+    /**
+     * Get externalizable classes from *.class files in build dirs. Used to
+     * build PrototypeFactory that mirrors a prod environment
+     */
+    private static void initFactoryClassList() {
+        if (factoryClassNames.isEmpty()) {
+            String baseODK = BuildConfig.BUILD_DIR + "/intermediates/classes/commcare/debug/";
+            String baseJR = BuildConfig.PROJECT_DIR + "/../javarosa/build/classes/main/";
+            String baseCC = BuildConfig.PROJECT_DIR + "/../commcare/build/classes/main/";
+            addExternalizableClassesFromDir(baseODK, factoryClassNames);
+            addExternalizableClassesFromDir(baseCC, factoryClassNames);
+            addExternalizableClassesFromDir(baseJR, factoryClassNames);
+        }
+    }
 
     private static void addExternalizableClassesFromDir(String baseClassPath,
                                                         List<String> externClasses) {
@@ -103,11 +111,20 @@ public class CommCareTestApplication extends CommCareApplication {
                         .replace("/", ".")
                         .replace(".class", "")
                         .replace(".class", "");
-                DbUtil.loadClass(className, externClasses);
+                AndroidPrototypeFactorySetup.loadClass(className, externClasses);
             }
         } catch (Exception e) {
             Log.w(TAG, e.getMessage());
         }
+    }
+
+    /**
+     * @return Names of externalizable classes loaded from *.class files in the build dir
+     */
+    public static List<String> getTestPrototypeFactoryClasses() {
+        initFactoryClassList();
+
+        return factoryClassNames;
     }
 
     private static void getFilesInDir(File currentFile, ArrayList<File> acc) {

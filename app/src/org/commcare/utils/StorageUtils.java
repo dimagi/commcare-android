@@ -3,7 +3,6 @@ package org.commcare.utils;
 import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.javarosa.core.services.Logger;
 
@@ -56,7 +55,7 @@ public class StorageUtils {
         Vector<Integer> ids;
         try {
             ids = getUnsentOrUnprocessedFormsForCurrentApp(storage);
-        } catch (UserStorageClosedException e) {
+        } catch (SessionUnavailableException e) {
             // the db was closed down
             return new FormRecord[0];
         }

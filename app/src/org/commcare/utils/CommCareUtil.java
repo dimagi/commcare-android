@@ -7,6 +7,7 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.LogSubmissionTask;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.TreeReference;
@@ -83,21 +84,17 @@ public class CommCareUtil {
 
     public static void triggerLogSubmission(Context c) {
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        String url = settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, null);
+        String url = settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, null);
 
         if (url == null) {
             //This is mostly for dev purposes
             Toast.makeText(c, "Couldn't submit logs! Invalid submission URL...", Toast.LENGTH_LONG).show();
         } else {
-            try {
-                LogSubmissionTask reportSubmitter =
-                        new LogSubmissionTask(true,
-                                CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title),
-                                url);
-                reportSubmitter.execute();
-            } catch (SessionUnavailableException e) {
-                Toast.makeText(c, "Couldn't submit logs! No longer logged in", Toast.LENGTH_LONG).show();
-            }
+            LogSubmissionTask reportSubmitter =
+                    new LogSubmissionTask(true,
+                            CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title),
+                            url);
+            reportSubmitter.execute();
         }
     }
 }

@@ -1,4 +1,4 @@
-package org.odk.collect.android.jr.extensions;
+package org.commcare.android.javarosa;
 
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.XFormExtension;

@@ -14,6 +14,7 @@ import org.commcare.logging.DeviceReportWriter;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.javarosa.core.model.User;
 
 import java.io.ByteArrayOutputStream;
@@ -135,7 +136,7 @@ public class ForceCloseLogger {
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
         if (currentApp != null) {
             return currentApp.getAppPreferences().getString(
-                    CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
+                    CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
                     CommCareApplication._().getString(R.string.PostURL));
         } else {
             return CommCareApplication._().getString(R.string.PostURL);

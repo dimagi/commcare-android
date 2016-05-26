@@ -20,10 +20,8 @@ import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.FormRecordProcessor;
-import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.tasks.FormRecordCleanupTask;
-import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.javarosa.core.services.Logger;
@@ -228,11 +226,7 @@ public class InstanceProvider extends ContentProvider {
                 String xmlns = values.getAsString(InstanceProviderAPI.InstanceColumns.JR_FORM_ID);
 
                 SecretKey key;
-                try {
-                    key = CommCareApplication._().createNewSymmetricKey();
-                } catch (SessionUnavailableException e) {
-                    throw new UserStorageClosedException(e.getMessage());
-                }
+                key = CommCareApplication._().createNewSymmetricKey();
                 FormRecord r = new FormRecord(instanceUri.toString(), FormRecord.STATUS_UNINDEXED,
                         xmlns, key.getEncoded(), null, new Date(0), mDbHelper.getAppId());
                 IStorageUtilityIndexed<FormRecord> storage =

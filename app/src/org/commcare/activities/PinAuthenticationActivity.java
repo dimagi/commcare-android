@@ -46,7 +46,7 @@ public class PinAuthenticationActivity extends
     private UserKeyRecord currentRecord;
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
         if (!setRecordAndAuthMode()) {
@@ -60,7 +60,7 @@ public class PinAuthenticationActivity extends
      *
      * @return If the call completed successfully
      */
-    private boolean setRecordAndAuthMode() throws SessionUnavailableException {
+    private boolean setRecordAndAuthMode() {
         currentRecord = CommCareApplication._().getRecordForCurrentUser();
         if (currentRecord.hasPinSet()) {
             // If a PIN is already set and the user is trying to change it, we can have them

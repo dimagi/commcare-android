@@ -55,8 +55,8 @@ import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.views.media.MediaLayout;
-import org.odk.collect.android.jr.extensions.IntentCallout;
-import org.odk.collect.android.jr.extensions.PollSensorAction;
+import org.commcare.android.javarosa.IntentCallout;
+import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.interfaces.AdvanceToNextListener;
 import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.interfaces.FormSavedListener;
@@ -68,7 +68,6 @@ import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.FormController;
 import org.commcare.logic.PropertyManager;
 import org.commcare.models.ODKStorage;
-import org.commcare.models.database.DbUtil;
 import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI;
@@ -1717,6 +1716,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         try {
             FormEntrySessionReplayer.tryReplayingFormEntry(mFormController.getFormEntryController(),
                     formEntryRestoreSession);
+            formEntryRestoreSession = null;
         } catch (FormEntrySessionReplayer.ReplayError e) {
             UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), EXIT);
         }
@@ -1876,7 +1876,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 // intermediate results before they become un-saveable.
                 CommCareApplication._().getSession().registerFormSaveCallback(this);
             } catch (SessionUnavailableException e) {
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                Log.w(TAG,
                         "Couldn't register form save callback because session doesn't exist");
             }
         }
@@ -2047,7 +2047,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         try {
             CommCareApplication._().getSession().unregisterFormSaveCallback();
         } catch (SessionUnavailableException sue) {
-            // looks like the session expired
+            // looks like the session expired, swallow exception because we
+            // might be auto-saving a form due to user session expiring
         }
 
         dismissProgressDialog();

@@ -152,6 +152,10 @@ public class GoogleAnalyticsUtils {
         reportEvent(category, GoogleAnalyticsFields.ACTION_VIEW_PREF, label);
     }
 
+    public static void reportAdvancedActionItemClick(String action) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_ADVANCED_ACTIONS, action);
+    }
+
     /**
      * Report a user event of changing the value of an item in a preferences menu
      */
@@ -241,6 +245,16 @@ public class GoogleAnalyticsUtils {
                 action,
                 isSwipe ? GoogleAnalyticsFields.LABEL_SWIPE : GoogleAnalyticsFields.LABEL_ARROW,
                 isSingleTab ? GoogleAnalyticsFields.VALUE_DOESNT_HAVE_TABS : GoogleAnalyticsFields.VALUE_HAS_TABS);
+    }
+
+    /**
+     * Report usage of a specific feature
+     *
+     * @param action - Should be one of the actions listed under
+     *               "Actions for CATEGORY_FEATURE_USAGE" in GoogleAnalyticsFields.java
+     */
+    public static void reportFeatureUsage(String action) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_FEATURE_USAGE, action);
     }
 
     /**

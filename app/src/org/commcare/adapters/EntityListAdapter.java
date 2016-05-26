@@ -261,7 +261,9 @@ public class EntityListAdapter implements ListAdapter {
                     getCalloutDataForEntity(entity));
         } else {
             emv.setSearchTerms(currentSearchTerms);
-            emv.setExtraData(detail.getCallout().getResponseDetailField(), getCalloutDataForEntity(entity));
+            if (detail.getCallout() != null) {
+                emv.setExtraData(detail.getCallout().getResponseDetailField(), getCalloutDataForEntity(entity));
+            }
             emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);
         }
         return emv;

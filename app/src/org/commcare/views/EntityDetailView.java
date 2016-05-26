@@ -1,25 +1,31 @@
 package org.commcare.views;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.os.Build;
 import android.view.Display;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.activities.CommCareGraphActivity;
 import org.commcare.dalvik.R;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
+import org.commcare.graph.view.GraphLoader;
 import org.commcare.graph.view.GraphView;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.modern.models.Entity;
@@ -40,6 +46,7 @@ import org.javarosa.core.services.locale.Localization;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
+import java.util.Timer;
 
 /**
  * @author ctsims
@@ -253,73 +260,27 @@ public class EntityDetailView extends FrameLayout {
 
             updateCurrentView(IMAGE, imageView);
         } else if (FORM_GRAPH.equals(form) && field instanceof GraphData) {    // if graph parsing had errors, they'll be stored as a string
-            // Fetch graph view from cache, or create it
-            View graphView = null;
-            final Context context = getContext();
+            // Get graph view and intent
             int orientation = getResources().getConfiguration().orientation;
-            if (graphViewsCache.get(index) != null) {
-                graphView = graphViewsCache.get(index).get(orientation);
-            } else {
-                graphViewsCache.put(index, new Hashtable<Integer, View>());
-            }
-            String graphHTML = "";
+            boolean cached = true;
+            View graphView = getGraphViewFromCache(index, orientation);
             if (graphView == null) {
-                GraphView g = new GraphView(context, labelText, false);
-                try {
-                    graphHTML = g.getHTML((GraphData)field);
-                    graphView = g.getView(graphHTML);
-                    graphLayout.setRatio((float)g.getRatio((GraphData)field), (float)1);
-                } catch (GraphException ex) {
-                    graphView = new TextView(context);
-                    int padding = (int)context.getResources().getDimension(R.dimen.spacer_small);
-                    graphView.setPadding(padding, padding, padding, padding);
-                    ((TextView)graphView).setText(ex.getMessage());
-                    graphsWithErrors.add(index);
-                }
-                graphViewsCache.get(index).put(orientation, graphView);
+                cached = false;
+                graphView = getGraphView(index, labelText, (GraphData) field, orientation);
             }
-
-            // Fetch full-screen graph intent from cache, or create it
-            Intent graphIntent = graphIntentsCache.get(index);
-            if (graphIntent == null && !graphsWithErrors.contains(index)) {
-                GraphView g = new GraphView(context, labelText, true);
-                try {
-                    if (graphHTML.equals("")) {
-                        graphHTML = g.getHTML((GraphData)field);
-                    }
-                    graphIntent = g.getIntent(graphHTML, CommCareGraphActivity.class);
-                    graphIntentsCache.put(index, graphIntent);
-                } catch (GraphException ex) {
-                    // This shouldn't happen, since any error should have been caught during getView above
-                    graphsWithErrors.add(index);
-                }
-            }
-            final Intent finalIntent = graphIntent;
+            final Intent finalIntent = getGraphIntent(index, labelText, (GraphData) field);
 
             // Open full-screen graph intent on double tap
             if (!graphsWithErrors.contains(index)) {
-                final GestureDetector detector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
-                    @Override
-                    public boolean onDown(MotionEvent e) {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onDoubleTap(MotionEvent e) {
-                        context.startActivity(finalIntent);
-                        return true;
-                    }
-                });
-                graphView.setOnTouchListener(new OnTouchListener() {
-                    @Override
-                    public boolean onTouch(View view, MotionEvent event) {
-                        return detector.onTouchEvent(event);
-                    }
-                });
+                enableGraphIntent((WebView) graphView, finalIntent);
             }
 
+            // Add graph child views to graph layout
             graphLayout.removeAllViews();
             graphLayout.addView(graphView, GraphView.getLayoutParams());
+            if (!cached && !graphsWithErrors.contains(index)) {
+                addSpinnerToGraph((WebView) graphView, graphLayout);
+            }
 
             if (current != GRAPH) {
                 // Hide field label and expand value to take up full screen width
@@ -408,5 +369,103 @@ public class EntityDetailView extends FrameLayout {
     private int getScreenWidth() {
         Display display = ((WindowManager)this.getContext().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         return display.getWidth();
+    }
+
+    @SuppressWarnings("AddJavascriptInterface")
+    private void addSpinnerToGraph(WebView graphView, ViewGroup graphLayout) {
+        // WebView.addJavascriptInterface should not be called with minSdkVersion < 17
+        // for security reasons: JavaScript can use reflection to manipulate application
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            return;
+        }
+
+        final ProgressBar spinner = new ProgressBar(this.getContext(), null, android.R.attr.progressBarStyleLarge);
+        spinner.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
+        GraphLoader graphLoader = new GraphLoader((Activity) this.getContext(), spinner);
+
+        // Set up interface that JavaScript will call to hide the spinner
+        // once the graph has finished rendering.
+        graphView.addJavascriptInterface(graphLoader, "Android");
+
+        // The above JavaScript interface doesn't load properly 100% of the time.
+        // Worst case, hide the spinner after ten seconds.
+        Timer spinnerTimer = new Timer();
+        spinnerTimer.schedule(graphLoader, 10000);
+        graphLayout.addView(spinner);
+    }
+
+    private View getGraphViewFromCache(int index, int orientation) {
+        if (graphViewsCache.get(index) != null) {
+            return graphViewsCache.get(index).get(orientation);
+        }
+        graphViewsCache.put(index, new Hashtable<Integer, View>());
+        return null;
+    }
+
+    /**
+     * Generate graph view. May return WebView displaying graph, or TextView displaying error.
+     */
+    private View getGraphView(int index, String title, GraphData field, int orientation) {
+        Context context = getContext();
+        View graphView;
+        GraphView g = new GraphView(context, title, false);
+        try {
+            String graphHTML = g.getHTML(field);
+            graphView = g.getView(graphHTML);
+            graphLayout.setRatio((float)g.getRatio(field), (float)1);
+        } catch (GraphException ex) {
+            graphView = new TextView(context);
+            int padding = (int)context.getResources().getDimension(R.dimen.spacer_small);
+            graphView.setPadding(padding, padding, padding, padding);
+            ((TextView)graphView).setText(ex.getMessage());
+            graphsWithErrors.add(index);
+        }
+        graphViewsCache.get(index).put(orientation, graphView);
+
+        return graphView;
+    }
+
+    /**
+     * Fetch full-screen graph intent from cache, or create it.
+     */
+    private Intent getGraphIntent(int index, String title, GraphData field) {
+        Intent graphIntent = graphIntentsCache.get(index);
+        if (graphIntent == null && !graphsWithErrors.contains(index)) {
+            GraphView g = new GraphView(this.getContext(), title, true);
+            try {
+                String html = g.getHTML(field);
+                graphIntent = g.getIntent(html, CommCareGraphActivity.class);
+                graphIntentsCache.put(index, graphIntent);
+            } catch (GraphException ex) {
+                graphsWithErrors.add(index);
+            }
+        }
+
+        return graphIntent;
+    }
+
+    /**
+     * Set up event handling so that full-screen graph intent opens on double tap of given view.
+     */
+    private void enableGraphIntent(WebView graphView, final Intent graphIntent) {
+        final Context context = this.getContext();
+        final GestureDetector detector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent e) {
+                return true;
+            }
+
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                context.startActivity(graphIntent);
+                return true;
+            }
+        });
+        graphView.setOnTouchListener(new OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                return detector.onTouchEvent(event);
+            }
+        });
     }
 }

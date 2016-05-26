@@ -35,7 +35,7 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
         this.c = c;
     }
 
-    public abstract SQLiteDatabase getHandle() throws SessionUnavailableException;
+    public abstract SQLiteDatabase getHandle();
 
     public ContentValues getContentValues(Externalizable e) {
         ContentValues contentValues = new ContentValues();

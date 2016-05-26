@@ -11,6 +11,8 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_HOME_SCREEN = "Home Screen";
     public static final String CATEGORY_FORM_ENTRY = "Form Entry";
     public static final String CATEGORY_CC_PREFS = "CommCare Preferences";
+    public static final String CATEGORY_SERVER_PREFS = "CommCare Server Preferences";
+    public static final String CATEGORY_ADVANCED_ACTIONS = "Advanced Actions";
     public static final String CATEGORY_FORM_PREFS = "Form Entry Preferences";
     public static final String CATEGORY_DEV_PREFS = "Developer Preferences";
     public static final String CATEGORY_SERVER_COMMUNICATION = "Server Communication";
@@ -18,6 +20,7 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_TIMED_EVENTS = "Timed Events";
     public static final String CATEGORY_PRE_LOGIN_STATS = "Pre-Login Stats";
     public static final String CATEGORY_MODULE_NAVIGATION = "Module Navigation";
+    public static final String CATEGORY_FEATURE_USAGE = "Feature Usage";
 
     // Actions for CATEGORY_HOME_SCREEN only
     public static final String ACTION_BUTTON = "Button Press";
@@ -54,6 +57,21 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_CONTINUE_FROM_DETAIL = "Continue Forward from Detail View";
     public static final String ACTION_EXIT_FROM_DETAIL = "Exit Detail View";
 
+    // Actions for CATEGORY_ADVANCED_ACTIONS
+    public static final String ACTION_REPORT_PROBLEM = "Report Problem";
+    public static final String ACTION_VALIDATE_MEDIA = "Validate Media";
+    public static final String ACTION_MANAGE_SD = "Manage SD";
+    public static final String ACTION_WIFI_DIRECT = "Wifi Direct";
+    public static final String ACTION_CONNECTION_TEST = "Connection Test";
+    public static final String ACTION_CLEAR_USER_DATA = "Clear User Data";
+    public static final String ACTION_CLEAR_SAVED_SESSION = "Clear Saved Session";
+    public static final String ACTION_FORCE_LOG_SUBMISSION = "Force Log Submission";
+    public static final String ACTION_RECOVERY_MODE = "Recovery Mode";
+
+    // Actions for CATEGORY_FEATURE_USAGE
+    public static final String ACTION_LOGIN_AS_DEMO_USER = "Login as Demo User";
+    public static final String ACTION_SET_USER_PIN = "Set a User's PIN";
+
     // Labels for ACTION_BUTTON
     public static final String LABEL_START_BUTTON = "Start Button";
     public static final String LABEL_SAVED_FORMS_BUTTON = "Saved Forms Button";
@@ -71,7 +89,7 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_AUTO_UPDATE = "Auto Update Frequency";
     public static final String LABEL_FUZZY_SEARCH = "Fuzzy Search Matches";
     public static final String LABEL_PRINT_TEMPLATE = "Set Print Template";
-    public static final String LABEL_LOCALE = "Change Locale";
+    public static final String LABEL_DEVELOPER_OPTIONS = "Developer Options";
 
     // Labels for ACTION_VIEW_PREF and ACTION_EDIT_PREF in CATEGORY_FORM_PREFS
     public static final String LABEL_FONT_SIZE = "Font Size";
@@ -86,6 +104,7 @@ public final class GoogleAnalyticsFields {
     public static final String LABEL_NEWEST_APP_VERSION = "Use Newest App Version From HQ";
     public static final String LABEL_AUTO_LOGIN = "Auto-login While Debugging";
     public static final String LABEL_SESSION_SAVING = "Enable Session Saving";
+    public static final String LABEL_EDIT_SAVED_SESSION = "Edit Saved Session";
     public static final String LABEL_CSS = "CSS Enabled";
     public static final String LABEL_MARKDOWN = "Markdown Enabled";
     public static final String LABEL_IMAGE_ABOVE_TEXT = "Image Above Question Text Enabled";
@@ -99,26 +118,16 @@ public final class GoogleAnalyticsFields {
     // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_HOME_SCREEN
     public static final String LABEL_SETTINGS = "Settings";
     public static final String LABEL_UPDATE_CC = "Update CommCare";
-    public static final String LABEL_REPORT_PROBLEM = "Report Problem";
-    public static final String LABEL_VALIDATE_MM = "Validate Media";
-    public static final String LABEL_MANAGE_SD = "Manage SD";
-    public static final String LABEL_WIFI_DIRECT = "Wifi Direct";
-    public static final String LABEL_CONNECTION_TEST = "Connection Test";
     public static final String LABEL_SAVED_FORMS = "Saved Forms";
     public static final String LABEL_ABOUT_CC = "About CommCare";
+    public static final String LABEL_ADVANCED_ACTIONS = "Advanced";
+    public static final String LABEL_LOCALE = "Change Locale";
 
     // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_FORM_ENTRY
     public static final String LABEL_SAVE_FORM = "Save Form";
     public static final String LABEL_FORM_HIERARCHY = "Form Hierarchy";
     public static final String LABEL_CHANGE_LANGUAGE = "Change Language";
     public static final String LABEL_CHANGE_SETTINGS = "Change Settings";
-
-    // Labels for ACTION_OPTIONS_MENU_ITEM in CATEGORY_CC_PREFS
-    public static final String LABEL_CLEAR_USER_DATA = "Clear User Data";
-    public static final String LABEL_CLEAR_SAVED_SESSION = "Clear Saved Session";
-    public static final String LABEL_FORCE_LOG_SUBMISSION = "Force Log Submission";
-    public static final String LABEL_RECOVERY_MODE = "Recovery Mode";
-    public static final String LABEL_DEVELOPER_OPTIONS = "Developer Options";
 
     // Labels for ACTION_FORWARD and ACTION_BACKWARD (in CATEGORY_FORM_ENTRY)
     // and also ACTION_CONTINUE_FROM_DETAIL and ACTION_EXIT_FROM_DETAIL (in CATEGORY_MODULE_NAVIGATION)

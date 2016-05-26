@@ -213,6 +213,8 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         if (activity.checkForSeatedAppChange()) {
             refreshForNewApp();
+        } else {
+            checkEnteredUsernameForMatch();
         }
     }
 

@@ -17,6 +17,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.tasks.VerificationTask;
+import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.SizeBoundVector;
@@ -280,7 +281,7 @@ public class CommCareVerificationActivity
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
         if (CommCareApplication._().isConsumerApp()) {
-            return CustomProgressDialog.newInstance("Starting Up", "Initializing your application...", taskId);
+            return ConsumerAppsUtil.getGenericConsumerAppsProgressDialog(taskId, false);
         }
         
         if (taskId == DIALOG_VERIFY_PROGRESS) {

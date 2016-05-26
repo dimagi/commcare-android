@@ -8,6 +8,7 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.style.BackgroundColorSpan;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -40,6 +41,8 @@ import java.util.Vector;
  * @author ctsims
  */
 public class EntityView extends LinearLayout {
+    private final static String TAG = EntityView.class.getSimpleName();
+
     private final ArrayList<View> views;
     private ArrayList<String> forms;
     private String[] searchTerms;
@@ -85,7 +88,9 @@ public class EntityView extends LinearLayout {
             views.add(addCell(col, field, forms.get(col), mHints.get(col), sortField, -1, true));
         }
 
-        addExtraData(d.getCallout().getResponseDetailField(), extraData);
+        if (d.getCallout() != null) {
+            addExtraData(d.getCallout().getResponseDetailField(), extraData);
+        }
 
         this.mFuzzySearchEnabled = mFuzzySearchEnabled;
     }
@@ -213,19 +218,24 @@ public class EntityView extends LinearLayout {
     }
 
     public void setExtraData(DetailField responseDetail, String newExtraData) {
-        if (extraData != null) {
-            removeExtraData();
-        }
+        removeExistingExtraData();
+
         addExtraData(responseDetail, newExtraData);
     }
 
     private void addExtraData(DetailField responseDetail, String newExtraData) {
-        String hint = responseDetail.getTemplateWidthHint();
-        if (isNonZeroWidth(hint) && newExtraData != null && !"".equals(newExtraData)) {
-            extraData = newExtraData;
-            views.add(addCell(views.size(), newExtraData, "", "", "", -1, false));
-            mHints.add(hint);
-            forms.add(responseDetail.getTemplateForm());
+        if (responseDetail == null) {
+            if (newExtraData != null) {
+                Log.w(TAG, "Trying to set extra data with no display info present");
+            }
+        } else {
+            String hint = responseDetail.getTemplateWidthHint();
+            if (isNonZeroWidth(hint) && newExtraData != null && !"".equals(newExtraData)) {
+                extraData = newExtraData;
+                views.add(addCell(views.size(), newExtraData, "", "", "", -1, false));
+                mHints.add(hint);
+                forms.add(responseDetail.getTemplateForm());
+            }
         }
     }
 
@@ -233,7 +243,7 @@ public class EntityView extends LinearLayout {
         return hintText == null || !hintText.startsWith("0");
     }
 
-    private void removeExtraData() {
+    private void removeExistingExtraData() {
         if (extraData != null) {
             extraData = null;
             removeView(views.get(views.size() - 1));

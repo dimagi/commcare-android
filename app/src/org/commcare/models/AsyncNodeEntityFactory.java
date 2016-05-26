@@ -9,13 +9,11 @@ import org.commcare.CommCareApplication;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.modern.models.Entity;
 import org.commcare.modern.models.NodeEntityFactory;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.CacheHost;
@@ -107,12 +105,7 @@ public class AsyncNodeEntityFactory extends NodeEntityFactory {
 
         long now = System.currentTimeMillis();
 
-        SQLiteDatabase db;
-        try {
-            db = CommCareApplication._().getUserDbHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        SQLiteDatabase db = CommCareApplication._().getUserDbHandle();
 
         String sqlStatement = "SELECT entity_key, cache_key, value FROM entity_cache JOIN AndroidCase ON entity_cache.entity_key = AndroidCase.commcare_sql_id WHERE " + whereClause + " AND cache_key IN " + validKeys;
         if (SqlStorage.STORAGE_OUTPUT_DEBUG) {

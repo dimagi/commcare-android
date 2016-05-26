@@ -153,11 +153,7 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     }
 
     private SQLiteDatabase getDbOrThrow() {
-        try {
-            return helper.getHandle();
-        } catch (SessionUnavailableException e) {
-            throw new UserStorageClosedException(e.getMessage());
-        }
+        return helper.getHandle();
     }
 
     protected InputStream getInputStreamFromFile(String filename, byte[] aesKeyBytes) throws FileNotFoundException {
@@ -313,13 +309,9 @@ public class HybridFileBackedSqlStorage<T extends Persistable> extends SqlStorag
     }
 
     protected byte[] generateKeyAndAdd(ContentValues contentValues) {
-        try {
-            byte[] key = CommCareApplication._().createNewSymmetricKey().getEncoded();
-            contentValues.put(DatabaseHelper.AES_COL, key);
-            return key;
-        } catch (SessionUnavailableException e) {
-            throw new RuntimeException("Session unavailable; can't generate encryption key.", e);
-        }
+        byte[] key = CommCareApplication._().createNewSymmetricKey().getEncoded();
+        contentValues.put(DatabaseHelper.AES_COL, key);
+        return key;
     }
 
     private void writeStreamToFile(ByteArrayOutputStream bos, String filename,

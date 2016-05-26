@@ -13,7 +13,7 @@ import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.LocalDataPullResponseFactory;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskReceiver;
@@ -90,12 +90,7 @@ public class FormAndDataSyncer {
             }
         };
 
-        try {
-            mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
-        } catch (SessionUnavailableException sue) {
-            // abort since it looks like the session expired
-            return;
-        }
+        mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
         mProcess.connect(activity);
 
         //Execute on a true multithreaded chain. We should probably replace all of our calls with this
@@ -110,7 +105,7 @@ public class FormAndDataSyncer {
 
     private static String getFormPostURL(final Context context) {
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
+        return settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
                 context.getString(R.string.PostURL));
     }
 
@@ -160,14 +155,7 @@ public class FormAndDataSyncer {
             final CommCareHomeActivity activity,
             final boolean formsToSend,
             final boolean userTriggeredSync) {
-
-        User u;
-        try {
-            u = CommCareApplication._().getSession().getLoggedInUser();
-        } catch (SessionUnavailableException sue) {
-            // abort since it looks like the session expired
-            return;
-        }
+        User u = CommCareApplication._().getSession().getLoggedInUser();
 
         if (User.TYPE_DEMO.equals(u.getUserType())) {
             if (userTriggeredSync) {
@@ -183,14 +171,14 @@ public class FormAndDataSyncer {
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         syncData(activity, formsToSend, userTriggeredSync,
-                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY, activity.getString(R.string.ota_restore_url)),
+                prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY, activity.getString(R.string.ota_restore_url)),
                 u.getUsername(), u.getCachedPwd());
     }
 
     public void performOtaRestore(LoginActivity context, String username, String password) {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         syncData(context, false, false,
-                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY, context.getString(R.string.ota_restore_url)),
+                prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY, context.getString(R.string.ota_restore_url)),
                 username,
                 password);
     }

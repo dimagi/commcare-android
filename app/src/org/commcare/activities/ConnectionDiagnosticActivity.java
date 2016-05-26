@@ -13,6 +13,7 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.ConnectionDiagnosticTask;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.LogSubmissionTask;
@@ -116,18 +117,13 @@ public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<C
             public void onClick(View v) {
                 SharedPreferences settings =
                         CommCareApplication._().getCurrentApp().getAppPreferences();
-                String url = settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, null);
+                String url = settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, null);
 
                 if (url != null) {
                     DataSubmissionListener dataListener;
 
-                    try {
-                        dataListener =
-                                CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title);
-                    } catch (SessionUnavailableException sue) {
-                        // abort since it looks like the session expired
-                        return;
-                    }
+                    dataListener =
+                            CommCareApplication._().getSession().startDataSubmissionListener(R.string.submission_logs_title);
                     LogSubmissionTask reportSubmitter =
                             new LogSubmissionTask(
                                     true,
