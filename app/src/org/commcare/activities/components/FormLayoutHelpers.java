@@ -37,7 +37,7 @@ public class FormLayoutHelpers {
 
         groupLabel.setMaxLines(numberOfGroupLinesAllowed);
         boolean result = numberOfGroupLinesAllowed == 0;
-        updateGroupViewVisibility(header, result, groupNativeVisibility);
+        updateGroupViewVisibility(header, groupLabel, result, groupNativeVisibility);
         return result;
     }
 
@@ -68,14 +68,14 @@ public class FormLayoutHelpers {
                                                  boolean groupNativeVisibility,
                                                  boolean groupForcedInvisible) {
         FrameLayout header = (FrameLayout)activity.findViewById(R.id.form_entry_header);
-        updateGroupViewVisibility(header, groupNativeVisibility, groupForcedInvisible);
+        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
+        updateGroupViewVisibility(header, groupLabel, groupNativeVisibility, groupForcedInvisible);
     }
 
     private static void updateGroupViewVisibility(FrameLayout header,
+                                                  TextView groupLabel,
                                                   boolean groupNativeVisibility,
                                                   boolean groupForcedInvisible) {
-        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
-
         if (groupNativeVisibility && !groupForcedInvisible) {
             header.setVisibility(View.VISIBLE);
             groupLabel.setVisibility(View.VISIBLE);
