@@ -36,13 +36,9 @@ public class FormLayoutHelpers {
         }
 
         groupLabel.setMaxLines(numberOfGroupLinesAllowed);
-        if (numberOfGroupLinesAllowed == 0) {
-            updateGroupViewVisibility(header, true, groupNativeVisibility);
-            return true;
-        } else {
-            updateGroupViewVisibility(header, false, groupNativeVisibility);
-            return false;
-        }
+        boolean result = numberOfGroupLinesAllowed == 0;
+        updateGroupViewVisibility(header, result, groupNativeVisibility);
+        return result;
     }
 
     private static int getNumberOfGroupLinesAllowed(TextView groupLabel,
