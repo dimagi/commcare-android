@@ -45,7 +45,6 @@ public class FormLayoutHelpers {
                                                     Rect newRootViewDimensions,
                                                     FormEntryActivity activity) {
         int contentSize = newRootViewDimensions.height();
-
         View navBar = activity.findViewById(R.id.nav_pane);
         int headerSize = navBar.getHeight();
         if (headerSize == 0) {
@@ -54,14 +53,12 @@ public class FormLayoutHelpers {
 
         int availableWindow = contentSize - headerSize - getActionBarSize(activity);
 
-        int questionFontSize = getFontSizeInPx(activity);
-
-        //Request a consistent amount of the screen before groups can cut down
-
-        int spaceRequested = questionFontSize * 6;
+        // Request a consistent amount of the screen before groups can cut down
+        int spaceRequested = getFontSizeInPx(activity) * 6;
         int spaceAvailable = availableWindow - spaceRequested;
 
-        int defaultHeaderSpace = activity.getResources().getDimensionPixelSize(R.dimen.content_min_margin) * 2;
+        int defaultHeaderSpace =
+                activity.getResources().getDimensionPixelSize(R.dimen.content_min_margin) * 2;
 
         float textSize = groupLabel.getTextSize();
         return Math.max(0, (int)((spaceAvailable - defaultHeaderSpace) / textSize));

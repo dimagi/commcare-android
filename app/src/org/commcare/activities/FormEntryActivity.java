@@ -2338,7 +2338,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @Override
     protected void onMajorLayoutChange(Rect newRootViewDimensions) {
         mGroupForcedInvisible =
-                FormLayoutHelpers.determineNumberOfValidGroupLines(this, newRootViewDimensions, mGroupNativeVisibility, mGroupForcedInvisible);
+                FormLayoutHelpers.determineNumberOfValidGroupLines(this, newRootViewDimensions,
+                        mGroupNativeVisibility, mGroupForcedInvisible);
     }
 
 
