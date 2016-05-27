@@ -154,14 +154,13 @@ public class QueryRequestActivity
                 Localizer.processArguments(displayData.getName(), new String[]{""}).trim();
         TextView text = new TextView(getApplicationContext());
         text.setText(promptText);
-
-        int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
         text.setPadding(0, 0, 0, 7);
+        text.setTextColor(Color.BLACK);
 
         MediaLayout helpLayout = new MediaLayout(this);
         helpLayout.setAVT(text, displayData.getAudioURI(), displayData.getImageURI(), true);
+        int padding = (int)getResources().getDimension(R.dimen.help_text_padding);
         helpLayout.setPadding(padding, padding, padding, padding);
-        text.setTextColor(Color.BLACK);
 
         return helpLayout;
     }
@@ -261,6 +260,9 @@ public class QueryRequestActivity
         }
     }
 
+    /**
+     * @return Data instance built from xml stream or the error message raised during parsing
+     */
     public static Pair<ExternalDataInstance, String> buildExternalDataInstance(InputStream instanceStream,
                                                                                String instanceId) {
         TreeElement root;

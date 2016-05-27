@@ -6,8 +6,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import junit.framework.Assert;
-
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.PostRequestActivity;
@@ -65,16 +63,16 @@ public class PostRequestActivityTest {
 
     private static void assertErrorMessage(PostRequestActivity postRequestActivity,
                                            boolean isVisible,
-                                           String hasMessage) {
+                                           String expectedErrorMessage) {
         TextView errorMessage =
                 (TextView)postRequestActivity.findViewById(R.id.error_message);
         if (isVisible) {
-            Assert.assertEquals(View.VISIBLE, errorMessage.getVisibility());
+            assertEquals(View.VISIBLE, errorMessage.getVisibility());
         } else {
             assertFalse(View.VISIBLE == errorMessage.getVisibility());
         }
-        if (hasMessage != null) {
-            Assert.assertEquals(hasMessage, errorMessage.getText());
+        if (expectedErrorMessage != null) {
+            assertEquals(expectedErrorMessage, errorMessage.getText());
         }
     }
 
@@ -155,7 +153,7 @@ public class PostRequestActivityTest {
         PostRequestActivity postRequestActivity = buildPostActivity("https://www.fake.com");
 
         Button retryButton = (Button)postRequestActivity.findViewById(R.id.request_button);
-        Assert.assertEquals(View.VISIBLE, retryButton.getVisibility());
+        assertEquals(View.VISIBLE, retryButton.getVisibility());
         retryButton.performClick();
 
         assertErrorMessage(postRequestActivity, false, null);

@@ -122,13 +122,12 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     protected HttpURLConnection setupConnection(URL builtUrl) throws IOException {
         Log.d(TAG, builtUrl.toString());
         HttpURLConnection httpConnection = (HttpURLConnection)builtUrl.openConnection();
+        setupConnectionInner(httpConnection);
         if (isPostRequest) {
-            setupConnectionInner(httpConnection);
             httpConnection.setRequestMethod("POST");
             httpConnection.setDoOutput(true);
             buildPostPayload(httpConnection);
         } else {
-            setupConnectionInner(httpConnection);
             httpConnection.setRequestMethod("GET");
         }
 
