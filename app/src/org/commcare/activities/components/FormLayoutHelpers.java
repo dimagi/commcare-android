@@ -36,9 +36,9 @@ public class FormLayoutHelpers {
         }
 
         groupLabel.setMaxLines(numberOfGroupLinesAllowed);
-        boolean result = numberOfGroupLinesAllowed == 0;
-        updateGroupViewVisibility(header, groupLabel, result, hasGroupLabel);
-        return result;
+        boolean shouldHideGroupLabel = numberOfGroupLinesAllowed == 0;
+        updateGroupViewVisibility(header, groupLabel, hasGroupLabel, shouldHideGroupLabel);
+        return shouldHideGroupLabel;
     }
 
     private static int getNumberOfGroupLinesAllowed(TextView groupLabel,
