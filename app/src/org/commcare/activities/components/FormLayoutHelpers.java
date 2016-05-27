@@ -82,7 +82,6 @@ public class FormLayoutHelpers {
         } else {
             header.setVisibility(View.GONE);
             groupLabel.setVisibility(View.GONE);
-
         }
     }
 

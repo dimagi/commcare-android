@@ -1124,22 +1124,21 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         mViewPane.addView(questionsView, lp);
 
         questionsView.startAnimation(mInAnimation);
-
-        FrameLayout header = (FrameLayout)findViewById(R.id.form_entry_header);
-
-        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
-
-        this.mGroupNativeVisibility = false;
-        FormLayoutHelpers.updateGroupViewVisibility(this, mGroupNativeVisibility, mGroupForcedInvisible);
-
         questionsView.setFocus(this);
 
+        setupGroupLabel();
+    }
+
+    private void setupGroupLabel() {
+        mGroupNativeVisibility = false;
+        FormLayoutHelpers.updateGroupViewVisibility(this, false, mGroupForcedInvisible);
         SpannableStringBuilder groupLabelText = questionsView.getGroupLabel();
 
         if (groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
+            TextView groupLabel = (TextView)findViewById(R.id.form_entry_group_label);
             groupLabel.setText(groupLabelText);
-            this.mGroupNativeVisibility = true;
-            FormLayoutHelpers.updateGroupViewVisibility(this, mGroupNativeVisibility, mGroupForcedInvisible);
+            mGroupNativeVisibility = true;
+            FormLayoutHelpers.updateGroupViewVisibility(this, true, mGroupForcedInvisible);
         }
     }
 
