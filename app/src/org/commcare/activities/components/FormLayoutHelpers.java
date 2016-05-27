@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.TextViewCompat;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -28,20 +29,18 @@ public class FormLayoutHelpers {
         TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
 
         int numberOfGroupLinesAllowed =
-                getNumberOfGroupLinesAllowed(groupLabel, newRootViewDimensions, activity)
+                getNumberOfGroupLinesAllowed(groupLabel, newRootViewDimensions, activity);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
-                groupLabel.getMaxLines() == numberOfGroupLinesAllowed) {
+        if (TextViewCompat.getMaxLines(groupLabel) == numberOfGroupLinesAllowed) {
             return groupForcedInvisible;
         }
 
+        groupLabel.setMaxLines(numberOfGroupLinesAllowed);
         if (numberOfGroupLinesAllowed == 0) {
             updateGroupViewVisibility(header, true, groupNativeVisibility);
-            groupLabel.setMaxLines(0);
             return true;
         } else {
             updateGroupViewVisibility(header, false, groupNativeVisibility);
-            groupLabel.setMaxLines(numberOfGroupLinesAllowed);
             return false;
         }
     }
