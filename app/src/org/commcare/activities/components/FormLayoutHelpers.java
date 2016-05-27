@@ -64,12 +64,7 @@ public class FormLayoutHelpers {
         int defaultHeaderSpace = activity.getResources().getDimensionPixelSize(R.dimen.content_min_margin) * 2;
 
         float textSize = groupLabel.getTextSize();
-        int numberOfGroupLinesAllowed = (int)((spaceAvailable - defaultHeaderSpace) / textSize);
-
-        if (numberOfGroupLinesAllowed < 0) {
-            numberOfGroupLinesAllowed = 0;
-        }
-        return numberOfGroupLinesAllowed;
+        return Math.max(0, (int)((spaceAvailable - defaultHeaderSpace) / textSize));
     }
 
     public static void updateGroupViewVisibility(FormEntryActivity activity,
