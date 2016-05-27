@@ -85,6 +85,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final int SMS_PERMISSIONS_REQUEST = 2;
 
     public static final String KEY_INSTALL_FAILED = "install_failed";
+    private static final String FORCE_VALIDATE_KEY = "validate";
 
     /**
      * How many sms messages to scan over looking for commcare install link
@@ -248,8 +249,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             // (because that's where we were last time the app was up), but there are now
             // 1 or more available apps, we want to fall back to dispatch activity
             setResult(RESULT_OK);
-            this.finish();
-            return;
+            finish();
         }
     }
 
@@ -639,9 +639,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      */
     private void done(boolean failed) {
         if (Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
-            //Call out to CommCare Home
-            Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
-            startActivity(i);
+            if (getIntent().getBooleanExtra(FORCE_VALIDATE_KEY, false)) {
+                Intent i = new Intent(this, CommCareVerificationActivity.class);
+                i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
+                startActivity(i);
+            } else {
+                //Call out to CommCare Home
+                Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
+                startActivity(i);
+            }
         } else {
             //Good to go
             Intent i = new Intent(getIntent());

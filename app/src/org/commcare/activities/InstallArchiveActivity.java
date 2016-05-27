@@ -84,6 +84,10 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
         // avoid keyboard pop-up
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
+        if (getIntent().hasExtra(ARCHIVE_REFERENCE)) {
+            createArchive(getIntent().getStringExtra(ARCHIVE_REFERENCE));
+        }
     }
 
     private void createArchive(String filepath) {
@@ -132,16 +136,14 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == REQUEST_FILE_LOCATION) {
-            if (resultCode == Activity.RESULT_OK) {
-                // Android versions 4.4 and up sometimes don't return absolute
-                // filepaths from the file chooser. So resolve the URI into a
-                // valid file path.
-                String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(),
-                        intent.getData());
-                if (filePath != null) {
-                    editFileLocation.setText(filePath);
-                }
+        if (requestCode == REQUEST_FILE_LOCATION && resultCode == Activity.RESULT_OK) {
+            // Android versions 4.4 and up sometimes don't return absolute
+            // filepaths from the file chooser. So resolve the URI into a
+            // valid file path.
+            String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(),
+                    intent.getData());
+            if (filePath != null) {
+                editFileLocation.setText(filePath);
             }
         }
     }

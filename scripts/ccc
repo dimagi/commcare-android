@@ -1,0 +1,78 @@
+#!/bin/python3
+
+"""
+ccc (commcare control center) allows you to automate oft performed actions.
+"""
+
+import subprocess
+import sys
+from os.path import basename
+
+HELP_MSG = """'capture' saves the current session for restoring later.
+'install some_app.ccz' pushes and installs the ccz to device
+"""
+BASE_RECEIVER_CMD = "adb shell am broadcast -a"
+BASE_ACTIVITY_CMD = "adb shell am start -n"
+
+
+def receiver_command(action, extras={}):
+    cmd = "{} {}".format(BASE_RECEIVER_CMD, action)
+    return cmd + get_extras_string(extras)
+
+
+def activity_command(activity, data, extras={}):
+    return "{} \"{}\" -a \"android.intent.action.VIEW\" -d file://{} {}".format(BASE_ACTIVITY_CMD, activity, data, get_extras_string(extras))
+
+
+# [Dict String String] -> String
+def get_extras_string(extras):
+    extra_string = " "
+    for k, v in extras.items():
+        value_type = type(v)
+        if value_type is type(True):
+            extra_string += "--ez {} {}".format(k, str(v).lower())
+        elif value_type is type(""):
+            extra_string += "--es {} \"{}\"".format(k, v)
+    return extra_string
+
+
+# None -> None
+def capture():
+    cmd = receiver_command("org.commcare.dalvik.api.action.SessionCaptureAction")
+    subprocess.call(cmd, shell=True)
+
+
+# Filepath -> None
+def install(ccz_file):
+    cmd = "adb push {} /sdcard/{}".format(ccz_file, basename(ccz_file))
+    subprocess.call(cmd, shell=True)
+    extras = {"validate": True}
+    cmd = activity_command("org.commcare.dalvik/org.commcare.activities.CommCareSetupActivity",
+                           get_android_file(basename(ccz_file)),
+                           extras)
+    subprocess.call(cmd, shell=True)
+
+
+# String -> String
+def get_android_file(filename):
+    return "/storage/emulated/0/{}".format(filename)
+
+
+def main():
+    if len(sys.argv) > 3:
+        filename = sys.argv[0]
+        arg_count = len(sys.argv) - 1
+        print("{} only accepts two argument, {} provided".format(filename,
+                                                                 arg_count))
+        sys.exit(0)
+
+    command = sys.argv[1]
+    dispatch = {'capture': lambda: capture(),
+                'help': lambda: HELP_MSG,
+                'install': lambda: install(sys.argv[2])}
+
+    print(dispatch[command]())
+
+
+if __name__ == "__main__":
+    main()
