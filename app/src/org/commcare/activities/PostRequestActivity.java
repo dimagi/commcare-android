@@ -184,7 +184,19 @@ public class PostRequestActivity
 
     @Override
     public void processClientError(int responseCode) {
-        enterErrorState(Localization.get("post.client.error", responseCode + ""));
+        String clientErrorMessage;
+        switch (responseCode) {
+            case 409:
+                clientErrorMessage =Localization.get("post.conflict.error");
+                break;
+            case 410:
+                clientErrorMessage =Localization.get("post.gone.error");
+                break;
+            default:
+                clientErrorMessage =Localization.get("post.client.error", responseCode + "");
+                break;
+        }
+        enterErrorState(clientErrorMessage);
     }
 
     @Override
