@@ -127,8 +127,20 @@ public class PostRequestActivityTest {
 
     @Test
     public void clientErrorResponseFromServerTest() {
-        int responseCode = 410;
+        int responseCode = 400;
         assertPostFailureMessage(Localization.get("post.client.error", responseCode + ""), responseCode);
+    }
+
+    @Test
+    public void clientGoneErrorTest() {
+        int responseCode = 410;
+        assertPostFailureMessage(Localization.get("post.gone.error"), responseCode);
+    }
+
+    @Test
+    public void clientConflicErrorTest() {
+        int responseCode = 409;
+        assertPostFailureMessage(Localization.get("post.conflict.error"), responseCode);
     }
 
     @Test
