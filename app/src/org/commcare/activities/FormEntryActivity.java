@@ -38,7 +38,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -247,7 +246,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     // broadcast a form saving intent.
     private boolean savingFormOnKeySessionExpiration = false;
     private boolean mGroupForcedInvisible = false;
-    private boolean mGroupNativeVisibility = false;
+    private boolean hasGroupLabel = false;
     private FormEntrySession formEntryRestoreSession;
     private boolean recordEntrySession;
     enum AnimationType {
@@ -1130,14 +1129,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     private void setupGroupLabel() {
-        mGroupNativeVisibility = false;
+        hasGroupLabel = false;
         FormLayoutHelpers.updateGroupViewVisibility(this, false, mGroupForcedInvisible);
         SpannableStringBuilder groupLabelText = questionsView.getGroupLabel();
 
         if (groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
             TextView groupLabel = (TextView)findViewById(R.id.form_entry_group_label);
             groupLabel.setText(groupLabelText);
-            mGroupNativeVisibility = true;
+            hasGroupLabel = true;
             FormLayoutHelpers.updateGroupViewVisibility(this, true, mGroupForcedInvisible);
         }
     }
@@ -2338,7 +2337,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     protected void onMajorLayoutChange(Rect newRootViewDimensions) {
         mGroupForcedInvisible =
                 FormLayoutHelpers.determineNumberOfValidGroupLines(this, newRootViewDimensions,
-                        mGroupNativeVisibility, mGroupForcedInvisible);
+                        hasGroupLabel, mGroupForcedInvisible);
     }
 
 
