@@ -20,8 +20,6 @@ import org.commcare.network.ModernHttpRequester;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.DisplayData;
 import org.commcare.suite.model.DisplayUnit;
-import org.commcare.suite.model.RemoteQueryDatum;
-import org.commcare.suite.model.SessionDatum;
 import org.commcare.tasks.SimpleHttpTask;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.ManagedUi;
@@ -81,8 +79,10 @@ public class QueryRequestActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        AndroidSessionWrapper sessionWrapper = CommCareApplication._().getCurrentSessionWrapper();
         remoteQuerySessionManager =
-                buildQuerySessionManager(CommCareApplication._().getCurrentSessionWrapper());
+                RemoteQuerySessionManager.buildQuerySessionManager(sessionWrapper.getSession(),
+                        sessionWrapper.getEvaluationContext());
 
         if (remoteQuerySessionManager == null) {
             Log.e(TAG, "Tried to launch remote query activity at wrong time in session.");
@@ -92,22 +92,6 @@ public class QueryRequestActivity
             loadStateFromSavedInstance(savedInstanceState);
 
             setupUI();
-        }
-    }
-
-    private static RemoteQuerySessionManager buildQuerySessionManager(AndroidSessionWrapper sessionWrapper) {
-        SessionDatum datum;
-        try {
-            datum = sessionWrapper.getSession().getNeededDatum();
-        } catch (NullPointerException e) {
-            // tried loading session info when it wasn't there
-            return null;
-        }
-        if (datum instanceof RemoteQueryDatum) {
-            return new RemoteQuerySessionManager((RemoteQueryDatum)datum,
-                    sessionWrapper.getEvaluationContext());
-        } else {
-            return null;
         }
     }
 
@@ -150,8 +134,10 @@ public class QueryRequestActivity
         if (userAnswers.containsKey(promptId)) {
             promptEditText.setText(userAnswers.get(promptId));
         }
-        promptEditText.setSingleLine();
         promptEditText.setBackgroundResource(R.drawable.login_edit_text);
+        // needed to allow 'done' and 'next' keyboard action
+        promptEditText.setSingleLine();
+
         if (isLastPrompt) {
             promptEditText.setImeOptions(EditorInfo.IME_ACTION_DONE);
         } else {
