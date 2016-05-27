@@ -23,7 +23,7 @@ import org.commcare.preferences.FormEntryPreferences;
 public class FormLayoutHelpers {
     public static boolean determineNumberOfValidGroupLines(FormEntryActivity activity,
                                                            Rect newRootViewDimensions,
-                                                           boolean groupNativeVisibility,
+                                                           boolean hasGroupLabel,
                                                            boolean groupForcedInvisible) {
         FrameLayout header = (FrameLayout)activity.findViewById(R.id.form_entry_header);
         TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
@@ -37,7 +37,7 @@ public class FormLayoutHelpers {
 
         groupLabel.setMaxLines(numberOfGroupLinesAllowed);
         boolean result = numberOfGroupLinesAllowed == 0;
-        updateGroupViewVisibility(header, groupLabel, result, groupNativeVisibility);
+        updateGroupViewVisibility(header, groupLabel, result, hasGroupLabel);
         return result;
     }
 
@@ -65,18 +65,18 @@ public class FormLayoutHelpers {
     }
 
     public static void updateGroupViewVisibility(FormEntryActivity activity,
-                                                 boolean groupNativeVisibility,
+                                                 boolean hasGroupLabel,
                                                  boolean groupForcedInvisible) {
         FrameLayout header = (FrameLayout)activity.findViewById(R.id.form_entry_header);
         TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
-        updateGroupViewVisibility(header, groupLabel, groupNativeVisibility, groupForcedInvisible);
+        updateGroupViewVisibility(header, groupLabel, hasGroupLabel, groupForcedInvisible);
     }
 
     private static void updateGroupViewVisibility(FrameLayout header,
                                                   TextView groupLabel,
-                                                  boolean groupNativeVisibility,
+                                                  boolean hasGroupLabel,
                                                   boolean groupForcedInvisible) {
-        if (groupNativeVisibility && !groupForcedInvisible) {
+        if (hasGroupLabel && !groupForcedInvisible) {
             header.setVisibility(View.VISIBLE);
             groupLabel.setVisibility(View.VISIBLE);
         } else {
