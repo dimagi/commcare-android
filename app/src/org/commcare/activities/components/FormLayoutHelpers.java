@@ -27,6 +27,28 @@ public class FormLayoutHelpers {
         FrameLayout header = (FrameLayout)activity.findViewById(R.id.form_entry_header);
         TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
 
+        int numberOfGroupLinesAllowed =
+                getNumberOfGroupLinesAllowed(groupLabel, newRootViewDimensions, activity)
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
+                groupLabel.getMaxLines() == numberOfGroupLinesAllowed) {
+            return groupForcedInvisible;
+        }
+
+        if (numberOfGroupLinesAllowed == 0) {
+            updateGroupViewVisibility(header, true, groupNativeVisibility);
+            groupLabel.setMaxLines(0);
+            return true;
+        } else {
+            updateGroupViewVisibility(header, false, groupNativeVisibility);
+            groupLabel.setMaxLines(numberOfGroupLinesAllowed);
+            return false;
+        }
+    }
+
+    private static int getNumberOfGroupLinesAllowed(TextView groupLabel,
+                                                    Rect newRootViewDimensions,
+                                                    FormEntryActivity activity) {
         int contentSize = newRootViewDimensions.height();
 
         View navBar = activity.findViewById(R.id.nav_pane);
@@ -42,34 +64,17 @@ public class FormLayoutHelpers {
         //Request a consistent amount of the screen before groups can cut down
 
         int spaceRequested = questionFontSize * 6;
-
         int spaceAvailable = availableWindow - spaceRequested;
 
         int defaultHeaderSpace = activity.getResources().getDimensionPixelSize(R.dimen.content_min_margin) * 2;
 
         float textSize = groupLabel.getTextSize();
-
         int numberOfGroupLinesAllowed = (int)((spaceAvailable - defaultHeaderSpace) / textSize);
 
         if (numberOfGroupLinesAllowed < 0) {
             numberOfGroupLinesAllowed = 0;
         }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            if (groupLabel.getMaxLines() == numberOfGroupLinesAllowed) {
-                return groupForcedInvisible;
-            }
-        }
-
-        if (numberOfGroupLinesAllowed == 0) {
-            updateGroupViewVisibility(header, true, groupNativeVisibility);
-            groupLabel.setMaxLines(0);
-            return true;
-        } else {
-            updateGroupViewVisibility(header, false, groupNativeVisibility);
-            groupLabel.setMaxLines(numberOfGroupLinesAllowed);
-            return false;
-        }
+        return numberOfGroupLinesAllowed;
     }
 
     public static void updateGroupViewVisibility(FormEntryActivity activity,
