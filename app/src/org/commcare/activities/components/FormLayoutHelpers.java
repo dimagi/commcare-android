@@ -24,20 +24,18 @@ public class FormLayoutHelpers {
     public static boolean determineNumberOfValidGroupLines(FormEntryActivity activity,
                                                            Rect newRootViewDimensions,
                                                            boolean hasGroupLabel,
-                                                           boolean groupForcedInvisible) {
+                                                           boolean shouldHideGroupLabel) {
         FrameLayout header = (FrameLayout)activity.findViewById(R.id.form_entry_header);
         TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
 
         int numberOfGroupLinesAllowed =
                 getNumberOfGroupLinesAllowed(groupLabel, newRootViewDimensions, activity);
 
-        if (TextViewCompat.getMaxLines(groupLabel) == numberOfGroupLinesAllowed) {
-            return groupForcedInvisible;
+        if (TextViewCompat.getMaxLines(groupLabel) != numberOfGroupLinesAllowed) {
+            shouldHideGroupLabel = numberOfGroupLinesAllowed == 0;
+            groupLabel.setMaxLines(numberOfGroupLinesAllowed);
+            updateGroupViewVisibility(header, groupLabel, hasGroupLabel, shouldHideGroupLabel);
         }
-
-        groupLabel.setMaxLines(numberOfGroupLinesAllowed);
-        boolean shouldHideGroupLabel = numberOfGroupLinesAllowed == 0;
-        updateGroupViewVisibility(header, groupLabel, hasGroupLabel, shouldHideGroupLabel);
         return shouldHideGroupLabel;
     }
 
@@ -66,17 +64,17 @@ public class FormLayoutHelpers {
 
     public static void updateGroupViewVisibility(FormEntryActivity activity,
                                                  boolean hasGroupLabel,
-                                                 boolean groupForcedInvisible) {
+                                                 boolean shouldHideGroupLabel) {
         FrameLayout header = (FrameLayout)activity.findViewById(R.id.form_entry_header);
         TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
-        updateGroupViewVisibility(header, groupLabel, hasGroupLabel, groupForcedInvisible);
+        updateGroupViewVisibility(header, groupLabel, hasGroupLabel, shouldHideGroupLabel);
     }
 
     private static void updateGroupViewVisibility(FrameLayout header,
                                                   TextView groupLabel,
                                                   boolean hasGroupLabel,
-                                                  boolean groupForcedInvisible) {
-        if (hasGroupLabel && !groupForcedInvisible) {
+                                                  boolean shouldHideGroupLabel) {
+        if (hasGroupLabel && !shouldHideGroupLabel) {
             header.setVisibility(View.VISIBLE);
             groupLabel.setVisibility(View.VISIBLE);
         } else {

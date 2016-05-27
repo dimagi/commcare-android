@@ -245,7 +245,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     // database & key session are expiring. Being set causes savingComplete to
     // broadcast a form saving intent.
     private boolean savingFormOnKeySessionExpiration = false;
-    private boolean mGroupForcedInvisible = false;
+    private boolean shouldHideGroupLabel = false;
     private boolean hasGroupLabel = false;
     private FormEntrySession formEntryRestoreSession;
     private boolean recordEntrySession;
@@ -1130,14 +1130,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private void setupGroupLabel() {
         hasGroupLabel = false;
-        FormLayoutHelpers.updateGroupViewVisibility(this, false, mGroupForcedInvisible);
+        FormLayoutHelpers.updateGroupViewVisibility(this, false, shouldHideGroupLabel);
         SpannableStringBuilder groupLabelText = questionsView.getGroupLabel();
 
         if (groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
             TextView groupLabel = (TextView)findViewById(R.id.form_entry_group_label);
             groupLabel.setText(groupLabelText);
             hasGroupLabel = true;
-            FormLayoutHelpers.updateGroupViewVisibility(this, true, mGroupForcedInvisible);
+            FormLayoutHelpers.updateGroupViewVisibility(this, true, shouldHideGroupLabel);
         }
     }
 
@@ -2335,9 +2335,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     protected void onMajorLayoutChange(Rect newRootViewDimensions) {
-        mGroupForcedInvisible =
+        shouldHideGroupLabel =
                 FormLayoutHelpers.determineNumberOfValidGroupLines(this, newRootViewDimensions,
-                        hasGroupLabel, mGroupForcedInvisible);
+                        hasGroupLabel, shouldHideGroupLabel);
     }
 
 
