@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal">
+
+    <RelativeLayout
+        android:layout_width = "wrap_content"
+        android:layout_height="match_parent">
+
+        <Button
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/prevmonthbutton"
+            android:text = "<"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text = "December"
+            android:id = "@+id/currentmonth"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/prevmonthbutton"/>
+        <Button
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/nextmonthbutton"
+            android:text=">"
+            android:layout_toRightOf="@+id/currentmonth"/>
+
+        <Button
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="25dp"
+            android:id="@+id/prevyearbutton"
+            android:layout_toRightOf="@id/nextmonthbutton"
+            android:text = "<"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text = "2016"
+            android:id = "@+id/currentyear"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/prevyearbutton"/>
+        <Button
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/nextbutton"
+            android:text=">"
+            android:layout_toRightOf="@+id/currentyear"/>
+    </RelativeLayout>
+
+</LinearLayout>
