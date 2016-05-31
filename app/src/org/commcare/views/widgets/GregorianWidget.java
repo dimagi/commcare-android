@@ -21,7 +21,8 @@ public class GregorianWidget extends AbstractUniversalDateWidget {
         View gregDate = findViewById(R.id.dateGregorian);
         //removeView(gregDate);//remove helper date because it's unnecessary
         gregDate.setVisibility(View.GONE);
-        Log.d("removal", gregDate.toString());
+
+        //TODO: Add key input functionality when text views are clicked on
     }
 
     @Override
@@ -44,7 +45,7 @@ public class GregorianWidget extends AbstractUniversalDateWidget {
     @Override
     protected String[] getMonthsArray() {
         return new String[]{"January", "February", "March", "April", "May", "June", "July",
-                "August","September","October","November","December"};
+                            "August","September","October","November","December"};
     }
 
     @Override

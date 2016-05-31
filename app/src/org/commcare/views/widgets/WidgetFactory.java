@@ -63,6 +63,8 @@ public class WidgetFactory {
                             questionWidget = new NepaliDateWidget(context, fep);
                         }else if(appearance != null && appearance.toLowerCase().equals("greg")){ //TESTING GREGORIAN WIDGET
                             questionWidget = new GregorianWidget(context, fep);
+                        }else if(appearance != null && appearance.toLowerCase().equals("calendar")){
+                            questionWidget = new CalendarWidget(context, fep);
                         }else {
                             questionWidget = new DateWidget(context, fep);
                         }
