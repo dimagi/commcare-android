@@ -76,9 +76,6 @@ public class EncryptionUtils {
     private static final String BASE64_ENCRYPTED_ELEMENT_SIGNATURE = "base64EncryptedElementSignature";
     private static final String NEW_LINE = "\n";
 
-    private EncryptionUtils() {
-    }
-
     public static final class EncryptedFormInformation {
         public final String formId;
         public final Integer modelVersion;
@@ -217,7 +214,7 @@ public class EncryptionUtils {
             }
         }
 
-        public Cipher getCipher() throws InvalidKeyException,
+        private Cipher getCipher() throws InvalidKeyException,
                 InvalidAlgorithmParameterException, NoSuchAlgorithmException, NoSuchPaddingException {
             ++ivSeedArray[ivCounter % ivSeedArray.length];
             ++ivCounter;
@@ -381,14 +378,17 @@ public class EncryptionUtils {
             InputStream fin;
             fin = new FileInputStream(file);
             byte[] buffer = new byte[2048];
-            int len = fin.read(buffer);
-            while (len != -1) {
-                fout.write(buffer, 0, len);
-                len = fin.read(buffer);
+            try {
+                int len = fin.read(buffer);
+                while (len != -1) {
+                    fout.write(buffer, 0, len);
+                    len = fin.read(buffer);
+                }
+                fout.flush();
+            } finally {
+                fin.close();
+                fout.close();
             }
-            fin.close();
-            fout.flush();
-            fout.close();
             Log.i(t,
                     "Encrpyted:" + file.getName() + " -> "
                             + encryptedFile.getName());

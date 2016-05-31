@@ -59,8 +59,8 @@ public class EncryptedFileBody extends AbstractContentBody {
         } catch (OutputIOException oe) {
             //We want the original exception here.
             throw oe.getWrapped();
+        } finally {
+            cis.close();
         }
-        cis.close();
     }
-
 }
