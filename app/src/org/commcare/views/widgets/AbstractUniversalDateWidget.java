@@ -34,15 +34,15 @@ import static org.commcare.utils.UniversalDate.MILLIS_IN_DAY;
  */
 public abstract class AbstractUniversalDateWidget extends QuestionWidget {
 
-    private long millisOfDayOffset;
+    protected long millisOfDayOffset;
 
-    private final TextView txtMonth;
-    private final TextView txtDay;
-    private final TextView txtYear;
-    private final TextView txtGregorian;
+    private TextView txtMonth;
+    private TextView txtDay;
+    private TextView txtYear;
+    private TextView txtGregorian;
 
-    private final String[] monthsArray;
-    private int monthArrayPointer;
+    protected final String[] monthsArray;
+    protected int monthArrayPointer;
 
     private final Button btnDayUp;
     private final Button btnMonthUp;
@@ -86,10 +86,8 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
 
         monthsArray = getMonthsArray();
 
-        LayoutInflater vi = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View vv = vi.inflate(R.layout.universal_date_widget, null);
-        addView(vv);
-        
+        inflateView(context);
+
         /*
          * Initialise handlers for incrementing/decrementing dates
          */
@@ -138,11 +136,8 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
             }
         };
 
-        // Date fields
-        txtDay = (TextView)findViewById(R.id.daytxt);
-        txtMonth = (TextView)findViewById(R.id.monthtxt);
-        txtYear = (TextView)findViewById(R.id.yeartxt);
-        txtGregorian = (TextView)findViewById(R.id.dateGregorian);
+        initText();
+
 
         // action buttons
         btnDayUp = (Button)findViewById(R.id.dayupbtn);
@@ -225,6 +220,20 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
 
         // If there's an answer, use it.
         setAnswer();
+    }
+
+    protected void initText() {
+        // Date fields
+        txtDay = (TextView)findViewById(R.id.daytxt);
+        txtMonth = (TextView)findViewById(R.id.monthtxt);
+        txtYear = (TextView)findViewById(R.id.yeartxt);
+        txtGregorian = (TextView)findViewById(R.id.dateGregorian);
+    }
+
+    protected void inflateView(Context context) {
+        LayoutInflater vi = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View vv = vi.inflate(R.layout.universal_date_widget, null);
+        addView(vv);
     }
 
     /**
@@ -414,7 +423,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     /**
      * Get the current widget date in milliseconds since Java epoch
      */
-    private long getCurrentMillis() {
+    protected long getCurrentMillis() {
         int day = Integer.parseInt(txtDay.getText().toString());
         int month = monthArrayPointer + 1;
         int year = Integer.parseInt(txtYear.getText().toString());
@@ -424,7 +433,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     /**
      * Update the widget date to display the amended date
      */
-    private void updateDateDisplay(long millisFromJavaEpoch) {
+    protected void updateDateDisplay(long millisFromJavaEpoch) {
         UniversalDate dateUniv = fromMillis(millisFromJavaEpoch);
         txtDay.setText(String.format("%02d", dateUniv.day));
         txtMonth.setText(monthsArray[dateUniv.month - 1]);
@@ -435,7 +444,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     /**
      * Update the widget helper date text (useful for those who don't know the other calendar)
      */
-    private void updateGregorianDateHelperDisplay() {
+    protected void updateGregorianDateHelperDisplay() {
         DateTime dtLMDGreg = new DateTime(getCurrentMillis());
         DateTimeFormatter fmt = DateTimeFormat.forPattern("d MMMM yyyy");
         String str = fmt.print(dtLMDGreg);
