@@ -52,7 +52,8 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     @UiElement(value = R.id.screen_multimedia_inflater_install, locale = "archive.install.button")
     private Button btnInstallArchive;
 
-    public static final String ARCHIVE_REFERENCE = "archive-ref";
+    public static final String ARCHIVE_FILEPATH = "archive-filepath";
+    public static final String ARCHIVE_JR_REFERENCE = "archive-jr-ref";
 
     private String targetDirectory;
 
@@ -85,8 +86,12 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         // avoid keyboard pop-up
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
-        if (getIntent().hasExtra(ARCHIVE_REFERENCE)) {
-            createArchive(getIntent().getStringExtra(ARCHIVE_REFERENCE));
+        processProvidedReference();
+    }
+
+    private void processProvidedReference() {
+        if (getIntent().hasExtra(ARCHIVE_FILEPATH)) {
+            createArchive(getIntent().getStringExtra(ARCHIVE_FILEPATH));
         }
     }
 
@@ -129,7 +134,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         String ref = "jr://archive/" + mGUID + "/profile.ccpr";
 
         Intent i = new Intent(getIntent());
-        i.putExtra(InstallArchiveActivity.ARCHIVE_REFERENCE, ref);
+        i.putExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE, ref);
         setResult(RESULT_OK, i);
         finish();
     }

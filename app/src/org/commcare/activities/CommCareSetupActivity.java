@@ -165,7 +165,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         // remove file:// prepend
                         incomingRef = incomingRef.substring(incomingRef.indexOf("//") + 2);
                         Intent i = new Intent(this, InstallArchiveActivity.class);
-                        i.putExtra(InstallArchiveActivity.ARCHIVE_REFERENCE, incomingRef);
+                        i.putExtra(InstallArchiveActivity.ARCHIVE_FILEPATH, incomingRef);
                         startActivityForResult(i, ARCHIVE_INSTALL);
                     } else {
                         // currently down allow other locations like http://
@@ -359,7 +359,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             case ARCHIVE_INSTALL:
                 if (resultCode == Activity.RESULT_OK) {
                     offlineInstall = true;
-                    result = data.getStringExtra(InstallArchiveActivity.ARCHIVE_REFERENCE);
+                    result = data.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE);
                 }
                 break;
         }
@@ -635,11 +635,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     /**
      * Return to or launch dispatch activity.
      *
-     * @param failed         did installation occur successfully?
+     * @param failed did installation occur successfully?
      */
     private void done(boolean failed) {
         if (Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
+            // app installed from external action
             if (getIntent().getBooleanExtra(FORCE_VALIDATE_KEY, false)) {
+                // force multimedia validation to ensure app shows up in multiple apps list
                 Intent i = new Intent(this, CommCareVerificationActivity.class);
                 i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
                 startActivity(i);
