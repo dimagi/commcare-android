@@ -22,8 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/prevmonthbutton"
-            android:text="December" />
+            android:layout_toRightOf="@+id/prevmonthbutton"/>
 
         <Button
             android:id="@+id/nextmonthbutton"
@@ -45,8 +44,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/prevyearbutton"
-            android:text="2016" />
+            android:layout_toRightOf="@+id/prevyearbutton"/>
 
         <Button
             android:id="@+id/nextyearbutton"

@@ -28,7 +28,8 @@
             android:background="@drawable/date_edit"
             android:gravity="center"
             android:padding="3dp"
-            android:textSize="@dimen/text_larger"/>
+            android:textSize="@dimen/text_larger"
+            android:inputType="number"/>
 
         <Button
             android:id="@+id/daydownbtn"
@@ -61,7 +62,8 @@
             android:background="@drawable/date_edit"
             android:gravity="center"
             android:padding="3dp"
-            android:textSize="@dimen/text_larger"/>
+            android:textSize="@dimen/text_larger"
+            android:inputType="text"/>
 
         <Button
             android:id="@+id/monthdownbtn"
@@ -96,7 +98,8 @@
             android:background="@drawable/date_edit"
             android:gravity="center"
             android:padding="3dp"
-            android:textSize="@dimen/text_larger"/>
+            android:textSize="@dimen/text_larger"
+            android:inputType="number"/>
 
         <Button
             android:id="@+id/yeardownbtn"

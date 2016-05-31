@@ -13,6 +13,8 @@ import org.commcare.utils.UniversalDate;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
 
+import java.util.Calendar;
+
 /**
  * Created by Saumya on 5/27/2016.
  * Uses the increment/decrement button structure to input Gregorian dates
@@ -22,9 +24,14 @@ public class GregorianWidget extends AbstractUniversalDateWidget {
     private EditText dayTxt;
     private EditText monthTxt;
     private EditText yearTxt;
+    private Calendar myCal;
 
     public GregorianWidget(Context context, FormEntryPrompt prompt){
         super(context, prompt); //Adds all the stuff for abstract date widget
+        myCal = Calendar.getInstance();
+
+        //TODO: Validate input from text fields: Use a TextWatcher for this
+        //TODO: Update month array pointer based on text entered..check to see how super does this though
     }
 
     @Override
@@ -48,6 +55,9 @@ public class GregorianWidget extends AbstractUniversalDateWidget {
         monthTxt.setText(monthsArray[dateUniv.month - 1]);
         monthArrayPointer = dateUniv.month - 1;
         yearTxt.setText(String.format("%04d", dateUniv.year));
+
+        myCal = Calendar.getInstance();
+        myCal.setTimeInMillis(millisFromJavaEpoch);
     }
 
     @Override

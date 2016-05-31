@@ -18,7 +18,10 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.commcare.dalvik.R;
 import org.joda.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 
 /**
@@ -40,7 +43,14 @@ public class CalendarWidget extends QuestionWidget{
 
     private Calendar myCal;
     private LinearLayout myLayout;
-    private String[] monthNames;
+
+    private final String[] monthNames = new String[]{"January", "February", "March", "April", "May", "June", "July",
+            "August","September","October","November","December"};
+
+    //TODO: Find out a way to make this thing not default to 42 days for every month!
+    private final int DAYS_IN_MONTH = 42;
+
+    private Collection<String> months = Collections.unmodifiableCollection(Arrays.asList(monthNames));
 
     public CalendarWidget(Context context, FormEntryPrompt prompt){
         super(context, prompt);
@@ -48,14 +58,14 @@ public class CalendarWidget extends QuestionWidget{
                 (Context.LAYOUT_INFLATER_SERVICE);
         myLayout = (LinearLayout) inflater.inflate(R.layout.calendar_widget, null);
         addView(myLayout);
-        monthNames = new String[]{"January", "February", "March", "April", "May", "June", "July",
-                "August","September","October","November","December"};
+
         initDisplay();
         myCal = Calendar.getInstance();
         updateCalendar();
 
         initOnClick();
         //TODO: Slight tweaks to spacing
+
     }
 
     private void initDisplay(){
@@ -127,12 +137,10 @@ public class CalendarWidget extends QuestionWidget{
         //Backtracking calendar to the most recent Sunday
         populator.add(Calendar.DAY_OF_MONTH, -monthStartWeekDay);
 
-        while(dateList.size() < 42){
+        while(dateList.size() < DAYS_IN_MONTH){
             dateList.add(populator.getTime());
             populator.add(Calendar.DAY_OF_MONTH, 1);
         }
-
-        //TODO: Find out a way to make this thing not default to 42 days for every month!
 
         myYear.setText(String.valueOf(myCal.get(Calendar.YEAR)));
         myMonth.setText(monthNames[myCal.get(Calendar.MONTH)]);
