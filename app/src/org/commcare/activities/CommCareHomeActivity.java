@@ -12,7 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +25,6 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.ConnectorWithResultCallback;
@@ -67,7 +65,6 @@ import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
-import org.commcare.views.HorizontalMediaView;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CommCareAlertDialog;
@@ -80,18 +77,12 @@ import org.commcare.views.notifications.NotificationMessageFactory.StockMessages
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.xml.ElementParser;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.kxml2.io.KXmlParser;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 
@@ -478,7 +469,7 @@ public class CommCareHomeActivity
                             uiController.refreshView();
                             return;
                         } else {
-                            currentState.getSession().stepBack();
+                            currentState.getSession().stepBack(currentState.getEvaluationContext());
                         }
                     } else if (resultCode == RESULT_OK) {
                         CommCareSession session = currentState.getSession();
@@ -497,7 +488,7 @@ public class CommCareHomeActivity
                     AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
                     CommCareSession currentSession = asw.getSession();
                     if (resultCode == RESULT_CANCELED) {
-                        currentSession.stepBack();
+                        currentSession.stepBack(asw.getEvaluationContext());
                     } else if (resultCode == RESULT_OK) {
                         if (sessionStateUnchangedSinceCallout(currentSession, intent)) {
                             String sessionDatumId = currentSession.getNeededDatum().getDataId();
@@ -560,7 +551,7 @@ public class CommCareHomeActivity
         if (resultCode == RESULT_CANCELED) {
             AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
             CommCareSession currentSession = asw.getSession();
-            currentSession.stepBack();
+            currentSession.stepBack(asw.getEvaluationContext());
         }
     }
 
@@ -585,7 +576,9 @@ public class CommCareHomeActivity
      * callout that we are returning from was made
      */
     private boolean sessionStateUnchangedSinceCallout(CommCareSession session, Intent intent) {
-        boolean neededDataUnchanged = session.getNeededData().equals(
+        EvaluationContext evalContext =
+                CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext();
+        boolean neededDataUnchanged = session.getNeededData(evalContext).equals(
                 intent.getStringExtra(KEY_PENDING_SESSION_DATA));
         String intentDatum = intent.getStringExtra(KEY_PENDING_SESSION_DATUM_ID);
         boolean datumIdsUnchanged = intentDatum == null || intentDatum.equals(session.getNeededDatum().getDataId());
@@ -733,7 +726,7 @@ public class CommCareHomeActivity
                 // If we cancelled form entry from a normal menu entry
                 // we want to go back to where were were right before we started
                 // entering the form.
-                currentState.getSession().stepBack();
+                currentState.getSession().stepBack(currentState.getEvaluationContext());
                 currentState.setFormRecordId(-1);
             }
         }
@@ -845,7 +838,7 @@ public class CommCareHomeActivity
             @Override
             public void onClick(DialogInterface dialog, int i) {
                 dialog.dismiss();
-                asw.getSession().stepBack();
+                asw.getSession().stepBack(asw.getEvaluationContext());
                 CommCareHomeActivity.this.sessionNavigator.startNextSessionStep();
             }
         });
@@ -947,7 +940,9 @@ public class CommCareHomeActivity
     }
 
     private static void addPendingDataExtra(Intent i, CommCareSession session) {
-        i.putExtra(KEY_PENDING_SESSION_DATA, session.getNeededData());
+        EvaluationContext evalContext =
+                CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext();
+        i.putExtra(KEY_PENDING_SESSION_DATA, session.getNeededData(evalContext));
     }
 
     private static void addPendingDatumIdExtra(Intent i, CommCareSession session) {

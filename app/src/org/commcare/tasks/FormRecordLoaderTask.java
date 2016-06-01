@@ -286,7 +286,7 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
                 entityDatum = (EntityDatum)datum;
                 break;
             }
-            session.stepBack();
+            session.stepBack(androidSessionWrapper.getEvaluationContext());
         }
         if (entityDatum == null || session.getFrame().getSteps().size() == 0) {
             return null;
