@@ -62,9 +62,11 @@ public class WidgetFactory {
                         } else if (appearance != null && appearance.toLowerCase().equals("nepali")) {
                             questionWidget = new NepaliDateWidget(context, fep);
                         }else if(appearance != null && appearance.toLowerCase().equals("greg")){ //TESTING GREGORIAN WIDGET
-                            questionWidget = new GregorianWidget(context, fep);
+                            questionWidget = new GregorianDateWidget(context, fep);
                         }else if(appearance != null && appearance.toLowerCase().equals("calendar")){
                             questionWidget = new CalendarWidget(context, fep);
+                        }else if(appearance != null && appearance.toLowerCase().equals("pro1")){
+                            questionWidget = new Prototype1(context, fep);
                         }else {
                             questionWidget = new DateWidget(context, fep);
                         }

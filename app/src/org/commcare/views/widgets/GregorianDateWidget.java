@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import org.commcare.dalvik.R;
 import org.commcare.utils.UniversalDate;
+import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
@@ -23,6 +24,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -32,25 +34,26 @@ import java.util.Set;
  * Created by Saumya on 5/27/2016.
  * Inputs Gregorian dates using + and - buttons or direct text entry
  */
-public class GregorianWidget extends AbstractUniversalDateWidget {
+public class GregorianDateWidget extends AbstractUniversalDateWidget {
 
     private EditText dayTxt;
     private AutoCompleteTextView monthTxt;
     private EditText yearTxt;
+    private TextView dayOfWeek;
     private Calendar myCal;
 
     private String[] myMonths;
     private List<String> monthList;
     private final int MIN_YEAR = 1900;
 
-    public GregorianWidget(Context context, FormEntryPrompt prompt){
+    public GregorianDateWidget(Context context, FormEntryPrompt prompt){
         super(context, prompt);
         myCal = Calendar.getInstance();
     }
 
     @Override
     protected void initText(){
-
+        dayOfWeek = (TextView) findViewById(R.id.gregdayofweek);
         dayTxt = (EditText)findViewById(R.id.daytxtfield);
         yearTxt = (EditText)findViewById(R.id.yeartxtfield);
 
@@ -142,6 +145,8 @@ public class GregorianWidget extends AbstractUniversalDateWidget {
         monthTxt.setText(monthsArray[monthArrayPointer]);
         yearTxt.setText(String.format("%04d", dateUniv.year));
         myCal.setTimeInMillis(millisFromJavaEpoch);
+
+        dayOfWeek.setText(myCal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
     }
 
     @Override
@@ -189,6 +194,7 @@ public class GregorianWidget extends AbstractUniversalDateWidget {
         if(myCal == null) {
             myCal = Calendar.getInstance();
         }
+
 
         if(myMonths == null){
             myMonths = new String[12];
@@ -245,5 +251,14 @@ public class GregorianWidget extends AbstractUniversalDateWidget {
                 dt.getDayOfMonth(),
                 dt.getMillis()
         );
+    }
+
+    public void setDate(DateData newDate){
+        Date nextDate = (Date) newDate.getValue();
+        updateDateDisplay(nextDate.getTime());
+    }
+
+    public void removeQuestionText(){
+        mQuestionText.setVisibility(GONE);
     }
 }

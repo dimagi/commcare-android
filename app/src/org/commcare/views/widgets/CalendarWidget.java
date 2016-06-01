@@ -45,6 +45,7 @@ public class CalendarWidget extends QuestionWidget{
     private Button incYear;
     private TextView myMonth;
     private TextView myYear;
+    private TextView dayOfWeek;
 
     private Calendar myCal;
     private LinearLayout myLayout;
@@ -96,6 +97,8 @@ public class CalendarWidget extends QuestionWidget{
         decYear = (Button) myLayout.findViewById(R.id.prevyearbutton);
         incYear = (Button) myLayout.findViewById(R.id.nextyearbutton);
         myYear = (TextView) myLayout.findViewById(R.id.currentyear);
+
+        dayOfWeek = (TextView) findViewById(R.id.calendarweekday);
     }
 
     private void initOnClick(){
@@ -162,8 +165,9 @@ public class CalendarWidget extends QuestionWidget{
 
         myYear.setText(String.valueOf(myCal.get(Calendar.YEAR)));
         myMonth.setText(monthNames[myCal.get(Calendar.MONTH)]);
+        dayOfWeek.setText(myCal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
 
-         myGrid.setAdapter(new CalendarAdapter(getContext(), dateList));
+        myGrid.setAdapter(new CalendarAdapter(getContext(), dateList));
     }
 
     private class CalendarAdapter extends ArrayAdapter<Date>{
@@ -219,5 +223,15 @@ public class CalendarWidget extends QuestionWidget{
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
 
+    }
+
+    public void removeQuestionText(){
+        mQuestionText.setVisibility(GONE);
+    }
+
+    public void setDate(DateData newDate){
+        Date nextDate = (Date) newDate.getValue();
+        myCal.setTimeInMillis(nextDate.getTime());
+        updateCalendar();
     }
 }
