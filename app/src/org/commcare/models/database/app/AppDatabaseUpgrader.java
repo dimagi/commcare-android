@@ -14,7 +14,6 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.app.models.UserKeyRecordV1;
 import org.commcare.models.database.migration.FixtureSerializationMigration;
-import org.commcare.android.storage.framework.Persisted;
 import org.commcare.resources.model.Resource;
 
 import java.util.ArrayList;
