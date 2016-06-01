@@ -1,16 +1,21 @@
 package org.commcare.android.database.user.models;
 
+import org.commcare.android.storage.framework.PersistedPlain;
 import org.commcare.models.AndroidSessionWrapper;
-import org.commcare.android.storage.framework.Persisted;
-import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;
 import org.commcare.modern.models.EncryptedModel;
-import org.commcare.modern.models.MetaField;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.StackFrameStep;
+import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.util.MD5;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * A Session State Descriptor contains all of the information that can be persisted
@@ -19,25 +24,16 @@ import org.javarosa.core.util.MD5;
  * @author ctsims
  */
 @Table(SessionStateDescriptor.STORAGE_KEY)
-public class SessionStateDescriptor extends Persisted implements EncryptedModel {
+public class SessionStateDescriptor extends PersistedPlain implements IMetaData, EncryptedModel {
 
     public static final String STORAGE_KEY = "android_cc_session";
 
     public static final String META_DESCRIPTOR_HASH = "descriptorhash";
-
+    // TODO PLM: mark this as unique!
     public static final String META_FORM_RECORD_ID = "form_record_id";
 
-    @Persisting(1)
-    @MetaField(value = META_FORM_RECORD_ID, unique = true)
     private int formRecordId = -1;
-
-    @Persisting(2)
     private String sessionDescriptor = null;
-
-    @MetaField(value = META_DESCRIPTOR_HASH)
-    public String getHash() {
-        return MD5.toHex(MD5.hash(sessionDescriptor.getBytes()));
-    }
 
     //Wrapper for serialization (STILL SKETCHY)
     public SessionStateDescriptor() {
@@ -49,13 +45,17 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
         sessionDescriptor = this.createSessionDescriptor(state.getSession());
     }
 
+    public String getHash() {
+        return MD5.toHex(MD5.hash(sessionDescriptor.getBytes()));
+    }
+
+    @Override
     public boolean isEncrypted(String data) {
-        // TODO Auto-generated method stub
         return false;
     }
 
+    @Override
     public boolean isBlobEncrypted() {
-        // TODO Auto-generated method stub
         return false;
     }
 
@@ -127,6 +127,39 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
                 break;
             }
             current++;
+        }
+    }
+
+    @Override
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        super.readExternal(in, pf);
+
+        formRecordId = ExtUtil.readInt(in);
+        sessionDescriptor = ExtUtil.readString(in);
+    }
+
+    @Override
+    public void writeExternal(DataOutputStream out) throws IOException {
+        super.writeExternal(out);
+
+        ExtUtil.writeNumeric(out, formRecordId);
+        ExtUtil.writeString(out, sessionDescriptor);
+    }
+
+    @Override
+    public String[] getMetaDataFields() {
+        return new String[]{META_DESCRIPTOR_HASH, META_FORM_RECORD_ID};
+    }
+
+    @Override
+    public Object getMetaData(String fieldName) {
+        switch (fieldName) {
+            case META_DESCRIPTOR_HASH:
+                return getHash();
+            case META_FORM_RECORD_ID:
+                return formRecordId;
+            default:
+                throw new IllegalArgumentException("No metadata field " + fieldName + " in the storage system");
         }
     }
 }
