@@ -6,10 +6,13 @@ ccc (commcare control center) allows you to automate oft performed actions.
 
 import subprocess
 import sys
+import urllib.request
 from os.path import basename
+import os
 
 HELP_MSG = """'capture' saves the current session for restoring later.
-'install some_app.ccz' pushes and installs the ccz to device
+'install some_app.ccz' pushes and installs the ccz to device.
+'remote domain app_id build' downloads an app from HQ and installs it.
 """
 BASE_RECEIVER_CMD = "adb shell am broadcast -a"
 BASE_ACTIVITY_CMD = "adb shell am start -n"
@@ -34,6 +37,21 @@ def receiver_command(action, extras={}):
     """
     cmd = "{} {}".format(BASE_RECEIVER_CMD, action)
     return cmd + get_extras_string(extras)
+
+
+# String String String -> None
+def remote_install(domain, app_id, build_number):
+    """
+    Downloads CCZ from HQ and installs it on Commcare.
+    """
+    url = ("https://www.commcarehq.org/a/{domain}/apps/api/download_ccz" +
+           "?app_id={app_id}&version={build}").format(domain=domain,
+                                                      app_id=app_id,
+                                                      build=build_number)
+    ccz_file = "commcare.ccz"
+    urllib.request.urlretrieve(url, ccz_file)
+    install(ccz_file)
+    os.remove(ccz_file)
 
 
 # Filepath -> None
@@ -95,7 +113,7 @@ def get_android_file(filename):
 
 
 def main():
-    if len(sys.argv) > 3:
+    if len(sys.argv) > 5:
         filename = sys.argv[0]
         arg_count = len(sys.argv) - 1
         print("{} only accepts two argument, {} provided".format(filename,
@@ -104,6 +122,7 @@ def main():
 
     command = sys.argv[1]
     dispatch = {'capture': lambda: capture(),
+                'remote': lambda: remote_install(*sys.argv[2:5]),
                 'help': lambda: HELP_MSG,
                 'install': lambda: install(sys.argv[2])}
 
