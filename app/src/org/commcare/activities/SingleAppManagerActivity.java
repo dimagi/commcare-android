@@ -169,8 +169,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
     private void uninstall() {
         CommCareApplication._().expireUserSession();
         CommCareApplication._().uninstall(appRecord);
-        CommCareApplication.restartCommCare(SingleAppManagerActivity.this,
-                SingleAppManagerActivity.class);
+        CommCareApplication.restartCommCare(SingleAppManagerActivity.this, AppManagerActivity.class);
     }
 
     /**
