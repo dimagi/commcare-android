@@ -29,7 +29,8 @@
             android:gravity="center"
             android:padding="3dp"
             android:textSize="@dimen/text_larger"
-            android:inputType="number"/>
+            android:inputType="number"
+            android:maxLength = "2"/>
 
         <Button
             android:id="@+id/daydownbtn"
@@ -52,7 +53,7 @@
             android:textSize="@dimen/text_largest"
             android:textColor="#666"/>
 
-        <EditText
+        <AutoCompleteTextView
             android:id="@+id/monthtxt"
             android:layout_width="150dp"
             android:layout_height="45dp"
@@ -99,7 +100,8 @@
             android:gravity="center"
             android:padding="3dp"
             android:textSize="@dimen/text_larger"
-            android:inputType="number"/>
+            android:inputType="number"
+            android:maxLength="4"/>
 
         <Button
             android:id="@+id/yeardownbtn"
