@@ -94,7 +94,7 @@ public class FormStorageTest {
             , "org.commcare.suite.model.Menu"
             , "org.commcare.suite.model.Profile"
             , "org.commcare.suite.model.PropertySetter"
-            , "org.commcare.suite.model.RemoteQuery"
+            , "org.commcare.suite.model.RemoteQueryDatum"
             , "org.commcare.suite.model.SessionDatum"
             , "org.commcare.suite.model.StackFrameStep"
             , "org.commcare.suite.model.StackOperation"

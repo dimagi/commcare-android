@@ -508,6 +508,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         }
     }
 
+    @Override
     public void hideTaskCancelButton() {
         CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
         if (mProgressDialog != null) {
