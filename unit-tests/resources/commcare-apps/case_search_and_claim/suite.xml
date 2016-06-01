@@ -255,7 +255,7 @@
 
   <sync-request>
     <post url="https://www.fake.com/claim_patient/"
-          relevant="count(instance('casedb')/case[@case_id=instance('session')/session/data/case_id]) &gt; 0">
+          relevant="count(instance('casedb')/casedb/case[@case_id=instance('session')/session/data/case_id]) = 0">
       <data key="selected_case_id" ref="instance('session')/session/data/case_id"/>
     </post>
     <command id="patient-search">
