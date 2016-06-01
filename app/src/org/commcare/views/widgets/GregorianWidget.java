@@ -26,11 +26,14 @@ public class GregorianWidget extends AbstractUniversalDateWidget {
     private EditText yearTxt;
     private Calendar myCal;
 
+    private String[] myMonths;
+
     public GregorianWidget(Context context, FormEntryPrompt prompt){
         super(context, prompt); //Adds all the stuff for abstract date widget
         myCal = Calendar.getInstance();
 
-        //TODO: Validate input from text fields: Use a TextWatcher for this
+
+        //TODO: Validate input from text fields: Use a TextWatcher for this, use myCal to validate days in month
         //TODO: Update month array pointer based on text entered..check to see how super does this though
     }
 
@@ -56,7 +59,10 @@ public class GregorianWidget extends AbstractUniversalDateWidget {
         monthArrayPointer = dateUniv.month - 1;
         yearTxt.setText(String.format("%04d", dateUniv.year));
 
-        myCal = Calendar.getInstance();
+        if(myCal == null) {
+            myCal = Calendar.getInstance();
+        }
+
         myCal.setTimeInMillis(millisFromJavaEpoch);
     }
 
@@ -90,8 +96,11 @@ public class GregorianWidget extends AbstractUniversalDateWidget {
 
     @Override
     protected String[] getMonthsArray() {
-        return new String[]{"January", "February", "March", "April", "May", "June", "July",
-                            "August","September","October","November","December"};
+        if(myMonths == null){
+            myMonths = new String[]{"January", "February", "March", "April", "May", "June", "July",
+                    "August","September","October","November","December"};
+        }
+        return myMonths;
     }
 
     @Override
