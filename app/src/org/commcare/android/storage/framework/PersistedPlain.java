@@ -1,5 +1,6 @@
 package org.commcare.android.storage.framework;
 
+import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -12,7 +13,7 @@ import java.io.IOException;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public abstract class PersistedPlain implements Persistable {
+public abstract class PersistedPlain implements Persistable, IMetaData {
     protected int recordId = -1;
 
     @Override

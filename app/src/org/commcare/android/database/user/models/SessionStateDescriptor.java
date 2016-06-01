@@ -7,7 +7,6 @@ import org.commcare.modern.models.EncryptedModel;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.StackFrameStep;
-import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.util.MD5;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
@@ -24,7 +23,7 @@ import java.io.IOException;
  * @author ctsims
  */
 @Table(SessionStateDescriptor.STORAGE_KEY)
-public class SessionStateDescriptor extends PersistedPlain implements IMetaData, EncryptedModel {
+public class SessionStateDescriptor extends PersistedPlain implements EncryptedModel {
 
     public static final String STORAGE_KEY = "android_cc_session";
 

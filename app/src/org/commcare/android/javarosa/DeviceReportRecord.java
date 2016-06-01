@@ -8,7 +8,6 @@ import org.commcare.modern.models.EncryptedModel;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.services.storage.IMetaData;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -33,7 +32,7 @@ import javax.crypto.spec.SecretKeySpec;
  * @author ctsims
  */
 @Table(DeviceReportRecord.STORAGE_KEY)
-public class DeviceReportRecord extends PersistedPlain implements IMetaData, EncryptedModel {
+public class DeviceReportRecord extends PersistedPlain implements EncryptedModel {
     public static final String STORAGE_KEY = "log_records";
 
     private String fileName;
