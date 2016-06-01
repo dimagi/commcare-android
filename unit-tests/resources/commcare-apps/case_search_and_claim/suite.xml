@@ -1,0 +1,309 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<suite version="16" descriptor="Suite File">
+  <locale language="default">
+    <resource id="app_default_strings" version="16" descriptor="Translations: Default Language">
+      <location authority="local">./default/app_strings.txt</location>
+    </resource>
+  </locale>
+  <detail id="patient_short">
+    <title>
+      <text>
+        <locale id="m0.case_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="name"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_short.case_lmp_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="id"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="patient_long">
+    <title>
+      <text>
+        <locale id="m0.case_long.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_long.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="name"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m0_case_short">
+    <title>
+      <text>
+        <locale id="m0.case_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_short.case_lmp_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="lmp"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m0_case_long">
+    <title>
+      <text>
+        <locale id="m0.case_long.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m0.case_long.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <detail id="m1_case_short">
+    <title>
+      <text>
+        <locale id="m1.case_short.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_short.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+      <sort type="string" order="1" direction="ascending">
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </sort>
+    </field>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_short.case_lmp_2.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="lmp"/>
+        </text>
+      </template>
+    </field>
+    <action>
+      <display>
+        <text>
+          <locale id="case_list_form.m1.b"/>
+        </text>
+      </display>
+      <stack>
+        <push>
+          <command value="'patient-search'"/>
+        </push>
+      </stack>
+    </action>
+  </detail>
+  <detail id="m1_case_long">
+    <title>
+      <text>
+        <locale id="m1.case_long.title"/>
+      </text>
+    </title>
+    <field>
+      <header>
+        <text>
+          <locale id="m1.case_long.case_name_1.header"/>
+        </text>
+      </header>
+      <template>
+        <text>
+          <xpath function="case_name"/>
+        </text>
+      </template>
+    </field>
+  </detail>
+  <entry>
+    <form>http://openrosa.org/formdesigner/04F52515-B007-43E1-A8A3-CF9937CB55A5</form>
+    <command id="m0-f0">
+      <text>
+        <locale id="forms.m0f0"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <instance id="commcaresession" src="jr://instance/session"/>
+    <session>
+      <datum id="case_id_new_pregnancy_0" function="uuid()"/>
+    </session>
+    <stack>
+      <create if="count(instance('commcaresession')/session/data/return_to) = 1 and instance('commcaresession')/session/data/return_to = 'm1' and count(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_new_pregnancy_0]) &gt; 0">
+        <command value="'m1'"/>
+        <datum id="case_id" value="instance('commcaresession')/session/data/case_id_new_pregnancy_0"/>
+      </create>
+      <create if="count(instance('commcaresession')/session/data/return_to) = 1 and instance('commcaresession')/session/data/return_to = 'm1' and count(instance('casedb')/casedb/case[@case_id=instance('commcaresession')/session/data/case_id_new_pregnancy_0]) = 0">
+        <command value="'m1'"/>
+      </create>
+    </stack>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/B32D74EA-A57D-423B-BC6D-51FD099BAD3D</form>
+    <command id="m0-f1">
+      <text>
+        <locale id="forms.m0f1"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/195E7292-A8F3-48B2-88DC-3471CD6F7606</form>
+    <command id="m0-f2">
+      <text>
+        <locale id="forms.m0f2"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']" value="./@case_id" detail-select="m0_case_short" detail-confirm="m0_case_long"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/e1f870ef46c9ec0781806ef24ff0537ad604c816</form>
+    <command id="m1-f0">
+      <text>
+        <locale id="forms.m1f0"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long"/>
+    </session>
+  </entry>
+  <entry>
+    <form>http://openrosa.org/formdesigner/4d50ae3d37f31e3a41a91a25b2667b10796af957</form>
+    <command id="m1-f1">
+      <text>
+        <locale id="forms.m1f1"/>
+      </text>
+    </command>
+    <instance id="casedb" src="jr://instance/casedb"/>
+    <session>
+      <datum id="case_id" nodeset="instance('casedb')/casedb/case[@case_type='pregnancy'][@status='open']" value="./@case_id" detail-select="m1_case_short" detail-confirm="m1_case_long"/>
+    </session>
+  </entry>
+
+  <sync-request>
+    <post url="https://www.fake.com/claim_patient/">
+      <data key="selected_case_id" ref="instance('session')/session/data/case_id"/>
+    </post>
+    <command id="patient-search">
+      <display>
+        <text>Global search for person</text>
+      </display>
+    </command>
+    <instance id="session" src="jr://instance/session"/>
+    <session>
+      <query url="https://www.fake.com/patient_search/" storage-instance="patients">
+        <data key="device_id" ref="instance('session')/session/context/deviceid"/>
+        <prompt key="name">
+          <display>
+            <text>
+              <locale id="query.name"/>
+            </text>
+          </display>
+        </prompt>
+        <prompt key="patient_id">
+          <display>
+            <text>
+              <locale id="query.id"/>
+            </text>
+          </display>
+        </prompt>
+      </query>
+      <datum id="case_id" nodeset="instance('patients')/patients/patient" value="./id" detail-select="patient_short" detail-confirm="patient_long"/>
+    </session>
+    <stack>
+      <push>
+        <command value="'m1-f0'"/>
+        <datum id="calculated_data" value="'claimed'"/>
+      </push>
+    </stack>
+  </sync-request>
+
+  <menu id="m0">
+    <text>
+      <locale id="modules.m0"/>
+    </text>
+    <command id="m0-f0"/>
+    <command id="m0-f1"/>
+    <command id="m0-f2"/>
+  </menu>
+  <menu id="m1">
+    <text>
+      <locale id="modules.m1"/>
+    </text>
+    <command id="m1-f0"/>
+    <command id="m1-f1"/>
+  </menu>
+</suite>

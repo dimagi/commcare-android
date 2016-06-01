@@ -9,9 +9,9 @@ import android.os.Build;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.network.DataPullRequester;
-import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.DataPullTask;
@@ -109,7 +109,7 @@ public class FormAndDataSyncer {
                 context.getString(R.string.PostURL));
     }
 
-    private <I extends CommCareActivity & PullTaskReceiver> void syncData(
+    public <I extends CommCareActivity & PullTaskReceiver> void syncData(
             final I activity, final boolean formsToSend,
             final boolean userTriggeredSync, String server,
             String username, String password) {
@@ -131,7 +131,8 @@ public class FormAndDataSyncer {
                 dataPullRequester) {
 
             @Override
-            protected void deliverResult(PullTaskReceiver receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
+            protected void deliverResult(PullTaskReceiver receiver,
+                                         ResultAndError<PullTaskResult> resultAndErrorMessage) {
                 receiver.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend);
             }
 
@@ -151,8 +152,9 @@ public class FormAndDataSyncer {
         mDataPullTask.executeParallel();
     }
 
-    public void syncDataForLoggedInUser(
-            final CommCareHomeActivity activity,
+    public <I extends CommCareActivity & PullTaskReceiver & ConnectorWithResultCallback>
+    void syncDataForLoggedInUser(
+            final I activity,
             final boolean formsToSend,
             final boolean userTriggeredSync) {
         User u = CommCareApplication._().getSession().getLoggedInUser();
@@ -161,9 +163,9 @@ public class FormAndDataSyncer {
             if (userTriggeredSync) {
                 // Remind the user that there's no syncing in demo mode.
                 if (formsToSend) {
-                    activity.displayMessage(Localization.get("main.sync.demo.has.forms"), true, true);
+                    activity.reportFailure(Localization.get("main.sync.demo.has.forms"), false);
                 } else {
-                    activity.displayMessage(Localization.get("main.sync.demo.no.forms"), true, true);
+                    activity.reportFailure(Localization.get("main.sync.demo.no.forms"), false);
                 }
             }
             return;
@@ -195,7 +197,7 @@ public class FormAndDataSyncer {
             throw new RuntimeException("Local restore file missing");
         }
 
-        LocalDataPullResponseFactory.setRequestPayloads(new String[] {SingleAppInstallation.LOCAL_RESTORE_REFERENCE});
+        LocalDataPullResponseFactory.setRequestPayloads(new String[]{SingleAppInstallation.LOCAL_RESTORE_REFERENCE});
         syncData(context, false, false, "fake-server-that-is-never-used", username, password, LocalDataPullResponseFactory.INSTANCE);
     }
 }
