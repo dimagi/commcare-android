@@ -15,10 +15,11 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.models.database.user.UserSandboxUtils;
-import org.commcare.models.encryption.CryptUtil;
+import org.commcare.models.encryption.ByteEncrypter;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.network.HttpCalloutTask;
 import org.commcare.network.HttpRequestGenerator;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.notifications.NotificationMessageFactory;
 import org.commcare.views.notifications.NotificationMessageFactory.StockMessages;
@@ -89,7 +90,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         this.app = app;
         this.restoreSession = restoreSession;
 
-        keyServerUrl = app.getAppPreferences().getString("key_server", null);
+        keyServerUrl = CommCarePreferences.getKeyServer();
         //long story
         keyServerUrl = "".equals(keyServerUrl) ? null : keyServerUrl;
 
@@ -554,7 +555,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         try {
             //Otherwise we need to copy the old sandbox to a new location atomically (in case we fail).
             UserSandboxUtils.migrateData(this.getContext(), app, oldSandboxToMigrate, oldKey, newRecord,
-                    CryptUtil.unwrapByteArrayWithString(newRecord.getEncryptedKey(), password));
+                    ByteEncrypter.unwrapByteArrayWithString(newRecord.getEncryptedKey(), password));
             publishProgress(Localization.get("key.manage.migrate"));
             return true;
         } catch (IOException ioe) {

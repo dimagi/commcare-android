@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
 
+import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.models.AsyncNodeEntityFactory;
 import org.commcare.models.Entity;
@@ -20,8 +21,12 @@ import org.commcare.views.EntityView;
 import org.commcare.views.GridEntityView;
 import org.commcare.views.HorizontalMediaView;
 import org.javarosa.core.model.instance.TreeReference;
+import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.OrderedHashtable;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -33,6 +38,7 @@ import java.util.List;
  * @author wspride
  */
 public class EntityListAdapter implements ListAdapter {
+    private static final String KEY_ENTITY_LIST_EXTRA_DATA = "entity-list-data";
 
     public static final int SPECIAL_ACTION = -2;
 
@@ -40,6 +46,7 @@ public class EntityListAdapter implements ListAdapter {
     private final int actionsCount;
 
     private boolean mFuzzySearchEnabled = true;
+    private boolean isFilteringByCalloutResult = false;
 
     private final Activity context;
     private final Detail detail;
@@ -59,12 +66,17 @@ public class EntityListAdapter implements ListAdapter {
     private boolean mAsyncMode = false;
 
     private String[] currentSearchTerms;
+    private String searchQuery = "";
 
-    private EntitySearcher entitySearcher = null;
-    private final Object mSyncLock = new Object();
+    private EntityFiltererBase entityFilterer = null;
 
-    private final CachingAsyncImageLoader mImageLoader;   // Asyncronous image loader, allows rows with images to scroll smoothly
-    private boolean usesGridView = false;  // false until we determine the Detail has at least one <grid> block
+    // Asyncronous image loader, allows rows with images to scroll smoothly
+    private final CachingAsyncImageLoader mImageLoader;
+
+    // false until we determine the Detail has at least one <grid> block
+    private boolean usesGridView = false;
+    // key to data mapping used to attach callout results to individual entities
+    private OrderedHashtable<String, String> calloutResponseData = new OrderedHashtable<>();
 
     public EntityListAdapter(Activity activity, Detail detail,
                              List<TreeReference> references,
@@ -79,13 +91,10 @@ public class EntityListAdapter implements ListAdapter {
         }
 
         this.full = full;
-        setCurrent(new ArrayList<Entity<TreeReference>>());
         this.references = references;
-
         this.context = activity;
         this.observers = new ArrayList<>();
-
-        mNodeFactory = factory;
+        this.mNodeFactory = factory;
 
         //TODO: I am a bad person and I should feel bad. This should get encapsulated 
         //somewhere in the factory as a callback (IE: How to sort/or whether to or  something)
@@ -96,9 +105,6 @@ public class EntityListAdapter implements ListAdapter {
             if (sort.length != 0) {
                 sort(sort);
             }
-            filterValues("");
-        } else {
-            setCurrent(new ArrayList<>(full));
         }
 
         if (android.os.Build.VERSION.SDK_INT >= 14) {
@@ -107,8 +113,10 @@ public class EntityListAdapter implements ListAdapter {
             mImageLoader = null;
         }
 
-        usesGridView = detail.usesGridView();
+        this.usesGridView = detail.usesGridView();
         this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();
+
+        setCurrent(new ArrayList<>(full));
     }
 
     /**
@@ -119,24 +127,18 @@ public class EntityListAdapter implements ListAdapter {
         if (actionsCount > 0) {
             actionsStartPosition = current.size();
         }
+        update();
     }
 
-    void setCurrentSearchTerms(String[] searchTerms) {
-        currentSearchTerms = searchTerms;
+    void clearSearch() {
+        currentSearchTerms = null;
+        searchQuery = "";
     }
 
-    private void filterValues(String filterRaw) {
-        synchronized (mSyncLock) {
-            if (entitySearcher != null) {
-                entitySearcher.finish();
-            }
-            String[] searchTerms = filterRaw.split("\\s+");
-            for (int i = 0; i < searchTerms.length; ++i) {
-                searchTerms[i] = StringUtils.normalize(searchTerms[i]);
-            }
-            entitySearcher = new EntitySearcher(this, filterRaw, searchTerms, mAsyncMode, mFuzzySearchEnabled, mNodeFactory, full, context);
-            entitySearcher.start();
-        }
+    public void clearCalloutResponseData() {
+        isFilteringByCalloutResult = false;
+        setCurrent(full);
+        calloutResponseData.clear();
     }
 
     private void sort(int[] fields) {
@@ -253,12 +255,26 @@ public class EntityListAdapter implements ListAdapter {
 
     private View getEntityView(Entity<TreeReference> entity, EntityView emv, int position) {
         if (emv == null) {
-            emv = EntityView.buildEntryEntityView(context, detail, entity, null, currentSearchTerms, position, mFuzzySearchEnabled);
+            emv = EntityView.buildEntryEntityView(
+                    context, detail, entity,
+                    currentSearchTerms, position, mFuzzySearchEnabled,
+                    getCalloutDataForEntity(entity));
         } else {
             emv.setSearchTerms(currentSearchTerms);
+            if (detail.getCallout() != null) {
+                emv.setExtraData(detail.getCallout().getResponseDetailField(), getCalloutDataForEntity(entity));
+            }
             emv.refreshViewsForNewEntity(entity, entity.getElement().equals(selected), position);
         }
         return emv;
+    }
+
+    private String getCalloutDataForEntity(Entity<TreeReference> entity) {
+        if (entity.extraKey != null) {
+            return calloutResponseData.get(entity.extraKey);
+        } else {
+            return null;
+        }
     }
 
     @Override
@@ -276,8 +292,44 @@ public class EntityListAdapter implements ListAdapter {
         return getCount() > 0;
     }
 
-    public void applyFilter(String s) {
-        filterValues(s);
+    public synchronized void filterByString(String filterRaw) {
+        if (entityFilterer != null) {
+            entityFilterer.cancelSearch();
+        }
+        // split by whitespace
+        String[] searchTerms = filterRaw.split("\\s+");
+        for (int i = 0; i < searchTerms.length; ++i) {
+            searchTerms[i] = StringUtils.normalize(searchTerms[i]);
+        }
+        currentSearchTerms = searchTerms;
+        searchQuery = filterRaw;
+        entityFilterer =
+                new EntityStringFilterer(this, searchTerms, mAsyncMode,
+                        mFuzzySearchEnabled, mNodeFactory, full, context);
+        entityFilterer.start();
+    }
+
+    /**
+     * Filter entity list to only include entities that have extra keys present
+     * in the provided mapping.  Reorders entities by the key ordering of the
+     * mapping.
+     */
+    public synchronized void filterByKeyedCalloutData(OrderedHashtable<String, String> keyToExtraDataMapping) {
+        calloutResponseData = keyToExtraDataMapping;
+
+        if (entityFilterer != null) {
+            entityFilterer.cancelSearch();
+        }
+        LinkedHashSet<String> keysToFilterBy = new LinkedHashSet<>();
+        for (Enumeration en = calloutResponseData.keys(); en.hasMoreElements(); ) {
+            String key = (String)en.nextElement();
+            keysToFilterBy.add(key);
+        }
+
+        isFilteringByCalloutResult = true;
+        entityFilterer =
+                new EntityKeyFilterer(this, mNodeFactory, full, context, keysToFilterBy);
+        entityFilterer.start();
     }
 
     void update() {
@@ -329,11 +381,9 @@ public class EntityListAdapter implements ListAdapter {
      * Signal that this adapter is dying. If we are doing any asynchronous work,
      * we need to stop doing so.
      */
-    public void signalKilled() {
-        synchronized (mSyncLock) {
-            if (entitySearcher != null) {
-                entitySearcher.finish();
-            }
+    public synchronized void signalKilled() {
+        if (entityFilterer != null) {
+            entityFilterer.cancelSearch();
         }
     }
 
@@ -342,5 +392,46 @@ public class EntityListAdapter implements ListAdapter {
      */
     public int getActionIndex(int positionInAdapter) {
         return positionInAdapter - (getCurrentCountWithActions() - 1);
+    }
+
+    public String getSearchNotificationText() {
+        if (isFilteringByCalloutResult) {
+            return Localization.get("select.callout.search.status", new String[]{
+                    "" + getCurrentCount(),
+                    "" + getFullCount()});
+        } else {
+            return Localization.get("select.search.status", new String[]{
+                    "" + getCurrentCount(),
+                    "" + getFullCount(),
+                    searchQuery});
+        }
+    }
+
+    public String getSearchQuery() {
+        return searchQuery;
+    }
+
+    public boolean isFilteringByCalloutResult() {
+        return isFilteringByCalloutResult;
+    }
+
+    public boolean hasCalloutResponseData() {
+        return !calloutResponseData.isEmpty();
+    }
+
+    public void loadCalloutDataFromSession() {
+        OrderedHashtable<String, String> externalData =
+                (OrderedHashtable<String, String>)CommCareApplication._()
+                        .getCurrentSession()
+                        .getCurrentFrameStepExtra(KEY_ENTITY_LIST_EXTRA_DATA);
+        if (externalData != null) {
+            filterByKeyedCalloutData(externalData);
+        }
+    }
+
+    public void saveCalloutDataToSession() {
+        if (isFilteringByCalloutResult) {
+            CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(KEY_ENTITY_LIST_EXTRA_DATA, calloutResponseData);
+        }
     }
 }

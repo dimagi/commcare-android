@@ -15,7 +15,6 @@ import org.commcare.adapters.MenuAdapter;
 import org.commcare.dalvik.R;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Entry;
-import org.commcare.suite.model.FormEntry;
 import org.commcare.suite.model.Menu;
 import org.commcare.suite.model.MenuDisplayable;
 import org.commcare.util.CommCarePlatform;
@@ -31,13 +30,13 @@ import java.io.IOException;
  * 
  * @author wspride
  */
-
 @ManagedUi(R.layout.grid_menu_layout)
 public class MenuGrid extends SaveSessionCommCareActivity implements OnItemClickListener, OnItemLongClickListener {
     private MenuAdapter adapter;
     
     @UiElement(R.id.grid_menu_grid)
     private GridView grid;
+    private boolean isRootModuleMenu;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +47,11 @@ public class MenuGrid extends SaveSessionCommCareActivity implements OnItemClick
         
        if (menuId == null) {
            menuId = Menu.ROOT_MENU_ID;
+           isRootModuleMenu = true;
        }
        
        adapter = new GridMenuAdapter(this, platform,menuId);
+       adapter.showAnyLoadErrors(this);
        refreshView();
        
        grid.setOnItemClickListener(this);
@@ -68,6 +69,10 @@ public class MenuGrid extends SaveSessionCommCareActivity implements OnItemClick
         return null;
     }
 
+    @Override
+    public boolean isBackEnabled() {
+        return !(CommCareApplication._().isConsumerApp() && isRootModuleMenu);
+    }
 
     /**
      * Get form list from database and insert into view.

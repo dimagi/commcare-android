@@ -2,13 +2,12 @@ package org.commcare.android.tests.processing;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.tasks.PurgeStaleArchivedFormsTask;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -24,22 +23,16 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@Config(application = CommCareApplication.class,
+@Config(application = CommCareTestApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class ArchivedFormPurgeTest {
 
     @Before
     public void setup() {
-        // needed to resolve "jr://resource" type references
-        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
-
-        TestAppInstaller.setupPrototypeFactory();
-
-        TestAppInstaller appTestInstaller =
-                new TestAppInstaller("jr://resource/commcare-apps/archive_form_tests/profile.ccpr",
-                        "test", "123");
-        appTestInstaller.installAppAndLogin();
+        TestAppInstaller.installAppAndLogin(
+                "jr://resource/commcare-apps/archive_form_tests/profile.ccpr",
+                "test", "123");
 
         SavedFormLoader.loadFormsFromPayload("/commcare-apps/archive_form_tests/saved_form_payload.xml");
     }

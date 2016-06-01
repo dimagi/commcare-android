@@ -28,7 +28,6 @@ import android.view.ContextThemeWrapper;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -44,6 +43,7 @@ import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.FormFileSystemHelpers;
@@ -54,6 +54,7 @@ import org.commcare.activities.components.FormRelevancyUpdating;
 import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.views.media.MediaLayout;
 import org.odk.collect.android.jr.extensions.IntentCallout;
 import org.odk.collect.android.jr.extensions.PollSensorAction;
 import org.commcare.interfaces.AdvanceToNextListener;
@@ -84,7 +85,7 @@ import org.commcare.utils.UriToFilePath;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.ResizingImageView;
 import org.commcare.views.UserfacingErrorHandling;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogChoiceItem;
 import org.commcare.views.dialogs.HorizontalPaneledChoiceDialog;
@@ -173,6 +174,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private static final String KEY_HAS_SAVED = "org.odk.collect.form.has.saved";
     public static final String KEY_FORM_ENTRY_SESSION = "form_entry_session";
     public static final String KEY_RECORD_FORM_ENTRY_SESSION = "record_form_entry_session";
+    private static final String KEY_WIDGET_WITH_VIDEO_PLAYING = "index-of-widget-with-video-playing-on-pause";
+    private static final String KEY_POSITION_OF_VIDEO_PLAYING = "position-of-video-playing-on-pause";
 
     /**
      * Intent extra flag to track if this form is an archive. Used to trigger
@@ -223,6 +226,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     // used to limit forward/backward swipes to one per question
     private boolean isAnimatingSwipe;
     private boolean isDialogShowing;
+
+    private int indexOfWidgetWithVideoPlaying = -1;
+    private int positionOfVideoProgress = -1;
 
     private FormLoaderTask<FormEntryActivity> mFormLoaderTask;
     private SaveToDiskTask mSaveToDiskTask;
@@ -414,6 +420,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         saveFormEntrySession(outState);
         outState.putBoolean(KEY_RECORD_FORM_ENTRY_SESSION, recordEntrySession);
 
+        if (indexOfWidgetWithVideoPlaying != -1) {
+            outState.putInt(KEY_WIDGET_WITH_VIDEO_PLAYING, indexOfWidgetWithVideoPlaying);
+            outState.putInt(KEY_POSITION_OF_VIDEO_PLAYING, positionOfVideoProgress);
+        }
+
         if(symetricKey != null) {
             try {
                 outState.putString(KEY_AES_STORAGE_KEY, new Base64Wrapper().encodeToString(symetricKey.getEncoded()));
@@ -458,6 +469,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 finishReturnInstance(false);
             } else if (requestCode == INTENT_CALLOUT){
                 processIntentResponse(intent, true);
+                Toast.makeText(this, Localization.get("intent.callout.cancelled"), Toast.LENGTH_SHORT).show();
             }
             // request was canceled, so do nothing
             return;
@@ -470,7 +482,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                 break;
             case INTENT_CALLOUT:
-                processIntentResponse(intent);
+                if (!processIntentResponse(intent, false)) {
+                    Toast.makeText(this, Localization.get("intent.callout.unable.to.process"), Toast.LENGTH_SHORT).show();
+                }
                 break;
             case IMAGE_CAPTURE:
                 ImageCaptureProcessing.processCaptureResponse(this, getInstanceFolder(), true);
@@ -559,43 +573,42 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         return null;
     }
 
-    private void processIntentResponse(Intent response){
-        processIntentResponse(response, false);
-    }
-
-    private void processIntentResponse(Intent response, boolean cancelled) {
+    /**
+     * @return Was answer set from intent?
+     */
+    private boolean processIntentResponse(Intent response, boolean wasIntentCancelled) {
         // keep track of whether we should auto advance
-        boolean advance = false;
+        boolean wasAnswerSet = false;
         boolean quick = false;
 
         IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
-        TreeReference context;
-        if (mFormController.getPendingCalloutFormIndex() != null) {
-            context = mFormController.getPendingCalloutFormIndex().getReference();
-        } else {
-            context = null;
-        }
-        if(pendingIntentWidget != null) {
-            //Set our instance destination for binary data if needed
+        if (pendingIntentWidget != null) {
+            // Set our instance destination for binary data if needed
             String destination = mInstancePath.substring(0, mInstancePath.lastIndexOf("/") + 1);
 
-            //get the original intent callout
+            // get the original intent callout
             IntentCallout ic = pendingIntentWidget.getIntentCallout();
 
-            quick = "quick".equals(ic.getAppearance());
+            if (!wasIntentCancelled) {
+                quick = "quick".equals(ic.getAppearance());
+                TreeReference context = null;
+                if (mFormController.getPendingCalloutFormIndex() != null) {
+                    context = mFormController.getPendingCalloutFormIndex().getReference();
+                }
+                wasAnswerSet = ic.processResponse(response, context, new File(destination));
+            }
 
-            //And process it 
-            advance = ic.processResponse(response, context, new File(destination));
-
-            ic.setCancelled(cancelled);
+            ic.setCancelled(wasIntentCancelled);
         }
-
-        refreshCurrentView();
 
         // auto advance if we got a good result and are in quick mode
-        if(advance && quick){
+        if (wasAnswerSet && quick) {
             showNextView();
+        } else {
+            refreshCurrentView();
         }
+
+        return wasAnswerSet;
     }
 
     private void updateFormRelevancies() {
@@ -705,7 +718,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         menu.add(0, MENU_LANGUAGES, 0, StringUtils.getStringRobust(this, R.string.change_language))
                 .setIcon(R.drawable.ic_menu_start_conversation)
                 .setEnabled(hasMultipleLanguages);
-
 
         menu.add(0, MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.form_entry_settings)).setIcon(
                 android.R.drawable.ic_menu_preferences);
@@ -1158,27 +1170,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         }
 
-        if(!displayed) {
-            showCustomToast(constraintText, Toast.LENGTH_SHORT);
+        if (!displayed) {
+            Toast popupMessage = Toast.makeText(this, constraintText, Toast.LENGTH_SHORT);
+            // center message to avoid overlapping with keyboard
+            popupMessage.setGravity(Gravity.CENTER, 0, 0);
+            popupMessage.show();
         }
         isAnimatingSwipe = false;
-    }
-
-    public void showCustomToast(String message, int duration) {
-        LayoutInflater inflater =
-            (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        View view = inflater.inflate(R.layout.toast_view, null);
-
-        // set the text in the view
-        TextView tv = (TextView) view.findViewById(R.id.message);
-        tv.setText(message);
-
-        Toast t = new Toast(this);
-        t.setView(view);
-        t.setDuration(duration);
-        t.setGravity(Gravity.CENTER, 0, 0);
-        t.show();
     }
 
     /**
@@ -1293,7 +1291,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     }
                 }
         );
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     private void saveFormToDisk(boolean exit) {
@@ -1414,7 +1412,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             items = new DialogChoiceItem[] {stayInFormItem, quitFormItem};
         }
         dialog.setChoiceItems(items);
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     private void discardChangesAndExit() {
@@ -1433,8 +1431,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             question = question.substring(0, 50) + "...";
         }
         String msg = StringUtils.getStringSpannableRobust(this, R.string.clearanswer_confirm, question).toString();
-        AlertDialogFactory factory = new AlertDialogFactory(this, title, msg);
-        factory.setIcon(android.R.drawable.ic_dialog_info);
+        StandardAlertDialog d = new StandardAlertDialog(this, title, msg);
+        d.setIcon(android.R.drawable.ic_dialog_info);
 
         DialogInterface.OnClickListener quitListener = new DialogInterface.OnClickListener() {
 
@@ -1451,9 +1449,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 dialog.dismiss();
             }
         };
-        factory.setPositiveButton(StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);
-        factory.setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.clear_answer_no), quitListener);
-        showAlertDialog(factory);
+        d.setPositiveButton(StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);
+        d.setNegativeButton(StringUtils.getStringSpannableRobust(this, R.string.clear_answer_no), quitListener);
+        showAlertDialog(d);
     }
 
     /**
@@ -1506,7 +1504,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         );
 
         dialog.setChoiceItems(choiceItems);
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     @Override
@@ -1546,6 +1544,43 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (mLocationServiceIssueReceiver != null) {
             unregisterReceiver(mLocationServiceIssueReceiver);
         }
+
+        saveInlineVideoState();
+    }
+
+    private void saveInlineVideoState() {
+        if (questionsView != null) {
+            for (int i = 0; i < questionsView.getWidgets().size(); i++) {
+                QuestionWidget q = questionsView.getWidgets().get(i);
+                if (q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID) != null) {
+                    VideoView inlineVideo = (VideoView)q.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
+                    if (inlineVideo.isPlaying()) {
+                        indexOfWidgetWithVideoPlaying = i;
+                        positionOfVideoProgress = inlineVideo.getCurrentPosition();
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    private void restoreInlineVideoState() {
+        if (indexOfWidgetWithVideoPlaying != -1) {
+            QuestionWidget widgetWithVideoToResume = questionsView.getWidgets().get(indexOfWidgetWithVideoPlaying);
+            VideoView inlineVideo = (VideoView)widgetWithVideoToResume.findViewById(MediaLayout.INLINE_VIDEO_PANE_ID);
+            if (inlineVideo != null) {
+                inlineVideo.seekTo(positionOfVideoProgress);
+                inlineVideo.start();
+            } else {
+                Logger.log(AndroidLogger.SOFT_ASSERT,
+                        "No inline video was found at the question widget index for which a " +
+                                "video had been playing before the activity was paused");
+            }
+
+            // Reset values now that we have restored
+            indexOfWidgetWithVideoPlaying = -1;
+            positionOfVideoProgress = -1;
+        }
     }
 
     @Override
@@ -1565,6 +1600,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // clear pending callout post onActivityResult processing
             mFormController.setPendingCalloutFormIndex(null);
         }
+
+        restoreInlineVideoState();
     }
 
     private void loadForm() {
@@ -1636,11 +1673,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 }
             };
             mFormLoaderTask.connect(this);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                mFormLoaderTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, formUri);
-            } else {
-                mFormLoaderTask.execute(formUri);
-            }
+            mFormLoaderTask.executeParallel(formUri);
             hasFormLoadBeenTriggered = true;
         }
     }
@@ -1674,7 +1707,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         } else {
             // we've just loaded a saved form, so start in the hierarchy view
-            Intent i = new Intent(FormEntryActivity.this, FormHierarchyActivity.class);
+            Intent i = new Intent(this, FormHierarchyActivity.class);
             startActivityForResult(i, HIERARCHY_ACTIVITY_FIRST_START);
             return; // so we don't show the intro screen before jumping to the hierarchy
         }
@@ -1868,17 +1901,18 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             // continue closing down key pool and user database.
             CommCareApplication._().expireUserSession();
         } else if (saveStatus != null) {
+            String toastMessage = "";
             switch (saveStatus) {
                 case SAVED_COMPLETE:
-                    Toast.makeText(this, Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
+                    toastMessage = Localization.get("form.entry.complete.save.success");
                     hasSaved = true;
                     break;
                 case SAVED_INCOMPLETE:
-                    Toast.makeText(this, Localization.get("form.entry.incomplete.save.success"), Toast.LENGTH_SHORT).show();
+                    toastMessage = Localization.get("form.entry.incomplete.save.success");
                     hasSaved = true;
                     break;
                 case SAVED_AND_EXIT:
-                    Toast.makeText(this, Localization.get("form.entry.complete.save.success"), Toast.LENGTH_SHORT).show();
+                    toastMessage = Localization.get("form.entry.complete.save.success");
                     hasSaved = true;
                     finishReturnInstance();
                     break;
@@ -1889,9 +1923,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     saveAnswersForCurrentScreen(EVALUATE_CONSTRAINTS);
                     return;
                 case SAVE_ERROR:
-                    UserfacingErrorHandling.createErrorDialog(this, errorMessage,
-                            Localization.get("notification.formentry.save_error.title"), EXIT);
+                    if (!CommCareApplication._().isConsumerApp()) {
+                        UserfacingErrorHandling.createErrorDialog(this, errorMessage,
+                                Localization.get("notification.formentry.save_error.title"), EXIT);
+                    }
                     return;
+            }
+            if (!"".equals(toastMessage) && !CommCareApplication._().isConsumerApp()) {
+                Toast.makeText(this, toastMessage, Toast.LENGTH_SHORT).show();
             }
             refreshCurrentView();
         }
@@ -2155,6 +2194,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             restoreFormEntrySession(savedInstanceState);
 
             recordEntrySession = savedInstanceState.getBoolean(KEY_RECORD_FORM_ENTRY_SESSION, false);
+            if (savedInstanceState.containsKey(KEY_WIDGET_WITH_VIDEO_PLAYING)) {
+                indexOfWidgetWithVideoPlaying = savedInstanceState.getInt(KEY_WIDGET_WITH_VIDEO_PLAYING);
+                positionOfVideoProgress = savedInstanceState.getInt(KEY_POSITION_OF_VIDEO_PLAYING);
+            }
         }
     }
 
@@ -2164,7 +2207,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             formEntryRestoreSession = new FormEntrySession();
             DataInputStream objectInputStream = new DataInputStream(new ByteArrayInputStream(serializedObject));
             try {
-                formEntryRestoreSession.readExternal(objectInputStream, DbUtil.getPrototypeFactory(this));
+                formEntryRestoreSession.readExternal(objectInputStream, CommCareApplication._().getPrototypeFactory(this));
             } catch (IOException | DeserializationException e) {
                 Log.e(TAG, "failed to deserialize form entry session during saved instance restore");
             } finally {

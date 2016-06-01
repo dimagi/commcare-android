@@ -20,14 +20,13 @@ import org.javarosa.core.services.locale.Localization;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class DialogCreationHelpers {
-    public static AlertDialog buildAboutCommCareDialog(Activity activity) {
+
+    public static CommCareAlertDialog buildAboutCommCareDialog(Activity activity) {
 
         LayoutInflater li = LayoutInflater.from(activity);
         View view = li.inflate(R.layout.scrolling_info_dialog, null);
-
         TextView titleView = (TextView) view.findViewById(R.id.dialog_title_text);
         titleView.setText(activity.getString(R.string.about_cc));
-
         Spannable markdownText = buildAboutMessage(activity);
         TextView aboutText = (TextView)view.findViewById(R.id.dialog_text);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
@@ -36,9 +35,15 @@ public class DialogCreationHelpers {
             aboutText.setText(markdownText.toString());
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setView(view);
-        return builder.create();
+        CustomViewAlertDialog dialog = new CustomViewAlertDialog(activity, view);
+        dialog.setPositiveButton(Localization.get("dialog.ok"), new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
+        return dialog;
     }
 
     private static Spannable buildAboutMessage(Context context) {
@@ -56,29 +61,27 @@ public class DialogCreationHelpers {
      * @param permRequester interface for launching system permission request
      *                      dialog
      */
-    public static AlertDialog buildPermissionRequestDialog(Activity activity,
+    public static CommCareAlertDialog buildPermissionRequestDialog(Activity activity,
                                                            final RuntimePermissionRequester permRequester,
                                                            final int requestCode,
                                                            String title,
                                                            String body) {
-        View view = LayoutInflater.from(activity).inflate(R.layout.scrolling_info_dialog, null);
 
+        View view = LayoutInflater.from(activity).inflate(R.layout.scrolling_info_dialog, null);
         TextView bodyText = (TextView)view.findViewById(R.id.dialog_text);
         bodyText.setText(body);
-
         TextView titleText = (TextView) view.findViewById(R.id.dialog_title_text);
         titleText.setText(title);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setCancelable(false);
-        builder.setView(view);
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+        CustomViewAlertDialog dialog = new CustomViewAlertDialog(activity, view);
+        dialog.setPositiveButton(Localization.get("dialog.ok"), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 permRequester.requestNeededPermissions(requestCode);
                 dialog.dismiss();
             }
         });
-        return builder.create();
+
+        return dialog;
     }
 }

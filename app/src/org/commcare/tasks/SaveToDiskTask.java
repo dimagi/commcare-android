@@ -4,10 +4,10 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.v4.util.Pair;
 import android.util.Log;
 
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.interfaces.FormSavedListener;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.encryption.EncryptionIO;
@@ -23,15 +23,18 @@ import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.services.transport.payload.ByteArrayPayload;
 import org.javarosa.form.api.FormEntryController;
 import org.javarosa.model.xform.XFormSerializingVisitor;
+import org.javarosa.xform.util.XFormSerializer;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 
 import javax.crypto.spec.SecretKeySpec;
 
@@ -40,7 +43,7 @@ import javax.crypto.spec.SecretKeySpec;
  * @author Yaw Anokwa (yanokwa@gmail.com)
  */
 public class SaveToDiskTask extends
-        CommCareTask<Void, String, Pair<SaveToDiskTask.SaveStatus, String>, FormEntryActivity> {
+        CommCareTask<Void, String, ResultAndError<SaveToDiskTask.SaveStatus>, FormEntryActivity> {
     // callback to run upon saving
     private FormSavedListener mSavedListener;
     private final Boolean exitAfterSave;
@@ -90,9 +93,9 @@ public class SaveToDiskTask extends
      * an instance, it will be used to fill the {@link FormDef}.
      */
     @Override
-    protected Pair<SaveStatus, String> doTaskBackground(Void... nothing) {
+    protected ResultAndError<SaveStatus> doTaskBackground(Void... nothing) {
         if (hasInvalidAnswers(mMarkCompleted, DeveloperPreferences.shouldFireTriggersOnSave())) {
-            return new Pair<>(SaveStatus.INVALID_ANSWER, "");
+            return new ResultAndError<>(SaveStatus.INVALID_ANSWER);
         }
 
         FormEntryActivity.mFormController.postProcessInstance();
@@ -101,11 +104,15 @@ public class SaveToDiskTask extends
             exportData(mMarkCompleted);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            return new Pair<>(SaveStatus.SAVE_ERROR,
+            return new ResultAndError<>(SaveStatus.SAVE_ERROR,
                     "Something is blocking acesss to the submission file in " + FormEntryActivity.mInstancePath);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new Pair<>(SaveStatus.SAVE_ERROR,
+        } catch(XFormSerializer.UnsupportedUnicodeSurrogatesException e) {
+            Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, "Form contains invalid data encoding\n\n" + ForceCloseLogger.getStackTrace(e));
+            return new ResultAndError<>(SaveStatus.SAVE_ERROR,
+                    Localization.get("form.entry.save.invalid.unicode", e.getMessage()));
+        }  catch (IOException e) {
+            Logger.log(AndroidLogger.TYPE_ERROR_STORAGE, "I/O Error when serializing form\n\n" + ForceCloseLogger.getStackTrace(e));
+            return new ResultAndError<>(SaveStatus.SAVE_ERROR,
                     "Unable to write xml to " + FormEntryActivity.mInstancePath);
         } catch (FormInstanceTransactionException e) {
             // TODO PLM: send this error to HQ as a app build error, most
@@ -113,15 +120,15 @@ public class SaveToDiskTask extends
             e.printStackTrace();
             // Passing exceptions through content providers make error message strings messy.
             String cleanedMessage = e.getMessage().replace("java.lang.IllegalStateException: ", "");
-            return new Pair<>(SaveStatus.SAVE_ERROR, cleanedMessage);
+            return new ResultAndError<>(SaveStatus.SAVE_ERROR, cleanedMessage);
         }
 
         if (exitAfterSave) {
-            return new Pair<>(SaveStatus.SAVED_AND_EXIT, "");
+            return new ResultAndError<>(SaveStatus.SAVED_AND_EXIT);
         } else if (mMarkCompleted) {
-            return new Pair<>(SaveStatus.SAVED_COMPLETE, "");
+            return new ResultAndError<>(SaveStatus.SAVED_COMPLETE);
         } else {
-            return new Pair<>(SaveStatus.SAVED_INCOMPLETE, "");
+            return new ResultAndError<>(SaveStatus.SAVED_INCOMPLETE);
         }
     }
 
@@ -309,7 +316,7 @@ public class SaveToDiskTask extends
     }
 
     @Override
-    protected void onPostExecute(Pair<SaveStatus, String> result) {
+    protected void onPostExecute(ResultAndError<SaveStatus> result) {
         super.onPostExecute(result);
 
         synchronized (this) {
@@ -317,14 +324,14 @@ public class SaveToDiskTask extends
                 if (result == null) {
                     mSavedListener.savingComplete(SaveStatus.SAVE_ERROR, "Unknown Error");
                 } else {
-                    mSavedListener.savingComplete(result.first, result.second);
+                    mSavedListener.savingComplete(result.data, result.errorMessage);
                 }
             }
         }
     }
 
     @Override
-    protected void deliverResult(FormEntryActivity receiver, Pair<SaveStatus, String> result) {
+    protected void deliverResult(FormEntryActivity receiver, ResultAndError<SaveStatus> result) {
     }
 
     @Override

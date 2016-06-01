@@ -137,7 +137,7 @@ public class RecoveryActivity extends SessionAwareCommCareActivity<RecoveryActiv
         });
     }
 
-    protected void displayMessage(String text) {
+    private void displayMessage(String text) {
         txtUserMessage.setText(text);
     }
 

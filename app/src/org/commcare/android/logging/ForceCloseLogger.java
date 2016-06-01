@@ -1,6 +1,5 @@
 package org.commcare.android.logging;
 
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import org.apache.http.HttpResponse;
@@ -110,7 +109,7 @@ public class ForceCloseLogger {
             User user = CommCareApplication._().getSession().getLoggedInUser();
             generator = new HttpRequestGenerator(user);
         } catch (Exception e) {
-            generator = new HttpRequestGenerator();
+            generator = HttpRequestGenerator.buildNoAuthGenerator();
         }
 
         try {

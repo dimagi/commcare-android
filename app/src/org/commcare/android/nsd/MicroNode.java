@@ -37,7 +37,7 @@ public class MicroNode {
 
             try {
                 InputStream is = new BufferedInputStream(
-                        new HttpRequestGenerator().simpleGet(new URL(serviceUrlRoot + "/apps/manifest")));
+                        HttpRequestGenerator.buildNoAuthGenerator().simpleGet(new URL(serviceUrlRoot + "/apps/manifest")));
                 byte[] manifest = AndroidStreamUtil.inputStreamToByteArray(is);
 
                 JSONObject object = new JSONObject(new String(manifest));

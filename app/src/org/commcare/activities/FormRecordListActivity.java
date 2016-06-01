@@ -52,7 +52,7 @@ import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareUtil;
 import org.commcare.views.IncompleteFormRecordView;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -78,9 +78,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     public static final String KEY_INITIAL_RECORD_ID = "cc_initial_rec_id";
 
     private AndroidCommCarePlatform platform;
-
     private IncompleteFormListAdapter adapter;
-
     private PurgeStaleArchivedFormsTask purgeTask;
 
     private int initialSelection = -1;
@@ -261,7 +259,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
     }
 
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -291,7 +288,6 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     }
 
     public String getActivityTitle() {
-
         if (adapter == null) {
             return Localization.get("app.workflow.saved.heading");
         }
@@ -380,9 +376,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
 
             finish();
         } else {
-            AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactory(this, "Form Missing",
-                    Localization.get("form.record.gone.message"), null);
-            showAlertDialog(f);
+            showAlertDialog(StandardAlertDialog.getBasicAlertDialog(this, "Form Missing",
+                    Localization.get("form.record.gone.message"), null));
         }
     }
 
@@ -449,9 +444,8 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
             title = Localization.get("app.workflow.forms.scan.title.invalid");
         }
         int resId = result.first ? R.drawable.checkmark : R.drawable.redx;
-        AlertDialogFactory f = AlertDialogFactory.getBasicAlertFactoryWithIcon(this, title,
-                result.second, resId, null);
-        showAlertDialog(f);
+        showAlertDialog(StandardAlertDialog.getBasicAlertDialogWithIcon(this, title,
+                result.second, resId, null));
     }
 
     /**

@@ -3,7 +3,6 @@ package org.commcare.activities;
 import android.Manifest;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -98,7 +97,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         IN_URL_ENTRY,
         CHOOSE_INSTALL_ENTRY_METHOD,
         READY_TO_INSTALL,
-        NEEDS_PERMS
+        NEEDS_PERMS,
+        BLANK
     }
 
     private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
@@ -180,15 +180,24 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         persistCommCareAppState();
 
+        if (isSingleAppBuild()) {
+            uiState = UiState.BLANK;
+        }
+
         Log.v("UiState", "Current vars: " +
                 "UIState is: " + this.uiState + " " +
                 "incomingRef is: " + incomingRef + " " +
                 "startAllowed is: " + startAllowed + " "
         );
 
-        Permissions.acquireAllAppPermissions(this, this, Permissions.ALL_PERMISSIONS_REQUEST);
-
-        performSMSInstall(false);
+        boolean askingForPerms =
+                Permissions.acquireAllAppPermissions(this, this,
+                        Permissions.ALL_PERMISSIONS_REQUEST);
+        if (!askingForPerms) {
+            // With basic perms satisfied, ask user to allow SMS reading for
+            // sms app install code
+            performSMSInstall(false);
+        }
     }
 
     private void loadStateFromInstance(Bundle savedInstanceState) {
@@ -241,10 +250,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             this.finish();
             return;
         }
-
-        if (isSingleAppBuild()) {
-            SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
-        }
     }
 
     @Override
@@ -293,6 +298,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case NEEDS_PERMS:
                 fragment = permFragment;
+                break;
+            case BLANK:
+                fragment = new Fragment();
                 break;
             default:
                 return;
@@ -361,7 +369,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         setReadyToInstall(result);
     }
 
-    public void setReadyToInstall(String reference) {
+    private void setReadyToInstall(String reference) {
         incomingRef = reference;
         this.uiState = UiState.READY_TO_INSTALL;
 
@@ -496,12 +504,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.READ_SMS)) {
-                AlertDialog dialog =
-                        DialogCreationHelpers.buildPermissionRequestDialog(this, this,
+                DialogCreationHelpers.buildPermissionRequestDialog(this, this,
                                 SMS_PERMISSIONS_REQUEST,
                                 Localization.get("permission.sms.install.title"),
-                                Localization.get("permission.sms.install.message"));
-                dialog.show();
+                                Localization.get("permission.sms.install.message")).showNonPersistentDialog();
             } else {
                 requestNeededPermissions(SMS_PERMISSIONS_REQUEST);
             }
@@ -716,8 +722,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     @Override
-    public void failWithNotification(AppInstallStatus statusfailstate) {
-        fail(NotificationMessageFactory.message(statusfailstate), true);
+    public void failWithNotification(AppInstallStatus statusFailState) {
+        fail(NotificationMessageFactory.message(statusFailState), true);
     }
 
     @Override
@@ -727,6 +733,14 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     + "any valid possibilities in CommCareSetupActivity");
             return null;
         }
+        if (isSingleAppBuild()) {
+            return CustomProgressDialog.newInstance("Starting Up", "Initializing your application...", taskId);
+        } else {
+            return generateNormalInstallDialog(taskId);
+        }
+    }
+
+    private CustomProgressDialog generateNormalInstallDialog(int taskId) {
         String title = Localization.get("updates.resources.initialization");
         String message = Localization.get("updates.resources.profile");
         CustomProgressDialog dialog = CustomProgressDialog.newInstance(title, message, taskId);
@@ -816,6 +830,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     scanSMSLinks(manualSMSInstall);
                 }
             }
+
+            if (isSingleAppBuild()) {
+                SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
+            }
         } else if (requestCode == Permissions.ALL_PERMISSIONS_REQUEST) {
             String[] requiredPerms = Permissions.getRequiredPerms();
 
@@ -831,8 +849,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             // external storage perms were enabled, so setup temp storage,
             // which fails in application setup without external storage perms.
             CommCareApplication._().prepareTemporaryStorage();
-            uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
-            uiStateScreenTransition();
+            if (!isSingleAppBuild()) {
+                uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
+                uiStateScreenTransition();
+            }
+
+            // Since SMS asks for more permissions, call was delayed until here
+            performSMSInstall(false);
         }
     }
 

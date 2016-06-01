@@ -77,7 +77,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
     @UiElement(value = R.id.primed_password_message, locale = "login.primed.prompt")
     private TextView loginPrimedMessage;
 
-    private final LoginActivity activity;
+    protected final LoginActivity activity;
 
     private LoginMode loginMode;
 

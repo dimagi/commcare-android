@@ -3,14 +3,11 @@ package org.commcare.activities;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.database.DataSetObserver;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.FragmentManager;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -31,6 +28,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.components.EntitySelectCalloutSetup;
@@ -43,6 +41,7 @@ import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.provider.SimprintsCalloutProcessing;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.Action;
@@ -50,14 +49,13 @@ import org.commcare.suite.model.Callout;
 import org.commcare.suite.model.CalloutData;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DetailField;
-import org.commcare.suite.model.SessionDatum;
+import org.commcare.suite.model.EntityDatum;
 import org.commcare.tasks.EntityLoaderListener;
 import org.commcare.tasks.EntityLoaderTask;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.DetailCalloutListener;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.EntitySelectRefreshTimer;
-import org.commcare.utils.GeoUtils;
 import org.commcare.utils.HereFunctionHandler;
 import org.commcare.utils.SerializationUtil;
 import org.commcare.views.EntityView;
@@ -65,14 +63,16 @@ import org.commcare.views.TabbedDetailView;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.DialogChoiceItem;
+import org.commcare.views.dialogs.LocationNotificationHandler;
 import org.commcare.views.dialogs.PaneledChoiceDialog;
 import org.commcare.views.media.AudioController;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+import org.javarosa.core.util.OrderedHashtable;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.odk.collect.android.jr.extensions.IntentCallout;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,13 +103,15 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private EditText searchbox;
     private TextView searchResultStatus;
+    private ImageButton clearSearchButton;
+    private View searchBanner;
     private EntityListAdapter adapter;
     private LinearLayout header;
     private SearchView searchView;
     private MenuItem searchItem;
     private MenuItem barcodeItem;
 
-    private SessionDatum selectDatum;
+    private EntityDatum selectDatum;
 
     private boolean mResultIsMap = false;
     private boolean isMappingEnabled = false;
@@ -154,7 +156,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private boolean locationChangedWhileLoading = false;
 
     // Handler for displaying alert dialog when no location providers are found
-    private final LocationNotificationHandler locationNotificationHandler = new LocationNotificationHandler(this);
+    private final LocationNotificationHandler locationNotificationHandler =
+            new LocationNotificationHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -173,7 +176,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         // avoid session dependent when there is no command
         if (session.getCommand() != null) {
-            selectDatum = session.getNeededDatum();
+            selectDatum = (EntityDatum)session.getNeededDatum();
             shortSelect = session.getDetail(selectDatum.getShortDetail());
             mNoDetailMode = selectDatum.getLongDetail() == null;
 
@@ -187,20 +190,32 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             @Override
             public void onChanged() {
                 super.onChanged();
-                //update the search results box
-                String query = getSearchText().toString();
-                if (!"".equals(query)) {
-                    searchResultStatus.setText(Localization.get("select.search.status", new String[]{
-                            "" + adapter.getCurrentCount(),
-                            "" + adapter.getFullCount(),
-                            query
-                    }));
-                    searchResultStatus.setVisibility(View.VISIBLE);
-                } else {
-                    searchResultStatus.setVisibility(View.GONE);
-                }
+
+                setSearchBannerState();
             }
         };
+    }
+
+    private void setSearchBannerState() {
+        if (!"".equals(adapter.getSearchQuery())) {
+            showSearchBanner();
+        } else if (adapter.isFilteringByCalloutResult()) {
+            showSearchBannerWithClearButton();
+        } else {
+            searchBanner.setVisibility(View.GONE);
+            clearSearchButton.setVisibility(View.GONE);
+        }
+    }
+
+    private void showSearchBannerWithClearButton() {
+        showSearchBanner();
+        clearSearchButton.setVisibility(View.VISIBLE);
+    }
+
+    private void showSearchBanner() {
+        searchResultStatus.setText(adapter.getSearchNotificationText());
+        searchResultStatus.setVisibility(View.VISIBLE);
+        searchBanner.setVisibility(View.VISIBLE);
     }
 
     private void restoreSavedState(Bundle savedInstanceState) {
@@ -287,7 +302,17 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         searchbox = (EditText)findViewById(R.id.searchbox);
         searchbox.setMaxLines(3);
         searchbox.setHorizontallyScrolling(false);
-        searchResultStatus = (TextView)findViewById(R.id.no_search_results);
+        searchBanner = findViewById(R.id.search_result_banner);
+        searchResultStatus = (TextView)findViewById(R.id.search_results_status);
+        clearSearchButton = (ImageButton)findViewById(R.id.clear_search_button);
+        clearSearchButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                adapter.clearCalloutResponseData();
+                refreshView();
+            }
+        });
+        clearSearchButton.setVisibility(View.GONE);
         header = (LinearLayout)findViewById(R.id.entity_select_header);
 
         mViewMode = session.isViewCommand(session.getCommand());
@@ -295,11 +320,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         ImageButton barcodeButton = (ImageButton)findViewById(R.id.barcodeButton);
 
         Callout callout = shortSelect.getCallout();
-        if (callout ==  null) {
+        if (callout == null) {
             barcodeScanOnClickListener = EntitySelectCalloutSetup.makeBarcodeClickListener(this);
         } else {
             barcodeScanOnClickListener = EntitySelectCalloutSetup.makeCalloutClickListener(this, callout);
-            if(callout.getImage() != null){
+            if (callout.getImage() != null) {
                 EntitySelectCalloutSetup.setupImageLayout(this, barcodeButton, callout.getImage());
             }
         }
@@ -332,12 +357,18 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             adapter = containerFragment.getData();
             // on orientation change
             if (adapter != null) {
-                view.setAdapter(adapter);
-                EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
-
-                findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+                setupUIFromAdapter(view);
             }
         }
+    }
+
+    private void setupUIFromAdapter(ListView view) {
+        view.setAdapter(adapter);
+        EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
+
+        findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
+
+        setSearchBannerState();
     }
 
     private void setupMapNav() {
@@ -406,21 +437,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
      */
     private void refreshView() {
         try {
-            //TODO: Get ec into these text's
-            String[] headers = new String[shortSelect.getFields().length];
-
-            for (int i = 0; i < headers.length; ++i) {
-                headers[i] = shortSelect.getFields()[i].getHeader().evaluate();
-            }
-
-            header.removeAllViews();
-
-            // only add headers if we're not using grid mode
-            if (!shortSelect.usesGridView()) {
-                //Hm, sadly we possibly need to rebuild this each time.
-                EntityView v = EntityView.buildHeadersEntityView(this, shortSelect, headers);
-                header.addView(v);
-            }
+            rebuildHeaders();
 
             if (adapter == null) {
                 loadEntities();
@@ -432,7 +449,32 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
+    private void rebuildHeaders() {
+        //TODO: Get ec into these text's
+        String[] headers = new String[shortSelect.getFields().length];
+
+        for (int i = 0; i < headers.length; ++i) {
+            headers[i] = shortSelect.getFields()[i].getHeader().evaluate();
+        }
+
+        header.removeAllViews();
+
+        // only add headers if we're not using grid mode
+        if (!shortSelect.usesGridView()) {
+            boolean hasCalloutResponseData = (adapter != null && adapter.hasCalloutResponseData());
+            //Hm, sadly we possibly need to rebuild this each time.
+            EntityView v =
+                    EntityView.buildHeadersEntityView(this, shortSelect, headers, hasCalloutResponseData);
+            header.addView(v);
+        }
+    }
+
     public boolean loadEntities() {
+        if (adapter != null) {
+            // Store extra data to be reloaded upon load task completion
+            adapter.saveCalloutDataToSession();
+        }
+
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
             EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
             entityLoader.attachListener(this);
@@ -488,6 +530,8 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         }
     }
 
+
+
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
         if (id == EntityListAdapter.SPECIAL_ACTION) {
@@ -525,6 +569,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 break;
             case CONFIRM_SELECT:
                 resuming = true;
+                isStartingDetailActivity = false;
                 if (resultCode == RESULT_OK && !mViewMode) {
                     // create intent for return and store path
                     returnWithResult(intent);
@@ -544,7 +589,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                                         EntityDetailActivity.CONTEXT_REFERENCE,
                                         TreeReference.class);
                         if (r != null && adapter != null) {
-                            // TODO PLM: adapter null check should be unnessecary
                             this.displayReferenceAwesome(r, adapter.getPosition(r));
                             updateSelectedItem(r, true);
                         }
@@ -594,25 +638,47 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private void processCalloutResult(int resultCode, Intent intent) {
         if (resultCode == Activity.RESULT_OK) {
-            String result = intent.getStringExtra("odk_intent_data");
-            if (result != null){
-                setSearchText(result.trim());
+            if (intent.hasExtra(IntentCallout.INTENT_RESULT_VALUE)) {
+                handleSearchStringCallout(intent);
+            } else if (SimprintsCalloutProcessing.isIdentificationResponse(intent)) {
+                handleFingerprintMatchCallout(intent);
             } else {
-                for (String key : shortSelect.getCallout().getResponses()) {
-                    result = intent.getExtras().getString(key);
-                    if (result != null) {
-                        setSearchText(result);
-                        return;
-                    }
+                Toast.makeText(this,
+                        Localization.get("select.callout.search.invalid"),
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private void handleSearchStringCallout(Intent intent) {
+        String result = intent.getStringExtra(IntentCallout.INTENT_RESULT_VALUE);
+        if (result != null) {
+            setSearchText(result.trim());
+        } else {
+            for (String key : shortSelect.getCallout().getResponses()) {
+                result = intent.getExtras().getString(key);
+                if (result != null) {
+                    setSearchText(result);
+                    return;
                 }
             }
         }
+    }
+
+    private void handleFingerprintMatchCallout(Intent intent) {
+        OrderedHashtable<String, String> guidToMatchConfidenceMap =
+                SimprintsCalloutProcessing.getConfidenceMatchesFromCalloutResponse(intent);
+        adapter.filterByKeyedCalloutData(guidToMatchConfidenceMap);
+        refreshView();
     }
 
     /**
      * Finish this activity, including all extras from the given intent in the finishing intent
      */
     private void returnWithResult(Intent intent) {
+        if (adapter != null) {
+            adapter.saveCalloutDataToSession();
+        }
         Intent i = new Intent(this.getIntent());
         i.putExtras(intent.getExtras());
         setResult(RESULT_OK, i);
@@ -623,10 +689,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     public void afterTextChanged(Editable incomingEditable) {
         final String incomingString = incomingEditable.toString();
         final String currentSearchText = getSearchText().toString();
-        if (incomingString.equals(currentSearchText)) {
+        if (!"".equals(currentSearchText) && incomingString.equals(currentSearchText)) {
             filterString = currentSearchText;
             if (adapter != null) {
-                adapter.applyFilter(filterString);
+                adapter.filterByString(filterString);
             }
         }
         if (!isUsingActionBar()) {
@@ -670,7 +736,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     }
                     searchView.setQuery(lastQueryString, false);
                     if (adapter != null) {
-                        adapter.applyFilter(lastQueryString == null ? "" : lastQueryString);
+                        adapter.filterByString(lastQueryString == null ? "" : lastQueryString);
                     }
                 }
                 EntitySelectActivity.this.searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -684,7 +750,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                         lastQueryString = newText;
                         filterString = newText;
                         if (adapter != null) {
-                            adapter.applyFilter(newText);
+                            adapter.filterByString(newText);
                         }
                         return false;
                     }
@@ -701,7 +767,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                     actionIndex += 1;
                 }
             }
-            if(shortSelect.getCallout() != null && shortSelect.getCallout().getImage() != null){
+            if (shortSelect.getCallout() != null && shortSelect.getCallout().getImage() != null) {
                 EntitySelectCalloutSetup.setupImageLayout(this, barcodeItem, shortSelect.getCallout().getImage());
             }
         }
@@ -741,6 +807,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         menu.findItem(MENU_SORT).setEnabled(adapter != null);
         // hide sorting menu when using async loading strategy
         menu.findItem(MENU_SORT).setVisible((shortSelect == null || !shortSelect.useAsyncStrategy()));
+        menu.findItem(R.id.menu_settings).setVisible(!CommCareApplication._().isConsumerApp());
 
         return super.onPrepareOptionsMenu(menu);
     }
@@ -788,12 +855,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private void createSortMenu() {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, Localization.get("select.menu.sort"));
         dialog.setChoiceItems(getSortOptionsList(dialog));
-        dialog.show();
+        showAlertDialog(dialog);
     }
 
     private DialogChoiceItem[] getSortOptionsList(final PaneledChoiceDialog dialog) {
-        SessionDatum datum = session.getNeededDatum();
-        DetailField[] fields = session.getDetail(datum.getShortDetail()).getFields();
+        DetailField[] fields = session.getDetail(selectDatum.getShortDetail()).getFields();
         List<String> namesList = new ArrayList<>();
 
         final int[] keyArray = new int[fields.length];
@@ -827,7 +893,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             View.OnClickListener listener = new View.OnClickListener() {
                 public void onClick(View v) {
                     adapter.sortEntities(new int[]{keyArray[index]});
-                    adapter.applyFilter(getSearchText().toString());
+                    adapter.filterByString(getSearchText().toString());
                     dialog.dismiss();
                 }
             };
@@ -852,7 +918,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
         }
 
-        ListView view = ((ListView) this.findViewById(R.id.screen_entity_select_list));
+        ListView view = ((ListView)this.findViewById(R.id.screen_entity_select_list));
 
         EntitySelectViewSetup.setupDivider(this, view, shortSelect.usesGridView());
 
@@ -876,8 +942,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
         findViewById(R.id.entity_select_loading).setVisibility(View.GONE);
 
-        if (adapter != null && filterString != null && !"".equals(filterString)) {
-            adapter.applyFilter(filterString);
+        if (adapter != null) {
+            // filter by additional session data (search string, callout result data)
+            // Relevant when user navigates so far forward in the session that
+            // the entity list needs to be reloaded upon returning to it
+            restoreAdapterStateFromSession();
         }
 
         //In landscape we want to select something now. Either the top item, or the most recently selected one
@@ -892,6 +961,14 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             locationChangedWhileLoading = false;
             loadEntities();
         }
+    }
+
+    private void restoreAdapterStateFromSession() {
+        if (filterString != null && !"".equals(filterString)) {
+            adapter.filterByString(filterString);
+        }
+
+        adapter.loadCalloutDataFromSession();
     }
 
     private void updateSelectedItem(boolean forceMove) {
@@ -986,6 +1063,9 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     private void performEntitySelect() {
+        if (adapter != null) {
+            adapter.saveCalloutDataToSession();
+        }
         Intent i = new Intent(EntitySelectActivity.this.getIntent());
         i.putExtra(SessionFrame.STATE_DATUM_VAL, selectedIntent.getStringExtra(SessionFrame.STATE_DATUM_VAL));
         setResult(RESULT_OK, i);
@@ -994,7 +1074,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     public void deliverLoadError(Exception e) {
-        displayException(e);
+        displayCaseListFilterException(e);
     }
 
     @Override
@@ -1043,45 +1123,6 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             if (!hereFunctionHandler.locationProvidersFound()) {
                 locationNotificationHandler.sendEmptyMessage(0);
             }
-        }
-    }
-
-    /**
-     * Handler class for displaying alert dialog when no location providers are found.
-     * Message-passing is necessary because the dialog is displayed during the course of evaluation
-     * of the here() function, which occurs in a background thread (EntityLoaderTask).
-     */
-    private static class LocationNotificationHandler extends Handler {
-        // Use a weak reference to avoid potential memory leaks
-        private final WeakReference<EntitySelectActivity> mActivity;
-
-        public LocationNotificationHandler(EntitySelectActivity activity) {
-            mActivity = new WeakReference<>(activity);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-
-            final EntitySelectActivity activity = mActivity.get();
-            if (activity != null) {
-                DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int i) {
-                        switch (i) {
-                            case DialogInterface.BUTTON_POSITIVE:
-                                Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                                activity.startActivity(intent);
-                                hereFunctionHandler.allowGpsUse();
-                                break;
-                            case DialogInterface.BUTTON_NEGATIVE:
-                                break;
-                        }
-                        dialog.dismiss();
-                    }
-                };
-
-                GeoUtils.showNoGpsDialog(activity, onChangeListener);
-            }  // else handler has outlived activity, do nothing
         }
     }
 

@@ -28,6 +28,7 @@ import org.apache.http.protocol.HttpContext;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.util.CaseDBUtils;
+import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.utils.GlobalConstants;
@@ -38,9 +39,6 @@ import org.javarosa.core.services.Logger;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Authenticator;
-import java.net.HttpURLConnection;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.Date;
 import java.util.Vector;
@@ -48,7 +46,7 @@ import java.util.Vector;
 /**
  * @author ctsims
  */
-public class HttpRequestGenerator {
+public class HttpRequestGenerator implements HttpRequestEndpoints {
     private static final String TAG = HttpRequestGenerator.class.getSimpleName();
 
     /**
@@ -72,10 +70,10 @@ public class HttpRequestGenerator {
 
     private static final String SUBMIT_MODE_DEMO = "demo";
 
-    private Credentials credentials;
-    PasswordAuthentication passwordAuthentication;
-    private String username;
-    private String userType;
+    private final Credentials credentials;
+    private final String username;
+    private final String password;
+    private final String userType;
 
     /**
      * Keep track of current request to allow for early aborting
@@ -86,32 +84,37 @@ public class HttpRequestGenerator {
         this(user.getUsername(), user.getCachedPwd(), user.getUserType());
     }
 
-
     public HttpRequestGenerator(String username, String password) {
         this(username, password, null);
     }
 
-    public HttpRequestGenerator(String username, String password, String userType) {
-        String domainedUsername = username;
-
-        SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
-
-        //TODO: We do this in a lot of places, we should wrap it somewhere
-        if (prefs.contains(USER_DOMAIN_SUFFIX)) {
-            domainedUsername += "@" + prefs.getString(USER_DOMAIN_SUFFIX, null);
-        }
-
-        if (!User.TYPE_DEMO.equals(userType)) {
-            this.credentials = new UsernamePasswordCredentials(domainedUsername, password);
-            passwordAuthentication = new PasswordAuthentication(domainedUsername, password.toCharArray());
-            this.username = username;
-        }
-
+    private HttpRequestGenerator(String username, String password, String userType) {
+        String domainedUsername = buildDomainUser(username);
+        this.password = password;
         this.userType = userType;
+
+        if (username != null && !User.TYPE_DEMO.equals(userType)) {
+            this.credentials = new UsernamePasswordCredentials(domainedUsername, password);
+            this.username = username;
+        } else {
+            this.credentials = null;
+            this.username = null;
+        }
     }
 
-    public HttpRequestGenerator() {
-        //No authentication possible
+    protected static String buildDomainUser(String username) {
+        if (username != null) {
+            SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
+
+            if (prefs.contains(USER_DOMAIN_SUFFIX)) {
+                username += "@" + prefs.getString(USER_DOMAIN_SUFFIX, null);
+            }
+        }
+        return username;
+    }
+
+    public static HttpRequestGenerator buildNoAuthGenerator() {
+        return new HttpRequestGenerator(null, null, null);
     }
 
     public HttpResponse get(String uri) throws ClientProtocolException, IOException {
@@ -138,6 +141,7 @@ public class HttpRequestGenerator {
 
     }
 
+    @Override
     public HttpResponse makeCaseFetchRequest(String baseUri, boolean includeStateFlags) throws ClientProtocolException, IOException {
         HttpClient client = client();
 
@@ -173,6 +177,7 @@ public class HttpRequestGenerator {
         return response;
     }
 
+    @Override
     public HttpResponse makeKeyFetchRequest(String baseUri, Date lastRequest) throws ClientProtocolException, IOException {
         HttpClient client = client();
 
@@ -197,7 +202,7 @@ public class HttpRequestGenerator {
         base.addHeader("x-openrosa-deviceid", CommCareApplication._().getPhoneId());
     }
 
-    public String getSyncToken(String username) {
+    private String getSyncToken(String username) {
         if (username == null) {
             return null;
         }
@@ -215,6 +220,7 @@ public class HttpRequestGenerator {
         return CaseDBUtils.computeHash(CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class));
     }
 
+    @Override
     public HttpResponse postData(String url, MultipartEntity entity) throws ClientProtocolException, IOException {
         // setup client
         HttpClient httpclient = client();
@@ -288,9 +294,10 @@ public class HttpRequestGenerator {
         return url.getHost().equals(newUrl.getHost());
     }
 
+    @Override
     public InputStream simpleGet(URL url) throws IOException {
         if (android.os.Build.VERSION.SDK_INT > 11) {
-            InputStream requestResult = makeModernRequest(url);
+            InputStream requestResult = SimpleGetRequest.makeRequest(username, password, url);
 
             if (requestResult != null) {
                 return requestResult;
@@ -309,63 +316,7 @@ public class HttpRequestGenerator {
         return get.getEntity().getContent();
     }
 
-    private InputStream makeModernRequest(URL url) throws IOException {
-        if (passwordAuthentication != null) {
-            Authenticator.setDefault(new Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return passwordAuthentication;
-                }
-            });
-        }
-
-        int responseCode = -1;
-        HttpURLConnection con = (HttpURLConnection)url.openConnection();
-        setupGetConnection(con);
-        con.connect();
-        try {
-            responseCode = con.getResponseCode();
-
-            return followRedirect(con).getInputStream();
-        } catch (IOException e) {
-            if (e.getMessage().toLowerCase().contains("authentication") || responseCode == 401) {
-                //Android http libraries _suuuuuck_, let's try apache.
-                return null;
-            } else {
-                throw e;
-            }
-        }
-    }
-
-    private static HttpURLConnection followRedirect(HttpURLConnection httpConnection) throws IOException {
-        final URL url = httpConnection.getURL();
-        if (httpConnection.getResponseCode() == 301) {
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Attempting 1 stage redirect from " + url.toString() + " to " + httpConnection.getURL().toString());
-            //only allow one level of redirection here for now.
-            URL newUrl = new URL(httpConnection.getHeaderField("Location"));
-            httpConnection.disconnect();
-            httpConnection = (HttpURLConnection)newUrl.openConnection();
-            setupGetConnection(httpConnection);
-            httpConnection.connect();
-
-            //Don't allow redirects _from_ https _to_ https unless they are redirecting to the same server.
-            if (!HttpRequestGenerator.isValidRedirect(url, httpConnection.getURL())) {
-                Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Invalid redirect from " + url.toString() + " to " + httpConnection.getURL().toString());
-                throw new IOException("Invalid redirect from secure server to insecure server");
-            }
-        }
-
-        return httpConnection;
-    }
-
-    private static void setupGetConnection(HttpURLConnection con) throws IOException {
-        con.setConnectTimeout(GlobalConstants.CONNECTION_TIMEOUT);
-        con.setReadTimeout(GlobalConstants.CONNECTION_SO_TIMEOUT);
-        con.setRequestMethod("GET");
-        con.setDoInput(true);
-        con.setInstanceFollowRedirects(true);
-    }
-
+    @Override
     public void abortCurrentRequest() {
         if (currentRequest != null) {
             try {
@@ -375,5 +326,4 @@ public class HttpRequestGenerator {
             }
         }
     }
-
 }

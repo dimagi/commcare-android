@@ -7,8 +7,8 @@ import org.commcare.cases.model.Case;
 import org.commcare.core.parse.CommCareTransactionParserFactory;
 import org.commcare.data.xml.TransactionParser;
 import org.commcare.data.xml.TransactionParserFactory;
+import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.models.database.AndroidSandbox;
-import org.commcare.network.HttpRequestGenerator;
 import org.commcare.utils.GlobalConstants;
 import org.kxml2.io.KXmlParser;
 
@@ -35,7 +35,7 @@ import java.util.Hashtable;
 public class AndroidTransactionParserFactory extends CommCareTransactionParserFactory {
 
     final private Context context;
-    final private HttpRequestGenerator generator;
+    final private HttpRequestEndpoints generator;
 
     private TransactionParserFactory formInstanceParser;
     private boolean caseIndexesWereDisrupted = false;
@@ -45,7 +45,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
      */
     private Hashtable<String, String> formInstanceNamespaces;
 
-    public AndroidTransactionParserFactory(Context context, HttpRequestGenerator generator) {
+    public AndroidTransactionParserFactory(Context context, HttpRequestEndpoints generator) {
         super(new AndroidSandbox(CommCareApplication._()));
         this.context = context;
         this.generator = generator;

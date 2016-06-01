@@ -6,6 +6,7 @@ import android.util.Log;
 import android.widget.ImageButton;
 
 import org.commcare.CommCareApplication;
+import org.commcare.CommCareTestApplication;
 import org.commcare.activities.CommCareHomeActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.CommCareTestRunner;
@@ -23,8 +24,6 @@ import org.commcare.session.SessionNavigator;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.widgets.IntegerWidget;
 import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.reference.ReferenceManager;
-import org.javarosa.core.reference.ResourceReferenceFactory;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +44,7 @@ import static junit.framework.Assert.assertTrue;
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
-@Config(application = CommCareApplication.class,
+@Config(application = CommCareTestApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class FormRecordProcessingTest {
@@ -53,16 +52,9 @@ public class FormRecordProcessingTest {
 
     @Before
     public void setup() {
-        // needed to resolve "jr://resource" type references
-        ReferenceManager._().addReferenceFactory(new ResourceReferenceFactory());
-
-        TestUtils.initializeStaticTestStorage();
-        TestAppInstaller.setupPrototypeFactory();
-
-        TestAppInstaller appTestInstaller =
-                new TestAppInstaller("jr://resource/commcare-apps/form_save_regressions/profile.ccpr",
-                        "test", "123");
-        appTestInstaller.installAppAndLogin();
+        TestAppInstaller.installAppAndLogin(
+                "jr://resource/commcare-apps/form_save_regressions/profile.ccpr",
+                "test", "123");
         ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
 

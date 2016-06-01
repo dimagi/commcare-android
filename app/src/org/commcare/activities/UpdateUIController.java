@@ -26,7 +26,7 @@ class UpdateUIController implements CommCareActivityUIController {
     private TextView currentVersionText;
     private TextView progressText;
 
-    private final UpdateActivity activity;
+    protected final UpdateActivity activity;
 
     private final String applyUpdateButtonTextKey;
 
@@ -93,7 +93,7 @@ class UpdateUIController implements CommCareActivityUIController {
         installUpdateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                activity.lauchUpdateInstallTask();
+                activity.launchUpdateInstallTask();
             }
         });
         String updateVersionPlaceholderMsg =

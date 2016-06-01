@@ -10,9 +10,9 @@ import android.webkit.WebView;
 import android.widget.LinearLayout;
 
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.graph.activities.GraphActivity;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
+import org.commcare.graph.util.GraphUtil;
 import org.commcare.graph.view.c3.AxisConfiguration;
 import org.commcare.graph.view.c3.DataConfiguration;
 import org.commcare.graph.view.c3.GridConfiguration;
@@ -40,10 +40,6 @@ public class GraphView {
         mContext = context;
         mTitle = title;
         mIsFullScreen = isFullScreen;
-    }
-
-    public Intent getIntent(String html) {
-        return getIntent(html, GraphActivity.class);
     }
 
     public Intent getIntent(String html, Class className) {
@@ -113,8 +109,7 @@ public class GraphView {
                     "<html>" +
                             "<head>" +
                             "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/c3.min.css'></link>" +
-                            "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.css'></link>" +
-                            "<script type='text/javascript' src='file:///android_asset/graphing/errors.js'></script>" +
+                            "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.min.css'></link>" +
                             "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
                             "<script type='text/javascript' src='file:///android_asset/graphing/c3.min.js' charset='utf-8'></script>" +
                             "<script type='text/javascript'>try {\n");
@@ -130,7 +125,7 @@ public class GraphView {
             String chartHTML = "<div id='chart'></div>";
             html.append(
                     "\n} catch (e) { displayError(e); }</script>" +
-                            "<script type='text/javascript' src='file:///android_asset/graphing/graph.js'></script>" +
+                            "<script type='text/javascript' src='file:///android_asset/graphing/graph.min.js'></script>" +
                             "</head>" +
                             "<body>" + titleHTML + errorHTML + chartHTML + "</body>" +
                             "</html>");
@@ -174,5 +169,21 @@ public class GraphView {
      */
     public static LinearLayout.LayoutParams getLayoutParams() {
         return new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+    }
+    
+    /**
+     * Get graph's desired aspect ratio.
+     * Most graphs are drawn with aspect ratio 2:1, which is fairly arbitrary
+     * and happened to look nice for partographs. Bar graphs are drawn square - 
+     * again, arbitrary, happens to look nice for mobile UCR. Expect to revisit
+     * this eventually (make all graphs square? user-configured aspect ratio?).
+     *
+     * @return Ratio, expressed as a double: width / height.
+     */
+    public double getRatio(GraphData data) {
+        if (GraphUtil.TYPE_BAR.equals(data.getType())) {
+            return 1;
+        }
+        return 2;
     }
 }

@@ -3,6 +3,7 @@ package org.commcare.activities;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -38,7 +39,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
 
     private static final String LOG_TAG = "CC-MultimediaInflator";
 
-    private static final int REQUEST_FILE_LOCATION = 1;
+    public static final int REQUEST_FILE_LOCATION = 1;
 
     public static final String EXTRA_FILE_DESTINATION = "ccodk_mia_filedest";
 
@@ -57,7 +58,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
     @UiElement(value = R.id.screen_multimedia_inflater_install, locale = "mult.install.button")
     Button btnInstallMultimedia;
 
-    boolean done = false;
+    private boolean done = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,10 +139,19 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
                 // Android versions 4.4 and up sometimes don't return absolute
                 // filepaths from the file chooser. So resolve the URI into a
                 // valid file path.
-                String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(),
-                        intent.getData());
-                if (filePath != null) {
-                    editFileLocation.setText(filePath);
+                Uri uriPath = intent.getData();
+                if (uriPath == null) {
+                    // issue getting the filepath uri from file browser callout
+                    // result
+                    Toast.makeText(this,
+                            Localization.get("mult.install.state.invalid.path"),
+                            Toast.LENGTH_SHORT).show();
+                } else {
+                    String filePath = 
+                        UriToFilePath.getPathFromUri(CommCareApplication._(), uriPath);
+                    if (filePath != null) {
+                        editFileLocation.setText(filePath);
+                    }
                 }
             }
         }

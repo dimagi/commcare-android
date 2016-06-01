@@ -12,6 +12,7 @@ import org.commcare.adapters.SquareButtonViewHolder;
 import org.commcare.dalvik.R;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.models.database.UserStorageClosedException;
 import org.commcare.modern.util.Pair;
 import org.javarosa.core.services.locale.Localization;
 
@@ -32,7 +33,14 @@ public class SyncDetailCalculations {
                                      HomeCardDisplayData cardDisplayData) {
 
         SqlStorage<FormRecord> formsStorage = CommCareApplication._().getUserStorage(FormRecord.class);
-        int numUnsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
+        int numUnsentForms;
+        try {
+            numUnsentForms = formsStorage.getIDsForValue(FormRecord.META_STATUS, FormRecord.STATUS_UNSENT).size();
+        } catch (UserStorageClosedException e) {
+            // Addresses unexpected issue where this db lookup occurs after session ends.
+            // If possible, replace this with fix that addresses root issue
+            numUnsentForms = 0;
+        }
 
         Pair<Long, String> lastSyncTimeAndMessage = getLastSyncTimeAndMessage();
 

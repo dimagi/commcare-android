@@ -19,7 +19,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
-import org.commcare.views.dialogs.AlertDialogFactory;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
 /**
@@ -171,12 +171,12 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
         return super.onOptionsItemSelected(item);
     }
 
-    public void launchRememberPasswordConfirmDialog() {
-        AlertDialogFactory factory = new AlertDialogFactory(this,
+    private void launchRememberPasswordConfirmDialog() {
+        StandardAlertDialog d = new StandardAlertDialog(this,
                 Localization.get("remember.password.confirm.title"),
                 Localization.get("remember.password.confirm.message"));
 
-        factory.setPositiveButton(Localization.get("dialog.ok"), new DialogInterface.OnClickListener() {
+        d.setPositiveButton(Localization.get("dialog.ok"), new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -190,7 +190,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
             }
         });
 
-        factory.setNegativeButton(Localization.get("option.cancel"), new DialogInterface.OnClickListener() {
+        d.setNegativeButton(Localization.get("option.cancel"), new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -198,7 +198,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
             }
         });
 
-        factory.showDialog();
+        showAlertDialog(d);
     }
 
     public static TextWatcher getPinTextWatcher(final Button confirmButton) {

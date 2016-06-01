@@ -2,7 +2,6 @@ package org.commcare.android.util;
 
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.Hasher;
-import org.javarosa.core.util.externalizable.MD5Hasher;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.util.Hashtable;
@@ -23,10 +22,6 @@ import java.util.Hashtable;
 public class LivePrototypeFactory extends PrototypeFactory {
     private final Hashtable<String, Class> factoryTable = new Hashtable<>();
     private final LiveHasher mLiveHasher;
-
-    public LivePrototypeFactory() {
-        this(new MD5Hasher());
-    }
 
     public LivePrototypeFactory(Hasher hasher) {
         this.mLiveHasher = new LiveHasher(this, hasher);

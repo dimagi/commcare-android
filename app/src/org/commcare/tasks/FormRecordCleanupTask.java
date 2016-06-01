@@ -176,11 +176,11 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      * @throws UnfullfilledRequirementsException Parsing encountered a platform
      *                                           versioning problem
      */
-    public static void updateAndWriteUnindexedRecordTo(Context context,
-                                                       CommCarePlatform platform,
-                                                       FormRecord oldRecord,
-                                                       SqlStorage<FormRecord> storage,
-                                                       String saveStatus)
+    private static void updateAndWriteUnindexedRecordTo(Context context,
+                                                        CommCarePlatform platform,
+                                                        FormRecord oldRecord,
+                                                        SqlStorage<FormRecord> storage,
+                                                        String saveStatus)
             throws InvalidStructureException, IOException,
             XmlPullParserException, UnfullfilledRequirementsException {
 
@@ -323,10 +323,10 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
      * Remove form record and associated session state descriptor from storage
      * and delete form instance files linked to the form record.
      */
-    public static void wipeRecord(Context context, int sessionId,
-                                  int formRecordId,
-                                  SqlStorage<FormRecord> frStorage,
-                                  SqlStorage<SessionStateDescriptor> ssdStorage) {
+    private static void wipeRecord(Context context, int sessionId,
+                                   int formRecordId,
+                                   SqlStorage<FormRecord> frStorage,
+                                   SqlStorage<SessionStateDescriptor> ssdStorage) {
         if (sessionId != -1) {
             try {
                 SessionStateDescriptor ssd = ssdStorage.read(sessionId);

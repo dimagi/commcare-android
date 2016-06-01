@@ -16,9 +16,9 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
 
     final Cursor c;
     protected final SqlStorage<T> storage;
-    protected boolean isClosedByProgress = false;
-    protected final int count;
-    protected final String primaryId;
+    private boolean isClosedByProgress = false;
+    private final int count;
+    private final String primaryId;
 
     /**
      * only for use by subclasses which re-implement this behavior strategically (Note: Should be an interface pullout
