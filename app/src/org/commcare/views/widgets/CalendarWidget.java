@@ -22,7 +22,12 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Saumya on 5/29/2016.
@@ -44,13 +49,10 @@ public class CalendarWidget extends QuestionWidget{
     private Calendar myCal;
     private LinearLayout myLayout;
 
-    private final String[] monthNames = new String[]{"January", "February", "March", "April", "May", "June", "July",
-            "August","September","October","November","December"};
+    private String[] monthNames;
 
     //TODO: Find out a way to make this thing not default to 42 days for every month!
     private final int DAYS_IN_MONTH = 42;
-
-    private Collection<String> months = Collections.unmodifiableCollection(Arrays.asList(monthNames));
 
     public CalendarWidget(Context context, FormEntryPrompt prompt){
         super(context, prompt);
@@ -59,13 +61,29 @@ public class CalendarWidget extends QuestionWidget{
         myLayout = (LinearLayout) inflater.inflate(R.layout.calendar_widget, null);
         addView(myLayout);
 
-        initDisplay();
         myCal = Calendar.getInstance();
+        initDisplay();
+        initMonths();
         updateCalendar();
-
         initOnClick();
-        //TODO: Slight tweaks to spacing
 
+        //TODO: Slight tweaks to spacing
+    }
+
+    private void initMonths(){
+        monthNames = new String[12];
+
+        final Map<String, Integer> monthMap = myCal.getDisplayNames(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+        List<String> monthList = new ArrayList<>(monthMap.keySet());
+
+        Collections.sort(monthList, new Comparator<String>(){
+            @Override
+            public int compare(String a, String b){
+                return monthMap.get(a) - monthMap.get(b);
+            }
+        });
+
+        monthNames = monthList.toArray(monthNames);
     }
 
     private void initDisplay(){

@@ -18,9 +18,15 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created by Saumya on 5/27/2016.
@@ -44,19 +50,12 @@ public class GregorianWidget extends AbstractUniversalDateWidget {
 
     @Override
     protected void initText(){
-        if(myCal == null) {
-            myCal = Calendar.getInstance();
-        }
 
-        if(monthList == null){
-            monthList = Arrays.asList(myMonths);
-        }
-
-        dayTxt = (EditText)findViewById(R.id.daytxt);
-        yearTxt = (EditText)findViewById(R.id.yeartxt);
+        dayTxt = (EditText)findViewById(R.id.daytxtfield);
+        yearTxt = (EditText)findViewById(R.id.yeartxtfield);
 
         ArrayAdapter<String> monthAdapter = new ArrayAdapter<>(getContext(), R.layout.autocomplete_month, monthList);
-        monthTxt = (AutoCompleteTextView) findViewById(R.id.monthtxt);
+        monthTxt = (AutoCompleteTextView) findViewById(R.id.monthtxtfield);
         monthTxt.setAdapter(monthAdapter);
 
         dayTxt.addTextChangedListener(new TextWatcher() {
@@ -111,7 +110,7 @@ public class GregorianWidget extends AbstractUniversalDateWidget {
                 String contents = s.toString();
 
                 if(contents.length() > 0){
-                    int maxYear = myCal.get(Calendar.YEAR);
+                    int maxYear = myCal.get(Calendar.YEAR)+1;
 
                     if(Integer.parseInt(contents) > maxYear){
                         s.clear();
@@ -120,6 +119,12 @@ public class GregorianWidget extends AbstractUniversalDateWidget {
                 }
             }
         });
+    }
+
+    public void clearAll(){
+        dayTxt.setText("");
+        monthTxt.setText("");
+        yearTxt.setText("");
     }
 
     @Override
@@ -132,9 +137,9 @@ public class GregorianWidget extends AbstractUniversalDateWidget {
     @Override
     protected void updateDateDisplay(long millisFromJavaEpoch) {
         UniversalDate dateUniv = fromMillis(millisFromJavaEpoch);
-        dayTxt.setText(String.format("%02d", dateUniv.day));
-        monthTxt.setText(monthsArray[dateUniv.month - 1]);
         monthArrayPointer = dateUniv.month - 1;
+        dayTxt.setText(String.format("%02d", dateUniv.day));
+        monthTxt.setText(monthsArray[monthArrayPointer]);
         yearTxt.setText(String.format("%04d", dateUniv.year));
         myCal.setTimeInMillis(millisFromJavaEpoch);
     }
@@ -181,10 +186,25 @@ public class GregorianWidget extends AbstractUniversalDateWidget {
 
     @Override
     protected String[] getMonthsArray() {
-        if(myMonths == null){
-            myMonths = new String[]{"January", "February", "March", "April", "May", "June", "July",
-                    "August","September","October","November","December"};
+        if(myCal == null) {
+            myCal = Calendar.getInstance();
         }
+
+        if(myMonths == null){
+            myMonths = new String[12];
+            final Map<String, Integer> monthMap = myCal.getDisplayNames(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+            monthList = new ArrayList<String>(monthMap.keySet());
+
+            Collections.sort(monthList, new Comparator<String>(){
+                @Override
+                public int compare(String a, String b){
+                    return monthMap.get(a) - monthMap.get(b);
+                }
+            });
+
+            myMonths = monthList.toArray(myMonths);
+        }
+
         return myMonths;
     }
 
