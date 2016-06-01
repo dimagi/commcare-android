@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Rect;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.TextViewCompat;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -22,13 +23,26 @@ import org.commcare.preferences.FormEntryPreferences;
 public class FormLayoutHelpers {
     public static boolean determineNumberOfValidGroupLines(FormEntryActivity activity,
                                                            Rect newRootViewDimensions,
-                                                           boolean groupNativeVisibility,
-                                                           boolean groupForcedInvisible) {
+                                                           boolean hasGroupLabel,
+                                                           boolean shouldHideGroupLabel) {
         FrameLayout header = (FrameLayout)activity.findViewById(R.id.form_entry_header);
         TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
 
-        int contentSize = newRootViewDimensions.height();
+        int numberOfGroupLinesAllowed =
+                getNumberOfGroupLinesAllowed(groupLabel, newRootViewDimensions, activity);
 
+        if (TextViewCompat.getMaxLines(groupLabel) != numberOfGroupLinesAllowed) {
+            shouldHideGroupLabel = numberOfGroupLinesAllowed == 0;
+            groupLabel.setMaxLines(numberOfGroupLinesAllowed);
+            updateGroupViewVisibility(header, groupLabel, hasGroupLabel, shouldHideGroupLabel);
+        }
+        return shouldHideGroupLabel;
+    }
+
+    private static int getNumberOfGroupLinesAllowed(TextView groupLabel,
+                                                    Rect newRootViewDimensions,
+                                                    FormEntryActivity activity) {
+        int contentSize = newRootViewDimensions.height();
         View navBar = activity.findViewById(R.id.nav_pane);
         int headerSize = navBar.getHeight();
         if (headerSize == 0) {
@@ -37,60 +51,35 @@ public class FormLayoutHelpers {
 
         int availableWindow = contentSize - headerSize - getActionBarSize(activity);
 
-        int questionFontSize = getFontSizeInPx(activity);
-
-        //Request a consistent amount of the screen before groups can cut down
-
-        int spaceRequested = questionFontSize * 6;
-
+        // Request a consistent amount of the screen before groups can cut down
+        int spaceRequested = getFontSizeInPx(activity) * 6;
         int spaceAvailable = availableWindow - spaceRequested;
 
-        int defaultHeaderSpace = activity.getResources().getDimensionPixelSize(R.dimen.content_min_margin) * 2;
+        int defaultHeaderSpace =
+                activity.getResources().getDimensionPixelSize(R.dimen.content_min_margin) * 2;
 
         float textSize = groupLabel.getTextSize();
-
-        int numberOfGroupLinesAllowed = (int)((spaceAvailable - defaultHeaderSpace) / textSize);
-
-        if (numberOfGroupLinesAllowed < 0) {
-            numberOfGroupLinesAllowed = 0;
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            if (groupLabel.getMaxLines() == numberOfGroupLinesAllowed) {
-                return groupForcedInvisible;
-            }
-        }
-
-        if (numberOfGroupLinesAllowed == 0) {
-            updateGroupViewVisibility(header, true, groupNativeVisibility);
-            groupLabel.setMaxLines(0);
-            return true;
-        } else {
-            updateGroupViewVisibility(header, false, groupNativeVisibility);
-            groupLabel.setMaxLines(numberOfGroupLinesAllowed);
-            return false;
-        }
+        return Math.max(0, (int)((spaceAvailable - defaultHeaderSpace) / textSize));
     }
 
     public static void updateGroupViewVisibility(FormEntryActivity activity,
-                                                 boolean groupNativeVisibility,
-                                                 boolean groupForcedInvisible) {
+                                                 boolean hasGroupLabel,
+                                                 boolean shouldHideGroupLabel) {
         FrameLayout header = (FrameLayout)activity.findViewById(R.id.form_entry_header);
-        updateGroupViewVisibility(header, groupNativeVisibility, groupForcedInvisible);
+        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
+        updateGroupViewVisibility(header, groupLabel, hasGroupLabel, shouldHideGroupLabel);
     }
 
     private static void updateGroupViewVisibility(FrameLayout header,
-                                                  boolean groupNativeVisibility,
-                                                  boolean groupForcedInvisible) {
-        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
-
-        if (groupNativeVisibility && !groupForcedInvisible) {
+                                                  TextView groupLabel,
+                                                  boolean hasGroupLabel,
+                                                  boolean shouldHideGroupLabel) {
+        if (hasGroupLabel && !shouldHideGroupLabel) {
             header.setVisibility(View.VISIBLE);
             groupLabel.setVisibility(View.VISIBLE);
         } else {
             header.setVisibility(View.GONE);
             groupLabel.setVisibility(View.GONE);
-
         }
     }
 
@@ -107,7 +96,8 @@ public class FormLayoutHelpers {
     }
 
     private static int getActionBarSize(CommCareActivity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB &&
+                activity.getActionBar() != null) {
             int actionBarHeight = activity.getActionBar().getHeight();
 
             if (actionBarHeight != 0) {

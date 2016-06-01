@@ -96,15 +96,15 @@ public class EntityListAdapter implements ListAdapter {
     public EntityListAdapter(CommCareActivity activity, Detail detail,
                              List<TreeReference> references,
                              List<Entity<TreeReference>> full,
-                             int[] sort,
-                             NodeEntityFactory factory) {
+                             int[] sort, NodeEntityFactory factory,
+                             boolean hideActions) {
         this.detail = detail;
-        if (detail.getCustomActions() != null) {
-            actionsCount = detail.getCustomActions().size();
-            dividerCount = 1;
-        } else {
+        if (detail.getCustomActions() == null || hideActions) {
             actionsCount = 0;
             dividerCount = 0;
+        } else {
+            actionsCount = detail.getCustomActions().size();
+            dividerCount = 1;
         }
 
         this.full = full;

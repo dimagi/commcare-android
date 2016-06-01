@@ -54,7 +54,7 @@ public class GraphView {
      * any changes to graph's configuration, title, etc.
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public View getView(String html) {
+    public WebView getView(String html) {
         if (BuildConfig.DEBUG) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
@@ -112,7 +112,7 @@ public class GraphView {
             html.append(
                     "<html>" +
                             "<head>" +
-                            "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/c3." + affix + ".css'></link>" +
+                            "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/c3.min.css'></link>" +
                             "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph." + affix + ".css'></link>" +
                             "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
                             "<script type='text/javascript' src='file:///android_asset/graphing/c3." + affix + ".js' charset='utf-8'></script>" +

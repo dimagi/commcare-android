@@ -43,4 +43,9 @@ public class CommCareTaskConnectorFake<R> implements CommCareTaskConnector<R> {
     public void stopTaskTransition() {
 
     }
+
+    @Override
+    public void hideTaskCancelButton() {
+
+    }
 }

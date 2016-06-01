@@ -27,6 +27,7 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.interfaces.CommCareActivityUIController;
+import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
@@ -41,9 +42,12 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigationResponder;
 import org.commcare.session.SessionNavigator;
+import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.suite.model.SyncEntry;
+import org.commcare.suite.model.SyncPost;
 import org.commcare.suite.model.Text;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormLoaderTask;
@@ -79,12 +83,14 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 
 public class CommCareHomeActivity
         extends SessionAwareCommCareActivity<CommCareHomeActivity>
-        implements SessionNavigationResponder, WithUIController, PullTaskReceiver {
+        implements SessionNavigationResponder, WithUIController,
+                   PullTaskReceiver, ConnectorWithResultCallback<CommCareHomeActivity> {
 
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
@@ -98,6 +104,8 @@ public class CommCareHomeActivity
      * or EntityDetailActivity (to allow user to confirm an auto-selected case)
      */
     private static final int GET_CASE = 2;
+    private static final int GET_REMOTE_DATA = 3;
+    private static final int MAKE_REMOTE_POST = 5;
 
     /**
      * Request code for launching FormEntryActivity
@@ -105,6 +113,8 @@ public class CommCareHomeActivity
     private static final int MODEL_RESULT = 4;
 
     private static final int GET_INCOMPLETE_FORM = 16;
+    public static final int REPORT_PROBLEM_ACTIVITY = 64;
+    public static final int QUERY = 128;
 
     private static final int PREFERENCES_ACTIVITY=512;
     private static final int ADVANCED_ACTIONS_ACTIVITY=1024;
@@ -226,7 +236,6 @@ public class CommCareHomeActivity
 
     // See if we should launch either the pin choice dialog, or the create pin activity directly
     private void checkForPinLaunchConditions() {
-
         LoginMode loginMode = (LoginMode)getIntent().getSerializableExtra(LoginActivity.LOGIN_MODE);
 
         if (loginMode == LoginMode.PRIMED) {
@@ -513,6 +522,15 @@ public class CommCareHomeActivity
                         Toast.makeText(this, Localization.get("pin.not.set"), Toast.LENGTH_SHORT).show();
                     }
                     return;
+                case MAKE_REMOTE_POST:
+                    stepBackIfCancelled(resultCode);
+                    if (resultCode == RESULT_OK) {
+                        CommCareApplication._().getCurrentSessionWrapper().terminateSession();
+                    }
+                    break;
+                case GET_REMOTE_DATA:
+                    stepBackIfCancelled(resultCode);
+                    break;
             }
             sessionNavigationProceedingAfterOnResume = true;
             startNextSessionStepSafe();
@@ -527,6 +545,14 @@ public class CommCareHomeActivity
             displayMessage(Localization.get(localizationKey, new String[]{"" + formProcessCount}), false, false);
 
             uiController.refreshView();
+        }
+    }
+
+    private static void stepBackIfCancelled(int resultCode) {
+        if (resultCode == RESULT_CANCELED) {
+            AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+            CommCareSession currentSession = asw.getSession();
+            currentSession.stepBack();
         }
     }
 
@@ -780,6 +806,12 @@ public class CommCareHomeActivity
             case SessionNavigator.LAUNCH_CONFIRM_DETAIL:
                 launchConfirmDetail(asw);
                 break;
+            case SessionNavigator.PROCESS_QUERY_REQUEST:
+                launchQueryMaker();
+                break;
+            case SessionNavigator.START_SYNC_REQUEST:
+                launchRemoteSync(asw);
+                break;
             case SessionNavigator.XPATH_EXCEPTION_THROWN:
                 UserfacingErrorHandling
                         .logErrorAndShowDialog(this, sessionNavigator.getCurrentException(), false);
@@ -829,6 +861,7 @@ public class CommCareHomeActivity
     private void handleGetCommand(AndroidSessionWrapper asw) {
         Intent i;
         String command = asw.getSession().getCommand();
+
         if (useGridMenu(command)) {
             i = new Intent(getApplicationContext(), MenuGrid.class);
         } else {
@@ -837,6 +870,28 @@ public class CommCareHomeActivity
         i.putExtra(SessionFrame.STATE_COMMAND_ID, command);
         addPendingDataExtra(i, asw.getSession());
         startActivityForResult(i, GET_COMMAND);
+    }
+
+    private void launchRemoteSync(AndroidSessionWrapper asw) {
+        String command = asw.getSession().getCommand();
+        Entry commandEntry = CommCareApplication._().getCommCarePlatform().getEntry(command);
+        if (commandEntry instanceof SyncEntry) {
+            SyncPost syncPost = ((SyncEntry)commandEntry).getSyncPost();
+            Intent i = new Intent(getApplicationContext(), PostRequestActivity.class);
+            i.putExtra(PostRequestActivity.URL_KEY, syncPost.getUrl());
+            i.putExtra(PostRequestActivity.PARAMS_KEY,
+                    new HashMap<>(syncPost.getEvaluatedParams(asw.getEvaluationContext())));
+
+            startActivityForResult(i, MAKE_REMOTE_POST);
+        } else {
+            // expected a sync entry; clear session and show vague 'session error' message to user
+            clearSessionAndExit(asw, true);
+        }
+    }
+
+    private void launchQueryMaker() {
+        Intent i = new Intent(getApplicationContext(), QueryRequestActivity.class);
+        startActivityForResult(i, GET_REMOTE_DATA);
     }
 
     private void launchEntitySelect(CommCareSession session) {
@@ -1102,12 +1157,14 @@ public class CommCareHomeActivity
         showAlertDialog(d);
     }
 
-    void displayMessage(String message) {
-        displayMessage(message, false);
+    @Override
+    public void reportSuccess(String message) {
+        displayMessage(message, false, false);
     }
 
-    void displayMessage(String message, boolean bad) {
-        displayMessage(message, bad, false);
+    @Override
+    public void reportFailure(String message, boolean showPopupNotification) {
+        displayMessage(message, true, !showPopupNotification);
     }
 
     void displayMessage(String message, boolean bad, boolean suppressToast) {
@@ -1319,76 +1376,16 @@ public class CommCareHomeActivity
             return;
         }
 
-        DataPullTask.PullTaskResult result = resultAndErrorMessage.data;
-        String reportSyncLabel = result.getCorrespondingGoogleAnalyticsLabel();
-        int reportSyncValue = result.getCorrespondingGoogleAnalyticsValue();
-
-        switch (result) {
-            case AUTH_FAILED:
-                displayMessage(Localization.get("sync.fail.auth.loggedin"), true);
-                break;
-            case BAD_DATA:
-            case BAD_DATA_REQUIRES_INTERVENTION:
-                displayMessage(Localization.get("sync.fail.bad.data"), true);
-                break;
-            case DOWNLOAD_SUCCESS:
-                if (formsToSend) {
-                    reportSyncValue = GoogleAnalyticsFields.VALUE_WITH_SEND_FORMS;
-                } else {
-                    reportSyncValue = GoogleAnalyticsFields.VALUE_JUST_PULL_DATA;
-                }
-                displayMessage(Localization.get("sync.success.synced"));
-                break;
-            case SERVER_ERROR:
-                displayMessage(Localization.get("sync.fail.server.error"));
-                break;
-            case UNREACHABLE_HOST:
-                displayMessage(Localization.get("sync.fail.bad.network"), true);
-                break;
-            case CONNECTION_TIMEOUT:
-                displayMessage(Localization.get("sync.fail.timeout"), true);
-                break;
-            case UNKNOWN_FAILURE:
-                displayMessage(Localization.get("sync.fail.unknown"), true);
-                break;
-        }
-
-        if (userTriggeredSync) {
-            GoogleAnalyticsUtils.reportSyncAttempt(
-                    GoogleAnalyticsFields.ACTION_USER_SYNC_ATTEMPT,
-                    reportSyncLabel, reportSyncValue);
-        } else {
-            GoogleAnalyticsUtils.reportSyncAttempt(
-                    GoogleAnalyticsFields.ACTION_AUTO_SYNC_ATTEMPT,
-                    reportSyncLabel, reportSyncValue);
-        }
-        //TODO: What if the user info was updated?
+        SyncUIHandling.handleSyncResult(this, resultAndErrorMessage, userTriggeredSync, formsToSend);
     }
 
     @Override
     public void handlePullTaskUpdate(Integer... update) {
-        if (update[0] == DataPullTask.PROGRESS_STARTED) {
-            updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
-            updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_AUTHED) {
-            updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
-            updateProgress(Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING_COMPLETE) {
-            hideTaskCancelButton();
-        } else if (update[0] == DataPullTask.PROGRESS_PROCESSING) {
-            updateProgress(Localization.get("sync.process.processing", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
-            updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
-            updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
-            updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
-        }
+        SyncUIHandling.handleSyncUpdate(this, update);
     }
 
     @Override
     public void handlePullTaskError(Exception e) {
-        displayMessage(Localization.get("sync.fail.unknown"), true);
+        reportFailure(Localization.get("sync.fail.unknown"), true);
     }
 }

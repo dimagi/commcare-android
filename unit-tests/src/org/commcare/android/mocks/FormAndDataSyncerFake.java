@@ -6,7 +6,7 @@ import org.commcare.activities.CommCareActivity;
 import org.commcare.activities.CommCareHomeActivity;
 import org.commcare.activities.FormAndDataSyncer;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.network.DataPullRequester;
+import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.tasks.PullTaskReceiver;
 
 /**
@@ -22,16 +22,17 @@ public class FormAndDataSyncerFake extends FormAndDataSyncer {
 
     @Override
     public void processAndSendForms(CommCareHomeActivity activity,
-                                    FormRecord[]records,
+                                    FormRecord[] records,
                                     final boolean syncAfterwards,
                                     final boolean userTriggered) {
         Log.d(TAG, "faking form processing and sending");
     }
 
     @Override
-    public void syncDataForLoggedInUser(CommCareHomeActivity activity,
-                                        boolean formsToSend,
-                                        boolean userTriggeredSync) {
+    public <I extends CommCareActivity & PullTaskReceiver & ConnectorWithResultCallback>
+    void syncDataForLoggedInUser(final I activity,
+                                 boolean formsToSend,
+                                 boolean userTriggeredSync) {
         Log.d(TAG, "faking data sync");
     }
     

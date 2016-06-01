@@ -1,4 +1,4 @@
-package org.odk.collect.android.jr.extensions;
+package org.commcare.android.javarosa;
 
 import android.content.ComponentName;
 import android.content.Intent;
