@@ -81,13 +81,13 @@ public class EntityListAdapter implements ListAdapter {
     public EntityListAdapter(Activity activity, Detail detail,
                              List<TreeReference> references,
                              List<Entity<TreeReference>> full,
-                             int[] sort,
-                             NodeEntityFactory factory) {
+                             int[] sort, NodeEntityFactory factory,
+                             boolean hideActions) {
         this.detail = detail;
-        if (detail.getCustomActions() != null) {
-            actionsCount = detail.getCustomActions().size();
-        } else {
+        if (detail.getCustomActions() == null || hideActions) {
             actionsCount = 0;
+        } else {
+            actionsCount = detail.getCustomActions().size();
         }
 
         this.full = full;
@@ -391,7 +391,7 @@ public class EntityListAdapter implements ListAdapter {
      * Get action's index in detail's list of actions given position in adapter
      */
     public int getActionIndex(int positionInAdapter) {
-        return positionInAdapter - (getCurrentCountWithActions() - 1);
+        return positionInAdapter - getCurrentCount();
     }
 
     public String getSearchNotificationText() {

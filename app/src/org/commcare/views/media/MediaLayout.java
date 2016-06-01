@@ -76,13 +76,19 @@ public class MediaLayout extends RelativeLayout {
     }
 
     public void setAVT(TextView text, String audioURI, String imageURI,
+                       boolean showImageAboveText) {
+        setAVT(text, audioURI, imageURI, null, null, null, null, showImageAboveText);
+    }
+
+    public void setAVT(TextView text, String audioURI, String imageURI,
                        final String videoURI, final String bigImageURI) {
-        setAVT(text, audioURI, imageURI, videoURI, bigImageURI, null, null);
+        setAVT(text, audioURI, imageURI, videoURI, bigImageURI, null, null, false);
     }
 
     public void setAVT(TextView text, String audioURI, String imageURI,
                        final String videoURI, final String bigImageURI,
-                       final String qrCodeContent, String inlineVideoURI) {
+                       final String qrCodeContent, String inlineVideoURI,
+                       boolean showImageAboveText) {
         viewText = text;
 
         RelativeLayout.LayoutParams mediaPaneParams =
@@ -114,7 +120,10 @@ public class MediaLayout extends RelativeLayout {
             mediaPane = setupImage(imageURI, bigImageURI);
         }
 
-        addElementsToView(mediaPane, mediaPaneParams, questionTextPane, textVisible);
+        showImageAboveText = showImageAboveText ||
+                DeveloperPreferences.imageAboveTextEnabled();
+        addElementsToView(mediaPane, mediaPaneParams, questionTextPane,
+                textVisible, showImageAboveText);
     }
 
     private void setupVideoButton(final String videoURI) {
@@ -273,7 +282,7 @@ public class MediaLayout extends RelativeLayout {
     private void addElementsToView(View mediaPane,
                                    RelativeLayout.LayoutParams mediaPaneParams,
                                    RelativeLayout questionTextPane,
-                                   boolean textVisible) {
+                                   boolean textVisible, boolean showImageAboveText) {
         RelativeLayout.LayoutParams questionTextPaneParams =
                 new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
         if (mediaPane != null) {
@@ -288,7 +297,7 @@ public class MediaLayout extends RelativeLayout {
                     questionTextPane.addView(mediaPane, mediaPaneParams);
                 }
             } else {
-                if (DeveloperPreferences.imageAboveTextEnabled()) {
+                if (showImageAboveText) {
                     mediaPaneParams.addRule(CENTER_HORIZONTAL);
                     this.addView(mediaPane, mediaPaneParams);
                     questionTextPaneParams.addRule(RelativeLayout.BELOW, mediaPane.getId());

@@ -75,6 +75,7 @@ import org.commcare.models.framework.Table;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
+import org.commcare.network.ModernHttpRequester;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.preferences.DevSessionRestorer;
@@ -113,11 +114,13 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
@@ -1460,6 +1463,13 @@ public class CommCareApplication extends Application {
             return true;
         }
         return false;
+    }
+
+    public ModernHttpRequester buildModernHttpRequester(Context context, URL url,
+                                                        HashMap<String, String> params,
+                                                        boolean isAuthenticatedRequest,
+                                                        boolean isPostRequest) {
+        return new ModernHttpRequester(context, url, params, isAuthenticatedRequest, isPostRequest);
     }
 
     public DataPullRequester getDataPullRequester(){

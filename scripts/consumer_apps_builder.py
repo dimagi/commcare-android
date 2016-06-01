@@ -76,8 +76,7 @@ def get_app_fields(config_filename):
 
 
 def download_ccz(app_id, domain, build_number):
-    #TODO: Get HQ to implement downloading a specific build
-    subprocess.call(["./scripts/download_app_into_standalone_asset.sh", domain, app_id, PATH_TO_ASSETS_DIR_FROM_ODK]) 
+    subprocess.call(["./scripts/download_app_into_standalone_asset.sh", domain, app_id, PATH_TO_ASSETS_DIR_FROM_ODK, build_number])
 
 
 def download_restore_file(domain, username, password):

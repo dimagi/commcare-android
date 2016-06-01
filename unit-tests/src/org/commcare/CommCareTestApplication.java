@@ -3,12 +3,15 @@ package org.commcare;
 import android.content.Context;
 import android.util.Log;
 
+import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.network.DataPullRequester;
+import org.commcare.network.ModernHttpRequester;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
@@ -19,6 +22,8 @@ import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.Assert;
 
+import java.net.URL;
+import java.util.HashMap;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -167,7 +172,15 @@ public class CommCareTestApplication extends CommCareApplication {
     }
 
     @Override
-    public DataPullRequester getDataPullRequester(){
+    public ModernHttpRequester buildModernHttpRequester(Context context, URL url,
+                                                        HashMap<String, String> params,
+                                                        boolean isAuthenticatedRequest,
+                                                        boolean isPostRequest) {
+        return new ModernHttpRequesterMock(context, url, params, isAuthenticatedRequest, isPostRequest);
+    }
+
+    @Override
+    public DataPullRequester getDataPullRequester() {
         return LocalDataPullResponseFactory.INSTANCE;
     }
 }

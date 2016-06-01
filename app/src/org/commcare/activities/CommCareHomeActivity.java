@@ -12,7 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,7 +25,6 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.ConnectorWithResultCallback;
@@ -44,9 +42,12 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigationResponder;
 import org.commcare.session.SessionNavigator;
+import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.suite.model.SyncEntry;
+import org.commcare.suite.model.SyncPost;
 import org.commcare.suite.model.Text;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.FormLoaderTask;
@@ -64,7 +65,6 @@ import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.StorageUtils;
-import org.commcare.views.HorizontalMediaView;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.dialogs.CommCareAlertDialog;
@@ -77,17 +77,10 @@ import org.commcare.views.notifications.NotificationMessageFactory.StockMessages
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.core.reference.InvalidReferenceException;
-import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
-import org.javarosa.xml.ElementParser;
 import org.javarosa.xpath.XPathTypeMismatchException;
-import org.kxml2.io.KXmlParser;
-import org.xmlpull.v1.XmlPullParserException;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Map;
@@ -96,7 +89,7 @@ import java.util.Vector;
 public class CommCareHomeActivity
         extends SessionAwareCommCareActivity<CommCareHomeActivity>
         implements SessionNavigationResponder, WithUIController,
-        PullTaskReceiver, ConnectorWithResultCallback<CommCareHomeActivity> {
+                   PullTaskReceiver, ConnectorWithResultCallback<CommCareHomeActivity> {
 
     private static final String TAG = CommCareHomeActivity.class.getSimpleName();
 
@@ -110,6 +103,8 @@ public class CommCareHomeActivity
      * or EntityDetailActivity (to allow user to confirm an auto-selected case)
      */
     private static final int GET_CASE = 2;
+    private static final int GET_REMOTE_DATA = 3;
+    private static final int MAKE_REMOTE_POST = 5;
 
     /**
      * Request code for launching FormEntryActivity
@@ -117,6 +112,8 @@ public class CommCareHomeActivity
     private static final int MODEL_RESULT = 4;
 
     private static final int GET_INCOMPLETE_FORM = 16;
+    public static final int REPORT_PROBLEM_ACTIVITY = 64;
+    public static final int QUERY = 128;
 
     private static final int PREFERENCES_ACTIVITY=512;
     private static final int ADVANCED_ACTIONS_ACTIVITY=1024;
@@ -238,7 +235,6 @@ public class CommCareHomeActivity
 
     // See if we should launch either the pin choice dialog, or the create pin activity directly
     private void checkForPinLaunchConditions() {
-
         LoginMode loginMode = (LoginMode)getIntent().getSerializableExtra(LoginActivity.LOGIN_MODE);
 
         if (loginMode == LoginMode.PRIMED) {
@@ -473,7 +469,7 @@ public class CommCareHomeActivity
                             uiController.refreshView();
                             return;
                         } else {
-                            currentState.getSession().stepBack();
+                            currentState.getSession().stepBack(currentState.getEvaluationContext());
                         }
                     } else if (resultCode == RESULT_OK) {
                         CommCareSession session = currentState.getSession();
@@ -492,7 +488,7 @@ public class CommCareHomeActivity
                     AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
                     CommCareSession currentSession = asw.getSession();
                     if (resultCode == RESULT_CANCELED) {
-                        currentSession.stepBack();
+                        currentSession.stepBack(asw.getEvaluationContext());
                     } else if (resultCode == RESULT_OK) {
                         if (sessionStateUnchangedSinceCallout(currentSession, intent)) {
                             String sessionDatumId = currentSession.getNeededDatum().getDataId();
@@ -525,6 +521,15 @@ public class CommCareHomeActivity
                         Toast.makeText(this, Localization.get("pin.not.set"), Toast.LENGTH_SHORT).show();
                     }
                     return;
+                case MAKE_REMOTE_POST:
+                    stepBackIfCancelled(resultCode);
+                    if (resultCode == RESULT_OK) {
+                        CommCareApplication._().getCurrentSessionWrapper().terminateSession();
+                    }
+                    break;
+                case GET_REMOTE_DATA:
+                    stepBackIfCancelled(resultCode);
+                    break;
             }
             sessionNavigationProceedingAfterOnResume = true;
             startNextSessionStepSafe();
@@ -539,6 +544,14 @@ public class CommCareHomeActivity
             displayMessage(Localization.get(localizationKey, new String[]{"" + formProcessCount}), false, false);
 
             uiController.refreshView();
+        }
+    }
+
+    private static void stepBackIfCancelled(int resultCode) {
+        if (resultCode == RESULT_CANCELED) {
+            AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
+            CommCareSession currentSession = asw.getSession();
+            currentSession.stepBack(asw.getEvaluationContext());
         }
     }
 
@@ -563,7 +576,9 @@ public class CommCareHomeActivity
      * callout that we are returning from was made
      */
     private boolean sessionStateUnchangedSinceCallout(CommCareSession session, Intent intent) {
-        boolean neededDataUnchanged = session.getNeededData().equals(
+        EvaluationContext evalContext =
+                CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext();
+        boolean neededDataUnchanged = session.getNeededData(evalContext).equals(
                 intent.getStringExtra(KEY_PENDING_SESSION_DATA));
         String intentDatum = intent.getStringExtra(KEY_PENDING_SESSION_DATUM_ID);
         boolean datumIdsUnchanged = intentDatum == null || intentDatum.equals(session.getNeededDatum().getDataId());
@@ -711,7 +726,7 @@ public class CommCareHomeActivity
                 // If we cancelled form entry from a normal menu entry
                 // we want to go back to where were were right before we started
                 // entering the form.
-                currentState.getSession().stepBack();
+                currentState.getSession().stepBack(currentState.getEvaluationContext());
                 currentState.setFormRecordId(-1);
             }
         }
@@ -792,6 +807,12 @@ public class CommCareHomeActivity
             case SessionNavigator.LAUNCH_CONFIRM_DETAIL:
                 launchConfirmDetail(asw);
                 break;
+            case SessionNavigator.PROCESS_QUERY_REQUEST:
+                launchQueryMaker();
+                break;
+            case SessionNavigator.START_SYNC_REQUEST:
+                launchRemoteSync(asw);
+                break;
             case SessionNavigator.XPATH_EXCEPTION_THROWN:
                 UserfacingErrorHandling
                         .logErrorAndShowDialog(this, sessionNavigator.getCurrentException(), false);
@@ -817,7 +838,7 @@ public class CommCareHomeActivity
             @Override
             public void onClick(DialogInterface dialog, int i) {
                 dialog.dismiss();
-                asw.getSession().stepBack();
+                asw.getSession().stepBack(asw.getEvaluationContext());
                 CommCareHomeActivity.this.sessionNavigator.startNextSessionStep();
             }
         });
@@ -841,6 +862,7 @@ public class CommCareHomeActivity
     private void handleGetCommand(AndroidSessionWrapper asw) {
         Intent i;
         String command = asw.getSession().getCommand();
+
         if (useGridMenu(command)) {
             i = new Intent(getApplicationContext(), MenuGrid.class);
         } else {
@@ -849,6 +871,28 @@ public class CommCareHomeActivity
         i.putExtra(SessionFrame.STATE_COMMAND_ID, command);
         addPendingDataExtra(i, asw.getSession());
         startActivityForResult(i, GET_COMMAND);
+    }
+
+    private void launchRemoteSync(AndroidSessionWrapper asw) {
+        String command = asw.getSession().getCommand();
+        Entry commandEntry = CommCareApplication._().getCommCarePlatform().getEntry(command);
+        if (commandEntry instanceof SyncEntry) {
+            SyncPost syncPost = ((SyncEntry)commandEntry).getSyncPost();
+            Intent i = new Intent(getApplicationContext(), PostRequestActivity.class);
+            i.putExtra(PostRequestActivity.URL_KEY, syncPost.getUrl());
+            i.putExtra(PostRequestActivity.PARAMS_KEY,
+                    new HashMap<>(syncPost.getEvaluatedParams(asw.getEvaluationContext())));
+
+            startActivityForResult(i, MAKE_REMOTE_POST);
+        } else {
+            // expected a sync entry; clear session and show vague 'session error' message to user
+            clearSessionAndExit(asw, true);
+        }
+    }
+
+    private void launchQueryMaker() {
+        Intent i = new Intent(getApplicationContext(), QueryRequestActivity.class);
+        startActivityForResult(i, GET_REMOTE_DATA);
     }
 
     private void launchEntitySelect(CommCareSession session) {
@@ -896,7 +940,9 @@ public class CommCareHomeActivity
     }
 
     private static void addPendingDataExtra(Intent i, CommCareSession session) {
-        i.putExtra(KEY_PENDING_SESSION_DATA, session.getNeededData());
+        EvaluationContext evalContext =
+                CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext();
+        i.putExtra(KEY_PENDING_SESSION_DATA, session.getNeededData(evalContext));
     }
 
     private static void addPendingDatumIdExtra(Intent i, CommCareSession session) {
@@ -1118,7 +1164,6 @@ public class CommCareHomeActivity
     public void reportSuccess(String message) {
         displayMessage(message, false, false);
     }
-
 
     @Override
     public void reportFailure(String message, boolean showPopupNotification) {
