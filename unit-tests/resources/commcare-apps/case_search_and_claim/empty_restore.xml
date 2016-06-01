@@ -1,0 +1,6 @@
+<OpenRosaResponse xmlns="http://openrosa.org/http/response">
+    <message nature="ota_restore_success">Successfully restored account fp!</message>
+    <Sync xmlns="http://commcarehq.org/sync">
+        <restore_id>fdb7c703321ce4c36e5d2c40f2b99621</restore_id>
+    </Sync>
+</OpenRosaResponse>

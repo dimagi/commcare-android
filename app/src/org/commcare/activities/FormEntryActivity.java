@@ -38,7 +38,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -246,8 +245,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     // database & key session are expiring. Being set causes savingComplete to
     // broadcast a form saving intent.
     private boolean savingFormOnKeySessionExpiration = false;
-    private boolean mGroupForcedInvisible = false;
-    private boolean mGroupNativeVisibility = false;
+    private boolean shouldHideGroupLabel = false;
+    private boolean hasGroupLabel = false;
     private FormEntrySession formEntryRestoreSession;
     private boolean recordEntrySession;
     enum AnimationType {
@@ -1124,22 +1123,21 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         mViewPane.addView(questionsView, lp);
 
         questionsView.startAnimation(mInAnimation);
-
-        FrameLayout header = (FrameLayout)findViewById(R.id.form_entry_header);
-
-        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
-
-        this.mGroupNativeVisibility = false;
-        FormLayoutHelpers.updateGroupViewVisibility(this, mGroupNativeVisibility, mGroupForcedInvisible);
-
         questionsView.setFocus(this);
 
+        setupGroupLabel();
+    }
+
+    private void setupGroupLabel() {
+        hasGroupLabel = false;
+        FormLayoutHelpers.updateGroupViewVisibility(this, false, shouldHideGroupLabel);
         SpannableStringBuilder groupLabelText = questionsView.getGroupLabel();
 
         if (groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
+            TextView groupLabel = (TextView)findViewById(R.id.form_entry_group_label);
             groupLabel.setText(groupLabelText);
-            this.mGroupNativeVisibility = true;
-            FormLayoutHelpers.updateGroupViewVisibility(this, mGroupNativeVisibility, mGroupForcedInvisible);
+            hasGroupLabel = true;
+            FormLayoutHelpers.updateGroupViewVisibility(this, true, shouldHideGroupLabel);
         }
     }
 
@@ -2337,8 +2335,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     protected void onMajorLayoutChange(Rect newRootViewDimensions) {
-        mGroupForcedInvisible =
-                FormLayoutHelpers.determineNumberOfValidGroupLines(this, newRootViewDimensions, mGroupNativeVisibility, mGroupForcedInvisible);
+        shouldHideGroupLabel =
+                FormLayoutHelpers.determineNumberOfValidGroupLines(this, newRootViewDimensions,
+                        hasGroupLabel, shouldHideGroupLabel);
     }
 
 
