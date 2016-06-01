@@ -73,7 +73,6 @@
         <activity
             android:name="org.commcare.activities.AppManagerActivity"
             android:label="@string/manager_activity_name"
-            android:launchMode="singleTask"
             android:taskAffinity="org.commcare.Manage">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

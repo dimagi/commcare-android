@@ -14,7 +14,7 @@ public class ManagerShortcut extends Activity {
     protected void onCreate(Bundle bundle) {
         super.onCreate(bundle);
         Intent shortcutIntent = new Intent(getApplicationContext(), AppManagerActivity.class);
-        shortcutIntent.addCategory(Intent.CATEGORY_HOME);
+        shortcutIntent.setFlags(Intent.FLAG_ACTIVITY_BROUGHT_TO_FRONT);
 
         Intent intent = new Intent();
         intent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
