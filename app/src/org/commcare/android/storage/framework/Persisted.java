@@ -1,5 +1,7 @@
 package org.commcare.android.storage.framework;
 
+import android.support.annotation.Nullable;
+
 import org.commcare.models.framework.Persisting;
 import org.commcare.modern.models.MetaField;
 import org.javarosa.core.services.storage.IMetaData;
@@ -199,6 +201,7 @@ public class Persisted implements Persistable, IMetaData {
         }
     }
 
+    @Nullable
     @Override
     public Object getMetaData(String fieldName) {
         try {
