@@ -397,7 +397,8 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         // Create the layout for audio, image, text
         MediaLayout mediaLayout = new MediaLayout(getContext());
 
-        mediaLayout.setAVT(mQuestionText, audioURI, imageURI, videoURI, bigImageURI, qrCodeContent, inlineVideoUri);
+        mediaLayout.setAVT(mQuestionText, audioURI, imageURI, videoURI,
+                bigImageURI, qrCodeContent, inlineVideoUri, false);
 
         addView(mediaLayout, mLayout);
     }

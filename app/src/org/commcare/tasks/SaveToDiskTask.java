@@ -310,9 +310,12 @@ public class SaveToDiskTask extends
     }
 
     private void writeXmlToStream(ByteArrayPayload payload, OutputStream output) throws IOException {
-        InputStream is = payload.getPayloadStream();
-        StreamsUtil.writeFromInputToOutput(is, output);
-        output.close();
+        try {
+            InputStream is = payload.getPayloadStream();
+            StreamsUtil.writeFromInputToOutput(is, output);
+        } finally {
+            output.close();
+        }
     }
 
     @Override

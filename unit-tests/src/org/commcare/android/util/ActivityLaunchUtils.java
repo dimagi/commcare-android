@@ -19,7 +19,10 @@ public class ActivityLaunchUtils {
                 CommCareApplication._().getCurrentSessionWrapper();
         CommCareSession session = sessionWrapper.getSession();
         session.setCommand(sessionCommand);
+        return buildHomeActivity();
+    }
 
+    public static ShadowActivity buildHomeActivity() {
         CommCareHomeActivity homeActivity =
                 Robolectric.buildActivity(CommCareHomeActivity.class).create().get();
         // make sure we don't actually submit forms by using a fake form submitter

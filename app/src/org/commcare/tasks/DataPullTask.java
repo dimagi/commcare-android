@@ -99,7 +99,7 @@ public abstract class DataPullTask<R>
 
     public DataPullTask(String username, String password,
                         String server, Context context) {
-        this(username, password, server, context, new DataPullResponseFactory());
+        this(username, password, server, context, CommCareApplication._().getDataPullRequester());
     }
 
     @Override

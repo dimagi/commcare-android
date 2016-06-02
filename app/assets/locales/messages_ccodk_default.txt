@@ -163,6 +163,25 @@ login.welcome.multiple=Welcome back! Please select an app and log in.
 login.update.install.success=App update successfully applied!
 login.update.install.failure=App update failed to apply!
 
+query.button=Query
+query.dialog.title=Querying Server
+query.dialog.body=Searching server for relevant data
+query.response.format.error=Error processing server response: ${0}
+query.response.empty=Query response had no results
+post.request.button=Claim
+post.malformed.url=${0} is not a valid URL
+post.generic.error=An error occurred while preparing the HTTP request
+post.not.using.https=${0} is an invalid URL. You must use HTTPS.
+post.dialog.title=Claiming...
+post.dialog.body=Claiming chosen data from server
+post.io.error=Error reading server response: ${0}
+post.unknown.response=Received unknown resonse code (${0}) from server
+post.client.error=Client-side error (code ${0}) received from network request.
+post.server.error=Server-side error (code ${0}) received from network request.
+post.redirection.error=Network request resulted in redirection (code ${0}). Please use a non-redirecting url.
+post.gone.error=Case is not present on server.
+post.conflict.error=You have already claimed this case.
+
 version.id.long=CommCare Android, version "${0}"(${1}). App v${5}. CommCare Version ${2}. Build ${3}, built on: ${4}
 version.id.short=CCDroid:"${0}"(${1}). v${5} CC${2}b[${3}] on ${4}
 
@@ -299,7 +318,6 @@ home.sync.message.last.demo=You are using CommCare in demo mode
 
 demo.mode.warning.title=Starting Demo Mode
 demo.mode.warning=You are logging into CommCare in Demo mode. Demo mode is for testing and practice only!
-demo.mode.warning.dismiss=I Understand
 
 demo.mode.feature.unavailable=Sorry, this app uses a feature that is not available in Demo mode. Please log in as a named user.
 
