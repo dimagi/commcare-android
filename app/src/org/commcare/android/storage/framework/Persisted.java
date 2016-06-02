@@ -22,6 +22,8 @@ import java.util.Hashtable;
 import java.util.List;
 
 /**
+ * Serialization logic for class fields with @Persisting annotations
+ *
  * @author ctsims
  */
 public class Persisted implements Persistable, IMetaData {
@@ -35,7 +37,7 @@ public class Persisted implements Persistable, IMetaData {
         recordId = ExtUtil.readInt(in);
         String currentField = null;
         try {
-            for (Field f : getPersistedFieldsInOrder()) {
+            for (Field f : getPersistedFieldsInOrder(getClass())) {
                 currentField = f.getName();
                 readVal(f, this, in);
             }
@@ -44,17 +46,17 @@ public class Persisted implements Persistable, IMetaData {
         }
     }
 
-    private ArrayList<Field> getPersistedFieldsInOrder() {
+    private static ArrayList<Field> getPersistedFieldsInOrder(Class persistedClass) {
         ArrayList<Field> orderings;
         synchronized (fieldOrderings) {
-            orderings = fieldOrderings.get(this.getClass());
+            orderings = fieldOrderings.get(persistedClass);
             if (orderings == null) {
                 orderings = new ArrayList<>();
-                fieldOrderings.put(this.getClass(), orderings);
+                fieldOrderings.put(persistedClass, orderings);
             }
 
             if (orderings.size() == 0) {
-                for (Field f : this.getClass().getDeclaredFields()) {
+                for (Field f : persistedClass.getDeclaredFields()) {
                     if (f.isAnnotationPresent(Persisting.class)) {
                         orderings.add(f);
                     }
@@ -79,7 +81,7 @@ public class Persisted implements Persistable, IMetaData {
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeNumeric(out, recordId);
         try {
-            for (Field f : getPersistedFieldsInOrder()) {
+            for (Field f : getPersistedFieldsInOrder(getClass())) {
                 writeVal(f, this, out);
             }
         } catch (IllegalAccessException iae) {
@@ -97,7 +99,7 @@ public class Persisted implements Persistable, IMetaData {
         return recordId;
     }
 
-    private void readVal(Field f, Object o, DataInputStream in)
+    private static void readVal(Field f, Object o, DataInputStream in)
             throws DeserializationException, IOException, IllegalAccessException {
         Persisting p = f.getAnnotation(Persisting.class);
         Class type = f.getType();
@@ -133,7 +135,7 @@ public class Persisted implements Persistable, IMetaData {
         throw new DeserializationException("Couldn't read persisted type " + f.getType().toString());
     }
 
-    private void writeVal(Field f, Object o, DataOutputStream out)
+    private static void writeVal(Field f, Object o, DataOutputStream out)
             throws IOException, IllegalAccessException {
         try {
             Persisting p = f.getAnnotation(Persisting.class);
@@ -172,14 +174,14 @@ public class Persisted implements Persistable, IMetaData {
     public String[] getMetaDataFields() {
         ArrayList<String> fields = new ArrayList<>();
 
-        addClassFieldsToMetas(fields);
-        addClassMethodsToMetas(fields);
+        addClassFieldsToMetas(fields, getClass());
+        addClassMethodsToMetas(fields, getClass());
 
         return fields.toArray(new String[fields.size()]);
     }
 
-    private void addClassFieldsToMetas(List<String> fields) {
-        for (Field f : this.getClass().getDeclaredFields()) {
+    private static void addClassFieldsToMetas(List<String> fields, Class persistedClass) {
+        for (Field f : persistedClass.getDeclaredFields()) {
             try {
                 f.setAccessible(true);
 
@@ -193,8 +195,8 @@ public class Persisted implements Persistable, IMetaData {
         }
     }
 
-    private void addClassMethodsToMetas(List<String> fields) {
-        for (Method m : this.getClass().getDeclaredMethods()) {
+    private static void addClassMethodsToMetas(List<String> fields, Class persistedClass) {
+        for (Method m : persistedClass.getDeclaredMethods()) {
             try {
                 m.setAccessible(true);
 
