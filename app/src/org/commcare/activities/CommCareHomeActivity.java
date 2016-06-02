@@ -113,7 +113,6 @@ public class CommCareHomeActivity
 
     private static final int GET_INCOMPLETE_FORM = 16;
     public static final int REPORT_PROBLEM_ACTIVITY = 64;
-    public static final int QUERY = 128;
 
     private static final int PREFERENCES_ACTIVITY=512;
     private static final int ADVANCED_ACTIONS_ACTIVITY=1024;
@@ -816,6 +815,10 @@ public class CommCareHomeActivity
             case SessionNavigator.XPATH_EXCEPTION_THROWN:
                 UserfacingErrorHandling
                         .logErrorAndShowDialog(this, sessionNavigator.getCurrentException(), false);
+                break;
+            case SessionNavigator.REPORT_CASE_AUTOSELECT:
+                GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_CASE_AUTOSELECT_USED);
+                break;
         }
     }
 
