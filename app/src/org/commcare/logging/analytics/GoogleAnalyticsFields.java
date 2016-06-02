@@ -69,6 +69,11 @@ public final class GoogleAnalyticsFields {
     // Actions for CATEGORY_FEATURE_USAGE
     public static final String ACTION_LOGIN_AS_DEMO_USER = "Login as Demo User";
     public static final String ACTION_SET_USER_PIN = "Set a User's PIN";
+    public static final String ACTION_PRINT = "Print From a Form";
+    public static final String ACTION_IMAGE_CAPTURE_RESIZED = "Image Capture Resized";
+    public static final String ACTION_CASE_AUTOSELECT_USED = "Case Autoselect Used";
+    public static final String ACTION_USING_SMART_IMAGE_INFLATION = "Using Smart Image Inflation";
+    public static final String ACTION_USING_GRIDVIEW = "Using GridView";
 
     // Actions for CATEGORY_APP_MANAGER
     public static final String ACTION_OPEN_APP_MANAGER = "Open App Manager";

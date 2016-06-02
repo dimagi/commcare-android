@@ -816,6 +816,10 @@ public class CommCareHomeActivity
             case SessionNavigator.XPATH_EXCEPTION_THROWN:
                 UserfacingErrorHandling
                         .logErrorAndShowDialog(this, sessionNavigator.getCurrentException(), false);
+                break;
+            case SessionNavigator.REPORT_CASE_AUTOSELECT:
+                GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_CASE_AUTOSELECT_USED);
+                break;
         }
     }
 
