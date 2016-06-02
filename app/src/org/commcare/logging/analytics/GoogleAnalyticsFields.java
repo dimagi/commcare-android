@@ -21,6 +21,7 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_APP_INSTALL = "New App Install";
     public static final String CATEGORY_MODULE_NAVIGATION = "Module Navigation";
     public static final String CATEGORY_FEATURE_USAGE = "Feature Usage";
+    public static final String CATEGORY_APP_MANAGER = "App Manager";
 
     // Actions for CATEGORY_HOME_SCREEN only
     public static final String ACTION_BUTTON = "Button Press";
@@ -68,6 +69,12 @@ public final class GoogleAnalyticsFields {
     // Actions for CATEGORY_FEATURE_USAGE
     public static final String ACTION_LOGIN_AS_DEMO_USER = "Login as Demo User";
     public static final String ACTION_SET_USER_PIN = "Set a User's PIN";
+
+    // Actions for CATEGORY_APP_MANAGER
+    public static final String ACTION_OPEN_APP_MANAGER = "Open App Manager";
+    public static final String ACTION_ARCHIVE_APP = "Archive an App";
+    public static final String ACTION_UNINSTALL_APP = "Uninstall an App";
+    public static final String ACTION_INSTALL_FROM_MANAGER = "Install from Manager";
 
     // Actions for CATEGORY_APP_INSTALL
     public static final String ACTION_BARCODE_INSTALL = "Barcode Install";

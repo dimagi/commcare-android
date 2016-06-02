@@ -258,6 +258,16 @@ public class GoogleAnalyticsUtils {
     }
 
     /**
+     * Report an action in the app manager
+     *
+     * @param action - Should be one of the actions listed under
+     *               "Actions for CATEGORY_APP_MANAGER" in GoogleAnalyticsFields.java
+     */
+    public static void reportAppManagerAction(String action) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_APP_MANAGER, action);
+    }
+
+    /**
      * Report the length of a certain user event/action/concept
      *
      * @param action - Communicates the event/action/concept whose length is being measured
