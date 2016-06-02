@@ -28,8 +28,16 @@ import java.util.List;
  */
 public class Persisted implements Persistable, IMetaData {
 
-    private static final Hashtable<Class, ArrayList<Field>> fieldOrderings = new Hashtable<>();
     protected int recordId = -1;
+    private static final Hashtable<Class, ArrayList<Field>> fieldOrderings = new Hashtable<>();
+    private static final Comparator<Field> orderedComparator = new Comparator<Field>() {
+        @Override
+        public int compare(Field f1, Field f2) {
+            int i1 = f1.getAnnotation(Persisting.class).value();
+            int i2 = f2.getAnnotation(Persisting.class).value();
+            return (i1 < i2 ? -1 : (i1 == i2 ? 0 : 1));
+        }
+    };
 
     @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
@@ -45,59 +53,6 @@ public class Persisted implements Persistable, IMetaData {
             String message = currentField == null ? "" : (" for field " + currentField);
             throw new DeserializationException(message, iae);
         }
-    }
-
-    private static ArrayList<Field> getPersistedFieldsInOrder(Class persistedClass) {
-        ArrayList<Field> orderings;
-        synchronized (fieldOrderings) {
-            orderings = fieldOrderings.get(persistedClass);
-            if (orderings == null) {
-                orderings = new ArrayList<>();
-                fieldOrderings.put(persistedClass, orderings);
-            }
-
-            if (orderings.size() == 0) {
-                for (Field f : persistedClass.getDeclaredFields()) {
-                    if (f.isAnnotationPresent(Persisting.class)) {
-                        orderings.add(f);
-                    }
-                }
-                Collections.sort(orderings, orderedComparator);
-            }
-            return orderings;
-        }
-    }
-
-    private static final Comparator<Field> orderedComparator = new Comparator<Field>() {
-
-        @Override
-        public int compare(Field f1, Field f2) {
-            int i1 = f1.getAnnotation(Persisting.class).value();
-            int i2 = f2.getAnnotation(Persisting.class).value();
-            return (i1 < i2 ? -1 : (i1 == i2 ? 0 : 1));
-        }
-    };
-
-    @Override
-    public void writeExternal(DataOutputStream out) throws IOException {
-        ExtUtil.writeNumeric(out, recordId);
-        try {
-            for (Field f : getPersistedFieldsInOrder(getClass())) {
-                writeVal(f, this, out);
-            }
-        } catch (IllegalAccessException iae) {
-            throw new RuntimeException(iae);
-        }
-    }
-
-    @Override
-    public void setID(int ID) {
-        recordId = ID;
-    }
-
-    @Override
-    public int getID() {
-        return recordId;
     }
 
     private static void readVal(Field f, Object o, DataInputStream in)
@@ -136,6 +91,18 @@ public class Persisted implements Persistable, IMetaData {
         throw new DeserializationException("Couldn't read persisted type " + f.getType().toString());
     }
 
+    @Override
+    public void writeExternal(DataOutputStream out) throws IOException {
+        ExtUtil.writeNumeric(out, recordId);
+        try {
+            for (Field f : getPersistedFieldsInOrder(getClass())) {
+                writeVal(f, this, out);
+            }
+        } catch (IllegalAccessException iae) {
+            throw new RuntimeException(iae);
+        }
+    }
+
     private static void writeVal(Field f, Object o, DataOutputStream out)
             throws IOException, IllegalAccessException {
         try {
@@ -169,6 +136,27 @@ public class Persisted implements Persistable, IMetaData {
 
         //By Default
         throw new RuntimeException("Couldn't write persisted type " + f.getType().toString());
+    }
+
+    private static ArrayList<Field> getPersistedFieldsInOrder(Class persistedClass) {
+        ArrayList<Field> orderings;
+        synchronized (fieldOrderings) {
+            orderings = fieldOrderings.get(persistedClass);
+            if (orderings == null) {
+                orderings = new ArrayList<>();
+                fieldOrderings.put(persistedClass, orderings);
+            }
+
+            if (orderings.size() == 0) {
+                for (Field f : persistedClass.getDeclaredFields()) {
+                    if (f.isAnnotationPresent(Persisting.class)) {
+                        orderings.add(f);
+                    }
+                }
+                Collections.sort(orderings, orderedComparator);
+            }
+            return orderings;
+        }
     }
 
     @Override
@@ -250,5 +238,15 @@ public class Persisted implements Persistable, IMetaData {
         }
         //If we didn't find the field
         throw new IllegalArgumentException("No metadata field " + fieldName + " in the case storage system");
+    }
+
+    @Override
+    public void setID(int ID) {
+        recordId = ID;
+    }
+
+    @Override
+    public int getID() {
+        return recordId;
     }
 }
