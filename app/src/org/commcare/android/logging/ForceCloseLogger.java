@@ -13,7 +13,6 @@ import org.commcare.logging.AndroidLogSerializer;
 import org.commcare.logging.DeviceReportWriter;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.network.HttpRequestGenerator;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.javarosa.core.model.User;
 

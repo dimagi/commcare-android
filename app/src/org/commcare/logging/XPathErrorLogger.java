@@ -26,6 +26,12 @@ public enum XPathErrorLogger {
         }
     }
 
+    public void logErrorToCurrentApp(String message) {
+        if (logStorage != null) {
+            logStorage.write(new XPathErrorEntry(null, message));
+        }
+    }
+
     public void logErrorToCurrentApp(XPathException exception) {
         if (logStorage != null) {
             logStorage.write(new XPathErrorEntry(exception.getSource(), exception.getMessage()));

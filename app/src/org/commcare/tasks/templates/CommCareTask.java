@@ -3,7 +3,6 @@ package org.commcare.tasks.templates;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import org.acra.ACRA;
 import org.commcare.logging.UserCausedRuntimeException;
 import org.commcare.utils.ACRAUtil;
 import org.javarosa.core.services.Logger;
