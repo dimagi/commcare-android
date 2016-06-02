@@ -13,6 +13,8 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.logging.analytics.GoogleAnalyticsFields;
+import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.utils.SessionUnavailableException;
@@ -167,6 +169,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
      * Uninstalls the selected app
      */
     private void uninstall() {
+        GoogleAnalyticsUtils.reportAppManagerAction(GoogleAnalyticsFields.ACTION_UNINSTALL_APP);
         CommCareApplication._().expireUserSession();
         CommCareApplication._().uninstall(appRecord);
         CommCareApplication.restartCommCare(SingleAppManagerActivity.this, AppManagerActivity.class);
@@ -197,6 +200,9 @@ public class SingleAppManagerActivity extends CommCareActivity {
     }
 
     private void toggleArchived() {
+        if (!appRecord.isArchived()) {
+            GoogleAnalyticsUtils.reportAppManagerAction(GoogleAnalyticsFields.ACTION_ARCHIVE_APP);
+        }
         appRecord.setArchiveStatus(!appRecord.isArchived());
         CommCareApplication._().getGlobalStorage(ApplicationRecord.class).write(appRecord);
         if (CommCareApplication._().isSeated(appRecord)) {

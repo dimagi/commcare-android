@@ -3,6 +3,8 @@ package org.commcare.tasks;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import org.commcare.logging.analytics.GoogleAnalyticsFields;
+import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.utils.PrintValidationException;
 import org.commcare.utils.TemplatePrinterUtils;
 
@@ -50,6 +52,7 @@ public class TemplatePrinterTask extends AsyncTask<Void, Void, TemplatePrinterTa
      */
     @Override
     protected PrintTaskResult doInBackground(Void... params) {
+        GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_PRINT);
         try {
             populateAndSaveHtml(templateFile, templatePopulationMapping, populatedFilepath);
             return PrintTaskResult.SUCCESS;

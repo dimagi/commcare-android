@@ -8,6 +8,8 @@ import android.widget.ListAdapter;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.logging.analytics.GoogleAnalyticsFields;
+import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.models.AsyncNodeEntityFactory;
 import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;
@@ -114,6 +116,9 @@ public class EntityListAdapter implements ListAdapter {
         }
 
         this.usesGridView = detail.usesGridView();
+        if (usesGridView) {
+            GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_USING_GRIDVIEW);
+        }
         this.mFuzzySearchEnabled = CommCarePreferences.isFuzzySearchEnabled();
 
         setCurrent(new ArrayList<>(full));
