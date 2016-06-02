@@ -67,6 +67,8 @@ public class WidgetFactory {
                             questionWidget = new CalendarWidget(context, fep);
                         }else if(appearance != null && appearance.toLowerCase().equals("pro1")){
                             questionWidget = new Prototype1(context, fep);
+                        }else if(appearance != null && appearance.toLowerCase().equals("pro2")){
+                            questionWidget = new Prototype2(context, fep);
                         }else {
                             questionWidget = new DateWidget(context, fep);
                         }
