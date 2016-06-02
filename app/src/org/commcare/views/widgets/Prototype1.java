@@ -1,15 +1,21 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import org.commcare.dalvik.R;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
+
+import java.util.Calendar;
+import java.util.Date;
 
 
 /**
@@ -19,8 +25,6 @@ public class Prototype1 extends QuestionWidget {
 
     private CalendarWidget myCal;
     private GregorianDateWidget myGreg;
-    private boolean calendarMode;
-    private Button calendarCloser;
 
     public Prototype1(Context con, FormEntryPrompt prompt){
         super(con, prompt);
@@ -28,27 +32,27 @@ public class Prototype1 extends QuestionWidget {
         myCal = new CalendarWidget(con, prompt);
 
         myCal.setVisibility(GONE);
-        calendarMode = false;
-
-        LayoutInflater inflater = (LayoutInflater)con.getSystemService
-                (Context.LAYOUT_INFLATER_SERVICE);
-        RelativeLayout topbar =  (RelativeLayout) inflater.inflate(R.layout.prototype1, null);
 
         myGreg.removeQuestionText();
         myCal.removeQuestionText();
 
-        addView(topbar);
         addView(myCal);
         addView(myGreg);
 
         initButtons();
-
-        //TODO: Move open calendar button. Add it to relative view in GregWidget, to the right of the day of week
-        //TODO: Move close calendar button. Overhaul existing approach, and add it to the relativelayout in CalendarWidget, to the right of the day of week.
     }
 
     private void initButtons() {
-        ImageButton openCalButton = (ImageButton) findViewById(R.id.calendarbutton);
+
+        ImageButton openCalButton = new ImageButton(getContext());
+        openCalButton.setImageResource(R.drawable.avatar_vellum_date);
+
+        RelativeLayout layout = (RelativeLayout) findViewById(R.id.widgetinfo);
+        layout.addView(openCalButton);
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) openCalButton.getLayoutParams();
+        params.addRule(RelativeLayout.RIGHT_OF, R.id.gregdayofweek);
+        params.width = 60;
+        params.height = 60;
 
         openCalButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -57,8 +61,15 @@ public class Prototype1 extends QuestionWidget {
             }
         });
 
-        calendarCloser = (Button) findViewById(R.id.closecalendar);
-        calendarCloser.setVisibility(VISIBLE);
+        ImageButton calendarCloser = new ImageButton(getContext());
+        calendarCloser.setImageResource(R.drawable.close_cross_icon);
+
+        layout = (RelativeLayout) findViewById(R.id.calendarinfo);
+        layout.addView(calendarCloser);
+        params = (RelativeLayout.LayoutParams) calendarCloser.getLayoutParams();
+        params.addRule(RelativeLayout.RIGHT_OF, R.id.calendarweekday);
+        params.width = 90;
+        params.height = 90;
 
         calendarCloser.setOnClickListener(new OnClickListener() {
             @Override
@@ -66,19 +77,27 @@ public class Prototype1 extends QuestionWidget {
                 closeCalendar();
             }
         });
+
+        //TODO: Add green "Submit" button. Not done so far because it's unclear what its point is. Navigation to next question is handled already.
     }
 
     private void openCalendar() {
+
+        if(myGreg.getAnswer() != null){
+            myCal.setDate((DateData) myGreg.getAnswer());
+        }else{
+            myCal.setDate(new DateData(new Date()));
+        }
+
         myGreg.setFocus(getContext());
-        myCal.setDate((DateData) myGreg.getAnswer());
+        myGreg.setVisibility(GONE);
         myCal.setVisibility(VISIBLE);
-        calendarMode = true;
     }
 
     private void closeCalendar(){
         myGreg.setDate((DateData) myCal.getAnswer());
         myCal.setVisibility(GONE);
-        calendarMode = false;
+        myGreg.setVisibility(VISIBLE);
     }
 
     @Override

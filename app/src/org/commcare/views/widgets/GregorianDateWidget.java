@@ -49,6 +49,14 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
     public GregorianDateWidget(Context context, FormEntryPrompt prompt){
         super(context, prompt);
         myCal = Calendar.getInstance();
+
+        Button clearAll = (Button) findViewById(R.id.clearall);
+        clearAll.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                clearAll();
+            }
+        });
     }
 
     @Override

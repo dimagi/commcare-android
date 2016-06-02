@@ -194,7 +194,7 @@ public class CalendarWidget extends QuestionWidget{
 
             //TODO: Tweak blue color to make it lighter
             if(date.equals(current)){
-                ((TextView) view).setBackgroundColor(Color.BLUE);
+                ((TextView) view).setBackgroundColor(Color.rgb(105, 217, 255));
             }
 
             return view;

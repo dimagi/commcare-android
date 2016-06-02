@@ -4,11 +4,24 @@
     android:gravity="center"
     android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <RelativeLayout
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="left"
-        android:id = "@+id/gregdayofweek"/>
+        android:layout_marginTop="10dp"
+        android:id = "@+id/widgetinfo"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Day"
+            android:id = "@+id/gregdayofweek"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:paddingRight="200dp"/>
+
+    </RelativeLayout>
+
     <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -120,5 +133,12 @@
             android:textSize="@dimen/text_largest"
             android:textColor="@color/darkest_grey"/>
     </RelativeLayout>
+
+    <Button
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:text="X"
+        android:textColor="@color/red"
+        android:id = "@+id/clearall"/>
 
 </LinearLayout>
