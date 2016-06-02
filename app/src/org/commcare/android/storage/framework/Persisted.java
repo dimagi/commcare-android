@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Hashtable;
+import java.util.List;
 
 /**
  * @author ctsims
@@ -115,7 +116,6 @@ public class Persisted implements Persistable, IMetaData {
                 f.set(o, ExtUtil.readDate(in));
                 return;
             } else if (type.isArray()) {
-
                 //We only support byte arrays for now
                 if (type.getComponentType().equals(Byte.TYPE)) {
                     f.set(o, ExtUtil.readBytes(in));
@@ -172,6 +172,13 @@ public class Persisted implements Persistable, IMetaData {
     public String[] getMetaDataFields() {
         ArrayList<String> fields = new ArrayList<>();
 
+        addClassFieldsToMetas(fields);
+        addClassMethodsToMetas(fields);
+
+        return fields.toArray(new String[fields.size()]);
+    }
+
+    private void addClassFieldsToMetas(List<String> fields) {
         for (Field f : this.getClass().getDeclaredFields()) {
             try {
                 f.setAccessible(true);
@@ -184,7 +191,9 @@ public class Persisted implements Persistable, IMetaData {
                 f.setAccessible(false);
             }
         }
+    }
 
+    private void addClassMethodsToMetas(List<String> fields) {
         for (Method m : this.getClass().getDeclaredMethods()) {
             try {
                 m.setAccessible(true);
@@ -196,9 +205,7 @@ public class Persisted implements Persistable, IMetaData {
             } finally {
                 m.setAccessible(false);
             }
-
         }
-        return fields.toArray(new String[fields.size()]);
     }
 
     @Override
