@@ -48,13 +48,11 @@ public class AndroidStreamUtil {
             try {
                 is.close();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             try {
                 os.close();
             } catch (IOException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
         }
@@ -65,25 +63,16 @@ public class AndroidStreamUtil {
     }
 
     /**
-     * Writes input stream to output stream in a buffered fasion
-     * Closing only the input stream upon completion
+     * Writes input stream to output stream in a buffered fasion, but doesn't
+     * close either stream.
      */
-    public static void writeFromInputToOutputUnmanaged(InputStream is, OutputStream os) throws IOException {
+    public static void writeFromInputToOutputUnmanaged(InputStream is,
+                                                       OutputStream os) throws IOException {
         byte[] buffer = new byte[8192];
-
-        try {
-            int count = is.read(buffer);
-            while (count != -1) {
-                os.write(buffer, 0, count);
-                count = is.read(buffer);
-            }
-        } finally {
-            try {
-                is.close();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        int count = is.read(buffer);
+        while (count != -1) {
+            os.write(buffer, 0, count);
+            count = is.read(buffer);
         }
     }
 }
