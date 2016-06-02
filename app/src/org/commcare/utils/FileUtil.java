@@ -5,7 +5,6 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
@@ -153,14 +152,14 @@ public class FileUtil {
                 os = new CipherOutputStream(os, newWrite);
             }
 
-            AndroidStreamUtil.writeFromInputToOutput(is, os);
+            AndroidStreamUtil.writeFromInputToOutputUnmanaged(is, os);
         } finally {
             try {
                 if (is != null) {
                     is.close();
                 }
             } catch (IOException e) {
-
+                e.printStackTrace();
             }
 
             try {
@@ -168,7 +167,7 @@ public class FileUtil {
                     os.close();
                 }
             } catch (IOException e) {
-
+                e.printStackTrace();
             }
         }
     }

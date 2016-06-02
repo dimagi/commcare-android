@@ -7,6 +7,8 @@ import android.provider.MediaStore.Images.Media;
 import android.widget.Toast;
 
 import org.commcare.activities.FormEntryActivity;
+import org.commcare.logging.analytics.GoogleAnalyticsFields;
+import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.utils.FileUtil;
 import org.commcare.views.widgets.ImageWidget;
 import org.javarosa.core.services.locale.Localization;
@@ -40,6 +42,7 @@ public class ImageCaptureProcessing {
             if (currentWidget != null) {
                 int maxDimen = currentWidget.getMaxDimen();
                 if (maxDimen != -1) {
+                    GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_IMAGE_CAPTURE_RESIZED);
                     savedScaledImage = FileUtil.scaleAndSaveImage(originalImage, finalFilePath, maxDimen);
                 }
             }

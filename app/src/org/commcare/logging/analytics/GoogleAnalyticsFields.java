@@ -18,9 +18,10 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_SERVER_COMMUNICATION = "Server Communication";
     public static final String CATEGORY_ARCHIVED_FORMS = "Archived Forms";
     public static final String CATEGORY_TIMED_EVENTS = "Timed Events";
-    public static final String CATEGORY_PRE_LOGIN_STATS = "Pre-Login Stats";
+    public static final String CATEGORY_APP_INSTALL = "New App Install";
     public static final String CATEGORY_MODULE_NAVIGATION = "Module Navigation";
     public static final String CATEGORY_FEATURE_USAGE = "Feature Usage";
+    public static final String CATEGORY_APP_MANAGER = "App Manager";
 
     // Actions for CATEGORY_HOME_SCREEN only
     public static final String ACTION_BUTTON = "Button Press";
@@ -50,9 +51,6 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_TIME_IN_A_FORM = "Time Spent in A Form";
     public static final String ACTION_SESSION_LENGTH = "Session Length";
 
-    // Actions for CATEGORY_PRE_LOGIN_STATS
-    public static final String ACTION_APP_INSTALL = "New App Install";
-
     // Actions for CATEGORY_MODULE_NAVIGATION
     public static final String ACTION_CONTINUE_FROM_DETAIL = "Continue Forward from Detail View";
     public static final String ACTION_EXIT_FROM_DETAIL = "Exit Detail View";
@@ -71,6 +69,23 @@ public final class GoogleAnalyticsFields {
     // Actions for CATEGORY_FEATURE_USAGE
     public static final String ACTION_LOGIN_AS_DEMO_USER = "Login as Demo User";
     public static final String ACTION_SET_USER_PIN = "Set a User's PIN";
+    public static final String ACTION_PRINT = "Print From a Form";
+    public static final String ACTION_IMAGE_CAPTURE_RESIZED = "Image Capture Resized";
+    public static final String ACTION_CASE_AUTOSELECT_USED = "Case Autoselect Used";
+    public static final String ACTION_USING_SMART_IMAGE_INFLATION = "Using Smart Image Inflation";
+    public static final String ACTION_USING_GRIDVIEW = "Using GridView";
+
+    // Actions for CATEGORY_APP_MANAGER
+    public static final String ACTION_OPEN_APP_MANAGER = "Open App Manager";
+    public static final String ACTION_ARCHIVE_APP = "Archive an App";
+    public static final String ACTION_UNINSTALL_APP = "Uninstall an App";
+    public static final String ACTION_INSTALL_FROM_MANAGER = "Install from Manager";
+
+    // Actions for CATEGORY_APP_INSTALL
+    public static final String ACTION_BARCODE_INSTALL = "Barcode Install";
+    public static final String ACTION_OFFLINE_INSTALL = "Offline Install";
+    public static final String ACTION_URL_INSTALL = "URL Install";
+    public static final String ACTION_SMS_INSTALL = "SMS Install";
 
     // Labels for ACTION_BUTTON
     public static final String LABEL_START_BUTTON = "Start Button";

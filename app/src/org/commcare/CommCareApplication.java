@@ -277,18 +277,22 @@ public class CommCareApplication extends Application {
         c.startActivity(i);
     }
 
-    public static void restartCommCare(Activity activity) {
-        Intent intent = new Intent(activity, DispatchActivity.class);
+    public static void restartCommCare(Activity originActivity) {
+        restartCommCare(originActivity, DispatchActivity.class);
+    }
 
-        // Make sure that the new stack starts with a dispatch activity, and clear everything
+    public static void restartCommCare(Activity originActivity, Class c) {
+        Intent intent = new Intent(originActivity, c);
+
+        // Make sure that the new stack starts with the given class, and clear everything
         // between.
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
                 Intent.FLAG_ACTIVITY_SINGLE_TOP |
                 Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
 
-        activity.moveTaskToBack(true);
-        activity.startActivity(intent);
-        activity.finish();
+        originActivity.moveTaskToBack(true);
+        originActivity.startActivity(intent);
+        originActivity.finish();
 
         System.exit(0);
     }
