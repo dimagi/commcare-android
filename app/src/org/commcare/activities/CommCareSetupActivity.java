@@ -358,9 +358,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case ARCHIVE_INSTALL:
                 if (resultCode == Activity.RESULT_OK) {
-                    offlineInstall = true;
-                    result = data.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE);
                     lastInstallMode = INSTALL_MODE_OFFLINE;
+                    result = data.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE);
                 }
                 break;
         }
