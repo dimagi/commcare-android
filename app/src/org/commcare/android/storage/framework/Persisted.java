@@ -42,7 +42,8 @@ public class Persisted implements Persistable, IMetaData {
                 readVal(f, this, in);
             }
         } catch (IllegalAccessException iae) {
-            throw new DeserializationException(currentField == null ? "" : (" for field" + currentField), iae);
+            String message = currentField == null ? "" : (" for field " + currentField);
+            throw new DeserializationException(message, iae);
         }
     }
 
