@@ -102,6 +102,9 @@ public class Prototype1 extends QuestionWidget {
 
     @Override
     public IAnswerData getAnswer() {
+        if(myCal.getVisibility() != GONE){
+            closeCalendar();
+        }
         return myGreg.getAnswer();
     }
 

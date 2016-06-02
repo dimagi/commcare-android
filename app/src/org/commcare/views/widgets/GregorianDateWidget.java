@@ -117,7 +117,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
-            public void afterTextChanged(Editable s) { //validate for year too large
+            public void afterTextChanged(Editable s) {
                 String contents = s.toString();
 
                 if(contents.length() > 0){
@@ -159,14 +159,14 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
 
     @Override
     protected long getCurrentMillis() {
-        if(dayTxt.getText().toString().length()==0){ //Validate for empty string in day
+        if(dayTxt.getText().toString().length()==0){
             dayTxt.append(String.valueOf(myCal.get(Calendar.DAY_OF_MONTH)));
         }
 
-        if(yearTxt.getText().toString().length()==0 || Integer.parseInt(yearTxt.getText().toString()) < MIN_YEAR){ //Validate for empty string or too low for year
+        if(yearTxt.getText().toString().length()==0 || Integer.parseInt(yearTxt.getText().toString()) < MIN_YEAR){
             yearTxt.setText(String.valueOf(myCal.get(Calendar.YEAR)));
         }
-        if(!monthList.contains(monthTxt.getText().toString())){ //Validate for invalid month String
+        if(!monthList.contains(monthTxt.getText().toString())){
             monthArrayPointer = myCal.get(Calendar.MONTH);
             monthTxt.setText(myMonths[monthArrayPointer]);
         }
@@ -246,7 +246,8 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
 
     @Override
     public IAnswerData getAnswer(){
-        if(monthTxt.getText().toString().equals("") || dayTxt.getText().toString().equals("") || yearTxt.getText().toString().equals("")){
+        if(monthTxt.getText().toString().equals("") || dayTxt.getText().toString().equals("") || yearTxt.getText().toString().equals("")
+           ||Integer.parseInt(yearTxt.getText().toString()) < MIN_YEAR){
             return null;
         }
         return super.getAnswer();

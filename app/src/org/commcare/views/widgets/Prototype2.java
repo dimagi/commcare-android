@@ -9,6 +9,9 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
@@ -47,26 +50,80 @@ public class Prototype2 extends QuestionWidget {
 
         myGreg.removeQuestionText();
         myCal.removeQuestionText();
+        initView();
 
         addView(myCal);
         addView(myGreg);
 
-        initView();
+        final ImageButton openCalendar = new ImageButton(context);
+        openCalendar.setImageResource(R.drawable.avatar_vellum_date);
+        myGreg.addView(openCalendar);
+
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) openCalendar.getLayoutParams();
+        params.width = 60;
+        params.height = 60;
+
+        openCalendar.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openCalendar();
+            }
+        });
+
+        ImageButton calendarCloser = new ImageButton(getContext());
+        calendarCloser.setImageResource(R.drawable.close_cross_icon);
+
+        RelativeLayout layout = (RelativeLayout) findViewById(R.id.calendarinfo);
+        layout.addView(calendarCloser);
+        RelativeLayout.LayoutParams relativeParams = (RelativeLayout.LayoutParams) calendarCloser.getLayoutParams();
+        relativeParams.addRule(RelativeLayout.RIGHT_OF, R.id.calendarweekday);
+        relativeParams.width = 90;
+        relativeParams.height = 90;
+
+        calendarCloser.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                closeCalendar();
+            }
+        });
+
+    }
+
+    private void openCalendar() {
+
+        if(myGreg.getAnswer() != null){
+            myCal.setDate((DateData) myGreg.getAnswer());
+        }else{
+            myCal.setDate(new DateData(new Date()));
+        }
+
+        myGreg.setFocus(getContext());
+        myGreg.setVisibility(GONE);
+        myCal.setVisibility(VISIBLE);
+    }
+
+    private void closeCalendar(){
+        myGreg.setDate((DateData) myCal.getAnswer());
+        myCal.setVisibility(GONE);
+        myGreg.setVisibility(VISIBLE);
     }
 
     private void initView(){
-        removeView(findViewById(R.id.dayupbtn));
-        removeView(findViewById(R.id.daydownbtn));
-        removeView(findViewById(R.id.monthupbtn));
-        removeView(findViewById(R.id.monthdownbtn));
-        removeView(findViewById(R.id.yearupbtn));
-        removeView(findViewById(R.id.yeardownbtn));
-        removeView(findViewById(R.id.clearall));
-        removeView(findViewById(R.id.gregdayofweek));
+        (myGreg.findViewById(R.id.dayupbtn)).setVisibility(GONE);
+        (myGreg.findViewById(R.id.daydownbtn)).setVisibility(GONE);
+        (myGreg.findViewById(R.id.monthupbtn)).setVisibility(GONE);
+        (myGreg.findViewById(R.id.monthdownbtn)).setVisibility(GONE);
+        (myGreg.findViewById(R.id.yearupbtn)).setVisibility(GONE);
+        (myGreg.findViewById(R.id.yeardownbtn)).setVisibility(GONE);
+        (myGreg.findViewById(R.id.clearall)).setVisibility(GONE);
+        (myGreg.findViewById(R.id.gregdayofweek)).setVisibility(GONE);
     }
 
     @Override
     public IAnswerData getAnswer() {
+        if(myCal.getVisibility() != GONE){
+            closeCalendar();
+        }
         return myGreg.getAnswer();
     }
 
