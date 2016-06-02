@@ -204,7 +204,7 @@ public class AsyncEntity extends Entity<TreeReference> {
                 this.relevancyData[fieldIndex] = this.fields[fieldIndex].isRelevant(this.context);
             } catch (XPathSyntaxException e) {
                 final String msg = "Invalid relevant condition for field : " + fields[fieldIndex].getHeader().toString();
-                XPathErrorLogger.INSTANCE.logErrorToCurrentApp("unknown", msg);
+                XPathErrorLogger.INSTANCE.logErrorToCurrentApp(msg);
                 throw new RuntimeException(msg);
             }
             return this.relevancyData[fieldIndex];

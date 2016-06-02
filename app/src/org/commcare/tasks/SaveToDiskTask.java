@@ -10,6 +10,7 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.interfaces.FormSavedListener;
 import org.commcare.logging.AndroidLogger;
+import org.commcare.logging.XPathErrorLogger;
 import org.commcare.models.encryption.EncryptionIO;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
@@ -115,11 +116,12 @@ public class SaveToDiskTask extends
             return new ResultAndError<>(SaveStatus.SAVE_ERROR,
                     "Unable to write xml to " + FormEntryActivity.mInstancePath);
         } catch (FormInstanceTransactionException e) {
-            // TODO PLM: send this error to HQ as a app build error, most
-            // likely a user level issue.
             e.printStackTrace();
             // Passing exceptions through content providers make error message strings messy.
             String cleanedMessage = e.getMessage().replace("java.lang.IllegalStateException: ", "");
+            // Likely a user level issue, so send error to HQ as a app build error
+            XPathErrorLogger.INSTANCE.logErrorToCurrentApp(cleanedMessage);
+
             return new ResultAndError<>(SaveStatus.SAVE_ERROR, cleanedMessage);
         }
 
