@@ -26,11 +26,11 @@ import java.util.Hashtable;
 public class Persisted implements Persistable, IMetaData {
 
     private static final Hashtable<Class, ArrayList<Field>> fieldOrderings = new Hashtable<>();
-
     protected int recordId = -1;
 
     @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
         recordId = ExtUtil.readInt(in);
         String currentField = null;
         try {
@@ -96,7 +96,8 @@ public class Persisted implements Persistable, IMetaData {
         return recordId;
     }
 
-    private void readVal(Field f, Object o, DataInputStream in) throws DeserializationException, IOException, IllegalAccessException {
+    private void readVal(Field f, Object o, DataInputStream in)
+            throws DeserializationException, IOException, IllegalAccessException {
         Persisting p = f.getAnnotation(Persisting.class);
         Class type = f.getType();
         try {
@@ -132,7 +133,8 @@ public class Persisted implements Persistable, IMetaData {
         throw new DeserializationException("Couldn't read persisted type " + f.getType().toString());
     }
 
-    private void writeVal(Field f, Object o, DataOutputStream out) throws IOException, IllegalAccessException {
+    private void writeVal(Field f, Object o, DataOutputStream out)
+            throws IOException, IllegalAccessException {
         try {
             Persisting p = f.getAnnotation(Persisting.class);
             Class type = f.getType();
@@ -181,7 +183,6 @@ public class Persisted implements Persistable, IMetaData {
             } finally {
                 f.setAccessible(false);
             }
-
         }
 
         for (Method m : this.getClass().getDeclaredMethods()) {
@@ -200,7 +201,6 @@ public class Persisted implements Persistable, IMetaData {
         return fields.toArray(new String[fields.size()]);
     }
 
-    //TODO: This looks like it's gonna be sllllooowwwww
     @Override
     public Object getMetaData(String fieldName) {
         try {
@@ -234,12 +234,11 @@ public class Persisted implements Persistable, IMetaData {
                 }
 
             }
-
-        } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
+        } catch (InvocationTargetException | IllegalArgumentException
+                | IllegalAccessException e) {
             throw new RuntimeException(e.getMessage());
         }
         //If we didn't find the field
         throw new IllegalArgumentException("No metadata field " + fieldName + " in the case storage system");
     }
-
 }
