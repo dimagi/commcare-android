@@ -19,5 +19,6 @@ public class SessionCaptureReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "Processing session capture broadcast");
         DevSessionRestorer.saveSessionToPrefs();
+        DevSessionRestorer.enableAutoLogin();
     }
 }
