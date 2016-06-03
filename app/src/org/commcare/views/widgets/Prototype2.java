@@ -37,94 +37,34 @@ import static org.commcare.utils.UniversalDate.MILLIS_IN_DAY;
  */
 public class Prototype2 extends QuestionWidget {
 
+    private Prototype1 myPro1;
     private GregorianDateWidget myGreg;
-    private CalendarWidget myCal;
 
     public Prototype2(Context context, FormEntryPrompt prompt){
         super(context, prompt);
-
-        myGreg = new GregorianDateWidget(context, prompt);
-        myCal = new CalendarWidget(context, prompt);
-
-        myCal.setVisibility(GONE);
-
-        myGreg.removeQuestionText();
-        myCal.removeQuestionText();
+        myPro1 = new Prototype1(context, prompt);
         initView();
-
-        addView(myCal);
-        addView(myGreg);
-
-        final ImageButton openCalendar = new ImageButton(context);
-        openCalendar.setImageResource(R.drawable.avatar_vellum_date);
-        myGreg.addView(openCalendar);
-
-        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) openCalendar.getLayoutParams();
-        params.width = 60;
-        params.height = 60;
-
-        openCalendar.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openCalendar();
-            }
-        });
-
-        ImageButton calendarCloser = new ImageButton(getContext());
-        calendarCloser.setImageResource(R.drawable.close_cross_icon);
-
-        RelativeLayout layout = (RelativeLayout) findViewById(R.id.calendarinfo);
-        layout.addView(calendarCloser);
-        RelativeLayout.LayoutParams relativeParams = (RelativeLayout.LayoutParams) calendarCloser.getLayoutParams();
-        relativeParams.addRule(RelativeLayout.RIGHT_OF, R.id.calendarweekday);
-        relativeParams.width = 90;
-        relativeParams.height = 90;
-
-        calendarCloser.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                closeCalendar();
-            }
-        });
-
-    }
-
-    private void openCalendar() {
-
-        if(myGreg.getAnswer() != null){
-            myCal.setDate((DateData) myGreg.getAnswer());
-        }else{
-            myCal.setDate(new DateData(new Date()));
-        }
-
-        myGreg.setFocus(getContext());
-        myGreg.setVisibility(GONE);
-        myCal.setVisibility(VISIBLE);
-    }
-
-    private void closeCalendar(){
-        myGreg.setDate((DateData) myCal.getAnswer());
-        myCal.setVisibility(GONE);
-        myGreg.setVisibility(VISIBLE);
+        addView(myPro1);
     }
 
     private void initView(){
-        (myGreg.findViewById(R.id.dayupbtn)).setVisibility(GONE);
-        (myGreg.findViewById(R.id.daydownbtn)).setVisibility(GONE);
-        (myGreg.findViewById(R.id.monthupbtn)).setVisibility(GONE);
-        (myGreg.findViewById(R.id.monthdownbtn)).setVisibility(GONE);
-        (myGreg.findViewById(R.id.yearupbtn)).setVisibility(GONE);
-        (myGreg.findViewById(R.id.yeardownbtn)).setVisibility(GONE);
-        (myGreg.findViewById(R.id.clearall)).setVisibility(GONE);
-        (myGreg.findViewById(R.id.gregdayofweek)).setVisibility(GONE);
+        (myPro1.findViewById(R.id.dayupbtn)).setVisibility(GONE);
+        (myPro1.findViewById(R.id.daydownbtn)).setVisibility(GONE);
+        (myPro1.findViewById(R.id.monthupbtn)).setVisibility(GONE);
+        (myPro1.findViewById(R.id.monthdownbtn)).setVisibility(GONE);
+        (myPro1.findViewById(R.id.yearupbtn)).setVisibility(GONE);
+        (myPro1.findViewById(R.id.yeardownbtn)).setVisibility(GONE);
+        (myPro1.findViewById(R.id.clearall)).setVisibility(GONE);
+        (myPro1.findViewById(R.id.gregdayofweek)).setVisibility(GONE);
+
+        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) myPro1.getCalendarButton().getLayoutParams();
+        params.addRule(RelativeLayout.BELOW, R.id.yeartxt);
+        params.addRule(RelativeLayout.RIGHT_OF, R.id.monthtxt);
     }
 
     @Override
     public IAnswerData getAnswer() {
-        if(myCal.getVisibility() != GONE){
-            closeCalendar();
-        }
-        return myGreg.getAnswer();
+        return myPro1.getAnswer();
     }
 
     @Override
@@ -140,5 +80,9 @@ public class Prototype2 extends QuestionWidget {
     @Override
     public void setOnLongClickListener(OnLongClickListener l) {
 
+    }
+
+    public GregorianDateWidget getMyGreg(){
+        return myGreg;
     }
 }

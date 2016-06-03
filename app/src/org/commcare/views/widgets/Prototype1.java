@@ -25,6 +25,7 @@ public class Prototype1 extends QuestionWidget {
 
     private CalendarWidget myCal;
     private GregorianDateWidget myGreg;
+    private ImageButton openCalButton;
 
     public Prototype1(Context con, FormEntryPrompt prompt){
         super(con, prompt);
@@ -43,8 +44,8 @@ public class Prototype1 extends QuestionWidget {
     }
 
     private void initButtons() {
-
         ImageButton openCalButton = new ImageButton(getContext());
+
         openCalButton.setImageResource(R.drawable.avatar_vellum_date);
 
         RelativeLayout layout = (RelativeLayout) findViewById(R.id.widgetinfo);
@@ -79,6 +80,10 @@ public class Prototype1 extends QuestionWidget {
         });
 
         //TODO: Add green "Submit" button. Not done so far because it's unclear what its point is. Navigation to next question is handled already.
+    }
+
+    public ImageButton getCalendarButton(){
+        return openCalButton;
     }
 
     private void openCalendar() {
