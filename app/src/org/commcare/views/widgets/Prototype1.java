@@ -44,7 +44,7 @@ public class Prototype1 extends QuestionWidget {
     }
 
     private void initButtons() {
-        ImageButton openCalButton = new ImageButton(getContext());
+        openCalButton = new ImageButton(getContext());
 
         openCalButton.setImageResource(R.drawable.avatar_vellum_date);
 
@@ -127,4 +127,22 @@ public class Prototype1 extends QuestionWidget {
     public void setOnLongClickListener(OnLongClickListener l) {
 
     }
+
+    public void removeQuestionText(){
+        mQuestionText.setVisibility(GONE);
+    }
+
+    public GregorianDateWidget getMyGreg(){
+        return myGreg;
+    }
+
+    public void addCalendarButton(ImageButton b){
+        b.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openCalendar();
+            }
+        });
+    }
+
 }

@@ -38,7 +38,6 @@ import static org.commcare.utils.UniversalDate.MILLIS_IN_DAY;
 public class Prototype2 extends QuestionWidget {
 
     private Prototype1 myPro1;
-    private GregorianDateWidget myGreg;
 
     public Prototype2(Context context, FormEntryPrompt prompt){
         super(context, prompt);
@@ -55,11 +54,19 @@ public class Prototype2 extends QuestionWidget {
         (myPro1.findViewById(R.id.yearupbtn)).setVisibility(GONE);
         (myPro1.findViewById(R.id.yeardownbtn)).setVisibility(GONE);
         (myPro1.findViewById(R.id.clearall)).setVisibility(GONE);
-        (myPro1.findViewById(R.id.gregdayofweek)).setVisibility(GONE);
+        myPro1.findViewById(R.id.widgetinfo).setVisibility(GONE);
+        myPro1.removeQuestionText();
 
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) myPro1.getCalendarButton().getLayoutParams();
-        params.addRule(RelativeLayout.BELOW, R.id.yeartxt);
-        params.addRule(RelativeLayout.RIGHT_OF, R.id.monthtxt);
+        ImageButton openCalButton = new ImageButton(getContext());
+        openCalButton.setImageResource(R.drawable.avatar_vellum_date);
+        myPro1.getMyGreg().addView(openCalButton);
+        myPro1.addCalendarButton(openCalButton);
+
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) openCalButton.getLayoutParams();
+        params.width = 60;
+        params.height = 60;
+        params.leftMargin = 650;
+
     }
 
     @Override
@@ -69,7 +76,7 @@ public class Prototype2 extends QuestionWidget {
 
     @Override
     public void clearAnswer() {
-        myGreg.clearAnswer();
+        myPro1.clearAnswer();
     }
 
     @Override
@@ -83,6 +90,11 @@ public class Prototype2 extends QuestionWidget {
     }
 
     public GregorianDateWidget getMyGreg(){
-        return myGreg;
+        return myPro1.getMyGreg();
     }
+
+    public void removeQuestionText(){
+        mQuestionText.setVisibility(GONE);
+    }
+
 }

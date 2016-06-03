@@ -88,6 +88,11 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
                         s.clear();
                         s.append(String.valueOf(monthMax));
                     }
+
+                    if(num < 1){
+                        s.clear();
+                        s.append(String.valueOf(1));
+                    }
                 }
             }
         });
