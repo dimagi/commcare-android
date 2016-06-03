@@ -196,10 +196,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 Permissions.acquireAllAppPermissions(this, this,
                         Permissions.ALL_PERMISSIONS_REQUEST);
         if (!askingForPerms) {
-            // With basic perms satisfied, ask user to allow SMS reading for sms app install code
             if (isSingleAppBuild()) {
                 SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
             } else {
+                // With basic perms satisfied, ask user to allow SMS reading for sms app install code
                 performSMSInstall(false);
             }
         }
