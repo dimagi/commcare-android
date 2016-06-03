@@ -196,9 +196,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 Permissions.acquireAllAppPermissions(this, this,
                         Permissions.ALL_PERMISSIONS_REQUEST);
         if (!askingForPerms) {
-            // With basic perms satisfied, ask user to allow SMS reading for
-            // sms app install code
-            performSMSInstall(false);
+            if (isSingleAppBuild()) {
+                SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
+            } else {
+                // With basic perms satisfied, ask user to allow SMS reading for sms app install code
+                performSMSInstall(false);
+            }
         }
     }
 
@@ -843,10 +846,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     scanSMSLinks(manualSMSInstall);
                 }
             }
-
-            if (isSingleAppBuild()) {
-                SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
-            }
         } else if (requestCode == Permissions.ALL_PERMISSIONS_REQUEST) {
             String[] requiredPerms = Permissions.getRequiredPerms();
 
@@ -867,8 +866,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 uiStateScreenTransition();
             }
 
-            // Since SMS asks for more permissions, call was delayed until here
-            performSMSInstall(false);
+            if (isSingleAppBuild()) {
+                SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
+            } else {
+                // Since SMS asks for more permissions, call was delayed until here
+                performSMSInstall(false);
+            }
         }
     }
 
