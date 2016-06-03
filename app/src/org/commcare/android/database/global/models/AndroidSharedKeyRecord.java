@@ -4,14 +4,18 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcel;
 
+import org.commcare.android.storage.framework.PersistedPlain;
 import org.commcare.models.encryption.CryptUtil;
-import org.commcare.android.storage.framework.Persisted;
-import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;
-import org.commcare.modern.models.MetaField;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.util.PropertyUtils;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -25,18 +29,14 @@ import java.security.SecureRandom;
  * @author ctsims
  */
 @Table("android_sharing_key")
+public class AndroidSharedKeyRecord extends PersistedPlain {
 
-public class AndroidSharedKeyRecord extends Persisted {
-
+    // TODO PLM: mark this as unique
     public final static String META_KEY_ID = "sharing_key_id";
 
-    @Persisting(1)
-    @MetaField(value = META_KEY_ID, unique = true)
-    String keyId;
-    @Persisting(2)
-    byte[] privateKey;
-    @Persisting(3)
-    byte[] publicKey;
+    private String keyId;
+    private byte[] privateKey;
+    private byte[] publicKey;
 
     /*
      * Deserialization only
@@ -45,7 +45,7 @@ public class AndroidSharedKeyRecord extends Persisted {
 
     }
 
-    public AndroidSharedKeyRecord(String keyId, byte[] privateKey, byte[] publicKey) {
+    private AndroidSharedKeyRecord(String keyId, byte[] privateKey, byte[] publicKey) {
         this.keyId = keyId;
         this.privateKey = privateKey;
         this.publicKey = publicKey;
@@ -100,5 +100,38 @@ public class AndroidSharedKeyRecord extends Persisted {
         Bundle result = p.readBundle();
         p.recycle();
         return result;
+    }
+
+    @Override
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        super.readExternal(in, pf);
+
+        keyId = ExtUtil.readString(in);
+        privateKey = ExtUtil.readBytes(in);
+        publicKey = ExtUtil.readBytes(in);
+    }
+
+    @Override
+    public void writeExternal(DataOutputStream out) throws IOException {
+        super.writeExternal(out);
+
+        ExtUtil.writeString(out, keyId);
+        ExtUtil.writeBytes(out, privateKey);
+        ExtUtil.writeBytes(out, publicKey);
+    }
+
+    @Override
+    public String[] getMetaDataFields() {
+        return new String[]{META_KEY_ID};
+    }
+
+    @Override
+    public Object getMetaData(String fieldName) {
+        switch (fieldName) {
+            case META_KEY_ID:
+                return keyId;
+            default:
+                throw new IllegalArgumentException("No metadata field " + fieldName + " in the storage system");
+        }
     }
 }

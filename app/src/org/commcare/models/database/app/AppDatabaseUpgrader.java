@@ -5,6 +5,7 @@ import android.util.Log;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.commcare.android.storage.framework.PersistedPlain;
 import org.commcare.engine.resource.AndroidResourceManager;
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
@@ -13,7 +14,6 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.app.models.UserKeyRecordV1;
 import org.commcare.models.database.migration.FixtureSerializationMigration;
-import org.commcare.android.storage.framework.Persisted;
 import org.commcare.resources.model.Resource;
 
 import java.util.ArrayList;
@@ -174,13 +174,13 @@ class AppDatabaseUpgrader {
     private boolean upgradeSevenEight(SQLiteDatabase db) {
         db.beginTransaction();
         try {
-            SqlStorage<Persisted> storage = new SqlStorage<Persisted>(
+            SqlStorage<PersistedPlain> storage = new SqlStorage<PersistedPlain>(
                     UserKeyRecordV1.STORAGE_KEY,
                     UserKeyRecordV1.class,
                     new ConcreteAndroidDbHelper(context, db));
 
             Vector<UserKeyRecord> migratedRecords = new Vector<>();
-            for (Persisted record : storage) {
+            for (PersistedPlain record : storage) {
                 UserKeyRecordV1 oldUKR = (UserKeyRecordV1)record;
                 UserKeyRecord newUKR = UserKeyRecord.fromOldVersion(oldUKR);
                 newUKR.setID(oldUKR.getID());

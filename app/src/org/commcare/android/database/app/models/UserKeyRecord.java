@@ -1,17 +1,18 @@
-/**
- *
- */
 package org.commcare.android.database.app.models;
 
 import org.commcare.CommCareApp;
+import org.commcare.android.storage.framework.PersistedPlain;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.encryption.ByteEncrypter;
-import org.commcare.android.storage.framework.Persisted;
-import org.commcare.models.framework.Persisting;
 import org.commcare.models.framework.Table;
-import org.commcare.modern.models.MetaField;
 import org.javarosa.core.util.PropertyUtils;
+import org.javarosa.core.util.externalizable.DeserializationException;
+import org.javarosa.core.util.externalizable.ExtUtil;
+import org.javarosa.core.util.externalizable.PrototypeFactory;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -23,7 +24,7 @@ import java.util.regex.Pattern;
  * @author ctsims
  */
 @Table(UserKeyRecord.STORAGE_KEY)
-public class UserKeyRecord extends Persisted {
+public class UserKeyRecord extends PersistedPlain {
 
     public static final String STORAGE_KEY = "user_key_records";
 
@@ -55,51 +56,34 @@ public class UserKeyRecord extends Persisted {
 
     private static final int DEFAULT_SALT_LENGTH = 6;
 
-    @Persisting(1)
-    @MetaField(META_USERNAME)
     private String username;
-
-    @Persisting(2)
     private String passwordHash;
-
-    @Persisting(3)
     private byte[] encryptedKey;
-
-    @Persisting(4)
     private Date validFrom;
-
-    @Persisting(5)
     private Date validTo;
 
     /**
      * The unique ID of the data sandbox covered by this key
      **/
-    @Persisting(6)
-    @MetaField(META_SANDBOX_ID)
     private String uuid;
 
-    @MetaField(META_KEY_STATUS)
-    @Persisting(7)
     private int type;
 
     /**
      * The un-hashed password wrapped by a numeric PIN
      **/
-    @Persisting(8)
     private byte[] passwordWrappedByPin;
 
     /**
      * When a user selects the 'Remember password for next login' option, their un-hashed password
      * gets saved here and then used in the next login, so that the user does not need to enter it
      */
-    @Persisting(9)
     private String rememberedPassword;
 
     /**
      * If there are multiple UKRs for a single username in app storage, we guarantee that only
      * 1 will be marked as active
      */
-    @Persisting(10)
     private boolean isActive;
 
     /**
@@ -426,4 +410,56 @@ public class UserKeyRecord extends Persisted {
         return newRecord;
     }
 
+    @Override
+    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+        super.readExternal(in, pf);
+
+        username = ExtUtil.readString(in);
+        passwordHash = ExtUtil.readString(in);
+        encryptedKey = ExtUtil.readBytes(in);
+        validFrom = ExtUtil.readDate(in);
+        validTo = ExtUtil.readDate(in);
+        uuid = ExtUtil.readString(in);
+        type = ExtUtil.readInt(in);
+        passwordWrappedByPin = ExtUtil.readBytes(in);
+        rememberedPassword = ExtUtil.readString(in);
+        isActive = ExtUtil.readBool(in);
+    }
+
+    @Override
+    public void writeExternal(DataOutputStream out) throws IOException {
+        super.writeExternal(out);
+
+        ExtUtil.writeString(out, username);
+        ExtUtil.writeString(out, passwordHash);
+        ExtUtil.writeBytes(out, encryptedKey);
+        ExtUtil.writeDate(out, validFrom);
+        ExtUtil.writeDate(out, validTo);
+        ExtUtil.writeString(out, uuid);
+        ExtUtil.writeNumeric(out, type);
+        ExtUtil.writeBytes(out, passwordWrappedByPin);
+        ExtUtil.writeString(out, rememberedPassword);
+        ExtUtil.writeBool(out, isActive);
+    }
+
+    @Override
+    public String[] getMetaDataFields() {
+        return new String[]{
+                META_USERNAME, META_SANDBOX_ID, META_KEY_STATUS
+        };
+    }
+
+    @Override
+    public Object getMetaData(String fieldName) {
+        switch (fieldName) {
+            case META_USERNAME:
+                return username;
+            case META_SANDBOX_ID:
+                return uuid;
+            case META_KEY_STATUS:
+                return type;
+            default:
+                throw new IllegalArgumentException("No metadata field " + fieldName + " in the storage system");
+        }
+    }
 }
