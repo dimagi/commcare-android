@@ -16,6 +16,8 @@ import android.widget.Toast;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.logging.analytics.GoogleAnalyticsFields;
+import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
@@ -60,7 +62,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     private String firstRoundPin;
 
     @Override
-    protected void onCreateSessionSafe(Bundle savedInstanceState) throws SessionUnavailableException {
+    protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
         userRecord = CommCareApplication._().getRecordForCurrentUser();
@@ -153,6 +155,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
     private void assignPin(String pin) {
         userRecord.assignPinToRecord(pin, unhashedUserPassword);
         CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
+        GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_SET_USER_PIN);
     }
 
     @Override

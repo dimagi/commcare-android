@@ -46,4 +46,6 @@ public interface CommCareTaskConnector<R> {
      * one task to another
      */
     void stopTaskTransition();
+
+    void hideTaskCancelButton();
 }

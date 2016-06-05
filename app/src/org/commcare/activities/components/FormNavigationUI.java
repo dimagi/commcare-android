@@ -6,7 +6,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
-import android.text.Spannable;
 import android.util.Log;
 import android.util.Pair;
 import android.util.TypedValue;
@@ -30,7 +29,7 @@ import org.commcare.views.ClippingFrame;
 import org.commcare.views.QuestionsView;
 import org.commcare.views.UserfacingErrorHandling;
 import org.commcare.views.widgets.QuestionWidget;
-import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.XPathException;
 
 import java.util.ArrayList;
 
@@ -51,7 +50,7 @@ public class FormNavigationUI {
         FormNavigationController.NavigationDetails details;
         try {
             details = FormNavigationController.calculateNavigationStatus(formController, view);
-        } catch (XPathTypeMismatchException e) {
+        } catch (XPathException e) {
             UserfacingErrorHandling.logErrorAndShowDialog(activity, e, true);
             return;
         }
@@ -247,7 +246,7 @@ public class FormNavigationUI {
                 if (type.getAppearance().equals(hint)) {
                     CharSequence widgetText = widget.getPrompt().getQuestionText();
                     String markdownWidgetText = widget.getPrompt().getMarkdownText();
-                    if(markdownWidgetText != null){
+                    if (markdownWidgetText != null) {
                         widgetText = MarkupUtil.returnMarkdown(activity, markdownWidgetText);
                     }
                     if (widgetText != null && widgetText.length() < 15) {
@@ -277,7 +276,7 @@ public class FormNavigationUI {
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(0, LayoutParams.WRAP_CONTENT, 1);
                 TextView left = (TextView)View.inflate(activity, R.layout.component_floating_label, null);
                 left.setLayoutParams(lp);
-                left.setText(smallLabels.get(i).first + "; " + smallLabels.get(i+1).first);
+                left.setText(smallLabels.get(i).first + "; " + smallLabels.get(i + 1).first);
                 left.setBackgroundResource(smallLabels.get(i).second.resourceId);
                 left.setPadding(pixels, 2 * pixels, pixels, 2 * pixels);
                 left.setTextColor(smallLabels.get(i).second.colorId);

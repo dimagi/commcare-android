@@ -1,13 +1,13 @@
 
 import os
-import sys
+import shutil
 import subprocess 
+import sys
 import xml.etree.ElementTree as ET
 
 # Script to build the .apks for all consumer apps, off of the latest release build of CommCare on jenkins
 # All paths are written assuming this script will be run from the PARENT directory of commcare-odk/,
 # unless otherwise specified 
-
 
 # Path to the directory where all user-provided information and files for each consumer app lives. 
 # This directory should store a list of directories, 1 for each consumer app we are building.
@@ -55,13 +55,12 @@ def build_apk_from_directory_contents(app_sub_dir, files_list, build_type):
 
     unzip_app_icon(full_path_to_zipfile)
     app_id, domain, build_number, username, password = get_app_fields(full_path_to_config_file)
-    password = '123' #TEMPORARY, REMOVE AFTER TESTING
     
     os.chdir(PATH_TO_ODK_DIR)
     download_ccz(app_id, domain, build_number)
     download_restore_file(domain, username, password)
     assemble_apk(domain, build_number, username, password, build_type)
-    move_apk(app_id)
+    move_apk(app_id, build_type)
     os.chdir('../')
 
 
@@ -77,8 +76,7 @@ def get_app_fields(config_filename):
 
 
 def download_ccz(app_id, domain, build_number):
-    #TODO: Get HQ to implement downloading a specific build
-    subprocess.call(["./scripts/download_app_into_standalone_asset.sh", domain, app_id, PATH_TO_ASSETS_DIR_FROM_ODK]) 
+    subprocess.call(["./scripts/download_app_into_standalone_asset.sh", domain, app_id, PATH_TO_ASSETS_DIR_FROM_ODK, build_number])
 
 
 def download_restore_file(domain, username, password):
@@ -94,6 +92,7 @@ def assemble_apk(domain, build_number, username, password, build_type):
         "-Pcc_domain={}".format(domain), 
         "-Papplication_name={}".format(get_app_name_from_profile()), 
         "-Pis_consumer_app=true", 
+        "-Prun_download_scripts=false",
         "-PversionCode={}".format(build_number),
         "-Pusername={}".format(username),
         "-Ppassword={}".format(password)])
@@ -104,9 +103,16 @@ def get_app_name_from_profile():
     return tree.getroot().get("name")
 
 
-def move_apk(app_id):
-    subprocess.call(["mkdir", "-p", "./build/outputs/consumer_apks"]) 
-    subprocess.call(["mv", "./build/outputs/apk/commcare-odk-standalone-debug.apk", "./build/outputs/consumer_apks/{}.apk".format(app_id)])
+def move_apk(app_id, build_type):
+    CONSUMER_APKS_DIR = "./build/outputs/consumer_apks"
+    if not os.path.exists(CONSUMER_APKS_DIR):
+        os.mkdir(CONSUMER_APKS_DIR) 
+    if build_type == 'd':
+        original_apk_filename = "./build/outputs/apk/commcare-odk-standalone-debug.apk"
+    else:
+        original_apk_filename = "./build/outputs/apk/commcare-odk-standalone-release.apk"
+    shutil.move(original_apk_filename, os.path.join(CONSUMER_APKS_DIR, "{}.apk".format(app_id)))
+
 
 def main():
     if len(sys.argv) < 2:
@@ -116,6 +122,7 @@ def main():
         raise Exception("Must specify a build type. Use 'd' for debug or 'r' for release.")
     checkout_or_update_static_resources_repo()
     build_apks_from_resources(build_type)
+
 
 if __name__ == "__main__":
     main()

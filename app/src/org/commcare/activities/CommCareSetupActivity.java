@@ -34,6 +34,7 @@ import org.commcare.fragments.InstallPermissionsFragment;
 import org.commcare.fragments.SelectInstallModeFragment;
 import org.commcare.fragments.SetupEnterURLFragment;
 import org.commcare.interfaces.RuntimePermissionRequester;
+import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.resources.model.UnresolvedResourceException;
@@ -41,6 +42,7 @@ import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.ResourceEngineTask;
 import org.commcare.tasks.RetrieveParseVerifyMessageListener;
 import org.commcare.tasks.RetrieveParseVerifyMessageTask;
+import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ManagedUi;
@@ -76,7 +78,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final String TAG = CommCareSetupActivity.class.getSimpleName();
 
     private static final String KEY_UI_STATE = "current_install_ui_state";
-    private static final String KEY_OFFLINE = "offline_install";
+    private static final String KEY_LAST_INSTALL_MODE = "offline_install";
     private static final String KEY_FROM_EXTERNAL = "from_external";
     private static final String KEY_FROM_MANAGER = "from_manager";
     private static final String KEY_MANUAL_SMS_INSTALL = "sms-install-triggered-manually";
@@ -84,6 +86,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final int SMS_PERMISSIONS_REQUEST = 2;
 
     public static final String KEY_INSTALL_FAILED = "install_failed";
+    private static final String FORCE_VALIDATE_KEY = "validate";
 
     /**
      * How many sms messages to scan over looking for commcare install link
@@ -125,11 +128,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
      */
     private boolean fromExternal;
 
-    /**
-     * Indicates that the current install attempt will be made from a .ccz file, so we do
-     * not need to check for internet connectivity
-     */
-    private boolean offlineInstall;
+    private static final int INSTALL_MODE_BARCODE = 0;
+    private static final int INSTALL_MODE_URL = 1;
+    private static final int INSTALL_MODE_OFFLINE = 2;
+    private static final int INSTALL_MODE_SMS = 3;
+    private int lastInstallMode;
 
     /**
      * Remember how the sms install was triggered in case orientation changes while asking for permissions
@@ -163,7 +166,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         // remove file:// prepend
                         incomingRef = incomingRef.substring(incomingRef.indexOf("//") + 2);
                         Intent i = new Intent(this, InstallArchiveActivity.class);
-                        i.putExtra(InstallArchiveActivity.ARCHIVE_REFERENCE, incomingRef);
+                        i.putExtra(InstallArchiveActivity.ARCHIVE_FILEPATH, incomingRef);
                         startActivityForResult(i, ARCHIVE_INSTALL);
                     } else {
                         // currently down allow other locations like http://
@@ -194,9 +197,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 Permissions.acquireAllAppPermissions(this, this,
                         Permissions.ALL_PERMISSIONS_REQUEST);
         if (!askingForPerms) {
-            // With basic perms satisfied, ask user to allow SMS reading for
-            // sms app install code
-            performSMSInstall(false);
+            if (isSingleAppBuild()) {
+                SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
+            } else {
+                // With basic perms satisfied, ask user to allow SMS reading for sms app install code
+                performSMSInstall(false);
+            }
         }
     }
 
@@ -206,7 +212,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         fromExternal = savedInstanceState.getBoolean(KEY_FROM_EXTERNAL);
         fromManager = savedInstanceState.getBoolean(KEY_FROM_MANAGER);
         manualSMSInstall = savedInstanceState.getBoolean(KEY_MANUAL_SMS_INSTALL);
-        offlineInstall = savedInstanceState.getBoolean(KEY_OFFLINE);
+        lastInstallMode = savedInstanceState.getInt(KEY_LAST_INSTALL_MODE);
         // Uggggh, this might not be 100% legit depending on timing, what
         // if we've already reconnected and shut down the dialog?
         startAllowed = savedInstanceState.getBoolean("startAllowed");
@@ -247,8 +253,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             // (because that's where we were last time the app was up), but there are now
             // 1 or more available apps, we want to fall back to dispatch activity
             setResult(RESULT_OK);
-            this.finish();
-            return;
+            finish();
         }
     }
 
@@ -290,11 +295,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 break;
             case IN_URL_ENTRY:
                 fragment = restoreInstallSetupFragment();
-                this.offlineInstall = false;
                 break;
             case CHOOSE_INSTALL_ENTRY_METHOD:
                 fragment = installFragment;
-                this.offlineInstall = false;
                 break;
             case NEEDS_PERMS:
                 fragment = permFragment;
@@ -335,7 +338,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putSerializable(KEY_UI_STATE, uiState);
         outState.putString("profileref", incomingRef);
         outState.putBoolean("startAllowed", startAllowed);
-        outState.putBoolean(KEY_OFFLINE, offlineInstall);
+        outState.putInt(KEY_LAST_INSTALL_MODE, lastInstallMode);
         outState.putBoolean(KEY_FROM_EXTERNAL, fromExternal);
         outState.putBoolean(KEY_FROM_MANAGER, fromManager);
         outState.putBoolean(KEY_MANUAL_SMS_INSTALL, manualSMSInstall);
@@ -353,12 +356,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     result = data.getStringExtra("SCAN_RESULT");
                     String dbg = "Got url from barcode scanner: " + result;
                     Log.i(TAG, dbg);
+                    lastInstallMode = INSTALL_MODE_BARCODE;
                 }
                 break;
             case ARCHIVE_INSTALL:
                 if (resultCode == Activity.RESULT_OK) {
-                    offlineInstall = true;
-                    result = data.getStringExtra(InstallArchiveActivity.ARCHIVE_REFERENCE);
+                    lastInstallMode = INSTALL_MODE_OFFLINE;
+                    result = data.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE);
                 }
                 break;
         }
@@ -386,7 +390,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             this.uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
         }
 
-        if (offlineInstall) {
+        if (lastInstallMode == INSTALL_MODE_OFFLINE) {
             onStartInstallClicked();
         } else {
             uiStateScreenTransition();
@@ -566,6 +570,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                                         if (result != null) {
                                             receiver.incomingRef = result;
                                             receiver.uiState = UiState.READY_TO_INSTALL;
+                                            receiver.lastInstallMode = INSTALL_MODE_SMS;
                                             receiver.uiStateScreenTransition();
                                             receiver.startResourceInstall();
                                         } else {
@@ -576,6 +581,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                                         if (result != null) {
                                             receiver.incomingRef = result;
                                             receiver.uiState = UiState.READY_TO_INSTALL;
+                                            receiver.lastInstallMode = INSTALL_MODE_SMS;
                                             receiver.uiStateScreenTransition();
                                             Toast.makeText(receiver, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
                                         }
@@ -634,13 +640,21 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     /**
      * Return to or launch dispatch activity.
      *
-     * @param failed         did installation occur successfully?
+     * @param failed did installation occur successfully?
      */
     private void done(boolean failed) {
         if (Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
-            //Call out to CommCare Home
-            Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
-            startActivity(i);
+            // app installed from external action
+            if (getIntent().getBooleanExtra(FORCE_VALIDATE_KEY, false)) {
+                // force multimedia validation to ensure app shows up in multiple apps list
+                Intent i = new Intent(this, CommCareVerificationActivity.class);
+                i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
+                startActivity(i);
+            } else {
+                //Call out to CommCare Home
+                Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
+                startActivity(i);
+            }
         } else {
             //Good to go
             Intent i = new Intent(getIntent());
@@ -653,12 +667,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     /**
      * Raise failure message and return to the home activity with cancel code
      */
-    private void fail(NotificationMessage message, boolean alwaysNotify) {
-        Toast.makeText(this, message.getTitle(), Toast.LENGTH_LONG).show();
-
-        if (alwaysNotify) {
+    private void fail(NotificationMessage message, boolean reportNotification) {
+        String toastMessage;
+        if (reportNotification) {
             CommCareApplication._().reportNotificationMessage(message);
+            toastMessage = Localization.get("notification.for.details.wrapper", new String[]{message.getTitle()});
+        } else {
+            toastMessage = message.getTitle();
         }
+        Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
 
         // Last install attempt failed, so restore to starting uistate to try again
         uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
@@ -677,7 +694,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         CommCareApplication._().clearNotifications("install_update");
 
         if (newAppInstalled) {
-            GoogleAnalyticsUtils.reportAppInstall();
+            GoogleAnalyticsUtils.reportAppInstall(lastInstallMode);
         } else {
             Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
         }
@@ -713,11 +730,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void updateResourceProgress(int done, int total, int phase) {
         // perform safe localization because the localization dictionary might
         // be the resource currently being installed.
-        String installProgressText =
-                Localization.getWithDefault("profile.found",
-                        new String[]{"" + done, "" + total},
-                        "Application found. Loading resources...");
-        updateProgress(installProgressText, DIALOG_INSTALL_PROGRESS);
+        if (!CommCareApplication._().isConsumerApp()) {
+            // Don't change the text on the progress dialog if we are showing the generic consumer
+            // apps startup dialog
+            String installProgressText =
+                    Localization.getWithDefault("profile.found",
+                            new String[]{"" + done, "" + total},
+                            "Application found. Loading resources...");
+            updateProgress(installProgressText, DIALOG_INSTALL_PROGRESS);
+        }
         updateProgressBar(done, total, DIALOG_INSTALL_PROGRESS);
     }
 
@@ -734,7 +755,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             return null;
         }
         if (isSingleAppBuild()) {
-            return CustomProgressDialog.newInstance("Starting Up", "Initializing your application...", taskId);
+            return ConsumerAppsUtil.getGenericConsumerAppsProgressDialog(taskId, true);
         } else {
             return generateNormalInstallDialog(taskId);
         }
@@ -755,7 +776,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     @Override
     public void onStartInstallClicked() {
-        if (!offlineInstall && isNetworkNotConnected()) {
+        if (lastInstallMode != INSTALL_MODE_OFFLINE && isNetworkNotConnected()) {
             failWithNotification(AppInstallStatus.NoConnection);
         } else {
             startResourceInstall();
@@ -771,6 +792,9 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     public void setUiState(UiState newState) {
         uiState = newState;
+        if (UiState.IN_URL_ENTRY.equals(uiState)) {
+            lastInstallMode = INSTALL_MODE_URL;
+        }
     }
 
 
@@ -830,10 +854,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     scanSMSLinks(manualSMSInstall);
                 }
             }
-
-            if (isSingleAppBuild()) {
-                SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
-            }
         } else if (requestCode == Permissions.ALL_PERMISSIONS_REQUEST) {
             String[] requiredPerms = Permissions.getRequiredPerms();
 
@@ -854,8 +874,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 uiStateScreenTransition();
             }
 
-            // Since SMS asks for more permissions, call was delayed until here
-            performSMSInstall(false);
+            if (isSingleAppBuild()) {
+                SingleAppInstallation.installSingleApp(this, DIALOG_INSTALL_PROGRESS);
+            } else {
+                // Since SMS asks for more permissions, call was delayed until here
+                performSMSInstall(false);
+            }
         }
     }
 
@@ -867,6 +891,21 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             InstallPermissionsFragment permFragment =
                     (InstallPermissionsFragment)getSupportFragmentManager().findFragmentById(R.id.setup_fragment_container);
             permFragment.updateDeniedState();
+        }
+    }
+
+    public static String getAnalyticsActionFromInstallMode(int installModeCode) {
+        switch(installModeCode) {
+            case INSTALL_MODE_BARCODE:
+                return GoogleAnalyticsFields.ACTION_BARCODE_INSTALL;
+            case INSTALL_MODE_OFFLINE:
+                return GoogleAnalyticsFields.ACTION_OFFLINE_INSTALL;
+            case INSTALL_MODE_SMS:
+                return GoogleAnalyticsFields.ACTION_SMS_INSTALL;
+            case INSTALL_MODE_URL:
+                return GoogleAnalyticsFields.ACTION_URL_INSTALL;
+            default:
+                return "";
         }
     }
 }

@@ -10,6 +10,8 @@ import android.view.WindowManager;
 
 import org.commcare.engine.references.JavaFileReference;
 import org.commcare.logging.AndroidLogger;
+import org.commcare.logging.analytics.GoogleAnalyticsFields;
+import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.preferences.CommCarePreferences;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
@@ -76,6 +78,7 @@ public class MediaUtil {
             }
 
             if (CommCarePreferences.isSmartInflationEnabled()) {
+                GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_USING_SMART_IMAGE_INFLATION);
                 // scale based on native density AND bounding dimens
                 return getBitmapScaledForNativeDensity(
                         context.getResources().getDisplayMetrics(), imageFile.getAbsolutePath(),

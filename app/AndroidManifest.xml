@@ -75,7 +75,6 @@
         <activity
             android:name="org.commcare.activities.AppManagerActivity"
             android:label="@string/manager_activity_name"
-            android:launchMode="singleTask"
             android:taskAffinity="org.commcare.Manage">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -329,6 +328,10 @@
             android:windowSoftInputMode="adjustPan">
         </activity>
         <activity
+            android:name="org.commcare.activities.AdvancedActionsActivity"/>
+        <activity
+            android:name="org.commcare.preferences.CommCareServerPreferences"/>
+        <activity
             android:name="org.commcare.activities.ConnectionDiagnosticActivity"
             android:windowSoftInputMode="adjustResize">
         </activity>
@@ -351,6 +354,8 @@
         <activity
             android:name="org.commcare.activities.SeatAppActivity">
         </activity>
+        <activity android:name="org.commcare.activities.PostRequestActivity"/>
+        <activity android:name="org.commcare.activities.QueryRequestActivity"/>
         <activity
             android:name="org.commcare.activities.CreatePinActivity"
             android:windowSoftInputMode="stateVisible|adjustResize">

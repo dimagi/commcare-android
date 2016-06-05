@@ -9,11 +9,11 @@ import android.os.Build;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
+import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.network.DataPullRequester;
-import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.LocalDataPullResponseFactory;
-import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.tasks.PullTaskReceiver;
@@ -69,14 +69,14 @@ public class FormAndDataSyncer {
                         label = Localization.get("sync.success.sent",
                                 new String[]{String.valueOf(successfulSends)});
                     }
-                    receiver.displayMessage(label);
+                    receiver.reportSuccess(label);
 
                     if (syncAfterwards) {
                         syncDataForLoggedInUser(receiver, true, userTriggered);
                     }
                 } else if (result != FormUploadUtil.FAILURE) {
                     // Tasks with failure result codes will have already created a notification
-                    receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
+                    receiver.reportFailure(Localization.get("sync.fail.unsent"), true);
                 }
             }
 
@@ -86,16 +86,11 @@ public class FormAndDataSyncer {
 
             @Override
             protected void deliverError(CommCareHomeActivity receiver, Exception e) {
-                receiver.displayMessage(Localization.get("sync.fail.unsent"), true);
+                receiver.reportFailure(Localization.get("sync.fail.unsent"), true);
             }
         };
 
-        try {
-            mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
-        } catch (SessionUnavailableException sue) {
-            // abort since it looks like the session expired
-            return;
-        }
+        mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
         mProcess.connect(activity);
 
         //Execute on a true multithreaded chain. We should probably replace all of our calls with this
@@ -110,16 +105,16 @@ public class FormAndDataSyncer {
 
     private static String getFormPostURL(final Context context) {
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        return settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY,
+        return settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY,
                 context.getString(R.string.PostURL));
     }
 
-    private <I extends CommCareActivity & PullTaskReceiver> void syncData(
+    public <I extends CommCareActivity & PullTaskReceiver> void syncData(
             final I activity, final boolean formsToSend,
             final boolean userTriggeredSync, String server,
             String username, String password) {
 
-        syncData(activity, formsToSend, userTriggeredSync, server, username, password, new DataPullResponseFactory());
+        syncData(activity, formsToSend, userTriggeredSync, server, username, password, CommCareApplication._().getDataPullRequester());
     }
 
     private <I extends CommCareActivity & PullTaskReceiver> void syncData(
@@ -136,7 +131,8 @@ public class FormAndDataSyncer {
                 dataPullRequester) {
 
             @Override
-            protected void deliverResult(PullTaskReceiver receiver, ResultAndError<PullTaskResult> resultAndErrorMessage) {
+            protected void deliverResult(PullTaskReceiver receiver,
+                                         ResultAndError<PullTaskResult> resultAndErrorMessage) {
                 receiver.handlePullTaskResult(resultAndErrorMessage, userTriggeredSync, formsToSend);
             }
 
@@ -153,34 +149,23 @@ public class FormAndDataSyncer {
         };
 
         mDataPullTask.connect(activity);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mDataPullTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            mDataPullTask.execute();
-        }
-
+        mDataPullTask.executeParallel();
     }
 
-    public void syncDataForLoggedInUser(
-            final CommCareHomeActivity activity,
+    public <I extends CommCareActivity & PullTaskReceiver & ConnectorWithResultCallback>
+    void syncDataForLoggedInUser(
+            final I activity,
             final boolean formsToSend,
             final boolean userTriggeredSync) {
-
-        User u;
-        try {
-            u = CommCareApplication._().getSession().getLoggedInUser();
-        } catch (SessionUnavailableException sue) {
-            // abort since it looks like the session expired
-            return;
-        }
+        User u = CommCareApplication._().getSession().getLoggedInUser();
 
         if (User.TYPE_DEMO.equals(u.getUserType())) {
             if (userTriggeredSync) {
                 // Remind the user that there's no syncing in demo mode.
                 if (formsToSend) {
-                    activity.displayMessage(Localization.get("main.sync.demo.has.forms"), true, true);
+                    activity.reportFailure(Localization.get("main.sync.demo.has.forms"), false);
                 } else {
-                    activity.displayMessage(Localization.get("main.sync.demo.no.forms"), true, true);
+                    activity.reportFailure(Localization.get("main.sync.demo.no.forms"), false);
                 }
             }
             return;
@@ -188,14 +173,14 @@ public class FormAndDataSyncer {
 
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         syncData(activity, formsToSend, userTriggeredSync,
-                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY, activity.getString(R.string.ota_restore_url)),
+                prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY, activity.getString(R.string.ota_restore_url)),
                 u.getUsername(), u.getCachedPwd());
     }
 
     public void performOtaRestore(LoginActivity context, String username, String password) {
         SharedPreferences prefs = CommCareApplication._().getCurrentApp().getAppPreferences();
         syncData(context, false, false,
-                prefs.getString(CommCarePreferences.PREFS_DATA_SERVER_KEY, context.getString(R.string.ota_restore_url)),
+                prefs.getString(CommCareServerPreferences.PREFS_DATA_SERVER_KEY, context.getString(R.string.ota_restore_url)),
                 username,
                 password);
     }
@@ -212,8 +197,7 @@ public class FormAndDataSyncer {
             throw new RuntimeException("Local restore file missing");
         }
 
-        LocalDataPullResponseFactory localDataPullRequester =
-                new LocalDataPullResponseFactory(SingleAppInstallation.LOCAL_RESTORE_REFERENCE);
-        syncData(context, false, false, "fake-server-that-is-never-used", username, password, localDataPullRequester);
+        LocalDataPullResponseFactory.setRequestPayloads(new String[]{SingleAppInstallation.LOCAL_RESTORE_REFERENCE});
+        syncData(context, false, false, "fake-server-that-is-never-used", username, password, LocalDataPullResponseFactory.INSTANCE);
     }
 }

@@ -75,6 +75,7 @@ public class EntityListCalloutDataTest {
 
         // ensure that the entity list is filtered by the received callout
         // result data (fingerprint identification list with confidence score)
+        loadList();
         assertEquals(5, adapter.getCurrentCount());
         assertTrue(adapter.isFilteringByCalloutResult());
         assertTrue(adapter.hasCalloutResponseData());
@@ -103,6 +104,7 @@ public class EntityListCalloutDataTest {
 
         // ensure that the entity list is filtered by the received callout
         // result data (fingerprint identification list with confidence score)
+        loadList();
         assertEquals(5, adapter.getCurrentCount());
         assertTrue(adapter.isFilteringByCalloutResult());
         assertTrue(adapter.hasCalloutResponseData());
@@ -129,10 +131,6 @@ public class EntityListCalloutDataTest {
 
     private void loadList() {
         // wait for entities to load
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
-        // wait for string filterer to run on ""
-        // the string filterer probably doesn't filter at this point...
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
 

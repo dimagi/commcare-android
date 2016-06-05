@@ -7,6 +7,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.resources.ResourceManager;
 import org.commcare.resources.model.Resource;
@@ -30,7 +31,8 @@ import javax.net.ssl.SSLHandshakeException;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ResourceInstallUtils {
-    private static final String DEFAULT_APP_SERVER_KEY = CommCarePreferences.PREFS_APP_SERVER_KEY;
+    private static final String DEFAULT_APP_SERVER_KEY =
+            CommCareServerPreferences.PREFS_APP_SERVER_KEY;
 
     /**
      * @return Is the current app's designated upgrade table staged and ready

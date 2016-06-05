@@ -65,6 +65,13 @@ public class DevSessionRestorer {
         return BuildConfig.DEBUG && DeveloperPreferences.isAutoLoginEnabled();
     }
 
+    public static void enableAutoLogin() {
+        CommCareApplication._().getCurrentApp().getAppPreferences()
+                .edit()
+                .putString(DeveloperPreferences.ENABLE_AUTO_LOGIN, CommCarePreferences.YES)
+                .apply();
+    }
+
     public static void clearPassword(SharedPreferences prefs) {
         prefs.edit().remove(CommCarePreferences.LAST_PASSWORD).commit();
     }
@@ -153,6 +160,9 @@ public class DevSessionRestorer {
     }
 
     private static void clearSession(SharedPreferences prefs) {
-        prefs.edit().remove(CommCarePreferences.CURRENT_SESSION).commit();
+        prefs.edit()
+                .remove(CommCarePreferences.CURRENT_SESSION)
+                .remove(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION)
+                .commit();
     }
 }

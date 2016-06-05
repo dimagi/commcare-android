@@ -8,6 +8,7 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.CommCareSetupActivity;
 import org.commcare.android.logging.ReportingUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.preferences.CommCarePreferences;
@@ -152,6 +153,10 @@ public class GoogleAnalyticsUtils {
         reportEvent(category, GoogleAnalyticsFields.ACTION_VIEW_PREF, label);
     }
 
+    public static void reportAdvancedActionItemClick(String action) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_ADVANCED_ACTIONS, action);
+    }
+
     /**
      * Report a user event of changing the value of an item in a preferences menu
      */
@@ -208,12 +213,11 @@ public class GoogleAnalyticsUtils {
                 GoogleAnalyticsFields.ACTION_OPEN_ARCHIVED_FORM, label);
     }
 
-    public static void reportAppInstall() {
-        reportEvent(GoogleAnalyticsFields.CATEGORY_PRE_LOGIN_STATS,
-                GoogleAnalyticsFields.ACTION_APP_INSTALL,
+    public static void reportAppInstall(int lastInstallModeCode) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_APP_INSTALL,
+                CommCareSetupActivity.getAnalyticsActionFromInstallMode(lastInstallModeCode),
                 CommCareApplication._().getCurrentVersionString());
     }
-
 
     /**
      * Report a user event of navigating backward out of the entity detail screen
@@ -241,6 +245,26 @@ public class GoogleAnalyticsUtils {
                 action,
                 isSwipe ? GoogleAnalyticsFields.LABEL_SWIPE : GoogleAnalyticsFields.LABEL_ARROW,
                 isSingleTab ? GoogleAnalyticsFields.VALUE_DOESNT_HAVE_TABS : GoogleAnalyticsFields.VALUE_HAS_TABS);
+    }
+
+    /**
+     * Report usage of a specific feature
+     *
+     * @param action - Should be one of the actions listed under
+     *               "Actions for CATEGORY_FEATURE_USAGE" in GoogleAnalyticsFields.java
+     */
+    public static void reportFeatureUsage(String action) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_FEATURE_USAGE, action);
+    }
+
+    /**
+     * Report an action in the app manager
+     *
+     * @param action - Should be one of the actions listed under
+     *               "Actions for CATEGORY_APP_MANAGER" in GoogleAnalyticsFields.java
+     */
+    public static void reportAppManagerAction(String action) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_APP_MANAGER, action);
     }
 
     /**

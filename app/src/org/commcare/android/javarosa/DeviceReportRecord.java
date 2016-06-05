@@ -8,7 +8,6 @@ import org.commcare.models.framework.Table;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
-import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.utils.DateUtils;
 
 import java.io.File;
@@ -46,7 +45,7 @@ public class DeviceReportRecord extends Persisted implements EncryptedModel {
         this.aesKey = aesKey;
     }
 
-    public static DeviceReportRecord generateNewRecordStub() throws SessionUnavailableException {
+    public static DeviceReportRecord generateNewRecordStub() {
         DeviceReportRecord slr = new DeviceReportRecord();
         slr.fileName = new File(
                 CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_LOGS))

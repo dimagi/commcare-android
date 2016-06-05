@@ -54,7 +54,7 @@ public class GraphView {
      * any changes to graph's configuration, title, etc.
      */
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    public View getView(String html) {
+    public WebView getView(String html) {
         if (BuildConfig.DEBUG) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
@@ -105,13 +105,17 @@ public class GraphView {
             variables.put("type", "'" + graphData.getType() + "'");
             variables.put("config", config.toString());
 
+            // For debugging purposes, note that most minified files have un-minified equivalents in the same directory.
+            // To use them, switch affix to "max" and get rid of the ignoreAssetsPattern in build.gradle that
+            // filters them out of the APK.
+            String affix = "min";
             html.append(
                     "<html>" +
                             "<head>" +
                             "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/c3.min.css'></link>" +
-                            "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph.min.css'></link>" +
+                            "<link rel='stylesheet' type='text/css' href='file:///android_asset/graphing/graph." + affix + ".css'></link>" +
                             "<script type='text/javascript' src='file:///android_asset/graphing/d3.min.js'></script>" +
-                            "<script type='text/javascript' src='file:///android_asset/graphing/c3.min.js' charset='utf-8'></script>" +
+                            "<script type='text/javascript' src='file:///android_asset/graphing/c3." + affix + ".js' charset='utf-8'></script>" +
                             "<script type='text/javascript'>try {\n");
 
             html.append(getVariablesHTML(variables, null));
@@ -125,7 +129,7 @@ public class GraphView {
             String chartHTML = "<div id='chart'></div>";
             html.append(
                     "\n} catch (e) { displayError(e); }</script>" +
-                            "<script type='text/javascript' src='file:///android_asset/graphing/graph.min.js'></script>" +
+                            "<script type='text/javascript' src='file:///android_asset/graphing/graph." + affix + ".js'></script>" +
                             "</head>" +
                             "<body>" + titleHTML + errorHTML + chartHTML + "</body>" +
                             "</html>");

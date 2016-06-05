@@ -38,7 +38,6 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -55,8 +54,8 @@ import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.views.media.MediaLayout;
-import org.odk.collect.android.jr.extensions.IntentCallout;
-import org.odk.collect.android.jr.extensions.PollSensorAction;
+import org.commcare.android.javarosa.IntentCallout;
+import org.commcare.android.javarosa.PollSensorAction;
 import org.commcare.interfaces.AdvanceToNextListener;
 import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.interfaces.FormSavedListener;
@@ -68,7 +67,6 @@ import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.logic.FormController;
 import org.commcare.logic.PropertyManager;
 import org.commcare.models.ODKStorage;
-import org.commcare.models.database.DbUtil;
 import org.commcare.preferences.FormEntryPreferences;
 import org.commcare.provider.FormsProviderAPI.FormsColumns;
 import org.commcare.provider.InstanceProviderAPI;
@@ -247,8 +245,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     // database & key session are expiring. Being set causes savingComplete to
     // broadcast a form saving intent.
     private boolean savingFormOnKeySessionExpiration = false;
-    private boolean mGroupForcedInvisible = false;
-    private boolean mGroupNativeVisibility = false;
+    private boolean shouldHideGroupLabel = false;
+    private boolean hasGroupLabel = false;
     private FormEntrySession formEntryRestoreSession;
     private boolean recordEntrySession;
     enum AnimationType {
@@ -1125,22 +1123,21 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         mViewPane.addView(questionsView, lp);
 
         questionsView.startAnimation(mInAnimation);
-
-        FrameLayout header = (FrameLayout)findViewById(R.id.form_entry_header);
-
-        TextView groupLabel = ((TextView)header.findViewById(R.id.form_entry_group_label));
-
-        this.mGroupNativeVisibility = false;
-        FormLayoutHelpers.updateGroupViewVisibility(this, mGroupNativeVisibility, mGroupForcedInvisible);
-
         questionsView.setFocus(this);
 
+        setupGroupLabel();
+    }
+
+    private void setupGroupLabel() {
+        hasGroupLabel = false;
+        FormLayoutHelpers.updateGroupViewVisibility(this, false, shouldHideGroupLabel);
         SpannableStringBuilder groupLabelText = questionsView.getGroupLabel();
 
         if (groupLabelText != null && !groupLabelText.toString().trim().equals("")) {
+            TextView groupLabel = (TextView)findViewById(R.id.form_entry_group_label);
             groupLabel.setText(groupLabelText);
-            this.mGroupNativeVisibility = true;
-            FormLayoutHelpers.updateGroupViewVisibility(this, mGroupNativeVisibility, mGroupForcedInvisible);
+            hasGroupLabel = true;
+            FormLayoutHelpers.updateGroupViewVisibility(this, true, shouldHideGroupLabel);
         }
     }
 
@@ -1717,6 +1714,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         try {
             FormEntrySessionReplayer.tryReplayingFormEntry(mFormController.getFormEntryController(),
                     formEntryRestoreSession);
+            formEntryRestoreSession = null;
         } catch (FormEntrySessionReplayer.ReplayError e) {
             UserfacingErrorHandling.createErrorDialog(this, e.getMessage(), EXIT);
         }
@@ -1876,7 +1874,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 // intermediate results before they become un-saveable.
                 CommCareApplication._().getSession().registerFormSaveCallback(this);
             } catch (SessionUnavailableException e) {
-                Logger.log(AndroidLogger.TYPE_ERROR_WORKFLOW,
+                Log.w(TAG,
                         "Couldn't register form save callback because session doesn't exist");
             }
         }
@@ -2047,7 +2045,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         try {
             CommCareApplication._().getSession().unregisterFormSaveCallback();
         } catch (SessionUnavailableException sue) {
-            // looks like the session expired
+            // looks like the session expired, swallow exception because we
+            // might be auto-saving a form due to user session expiring
         }
 
         dismissProgressDialog();
@@ -2336,8 +2335,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     protected void onMajorLayoutChange(Rect newRootViewDimensions) {
-        mGroupForcedInvisible =
-                FormLayoutHelpers.determineNumberOfValidGroupLines(this, newRootViewDimensions, mGroupNativeVisibility, mGroupForcedInvisible);
+        shouldHideGroupLabel =
+                FormLayoutHelpers.determineNumberOfValidGroupLines(this, newRootViewDimensions,
+                        hasGroupLabel, shouldHideGroupLabel);
     }
 
 

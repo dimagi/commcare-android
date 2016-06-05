@@ -191,18 +191,18 @@ public class CommCareApp implements AppFilePathBuilder {
         ResourceTable upgrade = platform.getUpgradeResourceTable();
         ResourceTable recovery = platform.getRecoveryTable();
 
-        Log.d(TAG, "Global\n" + global.toString());
-        Log.d(TAG, "Upgrade\n" + upgrade.toString());
-        Log.d(TAG, "Recovery\n" + recovery.toString());
+        logTable("Global", global);
+        logTable("Upgrade", upgrade);
+        logTable("Recovery", recovery);
 
         // See if any of our tables got left in a weird state
         if (global.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
             global.rollbackCommits();
-            Log.d(TAG, "Global after rollback\n" + global.toString());
+            logTable("Global after rollback", global);
         }
         if (upgrade.getTableReadiness() == ResourceTable.RESOURCE_TABLE_UNCOMMITED) {
             upgrade.rollbackCommits();
-            Log.d(TAG, "upgrade after rollback\n" + upgrade.toString());
+            logTable("Upgrade after rollback", upgrade);
         }
 
         // See if we got left in the middle of an update
@@ -232,6 +232,13 @@ public class CommCareApp implements AppFilePathBuilder {
             return true;
         }
         return false;
+    }
+
+    private static void logTable(String name, ResourceTable table) {
+        if (BuildConfig.DEBUG) {
+            // Avoid printing resource tables in production; it's expensive
+            Log.d(TAG, name + "\n" + table.toString());
+        }
     }
 
     private void initializeStylizer() {
@@ -341,7 +348,7 @@ public class CommCareApp implements AppFilePathBuilder {
     /**
      * For testing purposes only
      */
-    public static SQLiteDatabase getAppDatabaseForTesting() throws SessionUnavailableException {
+    public static SQLiteDatabase getAppDatabaseForTesting() {
         if (BuildConfig.DEBUG) {
             return CommCareApplication._().getCurrentApp().buildAndroidDbHelper().getHandle();
         } else {

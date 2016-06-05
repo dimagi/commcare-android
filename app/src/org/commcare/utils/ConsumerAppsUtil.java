@@ -3,6 +3,7 @@ package org.commcare.utils;
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareHomeActivity;
 import org.commcare.engine.resource.installers.SingleAppInstallation;
+import org.commcare.views.dialogs.CustomProgressDialog;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
@@ -19,14 +20,10 @@ import java.io.InputStream;
 public class ConsumerAppsUtil {
 
     public static void checkForChangedLocalRestoreFile(CommCareHomeActivity context) {
-        try {
-            User loggedInUser = CommCareApplication._().getSession().getLoggedInUser();
-            if (!loggedInUser.getLastSyncToken().equals(ConsumerAppsUtil.getSyncTokenOfLocalRestoreFile())) {
-                context.getFormAndDataSyncer().performLocalRestore(
-                        context, loggedInUser.getUsername(), loggedInUser.getCachedPwd());
-            }
-        } catch (SessionUnavailableException sue) {
-
+        User loggedInUser = CommCareApplication._().getSession().getLoggedInUser();
+        if (!loggedInUser.getLastSyncToken().equals(ConsumerAppsUtil.getSyncTokenOfLocalRestoreFile())) {
+            context.getFormAndDataSyncer().performLocalRestore(
+                    context, loggedInUser.getUsername(), loggedInUser.getCachedPwd());
         }
     }
 
@@ -49,5 +46,14 @@ public class ConsumerAppsUtil {
             return null;
         }
         return null;
+    }
+
+    public static CustomProgressDialog getGenericConsumerAppsProgressDialog(int taskId, boolean addProgressBar) {
+        CustomProgressDialog d = CustomProgressDialog
+                .newInstance("Starting Up", "Initializing your application...", taskId);
+        if (addProgressBar) {
+            d.addProgressBar();
+        }
+        return d;
     }
 }

@@ -7,7 +7,6 @@ import android.widget.ImageButton;
 
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
-import org.commcare.activities.CommCareHomeActivity;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.user.models.FormRecord;

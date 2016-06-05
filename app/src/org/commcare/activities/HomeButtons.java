@@ -201,7 +201,7 @@ public class HomeButtons {
             public void onClick(View v) {
                 reportButtonClick(GoogleAnalyticsFields.LABEL_REPORT_BUTTON);
                 Intent i = new Intent(activity, ReportProblemActivity.class);
-                activity.startActivityForResult(i, CommCareHomeActivity.REPORT_PROBLEM_ACTIVITY);
+                activity.startActivity(i);
             }
         };
     }

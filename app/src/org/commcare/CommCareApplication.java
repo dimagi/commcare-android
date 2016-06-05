@@ -61,10 +61,10 @@ import org.commcare.logging.analytics.TimedStatsTracker;
 import org.commcare.models.AndroidClassHasher;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.AndroidDbHelper;
-import org.commcare.models.database.DbUtil;
 import org.commcare.models.database.HybridFileBackedSqlHelpers;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.MigrationException;
+import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.database.app.DatabaseAppOpenHelper;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -73,7 +73,11 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.framework.Table;
 import org.commcare.models.legacy.LegacyInstallUtils;
+import org.commcare.network.DataPullRequester;
+import org.commcare.network.DataPullResponseFactory;
+import org.commcare.network.ModernHttpRequester;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.provider.ProviderUtils;
 import org.commcare.services.CommCareSessionService;
@@ -110,11 +114,13 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
@@ -236,8 +242,6 @@ public class CommCareApplication extends Application {
         //we aren't going to dump our logs from the Pre-init logger until after this transition occurs.
         try {
             LegacyInstallUtils.checkForLegacyInstall(this, this.getGlobalStorage(ApplicationRecord.class));
-        } catch (SessionUnavailableException sfe) {
-            throw new RuntimeException(sfe);
         } finally {
             //No matter what happens, set up our new logger, we want those logs!
             setupLoggerStorage(false);
@@ -273,18 +277,22 @@ public class CommCareApplication extends Application {
         c.startActivity(i);
     }
 
-    public static void restartCommCare(Activity activity) {
-        Intent intent = new Intent(activity, DispatchActivity.class);
+    public static void restartCommCare(Activity originActivity) {
+        restartCommCare(originActivity, DispatchActivity.class);
+    }
 
-        // Make sure that the new stack starts with a dispatch activity, and clear everything
+    public static void restartCommCare(Activity originActivity, Class c) {
+        Intent intent = new Intent(originActivity, c);
+
+        // Make sure that the new stack starts with the given class, and clear everything
         // between.
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP |
                 Intent.FLAG_ACTIVITY_SINGLE_TOP |
                 Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
 
-        activity.moveTaskToBack(true);
-        activity.startActivity(intent);
-        activity.finish();
+        originActivity.moveTaskToBack(true);
+        originActivity.startActivity(intent);
+        originActivity.finish();
 
         System.exit(0);
     }
@@ -342,7 +350,7 @@ public class CommCareApplication extends Application {
         TimedStatsTracker.registerEndSession(userBeingLoggedOut);
     }
 
-    public SecretKey createNewSymmetricKey() throws SessionUnavailableException {
+    public SecretKey createNewSymmetricKey() {
         return getSession().createNewSymmetricKey();
     }
 
@@ -719,7 +727,7 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public SQLiteDatabase getUserDbHandle() throws SessionUnavailableException {
+    public SQLiteDatabase getUserDbHandle() {
         return this.getSession().getUserDbHandle();
     }
 
@@ -767,17 +775,13 @@ public class CommCareApplication extends Application {
     }
 
     public String getUserKeyRecordId() {
-        try {
-            return getSession().getUserKeyRecordUUID();
-        } catch (SessionUnavailableException e) {
-            throw new RuntimeException(e);
-        }
+        return getSession().getUserKeyRecordUUID();
     }
 
     protected AndroidDbHelper buildUserDbHandle() {
         return new AndroidDbHelper(this.getApplicationContext()) {
             @Override
-            public SQLiteDatabase getHandle() throws SessionUnavailableException {
+            public SQLiteDatabase getHandle() {
                 SQLiteDatabase database = getUserDbHandle();
                 if (database == null) {
                     throw new SessionUnavailableException("The user database has been closed!");
@@ -826,11 +830,7 @@ public class CommCareApplication extends Application {
 //        getStorage(GeocodeCacheModel.STORAGE_KEY, GeocodeCacheModel.class).removeAll();
 
         final String username;
-        try {
-            username = this.getSession().getLoggedInUser().getUsername();
-        } catch (SessionUnavailableException e) {
-            return;
-        }
+        username = this.getSession().getLoggedInUser().getUsername();
 
         final Set<String> dbIdsToRemove = new HashSet<>();
 
@@ -1016,7 +1016,7 @@ public class CommCareApplication extends Application {
         //Create a new submission task no matter what. If nothing is pending, it'll see if there are unsent reports
         //and try to send them. Otherwise, it'll create the report
         SharedPreferences settings = CommCareApplication._().getCurrentApp().getAppPreferences();
-        String url = settings.getString(CommCarePreferences.PREFS_SUBMISSION_URL_KEY, null);
+        String url = settings.getString(CommCareServerPreferences.PREFS_SUBMISSION_URL_KEY, null);
 
         if (url == null) {
             Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "PostURL isn't set. This should never happen");
@@ -1025,13 +1025,8 @@ public class CommCareApplication extends Application {
 
         DataSubmissionListener dataListener;
 
-        try {
-            dataListener =
-                    CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title);
-        } catch (SessionUnavailableException sue) {
-            // abort since it looks like the session expired
-            return;
-        }
+        dataListener =
+                CommCareApplication.this.getSession().startDataSubmissionListener(R.string.submission_logs_title);
 
         LogSubmissionTask task = new LogSubmissionTask(
                 force || isPending(settings.getLong(CommCarePreferences.LOG_LAST_DAILY_SUBMIT, 0), DateUtils.DAY_IN_MILLIS),
@@ -1162,7 +1157,7 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public CommCareSessionService getSession() throws SessionUnavailableException {
+    public CommCareSessionService getSession() {
         long started = System.currentTimeMillis();
         //If binding is currently in process, just wait for it.
         while (mIsBinding) {
@@ -1183,7 +1178,7 @@ public class CommCareApplication extends Application {
     }
 
 
-    public UserKeyRecord getRecordForCurrentUser() throws SessionUnavailableException {
+    public UserKeyRecord getRecordForCurrentUser() {
         return getSession().getUserKeyRecord();
     }
 
@@ -1474,6 +1469,17 @@ public class CommCareApplication extends Application {
         return false;
     }
 
+    public ModernHttpRequester buildModernHttpRequester(Context context, URL url,
+                                                        HashMap<String, String> params,
+                                                        boolean isAuthenticatedRequest,
+                                                        boolean isPostRequest) {
+        return new ModernHttpRequester(context, url, params, isAuthenticatedRequest, isPostRequest);
+    }
+
+    public DataPullRequester getDataPullRequester(){
+        return DataPullResponseFactory.INSTANCE;
+    }
+
     /**
      * A consumer app is a CommCare build flavor in which the .ccz and restore file for a specific
      * app and user have been pre-packaged along with CommCare into a custom .apk, and placed on
@@ -1484,7 +1490,6 @@ public class CommCareApplication extends Application {
     }
 
     public PrototypeFactory getPrototypeFactory(Context c) {
-        return DbUtil.getPrototypeFactory(c);
+        return AndroidPrototypeFactorySetup.getPrototypeFactory(c);
     }
-
 }
