@@ -172,7 +172,8 @@ public class SingleAppManagerActivity extends CommCareActivity {
         GoogleAnalyticsUtils.reportAppManagerAction(GoogleAnalyticsFields.ACTION_UNINSTALL_APP);
         CommCareApplication._().expireUserSession();
         CommCareApplication._().uninstall(appRecord);
-        CommCareApplication.restartCommCare(SingleAppManagerActivity.this, AppManagerActivity.class);
+        CommCareApplication.restartCommCare(
+                SingleAppManagerActivity.this, AppManagerActivity.class, false);
     }
 
     /**

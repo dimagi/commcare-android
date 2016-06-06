@@ -39,7 +39,7 @@ public class UnrecoverableErrorActivity extends Activity {
         StandardAlertDialog d = new StandardAlertDialog(this, title, message);
         DialogInterface.OnClickListener buttonListener = new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int i) {
-                CommCareApplication.restartCommCare(UnrecoverableErrorActivity.this);
+                CommCareApplication.restartCommCare(UnrecoverableErrorActivity.this, true);
             }
         };
         d.setPositiveButton(Localization.get("app.storage.missing.button"), buttonListener);
