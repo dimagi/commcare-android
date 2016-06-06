@@ -14,9 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
-import org.robolectric.shadows.ShadowListView;
 
 import static org.junit.Assert.assertEquals;
 
@@ -50,8 +48,6 @@ public class FormRecordListActivityTest {
         IncompleteFormListAdapter adapter = (IncompleteFormListAdapter)entityList.getAdapter();
         adapter.setFormFilter(FormRecordListActivity.FormRecordFilter.Submitted);
         adapter.resetRecords();
-        ShadowListView shadowListView = Shadows.shadowOf(entityList);
-        shadowListView.populateItems();
         assertEquals(2, adapter.getCount());
     }
 }
