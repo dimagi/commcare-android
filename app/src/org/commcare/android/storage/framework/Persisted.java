@@ -51,8 +51,7 @@ public class Persisted implements Persistable, IMetaData {
                 orderings = new ArrayList<>();
                 fieldOrderings.put(this.getClass(), orderings);
             }
-        }
-        synchronized (orderings) {
+
             if (orderings.size() == 0) {
                 for (Field f : this.getClass().getDeclaredFields()) {
                     if (f.isAnnotationPresent(Persisting.class)) {
