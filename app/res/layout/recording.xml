@@ -12,6 +12,14 @@
         android:text = "Start Recording"
         android:id = "@+id/startrecording"/>
 
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:indeterminate="true"
+        android:id = "@+id/recordingprogress"/>
+
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
