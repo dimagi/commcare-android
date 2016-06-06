@@ -97,6 +97,7 @@ public class AudioPrototype extends AudioWidget{
         }
 
         mRecorder.start();
+        start.setEnabled(false);
         stop.setEnabled(true);
     }
 
@@ -111,6 +112,7 @@ public class AudioPrototype extends AudioWidget{
         mChooseButton.setVisibility(VISIBLE);
 
         stop.setEnabled(false);
+        start.setEnabled(true);
 
         ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 
