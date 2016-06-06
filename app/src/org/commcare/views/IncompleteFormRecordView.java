@@ -6,6 +6,7 @@ import android.graphics.drawable.Drawable;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -29,10 +30,9 @@ public class IncompleteFormRecordView extends LinearLayout {
     private final TextView mLowerTextView;
     public final TextView mRightTextView;
     private final TextView mUpperRight;
+    private final ImageView syncIcon;
 
     private final Date start;
-
-    private Drawable rightHandSync;
 
     public IncompleteFormRecordView(Context context) {
         super(context);
@@ -42,11 +42,12 @@ public class IncompleteFormRecordView extends LinearLayout {
         mLowerTextView = (TextView)vg.findViewById(R.id.formrecord_txt_btm);
         mRightTextView = (TextView)vg.findViewById(R.id.formrecord_txt_right);
         mUpperRight = (TextView)vg.findViewById(R.id.formrecord_txt_upp_right);
+        syncIcon = (ImageView)vg.findViewById(R.id.formrecord_sync_icon);
 
         mPrimaryTextView.setTextAppearance(context, android.R.style.TextAppearance_Large);
         mUpperRight.setTextAppearance(context, android.R.style.TextAppearance_Large);
 
-        LayoutParams l = new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+        LayoutParams l = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
         addView(vg, l);
 
         start = new Date();
@@ -75,13 +76,7 @@ public class IncompleteFormRecordView extends LinearLayout {
             mUpperRight.setText(MarkupUtil.localizeStyleSpannable(getContext(), "form.record.unsent"));
             mUpperRight.setTextAppearance(getContext(), R.style.WarningTextStyle);
 
-            if (rightHandSync == null) {
-                rightHandSync = getContext().getResources().getDrawable(android.R.drawable.stat_notify_sync_noanim);
-                if (rightHandSync != null) {
-                    rightHandSync.setColorFilter(getResources().getColor(R.color.cc_neutral_color), PorterDuff.Mode.SRC_ATOP);
-                }
-            }
-            mUpperRight.setCompoundDrawablesWithIntrinsicBounds(null, null, rightHandSync, null);
+            syncIcon.setVisibility(View.VISIBLE);
         } else {
             mUpperRight.setText("");
             mUpperRight.setCompoundDrawables(null, null, null, null);
