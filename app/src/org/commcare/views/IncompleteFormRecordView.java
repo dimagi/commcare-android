@@ -1,8 +1,6 @@
 package org.commcare.views;
 
 import android.content.Context;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
 import android.text.format.DateUtils;
 import android.view.View;
 import android.view.ViewGroup;

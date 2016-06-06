@@ -4,7 +4,8 @@
     android:layout_width="wrap_content"
     android:layout_height="fill_parent"
     android:orientation="horizontal"
-    android:paddingRight="@dimen/content_min_margin" >
+    android:paddingRight="@dimen/row_padding_vertical"
+    android:paddingLeft="@dimen/row_padding_vertical" >
 
     <ImageView
         android:padding="@dimen/cell_padding_horizontal"
@@ -31,15 +32,18 @@
             android:layout_alignParentRight="true"
             android:id="@+id/formrecord_txt_upp_right"
             android:layout_above="@+id/formrecord_txt_right"
+            style="@style/WarningTextStyle"
             android:textColor="@color/cc_neutral_color"
             android:gravity="right"/>
+
         <ImageView
             android:id="@+id/formrecord_sync_icon"
             android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:layout_alignLeftOf="@id/formrecord_txt_upp_right"
+            android:layout_toLeftOf="@id/formrecord_txt_upp_right"
+            android:layout_above="@+id/formrecord_txt_right"
             android:tint="@color/cc_neutral_color"
             android:tintMode="src_atop"
             android:src="@android:drawable/stat_notify_sync_noanim"/>
