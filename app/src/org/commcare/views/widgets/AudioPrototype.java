@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
@@ -29,6 +30,7 @@ public class AudioPrototype extends AudioWidget{
     private Button start;
     private Button stop;
     private LinearLayout myLayout;
+    private ProgressBar myProgress;
 
     public AudioPrototype(Context context, FormEntryPrompt prompt, PendingCalloutInterface pic){
         super(context, prompt, pic);
@@ -49,6 +51,7 @@ public class AudioPrototype extends AudioWidget{
 
         start = (Button) myLayout.findViewById(R.id.startrecording);
         stop = (Button) myLayout.findViewById(R.id.stoprecording);
+        myProgress = (ProgressBar) myLayout.findViewById(R.id.recordingprogress);
 
         start.setOnClickListener(new OnClickListener() {
             @Override
@@ -97,6 +100,7 @@ public class AudioPrototype extends AudioWidget{
         }
 
         mRecorder.start();
+        myProgress.setVisibility(VISIBLE);
         start.setEnabled(false);
         stop.setEnabled(true);
     }
@@ -113,6 +117,7 @@ public class AudioPrototype extends AudioWidget{
 
         stop.setEnabled(false);
         start.setEnabled(true);
+        myProgress.setVisibility(GONE);
 
         ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
 
