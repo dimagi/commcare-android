@@ -58,7 +58,7 @@ public class PurgeStaleArchivedFormsTask
         synchronized (lock) {
             if (singletonRunningInstance == null) {
                 singletonRunningInstance = new PurgeStaleArchivedFormsTask();
-                singletonRunningInstance.execute();
+                singletonRunningInstance.executeParallel();
             }
         }
     }

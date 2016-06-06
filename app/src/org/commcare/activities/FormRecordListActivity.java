@@ -635,6 +635,11 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
     @Override
     public void handleTaskCompletion(Void result) {
         dismissProgressDialog();
+
+        // reload form list to make sure purged forms aren't shown
+        if (adapter != null) {
+            adapter.resetRecords();
+        }
     }
 
     /**
