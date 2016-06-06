@@ -77,7 +77,7 @@ public class IncompleteFormRecordView extends LinearLayout {
             syncIcon.setVisibility(View.VISIBLE);
         } else {
             mUpperRight.setText("");
-            mUpperRight.setCompoundDrawables(null, null, null, null);
+            syncIcon.setVisibility(View.GONE);
         }
     }
 }
