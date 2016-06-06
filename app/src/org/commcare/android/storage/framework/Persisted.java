@@ -28,6 +28,7 @@ import java.util.List;
  *
  * @author ctsims
  */
+@SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
 public class Persisted implements Persistable, IMetaData {
 
     protected int recordId = -1;
@@ -59,7 +60,8 @@ public class Persisted implements Persistable, IMetaData {
 
     private static void readVal(Field f, Object o, DataInputStream in)
             throws DeserializationException, IOException, IllegalAccessException {
-        synchronized (fieldOrderings) {
+        synchronized (f) {
+            // 'f' is a cached field: sync access across threads
             Persisting p = f.getAnnotation(Persisting.class);
             Class type = f.getType();
             try {
@@ -109,7 +111,8 @@ public class Persisted implements Persistable, IMetaData {
 
     private static void writeVal(Field f, Object o, DataOutputStream out)
             throws IOException, IllegalAccessException {
-        synchronized (fieldOrderings) {
+        synchronized (f) {
+            // 'f' is a cached field: sync access across threads
             try {
                 Persisting p = f.getAnnotation(Persisting.class);
                 Class type = f.getType();
@@ -170,42 +173,40 @@ public class Persisted implements Persistable, IMetaData {
     public String[] getMetaDataFields() {
         ArrayList<String> fields = new ArrayList<>();
 
-        addClassFieldsToMetas(fields, getClass());
-        addClassMethodsToMetas(fields, getClass());
+        synchronized (fieldOrderings) {
+            addClassFieldsToMetas(fields, getClass());
+            addClassMethodsToMetas(fields, getClass());
+        }
 
         return fields.toArray(new String[fields.size()]);
     }
 
     private static void addClassFieldsToMetas(List<String> fields, Class persistedClass) {
-        synchronized (fieldOrderings) {
-            for (Field f : persistedClass.getDeclaredFields()) {
-                try {
-                    f.setAccessible(true);
+        for (Field f : persistedClass.getDeclaredFields()) {
+            try {
+                f.setAccessible(true);
 
-                    if (f.isAnnotationPresent(MetaField.class)) {
-                        MetaField mf = f.getAnnotation(MetaField.class);
-                        fields.add(mf.value());
-                    }
-                } finally {
-                    f.setAccessible(false);
+                if (f.isAnnotationPresent(MetaField.class)) {
+                    MetaField mf = f.getAnnotation(MetaField.class);
+                    fields.add(mf.value());
                 }
+            } finally {
+                f.setAccessible(false);
             }
         }
     }
 
     private static void addClassMethodsToMetas(List<String> fields, Class persistedClass) {
-        synchronized (fieldOrderings) {
-            for (Method m : persistedClass.getDeclaredMethods()) {
-                try {
-                    m.setAccessible(true);
+        for (Method m : persistedClass.getDeclaredMethods()) {
+            try {
+                m.setAccessible(true);
 
-                    if (m.isAnnotationPresent(MetaField.class)) {
-                        MetaField mf = m.getAnnotation(MetaField.class);
-                        fields.add(mf.value());
-                    }
-                } finally {
-                    m.setAccessible(false);
+                if (m.isAnnotationPresent(MetaField.class)) {
+                    MetaField mf = m.getAnnotation(MetaField.class);
+                    fields.add(mf.value());
                 }
+            } finally {
+                m.setAccessible(false);
             }
         }
     }
