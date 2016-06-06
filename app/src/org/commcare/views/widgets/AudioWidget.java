@@ -40,9 +40,9 @@ import java.io.IOException;
 public class AudioWidget extends QuestionWidget {
     private static final String TAG = AudioWidget.class.getSimpleName();
 
-    private final Button mCaptureButton;
-    private final Button mPlayButton;
-    private final Button mChooseButton;
+    protected final Button mCaptureButton;
+    protected final Button mPlayButton;
+    protected final Button mChooseButton;
     private final PendingCalloutInterface pendingCalloutInterface;
 
     protected String mBinaryName;
