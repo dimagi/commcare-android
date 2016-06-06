@@ -1,9 +1,12 @@
 package org.commcare.views.widgets;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.media.MediaRecorder;
 import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -33,11 +36,8 @@ public class AudioPrototype extends AudioWidget{
         mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
         mFileName += "/tester.3gpp";
 
-        //TODO: Change play button to play directly using the speaker, not some external app
-        //TODO: Set up a directory for CommCare audio so that they don't just sit around in the storage directory
-        //TODO: Currently recording just puts files somewhere on the file system, and the choose button allows user to select files
-        //TODO:        off the file system and copies them into CommCare directory. Change it so that recording saves into that directory,
-        //TODO:        and the setBinaryData() method doesn't copy them if they're already there
+        //TODO: Figure out what to do with files. Store them all on file system (What dir?)? Delete them every time? Overwrite every time?
+        //TODO: Figure out how to preserve recording view and mRecorder when screen is turned...for now I just disabled rotation while recording.
     }
 
     @Override
@@ -62,6 +62,7 @@ public class AudioPrototype extends AudioWidget{
                 stopRecording();
             }
         });
+        stop.setEnabled(false);
 
         addView(myLayout);
         myLayout.setVisibility(GONE);
@@ -72,11 +73,18 @@ public class AudioPrototype extends AudioWidget{
     @Override
     protected void captureAudio(FormEntryPrompt prompt){
         myLayout.setVisibility(VISIBLE);
+        mCaptureButton.setVisibility(GONE);
+        mPlayButton.setVisibility(GONE);
+        mChooseButton.setVisibility(GONE);
     }
 
     private void startRecording(){
 
-        mRecorder = new MediaRecorder();
+        ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
+
+        if(mRecorder == null){
+           mRecorder = new MediaRecorder();
+       }
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         mRecorder.setOutputFile(mFileName);
@@ -89,6 +97,7 @@ public class AudioPrototype extends AudioWidget{
         }
 
         mRecorder.start();
+        stop.setEnabled(true);
     }
 
     private void stopRecording(){
@@ -96,5 +105,14 @@ public class AudioPrototype extends AudioWidget{
         mRecorder.release();
         mRecorder = null;
         myLayout.setVisibility(GONE);
+
+        mCaptureButton.setVisibility(VISIBLE);
+        mPlayButton.setVisibility(VISIBLE);
+        mChooseButton.setVisibility(VISIBLE);
+
+        stop.setEnabled(false);
+
+        ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+
     }
 }
