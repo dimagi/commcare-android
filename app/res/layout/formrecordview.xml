@@ -23,7 +23,7 @@
             android:layout_alignParentRight="true"
             android:id="@+id/formrecord_txt_right"
             android:textColor="?attr/filter_select_text_color"
-            android:layout_alignParentBottom="true"></TextView>
+            android:layout_alignParentBottom="true"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -31,8 +31,8 @@
             android:layout_alignParentRight="true"
             android:id="@+id/formrecord_txt_upp_right"
             android:layout_above="@+id/formrecord_txt_right"
-            android:textColor="?attr/filter_select_text_color"
-            android:gravity="right"></TextView>
+            android:textColor="@color/cc_neutral_color"
+            android:gravity="right"/>
 
         <TextView
             android:layout_width="wrap_content"
@@ -42,13 +42,13 @@
             android:layout_alignParentTop="true"
             android:gravity="left"
             android:textColor="?attr/filter_select_text_color"
-            android:layout_toLeftOf="@id/formrecord_txt_upp_right"></TextView>
+            android:layout_toLeftOf="@id/formrecord_txt_upp_right"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/formrecord_txt_btm"
             android:textColor="?attr/filter_select_text_color"
-            android:layout_below="@+id/formrecord_txt_main"></TextView>
+            android:layout_below="@+id/formrecord_txt_main"/>
     </RelativeLayout>
 </LinearLayout>

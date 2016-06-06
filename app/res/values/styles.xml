@@ -69,7 +69,6 @@
 
     <style name="WarningTextStyle">
         <item name="android:textStyle">bold</item>
-        <item name="android:textColor">@color/white</item>
     </style>
 
     <dimen name="menu_icon_size">60dp</dimen>

@@ -1,6 +1,7 @@
 package org.commcare.views;
 
 import android.content.Context;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.text.format.DateUtils;
 import android.view.View;
@@ -32,7 +33,7 @@ public class IncompleteFormRecordView extends LinearLayout {
     private final Hashtable<String, Text> names;
     private final Date start;
 
-    private final Drawable rightHandSync;
+    private Drawable rightHandSync;
 
     public IncompleteFormRecordView(Context context, Hashtable<String, Text> names) {
         super(context);
@@ -53,7 +54,6 @@ public class IncompleteFormRecordView extends LinearLayout {
 
         start = new Date();
 
-        rightHandSync = context.getResources().getDrawable(android.R.drawable.stat_notify_sync_noanim);
     }
 
     public void setParams(FormRecord record, String dataTitle, Long timestamp) {
@@ -77,6 +77,13 @@ public class IncompleteFormRecordView extends LinearLayout {
         if (FormRecord.STATUS_UNSENT.equals(record.getStatus())) {
             mUpperRight.setText(MarkupUtil.localizeStyleSpannable(getContext(), "form.record.unsent"));
             mUpperRight.setTextAppearance(getContext(), R.style.WarningTextStyle);
+
+            if (rightHandSync == null) {
+                rightHandSync = getContext().getResources().getDrawable(android.R.drawable.stat_notify_sync_noanim);
+                if (rightHandSync != null) {
+                    rightHandSync.setColorFilter(getResources().getColor(R.color.cc_neutral_color), PorterDuff.Mode.SRC_ATOP);
+                }
+            }
             mUpperRight.setCompoundDrawablesWithIntrinsicBounds(null, null, rightHandSync, null);
         } else {
             mUpperRight.setText("");
