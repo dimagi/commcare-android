@@ -117,7 +117,12 @@ public class WidgetFactory {
                 }
                 break;
             case Constants.CONTROL_AUDIO_CAPTURE:
-                questionWidget = new AudioWidget(context, fep, pendingCalloutInterface);
+                if(appearance != null){
+                    questionWidget = new AudioPrototype(context, fep, pendingCalloutInterface);
+                }
+                else{
+                    questionWidget = new AudioWidget(context, fep, pendingCalloutInterface);
+                }
                 break;
             case Constants.CONTROL_VIDEO_CAPTURE:
                 questionWidget = new VideoWidget(context, fep, pendingCalloutInterface);
