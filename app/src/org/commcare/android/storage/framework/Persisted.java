@@ -97,6 +97,7 @@ public class Persisted implements Persistable, IMetaData {
     }
 
     private void readVal(Field f, Object o, DataInputStream in) throws DeserializationException, IOException, IllegalAccessException {
+        synchronized (fieldOrderings) {
         Persisting p = f.getAnnotation(Persisting.class);
         Class type = f.getType();
         try {
@@ -130,9 +131,11 @@ public class Persisted implements Persistable, IMetaData {
 
         //By Default
         throw new DeserializationException("Couldn't read persisted type " + f.getType().toString());
+        }
     }
 
     private void writeVal(Field f, Object o, DataOutputStream out) throws IOException, IllegalAccessException {
+        synchronized (fieldOrderings) {
         try {
             Persisting p = f.getAnnotation(Persisting.class);
             Class type = f.getType();
@@ -164,10 +167,12 @@ public class Persisted implements Persistable, IMetaData {
 
         //By Default
         throw new RuntimeException("Couldn't write persisted type " + f.getType().toString());
+        }
     }
 
     @Override
     public String[] getMetaDataFields() {
+        synchronized (fieldOrderings) {
         ArrayList<String> fields = new ArrayList<>();
 
         for (Field f : this.getClass().getDeclaredFields()) {
@@ -198,11 +203,13 @@ public class Persisted implements Persistable, IMetaData {
 
         }
         return fields.toArray(new String[fields.size()]);
+        }
     }
 
     //TODO: This looks like it's gonna be sllllooowwwww
     @Override
     public Object getMetaData(String fieldName) {
+        synchronized (fieldOrderings) {
         try {
             for (Field f : this.getClass().getDeclaredFields()) {
                 try {
@@ -240,6 +247,7 @@ public class Persisted implements Persistable, IMetaData {
         }
         //If we didn't find the field
         throw new IllegalArgumentException("No metadata field " + fieldName + " in the case storage system");
+        }
     }
 
 }
