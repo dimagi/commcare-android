@@ -30,17 +30,14 @@ public class IncompleteFormRecordView extends LinearLayout {
     public final TextView mRightTextView;
     private final TextView mUpperRight;
 
-    private final Hashtable<String, Text> names;
     private final Date start;
 
     private Drawable rightHandSync;
 
-    public IncompleteFormRecordView(Context context, Hashtable<String, Text> names) {
+    public IncompleteFormRecordView(Context context) {
         super(context);
 
         ViewGroup vg = (ViewGroup)View.inflate(context, R.layout.formrecordview, null);
-        this.names = names;
-
         mPrimaryTextView = (TextView)vg.findViewById(R.id.formrecord_txt_main);
         mLowerTextView = (TextView)vg.findViewById(R.id.formrecord_txt_btm);
         mRightTextView = (TextView)vg.findViewById(R.id.formrecord_txt_right);
@@ -53,10 +50,10 @@ public class IncompleteFormRecordView extends LinearLayout {
         addView(vg, l);
 
         start = new Date();
-
     }
 
-    public void setParams(FormRecord record, String dataTitle, Long timestamp) {
+    public void setParams(FormRecord record, String dataTitle,
+                          Long timestamp, Hashtable<String, Text> names) {
         if (names.containsKey(record.getFormNamespace())) {
             Text name = names.get(record.getFormNamespace());
             mPrimaryTextView.setText(MarkupUtil.styleSpannable(getContext(), name.evaluate()));
