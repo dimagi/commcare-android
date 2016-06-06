@@ -1200,8 +1200,9 @@ public class CommCareHomeActivity
 
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
+    public boolean onPrepareOptionsMenuSessionSafe(Menu menu) {
+        super.onPrepareOptionsMenuSessionSafe(menu);
+
         GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN);
         //In Holo theme this gets called on startup
         User u = CommCareApplication._().getSession().getLoggedInUser();

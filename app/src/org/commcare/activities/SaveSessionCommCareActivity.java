@@ -25,8 +25,8 @@ public abstract class SaveSessionCommCareActivity<R> extends SessionAwareCommCar
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
+    public boolean onPrepareOptionsMenuSessionSafe(Menu menu) {
+        super.onPrepareOptionsMenuSessionSafe(menu);
         menu.findItem(MENU_SAVE_SESSION).setVisible(DeveloperPreferences.isSessionSavingEnabled());
         return true;
     }
