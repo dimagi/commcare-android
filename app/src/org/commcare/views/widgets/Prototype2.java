@@ -58,15 +58,12 @@ public class Prototype2 extends QuestionWidget {
         myPro1.removeQuestionText();
 
         ImageButton openCalButton = new ImageButton(getContext());
-        openCalButton.setImageResource(R.drawable.avatar_vellum_date);
+        openCalButton.setBackgroundResource(R.drawable.avatar_vellum_date);
         myPro1.getMyGreg().addView(openCalButton);
         myPro1.addCalendarButton(openCalButton);
 
         LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) openCalButton.getLayoutParams();
-        params.width = 60;
-        params.height = 60;
-        params.leftMargin = 650;
-
+        params.leftMargin = 700;
     }
 
     @Override

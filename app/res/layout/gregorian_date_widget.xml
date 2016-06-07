@@ -82,7 +82,6 @@
             android:gravity="center"
             android:padding="3dp"
             android:textSize="@dimen/text_larger"
-            android:text="dummy"
             android:inputType="textNoSuggestions"
             android:completionThreshold="1"
             android:dropDownWidth="150dp"/>
