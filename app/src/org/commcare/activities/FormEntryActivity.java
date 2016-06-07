@@ -696,7 +696,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
+    public boolean onPrepareOptionsMenuSessionSafe(Menu menu) {
+        super.onPrepareOptionsMenuSessionSafe(menu);
         GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_FORM_ENTRY);
 
         menu.removeItem(MENU_LANGUAGES);
@@ -710,17 +711,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
         menu.add(0, MENU_HIERARCHY_VIEW, 0, StringUtils.getStringRobust(this, R.string.view_hierarchy)).setIcon(
                 R.drawable.ic_menu_goto);
-
         boolean hasMultipleLanguages =
                 (!(mFormController == null || mFormController.getLanguages() == null || mFormController.getLanguages().length == 1));
         menu.add(0, MENU_LANGUAGES, 0, StringUtils.getStringRobust(this, R.string.change_language))
                 .setIcon(R.drawable.ic_menu_start_conversation)
                 .setEnabled(hasMultipleLanguages);
-
         menu.add(0, MENU_PREFERENCES, 0, StringUtils.getStringRobust(this, R.string.form_entry_settings)).setIcon(
                 android.R.drawable.ic_menu_preferences);
 
-        return super.onPrepareOptionsMenu(menu);
+        return true;
     }
 
     @Override

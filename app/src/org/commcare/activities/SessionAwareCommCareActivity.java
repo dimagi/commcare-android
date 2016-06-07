@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import android.os.Bundle;
+import android.view.Menu;
 
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionUnavailableException;
@@ -12,12 +13,15 @@ import org.commcare.utils.SessionUnavailableException;
  */
 public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R> {
 
+    boolean redirectedToLogin;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         try {
             onCreateSessionSafe(savedInstanceState);
         } catch (SessionUnavailableException e) {
+            redirectedToLogin = true;
             SessionActivityRegistration.redirectToLogin(this);
         }
     }
@@ -38,5 +42,19 @@ public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R
         super.onPause();
 
         SessionActivityRegistration.unregisterSessionExpirationReceiver(this);
+    }
+
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (redirectedToLogin) {
+            return false;
+        }
+        return onPrepareOptionsMenuSessionSafe(menu);
+    }
+
+    public boolean onPrepareOptionsMenuSessionSafe(Menu menu) {
+        // to be implemented by subclasses
+        return true;
     }
 }
