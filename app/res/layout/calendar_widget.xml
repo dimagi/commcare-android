@@ -1,39 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="fill_parent"
     android:orientation="vertical"
     android:gravity="center">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:id = "@+id/calendarinfo"
         android:layout_marginTop="10dp"
         android:gravity="center">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight = ".8"
             android:id = "@+id/calendarweekday"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"
-            android:text="Day"
             android:paddingRight="150dp"/>
-    </RelativeLayout>
+
+    </LinearLayout>
 
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
         android:layout_marginTop="5dp">
 
         <Button
             android:id="@+id/prevmonthbutton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:text="&lt;"/>
 
         <TextView
@@ -45,15 +46,15 @@
 
         <Button
             android:id="@+id/nextmonthbutton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_toRightOf="@+id/currentmonth"
             android:text="&gt;" />
 
         <Button
             android:id="@+id/prevyearbutton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_marginLeft="25dp"
             android:layout_toRightOf="@id/nextmonthbutton"
             android:text="&lt;" />
@@ -67,76 +68,77 @@
 
         <Button
             android:id="@+id/nextyearbutton"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
             android:layout_toRightOf="@+id/currentyear"
             android:text="&gt;" />
 
     </RelativeLayout>
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
         android:paddingTop="6dp">
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_gravity="center_horizontal"
-            android:text="SUN"
-            android:paddingRight="5dp"/>
+            android:id = "@+id/day1"/>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:layout_gravity="center_horizontal"
-            android:text="MON"
-            android:paddingRight="5dp"/>
+            android:id = "@+id/day2"/>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id = "@+id/day3"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="TUE"
-            android:paddingRight="5dp"/>
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"/>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id = "@+id/day4"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="WED"/>
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"/>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id = "@+id/day5"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:text="THU"
-            android:paddingLeft="5dp"/>
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"/>
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id = "@+id/day6"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:paddingLeft="5dp"
-            android:text="FRI" />
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal" />
 
         <TextView
-            android:layout_width="wrap_content"
+            android:id = "@+id/day7"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:paddingLeft="5dp"
-            android:text="SAT" />
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"/>
 
     </LinearLayout>
 
     <GridView
         android:id="@+id/calendar_grid"
-        android:layout_width="280dp"
-        android:layout_height="340dp"
-        android:columnWidth="40dp"
+        android:layout_width="fill_parent"
+        android:layout_height="400dp"
         android:numColumns="7"
-        android:gravity="center" />
+        android:gravity="center"
+        android:layout_marginTop="10dp" />
 
 </LinearLayout>

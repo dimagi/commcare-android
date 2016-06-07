@@ -34,10 +34,6 @@ import java.util.Set;
  */
 public class CalendarWidget extends QuestionWidget{
 
-    private int selectedYear;
-    private int selectedMonth;
-    private int selectedYDay;
-
     private GridView myGrid;
     private Button decMonth;
     private Button incMonth;
@@ -65,10 +61,31 @@ public class CalendarWidget extends QuestionWidget{
         myCal = Calendar.getInstance();
         initDisplay();
         initMonths();
+        initWeekDays();
         updateCalendar();
         initOnClick();
+    }
 
-        //TODO: Slight tweaks to spacing
+    private void initWeekDays(){
+        final Map<String, Integer> weekDays = myCal.getDisplayNames(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault());
+
+        ArrayList<String> weekDayList = new ArrayList<>(weekDays.keySet());
+
+        Collections.sort(weekDayList, new Comparator<String>(){
+            @Override
+            public int compare(String a, String b){
+                return weekDays.get(a) - weekDays.get(b);
+            }
+        });
+
+        ((TextView) findViewById(R.id.day1)).setText(weekDayList.get(0));
+        ((TextView) findViewById(R.id.day2)).setText(weekDayList.get(1));
+        ((TextView) findViewById(R.id.day3)).setText(weekDayList.get(2));
+        ((TextView) findViewById(R.id.day4)).setText(weekDayList.get(3));
+        ((TextView) findViewById(R.id.day5)).setText(weekDayList.get(4));
+        ((TextView) findViewById(R.id.day6)).setText(weekDayList.get(5));
+        ((TextView) findViewById(R.id.day7)).setText(weekDayList.get(6));
+
     }
 
     private void initMonths(){
@@ -192,12 +209,12 @@ public class CalendarWidget extends QuestionWidget{
 
             Date current = myCal.getTime();
 
-            //TODO: Tweak blue color to make it lighter
             if(date.equals(current)){
-                ((TextView) view).setBackgroundColor(Color.rgb(105, 217, 255));
+                text.setBackgroundColor(Color.rgb(105, 217, 255));
             }
 
-            return view;
+            text.setHeight(120);
+            return text;
         }
     }
 
