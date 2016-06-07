@@ -381,6 +381,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 return true;
             case MENU_APP_MANAGER:
                 Intent i = new Intent(this, AppManagerActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
                 return true;
             default:
