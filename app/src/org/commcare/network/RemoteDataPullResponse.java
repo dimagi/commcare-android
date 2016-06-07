@@ -5,7 +5,6 @@ import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
 import org.apache.http.HttpResponse;
-import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.utils.AndroidStreamUtil;
 import org.commcare.utils.bitcache.BitCache;

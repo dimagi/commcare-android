@@ -52,7 +52,8 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
     @UiElement(value = R.id.screen_multimedia_inflater_install, locale = "archive.install.button")
     private Button btnInstallArchive;
 
-    public static final String ARCHIVE_REFERENCE = "archive-ref";
+    public static final String ARCHIVE_FILEPATH = "archive-filepath";
+    public static final String ARCHIVE_JR_REFERENCE = "archive-jr-ref";
 
     private String targetDirectory;
 
@@ -84,6 +85,14 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
 
         // avoid keyboard pop-up
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+
+        processProvidedReference();
+    }
+
+    private void processProvidedReference() {
+        if (getIntent().hasExtra(ARCHIVE_FILEPATH)) {
+            createArchive(getIntent().getStringExtra(ARCHIVE_FILEPATH));
+        }
     }
 
     private void createArchive(String filepath) {
@@ -125,23 +134,21 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         String ref = "jr://archive/" + mGUID + "/profile.ccpr";
 
         Intent i = new Intent(getIntent());
-        i.putExtra(InstallArchiveActivity.ARCHIVE_REFERENCE, ref);
+        i.putExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE, ref);
         setResult(RESULT_OK, i);
         finish();
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        if (requestCode == REQUEST_FILE_LOCATION) {
-            if (resultCode == Activity.RESULT_OK) {
-                // Android versions 4.4 and up sometimes don't return absolute
-                // filepaths from the file chooser. So resolve the URI into a
-                // valid file path.
-                String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(),
-                        intent.getData());
-                if (filePath != null) {
-                    editFileLocation.setText(filePath);
-                }
+        if (requestCode == REQUEST_FILE_LOCATION && resultCode == Activity.RESULT_OK) {
+            // Android versions 4.4 and up sometimes don't return absolute
+            // filepaths from the file chooser. So resolve the URI into a
+            // valid file path.
+            String filePath = UriToFilePath.getPathFromUri(CommCareApplication._(),
+                    intent.getData());
+            if (filePath != null) {
+                editFileLocation.setText(filePath);
             }
         }
     }

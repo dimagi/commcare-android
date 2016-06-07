@@ -54,7 +54,7 @@ public class CrashWarningActivity extends Activity {
         closeButton.setText(Localization.get("crash.warning.button"));
         closeButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                CommCareApplication.restartCommCare(CrashWarningActivity.this);
+                CommCareApplication.restartCommCare(CrashWarningActivity.this, true);
             }
         });
 

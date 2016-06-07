@@ -83,7 +83,6 @@ import org.javarosa.xpath.XPathTypeMismatchException;
 
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.Vector;
 
@@ -114,7 +113,6 @@ public class CommCareHomeActivity
 
     private static final int GET_INCOMPLETE_FORM = 16;
     public static final int REPORT_PROBLEM_ACTIVITY = 64;
-    public static final int QUERY = 128;
 
     private static final int PREFERENCES_ACTIVITY=512;
     private static final int ADVANCED_ACTIONS_ACTIVITY=1024;
@@ -470,7 +468,7 @@ public class CommCareHomeActivity
                             uiController.refreshView();
                             return;
                         } else {
-                            currentState.getSession().stepBack();
+                            currentState.getSession().stepBack(currentState.getEvaluationContext());
                         }
                     } else if (resultCode == RESULT_OK) {
                         CommCareSession session = currentState.getSession();
@@ -489,7 +487,7 @@ public class CommCareHomeActivity
                     AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
                     CommCareSession currentSession = asw.getSession();
                     if (resultCode == RESULT_CANCELED) {
-                        currentSession.stepBack();
+                        currentSession.stepBack(asw.getEvaluationContext());
                     } else if (resultCode == RESULT_OK) {
                         if (sessionStateUnchangedSinceCallout(currentSession, intent)) {
                             String sessionDatumId = currentSession.getNeededDatum().getDataId();
@@ -552,7 +550,7 @@ public class CommCareHomeActivity
         if (resultCode == RESULT_CANCELED) {
             AndroidSessionWrapper asw = CommCareApplication._().getCurrentSessionWrapper();
             CommCareSession currentSession = asw.getSession();
-            currentSession.stepBack();
+            currentSession.stepBack(asw.getEvaluationContext());
         }
     }
 
@@ -577,7 +575,9 @@ public class CommCareHomeActivity
      * callout that we are returning from was made
      */
     private boolean sessionStateUnchangedSinceCallout(CommCareSession session, Intent intent) {
-        boolean neededDataUnchanged = session.getNeededData().equals(
+        EvaluationContext evalContext =
+                CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext();
+        boolean neededDataUnchanged = session.getNeededData(evalContext).equals(
                 intent.getStringExtra(KEY_PENDING_SESSION_DATA));
         String intentDatum = intent.getStringExtra(KEY_PENDING_SESSION_DATUM_ID);
         boolean datumIdsUnchanged = intentDatum == null || intentDatum.equals(session.getNeededDatum().getDataId());
@@ -725,7 +725,7 @@ public class CommCareHomeActivity
                 // If we cancelled form entry from a normal menu entry
                 // we want to go back to where were were right before we started
                 // entering the form.
-                currentState.getSession().stepBack();
+                currentState.getSession().stepBack(currentState.getEvaluationContext());
                 currentState.setFormRecordId(-1);
             }
         }
@@ -815,6 +815,10 @@ public class CommCareHomeActivity
             case SessionNavigator.XPATH_EXCEPTION_THROWN:
                 UserfacingErrorHandling
                         .logErrorAndShowDialog(this, sessionNavigator.getCurrentException(), false);
+                break;
+            case SessionNavigator.REPORT_CASE_AUTOSELECT:
+                GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_CASE_AUTOSELECT_USED);
+                break;
         }
     }
 
@@ -837,7 +841,7 @@ public class CommCareHomeActivity
             @Override
             public void onClick(DialogInterface dialog, int i) {
                 dialog.dismiss();
-                asw.getSession().stepBack();
+                asw.getSession().stepBack(asw.getEvaluationContext());
                 CommCareHomeActivity.this.sessionNavigator.startNextSessionStep();
             }
         });
@@ -939,7 +943,9 @@ public class CommCareHomeActivity
     }
 
     private static void addPendingDataExtra(Intent i, CommCareSession session) {
-        i.putExtra(KEY_PENDING_SESSION_DATA, session.getNeededData());
+        EvaluationContext evalContext =
+                CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext();
+        i.putExtra(KEY_PENDING_SESSION_DATA, session.getNeededData(evalContext));
     }
 
     private static void addPendingDatumIdExtra(Intent i, CommCareSession session) {
