@@ -23,6 +23,7 @@ import java.util.Hashtable;
 /**
  * @author ctsims
  */
+@SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
 public class Persisted implements Persistable, IMetaData {
 
     private static final Hashtable<Class, ArrayList<Field>> fieldOrderings = new Hashtable<>();
@@ -98,6 +99,7 @@ public class Persisted implements Persistable, IMetaData {
     }
 
     private void readVal(Field f, Object o, DataInputStream in) throws DeserializationException, IOException, IllegalAccessException {
+        synchronized (f) {
         Persisting p = f.getAnnotation(Persisting.class);
         Class type = f.getType();
         try {
@@ -131,9 +133,11 @@ public class Persisted implements Persistable, IMetaData {
 
         //By Default
         throw new DeserializationException("Couldn't read persisted type " + f.getType().toString());
+        }
     }
 
     private void writeVal(Field f, Object o, DataOutputStream out) throws IOException, IllegalAccessException {
+        synchronized (f) {
         try {
             Persisting p = f.getAnnotation(Persisting.class);
             Class type = f.getType();
@@ -165,6 +169,7 @@ public class Persisted implements Persistable, IMetaData {
 
         //By Default
         throw new RuntimeException("Couldn't write persisted type " + f.getType().toString());
+        }
     }
 
     @Override
@@ -172,6 +177,7 @@ public class Persisted implements Persistable, IMetaData {
         ArrayList<String> fields = new ArrayList<>();
 
         for (Field f : this.getClass().getDeclaredFields()) {
+            synchronized (f) {
             try {
                 f.setAccessible(true);
 
@@ -182,10 +188,11 @@ public class Persisted implements Persistable, IMetaData {
             } finally {
                 f.setAccessible(false);
             }
-
+            }
         }
 
         for (Method m : this.getClass().getDeclaredMethods()) {
+            synchronized (m) {
             try {
                 m.setAccessible(true);
 
@@ -196,7 +203,7 @@ public class Persisted implements Persistable, IMetaData {
             } finally {
                 m.setAccessible(false);
             }
-
+            }
         }
         return fields.toArray(new String[fields.size()]);
     }
@@ -206,6 +213,7 @@ public class Persisted implements Persistable, IMetaData {
     public Object getMetaData(String fieldName) {
         try {
             for (Field f : this.getClass().getDeclaredFields()) {
+                synchronized (f) {
                 try {
                     f.setAccessible(true);
 
@@ -218,9 +226,11 @@ public class Persisted implements Persistable, IMetaData {
                 } finally {
                     f.setAccessible(false);
                 }
+                }
             }
 
             for (Method m : this.getClass().getDeclaredMethods()) {
+                synchronized (m) {
                 try {
                     m.setAccessible(true);
 
@@ -233,7 +243,7 @@ public class Persisted implements Persistable, IMetaData {
                 } finally {
                     m.setAccessible(false);
                 }
-
+                }
             }
 
         } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
@@ -242,5 +252,4 @@ public class Persisted implements Persistable, IMetaData {
         //If we didn't find the field
         throw new IllegalArgumentException("No metadata field " + fieldName + " in the case storage system");
     }
-
 }
