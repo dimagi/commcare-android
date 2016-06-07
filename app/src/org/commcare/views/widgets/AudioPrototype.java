@@ -108,8 +108,6 @@ public class AudioPrototype extends AudioWidget{
         myProgress.setVisibility(VISIBLE);
         start.setEnabled(false);
         stop.setEnabled(true);
-
-        mRecorder.start();
     }
 
     private void stopRecording(){
