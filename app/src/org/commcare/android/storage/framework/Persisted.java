@@ -173,40 +173,42 @@ public class Persisted implements Persistable, IMetaData {
     public String[] getMetaDataFields() {
         ArrayList<String> fields = new ArrayList<>();
 
-        synchronized (fieldOrderings) {
-            addClassFieldsToMetas(fields, getClass());
-            addClassMethodsToMetas(fields, getClass());
-        }
+        addClassFieldsToMetas(fields, getClass());
+        addClassMethodsToMetas(fields, getClass());
 
         return fields.toArray(new String[fields.size()]);
     }
 
     private static void addClassFieldsToMetas(List<String> fields, Class persistedClass) {
         for (Field f : persistedClass.getDeclaredFields()) {
-            try {
-                f.setAccessible(true);
+            synchronized (f) {
+                try {
+                    f.setAccessible(true);
 
-                if (f.isAnnotationPresent(MetaField.class)) {
-                    MetaField mf = f.getAnnotation(MetaField.class);
-                    fields.add(mf.value());
+                    if (f.isAnnotationPresent(MetaField.class)) {
+                        MetaField mf = f.getAnnotation(MetaField.class);
+                        fields.add(mf.value());
+                    }
+                } finally {
+                    f.setAccessible(false);
                 }
-            } finally {
-                f.setAccessible(false);
             }
         }
     }
 
     private static void addClassMethodsToMetas(List<String> fields, Class persistedClass) {
         for (Method m : persistedClass.getDeclaredMethods()) {
-            try {
-                m.setAccessible(true);
+            synchronized (m) {
+                try {
+                    m.setAccessible(true);
 
-                if (m.isAnnotationPresent(MetaField.class)) {
-                    MetaField mf = m.getAnnotation(MetaField.class);
-                    fields.add(mf.value());
+                    if (m.isAnnotationPresent(MetaField.class)) {
+                        MetaField mf = m.getAnnotation(MetaField.class);
+                        fields.add(mf.value());
+                    }
+                } finally {
+                    m.setAccessible(false);
                 }
-            } finally {
-                m.setAccessible(false);
             }
         }
     }
@@ -214,9 +216,9 @@ public class Persisted implements Persistable, IMetaData {
     @Nullable
     @Override
     public Object getMetaData(String fieldName) {
-        synchronized (fieldOrderings) {
-            try {
-                for (Field f : this.getClass().getDeclaredFields()) {
+        try {
+            for (Field f : this.getClass().getDeclaredFields()) {
+                synchronized (f) {
                     try {
                         f.setAccessible(true);
 
@@ -230,8 +232,10 @@ public class Persisted implements Persistable, IMetaData {
                         f.setAccessible(false);
                     }
                 }
+            }
 
-                for (Method m : this.getClass().getDeclaredMethods()) {
+            for (Method m : this.getClass().getDeclaredMethods()) {
+                synchronized (m) {
                     try {
                         m.setAccessible(true);
 
@@ -244,15 +248,14 @@ public class Persisted implements Persistable, IMetaData {
                     } finally {
                         m.setAccessible(false);
                     }
-
                 }
-            } catch (InvocationTargetException | IllegalArgumentException
-                    | IllegalAccessException e) {
-                throw new RuntimeException(e.getMessage());
             }
-            //If we didn't find the field
-            throw new IllegalArgumentException("No metadata field " + fieldName + " in the case storage system");
+        } catch (InvocationTargetException | IllegalArgumentException
+                | IllegalAccessException e) {
+            throw new RuntimeException(e.getMessage());
         }
+        //If we didn't find the field
+        throw new IllegalArgumentException("No metadata field " + fieldName + " in the case storage system");
     }
 
     @Override
