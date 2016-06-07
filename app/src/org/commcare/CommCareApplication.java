@@ -556,7 +556,6 @@ public class CommCareApplication extends Application {
     }
 
     /**
-<<<<<<< HEAD
      * @return all ApplicationRecords that have status installed and are NOT archived
      */
     private ArrayList<ApplicationRecord> getVisibleAppRecords() {
@@ -624,8 +623,6 @@ public class CommCareApplication extends Application {
     }
 
     /**
-=======
->>>>>>> 4922ef5... move old methods to MultipleAppsUtil
      * @return if the given ApplicationRecord is the currently seated one
      */
     public boolean isSeated(ApplicationRecord record) {
