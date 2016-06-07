@@ -176,6 +176,7 @@ public class Persisted implements Persistable, IMetaData {
         ArrayList<String> fields = new ArrayList<>();
 
         for (Field f : this.getClass().getDeclaredFields()) {
+            synchronized (f) {
             try {
                 f.setAccessible(true);
 
@@ -186,10 +187,11 @@ public class Persisted implements Persistable, IMetaData {
             } finally {
                 f.setAccessible(false);
             }
-
+            }
         }
 
         for (Method m : this.getClass().getDeclaredMethods()) {
+            synchronized (m) {
             try {
                 m.setAccessible(true);
 
@@ -200,7 +202,7 @@ public class Persisted implements Persistable, IMetaData {
             } finally {
                 m.setAccessible(false);
             }
-
+            }
         }
         return fields.toArray(new String[fields.size()]);
     }
@@ -210,6 +212,7 @@ public class Persisted implements Persistable, IMetaData {
     public Object getMetaData(String fieldName) {
         try {
             for (Field f : this.getClass().getDeclaredFields()) {
+                synchronized (f) {
                 try {
                     f.setAccessible(true);
 
@@ -222,9 +225,11 @@ public class Persisted implements Persistable, IMetaData {
                 } finally {
                     f.setAccessible(false);
                 }
+                }
             }
 
             for (Method m : this.getClass().getDeclaredMethods()) {
+                synchronized (m) {
                 try {
                     m.setAccessible(true);
 
@@ -237,7 +242,7 @@ public class Persisted implements Persistable, IMetaData {
                 } finally {
                     m.setAccessible(false);
                 }
-
+                }
             }
 
         } catch (InvocationTargetException | IllegalArgumentException | IllegalAccessException e) {
