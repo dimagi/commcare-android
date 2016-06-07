@@ -1,0 +1,133 @@
+#!/bin/python3
+
+"""
+ccc (commcare control center) allows you to automate oft performed actions.
+"""
+
+import subprocess
+import sys
+import urllib.request
+from os.path import basename
+import os
+
+HELP_MSG = """'capture' saves the current session for restoring later.
+'install some_app.ccz' pushes and installs the ccz to device.
+'remote domain app_id build' downloads an app from HQ and installs it.
+"""
+BASE_RECEIVER_CMD = "adb shell am broadcast -a"
+BASE_ACTIVITY_CMD = "adb shell am start -n"
+
+
+# None -> None
+def capture():
+    """
+    Stores current CommCare session for replaying later. Enables session
+    capture if it isn't already. Form entry session capture only works if
+    session capture is already enabled.
+    """
+    cmd = receiver_command("org.commcare.dalvik.api.action" +
+                           ".SessionCaptureAction")
+    print(cmd)
+    subprocess.call(cmd, shell=True)
+
+
+def receiver_command(action, extras={}):
+    """
+    Build an ADB broadcast command.
+    """
+    cmd = "{} {}".format(BASE_RECEIVER_CMD, action)
+    return cmd + get_extras_string(extras)
+
+
+# String String String -> None
+def remote_install(domain, app_id, build_number):
+    """
+    Downloads CCZ from HQ and installs it on Commcare.
+    """
+    url = ("https://www.commcarehq.org/a/{domain}/apps/api/download_ccz" +
+           "?app_id={app_id}&version={build}").format(domain=domain,
+                                                      app_id=app_id,
+                                                      build=build_number)
+    ccz_file = "commcare.ccz"
+    urllib.request.urlretrieve(url, ccz_file)
+    install(ccz_file)
+    os.remove(ccz_file)
+
+
+# Filepath -> None
+def install(ccz_file):
+    """
+    Pushes CCZ file to android device and tells commcare to install it.
+    """
+    cmd = "adb push {} /sdcard/{}".format(ccz_file, basename(ccz_file))
+    subprocess.call(cmd, shell=True)
+    extras = {"validate": True}
+    cmd = activity_command("org.commcare.dalvik/" +
+                           "org.commcare.activities.CommCareSetupActivity",
+                           get_android_file(basename(ccz_file)),
+                           extras)
+    print(cmd)
+    subprocess.call(cmd, shell=True)
+
+
+def activity_command(activity, data=None, extras={}):
+    """
+    Builds an ADB (activity) start command.
+    """
+    action = "-a \"android.intent.action.VIEW\""
+    return "{0} \"{1}\" {2} {3} {4}".format(BASE_ACTIVITY_CMD,
+                                            activity,
+                                            action,
+                                            get_data(data),
+                                            get_extras_string(extras))
+
+
+# String -> String
+def get_data(data_string):
+    """
+    Builds ADB data option flag.
+    """
+    if data_string:
+        return "-d {}".format(data_string)
+    else:
+        return ""
+
+
+# [Dict String String] -> String
+def get_extras_string(extras):
+    """
+    Builds ADB extras option flag. Supports string and boolean extras.
+    """
+    extra_string = " "
+    for k, v in extras.items():
+        if isinstance(v, True.__class__):
+            extra_string += "--ez {} {}".format(k, str(v).lower())
+        elif isinstance(v, str):
+            extra_string += "--es {} \"{}\"".format(k, v)
+    return extra_string
+
+
+# String -> String
+def get_android_file(filename):
+    return "file:///storage/emulated/0/{}".format(filename)
+
+
+def main():
+    if len(sys.argv) > 5:
+        filename = sys.argv[0]
+        arg_count = len(sys.argv) - 1
+        print("{} only accepts two argument, {} provided".format(filename,
+                                                                 arg_count))
+        sys.exit(0)
+
+    command = sys.argv[1]
+    dispatch = {'capture': lambda: capture(),
+                'remote': lambda: remote_install(*sys.argv[2:5]),
+                'help': lambda: HELP_MSG,
+                'install': lambda: install(sys.argv[2])}
+
+    dispatch[command]()
+
+
+if __name__ == "__main__":
+    main()
