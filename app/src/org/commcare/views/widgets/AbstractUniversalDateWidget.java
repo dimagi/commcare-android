@@ -153,6 +153,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
             public void onClick(View v) {
                 if (mUpdater == null) {
                     incrementDay();
+                    setFocus(getContext());
                 }
             }
         });
@@ -162,6 +163,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
             public void onClick(View v) {
                 if (mUpdater == null) {
                     incrementMonth();
+                    setFocus(getContext());
                 }
             }
         });
@@ -170,6 +172,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
             @Override
             public void onClick(View v) {
                 if (mUpdater == null) {
+                    setFocus(getContext());
                     incrementYear();
                 }
             }
@@ -180,6 +183,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
             public void onClick(View v) {
                 if (mUpdater == null) {
                     decrementDay();
+                    setFocus(getContext());
                 }
             }
         });
@@ -189,6 +193,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
             public void onClick(View v) {
                 if (mUpdater == null) {
                     decrementMonth();
+                    setFocus(getContext());
                 }
             }
         });
@@ -198,6 +203,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
             public void onClick(View v) {
                 if (mUpdater == null) {
                     decrementYear();
+                    setFocus(getContext());
                 }
             }
         });

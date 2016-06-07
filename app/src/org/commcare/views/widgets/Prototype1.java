@@ -46,14 +46,14 @@ public class Prototype1 extends QuestionWidget {
     private void initButtons() {
         openCalButton = new ImageButton(getContext());
 
-        openCalButton.setImageResource(R.drawable.avatar_vellum_date);
+        openCalButton.setBackgroundResource(R.drawable.avatar_vellum_date);
 
-        RelativeLayout layout = (RelativeLayout) findViewById(R.id.widgetinfo);
-        layout.addView(openCalButton);
-        RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) openCalButton.getLayoutParams();
-        params.addRule(RelativeLayout.RIGHT_OF, R.id.gregdayofweek);
-        params.width = 60;
-        params.height = 60;
+        RelativeLayout widgetheader = (RelativeLayout) findViewById(R.id.widgetinfo);
+        widgetheader.addView(openCalButton);
+        RelativeLayout.LayoutParams headerParams = (RelativeLayout.LayoutParams) openCalButton.getLayoutParams();
+        headerParams.addRule(RelativeLayout.RIGHT_OF, R.id.gregdayofweek);
+        openCalButton.setMaxHeight(75);
+        openCalButton.setMaxWidth(75);
 
         openCalButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -63,14 +63,14 @@ public class Prototype1 extends QuestionWidget {
         });
 
         ImageButton calendarCloser = new ImageButton(getContext());
-        calendarCloser.setImageResource(R.drawable.close_cross_icon);
+        calendarCloser.setMaxWidth(75);
+        calendarCloser.setMaxHeight(75);
 
-        layout = (RelativeLayout) findViewById(R.id.calendarinfo);
-        layout.addView(calendarCloser);
-        params = (RelativeLayout.LayoutParams) calendarCloser.getLayoutParams();
-        params.addRule(RelativeLayout.RIGHT_OF, R.id.calendarweekday);
-        params.width = 90;
-        params.height = 90;
+        calendarCloser.setBackgroundResource(R.drawable.green_check_mark);
+
+        LinearLayout calendarinfo = (LinearLayout) findViewById(R.id.calendarinfo);
+        calendarinfo.addView(calendarCloser);
+        LinearLayout.LayoutParams calendarParams = (LinearLayout.LayoutParams) calendarCloser.getLayoutParams();
 
         calendarCloser.setOnClickListener(new OnClickListener() {
             @Override
@@ -78,8 +78,6 @@ public class Prototype1 extends QuestionWidget {
                 closeCalendar();
             }
         });
-
-        //TODO: Add green "Submit" button. Not done so far because it's unclear what its point is. Navigation to next question is handled already.
     }
 
     public ImageButton getCalendarButton(){

@@ -82,7 +82,10 @@
             android:gravity="center"
             android:padding="3dp"
             android:textSize="@dimen/text_larger"
-            android:inputType="text"/>
+            android:text="dummy"
+            android:inputType="textNoSuggestions"
+            android:completionThreshold="1"
+            android:dropDownWidth="150dp"/>
 
         <Button
             android:id="@+id/monthdownbtn"

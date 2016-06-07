@@ -141,6 +141,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
         dayTxt.setText("");
         monthTxt.setText("");
         yearTxt.setText("");
+        super.setFocus(getContext());
     }
 
     @Override
@@ -208,11 +209,10 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
             myCal = Calendar.getInstance();
         }
 
-
         if(myMonths == null){
             myMonths = new String[12];
             final Map<String, Integer> monthMap = myCal.getDisplayNames(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
-            monthList = new ArrayList<String>(monthMap.keySet());
+            monthList = new ArrayList<>(monthMap.keySet());
 
             Collections.sort(monthList, new Comparator<String>(){
                 @Override
@@ -223,6 +223,8 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
 
             myMonths = monthList.toArray(myMonths);
         }
+
+        final Map<String, Integer> weekMap = myCal.getDisplayNames(Calendar.DAY_OF_WEEK, Calendar.SHORT, Locale.getDefault());
 
         return myMonths;
     }
@@ -251,10 +253,21 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
 
     @Override
     public IAnswerData getAnswer(){
-        if(monthTxt.getText().toString().equals("") || dayTxt.getText().toString().equals("") || yearTxt.getText().toString().equals("")
-           ||Integer.parseInt(yearTxt.getText().toString()) < MIN_YEAR){
+        //Empty text fields
+        if(monthTxt.getText().toString().equals("") || dayTxt.getText().toString().equals("") || yearTxt.getText().toString().equals("")){
             return null;
         }
+        //Invalid year (too low)
+        if(Integer.parseInt(yearTxt.getText().toString()) < MIN_YEAR){
+            yearTxt.setText("");
+            return null;
+        }
+        //Invalid month
+        if(!monthList.contains(monthTxt.getText().toString())){
+            monthTxt.setText("");
+            return null;
+        }
+
         return super.getAnswer();
     }
 
