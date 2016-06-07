@@ -61,7 +61,17 @@ public class WidgetFactory {
                             questionWidget = new EthiopianDateWidget(context, fep);
                         } else if (appearance != null && appearance.toLowerCase().equals("nepali")) {
                             questionWidget = new NepaliDateWidget(context, fep);
-                        } else {
+                        }else if(appearance != null && appearance.toLowerCase().equals("greg")){ //TESTING GREGORIAN WIDGET
+                            questionWidget = new GregorianDateWidget(context, fep);
+                        }else if(appearance != null && appearance.toLowerCase().equals("calendar")){
+                            questionWidget = new CalendarWidget(context, fep);
+                        }else if(appearance != null && appearance.toLowerCase().equals("pro1")){
+                            questionWidget = new Prototype1(context, fep);
+                        }else if(appearance != null && appearance.toLowerCase().equals("pro2")){
+                            questionWidget = new Prototype2(context, fep);
+                        }else if(appearance != null && appearance.toLowerCase().equals("pro3")){
+                            questionWidget = new Prototype3(context, fep);
+                        }else {
                             questionWidget = new DateWidget(context, fep);
                         }
                         break;
@@ -107,7 +117,12 @@ public class WidgetFactory {
                 }
                 break;
             case Constants.CONTROL_AUDIO_CAPTURE:
-                questionWidget = new AudioWidget(context, fep, pendingCalloutInterface);
+                if(appearance != null){
+                    questionWidget = new AudioPrototype(context, fep, pendingCalloutInterface);
+                }
+                else{
+                    questionWidget = new AudioWidget(context, fep, pendingCalloutInterface);
+                }
                 break;
             case Constants.CONTROL_VIDEO_CAPTURE:
                 questionWidget = new VideoWidget(context, fep, pendingCalloutInterface);

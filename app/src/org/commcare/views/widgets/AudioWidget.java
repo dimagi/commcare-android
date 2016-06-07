@@ -6,6 +6,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 import android.provider.MediaStore.Audio;
 import android.util.Log;
 import android.view.View;
@@ -39,13 +40,13 @@ import java.io.IOException;
 public class AudioWidget extends QuestionWidget {
     private static final String TAG = AudioWidget.class.getSimpleName();
 
-    private final Button mCaptureButton;
-    private final Button mPlayButton;
-    private final Button mChooseButton;
+    protected final Button mCaptureButton;
+    protected final Button mPlayButton;
+    protected final Button mChooseButton;
     private final PendingCalloutInterface pendingCalloutInterface;
 
-    private String mBinaryName;
-    private final String mInstanceFolder;
+    protected String mBinaryName;
+    protected final String mInstanceFolder;
 
     public AudioWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
         super(context, prompt);
@@ -69,19 +70,7 @@ public class AudioWidget extends QuestionWidget {
         mCaptureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(android.provider.MediaStore.Audio.Media.RECORD_SOUND_ACTION);
-                i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
-                        android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.toString());
-                try {
-                    ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
-                    pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getContext(),
-                            StringUtils.getStringSpannableRobust(getContext(),
-                                    R.string.activity_not_found,
-                                    "audio capture"),
-                            Toast.LENGTH_SHORT).show();
-                }
+                captureAudio(prompt);
             }
         });
 
@@ -147,15 +136,36 @@ public class AudioWidget extends QuestionWidget {
         } else {
             mPlayButton.setEnabled(false);
         }
+        setupLayout();
 
-        // finish complex layout
-        addView(mCaptureButton);
-        addView(mChooseButton);
+
         String acq = prompt.getAppearanceHint();
         if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
             mChooseButton.setVisibility(View.GONE);
         }
+    }
+
+    protected void setupLayout() {
+        // finish complex layout
+        addView(mCaptureButton);
+        addView(mChooseButton);
         addView(mPlayButton);
+    }
+
+    protected void captureAudio(FormEntryPrompt prompt) {
+        Intent i = new Intent(Audio.Media.RECORD_SOUND_ACTION);
+        i.putExtra(android.provider.MediaStore.EXTRA_OUTPUT,
+                Audio.Media.EXTERNAL_CONTENT_URI.toString());
+        try {
+            ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
+            pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(getContext(),
+                    StringUtils.getStringSpannableRobust(getContext(),
+                            R.string.activity_not_found,
+                            "audio capture"),
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void deleteMedia() {
@@ -181,6 +191,8 @@ public class AudioWidget extends QuestionWidget {
     @Override
     public IAnswerData getAnswer() {
         if (mBinaryName != null) {
+            Log.d("Stored File", mInstanceFolder+mBinaryName);
+            Log.d("Other",  Environment.getExternalStorageDirectory().getAbsolutePath());
             return new StringData(mBinaryName);
         } else {
             return null;
