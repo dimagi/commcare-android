@@ -148,15 +148,17 @@ public class Persisted implements Persistable, IMetaData {
     }
 
     private static ArrayList<Field> getPersistedFieldsInOrder(Class persistedClass) {
+        ArrayList<Field> orderings;
         synchronized (fieldOrderings) {
             // Since fields are cached, we must sync changes in their
             // accessibility across threads.
-            ArrayList<Field> orderings = fieldOrderings.get(persistedClass);
+            orderings = fieldOrderings.get(persistedClass);
             if (orderings == null) {
                 orderings = new ArrayList<>();
                 fieldOrderings.put(persistedClass, orderings);
             }
-
+        }
+        synchronized (orderings) {
             if (orderings.size() == 0) {
                 for (Field f : persistedClass.getDeclaredFields()) {
                     if (f.isAnnotationPresent(Persisting.class)) {
