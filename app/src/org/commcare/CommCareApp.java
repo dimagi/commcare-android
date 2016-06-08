@@ -1,5 +1,6 @@
 package org.commcare;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
@@ -127,7 +128,7 @@ public class CommCareApp implements AppFilePathBuilder {
     }
 
     public SharedPreferences getAppPreferences() {
-        return CommCareApplication._().getSharedPreferences(getPreferencesFilename(), 0);
+        return CommCareApplication._().getSharedPreferences(getPreferencesFilename(), Context.MODE_PRIVATE);
     }
 
     public void setupSandbox() {
