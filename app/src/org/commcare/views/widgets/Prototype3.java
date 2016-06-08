@@ -73,11 +73,11 @@ public class Prototype3 extends Prototype2{
         decDay.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Date current = (Date) getMyGreg().getAnswer().getValue();
+                Date current = (Date) getAnswer().getValue();
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(current);
                 cal.add(Calendar.DATE, -1);
-                getMyGreg().setDate(new DateData(cal.getTime()));
+                setDate(new DateData(cal.getTime()));
             }
         });
 
@@ -86,11 +86,11 @@ public class Prototype3 extends Prototype2{
         incrDay.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Date current = (Date) getMyGreg().getAnswer().getValue();
+                Date current = (Date) getAnswer().getValue();
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(current);
                 cal.add(Calendar.DATE, 1);
-                getMyGreg().setDate(new DateData(cal.getTime()));
+                setDate(new DateData(cal.getTime()));
             }
         });
 
@@ -99,11 +99,11 @@ public class Prototype3 extends Prototype2{
         incWeek.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Date current = (Date) getMyGreg().getAnswer().getValue();
+                Date current = (Date) getAnswer().getValue();
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(current);
                 cal.add(Calendar.DATE, 7);
-                getMyGreg().setDate(new DateData(cal.getTime()));
+                setDate(new DateData(cal.getTime()));
             }
         });
 
@@ -112,11 +112,11 @@ public class Prototype3 extends Prototype2{
         decWeek.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Date current = (Date) getMyGreg().getAnswer().getValue();
+                Date current = (Date) getAnswer().getValue();
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(current);
                 cal.add(Calendar.DATE, -7);
-                getMyGreg().setDate(new DateData(cal.getTime()));
+                setDate(new DateData(cal.getTime()));
             }
         });
     }

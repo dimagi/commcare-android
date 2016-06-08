@@ -53,11 +53,17 @@ public class Prototype2 extends Prototype1 {
         findViewById(R.id.clearall).setVisibility(GONE);
         findViewById(R.id.widgetinfo).setVisibility(GONE);
 
-        ImageButton openCalendar = new ImageButton(getContext());
+        final ImageButton openCalendar = new ImageButton(getContext());
         openCalendar.setImageResource(R.drawable.avatar_vellum_date);
-        super.addCalendarButton(openCalendar);
 
-        addView(openCalendar);
+        openCalendar.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openCalendar();
+            }
+        });
+
+        myView.addView(openCalendar);
 
         LinearLayout.LayoutParams calParams = (LinearLayout.LayoutParams) openCalendar.getLayoutParams();
         calParams.gravity = Gravity.RIGHT;

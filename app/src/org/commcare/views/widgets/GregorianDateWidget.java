@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import org.commcare.dalvik.R;
@@ -47,6 +48,8 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
     private String[] myMonths;
     private List<String> monthList;
     private final int MIN_YEAR = 1900;
+
+    protected LinearLayout myView;
 
     public GregorianDateWidget(Context context, FormEntryPrompt prompt){
         super(context, prompt);
@@ -119,6 +122,8 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
                         s.clear();
                         s.append(String.valueOf(1));
                     }
+
+                    myCal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(s.toString()));
                 }
             }
         });
@@ -136,6 +141,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
 
                 if(monthList.contains(content)){
                     monthArrayPointer = monthList.indexOf(content);
+                    myCal.set(Calendar.MONTH, monthArrayPointer);
                 }
             }
         });
@@ -152,19 +158,20 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
             public void afterTextChanged(Editable s) {
                 String contents = s.toString();
 
-                if(contents.length() > 0){
+                if(contents.length() >= 4 ){
                     int maxYear = myCal.get(Calendar.YEAR)+1;
 
                     if(Integer.parseInt(contents) > maxYear){
                         s.clear();
                         s.append(String.valueOf(maxYear));
                     }
+                    myCal.set(Calendar.YEAR, Integer.parseInt(contents));
                 }
             }
         });
     }
 
-    public void clearAll(){
+    private void clearAll(){
         dayTxt.setText("");
         monthTxt.setText("");
         yearTxt.setText("");
@@ -174,8 +181,8 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
     @Override
     protected void inflateView(Context context){
         LayoutInflater vi = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View vv = vi.inflate(R.layout.gregorian_date_widget, null);
-        addView(vv);
+        myView = (LinearLayout) vi.inflate(R.layout.gregorian_date_widget, null);
+        addView(myView);
     }
 
     @Override
@@ -308,12 +315,16 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
         );
     }
 
-    public void setDate(DateData newDate){
+    protected void setDate(DateData newDate){
         Date nextDate = (Date) newDate.getValue();
         updateDateDisplay(nextDate.getTime());
     }
 
-    public void removeQuestionText(){
-        mQuestionText.setVisibility(GONE);
+    protected void refresh(){
+        setDate(new DateData(myCal.getTime()));
+    }
+
+    protected Calendar getMyCal(){
+        return myCal;
     }
 }

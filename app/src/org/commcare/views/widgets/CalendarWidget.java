@@ -2,7 +2,6 @@ package org.commcare.views.widgets;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,18 +15,15 @@ import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.commcare.dalvik.R;
-import org.joda.time.LocalDate;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by Saumya on 5/29/2016.
@@ -50,18 +46,18 @@ public class CalendarWidget extends QuestionWidget{
     //TODO: Find out a way to make this thing not default to 42 days for every month!
     private final int DAYS_IN_MONTH = 42;
 
-    public CalendarWidget(Context context, FormEntryPrompt prompt){
+    public CalendarWidget(Context context, FormEntryPrompt prompt, Calendar cal){
         super(context, prompt);
         LayoutInflater inflater = (LayoutInflater)context.getSystemService
                 (Context.LAYOUT_INFLATER_SERVICE);
         myLayout = (LinearLayout) inflater.inflate(R.layout.calendar_widget, null);
         addView(myLayout);
 
-        myCal = Calendar.getInstance();
+        myCal = cal;
         initDisplay();
         initMonths();
         initWeekDays();
-        updateCalendar();
+        refresh();
         initOnClick();
     }
 
@@ -122,7 +118,7 @@ public class CalendarWidget extends QuestionWidget{
             @Override
             public void onClick(View v) {
                 myCal.add(Calendar.MONTH, -1);
-                updateCalendar();
+                refresh();
             }
         });
 
@@ -130,7 +126,7 @@ public class CalendarWidget extends QuestionWidget{
             @Override
             public void onClick(View v) {
                 myCal.add(Calendar.MONTH, 1);
-                updateCalendar();
+                refresh();
             }
         });
 
@@ -138,7 +134,7 @@ public class CalendarWidget extends QuestionWidget{
             @Override
             public void onClick(View v) {
                 myCal.add(Calendar.YEAR, -1);
-                updateCalendar();
+                refresh();
             }
         });
 
@@ -146,7 +142,7 @@ public class CalendarWidget extends QuestionWidget{
             @Override
             public void onClick(View v) {
                 myCal.add(Calendar.YEAR, 1);
-                updateCalendar();
+                refresh();
             }
         });
 
@@ -156,12 +152,13 @@ public class CalendarWidget extends QuestionWidget{
                 Date date = (Date) parent.getItemAtPosition(position);
                 myCal.setTime(date);
                 //selectItem(position);
-                updateCalendar();
+                refresh();
             }
         });
     }
 
-    private void updateCalendar(){
+    public void refresh(){
+
         ArrayList<Date> dateList = new ArrayList<>();
         Calendar populator = (Calendar) myCal.clone();
 
@@ -240,7 +237,7 @@ public class CalendarWidget extends QuestionWidget{
     @Override
     public void clearAnswer() {
         myCal = Calendar.getInstance();
-        updateCalendar();
+        refresh();
     }
 
     @Override
@@ -256,6 +253,6 @@ public class CalendarWidget extends QuestionWidget{
     public void setDate(DateData newDate){
         Date nextDate = (Date) newDate.getValue();
         myCal.setTimeInMillis(nextDate.getTime());
-        updateCalendar();
+        refresh();
     }
 }
