@@ -29,7 +29,7 @@ public class AudioPrototype extends AudioWidget{
     private Button stop;
     private LinearLayout myLayout;
     private ProgressBar myProgress;
-    private final String FILE_EXT = "/tester.3gpp";
+    private final String FILE_EXT = "";
 
     public AudioPrototype(Context context, FormEntryPrompt prompt, PendingCalloutInterface pic){
         super(context, prompt, pic);
@@ -37,7 +37,6 @@ public class AudioPrototype extends AudioWidget{
         mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
 
         //TODO: Figure out what to do with files. Store them all on file system (What dir?)? Delete them every time? Overwrite every time?
-        //TODO: Figure out how to preserve recording view and mRecorder when screen is turned...for now I just disabled rotation while recording.
         mFileName += FILE_EXT;
     }
 
@@ -85,6 +84,8 @@ public class AudioPrototype extends AudioWidget{
     }
 
     private void startRecording(){
+
+        mFileName += "/CommCare"+String.valueOf(System.currentTimeMillis())+".3gpp";
 
         ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 
