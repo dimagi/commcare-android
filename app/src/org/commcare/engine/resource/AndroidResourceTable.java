@@ -24,9 +24,7 @@ public class AndroidResourceTable extends ResourceTable {
 
     @Override
     public Vector<Resource> getResourcesForParent(String parent) {
-        Vector<Resource> v = new Vector<>();
-        v.addAll(sqlStorage.getRecordsForValue(Resource.META_INDEX_PARENT_GUID, parent));
-        return v;
+        return sqlStorage.getRecordsForValue(Resource.META_INDEX_PARENT_GUID, parent);
     }
 
     @Override
