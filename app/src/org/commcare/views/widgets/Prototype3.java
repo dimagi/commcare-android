@@ -17,34 +17,40 @@ import org.javarosa.form.api.FormEntryPrompt;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by Saumya on 6/2/2016.
  */
-public class Prototype3 extends QuestionWidget{
+public class Prototype3 extends Prototype2{
 
-    private Prototype2 myPro2;
     private LinearLayout myLayout;
 
     public Prototype3(Context context, FormEntryPrompt prompt){
-        //TODO: Add buttons
+
         super(context, prompt);
-        myPro2 = new Prototype2(context, prompt);
-        myPro2.removeQuestionText();
 
         LayoutInflater inflater = (LayoutInflater)context.getSystemService
                 (Context.LAYOUT_INFLATER_SERVICE);
         myLayout = (LinearLayout) inflater.inflate(R.layout.prototype3, null);
 
         initView();
-        addView(myLayout);
-        addView(myPro2);
 
+        addView(myLayout, 1);
+
+//        dayOfWeek.setText(myCal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
+
+    }
+
+    @Override
+    protected void openCalendar(){
+        myLayout.setVisibility(GONE);
+        super.openCalendar();
     }
 
     private void initView(){
 
-        TextView weekday = (TextView) myPro2.findViewById(R.id.gregdayofweek);
+        TextView weekday = (TextView) findViewById(R.id.gregdayofweek);
         ((TextView) myLayout.findViewById(R.id.pro3day)).setText(weekday.getText());
 
         weekday.addTextChangedListener(new TextWatcher() {
@@ -67,11 +73,11 @@ public class Prototype3 extends QuestionWidget{
         decDay.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Date current = (Date) myPro2.getMyGreg().getAnswer().getValue();
+                Date current = (Date) getMyGreg().getAnswer().getValue();
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(current);
                 cal.add(Calendar.DATE, -1);
-                myPro2.getMyGreg().setDate(new DateData(cal.getTime()));
+                getMyGreg().setDate(new DateData(cal.getTime()));
             }
         });
 
@@ -80,11 +86,11 @@ public class Prototype3 extends QuestionWidget{
         incrDay.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Date current = (Date) myPro2.getMyGreg().getAnswer().getValue();
+                Date current = (Date) getMyGreg().getAnswer().getValue();
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(current);
                 cal.add(Calendar.DATE, 1);
-                myPro2.getMyGreg().setDate(new DateData(cal.getTime()));
+                getMyGreg().setDate(new DateData(cal.getTime()));
             }
         });
 
@@ -93,11 +99,11 @@ public class Prototype3 extends QuestionWidget{
         incWeek.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Date current = (Date) myPro2.getMyGreg().getAnswer().getValue();
+                Date current = (Date) getMyGreg().getAnswer().getValue();
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(current);
                 cal.add(Calendar.DATE, 7);
-                myPro2.getMyGreg().setDate(new DateData(cal.getTime()));
+                getMyGreg().setDate(new DateData(cal.getTime()));
             }
         });
 
@@ -106,33 +112,12 @@ public class Prototype3 extends QuestionWidget{
         decWeek.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Date current = (Date) myPro2.getMyGreg().getAnswer().getValue();
+                Date current = (Date) getMyGreg().getAnswer().getValue();
                 Calendar cal = Calendar.getInstance();
                 cal.setTime(current);
                 cal.add(Calendar.DATE, -7);
-                myPro2.getMyGreg().setDate(new DateData(cal.getTime()));
+                getMyGreg().setDate(new DateData(cal.getTime()));
             }
         });
-    }
-
-
-    @Override
-    public IAnswerData getAnswer() {
-        return myPro2.getAnswer();
-    }
-
-    @Override
-    public void clearAnswer() {
-
-    }
-
-    @Override
-    public void setFocus(Context context) {
-
-    }
-
-    @Override
-    public void setOnLongClickListener(OnLongClickListener l) {
-
     }
 }

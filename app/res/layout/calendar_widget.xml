@@ -10,19 +10,11 @@
         android:layout_height="wrap_content"
         android:id = "@+id/calendarinfo"
         android:layout_marginTop="10dp"
-        android:gravity="center">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight = ".8"
-            android:id = "@+id/calendarweekday"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true"
-            android:paddingRight="150dp"/>
+        android:orientation="horizontal"
+        android:gravity="right"
+        android:layout_gravity="right">
 
     </LinearLayout>
-
 
     <RelativeLayout
         android:layout_width="fill_parent"
@@ -84,6 +76,7 @@
 
         <TextView
             android:layout_width="0dp"
+            android:textStyle="bold"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="center_horizontal"
@@ -91,6 +84,7 @@
 
         <TextView
             android:layout_width="0dp"
+            android:textStyle="bold"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="center_horizontal"
@@ -98,6 +92,7 @@
 
         <TextView
             android:id = "@+id/day3"
+            android:textStyle="bold"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -105,6 +100,7 @@
 
         <TextView
             android:id = "@+id/day4"
+            android:textStyle="bold"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -112,6 +108,7 @@
 
         <TextView
             android:id = "@+id/day5"
+            android:textStyle="bold"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -119,6 +116,7 @@
 
         <TextView
             android:id = "@+id/day6"
+            android:textStyle="bold"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -126,6 +124,7 @@
 
         <TextView
             android:id = "@+id/day7"
+            android:textStyle="bold"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

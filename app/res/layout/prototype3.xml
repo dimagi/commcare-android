@@ -3,55 +3,52 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="10dp">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="day"
-            android:id = "@+id/pro3day"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp" />
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp">
 
         <Button
-            android:layout_width="45dp"
-            android:layout_height="40dp"
-            android:text = "&lt;"
-            android:id = "@+id/decday"
-            android:layout_centerHorizontal="true"
-            android:layout_toLeftOf="@id/pro3day"/>
-
-        <Button
-            android:layout_width="45dp"
+            android:layout_width="0dp"
             android:layout_height="40dp"
             android:text = "&lt;&lt;"
             android:id = "@+id/decweek"
-            android:layout_centerHorizontal="true"
-            android:layout_toLeftOf="@id/decday"/>
+            android:layout_weight=".15"/>
 
         <Button
-            android:layout_width="45dp"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:text = "&lt;"
+            android:id = "@+id/decday"
+            android:layout_weight=".15"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id = "@+id/pro3day"
+            android:layout_weight=".4"
+            android:gravity="center"/>
+
+        <Button
+            android:layout_width="0dp"
             android:layout_height="40dp"
             android:text = "&gt;"
             android:id = "@+id/incrday"
-            android:layout_centerHorizontal="true"
-            android:layout_toRightOf="@id/pro3day"/>
+            android:layout_weight=".15"/>
 
         <Button
-            android:layout_width="45dp"
+            android:layout_width="0dp"
             android:layout_height="40dp"
             android:text = "&gt;&gt;"
             android:id = "@+id/incweek"
-            android:layout_centerHorizontal="true"
-            android:layout_toRightOf="@id/incrday"/>
+            android:layout_weight=".15"/>
 
-    </RelativeLayout>
+    </LinearLayout>
 
 
 </LinearLayout>

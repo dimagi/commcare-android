@@ -3,6 +3,7 @@ package org.commcare.views.widgets;
 import android.content.Context;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -35,63 +36,33 @@ import static org.commcare.utils.UniversalDate.MILLIS_IN_DAY;
 /**
  * Created by Saumya on 6/2/2016.
  */
-public class Prototype2 extends QuestionWidget {
-
-    private Prototype1 myPro1;
+public class Prototype2 extends Prototype1 {
 
     public Prototype2(Context context, FormEntryPrompt prompt){
         super(context, prompt);
-        myPro1 = new Prototype1(context, prompt);
         initView();
-        addView(myPro1);
     }
 
     private void initView(){
-        (myPro1.findViewById(R.id.dayupbtn)).setVisibility(GONE);
-        (myPro1.findViewById(R.id.daydownbtn)).setVisibility(GONE);
-        (myPro1.findViewById(R.id.monthupbtn)).setVisibility(GONE);
-        (myPro1.findViewById(R.id.monthdownbtn)).setVisibility(GONE);
-        (myPro1.findViewById(R.id.yearupbtn)).setVisibility(GONE);
-        (myPro1.findViewById(R.id.yeardownbtn)).setVisibility(GONE);
-        (myPro1.findViewById(R.id.clearall)).setVisibility(GONE);
-        myPro1.findViewById(R.id.widgetinfo).setVisibility(GONE);
-        myPro1.removeQuestionText();
+        findViewById(R.id.dayupbtn).setVisibility(GONE);
+        findViewById(R.id.daydownbtn).setVisibility(GONE);
+        findViewById(R.id.monthupbtn).setVisibility(GONE);
+        findViewById(R.id.monthdownbtn).setVisibility(GONE);
+        findViewById(R.id.yearupbtn).setVisibility(GONE);
+        findViewById(R.id.yeardownbtn).setVisibility(GONE);
+        findViewById(R.id.clearall).setVisibility(GONE);
+        findViewById(R.id.widgetinfo).setVisibility(GONE);
 
-        ImageButton openCalButton = new ImageButton(getContext());
-        openCalButton.setBackgroundResource(R.drawable.avatar_vellum_date);
-        myPro1.getMyGreg().addView(openCalButton);
-        myPro1.addCalendarButton(openCalButton);
+        ImageButton openCalendar = new ImageButton(getContext());
+        openCalendar.setImageResource(R.drawable.avatar_vellum_date);
+        super.addCalendarButton(openCalendar);
 
-        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams) openCalButton.getLayoutParams();
-        params.leftMargin = 700;
-    }
+        addView(openCalendar);
 
-    @Override
-    public IAnswerData getAnswer() {
-        return myPro1.getAnswer();
-    }
-
-    @Override
-    public void clearAnswer() {
-        myPro1.clearAnswer();
-    }
-
-    @Override
-    public void setFocus(Context context) {
+        LinearLayout.LayoutParams calParams = (LinearLayout.LayoutParams) openCalendar.getLayoutParams();
+        calParams.gravity = Gravity.RIGHT;
+        calParams.width = LayoutParams.WRAP_CONTENT;
+        calParams.height = LayoutParams.WRAP_CONTENT;
 
     }
-
-    @Override
-    public void setOnLongClickListener(OnLongClickListener l) {
-
-    }
-
-    public GregorianDateWidget getMyGreg(){
-        return myPro1.getMyGreg();
-    }
-
-    public void removeQuestionText(){
-        mQuestionText.setVisibility(GONE);
-    }
-
 }

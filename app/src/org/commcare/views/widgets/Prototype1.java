@@ -44,17 +44,8 @@ public class Prototype1 extends QuestionWidget {
     }
 
     private void initButtons() {
-        openCalButton = new ImageButton(getContext());
 
-        openCalButton.setBackgroundResource(R.drawable.avatar_vellum_date);
-
-        RelativeLayout widgetheader = (RelativeLayout) findViewById(R.id.widgetinfo);
-        widgetheader.addView(openCalButton);
-        RelativeLayout.LayoutParams headerParams = (RelativeLayout.LayoutParams) openCalButton.getLayoutParams();
-        headerParams.addRule(RelativeLayout.RIGHT_OF, R.id.gregdayofweek);
-        openCalButton.setMaxHeight(75);
-        openCalButton.setMaxWidth(75);
-
+        openCalButton = (ImageButton) findViewById(R.id.opencalendar);
         openCalButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -70,7 +61,7 @@ public class Prototype1 extends QuestionWidget {
 
         LinearLayout calendarinfo = (LinearLayout) findViewById(R.id.calendarinfo);
         calendarinfo.addView(calendarCloser);
-        LinearLayout.LayoutParams calendarParams = (LinearLayout.LayoutParams) calendarCloser.getLayoutParams();
+//        LinearLayout.LayoutParams calendarParams = (LinearLayout.LayoutParams) calendarCloser.getLayoutParams();
 
         calendarCloser.setOnClickListener(new OnClickListener() {
             @Override
@@ -80,11 +71,7 @@ public class Prototype1 extends QuestionWidget {
         });
     }
 
-    public ImageButton getCalendarButton(){
-        return openCalButton;
-    }
-
-    private void openCalendar() {
+    protected void openCalendar() {
 
         if(myGreg.getAnswer() != null){
             myCal.setDate((DateData) myGreg.getAnswer());
@@ -97,7 +84,7 @@ public class Prototype1 extends QuestionWidget {
         myCal.setVisibility(VISIBLE);
     }
 
-    private void closeCalendar(){
+    protected void closeCalendar(){
         myGreg.setDate((DateData) myCal.getAnswer());
         myCal.setVisibility(GONE);
         myGreg.setVisibility(VISIBLE);
@@ -117,24 +104,16 @@ public class Prototype1 extends QuestionWidget {
     }
 
     @Override
-    public void setFocus(Context context) {
-
-    }
+    public void setFocus(Context context) {}
 
     @Override
-    public void setOnLongClickListener(OnLongClickListener l) {
-
-    }
-
-    public void removeQuestionText(){
-        mQuestionText.setVisibility(GONE);
-    }
+    public void setOnLongClickListener(OnLongClickListener l) {}
 
     public GregorianDateWidget getMyGreg(){
         return myGreg;
     }
 
-    public void addCalendarButton(ImageButton b){
+    protected void addCalendarButton(ImageButton b){
         b.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

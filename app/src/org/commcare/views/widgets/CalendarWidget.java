@@ -41,7 +41,6 @@ public class CalendarWidget extends QuestionWidget{
     private Button incYear;
     private TextView myMonth;
     private TextView myYear;
-    private TextView dayOfWeek;
 
     private Calendar myCal;
     private LinearLayout myLayout;
@@ -115,7 +114,6 @@ public class CalendarWidget extends QuestionWidget{
         incYear = (Button) myLayout.findViewById(R.id.nextyearbutton);
         myYear = (TextView) myLayout.findViewById(R.id.currentyear);
 
-        dayOfWeek = (TextView) findViewById(R.id.calendarweekday);
     }
 
     private void initOnClick(){
@@ -167,23 +165,32 @@ public class CalendarWidget extends QuestionWidget{
         ArrayList<Date> dateList = new ArrayList<>();
         Calendar populator = (Calendar) myCal.clone();
 
+        int totalDays = populator.getActualMaximum(Calendar.DAY_OF_MONTH);
+
         populator.set(Calendar.DAY_OF_MONTH, 1);
 
         //Day of week for the first of the month
         int monthStartWeekDay = populator.get(Calendar.DAY_OF_WEEK) - 1;
 
+        totalDays += monthStartWeekDay;
+
         //Backtracking calendar to the most recent Sunday
         populator.add(Calendar.DAY_OF_MONTH, -monthStartWeekDay);
 
-        while(dateList.size() < DAYS_IN_MONTH){
+        while(dateList.size() < totalDays){
+            dateList.add(populator.getTime());
+            populator.add(Calendar.DAY_OF_MONTH, 1);
+        }
+
+        int remainingDays = 8-populator.get(Calendar.DAY_OF_WEEK);
+
+        for(int i = 0; i < remainingDays; i ++){
             dateList.add(populator.getTime());
             populator.add(Calendar.DAY_OF_MONTH, 1);
         }
 
         myYear.setText(String.valueOf(myCal.get(Calendar.YEAR)));
         myMonth.setText(monthNames[myCal.get(Calendar.MONTH)]);
-        dayOfWeek.setText(myCal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
-
         myGrid.setAdapter(new CalendarAdapter(getContext(), dateList));
     }
 
@@ -213,6 +220,10 @@ public class CalendarWidget extends QuestionWidget{
                 text.setBackgroundColor(Color.rgb(105, 217, 255));
             }
 
+            if(date.getMonth() != current.getMonth()){
+                text.setTextColor(Color.rgb(150, 150, 150));
+            }
+
             text.setHeight(120);
             return text;
         }
@@ -233,14 +244,10 @@ public class CalendarWidget extends QuestionWidget{
     }
 
     @Override
-    public void setFocus(Context context) {
-
-    }
+    public void setFocus(Context context) {}
 
     @Override
-    public void setOnLongClickListener(OnLongClickListener l) {
-
-    }
+    public void setOnLongClickListener(OnLongClickListener l) {}
 
     public void removeQuestionText(){
         mQuestionText.setVisibility(GONE);

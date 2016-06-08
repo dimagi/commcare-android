@@ -1,11 +1,13 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -41,7 +43,6 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
     private EditText yearTxt;
     private TextView dayOfWeek;
     private Calendar myCal;
-
     private String[] myMonths;
     private List<String> monthList;
     private final int MIN_YEAR = 1900;
@@ -59,13 +60,37 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
         });
     }
 
+    private class MonthAdapter extends ArrayAdapter<String>{
+
+        private LayoutInflater mInflater;
+
+        public MonthAdapter(Context context,List<String> months){
+            super(context, R.layout.calendar_date, months);
+            mInflater = LayoutInflater.from(context);
+        }
+
+        @Override
+        public View getView(int position, View view, ViewGroup parent){
+            if(view == null){
+                view = mInflater.inflate(R.layout.calendar_date, null);
+            }
+
+            String month = getItem(position);
+
+            TextView text = (TextView) view;
+            text.setHeight(120);
+            text.setText(month);
+            return text;
+        }
+    }
+
     @Override
     protected void initText(){
         dayOfWeek = (TextView) findViewById(R.id.gregdayofweek);
         dayTxt = (EditText)findViewById(R.id.daytxtfield);
         yearTxt = (EditText)findViewById(R.id.yeartxtfield);
 
-        ArrayAdapter<String> monthAdapter = new ArrayAdapter<>(getContext(), R.layout.autocomplete_month, monthList);
+        MonthAdapter monthAdapter = new MonthAdapter(getContext(), monthList);
         monthTxt = (AutoCompleteTextView) findViewById(R.id.monthtxtfield);
         monthTxt.setAdapter(monthAdapter);
 
