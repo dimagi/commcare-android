@@ -66,6 +66,7 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_CLEAR_SAVED_SESSION = "Clear Saved Session";
     public static final String ACTION_FORCE_LOG_SUBMISSION = "Force Log Submission";
     public static final String ACTION_RECOVERY_MODE = "Recovery Mode";
+    public static final String ACTION_SUPERUSER_AUTH = "Authenticate as Superuser";
 
     // Actions for CATEGORY_FEATURE_USAGE
     public static final String ACTION_LOGIN_AS_DEMO_USER = "Login as Demo User";
