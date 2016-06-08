@@ -255,6 +255,8 @@
         </activity>
         <activity android:name="org.commcare.activities.RefreshToLatestBuildActivity">
         </activity>
+        <activity android:name="org.commcare.activities.MultipleAppsLimitWarningActivity">
+        </activity>
 
         <uses-library
             android:name="org.javarosa"

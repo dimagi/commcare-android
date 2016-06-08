@@ -111,9 +111,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
             case DispatchActivity.INIT_APP:
-                boolean installFailed = intent != null && intent.getBooleanExtra(
-                        CommCareSetupActivity.KEY_INSTALL_FAILED, false);
-                if (resultCode == RESULT_OK && !installFailed) {
+                if (resultCode == RESULT_OK) {
                     GoogleAnalyticsUtils.reportAppManagerAction(GoogleAnalyticsFields.ACTION_INSTALL_FROM_MANAGER);
                     // If we have just returned from installation and the currently-seated app's
                     // resources are not validated, launch the MM verification activity
@@ -123,8 +121,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                         this.startActivityForResult(i, DispatchActivity.MISSING_MEDIA_ACTIVITY);
                     }
                 } else {
-                    Toast.makeText(this, R.string.no_installation,
-                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.no_installation, Toast.LENGTH_LONG).show();
                 }
                 return;
             case DispatchActivity.MISSING_MEDIA_ACTIVITY:
