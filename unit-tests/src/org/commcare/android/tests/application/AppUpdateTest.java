@@ -102,20 +102,6 @@ public class AppUpdateTest {
     }
 
     @Test
-    public void testUpdateWithNoAppInstalled() {
-        Log.d(TAG, "Update without installing an app first");
-
-        ApplicationRecord appRecord = CommCareApplication._().getInstalledAppRecords().get(0);
-        CommCareApplication._().uninstall(appRecord);
-        installUpdate("invalid_update",
-                taskListenerFactory(AppInstallStatus.UnknownFailure),
-                AppInstallStatus.UnknownFailure);
-
-        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
-        Assert.assertTrue(p.getVersion() == 6);
-    }
-
-    @Test
     public void testUpdateToAppWithMultimedia() {
         Log.d(TAG, "updating to an app that has multimedia present");
 
