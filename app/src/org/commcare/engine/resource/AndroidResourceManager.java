@@ -48,7 +48,7 @@ public class AndroidResourceManager extends ResourceManager {
         app = CommCareApplication._().getCurrentApp();
 
         tempUpgradeTable =
-                ResourceTable.RetrieveTable(app.getStorage(TEMP_UPGRADE_TABLE_KEY, Resource.class),
+                new AndroidResourceTable(app.getStorage(TEMP_UPGRADE_TABLE_KEY, Resource.class),
                         new AndroidResourceInstallerFactory());
 
         updateStats = UpdateStats.loadUpdateStats(app);
