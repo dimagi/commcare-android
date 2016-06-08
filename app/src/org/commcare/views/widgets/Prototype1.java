@@ -61,7 +61,9 @@ public class Prototype1 extends QuestionWidget {
 
         LinearLayout calendarinfo = (LinearLayout) findViewById(R.id.calendarinfo);
         calendarinfo.addView(calendarCloser);
-//        LinearLayout.LayoutParams calendarParams = (LinearLayout.LayoutParams) calendarCloser.getLayoutParams();
+        LinearLayout.LayoutParams calendarParams = (LinearLayout.LayoutParams) calendarCloser.getLayoutParams();
+        calendarParams.width = 50;
+        calendarParams.height = 50;
 
         calendarCloser.setOnClickListener(new OnClickListener() {
             @Override

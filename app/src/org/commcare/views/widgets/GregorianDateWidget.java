@@ -18,6 +18,7 @@ import org.commcare.dalvik.R;
 import org.commcare.utils.UniversalDate;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
 
@@ -138,6 +139,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
                 }
             }
         });
+
 
         yearTxt.addTextChangedListener(new TextWatcher() {
             @Override
@@ -280,17 +282,18 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
     public IAnswerData getAnswer(){
         //Empty text fields
         if(monthTxt.getText().toString().equals("") || dayTxt.getText().toString().equals("") || yearTxt.getText().toString().equals("")){
-            return null;
+            return new StringData("Invalid");
         }
         //Invalid year (too low)
         if(Integer.parseInt(yearTxt.getText().toString()) < MIN_YEAR){
             yearTxt.setText("");
-            return null;
+            return new StringData("Invalid");
         }
         //Invalid month
         if(!monthList.contains(monthTxt.getText().toString())){
             monthTxt.setText("");
-            return null;
+            Log.d("Invalid", "Returned Stringdata");
+            return new StringData("Invalid");
         }
 
         return super.getAnswer();
