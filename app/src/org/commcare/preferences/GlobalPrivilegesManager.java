@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import org.commcare.CommCareApplication;
+import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 
 /**
  * Created by amstone326 on 6/7/16.
@@ -25,7 +26,7 @@ public class GlobalPrivilegesManager {
      */
     public static void enablePrivilege(String privilegeName, String username) {
         getGlobalPrivilegesRecord().edit().putBoolean(privilegeName, true).commit();
-
+        GoogleAnalyticsUtils.reportPrivilegeEnabled(privilegeName, username);
     }
 
     public static void disablePrivilege(String privilegeName) {

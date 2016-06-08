@@ -22,6 +22,7 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_MODULE_NAVIGATION = "Module Navigation";
     public static final String CATEGORY_FEATURE_USAGE = "Feature Usage";
     public static final String CATEGORY_APP_MANAGER = "App Manager";
+    public static final String CATEGORY_PRIVILEGE_ENABLED = "Global Privilege Enabled";
 
     // Actions for CATEGORY_HOME_SCREEN only
     public static final String ACTION_BUTTON = "Button Press";
