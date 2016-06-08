@@ -51,4 +51,13 @@ public abstract class VerificationTask<Reciever>
     @Override
     public void resourceStateUpdated(ResourceTable table) {
     }
+
+    @Override
+    public void resourceStateIncremented() {
+    }
+
+    @Override
+    public boolean wasInstallCancelled() {
+        return isCancelled();
+    }
 }

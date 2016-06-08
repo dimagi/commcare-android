@@ -209,6 +209,11 @@ public class UpdateTask
     }
 
     @Override
+    public void resourceStateIncremented() {
+        incrementProgress(++currentProgress, maxProgress);
+    }
+
+    @Override
     public void incrementProgress(int complete, int total) {
         this.publishProgress(complete, total);
     }
