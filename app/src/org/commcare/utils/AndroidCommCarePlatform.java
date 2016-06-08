@@ -4,6 +4,7 @@ import android.net.Uri;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
+import org.commcare.engine.resource.AndroidResourceTable;
 import org.commcare.resources.model.Resource;
 import org.commcare.resources.model.ResourceTable;
 import org.commcare.suite.model.Profile;
@@ -56,21 +57,21 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
 
     public ResourceTable getGlobalResourceTable() {
         if (global == null) {
-            global = ResourceTable.RetrieveTable(app.getStorage("GLOBAL_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
+            global = new AndroidResourceTable(app.getStorage("GLOBAL_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
         }
         return global;
     }
 
     public ResourceTable getUpgradeResourceTable() {
         if (upgrade == null) {
-            upgrade = ResourceTable.RetrieveTable(app.getStorage("UPGRADE_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
+            upgrade = new AndroidResourceTable(app.getStorage("UPGRADE_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
         }
         return upgrade;
     }
 
     public ResourceTable getRecoveryTable() {
         if (recovery == null) {
-            recovery = ResourceTable.RetrieveTable(app.getStorage("RECOVERY_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
+            recovery = new AndroidResourceTable(app.getStorage("RECOVERY_RESOURCE_TABLE", Resource.class), new AndroidResourceInstallerFactory());
         }
         return recovery;
     }
