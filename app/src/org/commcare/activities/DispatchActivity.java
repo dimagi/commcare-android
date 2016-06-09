@@ -212,15 +212,12 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void launchLoginScreen() {
-        if (waitingForActivityResultFromLogin) {
-            Logger.log(AndroidLogger.SOFT_ASSERT, "Login redirection bug occurred; " +
-                    "DispatchActivity is attempting to launch a new LoginActivity while it is " +
-                    "still waiting for a result from another one.");
+        if (!waitingForActivityResultFromLogin) {
+            Intent i = new Intent(this, LoginActivity.class);
+            i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, userTriggeredLogout);
+            startActivityForResult(i, LOGIN_USER);
+            waitingForActivityResultFromLogin = true;
         }
-        Intent i = new Intent(this, LoginActivity.class);
-        i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, userTriggeredLogout);
-        startActivityForResult(i, LOGIN_USER);
-        waitingForActivityResultFromLogin = true;
     }
 
     private void launchHomeScreen() {
