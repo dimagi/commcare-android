@@ -125,7 +125,7 @@ public abstract class ResourceEngineTask<R>
     }
 
     @Override
-    public void resourceStateUpdated(final ResourceTable table) {
+    public void compoundResourceAdded(final ResourceTable table) {
         synchronized (statusLock) {
             // if last time isn't set or is less than our spacing count, do not
             // perform status update. Also if we are already running one, just skip this.
@@ -193,7 +193,7 @@ public abstract class ResourceEngineTask<R>
     }
 
     @Override
-    public void resourceStateIncremented() {
+    public void simpleResourceAdded() {
         if (statusCheckRunning) {
             installedResourceCountWhileUpdating++;
         } else {

@@ -194,7 +194,7 @@ public class UpdateTask
      * Calculate and report the resource install progress a table has made.
      */
     @Override
-    public void resourceStateUpdated(ResourceTable table) {
+    public void compoundResourceAdded(ResourceTable table) {
         Vector<Resource> resources =
                 AndroidResourceManager.getResourceListFromProfile(table);
 
@@ -211,7 +211,7 @@ public class UpdateTask
     }
 
     @Override
-    public void resourceStateIncremented() {
+    public void simpleResourceAdded() {
         incrementProgress(++currentProgress, maxProgress);
     }
 
