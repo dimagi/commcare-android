@@ -118,12 +118,12 @@ public class MenuAdapter implements ListAdapter {
     private void addRelevantCommandEntries(Menu m, Vector<MenuDisplayable> items,
                                            Hashtable<String, Entry> map)
             throws XPathSyntaxException {
+        EvaluationContext ec = asw.getEvaluationContext();
         for (String command : m.getCommandIds()) {
             errorXpathException = "";
             XPathExpression mRelevantCondition = m.getCommandRelevance(m.indexOfCommand(command));
             if (mRelevantCondition != null) {
                 errorXpathException = m.getCommandRelevanceRaw(m.indexOfCommand(command));
-                EvaluationContext ec = asw.getEvaluationContext();
                 Object ret = mRelevantCondition.eval(ec);
                 try {
                     if (!XPathFuncExpr.toBoolean(ret)) {
@@ -134,9 +134,6 @@ public class MenuAdapter implements ListAdapter {
                     XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e.getSource(), msg);
                     Logger.log(AndroidLogger.TYPE_ERROR_CONFIG_STRUCTURE, msg);
                     throw new RuntimeException(msg);
-                }
-                if (!XPathFuncExpr.toBoolean(ret)) {
-                    continue;
                 }
             }
 
