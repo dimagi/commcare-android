@@ -217,6 +217,11 @@ public class DispatchActivity extends FragmentActivity {
             i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, userTriggeredLogout);
             startActivityForResult(i, LOGIN_USER);
             waitingForActivityResultFromLogin = true;
+        } else {
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "Login redirection bug occurred; DispatchActivity is attempting to launch " +
+                            "a new LoginActivity while it is still waiting for a result from " +
+                            "another one.");
         }
     }
 
