@@ -259,6 +259,8 @@
         </activity>
         <activity android:name="org.commcare.activities.GlobalPrivilegeClaimingActivity">
         </activity>
+        <activity android:name="org.commcare.activities.AppManagerSettingsActivity">
+        </activity>
 
         <uses-library
             android:name="org.javarosa"

@@ -9,5 +9,4 @@
     <Preference android:key="recovery-mode"/>
     <Preference android:key="clear-user-data"/>
     <Preference android:key="clear-saved-session"/>
-    <Preference android:key="authenticate-as-superuser"/>
 </PreferenceScreen>

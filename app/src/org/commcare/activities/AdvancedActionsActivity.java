@@ -42,7 +42,6 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
     private final static String RECOVERY_MODE = "recovery-mode";
     private final static String CLEAR_USER_DATA = "clear-user-data";
     private final static String CLEAR_SAVED_SESSION = "clear-saved-session";
-    private final static String AUTHENTICATE_AS_SUPERUSER = "authenticate-as-superuser";
 
     private final static int WIFI_DIRECT_ACTIVITY = 1;
     private final static int DUMP_FORMS_ACTIVITY = 2;
@@ -65,7 +64,6 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
         keyToTitleMap.put(FORCE_LOG_SUBMIT, "force.log.submit");
         keyToTitleMap.put(RECOVERY_MODE, "recovery.mode");
         keyToTitleMap.put(CLEAR_SAVED_SESSION, "menu.clear.saved.session");
-        keyToTitleMap.put(AUTHENTICATE_AS_SUPERUSER, "menu.superusuer.auth");
     }
 
     @Override
@@ -82,7 +80,6 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
     private void setupUI() {
         setTitle(Localization.get("settings.advanced.title"));
         CommCarePreferences.addBackButtonToActionBar(this);
-
         CommCarePreferences.setupLocalizedText(this, keyToTitleMap);
         setupButtons();
     }
@@ -186,23 +183,6 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
                 return true;
             }
         });
-
-        Preference superuserAuthButton = findPreference(AUTHENTICATE_AS_SUPERUSER);
-        superuserAuthButton.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-                GoogleAnalyticsUtils.reportAdvancedActionItemClick(GoogleAnalyticsFields.ACTION_SUPERUSER_AUTH);
-                launchSuperuserAuth();
-                return true;
-            }
-        });
-    }
-
-    private void launchSuperuserAuth() {
-        Intent i = new Intent(this, GlobalPrivilegeClaimingActivity.class);
-        i.putExtra(GlobalPrivilegeClaimingActivity.KEY_PRIVILEGE_NAME,
-                GlobalPrivilegesManager.PRIVILEGE_SUPERUSER);
-        startActivity(i);
     }
 
     private void startReportActivity() {
