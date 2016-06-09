@@ -17,7 +17,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/enabled_textview"
-            android:textSize="@dimen/font_size_medium"
+            android:textSize="@dimen/font_size_large"
             android:gravity="center"
             android:visibility="gone"
             android:textStyle="bold" />
@@ -26,7 +26,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/not_enabled_textview"
-            android:textSize="@dimen/font_size_medium"
+            android:textSize="@dimen/font_size_large"
             android:gravity="center"
             android:visibility="gone"
             android:textStyle="bold" />
@@ -42,13 +42,13 @@
         android:layout_marginRight="@dimen/standard_spacer_double"
         android:layout_marginTop="@dimen/standard_spacer"
         android:layout_marginBottom="@dimen/standard_spacer"
-        android:textSize="@dimen/font_size_large" />
+        android:textSize="@dimen/font_size_medium" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/claim_button"
-        android:textSize="@dimen/font_size_large"
+        android:textSize="@dimen/font_size_xlarge"
         android:text="@string/claim_privilege_button_text" />
 
 </LinearLayout>

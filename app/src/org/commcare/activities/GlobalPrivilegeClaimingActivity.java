@@ -4,15 +4,18 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.GlobalPrivilegesManager;
+import org.commcare.utils.SigningUtil;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.locale.Localization;
 import org.json.JSONException;
@@ -24,13 +27,14 @@ import org.json.JSONObject;
  */
 public class GlobalPrivilegeClaimingActivity extends Activity {
 
+    private static final String TAG = GlobalPrivilegeClaimingActivity.class.getSimpleName();
     public static final String KEY_PRIVILEGE_NAME = "key-privilege-name";
 
     // activity request codes
     public static final int BARCODE_CAPTURE = 1;
 
     // menu item IDs
-    private static final int REVOKE_AUTH = 1;
+    private static final int DISABLE = 1;
 
     // the name of the privilege that this activity is set up to claim/revoke
     private String privilegeName;
@@ -65,19 +69,25 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
     }
 
     private void refreshUI() {
-        TextView enabledTextView = (TextView)this.findViewById(R.id.enabled_textview);
-        TextView notEnabledTextView = (TextView)this.findViewById(R.id.not_enabled_textview);
+        TextView enabledTextView = (TextView)findViewById(R.id.enabled_textview);
+        TextView notEnabledTextView = (TextView)findViewById(R.id.not_enabled_textview);
+        Button claimButton = (Button)findViewById(R.id.claim_button);
+        TextView instructions = (TextView)findViewById(R.id.instructions);
 
-        boolean privilegeIsEnabled = GlobalPrivilegesManager.isPrivilegeEnabled(this.privilegeName);
-        if (privilegeIsEnabled) {
+        if (GlobalPrivilegesManager.isPrivilegeEnabled(this.privilegeName)) {
             notEnabledTextView.setVisibility(View.GONE);
+            claimButton.setVisibility(View.GONE);
+            instructions.setVisibility(View.GONE);
             enabledTextView.setVisibility(View.VISIBLE);
             enabledTextView.setText(getEnabledText());
         } else {
             enabledTextView.setVisibility(View.GONE);
+            claimButton.setVisibility(View.VISIBLE);
+            instructions.setVisibility(View.VISIBLE);
             notEnabledTextView.setVisibility(View.VISIBLE);
             notEnabledTextView.setText(getNotEnabledText());
         }
+        ActivityCompat.invalidateOptionsMenu(this);
     }
 
     private String getEnabledText() {
@@ -105,61 +115,87 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
         switch(requestCode) {
             case BARCODE_CAPTURE:
                 if (resultCode == RESULT_OK) {
-                    processJsonScanResult(data.getStringExtra("SCAN_RESULT"));
-                    /*String usernameAuthenticatedWith = processScanResult(data.getStringExtra("SCAN_RESULT"));
-                    if (usernameAuthenticatedWith != null) {
-                        CommCareApplication._().enableSuperUserMode(usernameAuthenticatedWith);
-                        setResult(RESULT_OK);
-                        finish();
+                    String[] fields = processScanResult(data.getStringExtra("SCAN_RESULT"));
+                    if (fields == null) {
+                        privilegeClaimFailed();
                     } else {
-                        Toast.makeText(this, "Authentication Failed", Toast.LENGTH_LONG).show();
-                    }*/
+                        String flag = fields[0];
+                        String username = fields[1];
+                        String signature = fields[2];
+                        if (checkProperFormAndAuthenticity(flag, username, signature)) {
+                            GlobalPrivilegesManager.enablePrivilege(this.privilegeName, username);
+                            refreshUI();
+                        } else {
+                            privilegeClaimFailed();
+                        }
+                    }
                 }
-                else {
-                    Toast.makeText(this, "Authentication Failed", Toast.LENGTH_LONG).show();
-                }
-                break;
         }
     }
 
-    private static void processJsonScanResult(String scanResult) {
+    private void privilegeClaimFailed() {
+        Toast.makeText(this,
+                StringUtils.getStringRobust(this, R.string.privilege_claim_failed),
+                Toast.LENGTH_LONG)
+                .show();
+    }
+
+    private String[] processScanResult(String scanResult) {
         try {
             JSONObject obj = new JSONObject(scanResult);
-            String URL = obj.getString("URL");
             String username = obj.getString("username");
+            String flag = obj.getString("flag");
             String signature = obj.getString("signature");
-            System.out.println(URL);
-            System.out.println(username);
-            System.out.println(signature);
+            return new String[] {flag, username, signature};
         } catch (JSONException e) {
-
+            return null;
         }
     }
 
-    /**
-     *
-     * @return the username authenticated with if superuser auth was successful, or null if it was
-     * not successful
-     */
-    /*private static String processScanResult(String scanResult) {
-        String[] valueAndSignature = scanResult.split(" ");
-        if (valueAndSignature.length != 2) {
-            return null;
+    private boolean checkProperFormAndAuthenticity(String flag, String username, String signature) {
+        if (!this.privilegeName.equals(flag)) {
+            Log.d(TAG, "Privilege claim failed because the user scanned a barcode for privilege "
+                    + flag + ", but this activity is intended to claim privilege " + privilegeName);
+            return false;
         }
-        SignedPermission superuserPermission = new SignedPermission(
-                SignedPermission.KEY_SUPERUSER_AUTHENTICATION,
-                valueAndSignature[0],
-                valueAndSignature[1]);
-        if (superuserPermission.verifyValue(new AndroidSignedPermissionVerifier())) {
-            return valueAndSignature[0];
+        if (!username.endsWith("@dimagi.com")) {
+            Log.d(TAG, "Privilege claim failed because the encoded username was not an " +
+                    "@dimagi.com email address");
+            return false;
         }
-        return null;
-    }*/
+        try {
+            byte[] signatureBytes = SigningUtil.getBytesFromString(signature);
+            String expectedUnsignedValue = getExpectedUnsignedValue(flag, username);
+            return SigningUtil.verifyMessageAndBytes(expectedUnsignedValue, signatureBytes) != null;
+        } catch (Exception e) {
+            Log.d(TAG, "Privilege claim failed because signature verification failed");
+            return false;
+        }
+
+    }
+
+    private static String getExpectedUnsignedValue(String flag, String username) {
+        JSONObject object = new JSONObject();
+        try {
+            object.put("username", username);
+            object.put("flag", flag);
+            return object.toString();
+        } catch (JSONException e) {
+            return "";
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, REVOKE_AUTH, 0, Localization.get("superuser.auth.menu.revoke"));
+        menu.add(0, DISABLE, 0, Localization.get("menu.privilege.claim.disable"));
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        menu.findItem(DISABLE).setVisible(GlobalPrivilegesManager.isPrivilegeEnabled(privilegeName));
         return true;
     }
 
@@ -167,7 +203,7 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
-            case REVOKE_AUTH:
+            case DISABLE:
                 GlobalPrivilegesManager.disablePrivilege(this.privilegeName);
                 refreshUI();
         }

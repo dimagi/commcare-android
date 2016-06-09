@@ -36,7 +36,6 @@ public class GlobalPrivilegesManager {
     public static void enablePrivilege(String privilegeName, String username) {
         getGlobalPrivilegesRecord().edit()
                 .putBoolean(privilegeName, true)
-                .putString(privilegeName, username)
                 .commit();
         GoogleAnalyticsUtils.reportPrivilegeEnabled(privilegeName, username);
     }
