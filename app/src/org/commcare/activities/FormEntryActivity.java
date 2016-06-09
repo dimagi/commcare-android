@@ -1205,7 +1205,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             skipText = Localization.get("repeat.dialog.exit");
         }
         if (mFormController.getLastRepeatCount() > 0) {
-            title = Localization.get("repeat.dialgo.add.another", mFormController.getLastGroupText());
+            title = Localization.get("repeat.dialog.add.another", mFormController.getLastGroupText());
         } else {
             title = Localization.get("repeat.dialog.add.new", mFormController.getLastGroupText());
         }

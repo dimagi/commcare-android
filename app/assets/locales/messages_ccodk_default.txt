@@ -740,5 +740,5 @@ repeat.dialog.leave=Do Not Add
 repeat.dialog.exit=Do Not Add. I'm Finished.
 repeat.dialog.add=Add Group
 repeat.dialog.add.one=And One More Group?
-repeat.dialog.add.another=Add another \"${0}\" group?
-repeat.dialog.add.new=Add a new \"${0}\" group?
+repeat.dialog.add.another=Add another "${0}" group?
+repeat.dialog.add.new=Add a new "${0}" group?
