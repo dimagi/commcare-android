@@ -108,6 +108,7 @@ home.developer.options.enabled=Developer Mode Enabled
 menu.save.session=Save Your Session
 menu.clear.saved.session=Clear Saved Session
 menu.superusuer.auth=Authenticate as a Superuser
+superuser.auth.menu.revoke=Revoke Authentication
 
 install.version.mismatch=The application requires CommCare version ${0}. You are running ${1}.
 install.major.mismatch=Please uninstall your CommCare Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.

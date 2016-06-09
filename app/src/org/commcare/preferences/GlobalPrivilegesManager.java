@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import org.commcare.CommCareApplication;
+import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
+import org.commcare.utils.StringUtils;
 
 import java.util.ArrayList;
 
@@ -32,7 +34,10 @@ public class GlobalPrivilegesManager {
      * @param username - the HQ web user associated with the privilege being granted
      */
     public static void enablePrivilege(String privilegeName, String username) {
-        getGlobalPrivilegesRecord().edit().putBoolean(privilegeName, true).commit();
+        getGlobalPrivilegesRecord().edit()
+                .putBoolean(privilegeName, true)
+                .putString(privilegeName, username)
+                .commit();
         GoogleAnalyticsUtils.reportPrivilegeEnabled(privilegeName, username);
     }
 
@@ -40,11 +45,29 @@ public class GlobalPrivilegesManager {
         getGlobalPrivilegesRecord().edit().putBoolean(privilegeName, false).commit();
     }
 
-    private static boolean isPrivilegeEnabled(String privilegeName) {
+    public static boolean isPrivilegeEnabled(String privilegeName) {
         return getGlobalPrivilegesRecord().getBoolean(privilegeName, false);
     }
 
     public static boolean isSuperuserPrivilegeEnabled() {
         return isPrivilegeEnabled(PRIVILEGE_SUPERUSER);
+    }
+
+    public static String getPrivilegeDisplayName(String privilegeName) {
+        switch(privilegeName) {
+            case PRIVILEGE_SUPERUSER:
+                return "superuser";
+            default:
+                return "";
+        }
+    }
+
+    public static String getInstructionsText(String privilegeName) {
+        switch(privilegeName) {
+            case PRIVILEGE_SUPERUSER:
+                return "go to the 'Enable Superuser on Mobile' tab of your 'My Account Settings' " +
+                        "page on HQ, while logged in as a web user with superuser permissions";
+        }
+        return "";
     }
 }

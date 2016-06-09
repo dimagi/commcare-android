@@ -257,6 +257,8 @@
         </activity>
         <activity android:name="org.commcare.activities.MultipleAppsLimitWarningActivity">
         </activity>
+        <activity android:name="org.commcare.activities.GlobalPrivilegeClaimingActivity">
+        </activity>
 
         <uses-library
             android:name="org.javarosa"

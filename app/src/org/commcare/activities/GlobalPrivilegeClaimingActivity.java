@@ -3,6 +3,7 @@ package org.commcare.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,6 +35,8 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
     // the name of the privilege that this activity is set up to claim/revoke
     private String privilegeName;
 
+    private String privilegeDisplayName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,18 +46,16 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
             setResult(RESULT_CANCELED);
             finish();
         }
+        privilegeDisplayName = GlobalPrivilegesManager.getPrivilegeDisplayName(privilegeName);
 
-        setupUI();
-    }
-
-    private void setupUI() {
-        setContentView(R.layout.superuser_auth_view);
-        this.findViewById(R.id.authenticate_button).setOnClickListener(new View.OnClickListener() {
+        setContentView(R.layout.privilege_claiming_view);
+        findViewById(R.id.claim_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 callOutToBarcodeScanner();
             }
         });
+        ((TextView)findViewById(R.id.instructions)).setText(getInstructionsText());
     }
 
     @Override
@@ -64,18 +65,38 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
     }
 
     private void refreshUI() {
-        TextView authenticatedTextView = (TextView)this.findViewById(R.id.authenticated_text);
-        TextView notAuthenticatedTextView = (TextView)this.findViewById(R.id.not_authenticated_text);
-        if (CommCareApplication._().isSuperUserEnabled()) {
-            authenticatedTextView.setVisibility(View.VISIBLE);
-            notAuthenticatedTextView.setVisibility(View.GONE);
-            authenticatedTextView.setText(StringUtils.getStringRobust(
-                    this, R.string.authenticated_text,
-                    CommCareApplication._().getAuthenticatedSuperuserUsername()));
+        TextView enabledTextView = (TextView)this.findViewById(R.id.enabled_textview);
+        TextView notEnabledTextView = (TextView)this.findViewById(R.id.not_enabled_textview);
+
+        boolean privilegeIsEnabled = GlobalPrivilegesManager.isPrivilegeEnabled(this.privilegeName);
+        if (privilegeIsEnabled) {
+            notEnabledTextView.setVisibility(View.GONE);
+            enabledTextView.setVisibility(View.VISIBLE);
+            enabledTextView.setText(getEnabledText());
         } else {
-            notAuthenticatedTextView.setVisibility(View.VISIBLE);
-            authenticatedTextView.setVisibility(View.GONE);
+            enabledTextView.setVisibility(View.GONE);
+            notEnabledTextView.setVisibility(View.VISIBLE);
+            notEnabledTextView.setText(getNotEnabledText());
         }
+    }
+
+    private String getEnabledText() {
+        return StringUtils.getStringRobust(this, R.string.privilege_enabled_text, privilegeDisplayName);
+    }
+
+    private String getNotEnabledText() {
+        return StringUtils.getStringRobust(this, R.string.privilege_not_enabled_text, privilegeDisplayName);
+    }
+
+    private String getInstructionsText() {
+        return StringUtils.getStringRobust(this, R.string.claim_privilege_instructions,
+                new String[] {privilegeDisplayName, GlobalPrivilegesManager.getInstructionsText(this.privilegeName)});
+    }
+
+    private void callOutToBarcodeScanner() {
+        Intent i = new Intent("com.google.zxing.client.android.SCAN");
+        i.putExtra("SCAN_FORMATS", "QR_CODE");
+        startActivityForResult(i, BARCODE_CAPTURE);
     }
 
     @Override
@@ -117,11 +138,10 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
 
     /**
      *
-     * @param scanResult the string returned by the barcode scan callout
      * @return the username authenticated with if superuser auth was successful, or null if it was
      * not successful
      */
-    private static String processScanResult(String scanResult) {
+    /*private static String processScanResult(String scanResult) {
         String[] valueAndSignature = scanResult.split(" ");
         if (valueAndSignature.length != 2) {
             return null;
@@ -134,7 +154,7 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
             return valueAndSignature[0];
         }
         return null;
-    }
+    }*/
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -145,19 +165,13 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        super.onOptionsItemSelected(item);
         switch (item.getItemId()) {
             case REVOKE_AUTH:
-                CommCareApplication._().disableSuperUserMode();
+                GlobalPrivilegesManager.disablePrivilege(this.privilegeName);
                 refreshUI();
-                return true;
         }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void callOutToBarcodeScanner() {
-        Intent i = new Intent("com.google.zxing.client.android.SCAN");
-        i.putExtra("SCAN_FORMATS", "QR_CODE");
-        startActivityForResult(i, BARCODE_CAPTURE);
+        return true;
     }
 
 }

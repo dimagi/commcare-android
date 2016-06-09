@@ -11,7 +11,7 @@
     <string name="key_server">https://pact.dimagi.com/keys/getkey</string>
     <string name="your_comment">Your comment</string>
 
-    <!-- region: All strings for multiple apps -->
+    <!-- region: All strings for multiple apps and app-agnostic properties -->
 
     <string name="manager_activity_name">App Manager</string>
     <string name="install_app">Install An App</string>
@@ -42,6 +42,10 @@
     <string name="migration_possible_failure">CommCare was unable to migrate all of your data during an application upgrade. Please restart CommCare to try to fix this. If this message persists, you may need to \'Clear data\' for CommCare in your device\'s Settings menu.</string>
     <string name="migration_failure_title">Migration Error</string>
     <string name="multiple_apps_limit_message">You have reached your limit of installed apps; you may only have up to 2 apps installed at once.\n\nIf you would like to install a new app, you may uninstall an existing app first, which can be done from the app manager.</string>
+    <string name="claim_privilege_button_text">CLAIM PRIVILEGE</string>
+    <string name="claim_privilege_instructions">To enable the %1$s privilege, %2$s, and then scan the barcode that appears there</string>
+    <string name="privilege_enabled_text">The %s privilege is enabled</string>
+    <string name="privilege_not_enabled_text">The %s privilege is not enabled</string>
 
     <!-- endregion -->
 
