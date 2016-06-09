@@ -734,3 +734,11 @@ clear.user.data.warning.title=Clear User Data
 clear.user.data.warning.message=Are you sure you want to clear all mobile user data? All unsynced data will be lost!
 force.log.submit=Force Log Submission
 recovery.mode=Recovery Mode
+
+repeat.dialog.go.back=Go Back
+repeat.dialog.leave=Do Not Add
+repeat.dialog.exit=Do Not Add. I'm Finished.
+repeat.dialog.add=Add Group
+repeat.dialog.add.one=And One More Group?
+repeat.dialog.add.another=Add another \"${0}\" group?
+repeat.dialog.add.new=Add a new \"${0}\" group?
