@@ -54,7 +54,6 @@ public class DispatchActivity extends FragmentActivity {
     private static final String KEY_APP_FILES_CHECK_OCCURRED = "check-for-changed-app-files-occurred";
     private static final String KEY_WAITING_FOR_ACTIVITY_RESULT = "waiting-for-login-activity-result";
 
-    // Used for soft assert for login redirection bug
     private boolean waitingForActivityResultFromLogin;
 
     boolean alreadyCheckedForAppFilesChange;
