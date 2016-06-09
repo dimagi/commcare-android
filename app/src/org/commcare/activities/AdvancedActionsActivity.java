@@ -15,6 +15,7 @@ import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DevSessionRestorer;
+import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.tasks.DumpTask;
 import org.commcare.tasks.SendTask;
 import org.commcare.tasks.WipeTask;
@@ -198,7 +199,10 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
     }
 
     private void launchSuperuserAuth() {
-        
+        Intent i = new Intent(this, GlobalPrivilegeClaimingActivity.class);
+        i.putExtra(GlobalPrivilegeClaimingActivity.KEY_PRIVILEGE_NAME,
+                GlobalPrivilegesManager.PRIVILEGE_SUPERUSER);
+        startActivity(i);
     }
 
     private void startReportActivity() {
