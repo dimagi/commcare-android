@@ -215,6 +215,7 @@ public class DispatchActivity extends FragmentActivity {
 
     private void launchLoginScreen() {
         if (!waitingForActivityResultFromLogin) {
+            // AMS 06/09/16: This check is needed due to what we believe is a bug in the Android platform
             Intent i = new Intent(this, LoginActivity.class);
             i.putExtra(LoginActivity.USER_TRIGGERED_LOGOUT, userTriggeredLogout);
             startActivityForResult(i, LOGIN_USER);
