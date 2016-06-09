@@ -236,6 +236,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == CALLOUT_ZPL) {
+            this.setResult(resultCode);
             this.finish();
             return;
         }
