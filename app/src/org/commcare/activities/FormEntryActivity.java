@@ -1196,24 +1196,18 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         final boolean nextExitsForm = details.relevantAfterCurrentScreen == 0;
 
         // Assign title and text strings based on the current state
-        String title, addAnotherText, skipText, backText;
-        backText = Localization.get("repeat.dialog.go.back");
+        String backText = Localization.get("repeat.dialog.go.back");
+        String addAnotherText = Localization.get("repeat.dialog.add");
+        String title, skipText;
+        if (!nextExitsForm) {
+            skipText = Localization.get("repeat.dialog.leave");
+        } else {
+            skipText = Localization.get("repeat.dialog.exit");
+        }
         if (mFormController.getLastRepeatCount() > 0) {
             title = Localization.get("repeat.dialgo.add.another", mFormController.getLastGroupText());
-            addAnotherText = Localization.get("repeat.dialog.add");
-            if (!nextExitsForm) {
-                skipText = Localization.get("repeat.dialog.leave");
-            } else {
-                skipText = Localization.get("repeat.dialog.exit");
-            }
         } else {
             title = Localization.get("repeat.dialog.add.new", mFormController.getLastGroupText());
-            addAnotherText = Localization.get("repeat.dialog.add");
-            if (!nextExitsForm) {
-                skipText = Localization.get("repeat.dialog.leave");
-            } else {
-                skipText = Localization.get("repeat.dialog.exit");
-            }
         }
 
         // Create the choice dialog
