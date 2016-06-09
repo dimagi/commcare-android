@@ -49,11 +49,11 @@ public abstract class VerificationTask<Reciever>
     }
 
     @Override
-    public void resourceStateUpdated(ResourceTable table) {
+    public void compoundResourceAdded(ResourceTable table) {
     }
 
     @Override
-    public void resourceStateIncremented() {
+    public void simpleResourceAdded() {
     }
 
     @Override
