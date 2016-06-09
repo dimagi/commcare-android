@@ -53,6 +53,10 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
         myLayout = (LinearLayout) inflater.inflate(R.layout.calendar_widget, container);
 
+        if(myCal == null){
+            myCal = Calendar.getInstance();
+        }
+
         initDisplay();
         initMonths();
         initWeekDays();

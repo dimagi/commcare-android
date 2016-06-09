@@ -94,6 +94,7 @@ import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -1146,6 +1147,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      */
     private void showConstraintWarning(FormIndex index, String constraintText,
                                        int saveStatus, boolean requestFocus) {
+
         switch (saveStatus) {
             case FormEntryController.ANSWER_CONSTRAINT_VIOLATED:
                 if (constraintText == null) {
@@ -1161,6 +1163,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         //We need to see if question in violation is on the screen, so we can show this cleanly.
         for(QuestionWidget q : questionsView.getWidgets()) {
             if(index.equals(q.getFormId())) {
+
+                if(q.getAnswer() instanceof InvalidData){
+                    constraintText = ((InvalidData) q.getAnswer()).getErrorMessage();
+                }
+
                 q.notifyInvalid(constraintText, requestFocus);
                 displayed = true;
                 break;

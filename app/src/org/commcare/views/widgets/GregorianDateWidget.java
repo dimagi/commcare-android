@@ -17,6 +17,7 @@ import org.commcare.dalvik.R;
 import org.commcare.utils.UniversalDate;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
@@ -93,77 +94,77 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
         monthTxt = (AutoCompleteTextView) findViewById(R.id.monthtxtfield);
         monthTxt.setAdapter(monthAdapter);
 
-        dayTxt.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) { //Validate for day too large
-                String contents = s.toString();
-
-                if(contents.length() > 1) {
-                    int num = Integer.parseInt(contents);
-                    int monthMax = myCal.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    if (num > monthMax) {
-                        s.clear();
-                        s.append(String.valueOf(monthMax));
-                    }
-
-                    if(num < 1){
-                        s.clear();
-                        s.append(String.valueOf(1));
-                    }
-
-                    myCal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(s.toString()));
-                }
-            }
-        });
-
-        monthTxt.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) { //Update month array pointer when month text updated
-                String content = s.toString();
-
-                if(monthList.contains(content)){
-                    monthArrayPointer = monthList.indexOf(content);
-                    myCal.set(Calendar.MONTH, monthArrayPointer);
-                }
-            }
-        });
-
-
-        yearTxt.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String contents = s.toString();
-
-                if(contents.length() >= 4 ){
-                    int maxYear = myCal.get(Calendar.YEAR)+1;
-
-                    if(Integer.parseInt(contents) > maxYear){
-                        s.clear();
-                        s.append(String.valueOf(maxYear));
-                    }
-                    myCal.set(Calendar.YEAR, Integer.parseInt(contents));
-                }
-            }
-        });
+//        dayTxt.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+//
+//            @Override
+//            public void afterTextChanged(Editable s) { //Validate for day too large
+//                String contents = s.toString();
+//
+//                if(contents.length() > 1) {
+//                    int num = Integer.parseInt(contents);
+//                    int monthMax = myCal.getActualMaximum(Calendar.DAY_OF_MONTH);
+//
+//                    if (num > monthMax) {
+//                        s.clear();
+//                        s.append(String.valueOf(monthMax));
+//                    }
+//
+//                    if(num < 1){
+//                        s.clear();
+//                        s.append(String.valueOf(1));
+//                    }
+//
+//                    myCal.set(Calendar.DAY_OF_MONTH, Integer.parseInt(s.toString()));
+//                }
+//            }
+//        });
+//
+//        monthTxt.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+//
+//            @Override
+//            public void afterTextChanged(Editable s) { //Update month array pointer when month text updated
+//                String content = s.toString();
+//
+//                if(monthList.contains(content)){
+//                    monthArrayPointer = monthList.indexOf(content);
+//                    myCal.set(Calendar.MONTH, monthArrayPointer);
+//                }
+//            }
+//        });
+//
+//
+//        yearTxt.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                String contents = s.toString();
+//
+//                if(contents.length() >= 4 ){
+//                    int maxYear = myCal.get(Calendar.YEAR)+1;
+//
+//                    if(Integer.parseInt(contents) > maxYear){
+//                        s.clear();
+//                        s.append(String.valueOf(maxYear));
+//                    }
+//                    myCal.set(Calendar.YEAR, Integer.parseInt(contents));
+//                }
+//            }
+//        });
     }
 
     private void clearAll(){
@@ -281,20 +282,18 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
 
     @Override
     public IAnswerData getAnswer(){
+
         //Empty text fields
         if(monthTxt.getText().toString().equals("") || dayTxt.getText().toString().equals("") || yearTxt.getText().toString().equals("")){
-            return new StringData("Invalid");
+            return new InvalidData("Please complete all fields");
         }
         //Invalid year (too low)
         if(Integer.parseInt(yearTxt.getText().toString()) < MIN_YEAR){
-            yearTxt.setText("");
-            return new StringData("Invalid");
+            return new InvalidData("Year must be > 1900");
         }
         //Invalid month
         if(!monthList.contains(monthTxt.getText().toString())){
-            monthTxt.setText("");
-            Log.d("Invalid", "Returned Stringdata");
-            return new StringData("Invalid");
+            return new InvalidData("Month text is invalid");
         }
 
         return super.getAnswer();
