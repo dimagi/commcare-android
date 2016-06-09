@@ -1,7 +1,6 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -14,7 +13,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import org.commcare.dalvik.R;
 import org.commcare.utils.UniversalDate;
 import org.javarosa.core.model.data.DateData;
@@ -22,9 +20,7 @@ import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -32,7 +28,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Created by Saumya on 5/27/2016.
@@ -193,7 +188,6 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
         monthTxt.setText(monthsArray[monthArrayPointer]);
         yearTxt.setText(String.format("%04d", dateUniv.year));
         myCal.setTimeInMillis(millisFromJavaEpoch);
-
         dayOfWeek.setText(myCal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
     }
 
@@ -324,7 +318,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
         setDate(new DateData(myCal.getTime()));
     }
 
-    protected Calendar getMyCal(){
+    protected Calendar getMyCalendar(){
         return myCal;
     }
 }

@@ -50,11 +50,11 @@ public class Prototype2 extends Prototype1 {
         findViewById(R.id.monthdownbtn).setVisibility(GONE);
         findViewById(R.id.yearupbtn).setVisibility(GONE);
         findViewById(R.id.yeardownbtn).setVisibility(GONE);
-        findViewById(R.id.clearall).setVisibility(GONE);
         findViewById(R.id.widgetinfo).setVisibility(GONE);
 
         final ImageButton openCalendar = new ImageButton(getContext());
         openCalendar.setImageResource(R.drawable.avatar_vellum_date);
+        openCalendar.setBackgroundColor(getResources().getColor(R.color.transparent));
 
         openCalendar.setOnClickListener(new OnClickListener() {
             @Override
@@ -63,10 +63,9 @@ public class Prototype2 extends Prototype1 {
             }
         });
 
-        myView.addView(openCalendar);
+        ((LinearLayout) myView.findViewById(R.id.gregfooter)).addView(openCalendar);
 
         LinearLayout.LayoutParams calParams = (LinearLayout.LayoutParams) openCalendar.getLayoutParams();
-        calParams.gravity = Gravity.RIGHT;
         calParams.width = LayoutParams.WRAP_CONTENT;
         calParams.height = LayoutParams.WRAP_CONTENT;
 

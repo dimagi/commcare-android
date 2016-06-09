@@ -1,78 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:gravity="center">
+    android:gravity="center"
+    android:layout_gravity="center_horizontal"
+    android:paddingLeft = "20dp"
+    android:paddingRight="20dp"
+    android:paddingBottom="20dp">
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:id = "@+id/calendarinfo"
-        android:layout_marginTop="10dp"
         android:orientation="horizontal"
         android:gravity="right"
         android:layout_gravity="right">
 
     </LinearLayout>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
-        android:layout_marginTop="5dp">
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal">
 
         <Button
             android:id="@+id/prevmonthbutton"
-            android:layout_width="45dp"
+            android:layout_width="0dp"
             android:layout_height="45dp"
-            android:text="&lt;"/>
+            android:text="&lt;"
+            android:backgroundTint="@color/transparent"
+            android:textColor="@color/bright_blue_grad_end"
+            android:textStyle="bold"
+            android:layout_weight=".1"/>
 
         <TextView
             android:id="@+id/currentmonth"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/prevmonthbutton"/>
+            android:textStyle="bold"
+            android:layout_weight=".2"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal" />
 
         <Button
             android:id="@+id/nextmonthbutton"
-            android:layout_width="45dp"
+            android:layout_width="0dp"
             android:layout_height="45dp"
-            android:layout_toRightOf="@+id/currentmonth"
-            android:text="&gt;" />
+            android:text="&gt;"
+            android:backgroundTint="@color/transparent"
+            android:textColor="@color/bright_blue_grad_end"
+            android:textStyle="bold"
+            android:layout_weight=".1"/>
 
         <Button
             android:id="@+id/prevyearbutton"
-            android:layout_width="45dp"
+            android:layout_width="0dp"
             android:layout_height="45dp"
             android:layout_marginLeft="25dp"
-            android:layout_toRightOf="@id/nextmonthbutton"
-            android:text="&lt;" />
+            android:text="&lt;"
+            android:backgroundTint="@color/transparent"
+            android:textColor="@color/bright_blue_grad_end"
+            android:textStyle="bold"
+            android:layout_weight=".1"/>
 
         <TextView
             android:id="@+id/currentyear"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/prevyearbutton"/>
+            android:textStyle="bold"
+            android:layout_weight=".2"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal" />
 
         <Button
             android:id="@+id/nextyearbutton"
-            android:layout_width="45dp"
+            android:layout_width="0dp"
             android:layout_height="45dp"
-            android:layout_toRightOf="@+id/currentyear"
-            android:text="&gt;" />
+            android:text="&gt;"
+            android:backgroundTint="@color/transparent"
+            android:textColor="@color/bright_blue_grad_end"
+            android:textStyle="bold"
+            android:layout_weight=".1"/>
 
-    </RelativeLayout>
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
-        android:paddingTop="6dp">
+        android:paddingTop="6dp"
+        android:layout_marginLeft="10dp">
 
         <TextView
             android:layout_width="0dp"
@@ -135,9 +159,25 @@
     <GridView
         android:id="@+id/calendar_grid"
         android:layout_width="fill_parent"
-        android:layout_height="400dp"
+        android:layout_height="wrap_content"
         android:numColumns="7"
         android:gravity="center"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="10dp"
+        android:horizontalSpacing="3dp"
+        android:verticalSpacing="3dp"
+        android:layout_marginBottom="20dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"/>
+
+    <ImageButton
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_gravity="right"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/green_check_mark"
+        android:id = "@+id/closecalendar"/>
 
 </LinearLayout>

@@ -18,13 +18,16 @@
             android:layout_height="wrap_content"
             android:text="Day"
             android:id = "@+id/gregdayofweek"
-            android:layout_weight=".8" />
+            android:layout_weight=".7"
+            android:layout_marginLeft="20dp" />
 
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/avatar_vellum_date"
-            android:id = "@+id/opencalendar"/>
+            android:id = "@+id/opencalendar"
+            android:background="@color/transparent"
+            android:layout_marginRight="20dp" />
 
     </LinearLayout>
 
@@ -36,28 +39,29 @@
         android:gravity="center"
         android:orientation="horizontal">
 
+
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="0.15"
             android:orientation="vertical"
-            android:layout_marginLeft="20dp">
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="10dp">
 
             <Button
                 android:id="@+id/dayupbtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/date_button_top"
                 android:text="+"
                 android:textSize="@dimen/text_largest"
-                android:textColor="@color/darkest_grey"/>
+                android:textColor="@color/white"
+                android:background="@color/bright_blue_grad_start"
+                android:elevation="@dimen/button_elevation"/>
 
             <EditText
                 android:id="@+id/daytxtfield"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
-                android:layout_below="@id/dayupbtn"
-                android:background="@drawable/date_edit"
                 android:gravity="center"
                 android:padding="3dp"
                 android:textSize="28dp"
@@ -68,11 +72,11 @@
                 android:id="@+id/daydownbtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/daytxtfield"
-                android:background="@drawable/date_button_bottom"
                 android:text="-"
                 android:textSize="@dimen/text_largest"
-                android:textColor="@color/darkest_grey"/>
+                android:textColor="@color/white"
+                android:background="@color/dark_blue"
+                android:elevation="@dimen/button_elevation" />
 
         </LinearLayout>
 
@@ -80,32 +84,30 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight=".3"
-            android:orientation="vertical">
+            android:layout_weight=".25"
+            android:orientation="vertical"
+            android:layout_marginRight="10dp">
 
             <Button
                 android:id="@+id/monthupbtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
-                android:layout_toRightOf="@id/dayupbtn"
-                android:background="@drawable/date_button_top"
                 android:text="+"
                 android:textSize="@dimen/text_largest"
-                android:textColor="@color/darkest_grey"/>
+                android:textColor="@color/white"
+                android:background="@color/bright_blue_grad_start"
+                android:elevation="@dimen/button_elevation" />
 
             <AutoCompleteTextView
                 android:id="@+id/monthtxtfield"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
-                android:layout_below="@id/monthupbtn"
                 android:layout_marginLeft="5dp"
-                android:layout_toRightOf="@id/daytxtfield"
-                android:background="@drawable/date_edit"
                 android:gravity="center"
                 android:padding="3dp"
                 android:textSize="@dimen/text_larger"
-                android:inputType="textNoSuggestions"
+                android:inputType="textFilter"
                 android:completionThreshold="1"
                 android:dropDownWidth="150dp"/>
 
@@ -113,13 +115,11 @@
                 android:id="@+id/monthdownbtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/monthtxtfield"
                 android:layout_marginLeft="5dp"
-                android:layout_toRightOf="@id/daydownbtn"
-                android:background="@drawable/date_button_bottom"
                 android:text="-"
                 android:textSize="@dimen/text_largest"
-                android:textColor="@color/darkest_grey"/>
+                android:textColor="@color/white"
+                android:background="@color/dark_blue" />
 
         </LinearLayout>
 
@@ -135,46 +135,54 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
-                android:layout_toRightOf="@id/monthupbtn"
-                android:background="@drawable/date_button_top"
                 android:text="+"
                 android:textSize="@dimen/text_largest"
-                android:textColor="@color/darkest_grey"/>
+                android:textColor="@color/white"
+                android:background="@color/bright_blue_grad_start"
+                android:elevation="@dimen/button_elevation" />
 
             <EditText
                 android:id="@+id/yeartxtfield"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
-                android:layout_below="@id/yearupbtn"
                 android:layout_marginLeft="5dp"
-                android:layout_toRightOf="@id/monthtxtfield"
-                android:background="@drawable/date_edit"
                 android:gravity="center"
                 android:padding="3dp"
                 android:textSize="@dimen/text_larger"
                 android:inputType="number"
-                android:maxLength="4"/>
+                android:maxLength="4"
+                android:elevation="@dimen/button_elevation"/>
 
             <Button
                 android:id="@+id/yeardownbtn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/yeartxtfield"
                 android:layout_marginLeft="5dp"
-                android:layout_toRightOf="@id/monthdownbtn"
-                android:background="@drawable/date_button_bottom"
                 android:text="-"
                 android:textSize="@dimen/text_largest"
-                android:textColor="@color/darkest_grey"/>
+                android:textColor="@color/white"
+                android:background="@color/dark_blue"
+                android:elevation="@dimen/button_elevation"/>
         </LinearLayout>
 
     </LinearLayout>
 
-    <Button
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:text="X"
-        android:textColor="@color/red"
-        android:id = "@+id/clearall"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id = "@+id/gregfooter"
+        android:gravity="center"
+        android:layout_gravity="center_horizontal">
+
+        <Button
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:text="X"
+            android:textColor="@color/red"
+            android:id = "@+id/clearall"/>
+
+    </LinearLayout>
+
 
 </LinearLayout>

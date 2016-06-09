@@ -1,21 +1,23 @@
 package org.commcare.views.widgets;
 
+import android.content.DialogInterface;
 import android.content.Context;
-import android.graphics.Color;
+import android.graphics.Rect;
+import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import org.javarosa.core.model.data.DateData;
-import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.form.api.FormEntryPrompt;
 import org.commcare.dalvik.R;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -27,8 +29,10 @@ import java.util.Map;
 
 /**
  * Created by Saumya on 5/29/2016.
+ * DialogFragment for a popup calendar icon
+ * Uses support library for compatibility with pre-honeycomb devices
  */
-public class CalendarWidget extends QuestionWidget{
+public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
     private GridView myGrid;
     private Button decMonth;
@@ -37,28 +41,50 @@ public class CalendarWidget extends QuestionWidget{
     private Button incYear;
     private TextView myMonth;
     private TextView myYear;
-
     private Calendar myCal;
     private LinearLayout myLayout;
+    private DismissListener myListener;
 
     private String[] monthNames;
 
-    //TODO: Find out a way to make this thing not default to 42 days for every month!
-    private final int DAYS_IN_MONTH = 42;
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+        getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
-    public CalendarWidget(Context context, FormEntryPrompt prompt, Calendar cal){
-        super(context, prompt);
-        LayoutInflater inflater = (LayoutInflater)context.getSystemService
-                (Context.LAYOUT_INFLATER_SERVICE);
-        myLayout = (LinearLayout) inflater.inflate(R.layout.calendar_widget, null);
-        addView(myLayout);
+        myLayout = (LinearLayout) inflater.inflate(R.layout.calendar_widget, container);
 
-        myCal = cal;
         initDisplay();
         initMonths();
         initWeekDays();
-        refresh();
         initOnClick();
+        refresh();
+
+        Rect displayRectangle = new Rect();
+        Window window = getActivity().getWindow();
+        window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
+        myLayout.setMinimumWidth((int)(displayRectangle.width() * 0.9f));
+
+        return myLayout;
+
+    }
+
+    public void setArguments(Calendar cal){
+        myCal = cal;
+    }
+    public interface DismissListener{
+        void onDismiss();
+    }
+
+    public void setListener(DismissListener listener){
+        myListener = listener;
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog){
+        super.onDismiss(dialog);
+        if(myListener != null){
+            myListener.onDismiss();
+        }
     }
 
     private void initWeekDays(){
@@ -73,14 +99,13 @@ public class CalendarWidget extends QuestionWidget{
             }
         });
 
-        ((TextView) findViewById(R.id.day1)).setText(weekDayList.get(0));
-        ((TextView) findViewById(R.id.day2)).setText(weekDayList.get(1));
-        ((TextView) findViewById(R.id.day3)).setText(weekDayList.get(2));
-        ((TextView) findViewById(R.id.day4)).setText(weekDayList.get(3));
-        ((TextView) findViewById(R.id.day5)).setText(weekDayList.get(4));
-        ((TextView) findViewById(R.id.day6)).setText(weekDayList.get(5));
-        ((TextView) findViewById(R.id.day7)).setText(weekDayList.get(6));
-
+        ((TextView) myLayout.findViewById(R.id.day1)).setText(weekDayList.get(0));
+        ((TextView) myLayout.findViewById(R.id.day2)).setText(weekDayList.get(1));
+        ((TextView) myLayout.findViewById(R.id.day3)).setText(weekDayList.get(2));
+        ((TextView) myLayout.findViewById(R.id.day4)).setText(weekDayList.get(3));
+        ((TextView) myLayout.findViewById(R.id.day5)).setText(weekDayList.get(4));
+        ((TextView) myLayout.findViewById(R.id.day6)).setText(weekDayList.get(5));
+        ((TextView) myLayout.findViewById(R.id.day7)).setText(weekDayList.get(6));
     }
 
     private void initMonths(){
@@ -114,7 +139,7 @@ public class CalendarWidget extends QuestionWidget{
 
     private void initOnClick(){
 
-        decMonth.setOnClickListener(new OnClickListener() {
+        decMonth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 myCal.add(Calendar.MONTH, -1);
@@ -122,7 +147,7 @@ public class CalendarWidget extends QuestionWidget{
             }
         });
 
-        incMonth.setOnClickListener(new OnClickListener() {
+        incMonth.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 myCal.add(Calendar.MONTH, 1);
@@ -130,7 +155,7 @@ public class CalendarWidget extends QuestionWidget{
             }
         });
 
-        decYear.setOnClickListener(new OnClickListener() {
+        decYear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 myCal.add(Calendar.YEAR, -1);
@@ -138,7 +163,7 @@ public class CalendarWidget extends QuestionWidget{
             }
         });
 
-        incYear.setOnClickListener(new OnClickListener() {
+        incYear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 myCal.add(Calendar.YEAR, 1);
@@ -151,8 +176,15 @@ public class CalendarWidget extends QuestionWidget{
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Date date = (Date) parent.getItemAtPosition(position);
                 myCal.setTime(date);
-                //selectItem(position);
                 refresh();
+            }
+        });
+
+        ImageButton closer = (ImageButton) myLayout.findViewById(R.id.closecalendar);
+        closer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
             }
         });
     }
@@ -179,7 +211,7 @@ public class CalendarWidget extends QuestionWidget{
             populator.add(Calendar.DAY_OF_MONTH, 1);
         }
 
-        int remainingDays = 8-populator.get(Calendar.DAY_OF_WEEK);
+        int remainingDays = (8-populator.get(Calendar.DAY_OF_WEEK))%7;
 
         for(int i = 0; i < remainingDays; i ++){
             dateList.add(populator.getTime());
@@ -187,7 +219,7 @@ public class CalendarWidget extends QuestionWidget{
         }
 
         myYear.setText(String.valueOf(myCal.get(Calendar.YEAR)));
-        myMonth.setText(monthNames[myCal.get(Calendar.MONTH)]);
+        myMonth.setText(myCal.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()));
         myGrid.setAdapter(new CalendarAdapter(getContext(), dateList));
     }
 
@@ -214,40 +246,27 @@ public class CalendarWidget extends QuestionWidget{
             Date current = myCal.getTime();
 
             if(date.equals(current)){
-                text.setBackgroundColor(Color.rgb(105, 217, 255));
+                text.setTextColor(getResources().getColor(R.color.white));
+                text.setBackgroundColor(getResources().getColor(R.color.cc_attention_positive_color));
             }
 
             if(date.getMonth() != current.getMonth()){
-                text.setTextColor(Color.rgb(150, 150, 150));
+                text.setTextColor(getResources().getColor(R.color.grey_dark));
+                text.setBackgroundColor(getResources().getColor(R.color.grey_lighter));
             }
 
-            text.setHeight(120);
+            text.setHeight(105);
             return text;
         }
     }
 
-    @Override
-    public IAnswerData getAnswer() {
+    public DateData getValue() {
         return new DateData(myCal.getTime());
     }
 
-    /*
-    Resets date to today
-     */
-    @Override
-    public void clearAnswer() {
+    public void clear() {
         myCal = Calendar.getInstance();
         refresh();
-    }
-
-    @Override
-    public void setFocus(Context context) {}
-
-    @Override
-    public void setOnLongClickListener(OnLongClickListener l) {}
-
-    public void removeQuestionText(){
-        mQuestionText.setVisibility(GONE);
     }
 
     public void setDate(DateData newDate){
