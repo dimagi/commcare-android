@@ -626,6 +626,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         ArrayList<Integer> shouldRemoveFromView = new ArrayList<>();
         // Loop through all of the old widgets to determine which ones should stay in the new view
         for (int i = 0; i < oldWidgets.size(); i++) {
+
+            //Intent widgets need to be fully rebuilt to update their intent callouts
+            //depending on model changes.
+            if(oldWidgets.get(i) instanceof IntentWidget) {
+                shouldRemoveFromView.add(i);
+                continue;
+            }
             FormEntryPrompt oldPrompt = oldWidgets.get(i).getPrompt();
             String priorQuestionTextForThisWidget = oldQuestionTexts.get(i);
             Vector<SelectChoice> priorSelectChoicesForThisWidget = oldSelectChoices.get(i);
