@@ -8,7 +8,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/standard_spacer"
         android:text="@string/multiple_apps_limit_message"
-        android:textSize="16dp"
+        android:textSize="16sp"
         android:layout_centerInParent="true"
         android:gravity="center"/>
 
@@ -18,7 +18,7 @@
         android:id="@+id/back_to_manager_button"
         android:layout_marginBottom="@dimen/standard_spacer_large"
         android:text="Go to App Manager"
-        android:textSize="19dp"
+        android:textSize="19sp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"/>
 
