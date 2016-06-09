@@ -52,6 +52,7 @@ public class DispatchActivity extends FragmentActivity {
 
     private static final String EXTRA_CONSUMED_KEY = "shortcut_extra_was_consumed";
     private static final String KEY_APP_FILES_CHECK_OCCURRED = "check-for-changed-app-files-occurred";
+    private static final String KEY_WAITING_FOR_ACTIVITY_RESULT = "waiting-for-login-activity-result";
 
     // Used for soft assert for login redirection bug
     private boolean waitingForActivityResultFromLogin;
@@ -69,6 +70,7 @@ public class DispatchActivity extends FragmentActivity {
         if (savedInstanceState != null) {
             shortcutExtraWasConsumed = savedInstanceState.getBoolean(EXTRA_CONSUMED_KEY);
             alreadyCheckedForAppFilesChange = savedInstanceState.getBoolean(KEY_APP_FILES_CHECK_OCCURRED);
+            waitingForActivityResultFromLogin = savedInstanceState.getBoolean(KEY_WAITING_FOR_ACTIVITY_RESULT);
         }
     }
 
@@ -108,6 +110,7 @@ public class DispatchActivity extends FragmentActivity {
         super.onSaveInstanceState(outState);
         outState.putBoolean(EXTRA_CONSUMED_KEY, shortcutExtraWasConsumed);
         outState.putBoolean(KEY_APP_FILES_CHECK_OCCURRED, alreadyCheckedForAppFilesChange);
+        outState.putBoolean(KEY_WAITING_FOR_ACTIVITY_RESULT, waitingForActivityResultFromLogin);
     }
 
     private void checkForChangedCCZ() {
