@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.dalvik.R;
+import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.utils.SigningUtil;
 import org.commcare.utils.StringUtils;
@@ -60,7 +61,9 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
                 callOutToBarcodeScanner();
             }
         });
-        ((TextView)findViewById(R.id.instructions)).setText(getInstructionsText());
+        ((TextView)findViewById(R.id.instructions)).setText(GlobalPrivilegesManager.getInstructionsTextId(this.privilegeName));
+
+        CommCarePreferences.addBackButtonToActionBar(this);
     }
 
     @Override
@@ -97,11 +100,6 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
 
     private String getNotEnabledText() {
         return StringUtils.getStringRobust(this, R.string.privilege_not_enabled_text, privilegeDisplayName);
-    }
-
-    private String getInstructionsText() {
-        return StringUtils.getStringRobust(this, R.string.claim_privilege_instructions,
-                new String[] {privilegeDisplayName, GlobalPrivilegesManager.getInstructionsText(this.privilegeName)});
     }
 
     private void callOutToBarcodeScanner() {
@@ -214,8 +212,13 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
             case DISABLE:
                 GlobalPrivilegesManager.disablePrivilege(this.privilegeName);
                 refreshUI();
+                return true;
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                finish();
+                return true;
         }
-        return true;
+        return false;
     }
 
 }

@@ -259,7 +259,7 @@
         </activity>
         <activity android:name="org.commcare.activities.GlobalPrivilegeClaimingActivity">
         </activity>
-        <activity android:name="org.commcare.activities.AppManagerSettingsActivity">
+        <activity android:name="org.commcare.activities.AppManagerAdvancedSettings">
         </activity>
 
         <uses-library

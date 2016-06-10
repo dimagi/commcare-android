@@ -3,6 +3,7 @@ package org.commcare.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.Preference;
+import android.view.MenuItem;
 
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
@@ -17,7 +18,7 @@ import java.util.Map;
 /**
  * Created by amstone326 on 6/9/16.
  */
-public class AppManagerSettingsActivity extends SessionAwarePreferenceActivity {
+public class AppManagerAdvancedSettings extends SessionAwarePreferenceActivity {
 
     private final static String AUTHENTICATE_AS_SUPERUSER = "authenticate-as-superuser";
 
@@ -36,7 +37,7 @@ public class AppManagerSettingsActivity extends SessionAwarePreferenceActivity {
     }
 
     private void setupUI() {
-        setTitle(Localization.get("settings.app.manager.title"));
+        setTitle(Localization.get("app.manager.advanced.settings.title"));
         CommCarePreferences.addBackButtonToActionBar(this);
         CommCarePreferences.setupLocalizedText(this, keyToTitleMap);
         setupButtons();
@@ -59,5 +60,16 @@ public class AppManagerSettingsActivity extends SessionAwarePreferenceActivity {
         i.putExtra(GlobalPrivilegeClaimingActivity.KEY_PRIVILEGE_NAME,
                 GlobalPrivilegesManager.PRIVILEGE_SUPERUSER);
         startActivity(i);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // Respond to the action bar's Up/Home button
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

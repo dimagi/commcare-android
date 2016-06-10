@@ -61,12 +61,12 @@ public class GlobalPrivilegesManager {
         }
     }
 
-    public static String getInstructionsText(String privilegeName) {
+    public static int getInstructionsTextId(String privilegeName) {
         switch(privilegeName) {
             case PRIVILEGE_SUPERUSER:
-                return "go to the 'Enable Superuser on Mobile' tab of your 'My Account Settings' " +
-                        "page on HQ, while logged in as a web user with superuser permissions";
+                return R.string.superuser_privilege_instructions;
+            default:
+                return -1;
         }
-        return "";
     }
 }

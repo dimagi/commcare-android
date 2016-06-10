@@ -35,7 +35,7 @@ import org.javarosa.core.services.locale.Localization;
 public class AppManagerActivity extends CommCareActivity implements OnItemClickListener {
 
     public static final String KEY_LAUNCH_FROM_MANAGER = "from_manager";
-    private static final int MENU_SETTINGS = 0;
+    private static final int MENU_ADVANCED_SETTINGS = 0;
     private static final int MENU_CONNECTION_DIAGNOSTIC = 1;
 
     @Override
@@ -55,8 +55,10 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_SETTINGS, 0, Localization.get("settings.app.manager.option")).setIcon(android.R.drawable.ic_menu_preferences);
-        menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 1, Localization.get("home.menu.connection.diagnostic")).setIcon(android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_ADVANCED_SETTINGS, 0, Localization.get("app.manager.advanced.settings.option"))
+                .setIcon(android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 1, Localization.get("home.menu.connection.diagnostic"))
+                .setIcon(android.R.drawable.ic_menu_preferences);
         return true;
     }
 
@@ -67,8 +69,8 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                 Intent i = new Intent(this, ConnectionDiagnosticActivity.class);
                 startActivity(i);
                 return true;
-            case MENU_SETTINGS:
-                i = new Intent(this, AppManagerSettingsActivity.class);
+            case MENU_ADVANCED_SETTINGS:
+                i = new Intent(this, AppManagerAdvancedSettings.class);
                 startActivity(i);
                 return true;
         }
