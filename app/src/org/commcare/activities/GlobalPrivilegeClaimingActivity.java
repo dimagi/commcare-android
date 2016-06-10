@@ -18,6 +18,7 @@ import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.utils.SigningUtil;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.services.locale.Localization;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -159,7 +160,7 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
             return false;
         }
         if (!username.endsWith("@dimagi.com")) {
-            Log.d(TAG, "Privilege claim failed because the encoded username was not an " +
+            Log.d(TAG, "Privilege claim failed because the encoded username was not a " +
                     "@dimagi.com email address");
             return false;
         }
@@ -175,11 +176,18 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
     }
 
     private static String getExpectedUnsignedValue(String flag, String username) {
-        JSONObject object = new JSONObject();
         try {
-            object.put("username", username);
-            object.put("flag", flag);
-            return object.toString();
+            JSONObject usernameObject = new JSONObject();
+            usernameObject.put("username", username);
+            JSONObject flagObject = new JSONObject();
+            flagObject.put("flag", flag);
+
+            JSONArray array = new JSONArray();
+            array.put(usernameObject);
+            array.put(flagObject);
+
+            System.out.print(array.toString());
+            return array.toString();
         } catch (JSONException e) {
             return "";
         }
