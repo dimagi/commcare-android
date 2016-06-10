@@ -257,11 +257,11 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         FormRecord r = current.get(i);
         IncompleteFormRecordView ifrv = (IncompleteFormRecordView) v;
         if (ifrv == null) {
-            ifrv = new IncompleteFormRecordView(context, names);
+            ifrv = new IncompleteFormRecordView(context);
         }
 
         if (searchCache.containsKey(r.getID())) {
-            ifrv.setParams(r, searchCache.get(r.getID())[1], r.lastModified().getTime());
+            ifrv.setParams(r, searchCache.get(r.getID())[1], r.lastModified().getTime(), names);
         } else {
             // notify the loader that we need access to this record immediately
             loader.registerPriority(r);
@@ -270,7 +270,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
             // local notifyPriorityLoaded method should probably be defined to
             // reset the params of this record. It will eventually get reset,
             // once this method is called again...
-            ifrv.setParams(r, "Loading...", r.lastModified().getTime());
+            ifrv.setParams(r, "Loading...", r.lastModified().getTime(), names);
         }
 
         return ifrv;
