@@ -99,7 +99,7 @@
         android:key="cc-auto-purge"
         android:title="Detect and Trigger Purge on Form Save"/>
     <ListPreference
-        android:defaultValue="yes"
+        android:defaultValue="saved"
         android:enabled="true"
         android:entries="@array/pref_load_form_payload_as_labels"
         android:entryValues="@array/pref_load_form_payload_as_vals"

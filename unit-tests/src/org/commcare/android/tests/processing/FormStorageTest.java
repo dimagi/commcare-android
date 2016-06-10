@@ -2,6 +2,7 @@ package org.commcare.android.tests.processing;
 
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
@@ -18,9 +19,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Tests for the serializaiton and deserialzation of XForms.
@@ -31,6 +40,7 @@ import java.util.List;
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class FormStorageTest {
+    private boolean noSerializiationExceptions;
 
     // Contains the names of all externalizable classes that have ever existed in CommCare, so as
     // to ensure that users on any prior version of CommCare will be able to load their saved
@@ -210,7 +220,7 @@ public class FormStorageTest {
         for (String className : extClassesInPF) {
             // Should fail if a new class implementing externalizable is added
             // without updating the list used by this test.
-            Assert.assertTrue(
+            assertTrue(
                     "Please keep test list up-to-date by adding '" + className + "' to list",
                     completeHistoryOfExternalizableClasses.contains(className));
         }
@@ -225,7 +235,7 @@ public class FormStorageTest {
 
         // For completeness, make sure that migrated classes are present in the test class list used
         for (String className : AndroidPrototypeFactory.getMigratedClassNames()) {
-            Assert.assertTrue("The migrated class '" + className + "' isn't represented in the test list",
+            assertTrue("The migrated class '" + className + "' isn't represented in the test list",
                     completeHistoryOfExternalizableClasses.contains(className));
         }
 
@@ -256,5 +266,49 @@ public class FormStorageTest {
             e.printStackTrace();
             throw new RuntimeException(e.getMessage());
         }
+    }
+
+    @Test
+    public void parallelFormRecordSerializationTest() {
+        noSerializiationExceptions = true;
+        // Make sure that Persited externalization works in a mult-thread setting
+        // Important because setting field accessibility can lead to to throws of IllegalAccessException
+        Thread t1 = new BulkFormRecordSerializer();
+        Thread t2 = new BulkFormRecordSerializer();
+        Thread t3 = new BulkFormRecordSerializer();
+        t1.start(); t2.start(); t3.start();
+        try {
+            t1.join(); t2.join(); t3.join();
+        } catch (InterruptedException e) {
+            fail(e.getMessage());
+        }
+        assertTrue(noSerializiationExceptions);
+    }
+
+    private class BulkFormRecordSerializer extends Thread {
+        @Override
+        public void run() {
+            int i = 10;
+            while (i-- > 0) {
+                try {
+                    serializeFormRecord();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    noSerializiationExceptions = false;
+                }
+            }
+        }
+    }
+
+    private static void serializeFormRecord() throws IOException, DeserializationException {
+        FormRecord r = new FormRecord("", FormRecord.STATUS_UNSTARTED, "some form",
+                new byte[]{1, 2, 3}, null, new Date(0), "some app id");
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        r.writeExternal(new DataOutputStream(bos));
+        FormRecord newRecord = new FormRecord();
+
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(bos.toByteArray());
+        newRecord.readExternal(new DataInputStream(inputStream), TestUtils.getStaticPrototypeFactory());
     }
 }
