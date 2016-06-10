@@ -211,7 +211,7 @@ public class AndroidSessionWrapper {
         Hashtable<String, Entry> menuMap = platform.getMenuMap();
         for (String key : menuMap.keySet()) {
             Entry e = menuMap.get(key);
-            if (!e.isView() && formNamespace.equals(((FormEntry)e).getXFormNamespace())) {
+            if (!(e.isView() || e.isSync()) && formNamespace.equals(((FormEntry)e).getXFormNamespace())) {
                 //We have an entry. Don't worry too much about how we're supposed to get there for now.
 
                 //The ideal is that we only need one piece of data
