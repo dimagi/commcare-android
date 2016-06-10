@@ -16,7 +16,6 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Day"
             android:id = "@+id/gregdayofweek"
             android:layout_weight=".7"
             android:layout_marginLeft="20dp" />
@@ -119,7 +118,8 @@
                 android:text="-"
                 android:textSize="@dimen/text_largest"
                 android:textColor="@color/white"
-                android:background="@color/dark_blue" />
+                android:background="@color/dark_blue"
+                android:elevation="@dimen/button_elevation"/>
 
         </LinearLayout>
 

@@ -285,15 +285,15 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
 
         //Empty text fields
         if(monthTxt.getText().toString().equals("") || dayTxt.getText().toString().equals("") || yearTxt.getText().toString().equals("")){
-            return new InvalidData("Please complete all fields");
+            return new InvalidData("Please complete all fields", new DateData(myCal.getTime()));
         }
         //Invalid year (too low)
         if(Integer.parseInt(yearTxt.getText().toString()) < MIN_YEAR){
-            return new InvalidData("Year must be > 1900");
+            return new InvalidData("Year must be > 1900", new DateData(myCal.getTime()));
         }
         //Invalid month
         if(!monthList.contains(monthTxt.getText().toString())){
-            return new InvalidData("Month text is invalid");
+            return new InvalidData("Month text is invalid", new DateData(myCal.getTime()));
         }
 
         return super.getAnswer();

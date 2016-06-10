@@ -1031,6 +1031,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      */
     private void showPreviousView(boolean showSwipeAnimation) {
         // The answer is saved on a back swipe, but question constraints are ignored.
+
+
+
         if (currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         }
