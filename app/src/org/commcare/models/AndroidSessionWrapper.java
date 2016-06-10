@@ -8,6 +8,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
+import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
@@ -219,7 +220,13 @@ public class AndroidSessionWrapper {
                     //This should fit the bill. Single selection.
                     SessionDatum datum = e.getSessionDataReqs().firstElement();
                     // we only know how to mock a single case selection
-                    if (datum instanceof EntityDatum) {
+                    if (datum instanceof ComputedDatum) {
+                        // Allow mocking of routes that need computed data, useful for case creation forms
+                        wrapper = new AndroidSessionWrapper(platform);
+                        wrapper.session.setCommand(platform.getModuleNameForEntry((FormEntry) e));
+                        wrapper.session.setCommand(e.getCommandId());
+                        wrapper.session.setComputedDatum(wrapper.getEvaluationContext());
+                    } else if (datum instanceof EntityDatum) {
                         EntityDatum entityDatum = (EntityDatum)datum;
                         //The only thing we need to know now is whether we have a better option available
                         int countPredicates = CommCareUtil.countPreds(entityDatum.getNodeset());
