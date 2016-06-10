@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by amstone326 on 6/9/16.
+ * @author Aliza Stone (astone@dimagi.com), created 6/9/16.
  */
 public class AppManagerAdvancedSettings extends SessionAwarePreferenceActivity {
 

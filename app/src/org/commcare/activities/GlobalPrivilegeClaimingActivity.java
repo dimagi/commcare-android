@@ -25,7 +25,10 @@ import org.json.JSONObject;
 
 
 /**
- * Created by amstone326 on 4/7/16.
+ * Activity that allows a user to scan a barcode from HQ to enable a global privilege, such as
+ * superuser mode
+ *
+ * @author Aliza Stone (astone@dimagi.com), created 6/9/16.
  */
 public class GlobalPrivilegeClaimingActivity extends Activity {
 
@@ -170,7 +173,6 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
             Log.d(TAG, "Privilege claim failed because signature verification failed");
             return false;
         }
-
     }
 
     private static String getExpectedUnsignedValue(String flag, String username) {
@@ -183,8 +185,6 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
             JSONArray array = new JSONArray();
             array.put(usernameObject);
             array.put(flagObject);
-
-            System.out.print(array.toString());
             return array.toString();
         } catch (JSONException e) {
             return "";

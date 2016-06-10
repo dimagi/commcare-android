@@ -11,7 +11,9 @@ import org.commcare.utils.StringUtils;
 import java.util.ArrayList;
 
 /**
- * Created by amstone326 on 6/7/16.
+ * Manages privileges that are global to a device running CommCare, rather than a specific app
+ *
+ * @author Aliza Stone (astone@dimagi.com), created 6/9/16.
  */
 public class GlobalPrivilegesManager {
 
@@ -30,13 +32,10 @@ public class GlobalPrivilegesManager {
     }
 
     /**
-     *
      * @param username - the HQ web user associated with the privilege being granted
      */
     public static void enablePrivilege(String privilegeName, String username) {
-        getGlobalPrivilegesRecord().edit()
-                .putBoolean(privilegeName, true)
-                .commit();
+        getGlobalPrivilegesRecord().edit().putBoolean(privilegeName, true).commit();
         GoogleAnalyticsUtils.reportPrivilegeEnabled(privilegeName, username);
     }
 
