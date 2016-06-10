@@ -85,7 +85,7 @@ public class AudioPrototype extends AudioWidget{
 
     private void startRecording(){
 
-        mFileName += "/CommCare"+String.valueOf(System.currentTimeMillis())+".3gpp";
+        mFileName += "/CommCare.3gpp";
 
         ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 
