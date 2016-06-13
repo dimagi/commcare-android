@@ -64,8 +64,6 @@ public abstract class DataPullTask<R>
     private int mTotalItems;
     private long mSyncStartTime;
 
-    private boolean wasKeyLoggedIn;
-
     public static final int DATA_PULL_TASK_ID = 10;
 
     public static final int PROGRESS_STARTED = 0;
@@ -107,9 +105,7 @@ public abstract class DataPullTask<R>
     @Override
     protected void onCancelled() {
         super.onCancelled();
-        if (wasKeyLoggedIn) {
-            CommCareApplication._().releaseUserResourcesAndServices();
-        }
+        wipeLoginIfItOccurred();
     }
     private HttpRequestEndpoints requestor;
 
@@ -173,10 +169,8 @@ public abstract class DataPullTask<R>
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
         }
-        
-        if (loginNeeded) {
-            CommCareApplication._().releaseUserResourcesAndServices();
-        }
+
+        wipeLoginIfItOccurred();
         this.publishProgress(PROGRESS_DONE);
         return new ResultAndError<>(responseError);
     }
@@ -268,10 +262,8 @@ public abstract class DataPullTask<R>
     }
 
     private ResultAndError<PullTaskResult> handleAuthFailed() {
-        //If we logged in, we need to drop those credentials
-        if (loginNeeded) {
-            CommCareApplication._().releaseUserResourcesAndServices();
-        }
+        // If we logged in, we need to drop those credentials
+        wipeLoginIfItOccurred();
         Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
         return new ResultAndError<>(PullTaskResult.AUTH_FAILED);
     }
@@ -356,16 +348,11 @@ public abstract class DataPullTask<R>
             onSuccessfulSync();
             return new ResultAndError<>(PullTaskResult.DOWNLOAD_SUCCESS);
         } else if (returnCode == PROGRESS_RECOVERY_FAIL_SAFE || returnCode == PROGRESS_RECOVERY_FAIL_BAD) {
-            // wipe our login if one happened
-            if (loginNeeded) {
-                CommCareApplication._().releaseUserResourcesAndServices();
-            }
+            wipeLoginIfItOccurred();
             this.publishProgress(PROGRESS_DONE);
             return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, failureReason);
         } else {
-            if (loginNeeded) {
-                CommCareApplication._().releaseUserResourcesAndServices();
-            }
+            wipeLoginIfItOccurred();
             return null;
         }
     }
@@ -386,11 +373,15 @@ public abstract class DataPullTask<R>
     }
 
     private ResultAndError<PullTaskResult> handleServerError() {
+        wipeLoginIfItOccurred();
+        Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
+        return new ResultAndError<>(PullTaskResult.SERVER_ERROR, "");
+    }
+
+    private void wipeLoginIfItOccurred() {
         if (loginNeeded) {
             CommCareApplication._().releaseUserResourcesAndServices();
         }
-        Logger.log(AndroidLogger.TYPE_USER, "500 Server Error|" + username);
-        return new ResultAndError<>(PullTaskResult.SERVER_ERROR, "");
     }
 
     @Override
