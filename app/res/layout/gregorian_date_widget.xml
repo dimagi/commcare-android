@@ -65,7 +65,8 @@
                 android:padding="3dp"
                 android:textSize="28dp"
                 android:inputType="number"
-                android:maxLength = "2"/>
+                android:maxLength = "2"
+                android:selectAllOnFocus="true"/>
 
             <Button
                 android:id="@+id/daydownbtn"
@@ -83,7 +84,7 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight=".25"
+            android:layout_weight=".3"
             android:orientation="vertical"
             android:layout_marginRight="10dp">
 
@@ -108,7 +109,8 @@
                 android:textSize="@dimen/text_larger"
                 android:inputType="textFilter"
                 android:completionThreshold="1"
-                android:dropDownWidth="150dp"/>
+                android:dropDownWidth="150dp"
+                android:selectAllOnFocus="true"/>
 
             <Button
                 android:id="@+id/monthdownbtn"
@@ -151,7 +153,8 @@
                 android:textSize="@dimen/text_larger"
                 android:inputType="number"
                 android:maxLength="4"
-                android:elevation="@dimen/button_elevation"/>
+                android:elevation="@dimen/button_elevation"
+                android:selectAllOnFocus="true"/>
 
             <Button
                 android:id="@+id/yeardownbtn"
