@@ -267,7 +267,6 @@ public abstract class DataPullTask<R>
     }
 
     private ResultAndError<PullTaskResult> handleAuthFailed() {
-        // If we logged in, we need to drop those credentials
         wipeLoginIfItOccurred();
         Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
         return new ResultAndError<>(PullTaskResult.AUTH_FAILED);
