@@ -142,7 +142,7 @@ public abstract class DataPullTask<R>
 
         if (isCancelled()) {
             // Avoid making http request if user cancelled the task (NOTE: In this case, the result
-            // returned is never processed since cancelled task results are sent to onCancelled.
+            // returned is never processed since cancelled task results are sent to onCancelled)
             return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
         }
 
