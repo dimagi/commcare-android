@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.media.MediaRecorder;
+import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import org.commcare.logic.PendingCalloutInterface;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -29,7 +31,8 @@ public class AudioPrototype extends AudioWidget{
     private Button stop;
     private LinearLayout myLayout;
     private ProgressBar myProgress;
-    private final String FILE_EXT = "";
+    private final String FILE_EXT = "/CommCare.3gpp";
+
 
     public AudioPrototype(Context context, FormEntryPrompt prompt, PendingCalloutInterface pic){
         super(context, prompt, pic);
@@ -81,9 +84,6 @@ public class AudioPrototype extends AudioWidget{
     }
 
     private void startRecording(){
-
-        mFileName += "/CommCare.3gpp";
-
         ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
 
         if(mRecorder == null){
@@ -123,5 +123,8 @@ public class AudioPrototype extends AudioWidget{
         myProgress.setVisibility(GONE);
 
         ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+
+        setBinaryData(mFileName);
+        mPlayButton.setEnabled(true);
     }
 }

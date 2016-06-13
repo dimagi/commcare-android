@@ -191,8 +191,6 @@ public class AudioWidget extends QuestionWidget {
     @Override
     public IAnswerData getAnswer() {
         if (mBinaryName != null) {
-            Log.d("Stored File", mInstanceFolder+mBinaryName);
-            Log.d("Other",  Environment.getExternalStorageDirectory().getAbsolutePath());
             return new StringData(mBinaryName);
         } else {
             return null;
@@ -206,9 +204,9 @@ public class AudioWidget extends QuestionWidget {
             deleteMedia();
         }
 
+        String binaryPath = createFilePath(binaryuri);
+
         // get the file path and create a copy in the instance folder
-        String binaryPath = UriToFilePath.getPathFromUri(CommCareApplication._(),
-                (Uri)binaryuri);
 
         String[] filenameSegments = binaryPath.split("\\.");
         String extension = "";
@@ -245,6 +243,19 @@ public class AudioWidget extends QuestionWidget {
         }
 
         mBinaryName = newAudio.getName();
+    }
+
+    private String createFilePath(Object binaryuri){
+        String path;
+
+        if(binaryuri instanceof Uri){
+            path = UriToFilePath.getPathFromUri(CommCareApplication._(),
+                    (Uri)binaryuri);
+        }else{
+            path = (String) binaryuri;
+        }
+
+        return path;
     }
 
     @Override
