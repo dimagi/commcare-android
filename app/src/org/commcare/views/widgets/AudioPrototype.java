@@ -33,10 +33,7 @@ public class AudioPrototype extends AudioWidget{
 
     public AudioPrototype(Context context, FormEntryPrompt prompt, PendingCalloutInterface pic){
         super(context, prompt, pic);
-
         mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-
-        //TODO: Figure out what to do with files. Store them all on file system (What dir?)? Delete them every time? Overwrite every time?
         mFileName += FILE_EXT;
     }
 
