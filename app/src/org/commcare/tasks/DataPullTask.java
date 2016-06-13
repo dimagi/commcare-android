@@ -81,6 +81,7 @@ public abstract class DataPullTask<R>
 
     private boolean loginNeeded;
     private UserKeyRecord ukrForLogin;
+    private boolean wasKeyLoggedIn;
 
     public DataPullTask(String username, String password,
                          String server, Context context, DataPullRequester dataPullRequester) {
@@ -179,7 +180,7 @@ public abstract class DataPullTask<R>
         try {
             loginNeeded = !CommCareApplication._().getSession().isActive();
         } catch (SessionUnavailableException sue) {
-            //expected if we aren't initialized.
+            // expected if we aren't initialized.
             loginNeeded = true;
         }
     }
@@ -226,9 +227,11 @@ public abstract class DataPullTask<R>
                     ByteEncrypter.wrapByteArrayWithString(newKey.getEncoded(), password),
                     new Date(), new Date(Long.MAX_VALUE), sandboxId);
         } else {
-            ukrForLogin = UserKeyRecord.getCurrentValidRecordByPassword(CommCareApplication._().getCurrentApp(), username, password, true);
+            ukrForLogin = UserKeyRecord.getCurrentValidRecordByPassword(
+                    CommCareApplication._().getCurrentApp(), username, password, true);
             if (ukrForLogin == null) {
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Shouldn't be able to not have a valid key record when OTA restoring with a key server");
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                        "Shouldn't be able to not have a valid key record when OTA restoring with a key server");
             }
         }
     }
@@ -246,8 +249,10 @@ public abstract class DataPullTask<R>
     private ResultAndError<PullTaskResult> makeRequestAndHandleResponse(AndroidTransactionParserFactory factory)
             throws IOException {
 
-        RemoteDataPullResponse pullResponse = dataPullRequester.makeDataPullRequest(this, requestor, server, !loginNeeded);
-        Logger.log(AndroidLogger.TYPE_USER, "Request opened. Response code: " + pullResponse.responseCode);
+        RemoteDataPullResponse pullResponse = dataPullRequester
+                .makeDataPullRequest(this, requestor, server, !loginNeeded);
+        Logger.log(AndroidLogger.TYPE_USER,
+                "Request opened. Response code: " + pullResponse.responseCode);
 
         if (pullResponse.responseCode == 401) {
             return handleAuthFailed();
@@ -297,27 +302,34 @@ public abstract class DataPullTask<R>
             return new ResultAndError<>(PullTaskResult.DOWNLOAD_SUCCESS);
         } catch (XmlPullParserException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
+            Logger.log(AndroidLogger.TYPE_USER,
+                    "User Sync failed due to bad payload|" + e.getMessage());
             return new ResultAndError<>(PullTaskResult.BAD_DATA, e.getMessage());
         } catch (ActionableInvalidStructureException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
-            return new ResultAndError<>(PullTaskResult.BAD_DATA_REQUIRES_INTERVENTION, e.getLocalizedMessage());
+            Logger.log(AndroidLogger.TYPE_USER,
+                    "User Sync failed due to bad payload|" + e.getMessage());
+            return new ResultAndError<>(PullTaskResult.BAD_DATA_REQUIRES_INTERVENTION,
+                    e.getLocalizedMessage());
         } catch (InvalidStructureException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_USER, "User Sync failed due to bad payload|" + e.getMessage());
+            Logger.log(AndroidLogger.TYPE_USER,
+                    "User Sync failed due to bad payload|" + e.getMessage());
             return new ResultAndError<>(PullTaskResult.BAD_DATA, e.getMessage());
         } catch (UnfullfilledRequirementsException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, unfulfilled reqs |" + e.getMessage());
+            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                    "User sync failed oddly, unfulfilled reqs |" + e.getMessage());
             return null;
         } catch (IllegalStateException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "User sync failed oddly, ISE |" + e.getMessage());
+            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                    "User sync failed oddly, ISE |" + e.getMessage());
             return null;
         } catch (RecordTooLargeException e) {
             e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Storage Full during user sync |" + e.getMessage());
+            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                    "Storage Full during user sync |" + e.getMessage());
             return new ResultAndError<>(PullTaskResult.STORAGE_FULL);
         }
     }
@@ -379,7 +391,7 @@ public abstract class DataPullTask<R>
     }
 
     private void wipeLoginIfItOccurred() {
-        if (loginNeeded) {
+        if (wasKeyLoggedIn) {
             CommCareApplication._().releaseUserResourcesAndServices();
         }
     }
