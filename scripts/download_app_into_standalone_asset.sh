@@ -11,7 +11,7 @@ echo "Downloading $1 (id $2) into $ASSET_DIR"
 
 mkdir -p $ASSET_DIR
 
-wget "https://www.commcarehq.org/a/$DOMAIN/apps/api/download_ccz?app_id=$APP_ID&version=$VERSION_NUMBER" -O "$ASSET_DIR/ccapp.zip"
+wget "https://www.commcarehq.org/a/$DOMAIN/apps/api/download_ccz?app_id=$APP_ID&version=$VERSION_NUMBER&include_multimedia=true" -O "$ASSET_DIR/ccapp.zip"
 
 cd $ASSET_DIR
 unzip -o ccapp.zip
