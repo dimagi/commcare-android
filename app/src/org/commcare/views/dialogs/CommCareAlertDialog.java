@@ -24,11 +24,15 @@ public abstract class CommCareAlertDialog {
 
     public void finalizeView() {
         dialog.setCancelable(isCancelable);
-        if (isCancelable) {
+        if (cancelListener != null) {
             dialog.setOnCancelListener(cancelListener);
         }
-        dialog.setOnDismissListener(dismissListener);
-        dialog.setView(view);
+        if (dismissListener != null) {
+            dialog.setOnDismissListener(dismissListener);
+        }
+        if (view != null) {
+            dialog.setView(view);
+        }
     }
 
     public void performCancel(DialogInterface dialog) {
