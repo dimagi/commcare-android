@@ -19,6 +19,7 @@ import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.model.data.StringData;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.joda.time.DateTime;
 import java.util.ArrayList;
@@ -103,7 +104,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
-            public void afterTextChanged(Editable s) { //Validate for day too large
+            public void afterTextChanged(Editable s) {
                 String contents = s.toString();
 
                 if(contents.length() > 1) {
@@ -126,7 +127,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
             public void onTextChanged(CharSequence s, int start, int before, int count) {}
 
             @Override
-            public void afterTextChanged(Editable s) { //Update month array pointer when month text updated
+            public void afterTextChanged(Editable s) {
                 String content = s.toString();
 
                 if(monthList.contains(content)){
@@ -270,27 +271,27 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
         //Empty text fields
         if(monthTxt.getText().toString().equals("") || dayTxt.getText().toString().equals("") || yearTxt.getText().toString().equals("")){
             setFocus(getContext());
-            return new InvalidData("Please complete all fields", new DateData(myCal.getTime()));
+            return new InvalidData(Localization.get("empty.fields"), new DateData(myCal.getTime()));
         }
         //Invalid year (too low)
         if(Integer.parseInt(yearTxt.getText().toString()) < MIN_YEAR){
             setFocus(getContext());
-            return new InvalidData("Year must be > 1900", new DateData(myCal.getTime()));
+            return new InvalidData(Localization.get("low.year"), new DateData(myCal.getTime()));
         }
         //Invalid month
         if(!monthList.contains(monthTxt.getText().toString())){
             setFocus(getContext());
-            return new InvalidData("Month text is invalid", new DateData(myCal.getTime()));
+            return new InvalidData(Localization.get("invalid.month"), new DateData(myCal.getTime()));
         }
 
         if(Integer.parseInt(dayTxt.getText().toString()) > myCal.getActualMaximum(Calendar.DAY_OF_MONTH)){
             setFocus(getContext());
-            return new InvalidData("Day can be at most " + String.valueOf(myCal.getActualMaximum(Calendar.DAY_OF_MONTH)), new DateData(myCal.getTime()));
+            return new InvalidData(Localization.get("high.date") + String.valueOf(myCal.getActualMaximum(Calendar.DAY_OF_MONTH)), new DateData(myCal.getTime()));
         }
 
         if(Integer.parseInt(yearTxt.getText().toString()) > maxYear){
             setFocus(getContext());
-            return new InvalidData("Year can be at most " + String.valueOf(maxYear), new DateData(myCal.getTime()));
+            return new InvalidData(Localization.get("high.year") + String.valueOf(maxYear), new DateData(myCal.getTime()));
         }
         return super.getAnswer();
     }

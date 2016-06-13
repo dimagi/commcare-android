@@ -403,6 +403,12 @@ no.file.browser=Your device does not have a file browser installed. Please downl
 start.recording=Start Recording
 stop.recording=Stop Recording
 
+empty.fields=Please complete all fields
+low.year=Year must be > 1900
+invalid.month=Month is invalid
+high.date=Date can be at most
+high.year=Year can be at most
+
 #Add new localization strings here
 
 callout.failure.dialer=Device is not currently configured to make telephone calls
