@@ -38,10 +38,16 @@ def checkout_or_update_static_resources_repo():
     os.chdir('../')
 
 
-def build_apks_from_resources(build_type):
+def build_apks_from_resources(build_type, subset_of_apps_to_build):
     for (app_dir_name, sub_dir_list, files_list) in os.walk(PATH_TO_STATIC_RESOURCES_DIR):
         if '.git' not in app_dir_name and app_dir_name != PATH_TO_STATIC_RESOURCES_DIR:
-            build_apk_from_directory_contents(app_dir_name, files_list, build_type)
+            if subset_of_apps_to_build is None or in_list(subset_of_apps_to_build, app_dir_name):
+                build_apk_from_directory_contents(app_dir_name, files_list, build_type)
+
+
+def in_list(app_list, app_dir_path):
+    plain_app_name = app_dir_path[(app_dir_path.rfind('/') + 1):]
+    return plain_app_name in app_list
 
 
 def build_apk_from_directory_contents(app_sub_dir, files_list, build_type):
@@ -100,7 +106,11 @@ def assemble_apk(domain, build_number, username, password, build_type):
 
 def get_app_name_from_profile():
     tree = ET.parse(PATH_TO_ASSETS_DIR_FROM_ODK + '/direct_install/profile.ccpr')
-    return tree.getroot().get("name")
+    return escape_apostrophes(tree.getroot().get("name").encode('utf-8'))
+
+
+def escape_apostrophes(s):
+    return s.replace("'", "\\'")
 
 
 def move_apk(app_id, build_type):
@@ -117,11 +127,18 @@ def move_apk(app_id, build_type):
 def main():
     if len(sys.argv) < 2:
         raise Exception("Must specify a build type. Use 'd' for debug or 'r' for release.")
+
     build_type = sys.argv[1]
     if build_type != 'd' and build_type != 'r':
         raise Exception("Must specify a build type. Use 'd' for debug or 'r' for release.")
+
+    if len(sys.argv) > 2:
+        subset_of_apps_to_build = sys.argv[2].split(",")
+    else:
+        subset_of_apps_to_build = None
+
     checkout_or_update_static_resources_repo()
-    build_apks_from_resources(build_type)
+    build_apks_from_resources(build_type, subset_of_apps_to_build)
 
 
 if __name__ == "__main__":
