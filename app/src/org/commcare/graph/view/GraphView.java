@@ -75,6 +75,7 @@ public class GraphView {
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
 
         webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
+
         return webView;
     }
 

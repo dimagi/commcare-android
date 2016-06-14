@@ -87,16 +87,6 @@ public class IntentCallout implements Externalizable {
         this.buttonLabel = buttonLabel;
         this.updateButtonLabel = updateButtonLabel;
         this.appearance = appearance;
-
-        Log.d("Class", "This is the class name: " + className);
-        Log.d("Type", "This is the type param: " + type);
-        Log.d("Component", "This is the component param: " + component);
-        Log.d("Data", "This is the data param: " + data);
-
-        Log.d("Refs", "This is the size of refs: " + refs.size());
-        Log.d("response", "This is the size of response map" + responseToRefMap.size());
-
-
     }
 
     protected void attachToForm(FormDef form) {
@@ -104,7 +94,6 @@ public class IntentCallout implements Externalizable {
     }
 
     public Intent generate(EvaluationContext ec) {
-        Log.d("Generating", "Entered generate method");
 
         Intent i = new Intent();
         if (className != null) {
@@ -131,6 +120,7 @@ public class IntentCallout implements Externalizable {
                 }
             }
         }
+
         Logger.log(AndroidLogger.TYPE_FORM_ENTRY, "Generated Intent: " + i.toString());
         return i;
     }

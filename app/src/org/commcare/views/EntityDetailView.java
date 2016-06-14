@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
+import android.util.Log;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -22,6 +23,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import org.commcare.activities.CommCareGraphActivity;
+import org.commcare.activities.TemplatePrinterActivity;
 import org.commcare.dalvik.R;
 import org.commcare.graph.model.GraphData;
 import org.commcare.graph.util.GraphException;
@@ -43,6 +45,7 @@ import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
@@ -282,6 +285,25 @@ public class EntityDetailView extends FrameLayout {
                 addSpinnerToGraph((WebView) graphView, graphLayout);
             }
 
+            Button print = new Button(getContext());
+            print.setText("PRINT");
+
+            final String myHTML = graphHTMLMap.get(graphView);
+            final Intent i = new Intent(getContext(), TemplatePrinterActivity.class);
+            i.putExtra("cc:print_template_reference", "jr://file/commcare/text/question1.html");
+            i.putExtra("woman_name", "example");
+            i.putExtra("village_name", "example village");
+            i.putExtra("graph", myHTML);
+
+            print.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getContext().startActivity(i);
+                    Log.d("HTML", myHTML);
+                }
+            });
+            graphLayout.addView(print);
+
             if (current != GRAPH) {
                 // Hide field label and expand value to take up full screen width
                 LinearLayout.LayoutParams graphValueLayout = new LinearLayout.LayoutParams((ViewGroup.LayoutParams)origValue);
@@ -405,6 +427,9 @@ public class EntityDetailView extends FrameLayout {
     /**
      * Generate graph view. May return WebView displaying graph, or TextView displaying error.
      */
+
+    private HashMap<View, String> graphHTMLMap = new HashMap<>();
+
     private View getGraphView(int index, String title, GraphData field, int orientation) {
         Context context = getContext();
         View graphView;
@@ -413,6 +438,8 @@ public class EntityDetailView extends FrameLayout {
             String graphHTML = g.getHTML(field);
             graphView = g.getView(graphHTML);
             graphLayout.setRatio((float)g.getRatio(field), (float)1);
+            graphHTMLMap.put(graphView, graphHTML);
+
         } catch (GraphException ex) {
             graphView = new TextView(context);
             int padding = (int)context.getResources().getDimension(R.dimen.spacer_small);

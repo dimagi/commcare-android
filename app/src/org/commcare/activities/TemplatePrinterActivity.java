@@ -14,6 +14,8 @@ import android.print.PrintDocumentAdapter;
 import android.print.PrintJob;
 import android.print.PrintJobInfo;
 import android.print.PrintManager;
+import android.util.Log;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -161,6 +163,10 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     private void doHtmlPrint() {
         // Create a WebView object specifically for printing
         WebView webView = new WebView(this);
+
+        WebSettings settings = webView.getSettings();
+        settings.setJavaScriptEnabled(true);
+
         webView.setWebViewClient(new WebViewClient() {
 
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -174,6 +180,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         });
         try {
             String htmlDocString = TemplatePrinterUtils.readStringFromFile(outputPath);
+            Log.d("HTML in printer", htmlDocString.substring(htmlDocString.indexOf("Graph")));
             webView.loadDataWithBaseURL(null, htmlDocString, "text/HTML", "UTF-8", null);
         } catch (IOException e) {
             showErrorDialog(Localization.get("print.io.error"));
