@@ -185,6 +185,19 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
 
     @Override
     protected long getCurrentMillis() {
+
+        if(dayTxt.getText().toString().equals("")){
+            dayTxt.setText(String.valueOf(myCal.get(Calendar.DAY_OF_MONTH)));
+        }
+
+        if(monthTxt.getText().toString().equals("")){
+            monthTxt.setText(monthsArray[monthArrayPointer]);
+        }
+
+        if(yearTxt.getText().toString().equals("")){
+            yearTxt.setText(String.valueOf(myCal.get(Calendar.YEAR)));
+        }
+
         int day = Integer.parseInt(dayTxt.getText().toString());
         int month = monthArrayPointer + 1;
         int year = Integer.parseInt(yearTxt.getText().toString());
