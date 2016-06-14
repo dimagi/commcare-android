@@ -77,11 +77,28 @@ public class AndroidUtil {
     }
 
     public static class AndroidStringSplitter extends DataUtil.StringSplitter {
+
+        @Override
         public String[] splitOnSpaces(String s) {
             if ("".equals(s)) {
                 return new String[0];
             }
             return s.split("[ ]+");
+        }
+
+        @Override
+        public String[] splitOnDash(String s) {
+            return s.split("-");
+        }
+
+        @Override
+        public String[] splitOnColon(String s) {
+            return s.split(":");
+        }
+
+        @Override
+        public String[] splitOnPlus(String s) {
+            return s.split("[+]");
         }
     }
 
