@@ -53,7 +53,7 @@ public class SyncDetailCalculations {
         setSyncSubtextColor(
                 squareButtonViewHolder.subTextView, numUnsentForms, lastSyncTimeAndMessage.first,
                 activity.getResources().getColor(cardDisplayData.subTextColor),
-                activity.getResources().getColor(R.color.cc_attention_negative_text));
+                activity.getResources().getColor(R.color.cc_dark_warm_accent_color));
     }
 
     private static Pair<Long, String> getLastSyncTimeAndMessage() {
