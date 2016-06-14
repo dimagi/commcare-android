@@ -7,6 +7,7 @@ import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
 
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.DataUtil.UnionLambda;
 
@@ -50,9 +51,12 @@ public class AndroidUtil {
      */
     public static void initializeStaticHandlers() {
         DataUtil.setUnionLambda(new AndroidUnionLambda());
+        DataUtil.setStringSplitter(new AndroidStringSplitter());
     }
 
     private static class AndroidUnionLambda extends UnionLambda {
+
+        @Override
         public <T> Vector<T> union(Vector<T> a, Vector<T> b) {
             //This is kind of (ok, so really) awkward looking, but we can't use sets in 
             //ccj2me (Thanks, Nokia!) also, there's no _collections_ interface in
@@ -69,8 +73,17 @@ public class AndroidUtil {
             a.addAll(joined);
             return a;
         }
+
     }
 
+    public static class AndroidStringSplitter extends DataUtil.StringSplitter {
+        public String[] splitOnSpaces(String s) {
+            if ("".equals(s)) {
+                return new String[0];
+            }
+            return s.split("[ ]+");
+        }
+    }
 
     /**
      * Returns an int array with the color values for the given attributes (R.attr).
