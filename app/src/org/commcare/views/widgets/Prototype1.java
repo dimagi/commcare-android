@@ -18,7 +18,6 @@ import org.javarosa.form.api.FormEntryPrompt;
 public class Prototype1 extends GregorianDateWidget implements CalendarFragment.DismissListener {
 
     private CalendarFragment myCalendar;
-    private View calendarView;
     private ImageButton openCalButton;
     private FragmentManager fm;
 
@@ -27,7 +26,6 @@ public class Prototype1 extends GregorianDateWidget implements CalendarFragment.
         fm = ((FragmentActivity) getContext()).getSupportFragmentManager();
         myCalendar = new CalendarFragment();
         myCalendar.setArguments(getMyCalendar());
-        calendarView = myCalendar.getView();
 
         openCalButton = (ImageButton) findViewById(R.id.opencalendar);
         openCalButton.setOnClickListener(new OnClickListener() {

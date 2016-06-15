@@ -3,6 +3,7 @@ package org.commcare.views.widgets;
 import android.content.DialogInterface;
 import android.content.Context;
 import android.graphics.Rect;
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -35,10 +36,10 @@ import java.util.Map;
 public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
     private GridView myGrid;
-    private Button decMonth;
-    private Button incMonth;
-    private Button decYear;
-    private Button incYear;
+    private ImageButton decMonth;
+    private ImageButton incMonth;
+    private ImageButton decYear;
+    private ImageButton incYear;
     private TextView myMonth;
     private TextView myYear;
     private Calendar myCal;
@@ -131,12 +132,13 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
     private void initDisplay(){
         myGrid = (GridView) myLayout.findViewById(R.id.calendar_grid);
 
-        decMonth = (Button) myLayout.findViewById(R.id.prevmonthbutton);
-        incMonth = (Button) myLayout.findViewById(R.id.nextmonthbutton);
+        decMonth = (ImageButton) myLayout.findViewById(R.id.prevmonthbutton);
+        incMonth = (ImageButton) myLayout.findViewById(R.id.nextmonthbutton);
         myMonth = (TextView) myLayout.findViewById(R.id.currentmonth);
 
-        decYear = (Button) myLayout.findViewById(R.id.prevyearbutton);
-        incYear = (Button) myLayout.findViewById(R.id.nextyearbutton);
+        decYear = (ImageButton) myLayout.findViewById(R.id.prevyearbutton);
+        incYear = (ImageButton) myLayout.findViewById(R.id.nextyearbutton);
+
         myYear = (TextView) myLayout.findViewById(R.id.currentyear);
 
     }

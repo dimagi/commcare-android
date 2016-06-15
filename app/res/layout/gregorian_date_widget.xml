@@ -17,15 +17,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id = "@+id/gregdayofweek"
-            android:layout_weight=".7"
+            android:layout_weight=".9"
             android:layout_marginLeft="20dp" />
 
         <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/avatar_vellum_date"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@drawable/icon_calendar_circle_turquoise"
             android:id = "@+id/opencalendar"
-            android:background="@color/transparent"
             android:layout_marginRight="20dp" />
 
     </LinearLayout>
@@ -178,11 +177,10 @@
         android:gravity="center"
         android:layout_gravity="center_horizontal">
 
-        <Button
+        <ImageButton
             android:layout_width="60dp"
             android:layout_height="60dp"
-            android:text="X"
-            android:textColor="@color/red"
+            android:background="@drawable/icon_clear_circle_orange"
             android:id = "@+id/clearall"/>
 
     </LinearLayout>

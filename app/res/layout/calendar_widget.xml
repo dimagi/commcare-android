@@ -23,50 +23,43 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:gravity="center_horizontal"
+        android:gravity="center"
         android:layout_marginTop="5dp"
         android:orientation="horizontal">
 
-        <Button
+        <ImageButton
             android:id="@+id/prevmonthbutton"
             android:layout_width="0dp"
             android:layout_height="45dp"
-            android:text="&lt;"
-            android:backgroundTint="@color/transparent"
-            android:textColor="@color/bright_blue_grad_end"
-            android:textStyle="bold"
-            android:layout_weight=".1"/>
+            android:background="@drawable/icon_chevron_left_primary"
+            android:layout_weight=".1"
+            android:layout_gravity="center" />
 
         <TextView
             android:id="@+id/currentmonth"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
             android:textStyle="bold"
             android:layout_weight=".2"
             android:layout_gravity="center"
             android:gravity="center_horizontal" />
 
-        <Button
+        <ImageButton
             android:id="@+id/nextmonthbutton"
             android:layout_width="0dp"
             android:layout_height="45dp"
-            android:text="&gt;"
-            android:backgroundTint="@color/transparent"
-            android:textColor="@color/bright_blue_grad_end"
-            android:textStyle="bold"
-            android:layout_weight=".1"/>
+            android:layout_weight=".1"
+            android:background="@drawable/icon_chevron_right_primary"
+            android:layout_gravity="center" />
 
-        <Button
+        <ImageButton
             android:id="@+id/prevyearbutton"
             android:layout_width="0dp"
             android:layout_height="45dp"
             android:layout_marginLeft="25dp"
-            android:text="&lt;"
-            android:backgroundTint="@color/transparent"
-            android:textColor="@color/bright_blue_grad_end"
-            android:textStyle="bold"
-            android:layout_weight=".1"/>
+            android:layout_weight=".1"
+            android:background="@drawable/icon_chevron_left_primary"
+            android:layout_gravity="center" />
 
         <TextView
             android:id="@+id/currentyear"
@@ -78,15 +71,13 @@
             android:layout_gravity="center"
             android:gravity="center_horizontal" />
 
-        <Button
+        <ImageButton
             android:id="@+id/nextyearbutton"
             android:layout_width="0dp"
             android:layout_height="45dp"
-            android:text="&gt;"
-            android:backgroundTint="@color/transparent"
-            android:textColor="@color/bright_blue_grad_end"
-            android:textStyle="bold"
-            android:layout_weight=".1"/>
+            android:background="@drawable/icon_chevron_right_primary"
+            android:layout_weight=".1"
+            android:layout_gravity="center" />
 
     </LinearLayout>
 

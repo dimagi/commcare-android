@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import org.commcare.dalvik.R;
@@ -33,7 +34,7 @@ import java.util.Map;
 
 /**
  * Created by Saumya on 5/27/2016.
- * Inputs Gregorian dates using + and - buttons or direct text entry
+ * A widget that accepts Gregorian dates using logic and GUI that are similar to the Nepali and Ethiopian widgets
  */
 public class GregorianDateWidget extends AbstractUniversalDateWidget {
 
@@ -53,7 +54,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
         super(context, prompt);
         myCal = Calendar.getInstance();
         maxYear = myCal.get(Calendar.YEAR) + 1;
-        Button clearAll = (Button) findViewById(R.id.clearall);
+        ImageButton clearAll = (ImageButton) findViewById(R.id.clearall);
         clearAll.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
