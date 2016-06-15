@@ -109,6 +109,8 @@ def get_app_name_from_profile():
     return escape_apostrophes(tree.getroot().get("name").encode('utf-8'))
 
 
+# Necessary because down the line, application_name ends up in the values.xml file, where any
+# quotes need to be escaped
 def escape_apostrophes(s):
     return s.replace("'", "\\'")
 
@@ -133,6 +135,9 @@ def main():
         raise Exception("Must specify a build type. Use 'd' for debug or 'r' for release.")
 
     if len(sys.argv) > 2:
+        # For debugging purposes- Allows the user to pass in a comma-separated list of app
+        # directory names, to tell the script that only those apps should be built, instead
+        # of just building all apps in the consumer_apps_resources repo
         subset_of_apps_to_build = sys.argv[2].split(",")
     else:
         subset_of_apps_to_build = None
