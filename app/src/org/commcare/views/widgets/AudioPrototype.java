@@ -6,6 +6,8 @@ import android.content.pm.ActivityInfo;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,120 +26,51 @@ import java.io.IOException;
 /**
  * Created by Saumya on 6/3/2016.
  */
-public class AudioPrototype extends AudioWidget{
+public class AudioPrototype extends AudioWidget implements RecordingFragment.DismissListener{
 
-    private MediaRecorder mRecorder;
-    private String mFileName;
-    private Button start;
-    private Button stop;
-    private LinearLayout myLayout;
-    private ProgressBar myProgress;
-    private final String FILE_EXT = "/CommCare.3gpp";
-
+    private RecordingFragment recorder;
+    private FragmentManager fm;
 
     public AudioPrototype(Context context, FormEntryPrompt prompt, PendingCalloutInterface pic){
         super(context, prompt, pic);
-        mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-        mFileName += FILE_EXT;
-    }
+        fm = ((FragmentActivity) getContext()).getSupportFragmentManager();
+        recorder = new RecordingFragment();
 
-    @Override
-    protected void setupLayout(){
-
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService
-                (Context.LAYOUT_INFLATER_SERVICE);
-        myLayout = (LinearLayout) inflater.inflate(R.layout.recording, null);
-
-        start = (Button) myLayout.findViewById(R.id.startrecording);
-        stop = (Button) myLayout.findViewById(R.id.stoprecording);
-        myProgress = (ProgressBar) myLayout.findViewById(R.id.recordingprogress);
-
-        start.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startRecording();
-            }
-        });
-
-        start.setText(Localization.get("start.recording"));
-
-        stop.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                stopRecording();
-            }
-        });
-
-        stop.setText(Localization.get("stop.recording"));
-        stop.setEnabled(false);
-        addView(myLayout);
-
-        super.setupLayout();
+        recorder.setListener(this);
     }
 
     @Override
     protected void captureAudio(FormEntryPrompt prompt){
-        myLayout.setVisibility(VISIBLE);
-        mCaptureButton.setVisibility(GONE);
-        mPlayButton.setVisibility(GONE);
-        mChooseButton.setVisibility(GONE);
-    }
-
-    private void startRecording(){
-        ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
-
-        if(mRecorder == null){
-           mRecorder = new MediaRecorder();
-       }
-
-        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        mRecorder.setOutputFile(mFileName);
-        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-
-        try{
-            mRecorder.prepare();
-        }catch(IOException e){
-            Log.d("Recorder", "Failed to prepare media recorder");
-        }
-
-        mRecorder.start();
-        myProgress.setVisibility(VISIBLE);
-        start.setEnabled(false);
-        stop.setEnabled(true);
-    }
-
-    private void stopRecording(){
-        mRecorder.stop();
-        mRecorder.release();
-        mRecorder = null;
-        myLayout.setVisibility(GONE);
-
-        mCaptureButton.setVisibility(VISIBLE);
-        mPlayButton.setVisibility(VISIBLE);
-        mChooseButton.setVisibility(VISIBLE);
-
-        stop.setEnabled(false);
-        start.setEnabled(true);
-        myProgress.setVisibility(GONE);
-
-        ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
-
-        setBinaryData(mFileName);
-        mPlayButton.setEnabled(true);
+        recorder.show(fm, "Recorder");
     }
 
     @Override
     public IAnswerData getAnswer(){
 
-        Log.d("Ansewr", "Getting ansewr");
+        MediaRecorder mRecorder = recorder.getRecorder();
 
         if(mRecorder != null){
             mRecorder.stop();
             mRecorder.release();
-            Log.d("Ansewr", "releasing");
         }
 
         return super.getAnswer();
+    }
+
+    @Override
+    public void onDismiss() {
+        MediaRecorder temp = recorder.getRecorder();
+
+        if(temp != null){
+            //temp.stop();
+            temp.release();
+            recorder.setRecorder(null);
+        }
+    }
+
+    @Override
+    public void onCompletion(){
+        setBinaryData(recorder.getFileName());
+        mPlayButton.setEnabled(true);
     }
 }
