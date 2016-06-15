@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import org.commcare.dalvik.R;
 import org.commcare.logic.PendingCalloutInterface;
+import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
@@ -70,7 +71,6 @@ public class AudioPrototype extends AudioWidget{
         stop.setText(Localization.get("stop.recording"));
         stop.setEnabled(false);
         addView(myLayout);
-        myLayout.setVisibility(GONE);
 
         super.setupLayout();
     }
@@ -90,7 +90,6 @@ public class AudioPrototype extends AudioWidget{
            mRecorder = new MediaRecorder();
        }
 
-        mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         mRecorder.setOutputFile(mFileName);
@@ -126,5 +125,19 @@ public class AudioPrototype extends AudioWidget{
 
         setBinaryData(mFileName);
         mPlayButton.setEnabled(true);
+    }
+
+    @Override
+    public IAnswerData getAnswer(){
+
+        Log.d("Ansewr", "Getting ansewr");
+
+        if(mRecorder != null){
+            mRecorder.stop();
+            mRecorder.release();
+            Log.d("Ansewr", "releasing");
+        }
+
+        return super.getAnswer();
     }
 }
