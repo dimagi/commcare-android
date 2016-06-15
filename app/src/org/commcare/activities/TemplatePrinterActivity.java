@@ -19,11 +19,6 @@ import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
-import com.google.android.gms.appindexing.Action;
-import com.google.android.gms.appindexing.AppIndex;
-import com.google.android.gms.common.api.GoogleApiClient;
-
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.CommCarePreferences;
@@ -187,23 +182,22 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
 
         try {
             String htmlDocString = TemplatePrinterUtils.readStringFromFile(outputPath);
-            webView.loadDataWithBaseURL(null, htmlDocString, "text/HTML", "UTF-8", null);
 
             String graphHTML = getIntent().getExtras().getString("graph");
 
             if (graphHTML != null) {
 
-                Log.d("Graph", "Found the graph");
                 WebView graphView = new WebView(this);
-                webView.getSettings().setJavaScriptEnabled(true);
+                graphView.getSettings().setJavaScriptEnabled(true);
 
                 // Improve performance
                 settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
 
                 webView.loadDataWithBaseURL("file:///android_asset/", graphHTML, "text/html", "utf-8", null);
-
-                webView.addView(graphView);
+            }else{
+                webView.loadDataWithBaseURL(null, htmlDocString, "text/HTML", "UTF-8", null);
             }
+
 
         } catch (IOException e) {
             showErrorDialog(Localization.get("print.io.error"));
