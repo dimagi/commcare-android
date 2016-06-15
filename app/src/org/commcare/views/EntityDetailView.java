@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Build;
-import android.util.Log;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -288,18 +287,18 @@ public class EntityDetailView extends FrameLayout {
             Button print = new Button(getContext());
             print.setText("PRINT");
 
-            final String myHTML = graphHTMLMap.get(graphView);
             final Intent i = new Intent(getContext(), TemplatePrinterActivity.class);
             i.putExtra("cc:print_template_reference", "jr://file/commcare/text/question1.html");
             i.putExtra("woman_name", "example");
             i.putExtra("village_name", "example village");
-            i.putExtra("graph", myHTML);
+
+            //Adding graph html
+            i.putExtra("graph",graphHTMLMap.get(graphView));
 
             print.setOnClickListener(new OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     getContext().startActivity(i);
-                    Log.d("HTML", myHTML);
                 }
             });
             graphLayout.addView(print);
@@ -438,7 +437,7 @@ public class EntityDetailView extends FrameLayout {
             String graphHTML = g.getHTML(field);
             graphView = g.getView(graphHTML);
             graphLayout.setRatio((float)g.getRatio(field), (float)1);
-            graphHTMLMap.put(graphView, graphHTML);
+            graphHTMLMap.put(graphView, g.myHTML);
 
         } catch (GraphException ex) {
             graphView = new TextView(context);

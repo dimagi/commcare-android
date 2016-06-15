@@ -4,10 +4,12 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.view.View;
+import android.os.Bundle;
+import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.graph.model.GraphData;
@@ -20,6 +22,7 @@ import org.commcare.graph.view.c3.LegendConfiguration;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.Serializable;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -28,13 +31,14 @@ import java.util.TreeMap;
  *
  * @author jschweers
  */
-public class GraphView {
+public class GraphView{
     public static final String HTML = "html";
     public static final String TITLE = "title";
-
     private final Context mContext;
     private final String mTitle;
     private final boolean mIsFullScreen;
+
+    public String myHTML;
 
     public GraphView(Context context, String title, boolean isFullScreen) {
         mContext = context;
@@ -58,6 +62,7 @@ public class GraphView {
         if (BuildConfig.DEBUG) {
             WebView.setWebContentsDebuggingEnabled(true);
         }
+
         WebView webView = new WebView(mContext);
 
         WebSettings settings = webView.getSettings();
@@ -75,6 +80,8 @@ public class GraphView {
         settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
 
         webView.loadDataWithBaseURL("file:///android_asset/", html, "text/html", "utf-8", null);
+
+        myHTML = html;
 
         return webView;
     }
