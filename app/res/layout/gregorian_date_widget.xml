@@ -182,6 +182,13 @@
             android:layout_height="60dp"
             android:background="@drawable/icon_clear_circle_orange"
             android:id = "@+id/clearall"/>
+        <ImageButton
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/icon_calendar_circle_turquoise"
+            android:id = "@+id/opencalendarbottom"
+            android:layout_marginLeft="10dp"
+            android:visibility="gone"/>
 
     </LinearLayout>
 

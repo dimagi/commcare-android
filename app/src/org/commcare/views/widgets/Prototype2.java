@@ -1,6 +1,7 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
@@ -52,22 +53,14 @@ public class Prototype2 extends Prototype1 {
         findViewById(R.id.yeardownbtn).setVisibility(GONE);
         findViewById(R.id.widgetinfo).setVisibility(GONE);
 
-        final ImageButton openCalendar = new ImageButton(getContext());
-        openCalendar.setImageResource(R.drawable.avatar_vellum_date);
-        openCalendar.setBackgroundColor(getResources().getColor(R.color.transparent));
-
+        ImageButton openCalendar = (ImageButton) findViewById(R.id.opencalendarbottom);
         openCalendar.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
                 openCalendar();
             }
         });
-
-        ((LinearLayout) myView.findViewById(R.id.gregfooter)).addView(openCalendar);
-
-        LinearLayout.LayoutParams calParams = (LinearLayout.LayoutParams) openCalendar.getLayoutParams();
-        calParams.width = LayoutParams.WRAP_CONTENT;
-        calParams.height = LayoutParams.WRAP_CONTENT;
+        openCalendar.setVisibility(VISIBLE);
 
     }
 }
