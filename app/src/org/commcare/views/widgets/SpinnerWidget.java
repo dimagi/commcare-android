@@ -1,6 +1,7 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -67,7 +68,6 @@ public class SpinnerWidget extends QuestionWidget {
                 if (sMatch.equals(s)) {
                     spinner.setSelection(i);
                 }
-
             }
         }
 
@@ -94,10 +94,10 @@ public class SpinnerWidget extends QuestionWidget {
     @Override
     public IAnswerData getAnswer() {
         int i = spinner.getSelectedItemPosition();
-        if (i == -1) {
+        if (i < 1) {
             return null;
         } else {
-            SelectChoice sc = mItems.elementAt(i); // - RANDOM_BUTTON_ID);
+            SelectChoice sc = mItems.elementAt(i-1); // 0th spot is empty
             return new SelectOneData(new Selection(sc));
         }
     }
@@ -108,7 +108,6 @@ public class SpinnerWidget extends QuestionWidget {
         // It seems that spinners cannot return a null answer. This resets the answer
         // to its original value, but it is not null.
         spinner.setSelection(0);
-
     }
 
 
@@ -124,7 +123,7 @@ public class SpinnerWidget extends QuestionWidget {
     // Defines how to display the select answers
     private class SpinnerAdapter extends ArrayAdapter<String> {
         final Context context;
-        String[] items = new String[]{};
+        String[] items;
         final int textUnit;
         final float textSize;
 
@@ -132,10 +131,16 @@ public class SpinnerWidget extends QuestionWidget {
         public SpinnerAdapter(final Context context, final int textViewResourceId,
                               final String[] objects, int textUnit, float textSize) {
             super(context, textViewResourceId, objects);
-            this.items = objects;
             this.context = context;
             this.textUnit = textUnit;
             this.textSize = textSize;
+
+            //Creates an empty option to be displayed the first time the widget is shown
+            items = new String[objects.length+1];
+            items[0] = "";
+            for(int i = 1; i < items.length; i ++){
+                items[i] = objects[i-1];
+            }
         }
 
 
@@ -149,9 +154,16 @@ public class SpinnerWidget extends QuestionWidget {
             }
 
             TextView tv = (TextView)convertView.findViewById(android.R.id.text1);
-            tv.setText(items[position]);
-            tv.setTextSize(textUnit, textSize);
-            tv.setPadding(10, 10, 10, 10); // Are these values OK?
+
+            if(position == 0){
+                tv.setHeight(0); //Hide empty option from dropdown view
+            }else{
+                tv.setHeight(3*(int)textSize+12);
+                tv.setText(items[position]);
+                tv.setTextSize(textUnit, textSize);
+                tv.setPadding(10, 10, 10, 10);
+            }
+
             return convertView;
         }
 
