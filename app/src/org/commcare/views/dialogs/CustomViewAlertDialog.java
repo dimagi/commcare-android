@@ -26,10 +26,7 @@ public class CustomViewAlertDialog extends CommCareAlertDialog {
     @Override
     public void finalizeView() {
         dialog = builder.create();
-        dialog.setCancelable(isCancelable);
-        if (isCancelable) {
-            dialog.setOnCancelListener(cancelListener);
-        }
+        super.finalizeView();
     }
 
 }
