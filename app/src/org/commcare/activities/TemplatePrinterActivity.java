@@ -196,6 +196,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             }
             {
                 webView.loadDataWithBaseURL(null, htmlDocString, "text/HTML", "UTF-8", null);
+                Log.d("HTML", htmlDocString);
             }
 
         } catch (IOException e) {
