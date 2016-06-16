@@ -19,6 +19,8 @@ import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.TextView;
+
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.CommCarePreferences;
@@ -174,10 +176,10 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
                 return false;
             }
 
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                createWebPrintJob(view);
-            }
+//            @Override
+//            public void onPageFinished(WebView view, String url) {
+//                createWebPrintJob(view);
+//            }
         });
 
         try {
@@ -186,22 +188,21 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             String graphHTML = getIntent().getExtras().getString("graph");
 
             if (graphHTML != null) {
+                Log.d("Graph", graphHTML);
 
-                WebView graphView = new WebView(this);
-                graphView.getSettings().setJavaScriptEnabled(true);
-
-                // Improve performance
                 settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
 
-                webView.loadDataWithBaseURL("file:///android_asset/", graphHTML, "text/html", "utf-8", null);
-            }else{
+                //webView.loadDataWithBaseURL("file:///android_asset/", graphHTML, "text/html", "utf-8", null);
+            }
+            {
                 webView.loadDataWithBaseURL(null, htmlDocString, "text/HTML", "UTF-8", null);
             }
-
 
         } catch (IOException e) {
             showErrorDialog(Localization.get("print.io.error"));
         }
+
+        createWebPrintJob(webView);
 
     }
 
