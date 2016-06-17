@@ -155,14 +155,9 @@ public class SpinnerWidget extends QuestionWidget {
 
             TextView tv = (TextView)convertView.findViewById(android.R.id.text1);
 
-            if(position == 0){
-                tv.setHeight(0); //Hide empty option from dropdown view
-            }else{
-                tv.setHeight(3*(int)textSize+12);
                 tv.setText(items[position]);
                 tv.setTextSize(textUnit, textSize);
                 tv.setPadding(10, 10, 10, 10);
-            }
 
             return convertView;
         }
