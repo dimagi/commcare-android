@@ -289,11 +289,11 @@ public class EntityDetailView extends FrameLayout {
 
             final Intent i = new Intent(getContext(), TemplatePrinterActivity.class);
             i.putExtra("cc:print_template_reference", "jr://file/commcare/text/question1.html");
-            i.putExtra("woman_name", "example");
-            i.putExtra("village_name", "example village");
+            i.putExtra("woman_name", "Jane Doe");
+            i.putExtra("village_name", "Cambridge, MA");
 
             //Adding graph html
-            i.putExtra("graph",graphHTMLMap.get(graphView));
+            i.putExtra(GraphView.GRAPH_UNIQUE,graphHTMLMap.get(graphView));
 
             print.setOnClickListener(new OnClickListener() {
                 @Override

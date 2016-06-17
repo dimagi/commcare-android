@@ -23,6 +23,7 @@ import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
+import org.commcare.graph.view.GraphView;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.TemplatePrinterTask;
 import org.commcare.tasks.TemplatePrinterTask.PopulateListener;
@@ -31,11 +32,16 @@ import org.commcare.utils.TemplatePrinterUtils;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.locale.Localization;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -183,28 +189,37 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         });
 
         try {
-            String htmlDocString = TemplatePrinterUtils.readStringFromFile(outputPath);
+                String htmlDocString = TemplatePrinterUtils.readStringFromFile(outputPath);
+                String graphHTML = getIntent().getExtras().getString(GraphView.GRAPH_UNIQUE);
 
-            String graphHTML = getIntent().getExtras().getString("graph");
+            if(graphHTML != null){
+                Document fullDoc = Jsoup.parse(htmlDocString);
+                Document graphDoc = Jsoup.parse(graphHTML);
 
-            if (graphHTML != null) {
-                Log.d("Graph", graphHTML);
+                List<Element> graphHead = graphDoc.getElementsByTag("head");
+                List<Element> graphBody = graphDoc.getElementsByTag("body");
 
-                settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+                List<Element> fullDocHead = fullDoc.getElementsByTag("head");
+                Element graphNode = fullDoc.getElementById("graph");
 
-                //webView.loadDataWithBaseURL("file:///android_asset/", graphHTML, "text/html", "utf-8", null);
-            }
-            {
+                for(Node n: graphHead.get(0).children()){
+                    fullDocHead.get(0).appendChild(n);
+                }
+
+                for(Node n: graphBody.get(0).children()){
+                    graphNode.appendChild(n);
+                }
+
+                String finalHTML = fullDoc.html();
+                webView.loadDataWithBaseURL(null, finalHTML, "text/HTML", "UTF-8", null);
+            }else{
                 webView.loadDataWithBaseURL(null, htmlDocString, "text/HTML", "UTF-8", null);
-                Log.d("HTML", htmlDocString);
             }
 
         } catch (IOException e) {
             showErrorDialog(Localization.get("print.io.error"));
         }
-
         createWebPrintJob(webView);
-
     }
 
     /**

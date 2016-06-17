@@ -37,6 +37,7 @@ public class GraphView{
     private final Context mContext;
     private final String mTitle;
     private final boolean mIsFullScreen;
+    public static final String GRAPH_UNIQUE = "GRAPH UNIQUE";
 
     public String myHTML;
 
