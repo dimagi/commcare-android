@@ -114,7 +114,6 @@ public class IntentCallout implements Externalizable {
 
                 String extraVal = XPathFuncExpr.toString(refs.get(key).eval(ec));
 
-                Log.d("In the loop", "Key: " + key + " Value: " + extraVal);
                 if (extraVal != null && !"".equals(extraVal)) {
                     i.putExtra(key, extraVal);
                 }

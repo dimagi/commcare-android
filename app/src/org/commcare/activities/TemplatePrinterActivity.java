@@ -205,9 +205,12 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
                 for(Node n: graphHead.get(0).children()){
                     fullDocHead.get(0).appendChild(n);
                 }
-
-                for(Node n: graphBody.get(0).children()){
-                    graphNode.appendChild(n);
+                try{
+                    for(Node n: graphBody.get(0).children()){
+                        graphNode.appendChild(n);
+                    }
+                }catch(NullPointerException e){
+                    showErrorDialog(Localization.get("template.error"));
                 }
 
                 String finalHTML = fullDoc.html();

@@ -29,8 +29,6 @@ import org.commcare.views.UiElement;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 
-import java.io.Serializable;
-
 /**
  * @author ctsims
  */

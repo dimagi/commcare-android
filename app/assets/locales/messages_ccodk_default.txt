@@ -399,6 +399,7 @@ template.malformed.mustache=The template file set for your print job has imprope
 template.malformed.chevron=The template file set for your print job has improperly-formed content. There is a mis-matched usage of '<'/'>' characters near the section: ${0}
 cannot.set.template=Could not set your print template
 no.file.browser=Your device does not have a file browser installed. Please download one from the playstore and then try again.
+template.error=Your template is not correctly formatted
 
 #Add new localization strings here
 
