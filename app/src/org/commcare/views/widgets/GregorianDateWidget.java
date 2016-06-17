@@ -151,9 +151,9 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
     protected void updateDateDisplay(long millisFromJavaEpoch) {
         UniversalDate dateUniv = fromMillis(millisFromJavaEpoch);
         monthArrayPointer = dateUniv.month - 1;
-        dayTxt.setText(String.format(Locale.getDefault(), DAYFORMAT, dateUniv.day));
+        dayTxt.setText(String.format(DAYFORMAT, dateUniv.day));
         monthTxt.setText(monthsArray[monthArrayPointer]);
-        yearTxt.setText(String.format(Locale.getDefault(), YEARFORMAT, dateUniv.year));
+        yearTxt.setText(String.format(YEARFORMAT, dateUniv.year));
         selectedDate.setTimeInMillis(millisFromJavaEpoch);
         dayOfWeek.setText(selectedDate.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
     }
