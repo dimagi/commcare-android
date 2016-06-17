@@ -3,16 +3,13 @@ package org.commcare.views.widgets;
 import android.content.DialogInterface;
 import android.content.Context;
 import android.graphics.Rect;
-import android.media.Image;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -24,7 +21,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -46,8 +42,6 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
     private LinearLayout myLayout;
     private DismissListener myListener;
 
-    private String[] monthNames;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
@@ -59,7 +53,6 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         }
 
         initDisplay();
-        initMonths();
         initWeekDays();
         initOnClick();
         refresh();
@@ -113,34 +106,14 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         ((TextView) myLayout.findViewById(R.id.day7)).setText(weekDayList.get(6));
     }
 
-    private void initMonths(){
-        monthNames = new String[12];
-
-        final Map<String, Integer> monthMap = myCal.getDisplayNames(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
-        List<String> monthList = new ArrayList<>(monthMap.keySet());
-
-        Collections.sort(monthList, new Comparator<String>(){
-            @Override
-            public int compare(String a, String b){
-                return monthMap.get(a) - monthMap.get(b);
-            }
-        });
-
-        monthNames = monthList.toArray(monthNames);
-    }
-
     private void initDisplay(){
         myGrid = (GridView) myLayout.findViewById(R.id.calendar_grid);
-
         decMonth = (ImageButton) myLayout.findViewById(R.id.prevmonthbutton);
         incMonth = (ImageButton) myLayout.findViewById(R.id.nextmonthbutton);
         myMonth = (TextView) myLayout.findViewById(R.id.currentmonth);
-
         decYear = (ImageButton) myLayout.findViewById(R.id.prevyearbutton);
         incYear = (ImageButton) myLayout.findViewById(R.id.nextyearbutton);
-
         myYear = (TextView) myLayout.findViewById(R.id.currentyear);
-
     }
 
     private void initOnClick(){

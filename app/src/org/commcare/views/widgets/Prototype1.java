@@ -5,15 +5,13 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-
 import org.commcare.dalvik.R;
-import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
 
 
 /**
  * Created by Saumya on 6/1/2016.
+ * Prototype 1 of 3
  */
 public class Prototype1 extends GregorianDateWidget implements CalendarFragment.DismissListener {
 
