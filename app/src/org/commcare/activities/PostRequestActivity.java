@@ -169,7 +169,7 @@ public class PostRequestActivity
 
     @Override
     public void reportFailure(String message, boolean showPopupNotification) {
-        enterErrorState(Localization.get("post.sync.failed"));
+        enterErrorState(message);
     }
 
     @Override
