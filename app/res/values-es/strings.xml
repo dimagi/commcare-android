@@ -14,10 +14,6 @@
     <string name="accept_location">Ubicacion de Dato</string>
     <string name="accuracy">Precision</string>
     <string name="activity_not_found">Ninguna actividad se encontro para manejar: %s</string>
-    <string name="add_another">Agregar Grupo</string>
-    <string name="add_another_repeat">Agregar otro grupo de \"%s\"?</string>
-    <string name="add_repeat">Agregar un nuevo grupo de \"%s\"?</string>
-    <string name="add_repeat_no">No Agregar</string>
     <string name="advance">avanzar a la \nproxima\npregunta</string>
     <string name="altitude">Altitud</string>
     <string name="audio_file_error">Ningun archivo de audio fue especificado.</string>
@@ -52,8 +48,6 @@
     <string name="do_not_exit">Cancelar</string>
     <string name="do_not_save">Ignorar Cambios</string>
     <string name="enter">iniciar</string>
-    <string name="entering_repeat">Agregar Grupo</string>
-    <string name="entering_repeat_ask">Agregar un Grupo Nuevo?</string>
     <string name="enter_data">Llenar el Formulario en Blanco</string>
     <string name="enter_data_button">Llenar el Formulario en Blanco</string>
     <string name="enter_data_description">Estas al inicio de \"%s\". Para iniciar deslice su dedo sobre la pantalla como se muestra.</string>
@@ -78,7 +72,6 @@
     <string name="jump_to_end">Ir al Final</string>
     <string name="jump_to_previous">Subir</string>
     <string name="latitude">Latitud</string>
-    <string name="leave_repeat_yes">No Agregar</string>
     <string name="leaving_repeat">Agregar Grupo</string>
     <string name="leaving_repeat_ask">Agregar Un Grupo Mas?</string>
     <string name="list_failed_with_error">El listado de formularios fracaso. %s.</string>
