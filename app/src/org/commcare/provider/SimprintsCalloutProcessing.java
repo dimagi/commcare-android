@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.util.Base64;
 import android.util.Log;
 
+import com.simprints.libsimprints.Constants;
 import com.simprints.libsimprints.Identification;
 import com.simprints.libsimprints.Registration;
 
@@ -27,8 +28,6 @@ import java.util.Vector;
  */
 public class SimprintsCalloutProcessing {
     private static final String TAG = SimprintsCalloutProcessing.class.getSimpleName();
-    private static final String IDENTIFICATION_KEY = "identification";
-    private static final String REGISTRATION_KEY = "registration";
     private static final String RIGHT_INDEX_XPATH_KEY = "rightIndex";
     private static final String RIGHT_THUMB_XPATH_KEY = "rightThumb";
     private static final String LEFT_INDEX_XPATH_KEY = "leftIndex";
@@ -40,7 +39,7 @@ public class SimprintsCalloutProcessing {
      * associated confidence score.
      */
     public static boolean isIdentificationResponse(Intent intent) {
-        return intent.hasExtra(IDENTIFICATION_KEY);
+        return intent.hasExtra(Constants.SIMPRINTS_IDENTIFICATIONS);
     }
 
     /**
@@ -48,11 +47,11 @@ public class SimprintsCalloutProcessing {
      * Registration responses contain fingerprint templates for the scanned fingerprints
      */
     public static boolean isRegistrationResponse(Intent intent) {
-        return intent.hasExtra(REGISTRATION_KEY);
+        return intent.hasExtra(Constants.SIMPRINTS_REGISTRATION);
     }
 
     public static OrderedHashtable<String, String> getConfidenceMatchesFromCalloutResponse(Intent intent) {
-        List<Identification> idReadings = (List)intent.getParcelableArrayListExtra(IDENTIFICATION_KEY);
+        List<Identification> idReadings = (List)intent.getParcelableArrayListExtra(Constants.SIMPRINTS_IDENTIFICATIONS);
 
         Collections.sort(idReadings);
 
@@ -65,7 +64,7 @@ public class SimprintsCalloutProcessing {
     }
 
     private static Registration getRegistrationData(Intent intent) {
-        return intent.getParcelableExtra(REGISTRATION_KEY);
+        return intent.getParcelableExtra(Constants.SIMPRINTS_REGISTRATION);
     }
 
     public static boolean processRegistrationResponse(FormDef formDef, Intent intent, TreeReference intentQuestionRef,
@@ -86,10 +85,10 @@ public class SimprintsCalloutProcessing {
                 rightThumbRefs != null && !rightThumbRefs.isEmpty() &&
                 leftIndexRefs != null && !leftIndexRefs.isEmpty() &&
                 leftThumbRefs != null && !leftThumbRefs.isEmpty()) {
-            storeFingerprintTemplate(formDef, rightIndexRefs, intentQuestionRef, registration.getTemplateRightIndex());
-            storeFingerprintTemplate(formDef, rightThumbRefs, intentQuestionRef, registration.getTemplateRightThumb());
-            storeFingerprintTemplate(formDef, leftIndexRefs, intentQuestionRef, registration.getTemplateLeftIndex());
-            storeFingerprintTemplate(formDef, leftThumbRefs, intentQuestionRef, registration.getTemplateLeftThumb());
+            storeFingerprintTemplate(formDef, rightIndexRefs, intentQuestionRef, registration.getRightIndex());
+            storeFingerprintTemplate(formDef, rightThumbRefs, intentQuestionRef, registration.getRightThumb());
+            storeFingerprintTemplate(formDef, leftIndexRefs, intentQuestionRef, registration.getLeftIndex());
+            storeFingerprintTemplate(formDef, leftThumbRefs, intentQuestionRef, registration.getLeftThumb());
             return true;
         } else {
             return false;
@@ -97,10 +96,10 @@ public class SimprintsCalloutProcessing {
     }
 
     private static int getFingerprintScanCount(Registration registration) {
-        return countTemplateScanned(registration.getTemplateLeftIndex())
-                + countTemplateScanned(registration.getTemplateRightIndex())
-                + countTemplateScanned(registration.getTemplateLeftThumb())
-                + countTemplateScanned(registration.getTemplateRightThumb());
+        return countTemplateScanned(registration.getLeftIndex())
+                + countTemplateScanned(registration.getRightIndex())
+                + countTemplateScanned(registration.getLeftThumb())
+                + countTemplateScanned(registration.getRightThumb());
     }
 
     private static int countTemplateScanned(byte[] template) {
