@@ -7,6 +7,7 @@ import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
 
+import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.DataUtil.UnionLambda;
 
@@ -50,10 +51,14 @@ public class AndroidUtil {
      */
     public static void initializeStaticHandlers() {
         DataUtil.setUnionLambda(new AndroidUnionLambda());
+        DataUtil.setStringSplitter(new AndroidStringSplitter());
     }
 
     private static class AndroidUnionLambda extends UnionLambda {
+
+        @Override
         public <T> Vector<T> union(Vector<T> a, Vector<T> b) {
+            Vector<T> result = new Vector<>();
             //This is kind of (ok, so really) awkward looking, but we can't use sets in 
             //ccj2me (Thanks, Nokia!) also, there's no _collections_ interface in
             //j2me (thanks Sun!) so this is what we get.
@@ -65,12 +70,37 @@ public class AndroidUtil {
 
             joined.retainAll(other);
 
-            a.clear();
-            a.addAll(joined);
-            return a;
+            result.addAll(joined);
+            return result;
         }
+
     }
 
+    public static class AndroidStringSplitter extends DataUtil.StringSplitter {
+
+        @Override
+        public String[] splitOnSpaces(String s) {
+            if ("".equals(s)) {
+                return new String[0];
+            }
+            return s.split("[ ]+");
+        }
+
+        @Override
+        public String[] splitOnDash(String s) {
+            return s.split("-");
+        }
+
+        @Override
+        public String[] splitOnColon(String s) {
+            return s.split(":");
+        }
+
+        @Override
+        public String[] splitOnPlus(String s) {
+            return s.split("[+]");
+        }
+    }
 
     /**
      * Returns an int array with the color values for the given attributes (R.attr).
