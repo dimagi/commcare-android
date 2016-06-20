@@ -138,9 +138,7 @@ public class SpinnerWidget extends QuestionWidget {
             //Creates an empty option to be displayed the first time the widget is shown
             items = new String[objects.length+1];
             items[0] = "";
-            for(int i = 1; i < items.length; i ++){
-                items[i] = objects[i-1];
-            }
+            System.arraycopy(objects, 0, items, 1, items.length - 1);
         }
 
 
