@@ -85,7 +85,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
                 checkDuplicate(p);
             }
 
-            table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
+            table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED, p.getVersion());
             return true;
         } catch (XmlPullParserException | InvalidReferenceException | IOException e) {
             e.printStackTrace();

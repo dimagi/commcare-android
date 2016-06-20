@@ -176,7 +176,7 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void commit(Resource r, int status, int version) throws UnresolvedResourceException {
+    public void commitCompoundResource(Resource r, int status, int version) throws UnresolvedResourceException {
     }
 
     @Override
