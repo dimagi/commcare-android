@@ -19,16 +19,20 @@ public abstract class CommCareAlertDialog {
     protected DialogInterface.OnCancelListener cancelListener;
     private DialogInterface.OnDismissListener dismissListener;
     protected View view;
-    // false by default, can be overridden by calling setOnCancelListener(), or by subclass
-    // definitions if desired
+    // false by default, can be overridden if desired
     protected boolean isCancelable;
 
     public void finalizeView() {
         dialog.setCancelable(isCancelable);
-        if (isCancelable) {
+        if (cancelListener != null) {
             dialog.setOnCancelListener(cancelListener);
         }
-        dialog.setView(view);
+        if (dismissListener != null) {
+            dialog.setOnDismissListener(dismissListener);
+        }
+        if (view != null) {
+            dialog.setView(view);
+        }
     }
 
     public void performCancel(DialogInterface dialog) {
@@ -47,13 +51,16 @@ public abstract class CommCareAlertDialog {
         return isCancelable;
     }
 
+    public void makeCancelable() {
+        isCancelable = true;
+    }
+
     public void setOnCancelListener(DialogInterface.OnCancelListener listener) {
         isCancelable = true;
         cancelListener = listener;
     }
 
     public void setOnDismissListener(DialogInterface.OnDismissListener listener) {
-        dialog.setOnDismissListener(listener);
         dismissListener = listener;
     }
 

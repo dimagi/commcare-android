@@ -516,13 +516,19 @@ def numbersToLetters(String version) {
 
 def getStandalonePackageIdentifier(ccDomainSafe, isConsumerApp) {
     if (project.hasProperty('application_name')) {
-        return ccDomainSafe + "." + application_name.replaceAll(" ", "").toLowerCase();
+        return ccDomainSafe + "." + cleanseAppNameForPackageIdentifier(application_name)
     } else if ("true".equals(isConsumerApp)) {
         throw new InvalidUserDataException("An application_name property must be provided for consumer app standalone builds")
     } else {
         return ccDomainSafe;
     }
 }
+
+
+def cleanseAppNameForPackageIdentifier(appName) {
+    return appName.replaceAll("[ '.:]", "").replaceAll("\\\\", "").toLowerCase()
+}
+
 
 def getStandaloneApplicationName(ccDomainSafe, isConsumerApp) {
     if (project.hasProperty('application_name')) {
