@@ -61,7 +61,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-maps:9.0.2'
     compile 'com.google.android.gms:play-services-analytics:9.0.2'
     compile 'com.google.zxing:core:3.2.1'
-    compile 'ch.acra:acra:4.8.5@aar'
+    compile 'ch.acra:acra:4.9.0@aar'
     compile 'joda-time:joda-time:2.9.3'
     compile 'net.sf.kxml:kxml2:2.3.0'
     compile 'net.zetetic:android-database-sqlcipher:3.4.0@aar'
