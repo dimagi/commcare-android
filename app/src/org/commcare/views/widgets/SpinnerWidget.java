@@ -155,9 +155,9 @@ public class SpinnerWidget extends QuestionWidget {
 
             TextView tv = (TextView)convertView.findViewById(android.R.id.text1);
 
-                tv.setText(items[position]);
-                tv.setTextSize(textUnit, textSize);
-                tv.setPadding(10, 10, 10, 10);
+            tv.setText(items[position]);
+            tv.setTextSize(textUnit, textSize);
+            tv.setPadding(10, 10, 10, 10);
 
             return convertView;
         }
