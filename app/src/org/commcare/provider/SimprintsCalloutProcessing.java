@@ -86,10 +86,10 @@ public class SimprintsCalloutProcessing {
                 rightThumbRefs != null && !rightThumbRefs.isEmpty() &&
                 leftIndexRefs != null && !leftIndexRefs.isEmpty() &&
                 leftThumbRefs != null && !leftThumbRefs.isEmpty()) {
-            storeFingerprintTemplate(formDef, rightIndexRefs, intentQuestionRef, registration.getTemplateRightIndex());
-            storeFingerprintTemplate(formDef, rightThumbRefs, intentQuestionRef, registration.getTemplateRightThumb());
-            storeFingerprintTemplate(formDef, leftIndexRefs, intentQuestionRef, registration.getTemplateLeftIndex());
-            storeFingerprintTemplate(formDef, leftThumbRefs, intentQuestionRef, registration.getTemplateLeftThumb());
+            storeFingerprintTemplate(formDef, rightIndexRefs, intentQuestionRef, registration.getRightIndex());
+            storeFingerprintTemplate(formDef, rightThumbRefs, intentQuestionRef, registration.getRightThumb());
+            storeFingerprintTemplate(formDef, leftIndexRefs, intentQuestionRef, registration.getLeftIndex());
+            storeFingerprintTemplate(formDef, leftThumbRefs, intentQuestionRef, registration.getLeftThumb());
             return true;
         } else {
             return false;
@@ -97,10 +97,10 @@ public class SimprintsCalloutProcessing {
     }
 
     private static int getFingerprintScanCount(Registration registration) {
-        return countTemplateScanned(registration.getTemplateLeftIndex())
-                + countTemplateScanned(registration.getTemplateRightIndex())
-                + countTemplateScanned(registration.getTemplateLeftThumb())
-                + countTemplateScanned(registration.getTemplateRightThumb());
+        return countTemplateScanned(registration.getLeftIndex())
+                + countTemplateScanned(registration.getRightIndex())
+                + countTemplateScanned(registration.getLeftThumb())
+                + countTemplateScanned(registration.getRightThumb());
     }
 
     private static int countTemplateScanned(byte[] template) {
