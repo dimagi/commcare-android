@@ -12,10 +12,22 @@ import os
 
 HELP_MSG = """'capture' saves the current session for restoring later.
 'install some_app.ccz' pushes and installs the ccz to device.
+'uninstall app_id' uninstalls an installed app.
 'remote domain app_id build' downloads an app from HQ and installs it.
 """
 BASE_RECEIVER_CMD = "adb shell am broadcast -a"
 BASE_ACTIVITY_CMD = "adb shell am start -n"
+
+
+# String -> None
+def uninstall(app_id):
+    """
+    """
+    extras = {"app_id": app_id}
+    cmd = receiver_command("org.commcare.dalvik.api.action" +
+                           ".UninstallApp", extras)
+    print(cmd)
+    subprocess.call(cmd, shell=True)
 
 
 # None -> None
@@ -122,6 +134,7 @@ def main():
 
     command = sys.argv[1]
     dispatch = {'capture': lambda: capture(),
+                'uninstall': lambda: uninstall(sys.argv[2]),
                 'remote': lambda: remote_install(*sys.argv[2:5]),
                 'help': lambda: HELP_MSG,
                 'install': lambda: install(sys.argv[2])}
