@@ -12,10 +12,36 @@ import os
 
 HELP_MSG = """'capture' saves the current session for restoring later.
 'install some_app.ccz' pushes and installs the ccz to device.
+'uninstall app_id' uninstalls an installed app.
+'login username password' logs into the currently seated app
 'remote domain app_id build' downloads an app from HQ and installs it.
 """
 BASE_RECEIVER_CMD = "adb shell am broadcast -a"
 BASE_ACTIVITY_CMD = "adb shell am start -n"
+
+
+# String -> None
+def uninstall(app_id):
+    """
+    Uninstall the app with the given id.
+    """
+    extras = {"app_id": app_id}
+    cmd = receiver_command("org.commcare.dalvik.api.action" +
+                           ".UninstallApp", extras)
+    print(cmd)
+    subprocess.call(cmd, shell=True)
+
+
+# String String -> None
+def login(username, password):
+    """
+    Perform a login to the currently seated app
+    """
+    extras = {"username": username, "password": password}
+    cmd = receiver_command("org.commcare.dalvik.api.action" +
+                           ".LoginWithCreds", extras)
+    print(cmd)
+    subprocess.call(cmd, shell=True)
 
 
 # None -> None
@@ -98,12 +124,12 @@ def get_extras_string(extras):
     """
     Builds ADB extras option flag. Supports string and boolean extras.
     """
-    extra_string = " "
+    extra_string = ""
     for k, v in extras.items():
         if isinstance(v, True.__class__):
-            extra_string += "--ez {} {}".format(k, str(v).lower())
+            extra_string += " --ez {} {}".format(k, str(v).lower())
         elif isinstance(v, str):
-            extra_string += "--es {} \"{}\"".format(k, v)
+            extra_string += " --es {} \"{}\"".format(k, v)
     return extra_string
 
 
@@ -122,6 +148,8 @@ def main():
 
     command = sys.argv[1]
     dispatch = {'capture': lambda: capture(),
+                'uninstall': lambda: uninstall(sys.argv[2]),
+                'login': lambda: login(sys.argv[2], sys.argv[3]),
                 'remote': lambda: remote_install(*sys.argv[2:5]),
                 'help': lambda: HELP_MSG,
                 'install': lambda: install(sys.argv[2])}
