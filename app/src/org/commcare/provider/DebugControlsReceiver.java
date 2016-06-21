@@ -13,6 +13,7 @@ import org.commcare.preferences.DevSessionRestorer;
  * Process broadcasts requesting to
  * - uninstall app
  * - save the current commcare user session.
+ * - log into the currently seated app
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
