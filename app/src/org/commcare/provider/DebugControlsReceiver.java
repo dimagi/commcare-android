@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.commcare.CommCareApplication;
+import org.commcare.activities.LoginActivity;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.preferences.DevSessionRestorer;
 
@@ -24,6 +25,8 @@ public class DebugControlsReceiver extends BroadcastReceiver {
             captureSession();
         } else if (action.endsWith("UninstallApp")) {
             uninstallApp(intent.getStringExtra("app_id"));
+        } else if (action.endsWith("LoginWithCreds")) {
+            login(context, intent.getStringExtra("username"), intent.getStringExtra("password"));
         }
     }
 
@@ -38,5 +41,13 @@ public class DebugControlsReceiver extends BroadcastReceiver {
             CommCareApplication._().expireUserSession();
             CommCareApplication._().uninstall(appRecord);
         }
+    }
+
+    private static void login(Context context, String username, String password) {
+        DevSessionRestorer.enableAutoLogin();
+        DevSessionRestorer.storeAutoLoginCreds(username, password);
+        Intent loginIntent = new Intent(context, LoginActivity.class);
+        loginIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(loginIntent);
     }
 }
