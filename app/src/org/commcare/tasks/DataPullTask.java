@@ -128,14 +128,14 @@ public abstract class DataPullTask<R>
         publishProgress(PROGRESS_STARTED);
         recordSyncAttemptTime();
         Logger.log(AndroidLogger.TYPE_USER, "Starting Sync");
-        setLoginNeeded();
+        determineIfLoginNeeded();
 
         AndroidTransactionParserFactory factory = getTransactionParserFactory();
         byte[] wrappedEncryptionKey = getEncryptionKey();
         if (wrappedEncryptionKey == null) {
             this.publishProgress(PROGRESS_DONE);
             return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE,
-                    "Unable to generate encryption key");
+                    "Unable to get or generate encryption key");
         } else {
             factory.initUserParser(wrappedEncryptionKey);
         }
@@ -176,7 +176,7 @@ public abstract class DataPullTask<R>
         return new ResultAndError<>(responseError);
     }
 
-    private void setLoginNeeded() {
+    private void determineIfLoginNeeded() {
         try {
             loginNeeded = !CommCareApplication._().getSession().isActive();
         } catch (SessionUnavailableException sue) {
@@ -224,8 +224,7 @@ public abstract class DataPullTask<R>
             }
             String sandboxId = PropertyUtils.genUUID().replace("-", "");
             ukrForLogin = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password),
-                    ByteEncrypter.wrapByteArrayWithString(newKey.getEncoded(), password),
-                    new Date(), new Date(Long.MAX_VALUE), sandboxId);
+                    newKey.getEncoded(), new Date(), new Date(Long.MAX_VALUE), sandboxId);
         } else {
             ukrForLogin = UserKeyRecord.getCurrentValidRecordByPassword(
                     CommCareApplication._().getCurrentApp(), username, password, true);
@@ -249,8 +248,8 @@ public abstract class DataPullTask<R>
     private ResultAndError<PullTaskResult> makeRequestAndHandleResponse(AndroidTransactionParserFactory factory)
             throws IOException {
 
-        RemoteDataPullResponse pullResponse = dataPullRequester
-                .makeDataPullRequest(this, requestor, server, !loginNeeded);
+        RemoteDataPullResponse pullResponse =
+                dataPullRequester.makeDataPullRequest(this, requestor, server, !loginNeeded);
         Logger.log(AndroidLogger.TYPE_USER,
                 "Request opened. Response code: " + pullResponse.responseCode);
 
@@ -350,9 +349,9 @@ public abstract class DataPullTask<R>
      * @throws IOException
      */
     private ResultAndError<PullTaskResult> handleBadLocalState(AndroidTransactionParserFactory factory) {
-        Pair<Integer, String> returnCodeAndMessage = recover(requestor, factory);
-        int returnCode = returnCodeAndMessage.first;
-        String failureReason = returnCodeAndMessage.second;
+        Pair<Integer, String> returnCodeAndMessageFromRecovery = recover(requestor, factory);
+        int returnCode = returnCodeAndMessageFromRecovery.first;
+        String failureReason = returnCodeAndMessageFromRecovery.second;
 
         if (returnCode == PROGRESS_DONE) {
             // Recovery was successful
