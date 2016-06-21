@@ -45,7 +45,7 @@ public class DataPullTaskTest {
         TestAppInstaller.installApp(APP_BASE + "profile.ccpr");
         runDataPull(200, GOOD_RESTORE);
         Assert.assertEquals(DataPullTask.PullTaskResult.UNKNOWN_FAILURE, dataPullResult.data);
-        Assert.assertEquals("Unable to generate encryption key", dataPullResult.errorMessage);
+        Assert.assertEquals("Unable to get or generate encryption key", dataPullResult.errorMessage);
     }
 
     @Test
