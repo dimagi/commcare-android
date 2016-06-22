@@ -75,7 +75,13 @@ def remote_install(domain, app_id, build_number):
                                                       app_id=app_id,
                                                       build=build_number)
     ccz_file = "commcare.ccz"
-    urllib.request.urlretrieve(url, ccz_file)
+    try:
+        urllib.request.urlretrieve(url, ccz_file)
+    except urllib.error.HTTPError as e:
+        if e.code == 404:
+            # assume that the app is on india, not prod
+            india_url = url.replace("www.commcarehq", "india.commcarehq")
+            urllib.request.urlretrieve(india_url, ccz_file)
     install(ccz_file)
     os.remove(ccz_file)
 
