@@ -50,6 +50,13 @@ public class DevSessionRestorer {
         return null;
     }
 
+    public static void storeAutoLoginCreds(String username, String password) {
+        tryAutoLoginPasswordSave(password, true);
+        SharedPreferences prefs =
+                CommCareApplication._().getCurrentApp().getAppPreferences();
+        prefs.edit().putString(CommCarePreferences.LAST_LOGGED_IN_USER, username).apply();
+    }
+
     /**
      * Save password into app preferences if auto-login is enabled
      */
