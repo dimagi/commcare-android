@@ -126,6 +126,7 @@ public class DispatchActivity extends FragmentActivity {
 
         if (CommCareApplication._().isConsumerApp() && !alreadyCheckedForAppFilesChange) {
             checkForChangedCCZ();
+            return;
         }
 
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
