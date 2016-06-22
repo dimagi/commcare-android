@@ -1344,11 +1344,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             mSaveToDiskTask.connect(this);
         }
         mSaveToDiskTask.setFormSavedListener(this);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mSaveToDiskTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            mSaveToDiskTask.execute();
-        }
+        mSaveToDiskTask.executeParallel();
     }
 
     /**

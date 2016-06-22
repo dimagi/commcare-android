@@ -85,11 +85,7 @@ public class FileServerFragment extends Fragment {
 
         //Execute on a true multithreaded chain. We should probably replace all of our calls with this
         //but this is the big one for now.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mFileServer.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            mFileServer.execute();
-        }
+        mFileServer.executeParallel();
     }
 
     /**

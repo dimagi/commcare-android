@@ -95,11 +95,7 @@ public class FormAndDataSyncer {
 
         //Execute on a true multithreaded chain. We should probably replace all of our calls with this
         //but this is the big one for now.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mProcess.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, records);
-        } else {
-            mProcess.execute(records);
-        }
+        mProcess.executeParallel(records);
 
     }
 
