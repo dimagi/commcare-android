@@ -16,8 +16,8 @@
         <Button
             android:layout_width="0dp"
             android:layout_height="40dp"
-            android:text = "&lt;&lt;"
-            android:id = "@+id/decweek"
+            android:text="&lt;&lt;"
+            android:id="@+id/dec_week"
             android:layout_weight=".15"
             android:background="@color/dark_blue"
             android:layout_marginRight="15dp"
@@ -29,8 +29,8 @@
         <Button
             android:layout_width="0dp"
             android:layout_height="40dp"
-            android:text = "&lt;"
-            android:id = "@+id/decday"
+            android:text="&lt;"
+            android:id="@+id/dec_day"
             android:layout_weight=".15"
             android:background="@color/bright_blue_grad_start"
             android:textStyle="bold"
@@ -41,7 +41,7 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:id = "@+id/pro3day"
+            android:id="@+id/pro_3_day"
             android:layout_weight=".4"
             android:gravity="center"
             android:textStyle="bold" />
@@ -49,8 +49,8 @@
         <Button
             android:layout_width="0dp"
             android:layout_height="40dp"
-            android:text = "&gt;"
-            android:id = "@+id/incrday"
+            android:text="&gt;"
+            android:id="@+id/incr_day"
             android:layout_weight=".15"
             android:background="@color/bright_blue_grad_start"
             android:textStyle="bold"
@@ -61,8 +61,8 @@
         <Button
             android:layout_width="0dp"
             android:layout_height="40dp"
-            android:text = "&gt;&gt;"
-            android:id = "@+id/incweek"
+            android:text="&gt;&gt;"
+            android:id="@+id/inc_week"
             android:layout_weight=".15"
             android:background="@color/dark_blue"
             android:layout_marginLeft="15dp"

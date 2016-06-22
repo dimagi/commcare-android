@@ -8,7 +8,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:id = "@+id/widgetinfo"
+        android:id="@+id/widgetinfo"
         android:gravity="left|center_vertical"
         android:layout_gravity="center_vertical"
         android:orientation="horizontal">
@@ -16,16 +16,9 @@
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:id = "@+id/gregdayofweek"
+            android:id="@+id/greg_day_of_week"
             android:layout_weight=".9"
             android:layout_marginLeft="20dp" />
-
-        <ImageButton
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@drawable/icon_calendar_circle_turquoise"
-            android:id = "@+id/opencalendar"
-            android:layout_marginRight="20dp" />
 
     </LinearLayout>
 
@@ -57,14 +50,14 @@
                 android:elevation="@dimen/button_elevation"/>
 
             <EditText
-                android:id="@+id/daytxtfield"
+                android:id="@+id/day_txt_field"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
                 android:gravity="center"
                 android:padding="3dp"
                 android:textSize="28dp"
                 android:inputType="number"
-                android:maxLength = "2"
+                android:maxLength="2"
                 android:selectAllOnFocus="true"/>
 
             <Button
@@ -99,7 +92,7 @@
                 android:elevation="@dimen/button_elevation" />
 
             <AutoCompleteTextView
-                android:id="@+id/monthtxtfield"
+                android:id="@+id/month_txt_field"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
                 android:layout_marginLeft="5dp"
@@ -143,7 +136,7 @@
                 android:elevation="@dimen/button_elevation" />
 
             <EditText
-                android:id="@+id/yeartxtfield"
+                android:id="@+id/year_txt_field"
                 android:layout_width="match_parent"
                 android:layout_height="45dp"
                 android:layout_marginLeft="5dp"
@@ -173,7 +166,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:id = "@+id/gregfooter"
+        android:id="@+id/gregfooter"
         android:gravity="center"
         android:layout_gravity="center_horizontal">
 
@@ -181,16 +174,14 @@
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:background="@drawable/icon_clear_circle_orange"
-            android:id = "@+id/clearall"/>
+            android:id="@+id/clear_all"/>
         <ImageButton
             android:layout_width="60dp"
             android:layout_height="60dp"
             android:background="@drawable/icon_calendar_circle_turquoise"
-            android:id = "@+id/opencalendarbottom"
-            android:layout_marginLeft="10dp"
-            android:visibility="gone"/>
+            android:id="@+id/open_calendar_bottom"
+            android:layout_marginLeft="10dp"/>
 
     </LinearLayout>
-
 
 </LinearLayout>

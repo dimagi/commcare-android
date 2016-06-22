@@ -1,8 +1,6 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,14 +33,13 @@ import java.util.Map;
  */
 public class GregorianDateWidget extends AbstractUniversalDateWidget {
 
-    private EditText dayTxt;
-    private AutoCompleteTextView monthTxt;
-    private EditText yearTxt;
+    private EditText dayText;
+    private AutoCompleteTextView monthText;
+    private EditText yearText;
     private TextView dayOfWeek;
-    private Calendar selectedDate;
-    private String[] monthNames;
+    protected Calendar calendar;
     private List<String> monthList;
-    private final int MIN_YEAR = 1900;
+    private final int MINYEAR = 1900;
     private final String DAYFORMAT = "%02d";
     private final String YEARFORMAT = "%04d";
     private int maxYear;
@@ -51,9 +48,8 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
 
     public GregorianDateWidget(Context context, FormEntryPrompt prompt){
         super(context, prompt);
-        selectedDate = Calendar.getInstance();
-        maxYear = selectedDate.get(Calendar.YEAR) + 1;
-        ImageButton clearAll = (ImageButton) findViewById(R.id.clearall);
+        maxYear = calendar.get(Calendar.YEAR) + 1;
+        ImageButton clearAll = (ImageButton) findViewById(R.id.clear_all);
         clearAll.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -64,80 +60,13 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
 
     @Override
     protected void initText(){
-        dayOfWeek = (TextView) findViewById(R.id.gregdayofweek);
-        dayTxt = (EditText)findViewById(R.id.daytxtfield);
-        yearTxt = (EditText)findViewById(R.id.yeartxtfield);
+        dayOfWeek = (TextView) findViewById(R.id.greg_day_of_week);
+        dayText = (EditText)findViewById(R.id.day_txt_field);
+        yearText = (EditText)findViewById(R.id.year_txt_field);
+        monthText = (AutoCompleteTextView) findViewById(R.id.month_txt_field);
 
         MonthAdapter monthAdapter = new MonthAdapter(getContext(), monthList);
-        monthTxt = (AutoCompleteTextView) findViewById(R.id.monthtxtfield);
-        monthTxt.setAdapter(monthAdapter);
-
-        dayTxt.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String contents = s.toString();
-
-                if(contents.length() > 1) {
-
-                    int num = Integer.parseInt(contents);
-                    int monthMax = selectedDate.getActualMaximum(Calendar.DAY_OF_MONTH);
-
-                    if (num <= monthMax && num >= 1) {
-                        selectedDate.set(Calendar.DAY_OF_MONTH, Integer.parseInt(s.toString()));
-                    }
-                }
-            }
-        });
-
-        monthTxt.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String content = s.toString();
-
-                if(monthList.contains(content)){
-                    monthArrayPointer = monthList.indexOf(content);
-                    selectedDate.set(Calendar.MONTH, monthArrayPointer);
-                }
-            }
-        });
-
-
-        yearTxt.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String contents = s.toString();
-
-                if(contents.length() >= 4 ){
-                    if(Integer.parseInt(contents) <= maxYear){
-                        selectedDate.set(Calendar.YEAR, Integer.parseInt(contents));
-                    }
-                }
-            }
-        });
-    }
-
-    private void clearAll(){
-        dayTxt.setText("");
-        monthTxt.setText("");
-        yearTxt.setText("");
-        super.setFocus(getContext());
+        monthText.setAdapter(monthAdapter);
     }
 
     @Override
@@ -151,46 +80,62 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
     protected void updateDateDisplay(long millisFromJavaEpoch) {
         UniversalDate dateUniv = fromMillis(millisFromJavaEpoch);
         monthArrayPointer = dateUniv.month - 1;
-        dayTxt.setText(String.format(DAYFORMAT, dateUniv.day));
-        monthTxt.setText(monthsArray[monthArrayPointer]);
-        yearTxt.setText(String.format(YEARFORMAT, dateUniv.year));
-        selectedDate.setTimeInMillis(millisFromJavaEpoch);
-        dayOfWeek.setText(selectedDate.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
+        dayText.setText(String.format(DAYFORMAT, dateUniv.day));
+        monthText.setText(monthsArray[monthArrayPointer]);
+        yearText.setText(String.format(YEARFORMAT, dateUniv.year));
+        calendar.setTimeInMillis(millisFromJavaEpoch);
+        dayOfWeek.setText(calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
     }
 
     @Override
     protected long getCurrentMillis() {
 
-        checkEmptyText();
+        autoFillEmptyTextFields();
+        validateTextOnButtonPress();
 
-        int day = Integer.parseInt(dayTxt.getText().toString());
+        int day = Integer.parseInt(dayText.getText().toString());
         int month = monthArrayPointer + 1;
-        int year = Integer.parseInt(yearTxt.getText().toString());
-
-        if(day > selectedDate.getActualMaximum(Calendar.DAY_OF_MONTH)){
-            dayTxt.setText(String.valueOf(selectedDate.getActualMaximum(Calendar.DAY_OF_MONTH)));
-            day = Integer.parseInt(dayTxt.getText().toString());
-        }
+        int year = Integer.parseInt(yearText.getText().toString());
 
         return toMillisFromJavaEpoch(year, month, day, millisOfDayOffset);
     }
 
-    private void checkEmptyText() {
-        if(dayTxt.getText().toString().equals("")){
-            dayTxt.setText(String.valueOf(selectedDate.get(Calendar.DAY_OF_MONTH)));
+    private void autoFillEmptyTextFields() {
+        if(dayText.getText().toString().isEmpty()){
+            dayText.setText(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)));
         }
 
-        if(monthTxt.getText().toString().equals("")){
-            monthTxt.setText(monthsArray[monthArrayPointer]);
+        if(monthText.getText().toString().isEmpty()){
+            monthText.setText(monthsArray[monthArrayPointer]);
         }
 
-        if(yearTxt.getText().toString().equals("")){
-            yearTxt.setText(String.valueOf(selectedDate.get(Calendar.YEAR)));
+        if(yearText.getText().toString().isEmpty()){
+            yearText.setText(String.valueOf(calendar.get(Calendar.YEAR)));
         }
     }
 
-    @Override
-    protected void updateGregorianDateHelperDisplay(){}
+    //Checks if all text fields contain valid values, corrects fields with invalid values, updates calendar based on text fields
+    private void validateTextOnButtonPress(){
+        String dayTextValue = dayText.getText().toString();
+        int num = Integer.parseInt(dayTextValue);
+        int monthMax = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+
+        if (num <= monthMax && num >= 1) {
+            calendar.set(Calendar.DAY_OF_MONTH, num);
+        }else{
+            dayText.setText(String.valueOf(calendar.getActualMaximum(Calendar.DAY_OF_MONTH)));
+        }
+
+        String monthTextValue = monthText.getText().toString();
+        if(monthList.contains(monthTextValue)){
+            monthArrayPointer = monthList.indexOf(monthTextValue);
+            calendar.set(Calendar.MONTH, monthArrayPointer);
+        }
+        monthText.clearFocus();
+
+        String yearTextValue = yearText.getText().toString();
+        calendar.set(Calendar.YEAR, Integer.parseInt(yearTextValue));
+    }
 
     @Override
     protected UniversalDate decrementMonth(long millisFromJavaEpoch) {
@@ -210,30 +155,6 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
     }
 
     @Override
-    protected String[] getMonthsArray() {
-        if(selectedDate == null) {
-            selectedDate = Calendar.getInstance();
-        }
-
-        if(monthNames == null){
-            monthNames = new String[12];
-            final Map<String, Integer> monthMap = selectedDate.getDisplayNames(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
-            monthList = new ArrayList<>(monthMap.keySet());
-
-            Collections.sort(monthList, new Comparator<String>(){
-                @Override
-                public int compare(String a, String b){
-                    return monthMap.get(a) - monthMap.get(b);
-                }
-            });
-
-            monthNames = monthList.toArray(monthNames);
-        }
-
-        return monthNames;
-    }
-
-    @Override
     protected UniversalDate incrementMonth(long millisFromJavaEpoch) {
         DateTime dt = new DateTime(millisFromJavaEpoch).plusMonths(1);
         return constructUniversalDate(dt);
@@ -243,6 +164,24 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
     protected UniversalDate incrementYear(long millisFromJavaEpoch) {
         DateTime dt = new DateTime(millisFromJavaEpoch).plusYears(1);
         return constructUniversalDate(dt);
+    }
+
+    @Override
+    protected String[] getMonthsArray() {
+        calendar = Calendar.getInstance();
+
+        String [] monthNames = new String[12];
+        final Map<String, Integer> monthMap = calendar.getDisplayNames(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+        monthList = new ArrayList<>(monthMap.keySet());
+            Collections.sort(monthList, new Comparator<String>(){
+                @Override
+                public int compare(String a, String b){
+                    return monthMap.get(a) - monthMap.get(b);
+                }
+            });
+
+        monthNames = monthList.toArray(monthNames);
+        return monthNames;
     }
 
     @Override
@@ -256,34 +195,48 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
     }
 
     @Override
+    protected void updateGregorianDateHelperDisplay(){}
+
+    //Needs all of these checks in order to prevent forward navigation if input is invalid
+    @Override
     public IAnswerData getAnswer(){
 
+        String month = monthText.getText().toString();
+        String day = dayText.getText().toString();
+        String year = yearText.getText().toString();
+
         //Empty text fields
-        if(monthTxt.getText().toString().equals("") || dayTxt.getText().toString().equals("") || yearTxt.getText().toString().equals("")){
+        if(month.isEmpty() || day.isEmpty() || year.isEmpty()){
             setFocus(getContext());
-            return new InvalidData(Localization.get("empty.fields"), new DateData(selectedDate.getTime()));
+            return null;
         }
         //Invalid year (too low)
-        if(Integer.parseInt(yearTxt.getText().toString()) < MIN_YEAR){
+        if(Integer.parseInt(year) < MINYEAR){
             setFocus(getContext());
-            return new InvalidData(Localization.get("low.year"), new DateData(selectedDate.getTime()));
+            return new InvalidData(Localization.get("low.year"), new DateData(calendar.getTime()));
         }
         //Invalid month
-        if(!monthList.contains(monthTxt.getText().toString())){
+        if(!monthList.contains(month)){
             setFocus(getContext());
-            return new InvalidData(Localization.get("invalid.month"), new DateData(selectedDate.getTime()));
+            return new InvalidData(Localization.get("invalid.month"), new DateData(calendar.getTime()));
         }
 
         //Invalid day (too high)
-        if(Integer.parseInt(dayTxt.getText().toString()) > selectedDate.getActualMaximum(Calendar.DAY_OF_MONTH)){
+        if(Integer.parseInt(day) > calendar.getActualMaximum(Calendar.DAY_OF_MONTH)){
             setFocus(getContext());
-            return new InvalidData(Localization.get("high.date") + String.valueOf(selectedDate.getActualMaximum(Calendar.DAY_OF_MONTH)), new DateData(selectedDate.getTime()));
+            return new InvalidData(Localization.get("high.date") + " " + String.valueOf(calendar.getActualMaximum(Calendar.DAY_OF_MONTH)), new DateData(calendar.getTime()));
+        }
+
+        //Invalid day (too high)
+        if(Integer.parseInt(day)< 1){
+            setFocus(getContext());
+            return new InvalidData(Localization.get("low.date"), new DateData(calendar.getTime()));
         }
 
         //Invalid year (too high)
-        if(Integer.parseInt(yearTxt.getText().toString()) > maxYear){
+        if(Integer.parseInt(year) > maxYear){
             setFocus(getContext());
-            return new InvalidData(Localization.get("high.year") + String.valueOf(maxYear), new DateData(selectedDate.getTime()));
+            return new InvalidData(Localization.get("high.year") + String.valueOf(maxYear), new DateData(calendar.getTime()));
         }
         return super.getAnswer();
     }
@@ -297,17 +250,15 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
         );
     }
 
-    protected void setDate(DateData newDate){
-        Date nextDate = (Date) newDate.getValue();
-        updateDateDisplay(nextDate.getTime());
+    private void clearAll(){
+        dayText.setText("");
+        monthText.setText("");
+        yearText.setText("");
+        super.setFocus(getContext());
     }
 
-    protected void refresh(){
-        setDate(new DateData(selectedDate.getTime()));
-    }
-
-    protected Calendar getMyCalendar(){
-        return selectedDate;
+    protected void refreshDisplay(){
+        updateDateDisplay(calendar.getTimeInMillis());
     }
 
     private class MonthAdapter extends ArrayAdapter<String>{

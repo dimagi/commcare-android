@@ -21,6 +21,7 @@ import java.util.Date;
 public class Prototype3 extends Prototype2{
 
     private LinearLayout myLayout;
+    private TextView weekday;
 
     public Prototype3(Context context, FormEntryPrompt prompt){
 
@@ -33,81 +34,52 @@ public class Prototype3 extends Prototype2{
         addView(myLayout, 1);
     }
 
-    @Override
-    protected void openCalendar(){
-        myLayout.setVisibility(GONE);
-        super.openCalendar();
-    }
-
     private void initView(){
 
-        TextView weekday = (TextView) findViewById(R.id.gregdayofweek);
-        ((TextView) myLayout.findViewById(R.id.pro3day)).setText(weekday.getText());
+        weekday = (TextView) findViewById(R.id.greg_day_of_week);
+        ((TextView) myLayout.findViewById(R.id.pro_3_day)).setText(weekday.getText());
 
-        weekday.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String content = s.toString();
-                TextView pro3day = (TextView) findViewById(R.id.pro3day);
-                pro3day.setText(content);
-            }
-        });
-
-        Button decDay = (Button) myLayout.findViewById(R.id.decday);
+        Button decDay = (Button) myLayout.findViewById(R.id.dec_day);
 
         decDay.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Date current = (Date) getAnswer().getValue();
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(current);
-                cal.add(Calendar.DATE, -1);
-                setDate(new DateData(cal.getTime()));
+                calendar.add(Calendar.DATE, -1);
+                refreshDisplay();
+                ((TextView) myLayout.findViewById(R.id.pro_3_day)).setText(weekday.getText());
             }
         });
 
-        Button incrDay = (Button) myLayout.findViewById(R.id.incrday);
+        Button incrDay = (Button) myLayout.findViewById(R.id.incr_day);
 
         incrDay.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Date current = (Date) getAnswer().getValue();
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(current);
-                cal.add(Calendar.DATE, 1);
-                setDate(new DateData(cal.getTime()));
+                calendar.add(Calendar.DATE, 1);
+                refreshDisplay();
+                ((TextView) myLayout.findViewById(R.id.pro_3_day)).setText(weekday.getText());
             }
         });
 
-        Button incWeek = (Button) myLayout.findViewById(R.id.incweek);
+        Button incWeek = (Button) myLayout.findViewById(R.id.inc_week);
 
         incWeek.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Date current = (Date) getAnswer().getValue();
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(current);
-                cal.add(Calendar.DATE, 7);
-                setDate(new DateData(cal.getTime()));
+                calendar.add(Calendar.DATE, 7);
+                refreshDisplay();
+                ((TextView) myLayout.findViewById(R.id.pro_3_day)).setText(weekday.getText());
             }
         });
 
-        Button decWeek = (Button) myLayout.findViewById(R.id.decweek);
+        Button decWeek = (Button) myLayout.findViewById(R.id.dec_week);
 
         decWeek.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                Date current = (Date) getAnswer().getValue();
-                Calendar cal = Calendar.getInstance();
-                cal.setTime(current);
-                cal.add(Calendar.DATE, -7);
-                setDate(new DateData(cal.getTime()));
+                calendar.add(Calendar.DATE, -7);
+                refreshDisplay();
+                ((TextView) myLayout.findViewById(R.id.pro_3_day)).setText(weekday.getText());
             }
         });
     }

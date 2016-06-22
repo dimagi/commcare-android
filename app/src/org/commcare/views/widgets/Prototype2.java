@@ -25,15 +25,5 @@ public class Prototype2 extends Prototype1 {
         findViewById(R.id.yearupbtn).setVisibility(GONE);
         findViewById(R.id.yeardownbtn).setVisibility(GONE);
         findViewById(R.id.widgetinfo).setVisibility(GONE);
-
-        ImageButton openCalendar = (ImageButton) findViewById(R.id.opencalendarbottom);
-        openCalendar.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openCalendar();
-            }
-        });
-        openCalendar.setVisibility(VISIBLE);
-
     }
 }

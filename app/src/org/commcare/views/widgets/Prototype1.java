@@ -23,9 +23,9 @@ public class Prototype1 extends GregorianDateWidget implements CalendarFragment.
         super(con, prompt);
         fm = ((FragmentActivity) getContext()).getSupportFragmentManager();
         myCalendar = new CalendarFragment();
-        myCalendar.setArguments(getMyCalendar());
+        myCalendar.setArguments(calendar);
 
-        openCalButton = (ImageButton) findViewById(R.id.opencalendar);
+        openCalButton = (ImageButton) findViewById(R.id.open_calendar_bottom);
         openCalButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -43,6 +43,6 @@ public class Prototype1 extends GregorianDateWidget implements CalendarFragment.
 
     @Override
     public void onDismiss() {
-        super.refresh();
+        refreshDisplay();
     }
 }

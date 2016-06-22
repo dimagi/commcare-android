@@ -5,14 +5,14 @@
     android:orientation="vertical"
     android:gravity="center"
     android:layout_gravity="center_horizontal"
-    android:paddingLeft = "20dp"
+    android:paddingLeft="20dp"
     android:paddingRight="20dp"
     android:paddingBottom="20dp">
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:id = "@+id/calendarinfo"
+        android:id="@+id/calendar_info"
         android:orientation="horizontal"
         android:gravity="right"
         android:layout_gravity="right">
@@ -28,7 +28,7 @@
         android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/prevmonthbutton"
+            android:id="@+id/prev_month_button"
             android:layout_width="0dp"
             android:layout_height="45dp"
             android:background="@drawable/icon_chevron_left_primary"
@@ -36,7 +36,7 @@
             android:layout_gravity="center" />
 
         <TextView
-            android:id="@+id/currentmonth"
+            android:id="@+id/current_month"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textStyle="bold"
@@ -45,7 +45,7 @@
             android:gravity="center_horizontal" />
 
         <ImageButton
-            android:id="@+id/nextmonthbutton"
+            android:id="@+id/next_month_button"
             android:layout_width="0dp"
             android:layout_height="45dp"
             android:layout_weight=".1"
@@ -53,7 +53,7 @@
             android:layout_gravity="center" />
 
         <ImageButton
-            android:id="@+id/prevyearbutton"
+            android:id="@+id/prev_year_button"
             android:layout_width="0dp"
             android:layout_height="45dp"
             android:layout_marginLeft="25dp"
@@ -62,7 +62,7 @@
             android:layout_gravity="center" />
 
         <TextView
-            android:id="@+id/currentyear"
+            android:id="@+id/current_year"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
@@ -72,7 +72,7 @@
             android:gravity="center_horizontal" />
 
         <ImageButton
-            android:id="@+id/nextyearbutton"
+            android:id="@+id/next_year_button"
             android:layout_width="0dp"
             android:layout_height="45dp"
             android:background="@drawable/icon_chevron_right_primary"
@@ -95,7 +95,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="center_horizontal"
-            android:id = "@+id/day1"/>
+            android:id="@+id/day1"/>
 
         <TextView
             android:layout_width="0dp"
@@ -103,10 +103,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_gravity="center_horizontal"
-            android:id = "@+id/day2"/>
+            android:id="@+id/day2"/>
 
         <TextView
-            android:id = "@+id/day3"
+            android:id="@+id/day3"
             android:textStyle="bold"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -114,7 +114,7 @@
             android:layout_gravity="center_horizontal"/>
 
         <TextView
-            android:id = "@+id/day4"
+            android:id="@+id/day4"
             android:textStyle="bold"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -122,7 +122,7 @@
             android:layout_gravity="center_horizontal"/>
 
         <TextView
-            android:id = "@+id/day5"
+            android:id="@+id/day5"
             android:textStyle="bold"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -130,7 +130,7 @@
             android:layout_gravity="center_horizontal"/>
 
         <TextView
-            android:id = "@+id/day6"
+            android:id="@+id/day6"
             android:textStyle="bold"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -138,7 +138,7 @@
             android:layout_gravity="center_horizontal" />
 
         <TextView
-            android:id = "@+id/day7"
+            android:id="@+id/day7"
             android:textStyle="bold"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -169,6 +169,6 @@
         android:layout_gravity="right"
         android:layout_marginTop="10dp"
         android:background="@drawable/green_check_mark"
-        android:id = "@+id/closecalendar"/>
+        android:id="@+id/close_calendar"/>
 
 </LinearLayout>

@@ -108,12 +108,12 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
     private void initDisplay(){
         myGrid = (GridView) myLayout.findViewById(R.id.calendar_grid);
-        decMonth = (ImageButton) myLayout.findViewById(R.id.prevmonthbutton);
-        incMonth = (ImageButton) myLayout.findViewById(R.id.nextmonthbutton);
-        myMonth = (TextView) myLayout.findViewById(R.id.currentmonth);
-        decYear = (ImageButton) myLayout.findViewById(R.id.prevyearbutton);
-        incYear = (ImageButton) myLayout.findViewById(R.id.nextyearbutton);
-        myYear = (TextView) myLayout.findViewById(R.id.currentyear);
+        decMonth = (ImageButton) myLayout.findViewById(R.id.prev_month_button);
+        incMonth = (ImageButton) myLayout.findViewById(R.id.next_month_button);
+        myMonth = (TextView) myLayout.findViewById(R.id.current_month);
+        decYear = (ImageButton) myLayout.findViewById(R.id.prev_year_button);
+        incYear = (ImageButton) myLayout.findViewById(R.id.next_year_button);
+        myYear = (TextView) myLayout.findViewById(R.id.current_year);
     }
 
     private void initOnClick(){
@@ -159,7 +159,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
             }
         });
 
-        ImageButton closer = (ImageButton) myLayout.findViewById(R.id.closecalendar);
+        ImageButton closer = (ImageButton) myLayout.findViewById(R.id.close_calendar);
         closer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
