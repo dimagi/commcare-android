@@ -92,11 +92,7 @@ public class FormAndDataSyncer {
 
         mProcess.setListeners(CommCareApplication._().getSession().startDataSubmissionListener());
         mProcess.connect(activity);
-
-        //Execute on a true multithreaded chain. We should probably replace all of our calls with this
-        //but this is the big one for now.
         mProcess.executeParallel(records);
-
     }
 
     private static String getFormPostURL(final Context context) {

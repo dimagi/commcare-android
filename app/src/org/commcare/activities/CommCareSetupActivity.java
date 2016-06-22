@@ -479,7 +479,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     };
 
             task.connect(this);
-            task.execute(incomingRef);
+            task.executeParallel(incomingRef);
         } else {
             Log.i(TAG, "During install: blocked a resource install press since a task was already running");
         }
