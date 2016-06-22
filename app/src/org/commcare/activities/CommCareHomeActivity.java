@@ -172,10 +172,6 @@ public class CommCareHomeActivity
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();
         processFromLoginLaunch();
-
-        if (CommCareApplication._().isConsumerApp()) {
-            ConsumerAppsUtil.checkForChangedLocalRestoreFile(this);
-        }
     }
 
     private void loadInstanceState(Bundle savedInstanceState) {

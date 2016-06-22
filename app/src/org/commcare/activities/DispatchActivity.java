@@ -124,11 +124,6 @@ public class DispatchActivity extends FragmentActivity {
             return;
         }
 
-        if (CommCareApplication._().isConsumerApp() && !alreadyCheckedForAppFilesChange) {
-            checkForChangedCCZ();
-            return;
-        }
-
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
 
         if (currentApp == null) {
@@ -136,12 +131,17 @@ public class DispatchActivity extends FragmentActivity {
                 CommCareApplication._().initFirstUsableAppRecord();
                 // Recurse in order to make the correct decision based on the new state
                 dispatch();
+                return;
             } else {
                 Intent i = new Intent(getApplicationContext(), CommCareSetupActivity.class);
                 this.startActivityForResult(i, INIT_APP);
             }
         } else {
             // Note that the order in which these conditions are checked matters!!
+            if (CommCareApplication._().isConsumerApp() && !alreadyCheckedForAppFilesChange) {
+                checkForChangedCCZ();
+                return;
+            }
 
             ApplicationRecord currentRecord = currentApp.getAppRecord();
             try {
