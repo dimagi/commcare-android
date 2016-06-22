@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore.Audio;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.MediaController;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -111,18 +113,7 @@ public class AudioWidget extends QuestionWidget {
         mPlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent("android.intent.action.VIEW");
-                File f = new File(mInstanceFolder + mBinaryName);
-                i.setDataAndType(Uri.fromFile(f), "audio/*");
-                try {
-                    getContext().startActivity(i);
-                } catch (ActivityNotFoundException e) {
-                    Toast.makeText(getContext(),
-                            StringUtils.getStringSpannableRobust(getContext(),
-                                    R.string.activity_not_found,
-                                    "play audio"),
-                            Toast.LENGTH_SHORT).show();
-                }
+                playAudio();
             }
         });
 
@@ -142,6 +133,21 @@ public class AudioWidget extends QuestionWidget {
         String acq = prompt.getAppearanceHint();
         if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
             mChooseButton.setVisibility(View.GONE);
+        }
+    }
+
+    protected void playAudio() {
+        Intent i = new Intent("android.intent.action.VIEW");
+        File f = new File(mInstanceFolder + mBinaryName);
+        i.setDataAndType(Uri.fromFile(f), "audio/*");
+        try {
+            getContext().startActivity(i);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(getContext(),
+                    StringUtils.getStringSpannableRobust(getContext(),
+                            R.string.activity_not_found,
+                            "play audio"),
+                    Toast.LENGTH_SHORT).show();
         }
     }
 

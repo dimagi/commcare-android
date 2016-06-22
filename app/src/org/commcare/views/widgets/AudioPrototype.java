@@ -3,9 +3,11 @@ package org.commcare.views.widgets;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.util.Log;
@@ -72,5 +74,49 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Dis
     public void onCompletion(){
         setBinaryData(recorder.getFileName());
         mPlayButton.setEnabled(true);
+    }
+
+    @Override
+    protected void playAudio() {
+        Uri myPath = Uri.parse(mInstanceFolder + mBinaryName);
+        final MediaPlayer player = MediaPlayer.create(getContext(), myPath);
+        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                resetAudioPlayer(mp);
+            }
+        });
+        player.start();
+
+        mPlayButton.setText("Pause Sound");
+        mPlayButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pauseAudioPlayer(player);
+            }
+        });
+    }
+
+    private void pauseAudioPlayer(MediaPlayer player){
+        final MediaPlayer mp = player;
+        mp.pause();
+        mPlayButton.setText("Resume Audio");
+        mPlayButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mp.start();
+            }
+        });
+    }
+
+    private void resetAudioPlayer(MediaPlayer mp){
+        mp.release();
+        mPlayButton.setText("Play Audio");
+        mPlayButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playAudio();
+            }
+        });
     }
 }

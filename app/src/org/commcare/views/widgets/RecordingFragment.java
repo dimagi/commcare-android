@@ -33,7 +33,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     private Button stop;
     private LinearLayout myLayout;
     private ProgressBar myProgress;
-    private final String FILE_EXT = "/CommCare.3gpp";
+    private final String FILE_EXT = "/Android/data/org.commcare.dalvik/temp/CommCare.3gpp";
     private MediaRecorder mRecorder;
     private DismissListener myListener;
 
