@@ -13,7 +13,7 @@ import org.javarosa.form.api.FormEntryPrompt;
  * Created by Saumya on 6/1/2016.
  * Prototype 1 of 3
  */
-public class Prototype1 extends GregorianDateWidget implements CalendarFragment.DismissListener {
+public class Prototype1 extends GregorianDateWidget implements CalendarFragment.CalendarCloseListener {
 
     private CalendarFragment myCalendar;
     private ImageButton openCalButton;
@@ -23,7 +23,7 @@ public class Prototype1 extends GregorianDateWidget implements CalendarFragment.
         super(con, prompt);
         fm = ((FragmentActivity) getContext()).getSupportFragmentManager();
         myCalendar = new CalendarFragment();
-        myCalendar.setArguments(calendar);
+        myCalendar.setCalendar(calendar);
 
         openCalButton = (ImageButton) findViewById(R.id.open_calendar_bottom);
         openCalButton.setOnClickListener(new OnClickListener() {
@@ -42,7 +42,7 @@ public class Prototype1 extends GregorianDateWidget implements CalendarFragment.
     }
 
     @Override
-    public void onDismiss() {
+    public void onCalendarClose() {
         refreshDisplay();
     }
 }
