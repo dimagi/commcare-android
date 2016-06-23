@@ -1281,22 +1281,27 @@ public class CommCareHomeActivity
 
     private void showAboutCommCareDialog() {
         CommCareAlertDialog dialog = DialogCreationHelpers.buildAboutCommCareDialog(this);
-
-        dialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+        dialog.makeCancelable();
+        dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
-            public void onCancel(DialogInterface dialog) {
-                mDeveloperModeClicks++;
-                if (mDeveloperModeClicks == 4) {
-                    CommCareApplication._().getCurrentApp().getAppPreferences().
-                            edit().putString(DeveloperPreferences.SUPERUSER_ENABLED, "yes").commit();
-                    Toast.makeText(CommCareHomeActivity.this,
-                            Localization.get("home.developer.options.enabled"),
-                            Toast.LENGTH_SHORT).show();
-                }
+            public void onDismiss(DialogInterface dialog) {
+                handleDeveloperModeClicks();
             }
         });
-
         showAlertDialog(dialog);
+    }
+
+    private void handleDeveloperModeClicks() {
+        mDeveloperModeClicks++;
+        if (mDeveloperModeClicks == 4) {
+            CommCareApplication._().getCurrentApp().getAppPreferences()
+                    .edit()
+                    .putString(DeveloperPreferences.SUPERUSER_ENABLED, CommCarePreferences.YES)
+                    .commit();
+            Toast.makeText(CommCareHomeActivity.this,
+                    Localization.get("home.developer.options.enabled"),
+                    Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

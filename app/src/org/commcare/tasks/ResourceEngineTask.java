@@ -36,6 +36,9 @@ public abstract class ResourceEngineTask<R>
      * Wait time between dialog updates in milliseconds
      */
     private static final long STATUS_UPDATE_WAIT_TIME = 1000;
+    private int installedResourceCountWhileUpdating = 0;
+    private int installedResourceCount = 0;
+    private int totalResourceCount = -1;
 
     protected UnresolvedResourceException missingResourceException = null;
     protected int badReqCode = -1;
@@ -122,7 +125,7 @@ public abstract class ResourceEngineTask<R>
     }
 
     @Override
-    public void resourceStateUpdated(final ResourceTable table) {
+    public void compoundResourceAdded(final ResourceTable table) {
         synchronized (statusLock) {
             // if last time isn't set or is less than our spacing count, do not
             // perform status update. Also if we are already running one, just skip this.
@@ -146,7 +149,8 @@ public abstract class ResourceEngineTask<R>
                         return;
                     }
 
-                    int score = 0;
+                    installedResourceCount = 0;
+                    totalResourceCount = resources.size();
                     boolean forceClosed = false;
                     for (Resource r : resources) {
                         forceClosed = ResourceEngineTask.this.getStatus() == Status.FINISHED ||
@@ -161,15 +165,15 @@ public abstract class ResourceEngineTask<R>
                                 if (phase == PHASE_CHECKING) {
                                     ResourceEngineTask.this.phase = PHASE_DOWNLOAD;
                                 }
-                                score += 1;
+                                installedResourceCount++;
                                 break;
                             case Resource.RESOURCE_STATUS_INSTALLED:
-                                score += 1;
+                                installedResourceCount++;
                                 break;
                         }
                     }
                     if (!forceClosed) {
-                        incrementProgress(score, resources.size());
+                        incrementProgress(installedResourceCount, totalResourceCount);
                     }
                     signalStatusCheckComplete();
                 }
@@ -185,6 +189,17 @@ public abstract class ResourceEngineTask<R>
             statusCheckRunning = true;
             Thread t = new Thread(statusUpdateCheck);
             t.start();
+        }
+    }
+
+    @Override
+    public void simpleResourceAdded() {
+        if (statusCheckRunning) {
+            installedResourceCountWhileUpdating++;
+        } else {
+            installedResourceCount += installedResourceCountWhileUpdating + 1;
+            installedResourceCountWhileUpdating = 0;
+            incrementProgress(installedResourceCount, totalResourceCount);
         }
     }
 
