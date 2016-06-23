@@ -42,6 +42,8 @@
     <string name="migration_possible_failure">CommCare was unable to migrate all of your data during an application upgrade. Please restart CommCare to try to fix this. If this message persists, you may need to \'Clear data\' for CommCare in your device\'s Settings menu.</string>
     <string name="migration_failure_title">Migration Error</string>
     <string name="multiple_apps_limit_message">You have reached your limit of installed apps; you may only have up to 2 apps installed at once.\n\nIf you would like to install a new app, you may uninstall an existing app first, which can be done from the app manager.</string>
+    <string name="back_to_manager">"Back to App Manager"</string>
+    <string name="go_to_manager">Go to App Manager</string>
     <string name="claim_privilege_button_text">CLAIM PRIVILEGE</string>
     <string name="privilege_enabled_text">The %s privilege is enabled.</string>
     <string name="privilege_not_enabled_text">The %s privilege is not enabled.</string>

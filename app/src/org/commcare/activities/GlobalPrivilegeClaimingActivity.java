@@ -36,7 +36,7 @@ public class GlobalPrivilegeClaimingActivity extends Activity {
     public static final String KEY_PRIVILEGE_NAME = "key-privilege-name";
 
     // activity request codes
-    public static final int BARCODE_CAPTURE = 1;
+    private static final int BARCODE_CAPTURE = 1;
 
     // menu item IDs
     private static final int DISABLE = 1;

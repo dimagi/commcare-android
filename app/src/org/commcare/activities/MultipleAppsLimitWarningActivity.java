@@ -20,28 +20,36 @@ public class MultipleAppsLimitWarningActivity extends CommCareActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.multiple_apps_limit_view);
-        boolean installAttemptCameFromAppManager = getIntent().getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
+        boolean installAttemptCameFromAppManager = getIntent()
+                .getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
+        setupUI(installAttemptCameFromAppManager);
+    }
 
+    private void setupUI(final boolean installAttemptCameFromManager) {
         Button toManagerButton = (Button)findViewById(R.id.back_to_manager_button);
-        if (installAttemptCameFromAppManager) {
-            toManagerButton.setText("Back to App Manager");
-            toManagerButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    setResult(RESULT_OK);
-                    finish();
-                }
-            });
+
+        if (installAttemptCameFromManager) {
+            toManagerButton.setText(R.string.back_to_manager);
         } else {
-            toManagerButton.setText("Go to App Manager");
-            toManagerButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent i = new Intent(MultipleAppsLimitWarningActivity.this, AppManagerActivity.class);
-                    i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(i);
-                }
-            });
+            toManagerButton.setText(R.string.go_to_manager);
+        }
+
+        toManagerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+               onManagerButtonClicked(installAttemptCameFromManager);
+            }
+        });
+    }
+
+    private void onManagerButtonClicked(boolean installAttemptCameFromManager) {
+        if (installAttemptCameFromManager) {
+            setResult(RESULT_OK);
+            finish();
+        } else {
+            Intent i = new Intent(MultipleAppsLimitWarningActivity.this, AppManagerActivity.class);
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
         }
     }
 
