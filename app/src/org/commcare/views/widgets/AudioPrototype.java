@@ -1,34 +1,22 @@
 package org.commcare.views.widgets;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
-import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import org.commcare.dalvik.R;
+
 import org.commcare.logic.PendingCalloutInterface;
 import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
-
-import java.io.File;
-import java.io.IOException;
 
 /**
  * Created by Saumya on 6/3/2016.
+ * An alternative audio widget that records and plays audio natively without callout to any external application
  */
-public class AudioPrototype extends AudioWidget implements RecordingFragment.DismissListener{
+public class AudioPrototype extends AudioWidget implements RecordingFragment.RecordingCompletionListener {
 
     private RecordingFragment recorder;
     private FragmentManager fm;
@@ -57,17 +45,6 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Dis
         }
 
         return super.getAnswer();
-    }
-
-    @Override
-    public void onDismiss() {
-        MediaRecorder temp = recorder.getRecorder();
-
-        if(temp != null){
-            //temp.stop();
-            temp.release();
-            recorder.setRecorder(null);
-        }
     }
 
     @Override

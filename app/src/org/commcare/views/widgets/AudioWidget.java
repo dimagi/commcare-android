@@ -251,6 +251,8 @@ public class AudioWidget extends QuestionWidget {
         mBinaryName = newAudio.getName();
     }
 
+    //If file is chosen by user, the file selection intent will return an URI
+    //If file is auto-selected after recording, then the recordingfragment will provide a string file path
     private String createFilePath(Object binaryuri){
         String path;
 
