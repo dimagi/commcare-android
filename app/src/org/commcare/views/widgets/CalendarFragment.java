@@ -29,6 +29,7 @@ import java.util.Map;
  * Created by Saumya on 5/29/2016.
  * DialogFragment for a popup calendar icon
  * Uses support library for compatibility with pre-honeycomb devices
+ * Layout and logic inspired by Ahmed Al-Amir at https://www.toptal.com/android/android-customization-how-to-build-a-ui-component-that-does-what-you-want
  */
 public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
