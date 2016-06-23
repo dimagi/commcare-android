@@ -312,9 +312,17 @@
             </intent-filter>
         </receiver>
 
-        <receiver android:name="org.commcare.provider.SessionCaptureReceiver">
+        <receiver android:name="org.commcare.provider.DebugControlsReceiver">
             <intent-filter>
                 <action android:name="${applicationId}.api.action.SessionCaptureAction"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="${applicationId}.api.action.UninstallApp"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="${applicationId}.api.action.LoginWithCreds"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
