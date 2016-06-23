@@ -35,6 +35,7 @@ public class DispatchActivity extends FragmentActivity {
     private static final int LOGIN_USER = 0;
     private static final int HOME_SCREEN = 1;
     public static final int INIT_APP = 2;
+    public static final int UPDATE_CONSUMER_APP = 3;
 
     /**
      * Request code for automatically validating media.
@@ -114,8 +115,8 @@ public class DispatchActivity extends FragmentActivity {
 
     private void checkForChangedCCZ() {
         alreadyCheckedForAppFilesChange = true;
-        Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
-        startActivity(i);
+        Intent i = new Intent(this, UpdateActivity.class);
+        startActivityForResult(i, UPDATE_CONSUMER_APP);
     }
 
     private void dispatch() {

@@ -374,9 +374,9 @@ public class CommCareHomeActivity
     void enterRootModule() {
         Intent i;
         if (useGridMenu(org.commcare.suite.model.Menu.ROOT_MENU_ID)) {
-            i = new Intent(getApplicationContext(), MenuGrid.class);
+            i = new Intent(this, MenuGrid.class);
         } else {
-            i = new Intent(getApplicationContext(), MenuList.class);
+            i = new Intent(this, MenuList.class);
         }
         addPendingDataExtra(i, CommCareApplication._().getCurrentSessionWrapper().getSession());
         startActivityForResult(i, GET_COMMAND);
@@ -863,9 +863,9 @@ public class CommCareHomeActivity
         String command = asw.getSession().getCommand();
 
         if (useGridMenu(command)) {
-            i = new Intent(getApplicationContext(), MenuGrid.class);
+            i = new Intent(this, MenuGrid.class);
         } else {
-            i = new Intent(getApplicationContext(), MenuList.class);
+            i = new Intent(this, MenuList.class);
         }
         i.putExtra(SessionFrame.STATE_COMMAND_ID, command);
         addPendingDataExtra(i, asw.getSession());
@@ -1121,7 +1121,7 @@ public class CommCareHomeActivity
             handlePendingSync();
         } else if (CommCareApplication._().isConsumerApp() && !sessionNavigationProceedingAfterOnResume) {
             // so that the user never sees the real home screen in a consumer app
-            enterRootModule();
+            //enterRootModule();
         } else {
             // Display the normal home screen!
             uiController.refreshView();
