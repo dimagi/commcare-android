@@ -87,7 +87,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
      * @return the ApplicationRecord corresponding to the app that should be displayed in this
      * activity, based upon the position
      */
-    private ApplicationRecord getAppForPosition(int position) {
+    private static ApplicationRecord getAppForPosition(int position) {
         ApplicationRecord[] currentApps = MultipleAppsUtil.appRecordArray();
         if (position < 0 || position >= currentApps.length) {
             return null;

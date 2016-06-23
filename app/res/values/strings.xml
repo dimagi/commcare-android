@@ -53,7 +53,7 @@
 
     <integer-array name="commcare_version">
         <item>2</item>
-        <item>28</item>
+        <item>29</item>
     </integer-array>
 
     <string name="app_version_string">version.id.long</string>
@@ -152,11 +152,6 @@ Copyright © 2012 readyState Software Ltd.</string>
     <string name="accept_location" cc:translatable="true">Record Location</string>
     <string name="accuracy" cc:translatable="true">Accuracy</string>
     <string name="activity_not_found" cc:translatable="true">No activity found to handle: %s</string>
-    <string name="add_another" cc:translatable="true">Add Group</string>
-    <string name="add_another_repeat" cc:translatable="true">Add another \"%s\" group?</string>
-    <string name="add_repeat" cc:translatable="true">Add a new \"%s\" group?</string>
-    <string name="add_repeat_no" cc:translatable="true">Do Not Add</string>
-    <string name="add_repeat_no_exits" cc:translatable="true">Do Not Add, I\'m Finished</string>
     <string name="advance" cc:translatable="true">forward to\nnext\nprompt</string>
     <string name="altitude" cc:translatable="true">Altitude</string>
     <string name="attachment_oversized" cc:translatable="true">Warning: attached large file of size %s kb. This could cause problems with submitting to the server depending on your network conditions.</string>
@@ -194,8 +189,6 @@ Copyright © 2012 readyState Software Ltd.</string>
     <string name="do_not_exit" cc:translatable="true">STAY IN FORM</string>
     <string name="do_not_save" cc:translatable="true">EXIT WITHOUT SAVING</string>
     <string name="enter" cc:translatable="true">start</string>
-    <string name="entering_repeat" cc:translatable="true">Add Group</string>
-    <string name="entering_repeat_ask" cc:translatable="true">Add New Group?</string>
     <string name="enter_data" cc:translatable="true">Fill Blank Form</string>
     <string name="enter_data_button" cc:translatable="true">Fill Blank Form</string>
     <string name="enter_data_description" cc:translatable="true">You are at the start of \"%s\". Swipe the screen as shown below to begin.</string>
@@ -220,9 +213,6 @@ Copyright © 2012 readyState Software Ltd.</string>
     <string name="jump_to_end" cc:translatable="true">Go To End</string>
     <string name="jump_to_previous" cc:translatable="true">Go Up</string>
     <string name="latitude" cc:translatable="true">Latitude</string>
-    <string name="leave_repeat_yes" cc:translatable="true">Do Not Add</string>
-    <string name="leave_repeat_yes_exits" cc:translatable="true">Do Not Add. I\'m Finished.</string>
-    <string name="repeat_go_back" cc:translatable="true">Go Back</string>
     <string name="leaving_repeat" cc:translatable="true">Add Group</string>
     <string name="leaving_repeat_ask" cc:translatable="true">And One More Group?</string>
     <string name="list_failed_with_error" cc:translatable="true">Form listing failed. %s.</string>

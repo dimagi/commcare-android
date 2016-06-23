@@ -53,6 +53,7 @@ import org.commcare.activities.components.FormRelevancyUpdating;
 import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.utils.MarkupUtil;
 import org.commcare.views.media.MediaLayout;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.android.javarosa.PollSensorAction;
@@ -1195,26 +1196,18 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         final boolean nextExitsForm = details.relevantAfterCurrentScreen == 0;
 
         // Assign title and text strings based on the current state
-        String title, addAnotherText, skipText, backText;
-        backText = StringUtils.getStringSpannableRobust(this, R.string.repeat_go_back).toString();
-        if (mFormController.getLastRepeatCount() > 0) {
-            title = StringUtils.getStringSpannableRobust(this, R.string.add_another_repeat,
-                    mFormController.getLastGroupText()).toString();
-            addAnotherText = StringUtils.getStringSpannableRobust(this, R.string.add_another).toString();
-            if (!nextExitsForm) {
-                skipText = StringUtils.getStringSpannableRobust(this, R.string.leave_repeat_yes).toString();
-            } else {
-                skipText = StringUtils.getStringSpannableRobust(this, R.string.leave_repeat_yes_exits).toString();
-            }
+        String backText = Localization.get("repeat.dialog.go.back");
+        String addAnotherText = Localization.get("repeat.dialog.add");
+        String title, skipText;
+        if (!nextExitsForm) {
+            skipText = Localization.get("repeat.dialog.leave");
         } else {
-            title = StringUtils.getStringSpannableRobust(this, R.string.add_repeat,
-                    mFormController.getLastGroupText()).toString();
-            addAnotherText = StringUtils.getStringSpannableRobust(this, R.string.entering_repeat).toString();
-            if (!nextExitsForm) {
-                skipText = StringUtils.getStringSpannableRobust(this, R.string.add_repeat_no).toString();
-            } else {
-                skipText = StringUtils.getStringSpannableRobust(this, R.string.add_repeat_no_exits).toString();
-            }
+            skipText = Localization.get("repeat.dialog.exit");
+        }
+        if (mFormController.getLastRepeatCount() > 0) {
+            title = Localization.get("repeat.dialog.add.another", mFormController.getLastGroupText());
+        } else {
+            title = Localization.get("repeat.dialog.add.new", mFormController.getLastGroupText());
         }
 
         // Create the choice dialog

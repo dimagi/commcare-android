@@ -81,7 +81,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 
             Suite s = parser.parse();
 
-            table.commit(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
+            table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
             return true;
         } catch (XmlPullParserException | InvalidStructureException
                 | InvalidReferenceException | IOException
