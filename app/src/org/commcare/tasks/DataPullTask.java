@@ -136,8 +136,12 @@ public abstract class DataPullTask<R>
             this.publishProgress(PROGRESS_DONE);
             return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE,
                     "Unable to get or generate encryption key");
-        } else {
-            factory.initUserParser(wrappedEncryptionKey);
+        }
+
+        factory.initUserParser(wrappedEncryptionKey);
+        if (!loginNeeded) {
+            //Only purge cases if we already had a logged in user. Otherwise we probably can't read the DB.
+            CaseUtils.purgeCases();
         }
 
         if (isCancelled()) {
@@ -208,8 +212,6 @@ public abstract class DataPullTask<R>
             }
             key = ByteEncrypter.wrapByteArrayWithString(ukrForLogin.getEncryptedKey(), password);
         } else {
-            //Only purge cases if we already had a logged in user. Otherwise we probably can't read the DB.
-            CaseUtils.purgeCases();
             key = CommCareApplication._().getSession().getLoggedInUser().getWrappedKey();
         }
         this.publishProgress(PROGRESS_CLEANED); // Either way, we don't want to do this step again
@@ -299,17 +301,20 @@ public abstract class DataPullTask<R>
             onSuccessfulSync();
             return new ResultAndError<>(PullTaskResult.DOWNLOAD_SUCCESS);
         } catch (XmlPullParserException e) {
+            wipeLoginIfItOccurred();
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_USER,
                     "User Sync failed due to bad payload|" + e.getMessage());
             return new ResultAndError<>(PullTaskResult.BAD_DATA, e.getMessage());
         } catch (ActionableInvalidStructureException e) {
+            wipeLoginIfItOccurred();
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_USER,
                     "User Sync failed due to bad payload|" + e.getMessage());
             return new ResultAndError<>(PullTaskResult.BAD_DATA_REQUIRES_INTERVENTION,
                     e.getLocalizedMessage());
         } catch (InvalidStructureException e) {
+            wipeLoginIfItOccurred();
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_USER,
                     "User Sync failed due to bad payload|" + e.getMessage());
@@ -325,6 +330,7 @@ public abstract class DataPullTask<R>
                     "User sync failed oddly, ISE |" + e.getMessage());
             return null;
         } catch (RecordTooLargeException e) {
+            wipeLoginIfItOccurred();
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                     "Storage Full during user sync |" + e.getMessage());
