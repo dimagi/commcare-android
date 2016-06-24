@@ -42,7 +42,7 @@ configurations {
 dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.robolectric:robolectric:3.0'
-    // testCompile project(path: ':javarosa', configuration: 'testsAsJar')
+    testCompile project(path: ':commcare', configuration: 'testsAsJar')
     // release build type expects commcare jars to be in app/libs
     debugCompile project(':commcare')
     compile project(':commcare')
