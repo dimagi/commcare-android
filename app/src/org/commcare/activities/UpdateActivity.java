@@ -247,6 +247,10 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         uiController.downloadingUiState();
     }
 
+    /**
+     * Since updates in a consumer app do not use the normal UpdateActivity UI, use an
+     * alternative method of displaying the update check's progress in that case
+     */
     private void initUpdateTaskProgressDisplay() {
         if (CommCareApplication._().isConsumerApp()) {
             showProgressDialog(DIALOG_CONSUMER_APP_UPGRADE);
@@ -330,11 +334,11 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     + "any valid possibilities in CommCareSetupActivity");
             return null;
         } else {
-            return generateNormalUpdateDialog(taskId);
+            return generateNormalUpdateInstallDialog(taskId);
         }
     }
 
-    private static CustomProgressDialog generateNormalUpdateDialog(int taskId) {
+    private static CustomProgressDialog generateNormalUpdateInstallDialog(int taskId) {
         String title = Localization.get("updates.installing.title");
         String message = Localization.get("updates.installing.message");
         CustomProgressDialog dialog =

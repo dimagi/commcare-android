@@ -280,21 +280,25 @@ public class CommCareSessionService extends Service {
 
             this.sessionExpireDate = new Date(new Date().getTime() + sessionLength);
 
-            // Display a notification about us starting.  We put an icon in the status bar.
             if (!CommCareApplication._().isConsumerApp()) {
+                // Put an icon in the status bar for the session, and set up session expiration
+                // (unless this is a consumer app)
                 showLoggedInNotification(user);
+                setUpSessionExpirationTimer();
+            }
+        }
+    }
+
+    private void setUpSessionExpirationTimer() {
+        maintenanceTimer = new Timer("CommCareService");
+        maintenanceTimer.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                timeToExpireSession();
             }
 
-            maintenanceTimer = new Timer("CommCareService");
-            maintenanceTimer.schedule(new TimerTask() {
-
-                @Override
-                public void run() {
-                    timeToExpireSession();
-                }
-
-            }, MAINTENANCE_PERIOD, MAINTENANCE_PERIOD);
-        }
+        }, MAINTENANCE_PERIOD, MAINTENANCE_PERIOD);
     }
 
     /**
@@ -303,11 +307,6 @@ public class CommCareSessionService extends Service {
      * progess then don't do anything.
      */
     private void timeToExpireSession() {
-        if (CommCareApplication._().isConsumerApp()) {
-            // Never expire the session if this is a consumer app
-            return;
-        }
-
         long currentTime = new Date().getTime();
 
         // If logout process started and has taken longer than the logout
