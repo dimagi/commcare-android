@@ -402,6 +402,13 @@ no.file.browser=Your device does not have a file browser installed. Please downl
 
 start.recording=Start Recording
 stop.recording=Stop Recording
+recording.header=Record a sound
+before.recording=Tap to start recording...
+during.recording=Tap to stop recording...
+after.recording=Recording complete.
+save=Save
+recording.prompt=Record or choose sound below...
+recording.custom=Custom recording
 
 #Add new localization strings here
 

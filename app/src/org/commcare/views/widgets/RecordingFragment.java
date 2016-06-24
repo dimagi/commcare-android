@@ -13,9 +13,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.content.DialogInterface;
+import android.widget.TextView;
+
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
 
@@ -23,56 +26,70 @@ import java.io.IOException;
 
 /**
  * Created by Saumya on 6/15/2016.
- * A popup dialog fragment that handles recording and saving of audio files without external callout
+ * A popup dialog fragment that handles recording_fragment and saving of audio files without external callout
  */
 public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
     private String fileName;
-    private Button start;
-    private Button stop;
+    private final String FILE_EXT = "/Android/data/org.commcare.dalvik/temp/Custom Recording.mp4";
+    public static final int MAX_DURATION_MS = 5000;
+
+    private ImageButton toggleRecording;
     private LinearLayout layout;
     private ProgressBar myProgress;
-    private final String FILE_EXT = "/Android/data/org.commcare.dalvik/temp/CommCare.mp4";
+    private Button saveRecording;
+    private TextView header;
+    private TextView instruction;
+
     private MediaRecorder recorder;
     private RecordingCompletionListener listener;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
+        layout = (LinearLayout) inflater.inflate(R.layout.recording_fragment, container);
 
-        layout = (LinearLayout) inflater.inflate(R.layout.recording, container);
         prepareButtons();
+        prepareText();
+        setWindowSize();
 
         fileName = Environment.getExternalStorageDirectory().getAbsolutePath();
         fileName += FILE_EXT;
 
+        return layout;
+    }
+
+    protected void setWindowSize() {
         Rect displayRectangle = new Rect();
         Window window = getActivity().getWindow();
         window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
         layout.setMinimumWidth((int)(displayRectangle.width() * 0.9f));
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+    }
 
-        return layout;
+    protected void prepareText() {
+        header = (TextView) layout.findViewById(R.id.recording_header);
+        instruction = (TextView) layout.findViewById(R.id.recording_instruction);
+
+        header.setText(Localization.get("recording.header"));
+        instruction.setText(Localization.get("before.recording"));
     }
 
     private void prepareButtons() {
-        start = (Button) layout.findViewById(R.id.startrecording);
-        stop = (Button) layout.findViewById(R.id.stoprecording);
+        toggleRecording = (ImageButton) layout.findViewById(R.id.startrecording);
         myProgress = (ProgressBar) layout.findViewById(R.id.recordingprogress);
-
-        start.setOnClickListener(new View.OnClickListener() {
+        saveRecording = (Button) layout.findViewById(R.id.saverecording);
+        toggleRecording.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startRecording();
             }
         });
-        start.setText(Localization.get("start.recording"));
-        stop.setOnClickListener(new View.OnClickListener() {
+        saveRecording.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                stopRecording();
+                saveRecording();
             }
         });
-        stop.setText(Localization.get("stop.recording"));
-        stop.setEnabled(false);
+        saveRecording.setText(Localization.get("save"));
     }
 
     private void startRecording(){
@@ -83,37 +100,61 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
             recorder = new MediaRecorder();
         }
 
+        setupRecorder();
+
+        recorder.start();
+
+        toggleRecording.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopRecording();
+            }
+        });
+
+        instruction.setText(Localization.get("during.recording"));
+
+        myProgress.setVisibility(View.VISIBLE);
+    }
+
+    private void setupRecorder() {
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         recorder.setOutputFile(fileName);
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        recorder.setMaxDuration(MAX_DURATION_MS);
+        recorder.setOnInfoListener(new MediaRecorder.OnInfoListener() {
+            @Override
+            public void onInfo(MediaRecorder mr, int what, int extra) {
+                if(what == MediaRecorder.MEDIA_RECORDER_INFO_MAX_DURATION_REACHED){
+                    stopRecording();
+                }
+            }
+        });
 
         try{
             recorder.prepare();
         }catch(IOException e){
             Log.d("Recorder", "Failed to prepare media recorder");
         }
-
-        recorder.start();
-        myProgress.setVisibility(View.VISIBLE);
-        start.setEnabled(false);
-        stop.setEnabled(true);
     }
 
     private void stopRecording(){
         recorder.stop();
+        toggleRecording.setEnabled(false);
+        saveRecording.setEnabled(true);
+        enableRotation();
+        myProgress.setVisibility(View.INVISIBLE);
+        instruction.setText(Localization.get("after.recording"));
+        saveRecording.setTextColor(getResources().getColor(R.color.white));
+        saveRecording.setBackgroundColor(getResources().getColor(R.color.green));
+    }
 
+    public void saveRecording(){
         if(listener != null){
             listener.onCompletion();
         }
 
         dismiss();
-
-        stop.setEnabled(false);
-        start.setEnabled(true);
-        myProgress.setVisibility(View.GONE);
-
-        enableRotation();
     }
 
     public interface RecordingCompletionListener {
@@ -132,6 +173,21 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
             recorder.release();
             setRecorder(null);
         }
+
+        toggleRecording.setEnabled(true);
+        toggleRecording.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startRecording();
+            }
+        });
+
+        saveRecording.setEnabled(false);
+        instruction.setText(Localization.get("before.recording"));
+
+        saveRecording.setBackgroundColor(getResources().getColor(R.color.transparent));
+        saveRecording.setTextColor(getResources().getColor(R.color.grey));
+
     }
 
     public MediaRecorder getRecorder(){

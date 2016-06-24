@@ -5,16 +5,13 @@ import android.content.ActivityNotFoundException;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Environment;
 import android.provider.MediaStore.Audio;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.MediaController;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
@@ -42,16 +39,20 @@ import java.io.IOException;
 public class AudioWidget extends QuestionWidget {
     private static final String TAG = AudioWidget.class.getSimpleName();
 
-    protected final Button mCaptureButton;
-    protected final Button mPlayButton;
-    protected final Button mChooseButton;
-    private final PendingCalloutInterface pendingCalloutInterface;
+    private Button mCaptureButton;
+    private Button mPlayButton;
+    private Button mChooseButton;
+    protected final PendingCalloutInterface pendingCalloutInterface;
 
+    protected String prevFileName;
     protected String mBinaryName;
     protected final String mInstanceFolder;
 
     public AudioWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
         super(context, prompt);
+
+        initializeButtons(prompt);
+        setupLayout();
 
         this.pendingCalloutInterface = pic;
 
@@ -61,10 +62,51 @@ public class AudioWidget extends QuestionWidget {
 
         setOrientation(LinearLayout.VERTICAL);
 
+        // retrieve answer from data model and update ui
+        mBinaryName = prompt.getAnswerText();
+        if (mBinaryName != null) {
+            togglePlayButton(true);
+            File f = new File(mInstanceFolder + mBinaryName);
+
+            checkFileSize(f);
+        } else {
+            disablePlayButton();
+        }
+
+        String acq = prompt.getAppearanceHint();
+        if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
+            mChooseButton.setVisibility(View.GONE);
+        }
+    }
+
+    protected void togglePlayButton(boolean enabled) {
+        mPlayButton.setEnabled(enabled);
+    }
+
+    protected void disablePlayButton() {
+        togglePlayButton(false);
+    }
+
+    protected void initializeButtons(final FormEntryPrompt prompt){
+
         // setup capture button
         mCaptureButton = new Button(getContext());
         WidgetUtils.setupButton(mCaptureButton,
                 StringUtils.getStringSpannableRobust(getContext(), R.string.capture_audio),
+                mAnswerFontsize,
+                !prompt.isReadOnly());
+
+        // setup audio filechooser button
+        mChooseButton = new Button(getContext());
+        WidgetUtils.setupButton(mChooseButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.choose_sound),
+                mAnswerFontsize,
+                !prompt.isReadOnly());
+
+        // setup play button
+        mPlayButton = new Button(getContext());
+        WidgetUtils.setupButton(mPlayButton,
+                StringUtils.getStringSpannableRobust(getContext(), R.string.play_audio),
                 mAnswerFontsize,
                 !prompt.isReadOnly());
 
@@ -75,13 +117,6 @@ public class AudioWidget extends QuestionWidget {
                 captureAudio(prompt);
             }
         });
-
-        // setup audio filechooser button
-        mChooseButton = new Button(getContext());
-        WidgetUtils.setupButton(mChooseButton,
-                StringUtils.getStringSpannableRobust(getContext(), R.string.choose_sound),
-                mAnswerFontsize,
-                !prompt.isReadOnly());
 
         // launch audio filechooser intent on click
         mChooseButton.setOnClickListener(new View.OnClickListener() {
@@ -102,13 +137,6 @@ public class AudioWidget extends QuestionWidget {
             }
         });
 
-        // setup play button
-        mPlayButton = new Button(getContext());
-        WidgetUtils.setupButton(mPlayButton,
-                StringUtils.getStringSpannableRobust(getContext(), R.string.play_audio),
-                mAnswerFontsize,
-                !prompt.isReadOnly());
-
         // on play, launch the appropriate viewer
         mPlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -117,23 +145,6 @@ public class AudioWidget extends QuestionWidget {
             }
         });
 
-        // retrieve answer from data model and update ui
-        mBinaryName = prompt.getAnswerText();
-        if (mBinaryName != null) {
-            mPlayButton.setEnabled(true);
-            File f = new File(mInstanceFolder + mBinaryName);
-
-            checkFileSize(f);
-        } else {
-            mPlayButton.setEnabled(false);
-        }
-        setupLayout();
-
-
-        String acq = prompt.getAppearanceHint();
-        if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
-            mChooseButton.setVisibility(View.GONE);
-        }
     }
 
     protected void playAudio() {
@@ -191,7 +202,7 @@ public class AudioWidget extends QuestionWidget {
         deleteMedia();
 
         // reset buttons
-        mPlayButton.setEnabled(false);
+        disablePlayButton();
     }
 
     @Override
@@ -218,6 +229,11 @@ public class AudioWidget extends QuestionWidget {
         String extension = "";
         if (filenameSegments.length > 1) {
             extension = "." + filenameSegments[filenameSegments.length - 1];
+        }
+
+        String[] filePathSegments = binaryPath.split("/");
+        if(filePathSegments.length >1){
+            prevFileName = filePathSegments[filePathSegments.length-1];
         }
 
         String destAudioPath = mInstanceFolder + System.currentTimeMillis() + extension;
@@ -252,7 +268,7 @@ public class AudioWidget extends QuestionWidget {
     }
 
     //If file is chosen by user, the file selection intent will return an URI
-    //If file is auto-selected after recording, then the recordingfragment will provide a string file path
+    //If file is auto-selected after recording_fragment, then the recordingfragment will provide a string file path
     private String createFilePath(Object binaryuri){
         String path;
 
