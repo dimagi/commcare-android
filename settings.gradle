@@ -1,2 +1,2 @@
-include ':commcare'
-project(':commcare').projectDir = new File('../commcare')
+include ':commcare-core'
+project(':commcare-core').projectDir = new File('../commcare-core')
