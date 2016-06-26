@@ -96,7 +96,7 @@ public class CommCareTestApplication extends CommCareApplication {
     private static void initFactoryClassList() {
         if (factoryClassNames.isEmpty()) {
             String baseODK = BuildConfig.BUILD_DIR + "/intermediates/classes/commcare/debug/";
-            String baseCC = BuildConfig.PROJECT_DIR + "/../commcare/build/classes/main/";
+            String baseCC = BuildConfig.PROJECT_DIR + "/../commcare-core/build/classes/main/";
             addExternalizableClassesFromDir(baseODK, factoryClassNames);
             addExternalizableClassesFromDir(baseCC, factoryClassNames);
         }
