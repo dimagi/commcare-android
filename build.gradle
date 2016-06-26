@@ -9,7 +9,6 @@ import org.apache.tools.ant.filters.ReplaceTokens
 // - somewhere/your/code/directory/is
 // -- commcare-odk (github: https://github.com/dimagi/commcare-odk/)
 // -- commcare (github: https://github.com/dimagi/commcare/)
-// -- javarosa (github: https://github.com/dimagi/javarosa/)
 // these directories MUST be named like this, or it won't work
 
 buildscript {
@@ -43,12 +42,10 @@ configurations {
 dependencies {
     testCompile 'junit:junit:4.12'
     testCompile 'org.robolectric:robolectric:3.1'
-    testCompile project(path: ':javarosa', configuration: 'testsAsJar')
-    // release build type expects javarosa and commcare jars to be in app/libs
-    debugCompile project(':javarosa')
-    debugCompile project(':commcare')
-    compile project(':javarosa')
-    compile project(':commcare')
+    testCompile project(path: ':commcare-core', configuration: 'testsAsJar')
+    // release build type expects commcare jars to be in app/libs
+    debugCompile project(':commcare-core')
+    compile project(':commcare-core')
     compile fileTree(dir: 'app/libs', include: '*.jar')
     compile(name: 'htmlspanner-custom', ext: 'aar')
     compile(name: 'simprints-lib', ext: 'aar')
