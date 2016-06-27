@@ -44,5 +44,6 @@ public class Prototype1 extends GregorianDateWidget implements CalendarFragment.
     @Override
     public void onCalendarClose() {
         refreshDisplay();
+        setFocus(getContext());
     }
 }

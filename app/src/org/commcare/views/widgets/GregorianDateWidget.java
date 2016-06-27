@@ -200,6 +200,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
     //Needs all of these checks in order to prevent forward navigation if input is invalid
     @Override
     public IAnswerData getAnswer(){
+        setFocus(getContext());
 
         String month = monthText.getText().toString();
         String day = dayText.getText().toString();
@@ -207,35 +208,29 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
 
         //Empty text fields
         if(month.isEmpty() || day.isEmpty() || year.isEmpty()){
-            setFocus(getContext());
             return null;
         }
         //Invalid year (too low)
         if(Integer.parseInt(year) < MINYEAR){
-            setFocus(getContext());
             return new InvalidData(Localization.get("low.year"), new DateData(calendar.getTime()));
         }
         //Invalid month
         if(!monthList.contains(month)){
-            setFocus(getContext());
             return new InvalidData(Localization.get("invalid.month"), new DateData(calendar.getTime()));
         }
 
         //Invalid day (too high)
         if(Integer.parseInt(day) > calendar.getActualMaximum(Calendar.DAY_OF_MONTH)){
-            setFocus(getContext());
             return new InvalidData(Localization.get("high.date") + " " + String.valueOf(calendar.getActualMaximum(Calendar.DAY_OF_MONTH)), new DateData(calendar.getTime()));
         }
 
         //Invalid day (too high)
         if(Integer.parseInt(day)< 1){
-            setFocus(getContext());
             return new InvalidData(Localization.get("low.date"), new DateData(calendar.getTime()));
         }
 
         //Invalid year (too high)
         if(Integer.parseInt(year) > maxYear){
-            setFocus(getContext());
             return new InvalidData(Localization.get("high.year") + String.valueOf(maxYear), new DateData(calendar.getTime()));
         }
         return super.getAnswer();
