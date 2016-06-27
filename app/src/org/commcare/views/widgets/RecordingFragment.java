@@ -30,6 +30,7 @@ import java.io.IOException;
 /**
  * Created by Saumya on 6/15/2016.
  * A popup dialog fragment that handles recording_fragment and saving of audio files without external callout
+ * Progress circle graphic from Jacksgong at https://github.com/lingochamp/MagicProgressWidget
  */
 public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
@@ -48,7 +49,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         layout = (LinearLayout) inflater.inflate(R.layout.recording_fragment, container);
-
+        enableScreenRotation();
         prepareButtons();
         prepareText();
         setWindowSize();
@@ -146,7 +147,6 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         toggleRecording.setEnabled(false);
         toggleRecording.setBackgroundResource(R.drawable.record_complete);
         saveRecording.setEnabled(true);
-        enableScreenRotation();
         instruction.setText(Localization.get("after.recording"));
         saveRecording.setTextColor(getResources().getColor(R.color.white));
         saveRecording.setBackgroundColor(getResources().getColor(R.color.cc_attention_positive_color));
@@ -173,30 +173,8 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
         if(recorder != null){
             recorder.release();
-            setRecorder(null);
+            this.recorder = null;
         }
-
-        toggleRecording.setEnabled(true);
-        toggleRecording.setBackgroundResource(R.drawable.record_start);
-        toggleRecording.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startRecording();
-            }
-        });
-        instruction.setText(Localization.get("before.recording"));
-        saveRecording.setEnabled(false);
-        saveRecording.setBackgroundColor(getResources().getColor(R.color.transparent));
-        saveRecording.setTextColor(getResources().getColor(R.color.grey));
-        mpc.setPercent(0);
-    }
-
-    public MediaRecorder getRecorder(){
-        return recorder;
-    }
-
-    public void setRecorder(MediaRecorder m){
-        recorder = m;
     }
 
     public String getFileName(){
