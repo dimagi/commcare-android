@@ -1120,7 +1120,6 @@ public class CommCareHomeActivity
             handlePendingSync();
         } else if (CommCareApplication._().isConsumerApp() && !sessionNavigationProceedingAfterOnResume) {
             // so that the user never sees the real home screen in a consumer app
-            sessionNavigationProceedingAfterOnResume = false;
             enterRootModule();
         } else {
             // Display the normal home screen!
