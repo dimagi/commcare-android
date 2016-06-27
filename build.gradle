@@ -71,6 +71,7 @@ dependencies {
     }
     compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
     compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
+    compile 'com.liulishuo.magicprogresswidget:library:1.0.9'
 }
 
 ext {
