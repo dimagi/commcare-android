@@ -31,15 +31,15 @@
         android:layout_marginTop="20dp">
 
         <ImageButton
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:background="@drawable/avatar_vellum_audio_capture"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:background="@drawable/record_start"
             android:layout_gravity="center"
             android:id = "@+id/startrecording"/>
 
         <ProgressBar
-            android:layout_width="190dp"
-            android:layout_height="190dp"
+            android:layout_width="220dp"
+            android:layout_height="220dp"
             android:layout_gravity="center"
             android:id="@+id/recordingprogress"
             android:progress="1"

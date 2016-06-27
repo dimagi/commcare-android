@@ -93,15 +93,12 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     }
 
     private void startRecording(){
-
         disableRotation();
-
         if(recorder == null){
             recorder = new MediaRecorder();
         }
 
         setupRecorder();
-
         recorder.start();
 
         toggleRecording.setOnClickListener(new View.OnClickListener() {
@@ -110,9 +107,8 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
                 stopRecording();
             }
         });
-
+        toggleRecording.setBackgroundResource(R.drawable.record_in_progress);
         instruction.setText(Localization.get("during.recording"));
-
         myProgress.setVisibility(View.VISIBLE);
     }
 
@@ -141,6 +137,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     private void stopRecording(){
         recorder.stop();
         toggleRecording.setEnabled(false);
+        toggleRecording.setBackgroundResource(R.drawable.record_complete);
         saveRecording.setEnabled(true);
         enableRotation();
         myProgress.setVisibility(View.INVISIBLE);
@@ -153,7 +150,6 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         if(listener != null){
             listener.onCompletion();
         }
-
         dismiss();
     }
 
@@ -175,6 +171,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         }
 
         toggleRecording.setEnabled(true);
+        toggleRecording.setBackgroundResource(R.drawable.record_start);
         toggleRecording.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -201,7 +198,6 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     public String getFileName(){
         return fileName;
     }
-
 
     private void disableRotation() {
         int currentOrientation = getResources().getConfiguration().orientation;

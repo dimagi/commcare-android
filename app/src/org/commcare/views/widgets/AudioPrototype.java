@@ -34,9 +34,7 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
     private FragmentManager fm;
     private LinearLayout layout;
 
-    private ImageButton mCaptureButton;
     private ImageButton mPlayButton;
-    private ImageButton mChooseButton;
     private TextView recordingText;
 
     public AudioPrototype(Context context, FormEntryPrompt prompt, PendingCalloutInterface pic){
@@ -53,8 +51,8 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
         layout = (LinearLayout) vi.inflate(R.layout.audio_prototype, null);
 
         mPlayButton = (ImageButton) layout.findViewById(R.id.play_audio);
-        mCaptureButton = (ImageButton) layout.findViewById(R.id.capture_button);
-        mChooseButton = (ImageButton) layout.findViewById(R.id.choose_file);
+        ImageButton mCaptureButton = (ImageButton) layout.findViewById(R.id.capture_button);
+        ImageButton mChooseButton = (ImageButton) layout.findViewById(R.id.choose_file);
 
         // launch capture intent on click
         mCaptureButton.setOnClickListener(new View.OnClickListener() {
@@ -91,11 +89,6 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
                 playAudio();
             }
         });
-    }
-
-    @Override
-    protected void disablePlayButton(){
-        mPlayButton.setEnabled(false);
     }
 
     @Override
@@ -137,6 +130,7 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
     public void onCompletion(){
         setBinaryData(recorder.getFileName());
         mPlayButton.setEnabled(true);
+        mPlayButton.setBackgroundResource(R.drawable.play);
         recordingText.setTextColor(getResources().getColor(R.color.black));
         recordingText.setText(Localization.get("recording.custom"));
     }
@@ -152,7 +146,7 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
             }
         });
         player.start();
-        mPlayButton.setBackgroundResource(R.drawable.avatar_vellum_phonenumber);
+        mPlayButton.setBackgroundResource(R.drawable.pause);
         mPlayButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -164,7 +158,7 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
     private void pauseAudioPlayer(MediaPlayer player){
         final MediaPlayer mp = player;
         mp.pause();
-        mPlayButton.setBackgroundResource(R.drawable.next_arrow);
+        mPlayButton.setBackgroundResource(R.drawable.play);
         mPlayButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -175,7 +169,7 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
 
     private void resetAudioPlayer(MediaPlayer mp){
         mp.release();
-        mPlayButton.setBackgroundResource(R.drawable.next_arrow);
+        mPlayButton.setBackgroundResource(R.drawable.play);
         mPlayButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

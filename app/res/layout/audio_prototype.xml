@@ -19,9 +19,9 @@
         android:layout_marginTop="10dp">
 
         <ImageButton
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="@drawable/next_arrow"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:background="@drawable/play_disabled"
             android:id="@+id/play_audio"
             android:layout_marginRight="10dp"
             android:elevation="10dp"/>
@@ -29,7 +29,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/grey_light"
+            android:textColor="@color/grey"
             android:id="@+id/recording_text"/>
 
     </LinearLayout>
@@ -43,17 +43,17 @@
         android:layout_marginTop="10dp">
 
         <ImageButton
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="@drawable/avatar_vellum_audio_capture"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:background="@drawable/record"
             android:id="@+id/capture_button"
-            android:layout_marginRight="20dp"
+            android:layout_marginRight="30dp"
             android:elevation="10dp"/>
 
         <ImageButton
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="@drawable/avatar_vellum_group"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:background="@drawable/open_file"
             android:id="@+id/choose_file"
             android:elevation="10dp"/>
 
