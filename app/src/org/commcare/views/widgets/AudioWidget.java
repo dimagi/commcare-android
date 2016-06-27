@@ -38,6 +38,7 @@ import java.io.IOException;
 
 public class AudioWidget extends QuestionWidget {
     private static final String TAG = AudioWidget.class.getSimpleName();
+    protected static final String CUSTOM_TAG = "custom";
 
     private Button mCaptureButton;
     private Button mPlayButton;
@@ -47,6 +48,7 @@ public class AudioWidget extends QuestionWidget {
     protected String prevFileName;
     protected String mBinaryName;
     protected final String mInstanceFolder;
+    protected String customFileTag;
 
     public AudioWidget(Context context, final FormEntryPrompt prompt, PendingCalloutInterface pic) {
         super(context, prompt);
@@ -65,10 +67,7 @@ public class AudioWidget extends QuestionWidget {
         // retrieve answer from data model and update ui
         mBinaryName = prompt.getAnswerText();
         if (mBinaryName != null) {
-            togglePlayButton(true);
-            File f = new File(mInstanceFolder + mBinaryName);
-
-            checkFileSize(f);
+            reloadFile();
         } else {
             togglePlayButton(false);
         }
@@ -77,6 +76,12 @@ public class AudioWidget extends QuestionWidget {
         if ((QuestionWidget.ACQUIREFIELD.equalsIgnoreCase(acq))) {
             mChooseButton.setVisibility(View.GONE);
         }
+    }
+
+    protected void reloadFile() {
+        togglePlayButton(true);
+        File f = new File(mInstanceFolder + mBinaryName);
+        checkFileSize(f);
     }
 
     protected void togglePlayButton(boolean enabled) {
@@ -220,7 +225,6 @@ public class AudioWidget extends QuestionWidget {
         String binaryPath = createFilePath(binaryuri);
 
         // get the file path and create a copy in the instance folder
-
         String[] filenameSegments = binaryPath.split("\\.");
         String extension = "";
         if (filenameSegments.length > 1) {
@@ -232,7 +236,7 @@ public class AudioWidget extends QuestionWidget {
             prevFileName = filePathSegments[filePathSegments.length-1];
         }
 
-        String destAudioPath = mInstanceFolder + System.currentTimeMillis() + extension;
+        String destAudioPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + extension;
 
         File source = new File(binaryPath);
         File newAudio = new File(destAudioPath);
@@ -265,14 +269,17 @@ public class AudioWidget extends QuestionWidget {
 
     //If file is chosen by user, the file selection intent will return an URI
     //If file is auto-selected after recording_fragment, then the recordingfragment will provide a string file path
+    //Set value of customFileTag if the file is a recent recording from the RecordingFragment
     private String createFilePath(Object binaryuri){
         String path;
 
         if(binaryuri instanceof Uri){
             path = UriToFilePath.getPathFromUri(CommCareApplication._(),
                     (Uri)binaryuri);
+            customFileTag = "";
         }else{
             path = (String) binaryuri;
+            customFileTag = CUSTOM_TAG;
         }
 
         return path;

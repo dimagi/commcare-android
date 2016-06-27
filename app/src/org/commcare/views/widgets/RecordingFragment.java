@@ -7,6 +7,7 @@ import android.graphics.Rect;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.content.DialogInterface;
 import android.widget.TextView;
+
+import com.liulishuo.magicprogresswidget.MagicProgressCircle;
 
 import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
@@ -32,16 +35,16 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
     private String fileName;
     private final String FILE_EXT = "/Android/data/org.commcare.dalvik/temp/Custom Recording.mp4";
-    public static final int MAX_DURATION_MS = 5000;
+    public static final int MAX_DURATION_MS = 120000;
 
     private ImageButton toggleRecording;
     private LinearLayout layout;
-    private ProgressBar myProgress;
     private Button saveRecording;
     private TextView instruction;
 
     private MediaRecorder recorder;
     private RecordingCompletionListener listener;
+    private MagicProgressCircle mpc;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         layout = (LinearLayout) inflater.inflate(R.layout.recording_fragment, container);
@@ -72,7 +75,6 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
     private void prepareButtons() {
         toggleRecording = (ImageButton) layout.findViewById(R.id.startrecording);
-        myProgress = (ProgressBar) layout.findViewById(R.id.recordingprogress);
         saveRecording = (Button) layout.findViewById(R.id.saverecording);
         toggleRecording.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,6 +89,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
             }
         });
         saveRecording.setText(Localization.get("save"));
+        mpc = (MagicProgressCircle) layout.findViewById(R.id.demo_mpc);
     }
 
     private void startRecording(){
@@ -106,7 +109,9 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         });
         toggleRecording.setBackgroundResource(R.drawable.record_in_progress);
         instruction.setText(Localization.get("during.recording"));
-        myProgress.setVisibility(View.VISIBLE);
+
+        mpc.setVisibility(View.VISIBLE);
+        mpc.setSmoothPercent(new Float(1.0), MAX_DURATION_MS);
     }
 
     private void setupRecorder() {
@@ -132,15 +137,19 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     }
 
     private void stopRecording(){
+
+        mpc.setPercent(mpc.getPercent());
+        mpc.setStartColor(getResources().getColor(R.color.blue_grey));
+        mpc.setEndColor(getResources().getColor(R.color.blue_grey));
+
         recorder.stop();
         toggleRecording.setEnabled(false);
         toggleRecording.setBackgroundResource(R.drawable.record_complete);
         saveRecording.setEnabled(true);
         enableScreenRotation();
-        myProgress.setVisibility(View.INVISIBLE);
         instruction.setText(Localization.get("after.recording"));
         saveRecording.setTextColor(getResources().getColor(R.color.white));
-        saveRecording.setBackgroundColor(getResources().getColor(R.color.green));
+        saveRecording.setBackgroundColor(getResources().getColor(R.color.cc_attention_positive_color));
     }
 
     public void saveRecording(){
@@ -179,6 +188,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         saveRecording.setEnabled(false);
         saveRecording.setBackgroundColor(getResources().getColor(R.color.transparent));
         saveRecording.setTextColor(getResources().getColor(R.color.grey));
+        mpc.setPercent(0);
     }
 
     public MediaRecorder getRecorder(){

@@ -9,6 +9,7 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
@@ -107,7 +108,6 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
         if(prevFileName != null){
             recordingText.setText(prevFileName);
         }
-        //TODO: After the file choose intent is done the widget gets redrawn by Android, so the new text in recordingText gets cleared. Ask Will about how to get around this.
     }
 
     @Override
@@ -146,7 +146,19 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
         mPlayButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                mp.start();
+                resumeAudioPlayer(mp);
+            }
+        });
+    }
+
+    private void resumeAudioPlayer(MediaPlayer player){
+        final MediaPlayer mp = player;
+        mp.start();
+        mPlayButton.setBackgroundResource(R.drawable.pause);
+        mPlayButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pauseAudioPlayer(mp);
             }
         });
     }
@@ -170,6 +182,17 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
             mPlayButton.setBackgroundResource(R.drawable.play_disabled);
         }
         mPlayButton.setEnabled(enabled);
+    }
+
+    @Override
+    protected void reloadFile(){
+        super.reloadFile();
+        recordingText.setTextColor(getResources().getColor(R.color.black));
+        if(mBinaryName.contains(CUSTOM_TAG)){
+            recordingText.setText(Localization.get("recording.custom"));
+        }else{
+            recordingText.setText(mBinaryName);
+        }
     }
 
     @Override

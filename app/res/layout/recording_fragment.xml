@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
 
     android:orientation="vertical"
     android:layout_width="fill_parent"
@@ -37,14 +38,16 @@
             android:layout_gravity="center"
             android:id = "@+id/startrecording"/>
 
-        <ProgressBar
-            android:layout_width="220dp"
-            android:layout_height="220dp"
-            android:layout_gravity="center"
-            android:id="@+id/recordingprogress"
-            android:progress="1"
-            android:indeterminate="false"
-            android:visibility="invisible"/>
+        <com.liulishuo.magicprogresswidget.MagicProgressCircle
+            android:id="@+id/demo_mpc"
+            android:layout_width="180dp"
+            android:layout_height="180dp"
+            app:mpc_percent="0"
+            app:mpc_stroke_width="15dp"
+            app:mpc_default_color="@color/grey_light"
+            app:mpc_start_color="@color/cc_brand_color"
+            app:mpc_end_color="@color/cc_brand_color"
+            android:layout_gravity="center"/>
 
     </FrameLayout>
 

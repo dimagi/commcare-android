@@ -408,7 +408,7 @@ during.recording=Tap to stop recording...
 after.recording=Recording complete.
 save=Save
 recording.prompt=Record or choose sound below...
-recording.custom=Custom recording
+recording.custom=Recorded Sound
 
 #Add new localization strings here
 
