@@ -33,7 +33,6 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
     private RecordingFragment recorder;
     private FragmentManager fm;
     private LinearLayout layout;
-
     private ImageButton mPlayButton;
     private TextView recordingText;
 
@@ -41,7 +40,6 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
         super(context, prompt, pic);
         fm = ((FragmentActivity) getContext()).getSupportFragmentManager();
         recorder = new RecordingFragment();
-
         recorder.setListener(this);
     }
 
@@ -109,21 +107,7 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
         if(prevFileName != null){
             recordingText.setText(prevFileName);
         }
-
         //TODO: After the file choose intent is done the widget gets redrawn by Android, so the new text in recordingText gets cleared. Ask Will about how to get around this.
-    }
-
-    @Override
-    public IAnswerData getAnswer(){
-
-        MediaRecorder mRecorder = recorder.getRecorder();
-
-        if(mRecorder != null){
-            mRecorder.stop();
-            mRecorder.release();
-        }
-
-        return super.getAnswer();
     }
 
     @Override
@@ -180,6 +164,11 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
 
     @Override
     protected void togglePlayButton(boolean enabled) {
+        if(enabled){
+            mPlayButton.setBackgroundResource(R.drawable.play);
+        }else{
+            mPlayButton.setBackgroundResource(R.drawable.play_disabled);
+        }
         mPlayButton.setEnabled(enabled);
     }
 
@@ -192,4 +181,4 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
     @Override
     public void unsetListeners() {}
 
-    }
+}

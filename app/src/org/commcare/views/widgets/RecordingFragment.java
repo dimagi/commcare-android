@@ -38,7 +38,6 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     private LinearLayout layout;
     private ProgressBar myProgress;
     private Button saveRecording;
-    private TextView header;
     private TextView instruction;
 
     private MediaRecorder recorder;
@@ -50,9 +49,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         prepareButtons();
         prepareText();
         setWindowSize();
-
-        fileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-        fileName += FILE_EXT;
+        fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_EXT;
 
         return layout;
     }
@@ -66,7 +63,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     }
 
     protected void prepareText() {
-        header = (TextView) layout.findViewById(R.id.recording_header);
+        TextView header = (TextView) layout.findViewById(R.id.recording_header);
         instruction = (TextView) layout.findViewById(R.id.recording_instruction);
 
         header.setText(Localization.get("recording.header"));
@@ -93,7 +90,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     }
 
     private void startRecording(){
-        disableRotation();
+        disableScreenRotation();
         if(recorder == null){
             recorder = new MediaRecorder();
         }
@@ -139,7 +136,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         toggleRecording.setEnabled(false);
         toggleRecording.setBackgroundResource(R.drawable.record_complete);
         saveRecording.setEnabled(true);
-        enableRotation();
+        enableScreenRotation();
         myProgress.setVisibility(View.INVISIBLE);
         instruction.setText(Localization.get("after.recording"));
         saveRecording.setTextColor(getResources().getColor(R.color.white));
@@ -178,13 +175,10 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
                 startRecording();
             }
         });
-
-        saveRecording.setEnabled(false);
         instruction.setText(Localization.get("before.recording"));
-
+        saveRecording.setEnabled(false);
         saveRecording.setBackgroundColor(getResources().getColor(R.color.transparent));
         saveRecording.setTextColor(getResources().getColor(R.color.grey));
-
     }
 
     public MediaRecorder getRecorder(){
@@ -199,7 +193,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         return fileName;
     }
 
-    private void disableRotation() {
+    private void disableScreenRotation() {
         int currentOrientation = getResources().getConfiguration().orientation;
 
         if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -210,7 +204,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         }
     }
 
-    private void enableRotation() {
+    private void enableScreenRotation() {
         ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
     }
 }

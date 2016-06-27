@@ -70,7 +70,7 @@ public class AudioWidget extends QuestionWidget {
 
             checkFileSize(f);
         } else {
-            disablePlayButton();
+            togglePlayButton(false);
         }
 
         String acq = prompt.getAppearanceHint();
@@ -81,10 +81,6 @@ public class AudioWidget extends QuestionWidget {
 
     protected void togglePlayButton(boolean enabled) {
         mPlayButton.setEnabled(enabled);
-    }
-
-    protected void disablePlayButton() {
-        togglePlayButton(false);
     }
 
     protected void initializeButtons(final FormEntryPrompt prompt){
@@ -202,7 +198,7 @@ public class AudioWidget extends QuestionWidget {
         deleteMedia();
 
         // reset buttons
-        disablePlayButton();
+        togglePlayButton(false);
     }
 
     @Override
