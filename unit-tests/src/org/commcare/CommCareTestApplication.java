@@ -12,13 +12,11 @@ import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.ModernHttpRequester;
-import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.services.CommCareSessionService;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.Assert;
 
@@ -26,6 +24,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -74,18 +73,14 @@ public class CommCareTestApplication extends CommCareApplication {
         }
 
         // Sort of hack-y way to get the classfile dirs
-        PrefixTree tree = new PrefixTree();
         initFactoryClassList();
 
         try {
-            for (String cl : factoryClassNames) {
-                tree.addString(cl);
-            }
+            testPrototypeFactory = new AndroidPrototypeFactory(new HashSet<>(factoryClassNames));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        testPrototypeFactory = new AndroidPrototypeFactory(tree);
         return testPrototypeFactory;
     }
 
