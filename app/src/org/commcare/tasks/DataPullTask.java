@@ -210,7 +210,7 @@ public abstract class DataPullTask<R>
             if (ukrForLogin == null) {
                 return null;
             }
-            key = ByteEncrypter.wrapByteArrayWithString(ukrForLogin.getEncryptedKey(), password);
+            key = ukrForLogin.getEncryptedKey();
         } else {
             key = CommCareApplication._().getSession().getLoggedInUser().getWrappedKey();
         }
@@ -226,7 +226,8 @@ public abstract class DataPullTask<R>
             }
             String sandboxId = PropertyUtils.genUUID().replace("-", "");
             ukrForLogin = new UserKeyRecord(username, UserKeyRecord.generatePwdHash(password),
-                    newKey.getEncoded(), new Date(), new Date(Long.MAX_VALUE), sandboxId);
+                    ByteEncrypter.wrapByteArrayWithString(newKey.getEncoded(), password),
+                    new Date(), new Date(Long.MAX_VALUE), sandboxId);
         } else {
             ukrForLogin = UserKeyRecord.getCurrentValidRecordByPassword(
                     CommCareApplication._().getCurrentApp(), username, password, true);
