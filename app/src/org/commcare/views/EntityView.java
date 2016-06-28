@@ -3,6 +3,7 @@ package org.commcare.views;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.support.v4.util.Pair;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -528,10 +529,29 @@ public class EntityView extends LinearLayout {
      * representing the desired width, in pixels, of that view.
      */
     private int[] calculateDetailWidths(int fullSize) {
-        // Convert any percentages to pixels. Percentage columns are treated as percentage of the entire screen width.
+        // Convert any percentages to pixels. Percentage columns are treated
+        // as percentage of the entire screen width.
         int[] widths = new int[mHints.size()];
+        setupWidths(mHints, widths, fullSize);
+
+        Pair<Integer, Integer> constraints = buildConstraints(widths);
+        int claimedSpace = constraints.first;
+        int indeterminateColumns = constraints.second;
+
+        if (condOne(fullSize, claimedSpace, indeterminateColumns)) {
+            // Either more space has been claimed than the screen has room for,
+            // or the full width isn't spoken for and there are no indeterminate columns
+            readjustWidths(widths, fullSize, claimedSpace, indeterminateColumns);
+        } else if (indeterminateColumns > 0) {
+            divideIndeterminateSpace(widths, fullSize, claimedSpace, indeterminateColumns);
+        }
+
+        return widths;
+    }
+
+    private static void setupWidths(ArrayList<String> hints, int[] widths, int fullSize) {
         int hintIndex = 0;
-        for (String hint : mHints) {
+        for (String hint : hints) {
             if (hint == null) {
                 widths[hintIndex] = -1;
             } else if (hint.contains("%")) {
@@ -541,7 +561,9 @@ public class EntityView extends LinearLayout {
             }
             hintIndex++;
         }
+    }
 
+    private static Pair<Integer, Integer> buildConstraints(int[] widths) {
         int claimedSpace = 0;
         int indeterminateColumns = 0;
         for (int width : widths) {
@@ -551,32 +573,39 @@ public class EntityView extends LinearLayout {
                 indeterminateColumns++;
             }
         }
-        if (fullSize < claimedSpace + indeterminateColumns
-                || (fullSize > claimedSpace && indeterminateColumns == 0)) {
-            // Either more space has been claimed than the screen has room for,
-            // or the full width isn't spoken for and there are no indeterminate columns
-            claimedSpace += indeterminateColumns;
-            for (int i = 0; i < widths.length; i++) {
-                if (widths[i] == -1) {
-                    // Assign indeterminate columns a real width.
-                    // It's arbitrary and tiny, but this is going to look terrible regardless.
-                    widths[i] = 1;
-                } else {
-                    // Shrink or expand columns proportionally
-                    widths[i] = fullSize * widths[i] / claimedSpace;
-                }
-            }
-        } else if (indeterminateColumns > 0) {
-            // Divide remaining space equally among the indeterminate columns
-            int defaultWidth = (fullSize - claimedSpace) / indeterminateColumns;
-            for (int i = 0; i < widths.length; i++) {
-                if (widths[i] == -1) {
-                    widths[i] = defaultWidth;
-                }
+        return new Pair<>(claimedSpace, indeterminateColumns);
+    }
+
+    private static boolean condOne(int fullSize, int claimedSpace, int indeterminateColumns) {
+        return (fullSize < claimedSpace + indeterminateColumns)
+                || (fullSize > claimedSpace && indeterminateColumns == 0);
+    }
+
+    private static void readjustWidths(int[] widths, int fullSize,
+                                       int claimedSpace,
+                                       int indeterminateColumns) {
+        claimedSpace += indeterminateColumns;
+        for (int i = 0; i < widths.length; i++) {
+            if (widths[i] == -1) {
+                // Assign indeterminate columns a real width.
+                // It's arbitrary and tiny, but this is going to look terrible regardless.
+                widths[i] = 1;
+            } else {
+                // Shrink or expand columns proportionally
+                widths[i] = fullSize * widths[i] / claimedSpace;
             }
         }
+    }
 
-        return widths;
+    private static void divideIndeterminateSpace(int[] widths, int fullSize,
+                                                 int claimedSpace,
+                                                 int indeterminateColumns) {
+        int defaultWidth = (fullSize - claimedSpace) / indeterminateColumns;
+        for (int i = 0; i < widths.length; i++) {
+            if (widths[i] == -1) {
+                widths[i] = defaultWidth;
+            }
+        }
     }
 
     @Override
