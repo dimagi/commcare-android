@@ -3,7 +3,6 @@ package org.commcare.views;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.support.v4.util.Pair;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -516,105 +515,13 @@ public class EntityView extends LinearLayout {
         }
     }
 
-    /**
-     * Determine width of each child view, based on mHints, the suite's size hints.
-     * mHints contains a width hint for each child view, each one of
-     * - A string like "50%", requesting the field take up 50% of the row
-     * - A string like "200", requesting the field take up 200 pixels
-     * - Null, not specifying a width for the field
-     * This function will parcel out requested widths and divide remaining space among unspecified columns.
-     *
-     * @param fullSize Width, in pixels, of the containing row.
-     * @return Array of integers, each corresponding to a child view,
-     * representing the desired width, in pixels, of that view.
-     */
-    private int[] calculateDetailWidths(int fullSize) {
-        // Convert any percentages to pixels. Percentage columns are treated
-        // as percentage of the entire screen width.
-        int[] widths = new int[mHints.size()];
-        setupWidths(mHints, widths, fullSize);
-
-        Pair<Integer, Integer> constraints = buildConstraints(widths);
-        int claimedSpace = constraints.first;
-        int indeterminateColumns = constraints.second;
-
-        if (condOne(fullSize, claimedSpace, indeterminateColumns)) {
-            // Either more space has been claimed than the screen has room for,
-            // or the full width isn't spoken for and there are no indeterminate columns
-            readjustWidths(widths, fullSize, claimedSpace, indeterminateColumns);
-        } else if (indeterminateColumns > 0) {
-            divideIndeterminateSpace(widths, fullSize, claimedSpace, indeterminateColumns);
-        }
-
-        return widths;
-    }
-
-    private static void setupWidths(ArrayList<String> hints, int[] widths, int fullSize) {
-        int hintIndex = 0;
-        for (String hint : hints) {
-            if (hint == null) {
-                widths[hintIndex] = -1;
-            } else if (hint.contains("%")) {
-                widths[hintIndex] = fullSize * Integer.parseInt(hint.substring(0, hint.indexOf("%"))) / 100;
-            } else {
-                widths[hintIndex] = Integer.parseInt(hint);
-            }
-            hintIndex++;
-        }
-    }
-
-    private static Pair<Integer, Integer> buildConstraints(int[] widths) {
-        int claimedSpace = 0;
-        int indeterminateColumns = 0;
-        for (int width : widths) {
-            if (width != -1) {
-                claimedSpace += width;
-            } else {
-                indeterminateColumns++;
-            }
-        }
-        return new Pair<>(claimedSpace, indeterminateColumns);
-    }
-
-    private static boolean condOne(int fullSize, int claimedSpace, int indeterminateColumns) {
-        return (fullSize < claimedSpace + indeterminateColumns)
-                || (fullSize > claimedSpace && indeterminateColumns == 0);
-    }
-
-    private static void readjustWidths(int[] widths, int fullSize,
-                                       int claimedSpace,
-                                       int indeterminateColumns) {
-        claimedSpace += indeterminateColumns;
-        for (int i = 0; i < widths.length; i++) {
-            if (widths[i] == -1) {
-                // Assign indeterminate columns a real width.
-                // It's arbitrary and tiny, but this is going to look terrible regardless.
-                widths[i] = 1;
-            } else {
-                // Shrink or expand columns proportionally
-                widths[i] = fullSize * widths[i] / claimedSpace;
-            }
-        }
-    }
-
-    private static void divideIndeterminateSpace(int[] widths, int fullSize,
-                                                 int claimedSpace,
-                                                 int indeterminateColumns) {
-        int defaultWidth = (fullSize - claimedSpace) / indeterminateColumns;
-        for (int i = 0; i < widths.length; i++) {
-            if (widths[i] == -1) {
-                widths[i] = defaultWidth;
-            }
-        }
-    }
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         // calculate the view and its children's default measurements
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         // Adjust the children view's widths based on percentage size hints
-        int[] widths = calculateDetailWidths(getMeasuredWidth());
+        int[] widths = ViewUtil.calculateDetailWidths(mHints, getMeasuredWidth());
         int i = 0;
         for (View view : views) {
             if (view != null) {
