@@ -103,7 +103,7 @@ public final class ViewUtil {
         // Convert any percentages to pixels. Percentage columns are treated
         // as percentage of the entire screen width.
         int[] widths = new int[hints.size()];
-        setupWidths(hints, widths, fullSize);
+        parseWidths(hints, widths, fullSize);
 
         Pair<Integer, Integer> constraints = buildConstraints(widths);
         int claimedSpace = constraints.first;
@@ -120,7 +120,7 @@ public final class ViewUtil {
         return widths;
     }
 
-    private static void setupWidths(ArrayList<String> hints, int[] widths, int fullSize) {
+    private static void parseWidths(ArrayList<String> hints, int[] widths, int fullSize) {
         int hintIndex = 0;
         for (String hint : hints) {
             if (hint == null) {
