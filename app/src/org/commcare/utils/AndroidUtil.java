@@ -7,7 +7,6 @@ import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
 
-import org.javarosa.core.model.utils.DateUtils;
 import org.javarosa.core.util.DataUtil;
 import org.javarosa.core.util.DataUtil.UnionLambda;
 
@@ -51,7 +50,6 @@ public class AndroidUtil {
      */
     public static void initializeStaticHandlers() {
         DataUtil.setUnionLambda(new AndroidUnionLambda());
-        DataUtil.setStringSplitter(new AndroidStringSplitter());
     }
 
     private static class AndroidUnionLambda extends UnionLambda {
@@ -74,32 +72,6 @@ public class AndroidUtil {
             return result;
         }
 
-    }
-
-    public static class AndroidStringSplitter extends DataUtil.StringSplitter {
-
-        @Override
-        public String[] splitOnSpaces(String s) {
-            if ("".equals(s)) {
-                return new String[0];
-            }
-            return s.split("[ ]+");
-        }
-
-        @Override
-        public String[] splitOnDash(String s) {
-            return s.split("-");
-        }
-
-        @Override
-        public String[] splitOnColon(String s) {
-            return s.split(":");
-        }
-
-        @Override
-        public String[] splitOnPlus(String s) {
-            return s.split("[+]");
-        }
     }
 
     /**
