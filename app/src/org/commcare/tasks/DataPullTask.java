@@ -28,6 +28,7 @@ import org.commcare.services.CommCareSessionService;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FormSaveUtil;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.UnknownSyncError;
 import org.commcare.utils.bitcache.BitCache;
 import org.commcare.xml.AndroidTransactionParserFactory;
 import org.javarosa.core.model.User;
@@ -355,7 +356,6 @@ public abstract class DataPullTask<R>
     /**
      * @return the proper result, or null if we have not yet been able to determine the result to
      * return
-     * @throws IOException
      */
     private ResultAndError<PullTaskResult> handleBadLocalState(AndroidTransactionParserFactory factory)
             throws UnknownSyncError {
@@ -610,9 +610,5 @@ public abstract class DataPullTask<R>
                 return GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
             }
         }
-    }
-
-    private class UnknownSyncError extends Exception {
-
     }
 }
