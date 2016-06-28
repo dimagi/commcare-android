@@ -52,7 +52,7 @@ public class EntitySubnodeDetailFragment extends EntityDetailFragment implements
             // Set up task to fetch entity data
             EntityLoaderTask theloader = new EntityLoaderTask(childDetail, this.getFactoryContext(childReference));
             theloader.attachListener(this);
-            theloader.execute(childDetail.getNodeset().contextualize(childReference));
+            theloader.executeParallel(childDetail.getNodeset().contextualize(childReference));
 
             // Add header row
             final LinearLayout headerLayout = ((LinearLayout)rootView.findViewById(R.id.entity_detail_header));
