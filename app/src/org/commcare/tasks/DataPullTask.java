@@ -152,10 +152,7 @@ public abstract class DataPullTask<R>
 
         PullTaskResult responseError = PullTaskResult.UNKNOWN_FAILURE;
         try {
-            ResultAndError<PullTaskResult> resultFromRequest = makeRequestAndHandleResponse(factory);
-            if (resultFromRequest != null) {
-                return resultFromRequest;
-            }
+            return makeRequestAndHandleResponse(factory);
         } catch (SocketTimeoutException e) {
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
@@ -168,11 +165,15 @@ public abstract class DataPullTask<R>
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due network error|" + e.getMessage());
         } catch (UnknownHostException e) {
+            e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
             responseError = PullTaskResult.UNREACHABLE_HOST;
         } catch (IOException e) {
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
+        } catch (UnknownSyncError e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to Unknown Error|" + e.getMessage());
         }
 
         wipeLoginIfItOccurred();
@@ -249,7 +250,7 @@ public abstract class DataPullTask<R>
      * @throws IOException
      */
     private ResultAndError<PullTaskResult> makeRequestAndHandleResponse(AndroidTransactionParserFactory factory)
-            throws IOException {
+            throws IOException, UnknownSyncError {
 
         RemoteDataPullResponse pullResponse =
                 dataPullRequester.makeDataPullRequest(this, requestor, server, !loginNeeded);
@@ -264,8 +265,9 @@ public abstract class DataPullTask<R>
             return handleBadLocalState(factory);
         } else if (pullResponse.responseCode == 500) {
             return handleServerError();
+        } else {
+            throw new UnknownSyncError();
         }
-        return null;
     }
 
     private ResultAndError<PullTaskResult> handleAuthFailed() {
@@ -281,7 +283,7 @@ public abstract class DataPullTask<R>
      */
     private ResultAndError<PullTaskResult> handleSuccessResponseCode(
             RemoteDataPullResponse pullResponse, AndroidTransactionParserFactory factory)
-            throws IOException {
+            throws IOException, UnknownSyncError {
 
         handleLoginNeededOnSuccess();
         this.publishProgress(PROGRESS_AUTHED, 0);
@@ -324,12 +326,12 @@ public abstract class DataPullTask<R>
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                     "User sync failed oddly, unfulfilled reqs |" + e.getMessage());
-            return null;
+            throw new UnknownSyncError();
         } catch (IllegalStateException e) {
             e.printStackTrace();
             Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                     "User sync failed oddly, ISE |" + e.getMessage());
-            return null;
+            throw new UnknownSyncError();
         } catch (RecordTooLargeException e) {
             wipeLoginIfItOccurred();
             e.printStackTrace();
@@ -355,7 +357,8 @@ public abstract class DataPullTask<R>
      * return
      * @throws IOException
      */
-    private ResultAndError<PullTaskResult> handleBadLocalState(AndroidTransactionParserFactory factory) {
+    private ResultAndError<PullTaskResult> handleBadLocalState(AndroidTransactionParserFactory factory)
+            throws UnknownSyncError {
         Pair<Integer, String> returnCodeAndMessageFromRecovery = recover(requestor, factory);
         int returnCode = returnCodeAndMessageFromRecovery.first;
         String failureReason = returnCodeAndMessageFromRecovery.second;
@@ -369,8 +372,7 @@ public abstract class DataPullTask<R>
             this.publishProgress(PROGRESS_DONE);
             return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, failureReason);
         } else {
-            wipeLoginIfItOccurred();
-            return null;
+            throw new UnknownSyncError();
         }
     }
 
@@ -608,5 +610,9 @@ public abstract class DataPullTask<R>
                 return GoogleAnalyticsFields.LABEL_SYNC_FAILURE;
             }
         }
+    }
+
+    private class UnknownSyncError extends Exception {
+
     }
 }
