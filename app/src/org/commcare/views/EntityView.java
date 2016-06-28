@@ -183,7 +183,7 @@ public class EntityView extends LinearLayout {
                 refreshViewForNewEntity(view, data, form, sortField, columnIndex, rowId);
             }
 
-            LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+            LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
             addView(view, l);
         }
         return view;
@@ -194,23 +194,21 @@ public class EntityView extends LinearLayout {
      * the entity's text and form
      */
     private View initView(Object data, String form, ViewId uniqueId, String sortField) {
-        View retVal;
         if (FORM_IMAGE.equals(form)) {
-            retVal = View.inflate(getContext(), R.layout.entity_item_image, null);
+            return View.inflate(getContext(), R.layout.entity_item_image, null);
         } else if (FORM_AUDIO.equals(form)) {
             String text = (String) data;
             boolean isVisible = (text != null && text.length() > 0);
-            retVal = new AudioButton(getContext(), text, uniqueId, isVisible);
+            return new AudioButton(getContext(), text, uniqueId, isVisible);
         } else if (FORM_GRAPH.equals(form) && data instanceof GraphData) {
-            retVal = View.inflate(getContext(), R.layout.entity_item_graph, null);
+            return View.inflate(getContext(), R.layout.entity_item_graph, null);
         } else if (FORM_CALLLOUT.equals(form)) {
-            retVal = View.inflate(getContext(), R.layout.entity_item_graph, null);
+            return View.inflate(getContext(), R.layout.entity_item_graph, null);
         } else {
             View layout = View.inflate(getContext(), R.layout.component_text, null);
             setupText(layout, (String) data, sortField);
-            retVal = layout;
+            return layout;
         }
-        return retVal;
     }
 
     public void setSearchTerms(String[] terms) {
@@ -521,7 +519,7 @@ public class EntityView extends LinearLayout {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         // Adjust the children view's widths based on percentage size hints
-        int[] widths = ViewUtil.calculateDetailWidths(mHints, getMeasuredWidth());
+        int[] widths = ViewUtil.calculateColumnWidths(mHints, getMeasuredWidth());
         int i = 0;
         for (View view : views) {
             if (view != null) {

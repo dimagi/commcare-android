@@ -99,7 +99,7 @@ public final class ViewUtil {
      * @return Array of integers, each corresponding to a child view,
      * representing the desired width, in pixels, of that view.
      */
-    public static int[] calculateDetailWidths(ArrayList<String> hints, int fullSize) {
+    public static int[] calculateColumnWidths(ArrayList<String> hints, int fullSize) {
         // Convert any percentages to pixels. Percentage columns are treated
         // as percentage of the entire screen width.
         int[] widths = new int[hints.size()];
@@ -109,7 +109,7 @@ public final class ViewUtil {
         int claimedSpace = constraints.first;
         int indeterminateColumns = constraints.second;
 
-        if (condOne(fullSize, claimedSpace, indeterminateColumns)) {
+        if (claimedSpaceNotTight(fullSize, claimedSpace, indeterminateColumns)) {
             // Either more space has been claimed than the screen has room for,
             // or the full width isn't spoken for and there are no indeterminate columns
             readjustWidths(widths, fullSize, claimedSpace, indeterminateColumns);
@@ -126,7 +126,8 @@ public final class ViewUtil {
             if (hint == null) {
                 widths[hintIndex] = -1;
             } else if (hint.contains("%")) {
-                widths[hintIndex] = fullSize * Integer.parseInt(hint.substring(0, hint.indexOf("%"))) / 100;
+                String percentString = hint.substring(0, hint.indexOf("%"));
+                widths[hintIndex] = fullSize * Integer.parseInt(percentString) / 100;
             } else {
                 widths[hintIndex] = Integer.parseInt(hint);
             }
@@ -147,7 +148,8 @@ public final class ViewUtil {
         return new Pair<>(claimedSpace, indeterminateColumns);
     }
 
-    private static boolean condOne(int fullSize, int claimedSpace, int indeterminateColumns) {
+    private static boolean claimedSpaceNotTight(int fullSize, int claimedSpace,
+                                                int indeterminateColumns) {
         return (fullSize < claimedSpace + indeterminateColumns)
                 || (fullSize > claimedSpace && indeterminateColumns == 0);
     }
