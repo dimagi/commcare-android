@@ -523,6 +523,7 @@ public class EntityView extends LinearLayout {
         int i = 0;
         for (View view : views) {
             if (view != null) {
+                adjustPadding(view, widths[i]);
                 LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
                 params.width = widths[i];
                 view.setLayoutParams(params);
@@ -537,5 +538,15 @@ public class EntityView extends LinearLayout {
 
         // Re-calculate the view's measurements based on the percentage adjustments above
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    /**
+     * Remove view's if the padding is greater than or close to the view's width.
+     */
+    private static void adjustPadding(View view, int width) {
+        int horizontalPadding = view.getPaddingLeft() + view.getPaddingRight();
+        if (horizontalPadding >= width || horizontalPadding / (float)width > 0.9f) {
+            view.setPadding(0, 0, 0, 0);
+        }
     }
 }
