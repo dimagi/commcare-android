@@ -43,7 +43,7 @@ public class ACRAUtil {
             acraConfigBuilder.setFormUriBasicAuthLogin(BuildConfig.ACRA_USER);
             acraConfigBuilder.setFormUriBasicAuthPassword(BuildConfig.ACRA_PASSWORD);
             acraConfigBuilder.setFormUri(url);
-            ACRA.init(app, acraConfigBuilder.build());
+            ACRA.init(app, acraConfigBuilder);
             isAcraConfigured = true;
         }
     }
