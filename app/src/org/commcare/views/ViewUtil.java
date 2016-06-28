@@ -3,26 +3,20 @@ package org.commcare.views;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.suite.model.DisplayData;
 import org.commcare.utils.MediaUtil;
 import org.javarosa.core.services.locale.Localizer;
-
-import java.util.LinkedList;
 
 /**
  * Utilities for converting CommCare UI diplsay details into Android objects
@@ -73,41 +67,6 @@ public final class ViewUtil {
             v.setBackgroundDrawable(background);
         }
         v.setPadding(padding[0], padding[1], padding[2], padding[3]);
-    }
-
-    /**
-     * Debug method to toast a view's ID whenever it is clicked.
-     */
-    public static void setClickListenersForEverything(Activity act) {
-        if (BuildConfig.DEBUG) {
-            final ViewGroup layout = (ViewGroup)act.findViewById(android.R.id.content);
-            final LinkedList<View> views = new LinkedList<>();
-            views.add(layout);
-            for (int i = 0; !views.isEmpty(); i++) {
-                final View child = views.getFirst();
-                views.removeFirst();
-                Log.i("GetID", "Adding onClickListener to view " + child);
-                child.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(final View v) {
-                        String vid;
-                        try {
-                            vid = "View id is: " + v.getResources().getResourceName(v.getId()) + " ( " + v.getId() + " )";
-                        } catch (final Resources.NotFoundException excp) {
-                            vid = "View id is: " + v.getId();
-                        }
-                        Log.i("CLK", vid);
-                    }
-                });
-                if (child instanceof ViewGroup) {
-                    final ViewGroup vg = (ViewGroup)child;
-                    for (int j = 0; j < vg.getChildCount(); j++) {
-                        final View gchild = vg.getChildAt(j);
-                        if (!views.contains(gchild)) views.add(gchild);
-                    }
-                }
-            }
-        }
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
