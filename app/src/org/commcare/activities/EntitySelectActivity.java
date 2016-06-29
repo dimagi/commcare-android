@@ -482,7 +482,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
             EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
             entityLoader.attachListener(this);
-            entityLoader.execute(selectDatum.getNodeset());
+            entityLoader.executeParallel(selectDatum.getNodeset());
             return true;
         }
         return false;
