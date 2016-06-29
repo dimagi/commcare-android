@@ -2083,7 +2083,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     public void advance() {
-        if (!questionsView.isQuestionList() && canNavigateForward()) {
+        if (canNavigateForward()) {
             next();
         }
     }
