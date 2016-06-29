@@ -56,8 +56,7 @@ public interface DialogController {
     void showPendingAlertDialog();
 
     /**
-     * Show the alert dialog provided by the given AlertDialogFactory
+     * Dismiss the current alert dialog
      */
     void dismissAlertDialog();
-
 }
