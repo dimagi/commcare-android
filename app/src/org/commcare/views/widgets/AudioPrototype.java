@@ -17,8 +17,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.GoogleAnalytics;
+
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
+import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.StringUtils;
 import org.javarosa.core.model.data.IAnswerData;
@@ -57,6 +60,7 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
         mCaptureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                GoogleAnalyticsUtils.reportRecordingPopupOpened();
                 captureAudio(prompt);
             }
         });
@@ -65,6 +69,7 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
         mChooseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                GoogleAnalyticsUtils.reportAudioFileChosen();
                 Intent i = new Intent(Intent.ACTION_GET_CONTENT);
                 i.setType("audio/*");
                 try {
@@ -85,6 +90,7 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
         mPlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                GoogleAnalyticsUtils.reportAudioPlayed();
                 playAudio();
             }
         });
@@ -134,6 +140,7 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
         mPlayButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                GoogleAnalyticsUtils.reportAudioPaused();
                 pauseAudioPlayer(player);
             }
         });
@@ -146,6 +153,7 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
         mPlayButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                GoogleAnalyticsUtils.reportAudioPlayed();
                 resumeAudioPlayer(mp);
             }
         });
@@ -158,6 +166,7 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
         mPlayButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                GoogleAnalyticsUtils.reportAudioPaused();
                 pauseAudioPlayer(mp);
             }
         });
@@ -169,6 +178,7 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
         mPlayButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                GoogleAnalyticsUtils.reportAudioPlayed();
                 playAudio();
             }
         });

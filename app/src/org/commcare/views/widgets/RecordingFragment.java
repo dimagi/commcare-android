@@ -23,6 +23,7 @@ import android.widget.TextView;
 import com.liulishuo.magicprogresswidget.MagicProgressCircle;
 
 import org.commcare.dalvik.R;
+import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
@@ -80,12 +81,14 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         toggleRecording.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                GoogleAnalyticsUtils.reportRecordingStarted();
                 startRecording();
             }
         });
         saveRecording.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                GoogleAnalyticsUtils.reportAudioFileSaved();
                 saveRecording();
             }
         });
@@ -105,6 +108,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         toggleRecording.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                GoogleAnalyticsUtils.reportRecordingStopped();
                 stopRecording();
             }
         });
