@@ -902,7 +902,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 public void onClick(View v) {
                     adapter.sortEntities(new int[]{keyArray[index]});
                     adapter.filterByString(getSearchText().toString());
-                    dialog.dismiss();
+                    dismissAlertDialog();
                 }
             };
             DialogChoiceItem item = new DialogChoiceItem(namesList.get(i), -1, listener);

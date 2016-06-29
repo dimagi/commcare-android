@@ -224,7 +224,7 @@ public class CommCareWiFiDirectActivity
                         beSender();
                         break;
                 }
-                dialog.dismiss();
+                dismissAlertDialog();
             }
         };
         d.setNeutralButton(localize("wifi.direct.receive.forms"), listener);
