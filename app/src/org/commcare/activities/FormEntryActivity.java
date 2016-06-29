@@ -107,6 +107,7 @@ import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.XPathUnhandledException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -1241,7 +1242,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 dialog.dismiss();
                 try {
                     mFormController.newRepeat();
-                } catch (XPathTypeMismatchException | XPathArityException e) {
+                } catch (XPathUnhandledException | XPathTypeMismatchException | XPathArityException e) {
                     Logger.exception(e);
                     UserfacingErrorHandling.logErrorAndShowDialog(FormEntryActivity.this, e, EXIT);
                     return;
