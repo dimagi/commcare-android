@@ -68,7 +68,7 @@ dependencies {
     }
     compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
     compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
-    compile 'com.google.firebase:firebase-messaging:9.2.0'
+    compile 'com.google.firebase:firebase-messaging:9.0.0'
 
 }
 
