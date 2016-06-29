@@ -41,6 +41,11 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
     }
 
     @Override
+    public HttpResponse makeAsyncCaseFetchRequest() {
+        return HttpResponseMock.buildHttpResponseMockForAsyncRestore();
+    }
+
+    @Override
     public HttpResponse makeKeyFetchRequest(String baseUri, Date lastRequest) throws ClientProtocolException, IOException {
         throw new RuntimeException("Not yet mocked");
     }

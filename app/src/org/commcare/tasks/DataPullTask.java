@@ -35,9 +35,11 @@ import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
+import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.ActionableInvalidStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
+import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -78,11 +80,18 @@ public abstract class DataPullTask<R>
     public static final int PROGRESS_PROCESSING = 128;
     public static final int PROGRESS_DOWNLOADING = 256;
     public static final int PROGRESS_DOWNLOADING_COMPLETE = 512;
+    public static final int PROGRESS_SERVER_PROCESSING = 1024;
+
     private DataPullRequester dataPullRequester;
 
     private boolean loginNeeded;
     private UserKeyRecord ukrForLogin;
     private boolean wasKeyLoggedIn;
+
+    private long waitPeriodBeginTime = -1;
+    private long retryAtTime = -1;
+    private int serverProgressCompleted;
+    private int serverProgressTotal;
 
     public DataPullTask(String username, String password,
                          String server, Context context, DataPullRequester dataPullRequester) {
@@ -145,41 +154,7 @@ public abstract class DataPullTask<R>
             CaseUtils.purgeCases();
         }
 
-        if (isCancelled()) {
-            // Avoid making http request if user cancelled the task (NOTE: In this case, the result
-            // returned is never processed since cancelled task results are sent to onCancelled)
-            return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
-        }
-
-        PullTaskResult responseError = PullTaskResult.UNKNOWN_FAILURE;
-        try {
-            return makeRequestAndHandleResponse(factory);
-        } catch (SocketTimeoutException e) {
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
-            responseError = PullTaskResult.CONNECTION_TIMEOUT;
-        } catch (ConnectTimeoutException e) {
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
-            responseError = PullTaskResult.CONNECTION_TIMEOUT;
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due network error|" + e.getMessage());
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
-            responseError = PullTaskResult.UNREACHABLE_HOST;
-        } catch (IOException e) {
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
-        } catch (UnknownSyncError e) {
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to Unknown Error|" + e.getMessage());
-        }
-
-        wipeLoginIfItOccurred();
-        this.publishProgress(PROGRESS_DONE);
-        return new ResultAndError<>(responseError);
+        return getRequestResultOrRetry(factory);
     }
 
     private void determineIfLoginNeeded() {
@@ -245,6 +220,64 @@ public abstract class DataPullTask<R>
         return keyServer == null || keyServer.equals("");
     }
 
+    private ResultAndError<PullTaskResult> getRequestResultOrRetry(AndroidTransactionParserFactory factory) {
+        waitAndUpdateDuringRetryPeriod();
+
+        if (isCancelled()) {
+            return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
+        }
+
+        PullTaskResult responseError = PullTaskResult.UNKNOWN_FAILURE;
+        retryAtTime = -1;
+        try {
+            ResultAndError<PullTaskResult> result = makeRequestAndHandleResponse(factory);
+            if (PullTaskResult.RETRY_NEEDED.equals(result.data)) {
+                return getRequestResultOrRetry(factory);
+            } else {
+                return result;
+            }
+        } catch (SocketTimeoutException e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
+            responseError = PullTaskResult.CONNECTION_TIMEOUT;
+        } catch (ConnectTimeoutException e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
+            responseError = PullTaskResult.CONNECTION_TIMEOUT;
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due network error|" + e.getMessage());
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
+            responseError = PullTaskResult.UNREACHABLE_HOST;
+        } catch (IOException e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
+        } catch (UnknownSyncError e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to Unknown Error|" + e.getMessage());
+        }
+
+        wipeLoginIfItOccurred();
+        this.publishProgress(PROGRESS_DONE);
+        return new ResultAndError<>(responseError);
+    }
+
+    private void waitAndUpdateDuringRetryPeriod() {
+        while (retryAtTime != -1 && retryAtTime > System.currentTimeMillis()) {
+            if (isCancelled()) {
+                // stop waiting if the user canceled the task
+                return;
+            }
+            reportServerProgress();
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+            }
+        }
+    }
+
     /*
      * @return the proper result, or null if we have not yet been able to determine the result to
      * return
@@ -255,16 +288,21 @@ public abstract class DataPullTask<R>
 
         RemoteDataPullResponse pullResponse =
                 dataPullRequester.makeDataPullRequest(this, requestor, server, !loginNeeded);
+        int responseCode = pullResponse.responseCode;
         Logger.log(AndroidLogger.TYPE_USER,
-                "Request opened. Response code: " + pullResponse.responseCode);
+                "Request opened. Response code: " + responseCode);
 
-        if (pullResponse.responseCode == 401) {
+        if (responseCode == 401) {
             return handleAuthFailed();
-        } else if (pullResponse.responseCode >= 200 && pullResponse.responseCode < 300) {
-            return handleSuccessResponseCode(pullResponse, factory);
-        } else if (pullResponse.responseCode == 412) {
+        } else if (responseCode >= 200 && responseCode < 300) {
+            if (responseCode == 202) {
+                return handleRetryResponseCode(pullResponse);
+            } else {
+                return handleSuccessResponseCode(pullResponse, factory);
+            }
+        } else if (responseCode == 412) {
             return handleBadLocalState(factory);
-        } else if (pullResponse.responseCode == 500) {
+        } else if (responseCode == 500) {
             return handleServerError();
         } else {
             throw new UnknownSyncError();
@@ -275,6 +313,20 @@ public abstract class DataPullTask<R>
         wipeLoginIfItOccurred();
         Logger.log(AndroidLogger.TYPE_USER, "Bad Auth Request for user!|" + username);
         return new ResultAndError<>(PullTaskResult.AUTH_FAILED);
+    }
+
+    private ResultAndError<PullTaskResult> handleRetryResponseCode(RemoteDataPullResponse response) {
+        String headerValue = response.retryHeader.getValue();
+        try {
+            long waitTimeInMilliseconds = Integer.parseInt(headerValue) * 1000;
+            waitPeriodBeginTime = System.currentTimeMillis();
+            retryAtTime = waitPeriodBeginTime + waitTimeInMilliseconds;
+            parseProgressFromRetryResult(response);
+            return new ResultAndError<>(PullTaskResult.RETRY_NEEDED);
+        } catch (NumberFormatException e) {
+            Logger.log(AndroidLogger.TYPE_USER, "Invalid Retry-After header value: " + headerValue);
+            return new ResultAndError<>(PullTaskResult.BAD_DATA);
+        }
     }
 
     /**
@@ -509,6 +561,28 @@ public abstract class DataPullTask<R>
         }
     }
 
+    private void parseProgressFromRetryResult(RemoteDataPullResponse response) {
+        try {
+            BitCache cache = response.writeResponseToCache(context);
+            InputStream stream = cache.retrieveCache();
+            KXmlParser parser = ElementParser.instantiateParser(stream);
+            parser.next();
+            int eventType = parser.getEventType();
+            do {
+                if (eventType == KXmlParser.START_TAG) {
+                    if (parser.getName().toLowerCase().equals("progress")) {
+                        serverProgressCompleted = Integer.parseInt(parser.getAttributeValue(null, "done"));
+                        serverProgressTotal = Integer.parseInt(parser.getAttributeValue(null, "total"));
+                        return;
+                    }
+                }
+                eventType = parser.next();
+            } while (eventType != KXmlParser.END_DOCUMENT);
+        } catch (IOException | XmlPullParserException e) {
+            Logger.log(AndroidLogger.TYPE_USER, "Error while parsing progress values of retry result");
+        }
+    }
+
     private String readInput(InputStream stream, AndroidTransactionParserFactory factory)
             throws InvalidStructureException, IOException, XmlPullParserException,
             UnfullfilledRequirementsException {
@@ -582,8 +656,24 @@ public abstract class DataPullTask<R>
         publishProgress(DataPullTask.PROGRESS_DOWNLOADING, totalRead);
     }
 
+    //TODO: flesh this out more
+    private void reportServerProgress() {
+        reportServerProgressByTime();
+    }
+
+    private void reportServerProgressByTime() {
+        int secondsUntilNextAttempt = (int)((retryAtTime - System.currentTimeMillis()) / 1000);
+        int secondsSinceWaitPeriodStart = (int)((System.currentTimeMillis() - waitPeriodBeginTime) / 1000);
+        this.publishProgress(PROGRESS_SERVER_PROCESSING, secondsUntilNextAttempt, secondsSinceWaitPeriodStart);
+    }
+
+    private void reportServerProgressByPortionCompleted() {
+        //TODO: implement
+    }
+
     public enum PullTaskResult {
         DOWNLOAD_SUCCESS(-1),
+        RETRY_NEEDED(-1),
         AUTH_FAILED(GoogleAnalyticsFields.VALUE_AUTH_FAILED),
         BAD_DATA(GoogleAnalyticsFields.VALUE_BAD_DATA),
         BAD_DATA_REQUIRES_INTERVENTION(GoogleAnalyticsFields.VALUE_BAD_DATA_REQUIRES_INTERVENTION),

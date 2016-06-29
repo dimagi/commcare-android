@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.utils.AndroidStreamUtil;
@@ -25,6 +26,7 @@ public class RemoteDataPullResponse {
     private final DataPullTask task;
     public final int responseCode;
     private final HttpResponse response;
+    public final Header retryHeader;
 
     /**
      * Makes data pulling request and keeps response for local caching
@@ -36,6 +38,7 @@ public class RemoteDataPullResponse {
                                      HttpResponse response) throws IOException {
         this.response = response;
         this.responseCode = response.getStatusLine().getStatusCode();
+        this.retryHeader = response.getFirstHeader("Retry-After");
         this.task = task;
     }
 

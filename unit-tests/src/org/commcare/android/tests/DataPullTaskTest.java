@@ -31,6 +31,7 @@ public class DataPullTaskTest {
     private final static String GOOD_RESTORE = APP_BASE + "simple_data_restore.xml";
     private final static String BAD_RESTORE_XML = APP_BASE + "bad_xml_data_restore.xml";
     private final static String SELF_INDEXING_CASE_RESTORE = APP_BASE + "self_indexing_case_data_restore.xml";
+    private final static String RETRY_RESPONSE = APP_BASE + "async_restore_response.xml";
 
     /**
      * Stores the result of the data pull task
@@ -110,13 +111,28 @@ public class DataPullTaskTest {
         Assert.assertEquals(DataPullTask.PullTaskResult.BAD_DATA_REQUIRES_INTERVENTION, dataPullResult.data);
     }
 
+    @Test
+    public void asyncRestoreTest() {
+        installAndUseLocalKeys();
+        runDataPullWithAsyncRestore();
+    }
+
+    private static void runDataPullWithAsyncRestore() {
+        runDataPull(new Integer[]{202}, new String[]{RETRY_RESPONSE}, true);
+    }
+
     private static void runDataPull(Integer resultCode, String payloadResource) {
-        runDataPull(new Integer[]{resultCode}, new String[]{payloadResource});
+        runDataPull(new Integer[]{resultCode}, new String[]{payloadResource}, false);
     }
 
     private static void runDataPull(Integer[] resultCodes, String[] payloadResources) {
-        HttpRequestEndpointsMock.setCaseFetchResponseCodes(resultCodes);
+        runDataPull(resultCodes, payloadResources, false);
+    }
 
+    private static void runDataPull(Integer[] resultCodes, String[] payloadResources,
+                                    boolean runAsyncRestore) {
+        HttpRequestEndpointsMock.setCaseFetchResponseCodes(resultCodes);
+        LocalDataPullResponseFactory.setAsyncRestore(runAsyncRestore);
         LocalDataPullResponseFactory.setRequestPayloads(payloadResources);
 
         DataPullTask<Object> task =
