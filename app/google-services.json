@@ -1,0 +1,45 @@
+{
+  "project_info": {
+    "project_id": "commcare-a57e4",
+    "project_number": "768065119425",
+    "name": "CommCare"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:768065119425:android:bf4b2396fb9805b2",
+        "client_id": "android:org.commcare.dalvik",
+        "client_type": 1,
+        "android_client_info": {
+          "package_name": "org.commcare.dalvik"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [{ "current_key": "" }],
+      "services": {
+        "analytics_service": {
+          "status": 2,
+          "analytics_property": {
+            "tracking_id": "UA-69708208-1"
+          }
+        },
+        "cloud_messaging_service": {
+          "status": 1,
+          "apns_config": []
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "google_signin_service": {
+          "status": 1
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "client_info": [],
+  "ARTIFACT_VERSION": "1"
+}
