@@ -568,6 +568,5 @@ public class CommCareSessionService extends Service {
     public void setCurrentUser(User user, String password) {
         this.user = user;
         this.user.setCachedPwd(password);
-        this.key = user.getWrappedKey();
     }
 }

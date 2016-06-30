@@ -11,6 +11,8 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
+import org.commcare.models.encryption.ByteEncrypter;
+import org.commcare.models.encryption.CryptUtil;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.ModernHttpRequester;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -154,6 +156,7 @@ public class CommCareTestApplication extends CommCareApplication {
         User user = getUserFromDb(ccService, record);
         if (user != null) {
             user.setCachedPwd(cachedUserPassword);
+            user.setWrappedKey(ByteEncrypter.wrapByteArrayWithString(CryptUtil.generateSemiRandomKey().getEncoded(), cachedUserPassword));
         }
         ccService.startSession(user, record);
 
