@@ -463,40 +463,50 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         // Now, see if we need to do anything to process our new record.
         if (current.getType() != UserKeyRecord.TYPE_NORMAL) {
             if (current.getType() == UserKeyRecord.TYPE_NEW) {
-                // See if we can migrate an old sandbox's data to the new sandbox.
-                if (!lookForAndMigrateOldSandbox(current)) {
-                    // TODO: Problem during migration! Should potentially try again instead of leaving old one
-
-                    // Switching over to using the old record instead of failing
-                    current = getInUserSandbox(current.getUsername(), app.getStorage(UserKeyRecord.class));
-
-                    // Make sure we didn't somehow not get a new sandbox
-                    if (current == null) {
-                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
-                                "Somehow we both failed to migrate an old DB and also didn't _havE_ an old db");
-                        return false;
-                    }
-
-                    // Otherwise we're now keyed up with the old DB and we should be fine to log in
-                }
+                return processNewUserKeyRecord(current);
             } else if (current.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
-                // Transition the legacy storage to the new format. We don't have a new record,
-                // so don't worry
-                try {
-                    this.publishProgress(Localization.get("key.manage.legacy.begin"));
-                    LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), current.unWrapKey(password), current);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    // Ugh, high level trap catch
-                    // Problem during migration! We should try again? Maybe?
-                    // Or just leave the old one?
-                    Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Error while trying to migrate legacy database! Exception: " + e.getMessage());
-                    // For now, fail.
-                    return false;
-                }
+                return processLegacyUserKeyRecord(current);
             }
         }
         return true;
+    }
+
+    private boolean processNewUserKeyRecord(UserKeyRecord current) {
+        // See if we can migrate an old sandbox's data to the new sandbox.
+        if (!lookForAndMigrateOldSandbox(current)) {
+            // TODO: Problem during migration! Should potentially try again instead of leaving old one
+
+            // Switching over to using the old record instead of failing
+            current = getInUserSandbox(current.getUsername(), app.getStorage(UserKeyRecord.class));
+
+            // Make sure we didn't somehow not get a new sandbox
+            if (current == null) {
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                        "Somehow we both failed to migrate an old DB and also didn't _havE_ an old db");
+                return false;
+            }
+
+            // Otherwise we're now keyed up with the old DB and we should be fine to log in
+        }
+        return true;
+    }
+
+    private boolean processLegacyUserKeyRecord(UserKeyRecord current) {
+        // Transition the legacy storage to the new format. We don't have a new record,
+        // so don't worry
+        try {
+            this.publishProgress(Localization.get("key.manage.legacy.begin"));
+            LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), current.unWrapKey(password), current);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Ugh, high level trap catch
+            // Problem during migration! We should try again? Maybe?
+            // Or just leave the old one?
+            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Error while trying to migrate legacy database! Exception: " + e.getMessage());
+            // For now, fail.
+            return false;
+        }
     }
 
     private void setupLoggedInUser() {
