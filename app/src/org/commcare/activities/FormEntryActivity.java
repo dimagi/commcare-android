@@ -1222,7 +1222,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 if (backExitsForm) {
                     FormEntryActivity.this.triggerUserQuitInput();
                 } else {
-                    dialog.dismiss();
+                    dismissAlertDialog();
                     FormEntryActivity.this.refreshCurrentView(false);
                 }
             }
@@ -1239,7 +1239,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         View.OnClickListener addAnotherListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialog.dismiss();
+                dismissAlertDialog();
                 try {
                     mFormController.newRepeat();
                 } catch (XPathUnhandledException | XPathTypeMismatchException | XPathArityException e) {
@@ -1256,7 +1256,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         View.OnClickListener skipListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialog.dismiss();
+                dismissAlertDialog();
                 if (!nextExitsForm) {
                     showNextView();
                 } else {
@@ -1364,7 +1364,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             @Override
             public void onClick(View v) {
                 GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_BACK_TO_FORM);
-                dialog.dismiss();
+                dismissAlertDialog();
             }
         };
         DialogChoiceItem stayInFormItem = new DialogChoiceItem(
@@ -1377,7 +1377,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             public void onClick(View v) {
                 GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_EXIT_NO_SAVE);
                 discardChangesAndExit();
-                dialog.dismiss();
+                dismissAlertDialog();
             }
         };
         DialogChoiceItem quitFormItem = new DialogChoiceItem(
@@ -1392,7 +1392,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 public void onClick(View v) {
                     GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_SAVE_AND_EXIT);
                     saveFormToDisk(EXIT);
-                    dialog.dismiss();
+                    dismissAlertDialog();
                 }
             };
             DialogChoiceItem saveIncompleteItem = new DialogChoiceItem(
@@ -1438,7 +1438,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     case DialogInterface.BUTTON_NEGATIVE:
                         break;
                 }
-                dialog.dismiss();
+                dismissAlertDialog();
             }
         };
         d.setPositiveButton(StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);
@@ -1475,7 +1475,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                             + updated + " rows");
 
                     mFormController.setLanguage(languages[index]);
-                    dialog.dismiss();
+                    dismissAlertDialog();
                     if (currentPromptIsQuestion()) {
                         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                     }
@@ -1487,10 +1487,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         dialog.addButton(StringUtils.getStringSpannableRobust(this, R.string.cancel).toString(),
                 new View.OnClickListener() {
-
                     @Override
                     public void onClick(View v) {
-                        dialog.dismiss();
+                        dismissAlertDialog();
                     }
                 }
         );
@@ -1729,7 +1728,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivity(intent);
                     }
-                    dialog.dismiss();
+                    dismissAlertDialog();
                 }
             };
             GeoUtils.showNoGpsDialog(this, onChangeListener);
