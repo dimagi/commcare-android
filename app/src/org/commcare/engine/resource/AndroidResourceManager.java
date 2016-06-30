@@ -48,7 +48,7 @@ public class AndroidResourceManager extends ResourceManager {
         app = CommCareApplication._().getCurrentApp();
 
         tempUpgradeTable =
-                ResourceTable.RetrieveTable(app.getStorage(TEMP_UPGRADE_TABLE_KEY, Resource.class),
+                new AndroidResourceTable(app.getStorage(TEMP_UPGRADE_TABLE_KEY, Resource.class),
                         new AndroidResourceInstallerFactory());
 
         updateStats = UpdateStats.loadUpdateStats(app);
@@ -261,7 +261,7 @@ public class AndroidResourceManager extends ResourceManager {
                 UpdateTask updateTask = UpdateTask.getNewInstance();
                 updateTask.startPinnedNotification(ctx);
                 updateTask.setAsAutoUpdate();
-                updateTask.execute(ref);
+                updateTask.executeParallel(ref);
             }
         } catch (IllegalStateException e) {
             // The user may have started the update process in the meantime

@@ -9,7 +9,6 @@ import org.apache.tools.ant.filters.ReplaceTokens
 // - somewhere/your/code/directory/is
 // -- commcare-odk (github: https://github.com/dimagi/commcare-odk/)
 // -- commcare (github: https://github.com/dimagi/commcare/)
-// -- javarosa (github: https://github.com/dimagi/javarosa/)
 // these directories MUST be named like this, or it won't work
 
 buildscript {
@@ -19,7 +18,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.1.0'
+        classpath 'com.android.tools.build:gradle:2.1.2'
         classpath 'com.google.gms:google-services:3.0.0'
     }
 }
@@ -42,26 +41,24 @@ configurations {
 
 dependencies {
     testCompile 'junit:junit:4.12'
-    testCompile 'org.robolectric:robolectric:3.0'
-    testCompile project(path: ':javarosa', configuration: 'testsAsJar')
-    // release build type expects javarosa and commcare jars to be in app/libs
-    debugCompile project(':javarosa')
-    debugCompile project(':commcare')
-    compile project(':javarosa')
-    compile project(':commcare')
+    testCompile 'org.robolectric:robolectric:3.1'
+    testCompile project(path: ':commcare-core', configuration: 'testsAsJar')
+    // release build type expects commcare jars to be in app/libs
+    debugCompile project(':commcare-core')
+    compile project(':commcare-core')
     compile fileTree(dir: 'app/libs', include: '*.jar')
     compile(name: 'htmlspanner-custom', ext: 'aar')
     compile(name: 'simprints-lib', ext: 'aar')
-    compile 'com.android.support:cardview-v7:23.4.0'
-    compile 'com.android.support:recyclerview-v7:23.4.0'
-    compile 'com.android.support:support-v4:23.4.0'
-    compile 'com.android.support:gridlayout-v7:23.4.0'
+    compile 'com.android.support:cardview-v7:24.0.0'
+    compile 'com.android.support:recyclerview-v7:24.0.0'
+    compile 'com.android.support:support-v4:24.0.0'
+    compile 'com.android.support:gridlayout-v7:24.0.0'
     compile 'com.madgag.spongycastle:core:1.54.0.0'
     compile 'com.madgag.spongycastle:prov:1.54.0.0'
-    compile 'com.google.android.gms:play-services-maps:9.0.0'
-    compile 'com.google.android.gms:play-services-analytics:9.0.0'
+    compile 'com.google.android.gms:play-services-maps:9.0.2'
+    compile 'com.google.android.gms:play-services-analytics:9.0.2'
     compile 'com.google.zxing:core:3.2.1'
-    compile 'ch.acra:acra:4.8.5@aar'
+    compile 'ch.acra:acra:4.9.0@aar'
     compile 'joda-time:joda-time:2.9.3'
     compile 'net.sf.kxml:kxml2:2.3.0'
     compile 'net.zetetic:android-database-sqlcipher:3.4.0@aar'

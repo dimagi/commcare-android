@@ -86,7 +86,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
      * @return the ApplicationRecord corresponding to the app that should be displayed in this
      * activity, based upon the position
      */
-    private ApplicationRecord getAppForPosition(int position) {
+    private static ApplicationRecord getAppForPosition(int position) {
         ApplicationRecord[] currentApps = CommCareApplication._().appRecordArray();
         if (position < 0 || position >= currentApps.length) {
             return null;
@@ -302,7 +302,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+                dismissAlertDialog();
                 if (which == AlertDialog.BUTTON_POSITIVE) {
                     uninstall();
                 }
@@ -325,7 +325,7 @@ public class SingleAppManagerActivity extends CommCareActivity {
             @Override
             public void onClick(DialogInterface dialog,
                                 int which) {
-                dialog.dismiss();
+                dismissAlertDialog();
                 if (which == AlertDialog.BUTTON_POSITIVE) {
                     CommCareApplication._().expireUserSession();
                     switch (actionKey) {

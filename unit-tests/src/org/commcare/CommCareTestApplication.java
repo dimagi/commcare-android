@@ -1,6 +1,7 @@
 package org.commcare;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -10,6 +11,8 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
+import org.commcare.models.encryption.ByteEncrypter;
+import org.commcare.models.encryption.CryptUtil;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.ModernHttpRequester;
 import org.commcare.android.database.app.models.UserKeyRecord;
@@ -21,6 +24,9 @@ import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.Assert;
+import org.robolectric.Robolectric;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.util.ServiceController;
 
 import java.net.URL;
 import java.util.HashMap;
@@ -96,11 +102,9 @@ public class CommCareTestApplication extends CommCareApplication {
     private static void initFactoryClassList() {
         if (factoryClassNames.isEmpty()) {
             String baseODK = BuildConfig.BUILD_DIR + "/intermediates/classes/commcare/debug/";
-            String baseJR = BuildConfig.PROJECT_DIR + "/../javarosa/build/classes/main/";
-            String baseCC = BuildConfig.PROJECT_DIR + "/../commcare/build/classes/main/";
+            String baseCC = BuildConfig.PROJECT_DIR + "/../commcare-core/build/classes/main/";
             addExternalizableClassesFromDir(baseODK, factoryClassNames);
             addExternalizableClassesFromDir(baseCC, factoryClassNames);
-            addExternalizableClassesFromDir(baseJR, factoryClassNames);
         }
     }
 
@@ -146,16 +150,28 @@ public class CommCareTestApplication extends CommCareApplication {
     public void startUserSession(byte[] symetricKey, UserKeyRecord record, boolean restoreSession) {
         // manually create/setup session service because robolectric doesn't
         // really support services
-        CommCareSessionService ccService = new CommCareSessionService();
+        CommCareSessionService ccService = startRoboCommCareService();
         ccService.createCipherPool();
         ccService.prepareStorage(symetricKey, record);
         User user = getUserFromDb(ccService, record);
         if (user != null) {
             user.setCachedPwd(cachedUserPassword);
+            user.setWrappedKey(ByteEncrypter.wrapByteArrayWithString(CryptUtil.generateSemiRandomKey().getEncoded(), cachedUserPassword));
         }
         ccService.startSession(user, record);
 
         CommCareApplication._().setTestingService(ccService);
+    }
+
+    private static CommCareSessionService startRoboCommCareService() {
+        Intent startIntent =
+                new Intent(RuntimeEnvironment.application, CommCareSessionService.class);
+        ServiceController<CommCareSessionService> serviceController =
+                Robolectric.buildService(CommCareSessionService.class, startIntent);
+        serviceController.attach()
+                .create()
+                .startCommand(0, 1);
+        return serviceController.get();
     }
 
     private static User getUserFromDb(CommCareSessionService ccService, UserKeyRecord keyRecord) {

@@ -482,7 +482,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (loader == null && !EntityLoaderTask.attachToActivity(this)) {
             EntityLoaderTask entityLoader = new EntityLoaderTask(shortSelect, asw.getEvaluationContext());
             entityLoader.attachListener(this);
-            entityLoader.execute(selectDatum.getNodeset());
+            entityLoader.executeParallel(selectDatum.getNodeset());
             return true;
         }
         return false;
@@ -904,7 +904,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
                 public void onClick(View v) {
                     adapter.sortEntities(new int[]{keyArray[index]});
                     adapter.filterByString(getSearchText().toString());
-                    dialog.dismiss();
+                    dismissAlertDialog();
                 }
             };
             DialogChoiceItem item = new DialogChoiceItem(namesList.get(i), -1, listener);
