@@ -107,6 +107,7 @@ import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.XPathUnhandledException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -1241,7 +1242,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 dialog.dismiss();
                 try {
                     mFormController.newRepeat();
-                } catch (XPathTypeMismatchException | XPathArityException e) {
+                } catch (XPathUnhandledException | XPathTypeMismatchException | XPathArityException e) {
                     Logger.exception(e);
                     UserfacingErrorHandling.logErrorAndShowDialog(FormEntryActivity.this, e, EXIT);
                     return;
@@ -1281,7 +1282,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     }
                 }
         );
-        showAlertDialog(dialog);
+        // Purposefully don't persist this dialog accross rotation! Rotation
+        // refreshes the view, which steps the form index back from the repeat
+        // event. This can be fixed, but the dialog click listeners closures
+        // capture refences to the old activity, so we need to redo our
+        // infrastructure to forward new activities.
+        dialog.showNonPersistentDialog();
     }
 
     private void saveFormToDisk(boolean exit) {
