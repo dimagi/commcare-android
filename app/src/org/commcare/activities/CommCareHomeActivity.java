@@ -1098,6 +1098,10 @@ public class CommCareHomeActivity
     @Override
     protected void onResume() {
         super.onResume();
+        if (redirectedToLogin) {
+            finish();
+            return;
+        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             refreshActionBar();
