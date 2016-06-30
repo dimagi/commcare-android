@@ -40,6 +40,7 @@ public class DataPullTaskTest {
      * requires making a smarter task connector
      */
     private static ResultAndError<DataPullTask.PullTaskResult> dataPullResult;
+    private static DataPullTask pullTask;
 
     @Test
     public void dataPullWithMissingRemoteKeyRecordTest() {
@@ -115,10 +116,17 @@ public class DataPullTaskTest {
     public void asyncRestoreTest() {
         installAndUseLocalKeys();
         runDataPullWithAsyncRestore();
+
+        // Indicates that the task stopped when it reached the retry limit we set
+        Assert.assertEquals(DataPullTask.PullTaskResult.RETRY_LIMIT_EXCEEDED, dataPullResult.data);
+        Assert.assertTrue(pullTask.numTries == 3);
+
+        // Indicates that the retry result was parsed correctly
+        Assert.assertTrue(pullTask.retryAtTime != -1 && pullTask.serverProgressCompleted == 55);
     }
 
     private static void runDataPullWithAsyncRestore() {
-        runDataPull(new Integer[]{202}, new String[]{RETRY_RESPONSE}, true);
+        runDataPull(new Integer[]{202}, new String[]{RETRY_RESPONSE, RETRY_RESPONSE, RETRY_RESPONSE}, true);
     }
 
     private static void runDataPull(Integer resultCode, String payloadResource) {
@@ -152,8 +160,13 @@ public class DataPullTaskTest {
 
                     }
                 };
+
+        if (runAsyncRestore) {
+            task.setRetryLimitForAsyncRestore(3);
+        }
         task.connect(TestAppInstaller.fakeConnector);
         task.execute();
+        pullTask = task;
 
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();

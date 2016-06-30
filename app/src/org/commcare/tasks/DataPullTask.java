@@ -89,9 +89,11 @@ public abstract class DataPullTask<R>
     private boolean wasKeyLoggedIn;
 
     private long waitPeriodBeginTime = -1;
-    private long retryAtTime = -1;
-    private int serverProgressCompleted;
-    private int serverProgressTotal;
+    public long retryAtTime = -1;
+    public int serverProgressCompleted = -1;
+    private int serverProgressTotal = -1;
+    private int retryLimit = -1;
+    public int numTries = 0;
 
     public DataPullTask(String username, String password,
                          String server, Context context, DataPullRequester dataPullRequester) {
@@ -221,6 +223,10 @@ public abstract class DataPullTask<R>
     }
 
     private ResultAndError<PullTaskResult> getRequestResultOrRetry(AndroidTransactionParserFactory factory) {
+        if (retryLimit != -1 && numTries >= retryLimit) {
+            return new ResultAndError<>(PullTaskResult.RETRY_LIMIT_EXCEEDED);
+        }
+
         waitAndUpdateDuringRetryPeriod();
 
         if (isCancelled()) {
@@ -271,10 +277,6 @@ public abstract class DataPullTask<R>
                 return;
             }
             reportServerProgress();
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-            }
         }
     }
 
@@ -286,6 +288,7 @@ public abstract class DataPullTask<R>
     private ResultAndError<PullTaskResult> makeRequestAndHandleResponse(AndroidTransactionParserFactory factory)
             throws IOException, UnknownSyncError {
 
+        numTries++;
         RemoteDataPullResponse pullResponse =
                 dataPullRequester.makeDataPullRequest(this, requestor, server, !loginNeeded);
         int responseCode = pullResponse.responseCode;
@@ -583,6 +586,11 @@ public abstract class DataPullTask<R>
         }
     }
 
+    // currently for testing purposes only
+    public void setRetryLimitForAsyncRestore(int limit) {
+        this.retryLimit = limit;
+    }
+
     private String readInput(InputStream stream, AndroidTransactionParserFactory factory)
             throws InvalidStructureException, IOException, XmlPullParserException,
             UnfullfilledRequirementsException {
@@ -674,6 +682,7 @@ public abstract class DataPullTask<R>
     public enum PullTaskResult {
         DOWNLOAD_SUCCESS(-1),
         RETRY_NEEDED(-1),
+        RETRY_LIMIT_EXCEEDED(-1),
         AUTH_FAILED(GoogleAnalyticsFields.VALUE_AUTH_FAILED),
         BAD_DATA(GoogleAnalyticsFields.VALUE_BAD_DATA),
         BAD_DATA_REQUIRES_INTERVENTION(GoogleAnalyticsFields.VALUE_BAD_DATA_REQUIRES_INTERVENTION),
