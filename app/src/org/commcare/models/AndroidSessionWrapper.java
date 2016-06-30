@@ -47,19 +47,11 @@ public class AndroidSessionWrapper {
         this.session = session;
     }
 
-    /**
-     * Serialize the state of this session so it can be restored
-     * at a later time.
-     */
-    public SessionStateDescriptor getSessionStateDescriptor() {
-        return new SessionStateDescriptor(this);
-    }
-
     public void loadFromStateDescription(SessionStateDescriptor descriptor) {
         this.reset();
         this.sessionStateRecordId = descriptor.getID();
         this.formRecordId = descriptor.getFormRecordId();
-        descriptor.loadSession(this.session);
+        descriptor.loadSessionFromDescriptor(session);
     }
 
     /**
@@ -119,7 +111,7 @@ public class AndroidSessionWrapper {
      * otherwise null.
      */
     public SessionStateDescriptor getExistingIncompleteCaseDescriptor() {
-        SessionStateDescriptor ssd = getSessionStateDescriptor();
+        SessionStateDescriptor ssd = SessionStateDescriptor.buildFromSessionWrapper(this);
 
         if (!ssd.getSessionDescriptor().contains(SessionFrame.STATE_DATUM_VAL)) {
             // don't continue if the current session doesn't use a case
@@ -172,7 +164,7 @@ public class AndroidSessionWrapper {
         storage.write(r);
         setFormRecordId(r.getID());
 
-        SessionStateDescriptor ssd = getSessionStateDescriptor();
+        SessionStateDescriptor ssd = SessionStateDescriptor.buildFromSessionWrapper(this);
         sessionStorage.write(ssd);
         sessionStateRecordId = ssd.getID();
     }
