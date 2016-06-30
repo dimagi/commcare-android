@@ -422,15 +422,34 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         UserKeyRecord current = getCurrentValidRecord();
 
         if (current == null) {
-            if (loginMode == LoginMode.PIN) {
-                // If we are in pin mode then we did not execute the callout task; just means there
-                // is no existing record matching the username/pin combo
-                return HttpCalloutOutcomes.IncorrectPin;
-            } else {
-                return HttpCalloutOutcomes.UnknownError;
-            }
+            return handleNullRecord();
         }
 
+        setPasswordFromRecord(current);
+
+        if (!processUserKeyRecord(current)) {
+            return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
+        }
+
+        // Log into our local sandbox.
+        CommCareApplication._().startUserSession(current.unWrapKey(password), current, restoreSession);
+
+        setupLoggedInUser();
+
+        return HttpCalloutTask.HttpCalloutOutcomes.Success;
+    }
+
+    private HttpCalloutTask.HttpCalloutOutcomes handleNullRecord() {
+        if (loginMode == LoginMode.PIN) {
+            // If we are in pin mode then we did not execute the callout task; just means there
+            // is no existing record matching the username/pin combo
+            return HttpCalloutOutcomes.IncorrectPin;
+        } else {
+            return HttpCalloutOutcomes.UnknownError;
+        }
+    }
+
+    private void setPasswordFromRecord(UserKeyRecord current) {
         // If we successfully found a matching record in either PIN or Primed mode, we don't yet
         // have access to the un-hashed password, but are going to need it now to finish up
         if (loginMode == LoginMode.PIN) {
@@ -438,7 +457,9 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         } else if (loginMode == LoginMode.PRIMED) {
             this.password = current.getPrimedPassword();
         }
+    }
 
+    private boolean processUserKeyRecord(UserKeyRecord current) {
         // Now, see if we need to do anything to process our new record.
         if (current.getType() != UserKeyRecord.TYPE_NORMAL) {
             if (current.getType() == UserKeyRecord.TYPE_NEW) {
@@ -453,7 +474,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                     if (current == null) {
                         Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                                 "Somehow we both failed to migrate an old DB and also didn't _havE_ an old db");
-                        return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
+                        return false;
                     }
 
                     // Otherwise we're now keyed up with the old DB and we should be fine to log in
@@ -471,14 +492,14 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                     // Or just leave the old one?
                     Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Error while trying to migrate legacy database! Exception: " + e.getMessage());
                     // For now, fail.
-                    return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
+                    return false;
                 }
             }
         }
+        return true;
+    }
 
-        // Ok, so we're done with everything now. We should log in our local sandbox and proceed to the next step.
-        CommCareApplication._().startUserSession(current.unWrapKey(password), current, restoreSession);
-
+    private void setupLoggedInUser() {
         // So we may have logged in a key record but not a user (if we just received the
         // key, but not the user's data, for instance).
         try {
@@ -490,8 +511,6 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         } catch (SessionUnavailableException sue) {
 
         }
-
-        return HttpCalloutTask.HttpCalloutOutcomes.Success;
     }
 
     private UserKeyRecord getInUserSandbox(String username, SqlStorage<UserKeyRecord> storage) {
