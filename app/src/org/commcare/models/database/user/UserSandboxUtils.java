@@ -56,10 +56,8 @@ public class UserSandboxUtils {
 
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Copied over all of the device reports. Moving on to the form records");
 
-            ContentResolver cr = c.getContentResolver();
-
             SqlStorage<FormRecord> formRecords = new SqlStorage<>(FormRecord.STORAGE_KEY, FormRecord.class, dbh);
-            migrateFormRecords(formRecords, cr, newSandbox);
+            migrateFormRecords(c, formRecords, newSandbox);
         } finally {
             db.close();
         }
@@ -80,7 +78,6 @@ public class UserSandboxUtils {
         File newDb = c.getDatabasePath(DatabaseUserOpenHelper.getDbName(newSandbox.getUuid()));
 
         //TODO: Make sure old sandbox is already on newest version?
-
         if (newDb.exists()) {
             if (!newDb.delete()) {
                 throw new IOException("Couldn't clear file location " + newDb.getAbsolutePath() + " for new sandbox database");
@@ -91,14 +88,12 @@ public class UserSandboxUtils {
 
         Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Created a copy of the DB for the new sandbox. Re-keying it...");
 
-
         String oldKeyEncoded = getSqlCipherEncodedKey(unwrappedOldKey);
         String newKeyEncoded = getSqlCipherEncodedKey(unwrappedNewKey);
         SQLiteDatabase rawDbHandle = SQLiteDatabase.openDatabase(newDb.getAbsolutePath(), oldKeyEncoded, null, SQLiteDatabase.OPEN_READWRITE);
 
         rawDbHandle.execSQL("PRAGMA key = '" + oldKeyEncoded + "';");
         rawDbHandle.execSQL("PRAGMA rekey  = '" + newKeyEncoded + "';");
-
         rawDbHandle.close();
         return newKeyEncoded;
     }
@@ -109,7 +104,7 @@ public class UserSandboxUtils {
             File oldPath = new File(r.getFilePath());
             File newPath = FileUtil.getNewFileLocation(oldPath, newSandbox.getUuid(), true);
 
-            //Copy to a new location while re-encrypting
+            // Copy to a new location while re-encrypting
             FileUtil.copyFile(oldPath, newPath);
         }
     }
@@ -117,9 +112,9 @@ public class UserSandboxUtils {
      * Form records are sadly a bit more complex. We need to both move all of the files,
      * insert a new record in the content provider, and then update the form record.
      */
-    private static void migrateFormRecords(SqlStorage<FormRecord> formRecords,
-                                           ContentResolver cr,
+    private static void migrateFormRecords(Context c, SqlStorage<FormRecord> formRecords,
                                            UserKeyRecord newSandbox) throws IOException {
+        ContentResolver cr = c.getContentResolver();
         for (FormRecord record : formRecords) {
             Uri instanceURI = record.getInstanceURI();
 
@@ -129,30 +124,23 @@ public class UserSandboxUtils {
             }
 
             ContentValues values = new ContentValues();
-            File oldForm;
-            {
-
-                //otherwise read and prepare the record
-                Cursor oldRecord = cr.query(instanceURI, new String[]{InstanceColumns.INSTANCE_FILE_PATH, InstanceColumns.DISPLAY_NAME, InstanceColumns.SUBMISSION_URI, InstanceColumns.JR_FORM_ID, InstanceColumns.STATUS, InstanceColumns.CAN_EDIT_WHEN_COMPLETE, InstanceColumns.LAST_STATUS_CHANGE_DATE, InstanceColumns.DISPLAY_SUBTEXT}, null, null, null);
-                if (!oldRecord.moveToFirst()) {
-                    throw new IOException("Non existant form record at URI " + instanceURI.toString());
-                }
-
-                values.put(InstanceColumns.DISPLAY_NAME, oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.DISPLAY_NAME)));
-                values.put(InstanceColumns.SUBMISSION_URI, oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.SUBMISSION_URI)));
-                values.put(InstanceColumns.JR_FORM_ID, oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.JR_FORM_ID)));
-                values.put(InstanceColumns.STATUS, oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.STATUS)));
-                values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.CAN_EDIT_WHEN_COMPLETE)));
-                values.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, oldRecord.getLong(oldRecord.getColumnIndex(InstanceColumns.LAST_STATUS_CHANGE_DATE)));
-                values.put(InstanceColumns.DISPLAY_SUBTEXT, oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.DISPLAY_SUBTEXT)));
-
-
-                //Copy over the other metadata
-
-                oldForm = new File(oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH)));
-
-                oldRecord.close();
+            //otherwise read and prepare the record
+            Cursor oldRecord = cr.query(instanceURI, new String[]{InstanceColumns.INSTANCE_FILE_PATH, InstanceColumns.DISPLAY_NAME, InstanceColumns.SUBMISSION_URI, InstanceColumns.JR_FORM_ID, InstanceColumns.STATUS, InstanceColumns.CAN_EDIT_WHEN_COMPLETE, InstanceColumns.LAST_STATUS_CHANGE_DATE, InstanceColumns.DISPLAY_SUBTEXT}, null, null, null);
+            if (!oldRecord.moveToFirst()) {
+                throw new IOException("Non existant form record at URI " + instanceURI.toString());
             }
+
+            values.put(InstanceColumns.DISPLAY_NAME, oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.DISPLAY_NAME)));
+            values.put(InstanceColumns.SUBMISSION_URI, oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.SUBMISSION_URI)));
+            values.put(InstanceColumns.JR_FORM_ID, oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.JR_FORM_ID)));
+            values.put(InstanceColumns.STATUS, oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.STATUS)));
+            values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.CAN_EDIT_WHEN_COMPLETE)));
+            values.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, oldRecord.getLong(oldRecord.getColumnIndex(InstanceColumns.LAST_STATUS_CHANGE_DATE)));
+            values.put(InstanceColumns.DISPLAY_SUBTEXT, oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.DISPLAY_SUBTEXT)));
+
+            //Copy over the other metadata
+            File oldForm = new File(oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.INSTANCE_FILE_PATH)));
+            oldRecord.close();
 
             File oldFolder = oldForm.getParentFile();
 
