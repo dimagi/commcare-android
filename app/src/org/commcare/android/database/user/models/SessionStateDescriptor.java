@@ -91,7 +91,7 @@ public class SessionStateDescriptor extends Persisted implements EncryptedModel 
         //TODO: Serialize into something more useful. I dunno. JSON/XML/Something
         StringBuilder descriptor = new StringBuilder();
         for (StackFrameStep step : session.getFrame().getSteps()) {
-            descriptor.append(step.getType());
+            descriptor.append(step.getType()).append(" ");
             if (SessionFrame.STATE_COMMAND_ID.equals(step.getType())) {
                 descriptor.append(step.getId());
             } else if (SessionFrame.STATE_DATUM_VAL.equals(step.getType()) || SessionFrame.STATE_DATUM_COMPUTED.equals(step.getType())) {
