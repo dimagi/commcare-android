@@ -559,10 +559,11 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
             publishProgress(Localization.get("key.manage.migrate"));
             return true;
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            Logger.exception(ioe);
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "IO Error while migrating database: " + ioe.getMessage());
             return false;
         } catch (Exception e) {
+            Logger.exception(ioe);
             Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ForceCloseLogger.getStackTrace(e));
             return false;
         }
