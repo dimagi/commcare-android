@@ -566,35 +566,33 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         if (oldSandboxToMigrate == null) {
             newRecord.setType(UserKeyRecord.TYPE_NORMAL);
             storage.write(newRecord);
-            //No worries
-            return true;
-        }
+        } else {
+            //Otherwise we should start migrating that data over.
+            byte[] oldKey = oldSandboxToMigrate.unWrapKey(password);
 
-        //Otherwise we should start migrating that data over.
-        byte[] oldKey = oldSandboxToMigrate.unWrapKey(password);
+            //First see if the old sandbox is legacy and needs to be transfered over.
+            if (oldSandboxToMigrate.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
+                //transition the old storage into the new format before we copy the DB over.
+                LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), oldKey, oldSandboxToMigrate);
+                publishProgress(Localization.get("key.manage.legacy.begin"));
+            }
 
-        //First see if the old sandbox is legacy and needs to be transfered over.
-        if (oldSandboxToMigrate.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
-            //transition the old storage into the new format before we copy the DB over.
-            LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), oldKey, oldSandboxToMigrate);
-            publishProgress(Localization.get("key.manage.legacy.begin"));
+            //TODO: Ok, so what error handling do we need here?
+            try {
+                //Otherwise we need to copy the old sandbox to a new location atomically (in case we fail).
+                UserSandboxUtils.migrateData(getContext(), app, oldSandboxToMigrate, oldKey, newRecord,
+                        ByteEncrypter.unwrapByteArrayWithString(newRecord.getEncryptedKey(), password));
+                publishProgress(Localization.get("key.manage.migrate"));
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "IO Error while migrating database: " + ioe.getMessage());
+                return false;
+            } catch (Exception e) {
+                Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ForceCloseLogger.getStackTrace(e));
+                return false;
+            }
         }
-
-        //TODO: Ok, so what error handling do we need here? 
-        try {
-            //Otherwise we need to copy the old sandbox to a new location atomically (in case we fail).
-            UserSandboxUtils.migrateData(this.getContext(), app, oldSandboxToMigrate, oldKey, newRecord,
-                    ByteEncrypter.unwrapByteArrayWithString(newRecord.getEncryptedKey(), password));
-            publishProgress(Localization.get("key.manage.migrate"));
-            return true;
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "IO Error while migrating database: " + ioe.getMessage());
-            return false;
-        } catch (Exception e) {
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ForceCloseLogger.getStackTrace(e));
-            return false;
-        }
+        return true;
     }
 
     @Override
