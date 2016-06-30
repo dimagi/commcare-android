@@ -109,9 +109,7 @@ public final class ViewUtil {
         int claimedSpace = constraints.first;
         int indeterminateColumns = constraints.second;
 
-        if (claimedSpaceNotTight(fullSize, claimedSpace, indeterminateColumns)) {
-            // Either more space has been claimed than the screen has room for,
-            // or the full width isn't spoken for and there are no indeterminate columns
+        if (widthReadjustmentNeeded(fullSize, claimedSpace, indeterminateColumns)) {
             readjustWidths(widths, fullSize, claimedSpace, indeterminateColumns);
         } else if (indeterminateColumns > 0) {
             divideIndeterminateSpace(widths, fullSize, claimedSpace, indeterminateColumns);
@@ -148,8 +146,12 @@ public final class ViewUtil {
         return new Pair<>(claimedSpace, indeterminateColumns);
     }
 
-    private static boolean claimedSpaceNotTight(int fullSize, int claimedSpace,
-                                                int indeterminateColumns) {
+    /**
+     * Either more space has been claimed than the screen has room for, or the
+     * full width isn't spoken for and there are no indeterminate columns.
+     */
+    private static boolean widthReadjustmentNeeded(int fullSize, int claimedSpace,
+                                                   int indeterminateColumns) {
         return (fullSize < claimedSpace + indeterminateColumns)
                 || (fullSize > claimedSpace && indeterminateColumns == 0);
     }
