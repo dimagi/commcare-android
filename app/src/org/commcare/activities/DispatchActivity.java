@@ -5,7 +5,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.widget.Toast;
+
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
@@ -18,6 +21,8 @@ import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
+
+import java.io.IOException;
 
 /**
  * Dispatches install, login, and home screen activities.
@@ -61,6 +66,26 @@ public class DispatchActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        FirebaseInstanceId instanceID = FirebaseInstanceId.getInstance();
+//        try {
+//            instanceID.deleteInstanceId();
+//        } catch(IOException e)
+//        {
+//            e.printStackTrace();
+//        }
+//        instanceID = FirebaseInstanceId.getInstance();
+        final FirebaseInstanceId copy = instanceID;
+
+        new Thread(new Runnable() {
+            public void run() {
+                try{
+                    Log.d("INSTANCE", copy.getToken("139642101642", "GCM"));
+                }catch(Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }).start();
 
         if (finishIfNotRoot()) {
             return;

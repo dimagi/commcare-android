@@ -152,6 +152,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         this.fromManager = this.getIntent().
                 getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
+        //If Intent was from a Notification
+        if(getIntent().getExtras() != null){
+            String URL = getIntent().getExtras().getString("BODY");
+            this.setReadyToInstall(URL);
+        }
+
         //Retrieve instance state
         if (savedInstanceState == null) {
             Log.v("UiState", "SavedInstanceState is null, not getting anything from it =/");

@@ -130,6 +130,10 @@
             android:name="org.commcare.activities.CommCareSetupActivity"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
+                <action android:name="OPEN_ACTIVITY_1" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
 
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -194,6 +198,19 @@
         <activity
             android:name="org.commcare.activities.UpdateActivity"
             android:windowSoftInputMode="adjustResize">
+
+            <intent-filter>
+                <action android:name="OPEN_ACTIVITY_2" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+        </activity>
+
+        <activity android:name="org.commcare.activities.UninstallActivity">
+            <intent-filter>
+                <action android:name="OPEN_ACTIVITY_3" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <activity

@@ -39,9 +39,9 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService{
 
         if(n.getClickAction() != null){
             Intent intent = new Intent(n.getClickAction());
-            intent.putExtra("BODY", n.getBody());
-
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            if(n.getBody() != null){
+                intent.putExtra("BODY", n.getBody());
+            }
 
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
              pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
