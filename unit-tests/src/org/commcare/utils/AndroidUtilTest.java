@@ -22,11 +22,11 @@ public class AndroidUtilTest {
         Vector<String> setTwo = new Vector<>();
         setTwo.add("one");
         setTwo.add("three");
-        Vector<String> unionSet = intersectionLambda.intersection(setOne, setTwo);
+        Vector<String> intersectSet = intersectionLambda.intersection(setOne, setTwo);
 
         // for safety, we want to return a whole new vector
-        assertFalse(unionSet == setOne);
-        assertFalse(unionSet == setTwo);
+        assertFalse(intersectSet == setOne);
+        assertFalse(intersectSet == setTwo);
 
         // for safety, don't modify ingoing vector arguments
         assertTrue(setOne.contains("one"));
@@ -36,9 +36,9 @@ public class AndroidUtilTest {
         assertTrue(setTwo.contains("three"));
 
         // make sure proper intersection is computed
-        assertTrue(unionSet.contains("one"));
+        assertTrue(intersectSet.contains("one"));
 
-        assertFalse(unionSet.contains("two"));
-        assertFalse(unionSet.contains("three"));
+        assertFalse(intersectSet.contains("two"));
+        assertFalse(intersectSet.contains("three"));
     }
 }
