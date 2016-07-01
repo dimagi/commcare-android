@@ -203,7 +203,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             SqlStorage<SessionStateDescriptor> ssdStorage =
                     CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 
-            ssdStorage.write(asw.getSessionStateDescriptor());
+            ssdStorage.write(SessionStateDescriptor.buildFromSessionWrapper(asw));
         }
 
         storage.write(updated);
