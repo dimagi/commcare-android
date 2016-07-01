@@ -183,7 +183,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+                dismissAlertDialog();
                 userRecord.setPrimedPassword(unhashedUserPassword);
                 CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class).write(userRecord);
                 Intent i = new Intent();
@@ -197,7 +197,7 @@ public class CreatePinActivity extends SessionAwareCommCareActivity<CreatePinAct
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+                dismissAlertDialog();
             }
         });
 

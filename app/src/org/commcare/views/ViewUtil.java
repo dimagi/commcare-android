@@ -3,26 +3,23 @@ package org.commcare.views;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.util.Log;
+import android.support.v4.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 
-import org.commcare.dalvik.BuildConfig;
 import org.commcare.suite.model.DisplayData;
 import org.commcare.utils.MediaUtil;
 import org.javarosa.core.services.locale.Localizer;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 /**
  * Utilities for converting CommCare UI diplsay details into Android objects
@@ -75,41 +72,6 @@ public final class ViewUtil {
         v.setPadding(padding[0], padding[1], padding[2], padding[3]);
     }
 
-    /**
-     * Debug method to toast a view's ID whenever it is clicked.
-     */
-    public static void setClickListenersForEverything(Activity act) {
-        if (BuildConfig.DEBUG) {
-            final ViewGroup layout = (ViewGroup)act.findViewById(android.R.id.content);
-            final LinkedList<View> views = new LinkedList<>();
-            views.add(layout);
-            for (int i = 0; !views.isEmpty(); i++) {
-                final View child = views.getFirst();
-                views.removeFirst();
-                Log.i("GetID", "Adding onClickListener to view " + child);
-                child.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(final View v) {
-                        String vid;
-                        try {
-                            vid = "View id is: " + v.getResources().getResourceName(v.getId()) + " ( " + v.getId() + " )";
-                        } catch (final Resources.NotFoundException excp) {
-                            vid = "View id is: " + v.getId();
-                        }
-                        Log.i("CLK", vid);
-                    }
-                });
-                if (child instanceof ViewGroup) {
-                    final ViewGroup vg = (ViewGroup)child;
-                    for (int j = 0; j < vg.getChildCount(); j++) {
-                        final View gchild = vg.getChildAt(j);
-                        if (!views.contains(gchild)) views.add(gchild);
-                    }
-                }
-            }
-        }
-    }
-
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static int getColorDrawableColor(ColorDrawable drawable) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
@@ -121,6 +83,103 @@ public final class ViewUtil {
             return pix;
         } else {
             return drawable.getColor();
+        }
+    }
+
+
+    /**
+     * Determine width of each child view, based on mHints, the suite's size hints.
+     * mHints contains a width hint for each child view, each one of
+     * - A string like "50%", requesting the field take up 50% of the row
+     * - A string like "200", requesting the field take up 200 pixels
+     * - Null, not specifying a width for the field
+     * This function will parcel out requested widths and divide remaining space among unspecified columns.
+     *
+     * @param fullSize Width, in pixels, of the containing row.
+     * @return Array of integers, each corresponding to a child view,
+     * representing the desired width, in pixels, of that view.
+     */
+    public static int[] calculateColumnWidths(ArrayList<String> hints, int fullSize) {
+        // Convert any percentages to pixels. Percentage columns are treated
+        // as percentage of the entire screen width.
+        int[] widths = new int[hints.size()];
+        parseWidths(hints, widths, fullSize);
+
+        Pair<Integer, Integer> constraints = buildConstraints(widths);
+        int claimedSpace = constraints.first;
+        int indeterminateColumns = constraints.second;
+
+        if (widthReadjustmentNeeded(fullSize, claimedSpace, indeterminateColumns)) {
+            readjustWidths(widths, fullSize, claimedSpace, indeterminateColumns);
+        } else if (indeterminateColumns > 0) {
+            divideIndeterminateSpace(widths, fullSize, claimedSpace, indeterminateColumns);
+        }
+
+        return widths;
+    }
+
+    private static void parseWidths(ArrayList<String> hints, int[] widths, int fullSize) {
+        int hintIndex = 0;
+        for (String hint : hints) {
+            if (hint == null) {
+                widths[hintIndex] = -1;
+            } else if (hint.contains("%")) {
+                String percentString = hint.substring(0, hint.indexOf("%"));
+                widths[hintIndex] = fullSize * Integer.parseInt(percentString) / 100;
+            } else {
+                widths[hintIndex] = Integer.parseInt(hint);
+            }
+            hintIndex++;
+        }
+    }
+
+    private static Pair<Integer, Integer> buildConstraints(int[] widths) {
+        int claimedSpace = 0;
+        int indeterminateColumns = 0;
+        for (int width : widths) {
+            if (width != -1) {
+                claimedSpace += width;
+            } else {
+                indeterminateColumns++;
+            }
+        }
+        return new Pair<>(claimedSpace, indeterminateColumns);
+    }
+
+    /**
+     * Either more space has been claimed than the screen has room for, or the
+     * full width isn't spoken for and there are no indeterminate columns.
+     */
+    private static boolean widthReadjustmentNeeded(int fullSize, int claimedSpace,
+                                                   int indeterminateColumns) {
+        return (fullSize < claimedSpace + indeterminateColumns)
+                || (fullSize > claimedSpace && indeterminateColumns == 0);
+    }
+
+    private static void readjustWidths(int[] widths, int fullSize,
+                                       int claimedSpace,
+                                       int indeterminateColumns) {
+        claimedSpace += indeterminateColumns;
+        for (int i = 0; i < widths.length; i++) {
+            if (widths[i] == -1) {
+                // Assign indeterminate columns a real width.
+                // It's arbitrary and tiny, but this is going to look terrible regardless.
+                widths[i] = 1;
+            } else {
+                // Shrink or expand columns proportionally
+                widths[i] = fullSize * widths[i] / claimedSpace;
+            }
+        }
+    }
+
+    private static void divideIndeterminateSpace(int[] widths, int fullSize,
+                                                 int claimedSpace,
+                                                 int indeterminateColumns) {
+        int defaultWidth = (fullSize - claimedSpace) / indeterminateColumns;
+        for (int i = 0; i < widths.length; i++) {
+            if (widths[i] == -1) {
+                widths[i] = defaultWidth;
+            }
         }
     }
 }
