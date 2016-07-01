@@ -55,20 +55,17 @@ public class AndroidUtil {
     public static class AndroidIntersectionLambda extends IntersectionLambda {
 
         @Override
-        public <T> Vector<T> union(Vector<T> a, Vector<T> b) {
+        public <T> Vector<T> intersection(Vector<T> a, Vector<T> b) {
             Vector<T> result = new Vector<>();
-            HashSet<T> joined = new HashSet<>(a);
-            joined.addAll(a);
 
-            HashSet<T> other = new HashSet<>();
-            other.addAll(b);
+            HashSet<T> setA = new HashSet<>(a);
+            HashSet<T> setB = new HashSet<>(b);
 
-            joined.retainAll(other);
+            setA.retainAll(setB);
 
-            result.addAll(joined);
+            result.addAll(setA);
             return result;
         }
-
     }
 
     /**

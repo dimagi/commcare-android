@@ -22,7 +22,7 @@ public class AndroidUtilTest {
         Vector<String> setTwo = new Vector<>();
         setTwo.add("one");
         setTwo.add("three");
-        Vector<String> unionSet = intersectionLambda.union(setOne, setTwo);
+        Vector<String> unionSet = intersectionLambda.intersection(setOne, setTwo);
 
         // for safety, we want to return a whole new vector
         assertFalse(unionSet == setOne);
