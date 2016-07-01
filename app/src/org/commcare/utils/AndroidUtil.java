@@ -7,11 +7,6 @@ import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
 
-import org.javarosa.core.util.DataUtil;
-import org.javarosa.core.util.DataUtil.IntersectionLambda;
-
-import java.util.HashSet;
-import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -42,26 +37,6 @@ public class AndroidUtil {
         } else {
             //Whatever the current implementation is otherwise
             return View.generateViewId();
-        }
-    }
-
-    /**
-     * Initialize platform specific methods for common handlers
-     */
-    public static void initializeStaticHandlers() {
-        DataUtil.setIntersectionLambda(new AndroidIntersectionLambda());
-    }
-
-    public static class AndroidIntersectionLambda extends IntersectionLambda {
-
-        @Override
-        public <T> Vector<T> intersection(Vector<T> a, Vector<T> b) {
-            HashSet<T> setA = new HashSet<>(a);
-            HashSet<T> setB = new HashSet<>(b);
-
-            setA.retainAll(setB);
-
-            return new Vector<>(setA);
         }
     }
 
