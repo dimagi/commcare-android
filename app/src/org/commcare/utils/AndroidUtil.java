@@ -8,7 +8,7 @@ import android.util.TypedValue;
 import android.view.View;
 
 import org.javarosa.core.util.DataUtil;
-import org.javarosa.core.util.DataUtil.UnionLambda;
+import org.javarosa.core.util.DataUtil.IntersectionLambda;
 
 import java.util.HashSet;
 import java.util.Vector;
@@ -49,17 +49,14 @@ public class AndroidUtil {
      * Initialize platform specific methods for common handlers
      */
     public static void initializeStaticHandlers() {
-        DataUtil.setUnionLambda(new AndroidUnionLambda());
+        DataUtil.setIntersectionLambda(new AndroidIntersectionLambda());
     }
 
-    private static class AndroidUnionLambda extends UnionLambda {
+    public static class AndroidIntersectionLambda extends IntersectionLambda {
 
         @Override
         public <T> Vector<T> union(Vector<T> a, Vector<T> b) {
             Vector<T> result = new Vector<>();
-            //This is kind of (ok, so really) awkward looking, but we can't use sets in 
-            //ccj2me (Thanks, Nokia!) also, there's no _collections_ interface in
-            //j2me (thanks Sun!) so this is what we get.
             HashSet<T> joined = new HashSet<>(a);
             joined.addAll(a);
 
