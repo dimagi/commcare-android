@@ -56,15 +56,12 @@ public class AndroidUtil {
 
         @Override
         public <T> Vector<T> intersection(Vector<T> a, Vector<T> b) {
-            Vector<T> result = new Vector<>();
-
             HashSet<T> setA = new HashSet<>(a);
             HashSet<T> setB = new HashSet<>(b);
 
             setA.retainAll(setB);
 
-            result.addAll(setA);
-            return result;
+            return new Vector<>(setA);
         }
     }
 
