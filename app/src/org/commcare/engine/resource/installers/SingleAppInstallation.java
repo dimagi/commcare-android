@@ -86,6 +86,6 @@ public class SingleAppInstallation {
                     }
                 };
         task.connect(activity);
-        task.execute(SINGLE_APP_REFERENCE);
+        task.executeParallel(SINGLE_APP_REFERENCE);
     }
 }

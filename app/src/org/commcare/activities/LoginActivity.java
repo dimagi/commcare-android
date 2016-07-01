@@ -310,7 +310,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     };
 
             task.connect(this);
-            task.execute();
+            task.executeParallel();
 
             return true;
         } catch (Exception e) {
@@ -529,7 +529,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     }
                 };
         task.connect(this);
-        task.execute();
+        task.executeParallel();
     }
 
     private void localLoginOrPullAndLogin(boolean restoreSession) {

@@ -94,20 +94,15 @@ public class FormNavigationUI {
                                      final ClippingFrame finishButton,
                                      FormNavigationController.NavigationDetails details,
                                      ProgressBar progressBar) {
-        if (DeveloperPreferences.shouldAnimateFormSubmitButton()) {
-            if (nextButton.getTag() == null) {
-                setFinishVisible(finishButton);
-            } else if (!FormEntryActivity.NAV_STATE_DONE.equals(nextButton.getTag())) {
-                nextButton.setTag(FormEntryActivity.NAV_STATE_DONE);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    expandAndShowFinishButton(context, finishButton);
-                } else {
-                    setFinishVisible(finishButton);
-                }
-            }
-        } else {
-            nextButton.setImageResource(R.drawable.icon_chevron_right_attnpos);
+        if (nextButton.getTag() == null) {
+            setFinishVisible(finishButton);
+        } else if (!FormEntryActivity.NAV_STATE_DONE.equals(nextButton.getTag())) {
             nextButton.setTag(FormEntryActivity.NAV_STATE_DONE);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                expandAndShowFinishButton(context, finishButton);
+            } else {
+                setFinishVisible(finishButton);
+            }
         }
 
         progressBar.setProgressDrawable(context.getResources().getDrawable(R.drawable.progressbar_full));
@@ -155,16 +150,11 @@ public class FormNavigationUI {
                                               ClippingFrame finishButton,
                                               FormNavigationController.NavigationDetails details,
                                               ProgressBar progressBar) {
-        if (DeveloperPreferences.shouldAnimateFormSubmitButton()) {
-            if (!FormEntryActivity.NAV_STATE_NEXT.equals(nextButton.getTag())) {
-                nextButton.setTag(FormEntryActivity.NAV_STATE_NEXT);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    finishButton.setVisibility(View.GONE);
-                }
-            }
-        } else {
-            nextButton.setImageResource(R.drawable.icon_chevron_right_brand);
+        if (!FormEntryActivity.NAV_STATE_NEXT.equals(nextButton.getTag())) {
             nextButton.setTag(FormEntryActivity.NAV_STATE_NEXT);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                finishButton.setVisibility(View.GONE);
+            }
         }
 
         progressBar.setProgressDrawable(context.getResources().getDrawable(R.drawable.progressbar_modern));
@@ -194,13 +184,8 @@ public class FormNavigationUI {
             }
         });
 
-        if (DeveloperPreferences.shouldAnimateFormSubmitButton()) {
-            View finishButton = activity.findViewById(R.id.nav_image_finish);
-            finishButton.startAnimation(growShrinkAnimation);
-        } else {
-            ImageButton nextButton = (ImageButton)activity.findViewById(R.id.nav_btn_next);
-            nextButton.startAnimation(growShrinkAnimation);
-        }
+        View finishButton = activity.findViewById(R.id.nav_image_finish);
+        finishButton.startAnimation(growShrinkAnimation);
     }
 
     private static void setFinishVisible(ClippingFrame finishButton) {
