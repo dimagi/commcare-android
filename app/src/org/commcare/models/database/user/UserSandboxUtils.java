@@ -17,6 +17,7 @@ import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.utils.FileUtil;
 import org.javarosa.core.services.Logger;
@@ -119,6 +120,7 @@ public class UserSandboxUtils {
                     values.put(InstanceColumns.CAN_EDIT_WHEN_COMPLETE, oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.CAN_EDIT_WHEN_COMPLETE)));
                     values.put(InstanceColumns.LAST_STATUS_CHANGE_DATE, oldRecord.getLong(oldRecord.getColumnIndex(InstanceColumns.LAST_STATUS_CHANGE_DATE)));
                     values.put(InstanceColumns.DISPLAY_SUBTEXT, oldRecord.getString(oldRecord.getColumnIndex(InstanceColumns.DISPLAY_SUBTEXT)));
+                    values.put(InstanceProviderAPI.SANDBOX_MIGRATION_SUBMISSION, true);
 
 
                     //Copy over the other metadata
