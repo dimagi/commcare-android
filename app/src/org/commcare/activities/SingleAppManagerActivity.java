@@ -269,6 +269,8 @@ public class SingleAppManagerActivity extends CommCareActivity {
     /**
      * Conducts an update for the selected app
      */
+
+    //TODO: Use this function to update CC apps in the UpdateActvity, instead of updating CommCare
     private void update() {
         if (!CommCareApplication._().isSeated(appRecord)) {
             launchUpdateAfterSeating = true;

@@ -8,15 +8,13 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-
-import org.commcare.activities.DispatchActivity;
 import org.commcare.dalvik.R;
 
 /**
  * Created by Saumya on 6/29/2016.
+ * Receives push notifications, alerts the device, and handles onclick actions
  */
 public class CommCareFirebaseMessagingService extends FirebaseMessagingService{
 
@@ -25,14 +23,15 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService{
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
 
-        // If the application is in the foreground handle both data and notification messages here.
-        // Also if you intend on generating your own notifications as a result of a received FCM
-        // message, here is where that should be initiated. See sendNotification method below.
         super.onMessageReceived(remoteMessage);
         Log.d(TAG, "From: " + remoteMessage.getFrom());
         sendNotification(remoteMessage.getNotification());
     }
 
+    /*
+    This method alerts notifications and sets up the intent that gets broadcast when you click on the notif
+    Both of this things should get done automatically according to FCM docs, but this works too..
+     */
     private void sendNotification(RemoteMessage.Notification n) {
 
         PendingIntent pendingIntent;
@@ -44,7 +43,7 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService{
             }
 
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-             pendingIntent = PendingIntent.getActivity(this, 0 /* Request code */, intent,
+             pendingIntent = PendingIntent.getActivity(this, 0, intent,
                     PendingIntent.FLAG_ONE_SHOT);
         }
         else{
@@ -63,6 +62,6 @@ public class CommCareFirebaseMessagingService extends FirebaseMessagingService{
         NotificationManager notificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-        notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+        notificationManager.notify(0, notificationBuilder.build());
     }
 }
