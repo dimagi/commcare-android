@@ -82,8 +82,7 @@ public class MediaUtil {
                 // scale based on native density AND bounding dimens
                 return getBitmapScaledForNativeDensity(
                         context.getResources().getDisplayMetrics(), imageFile.getAbsolutePath(),
-                        boundingHeight, boundingWidth,
-                        CommCarePreferences.getTargetInflationDensity());
+                        boundingHeight, boundingWidth);
             } else {
                 // just scaling down if the original image is too big for its container
                 return getBitmapScaledToContainer(imageFile.getAbsolutePath(), boundingHeight,
@@ -112,8 +111,7 @@ public class MediaUtil {
      * @return the bitmap, or null if none could be created from the source
      */
     public static Bitmap getBitmapScaledForNativeDensity(DisplayMetrics metrics, String imageFilepath,
-                                                         int containerHeight, int containerWidth,
-                                                         int targetDensity) {
+                                                         int containerHeight, int containerWidth) {
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
         o.inScaled = false;
@@ -121,7 +119,7 @@ public class MediaUtil {
         int imageHeight = o.outHeight;
         int imageWidth = o.outWidth;
 
-        double scaleFactor = computeInflationScaleFactor(metrics, targetDensity);
+        double scaleFactor = computeInflationScaleFactor(metrics);
         int calculatedHeight = Math.round((float)(imageHeight * scaleFactor));
         int calculatedWidth = Math.round((float)(imageWidth * scaleFactor));
 
@@ -136,29 +134,36 @@ public class MediaUtil {
         }
     }
 
-    public static double computeInflationScaleFactor(DisplayMetrics metrics, int targetDensity) {
+    /**
+     * @return Our custom scale factor, based on this device's density and what the image's target
+     * density was
+     */
+    public static double computeInflationScaleFactor(DisplayMetrics metrics) {
         final int SCREEN_DENSITY = metrics.densityDpi;
+        double customDpiScaleFactor = (double)SCREEN_DENSITY /
+                CommCarePreferences.getTargetInflationDensity();
+        double proportionalAdjustmentFactor = getCustomAndroidAdjustmentFactor(metrics);
+        return customDpiScaleFactor * proportionalAdjustmentFactor;
+    }
 
-        double actualNativeScaleFactor = metrics.density;
-        // The formula below is what Android *usually* uses to compute the value of metrics.density
+    private static double getCustomAndroidAdjustmentFactor(DisplayMetrics metrics) {
+        // This is the formula Android *usually* uses to compute the value of metrics.density
         // for a device. If this is in fact the value being used, we are not interested in it.
         // However, if the actual value differs at all from the standard calculation, it means
-        // Android is taking other factors into consideration (such as straight up screen size),
-        // and we want to incorporate that proportionally into our own version of the scale factor
-        double standardNativeScaleFactor = (double)SCREEN_DENSITY / DisplayMetrics.DENSITY_DEFAULT;
-        double proportionalAdjustmentFactor = 1;
+        // Android is taking other factors into consideration (such as straight up screen size)
+        // when it re-sizes an image for this device, so we want to incorporate that proportionally
+        // into our own version of the scale factor
+        double standardNativeScaleFactor = (double)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT;
+
+        double actualNativeScaleFactor = metrics.density;
         if (actualNativeScaleFactor > standardNativeScaleFactor) {
-            proportionalAdjustmentFactor = 1 +
+            return 1 +
                     ((actualNativeScaleFactor - standardNativeScaleFactor) / standardNativeScaleFactor);
         } else if (actualNativeScaleFactor < standardNativeScaleFactor) {
-            proportionalAdjustmentFactor = actualNativeScaleFactor / standardNativeScaleFactor;
+            return actualNativeScaleFactor / standardNativeScaleFactor;
+        } else {
+            return 1;
         }
-
-        // Get our custom scale factor, based on this device's density and what the image's target
-        // density was
-        double customDpiScaleFactor = (double)SCREEN_DENSITY / targetDensity;
-
-        return customDpiScaleFactor * proportionalAdjustmentFactor;
     }
 
     /**
