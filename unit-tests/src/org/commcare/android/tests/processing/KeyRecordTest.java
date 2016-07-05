@@ -118,7 +118,6 @@ public class KeyRecordTest {
 
     private static void testOpeningMigratedForm() {
         TestAppInstaller.login("test", "old_pass");
-        System.out.print(CommCareApplication._().getSession().getLoggedInUser());
         FormRecordListActivityTest.openASavedForm(2, 1);
     }
 
