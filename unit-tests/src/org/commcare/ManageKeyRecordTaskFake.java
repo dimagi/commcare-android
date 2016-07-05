@@ -16,10 +16,13 @@ import java.io.InputStream;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ManageKeyRecordTaskFake extends ManageKeyRecordTask<DataPullControllerMock> {
+    private final String resourcePath;
     public ManageKeyRecordTaskFake(Context c, int taskId, String username, String passwordOrPin,
                                    LoginMode loginMode, CommCareApp app,
-                                   boolean restoreSession, boolean triggerMultipleUserWarning) {
+                                   boolean restoreSession, boolean triggerMultipleUserWarning,
+                                   String resourcePath) {
         super(c, taskId, username, passwordOrPin, loginMode, app, restoreSession, triggerMultipleUserWarning);
+        this.resourcePath = resourcePath;
     }
 
     @Override
@@ -29,7 +32,7 @@ public class ManageKeyRecordTaskFake extends ManageKeyRecordTask<DataPullControl
 
     @Override
     protected HttpResponse doHttpRequest() throws ClientProtocolException, IOException {
-        InputStream is = System.class.getResourceAsStream("/inputs/key_record_create.xml");
+        InputStream is = System.class.getResourceAsStream(resourcePath);
         return HttpResponseMock.buildHttpResponseMock(200, is);
     }
 }

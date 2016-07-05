@@ -5,10 +5,21 @@ import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.commcare.views.notifications.MessageTag;
 import org.commcare.views.notifications.NotificationMessage;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class DataPullControllerMock implements DataPullController, CommCareTaskConnector<DataPullController> {
+    private final MessageTag expectedMessage;
+
+    public DataPullControllerMock() {
+        this(null);
+    }
+
+    public DataPullControllerMock(MessageTag expectedMessage) {
+        this.expectedMessage = expectedMessage;
+    }
 
     @Override
     public void connectTask(CommCareTask task) {
@@ -62,7 +73,7 @@ public class DataPullControllerMock implements DataPullController, CommCareTaskC
 
     @Override
     public void raiseLoginMessage(MessageTag messageTag, boolean showTop) {
-
+        assertEquals(messageTag, expectedMessage);
     }
 
     @Override
