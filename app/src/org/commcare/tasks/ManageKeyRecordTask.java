@@ -376,11 +376,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
                     //or our password has changed and we need to overwrite the existing key record. Either way, all
                     //we should need to do is merge the records.
 
-                    UserKeyRecord ukr = new UserKeyRecord(
-                            record.getUsername(), record.getPasswordHash(),
-                            record.getEncryptedKey(), record.getWrappedPassword(),
-                            record.getValidFrom(), record.getValidTo(), record.getUuid(),
-                            existing.getType());
+                    UserKeyRecord ukr = UserKeyRecord.buildFrom(record, existing.getType());
                     ukr.setID(existing.getID());
                     storage.write(ukr);
                 } catch (NoSuchElementException nsee) {

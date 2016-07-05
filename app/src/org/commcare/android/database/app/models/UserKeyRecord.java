@@ -119,7 +119,7 @@ public class UserKeyRecord extends Persisted {
         this(username, passwordHash, encryptedKey, null, validFrom, validTo, uuid, type);
     }
 
-    public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey,
+    private UserKeyRecord(String username, String passwordHash, byte[] encryptedKey,
                          byte[] wrappedPassword, Date validFrom, Date validTo, String uuid,
                          int type) {
         this.username = username;
@@ -140,6 +140,14 @@ public class UserKeyRecord extends Persisted {
 
         // All new UKRs initialized to active
         this.isActive = true;
+    }
+
+    public static UserKeyRecord buildFrom(UserKeyRecord referenceRecord, int newType) {
+        return new UserKeyRecord(
+                referenceRecord.getUsername(), referenceRecord.getPasswordHash(),
+                referenceRecord.getEncryptedKey(), referenceRecord.getWrappedPassword(),
+                referenceRecord.getValidFrom(), referenceRecord.getValidTo(), referenceRecord.getUuid(),
+                newType);
     }
 
     /**
