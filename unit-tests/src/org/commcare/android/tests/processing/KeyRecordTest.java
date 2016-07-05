@@ -1,5 +1,7 @@
 package org.commcare.android.tests.processing;
 
+import android.database.Cursor;
+
 import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
@@ -9,11 +11,13 @@ import org.commcare.activities.LoginMode;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
+import org.commcare.android.tests.activities.FormRecordListActivityTest;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.tasks.templates.CommCareTaskConnector;
 import org.joda.time.DateTime;
 import org.junit.Before;
@@ -28,9 +32,9 @@ import java.util.Date;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Tests for the processing of Key Record files coming from the server.
+ * Test various key record setup code paths
  *
- * @author ctsims
+ * @author Phillip Mates (pmates@dimagi.com)
  */
 @Config(application = CommCareTestApplication.class,
         constants = BuildConfig.class)
@@ -45,6 +49,10 @@ public class KeyRecordTest {
         app = CommCareApplication._().getCurrentApp();
     }
 
+    /**
+     * Test key record pull attempt where the xml payload doesn't have a key in
+     * it.
+     */
     @Test
     public void invalidXMLKeyRecordResponseTest() {
         runKeyRecordTask("old_pass", "/inputs/empty_key_record.xml");
@@ -53,6 +61,10 @@ public class KeyRecordTest {
         assertEquals(0, recordStorage.getNumRecords());
     }
 
+    /**
+     * Check that old sandbox is completely trashed if a new key record, w/ new
+     * password and sandbox id, is sent down.
+     */
     @Test
     public void keyRecordWithDifferentSandboxIdTest() {
         runKeyRecordTask("old_pass", "/inputs/key_record_create.xml");
@@ -65,6 +77,13 @@ public class KeyRecordTest {
         assertActiveKeyRecordCount(1, recordStorage);
     }
 
+    /**
+     * If HQ sends down a key record for the same password, but with a new
+     * sandbox ID, data needs to be migrated from the old sandbox to the new
+     * one.
+     *
+     * Not positive, but I suspect this happens when the old key expires on the server.
+     */
     @Test
     public void keyRecordMigration() {
         runKeyRecordTask("old_pass", "/inputs/key_record_create.xml");
@@ -73,8 +92,11 @@ public class KeyRecordTest {
         assertEquals(1, recordStorage.getNumRecords());
 
         TestAppInstaller.login("test", "old_pass");
-        SavedFormLoader.loadFormsFromPayload("/commcare-apps/form_nav_tests/form_instances_restore.xml", FormRecord.STATUS_COMPLETE);
-        SqlStorage<FormRecord> formRecordStorage = CommCareApplication._().getUserStorage(FormRecord.class);
+        SavedFormLoader.loadFormsFromPayload(
+                "/commcare-apps/form_nav_tests/form_instances_restore.xml",
+                FormRecord.STATUS_SAVED);
+        SqlStorage<FormRecord> formRecordStorage =
+                CommCareApplication._().getUserStorage(FormRecord.class);
         assertEquals(2, formRecordStorage.getNumRecords());
         CommCareApplication._().closeUserSession();
 
@@ -86,6 +108,18 @@ public class KeyRecordTest {
         assertEquals(2, formRecordStorage.getNumRecords());
 
         assertActiveKeyRecordCount(1, recordStorage);
+        CommCareApplication._().closeUserSession();
+        // trigger form record cleanup
+        runKeyRecordTask("old_pass", "/inputs/key_record_create_different_uuid.xml");
+        TestAppInstaller.login("test", "old_pass");
+
+        testOpeningMigratedForm();
+    }
+
+    private static void testOpeningMigratedForm() {
+        TestAppInstaller.login("test", "old_pass");
+        System.out.print(CommCareApplication._().getSession().getLoggedInUser());
+        FormRecordListActivityTest.openASavedForm(2, 1);
     }
 
     private static void assertActiveKeyRecordCount(int expectedCount,
@@ -100,7 +134,9 @@ public class KeyRecordTest {
     }
 
     private void runKeyRecordTask(String password, String keyXmlFile) {
-        ManageKeyRecordTaskFake keyRecordTast = new ManageKeyRecordTaskFake(RuntimeEnvironment.application, 1, "test", password, LoginMode.PASSWORD, app, false, false, keyXmlFile);
+        ManageKeyRecordTaskFake keyRecordTast =
+                new ManageKeyRecordTaskFake(RuntimeEnvironment.application, 1, "test",
+                        password, LoginMode.PASSWORD, app, false, false, keyXmlFile);
         keyRecordTast.connect((CommCareTaskConnector)new DataPullControllerMock());
         keyRecordTast.execute();
         Robolectric.flushBackgroundThreadScheduler();

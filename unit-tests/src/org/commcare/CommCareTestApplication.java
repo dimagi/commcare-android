@@ -154,6 +154,11 @@ public class CommCareTestApplication extends CommCareApplication {
         ccService.createCipherPool();
         ccService.prepareStorage(symetricKey, record);
         User user = getUserFromDb(ccService, record);
+        if (user == null && cachedUserPassword != null) {
+            Log.d(TAG, "No user instance found, creating one");
+            user = new User(record.getUsername(), cachedUserPassword, "some_unique_id");
+            CommCareApplication._().getRawStorage("USER", User.class, ccService.getUserDbHandle()).write(user);
+        }
         if (user != null) {
             user.setCachedPwd(cachedUserPassword);
             user.setWrappedKey(ByteEncrypter.wrapByteArrayWithString(CryptUtil.generateSemiRandomKey().getEncoded(), cachedUserPassword));

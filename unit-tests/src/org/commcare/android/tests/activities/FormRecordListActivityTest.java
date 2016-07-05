@@ -27,7 +27,7 @@ import org.robolectric.shadows.ShadowEnvironment;
 import org.robolectric.shadows.ShadowListView;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -43,7 +43,6 @@ public class FormRecordListActivityTest {
                 "test", "123");
         SavedFormLoader.loadFormsFromPayload("/commcare-apps/form_nav_tests/form_instances_restore.xml",
                 FormRecord.STATUS_SAVED);
-        ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
     }
 
     /**
@@ -52,6 +51,10 @@ public class FormRecordListActivityTest {
      */
     @Test
     public void openSavedFormViewTest() {
+        openASavedForm(2, 0);
+    }
+
+    public static void openASavedForm(int expectedFormCount, int formIndexToSelect) {
         Intent savedFormsIntent =
                 new Intent(RuntimeEnvironment.application, FormRecordListActivity.class);
         ShadowActivity homeActivityShadow = prepSavedFormsActivity(savedFormsIntent);
@@ -65,8 +68,8 @@ public class FormRecordListActivityTest {
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
 
-        ShadowListView shadowEntityList = assertSavedFormEntries(savedFormsActivity);
-        shadowEntityList.performItemClick(0);
+        ShadowListView shadowEntityList = assertSavedFormEntries(expectedFormCount, savedFormsActivity);
+        shadowEntityList.performItemClick(formIndexToSelect);
 
         launchFormEntryForSavedForm(homeActivityShadow, savedFormsIntent, savedFormsActivity);
     }
@@ -74,36 +77,46 @@ public class FormRecordListActivityTest {
     private static ShadowActivity prepSavedFormsActivity(Intent savedFormsIntent) {
         CommCareHomeActivity homeActivity =
                 Robolectric.buildActivity(CommCareHomeActivity.class).create().get();
-        ShadowActivity homeShadow = Shadows.shadowOf(homeActivity);
-        homeShadow.startActivityForResult(savedFormsIntent,
+        ShadowActivity homeActivityShadow = Shadows.shadowOf(homeActivity);
+        homeActivityShadow.startActivityForResult(savedFormsIntent,
                 CommCareHomeActivity.GET_INCOMPLETE_FORM);
-        return homeShadow;
+
+        // Call this to remove activity from stack, so we can access future activities...
+        homeActivityShadow.getNextStartedActivityForResult();
+
+        return homeActivityShadow;
     }
 
-    private static ShadowListView assertSavedFormEntries(FormRecordListActivity savedFormActivity) {
+    private static ShadowListView assertSavedFormEntries(int expectedFormCount,
+                                                         FormRecordListActivity savedFormActivity) {
         ListView entityList =
                 (ListView)savedFormActivity.findViewById(R.id.screen_entity_select_list);
         IncompleteFormListAdapter adapter =
                 (IncompleteFormListAdapter)entityList.getAdapter();
         adapter.setFormFilter(FormRecordListActivity.FormRecordFilter.Submitted);
         adapter.resetRecords();
-        assertEquals(2, adapter.getCount());
+        assertEquals(expectedFormCount, adapter.getCount());
         return Shadows.shadowOf(entityList);
     }
 
     private static void launchFormEntryForSavedForm(ShadowActivity homeActivityShadow,
                                                     Intent savedFormsIntent,
                                                     FormRecordListActivity savedFormsActivity) {
+        ShadowEnvironment.setExternalStorageState(Environment.MEDIA_MOUNTED);
+
         ShadowActivity formRecordShadow = Shadows.shadowOf(savedFormsActivity);
         homeActivityShadow.receiveResult(savedFormsIntent,
                 formRecordShadow.getResultCode(),
                 formRecordShadow.getResultIntent());
         ShadowActivity.IntentForResult formEntryIntent =
                 homeActivityShadow.getNextStartedActivityForResult();
-        FormEntryActivity formEntryActivity =
-                Robolectric.buildActivity(FormEntryActivity.class)
+        Robolectric.buildActivity(FormEntryActivity.class)
                         .withIntent(formEntryIntent.intent)
                         .create().start().resume().get();
-        assertFalse(Shadows.shadowOf(formEntryActivity).isFinishing());
+
+        Robolectric.flushBackgroundThreadScheduler();
+        Robolectric.flushForegroundThreadScheduler();
+
+        assertNotNull(FormEntryActivity.mFormController);
     }
 }
