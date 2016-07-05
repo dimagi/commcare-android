@@ -406,6 +406,7 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         for (UserKeyRecord r : allRecordsWithSameUsername) {
             if (!r.getUuid().equals(uuidOfActiveRecord)) {
                 r.setInactive();
+                storage.write(r);
             }
         }
     }
