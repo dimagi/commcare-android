@@ -12,8 +12,6 @@ import org.commcare.utils.SessionUnavailableException;
  */
 public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R> {
 
-    protected boolean redirectedToLogin;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,8 +30,16 @@ public abstract class SessionAwareCommCareActivity<R> extends CommCareActivity<R
     protected void onResume() {
         super.onResume();
 
-        redirectedToLogin = SessionActivityRegistration.handleOrListenForSessionExpiration(this);
+        boolean redirectedToLogin =
+                SessionActivityRegistration.handleOrListenForSessionExpiration(this);
+        if (!redirectedToLogin) {
+            onResumeSessionSafe();
+        }
     }
+
+     protected void onResumeSessionSafe() {
+
+     }
 
     @Override
     protected void onPause() {

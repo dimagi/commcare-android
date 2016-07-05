@@ -307,9 +307,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         listView.setAdapter(adapter);
     }
 
-    protected void onResume() {
-        super.onResume();
-
+    protected void onResumeSessionSafe() {
         attachToPurgeTask();
 
         if (adapter != null && initialSelection != -1) {
