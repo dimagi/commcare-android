@@ -119,7 +119,7 @@ public class UserKeyRecord extends Persisted {
         this(username, passwordHash, encryptedKey, null, validFrom, validTo, uuid, type);
     }
 
-    private UserKeyRecord(String username, String passwordHash, byte[] encryptedKey,
+    public UserKeyRecord(String username, String passwordHash, byte[] encryptedKey,
                          byte[] wrappedPassword, Date validFrom, Date validTo, String uuid,
                          int type) {
         this.username = username;
@@ -150,44 +150,26 @@ public class UserKeyRecord extends Persisted {
                 newType);
     }
 
-    /**
-     * @return the username
-     */
     public String getUsername() {
         return username;
     }
 
-    /**
-     * @return the passwordHash
-     */
     public String getPasswordHash() {
         return passwordHash;
     }
 
-    /**
-     * @return the encryptedKey
-     */
     public byte[] getEncryptedKey() {
         return encryptedKey;
     }
 
-    /**
-     * @return the validFrom
-     */
     public Date getValidFrom() {
         return validFrom;
     }
 
-    /**
-     * @return the validTo
-     */
     public Date getValidTo() {
         return validTo;
     }
 
-    /**
-     * @return the uuid
-     */
     public String getUuid() {
         return uuid;
     }
