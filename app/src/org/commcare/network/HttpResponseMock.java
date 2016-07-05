@@ -8,13 +8,16 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.StatusLine;
 import org.apache.http.params.HttpParams;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Locale;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class HttpResponseMock {
-    public static HttpResponse buildHttpResponseMock(final int statusCode) {
+    public static HttpResponse buildHttpResponseMock(final int statusCode, final InputStream entityStream) {
         return new HttpResponse() {
             private final StatusLine statusLine = new StatusLine() {
                 @Override
@@ -65,7 +68,52 @@ public class HttpResponseMock {
 
             @Override
             public HttpEntity getEntity() {
-                throw new RuntimeException("not supported in mock");
+                return new HttpEntity() {
+                    @Override
+                    public boolean isRepeatable() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean isChunked() {
+                        return false;
+                    }
+
+                    @Override
+                    public long getContentLength() {
+                        return 0;
+                    }
+
+                    @Override
+                    public Header getContentType() {
+                        return null;
+                    }
+
+                    @Override
+                    public Header getContentEncoding() {
+                        return null;
+                    }
+
+                    @Override
+                    public InputStream getContent() throws IOException, IllegalStateException {
+                        return entityStream;
+                    }
+
+                    @Override
+                    public void writeTo(OutputStream outputStream) throws IOException {
+
+                    }
+
+                    @Override
+                    public boolean isStreaming() {
+                        return false;
+                    }
+
+                    @Override
+                    public void consumeContent() throws IOException {
+
+                    }
+                };
             }
 
             @Override
@@ -90,7 +138,7 @@ public class HttpResponseMock {
 
             @Override
             public boolean containsHeader(String s) {
-                throw new RuntimeException("not supported in mock");
+                return false;
             }
 
             @Override

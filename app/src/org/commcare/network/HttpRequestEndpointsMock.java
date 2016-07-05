@@ -37,7 +37,7 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
         } else {
             responseCode = 200;
         }
-        return HttpResponseMock.buildHttpResponseMock(responseCode);
+        return HttpResponseMock.buildHttpResponseMock(responseCode, null);
     }
 
     @Override
