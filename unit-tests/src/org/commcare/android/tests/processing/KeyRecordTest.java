@@ -8,6 +8,7 @@ import org.commcare.activities.DataPullControllerMock;
 import org.commcare.activities.LoginMode;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.android.util.TestUtils;
@@ -49,7 +50,61 @@ public class KeyRecordTest {
         runKeyRecordTask("old_pass", "/inputs/empty_key_record.xml");
 
         SqlStorage<UserKeyRecord> recordStorage = app.getStorage(UserKeyRecord.class);
-        assertEquals(recordStorage.getNumRecords(), 0);
+        assertEquals(0, recordStorage.getNumRecords());
+    }
+
+    @Test
+    public void keyRecordWithDifferentSandboxIdTest() {
+        runKeyRecordTask("old_pass", "/inputs/key_record_create.xml");
+
+        SqlStorage<UserKeyRecord> recordStorage = app.getStorage(UserKeyRecord.class);
+        assertEquals(1, recordStorage.getNumRecords());
+
+        runKeyRecordTask("new_pass", "/inputs/key_record_create_different_uuid.xml");
+
+        assertActiveKeyRecordCount(1, recordStorage);
+    }
+
+    @Test
+    public void keyRecordMigration() {
+        runKeyRecordTask("old_pass", "/inputs/key_record_create.xml");
+
+        SqlStorage<UserKeyRecord> recordStorage = app.getStorage(UserKeyRecord.class);
+        assertEquals(1, recordStorage.getNumRecords());
+
+        TestAppInstaller.login("test", "old_pass");
+        SavedFormLoader.loadFormsFromPayload("/commcare-apps/form_nav_tests/form_instances_restore.xml", FormRecord.STATUS_COMPLETE);
+        SqlStorage<FormRecord> formRecordStorage = CommCareApplication._().getUserStorage(FormRecord.class);
+        assertEquals(2, formRecordStorage.getNumRecords());
+        CommCareApplication._().closeUserSession();
+
+        markOutOfDate(recordStorage);
+
+        runKeyRecordTask("old_pass", "/inputs/key_record_create_different_uuid.xml");
+        TestAppInstaller.login("test", "old_pass");
+        formRecordStorage = CommCareApplication._().getUserStorage(FormRecord.class);
+        assertEquals(2, formRecordStorage.getNumRecords());
+
+        assertActiveKeyRecordCount(1, recordStorage);
+    }
+
+    private static void assertActiveKeyRecordCount(int expectedCount,
+                                                   SqlStorage<UserKeyRecord> recordStorage) {
+        int activeCount = 0;
+        for (UserKeyRecord record : recordStorage) {
+            if (record.isActive()) {
+                activeCount++;
+            }
+        }
+        assertEquals(expectedCount, activeCount);
+    }
+
+    private void runKeyRecordTask(String password, String keyXmlFile) {
+        ManageKeyRecordTaskFake keyRecordTast = new ManageKeyRecordTaskFake(RuntimeEnvironment.application, 1, "test", password, LoginMode.PASSWORD, app, false, false, keyXmlFile);
+        keyRecordTast.connect((CommCareTaskConnector)new DataPullControllerMock());
+        keyRecordTast.execute();
+        Robolectric.flushBackgroundThreadScheduler();
+        Robolectric.flushForegroundThreadScheduler();
     }
 
     private static void markOutOfDate(SqlStorage<UserKeyRecord> recordStorage) {
@@ -65,52 +120,4 @@ public class KeyRecordTest {
         recordStorage.write(outOfDateRecord);
     }
 
-    @Test
-    public void keyRecordWithDifferentSandboxIdTest() {
-        runKeyRecordTask("old_pass", "/inputs/key_record_create.xml");
-
-        SqlStorage<UserKeyRecord> recordStorage = app.getStorage(UserKeyRecord.class);
-        assertEquals(recordStorage.getNumRecords(), 1);
-
-        runKeyRecordTask("new_pass", "/inputs/key_record_create_different_uuid.xml");
-
-        int activeCount = 0;
-        for (UserKeyRecord record : recordStorage) {
-            if (record.isActive()) {
-                activeCount++;
-            }
-        }
-        assertEquals(activeCount, 1);
-    }
-
-    @Test
-    public void keyRecordMigration() {
-        runKeyRecordTask("old_pass", "/inputs/key_record_create.xml");
-
-        SqlStorage<UserKeyRecord> recordStorage = app.getStorage(UserKeyRecord.class);
-        assertEquals(recordStorage.getNumRecords(), 1);
-
-        TestAppInstaller.login("test", "old_pass");
-        SavedFormLoader.loadFormsFromPayload("/commcare-apps/form_nav_tests/form_instances_restore.xml");
-
-        markOutOfDate(recordStorage);
-
-        runKeyRecordTask("old_pass", "/inputs/key_record_create_different_uuid.xml");
-
-        int activeCount = 0;
-        for (UserKeyRecord record : recordStorage) {
-            if (record.isActive()) {
-                activeCount++;
-            }
-        }
-        //assertEquals(activeCount, 1);
-    }
-
-    private void runKeyRecordTask(String password, String keyXmlFile) {
-        ManageKeyRecordTaskFake keyRecordTast = new ManageKeyRecordTaskFake(RuntimeEnvironment.application, 1, "test", password, LoginMode.PASSWORD, app, false, false, keyXmlFile);
-        keyRecordTast.connect((CommCareTaskConnector)new DataPullControllerMock());
-        keyRecordTast.execute();
-        Robolectric.flushBackgroundThreadScheduler();
-        Robolectric.flushForegroundThreadScheduler();
-    }
 }
