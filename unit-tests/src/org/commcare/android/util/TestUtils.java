@@ -56,7 +56,6 @@ public class TestUtils {
         //Sets the static strategy for the deserializtion code to be
         //based on an optimized md5 hasher. Major speed improvements.
         AndroidPrototypeFactorySetup.setDBUtilsPrototypeFactory(new LivePrototypeFactory(AndroidClassHasher.getInstance()));
-        AndroidUtil.initializeStaticHandlers();
         disableSqlOptimizations();
     }
 
