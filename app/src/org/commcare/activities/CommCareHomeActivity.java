@@ -273,7 +273,7 @@ public class CommCareHomeActivity
                 Localization.get("pin.dialog.yes"), -1, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        dialog.dismiss();
+                        dismissAlertDialog();
                         launchPinCreateScreen(loginMode);
                     }
                 });
@@ -282,7 +282,7 @@ public class CommCareHomeActivity
                 Localization.get("pin.dialog.not.now"), -1, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        dialog.dismiss();
+                        dismissAlertDialog();
                     }
                 });
 
@@ -290,7 +290,7 @@ public class CommCareHomeActivity
                 Localization.get("pin.dialog.never"), -1, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        dialog.dismiss();
+                        dismissAlertDialog();
                         CommCareApplication._().getCurrentApp().getAppPreferences()
                                 .edit()
                                 .putBoolean(CommCarePreferences.HAS_DISMISSED_PIN_CREATION, true)
@@ -342,7 +342,7 @@ public class CommCareHomeActivity
                 // rebuild home buttons in case language changed;
                 uiController.setupUI();
                 rebuildOptionMenu();
-                dialog.dismiss();
+                dismissAlertDialog();
             }
         };
 
@@ -840,7 +840,7 @@ public class CommCareHomeActivity
         createErrorDialog(text.evaluate(ec), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int i) {
-                dialog.dismiss();
+                dismissAlertDialog();
                 asw.getSession().stepBack(asw.getEvaluationContext());
                 CommCareHomeActivity.this.sessionNavigator.startNextSessionStep();
             }
@@ -1158,7 +1158,7 @@ public class CommCareHomeActivity
                         state.commitStub();
                         formEntry(platform.getFormContentUri(state.getSession().getForm()), state.getFormRecord());
                 }
-                dialog.dismiss();
+                dismissAlertDialog();
             }
         };
         d.setPositiveButton(Localization.get("option.yes"), listener);

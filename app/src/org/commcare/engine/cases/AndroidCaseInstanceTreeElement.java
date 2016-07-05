@@ -67,7 +67,7 @@ public class AndroidCaseInstanceTreeElement extends CaseInstanceTreeElement impl
 
     @Override
     protected Vector<Integer> union(Vector<Integer> selectedCases, Vector<Integer> cases) {
-        return DataUtil.union(selectedCases, cases);
+        return DataUtil.intersection(selectedCases, cases);
     }
 
     @Override
