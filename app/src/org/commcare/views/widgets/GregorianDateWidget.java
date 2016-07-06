@@ -65,6 +65,32 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
         yearText = (EditText)findViewById(R.id.year_txt_field);
         monthText = (AutoCompleteTextView) findViewById(R.id.month_txt_field);
 
+        //TODO: Current keyboard is full screen for month and half screen for the others. Pick which one we want.
+
+        dayText.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dayText.clearFocus();
+                dayText.requestFocus();
+            }
+        });
+
+        yearText.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                yearText.clearFocus();
+                yearText.requestFocus();
+            }
+        });
+
+        monthText.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                monthText.clearFocus();
+                monthText.requestFocus();
+            }
+        });
+
         MonthAdapter monthAdapter = new MonthAdapter(getContext(), monthList);
         monthText.setAdapter(monthAdapter);
     }
@@ -206,10 +232,16 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
         String day = dayText.getText().toString();
         String year = yearText.getText().toString();
 
-        //Empty text fields
-        if(month.isEmpty() || day.isEmpty() || year.isEmpty()){
+        //All fields are empty - Like submitting a blank date
+        if(month.isEmpty() && day.isEmpty() && year.isEmpty()){
             return null;
         }
+
+        //Some but not all fields are empty - Error
+        if(month.isEmpty() || day.isEmpty() || year.isEmpty()){
+            return new InvalidData(Localization.get("empty.fields"), new DateData(calendar.getTime()));
+        }
+
         //Invalid year (too low)
         if(Integer.parseInt(year) < MINYEAR){
             return new InvalidData(Localization.get("low.year"), new DateData(calendar.getTime()));
@@ -231,7 +263,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
 
         //Invalid year (too high)
         if(Integer.parseInt(year) > maxYear){
-            return new InvalidData(Localization.get("high.year") + String.valueOf(maxYear), new DateData(calendar.getTime()));
+            return new InvalidData(Localization.get("high.year") + " " + String.valueOf(maxYear), new DateData(calendar.getTime()));
         }
         return super.getAnswer();
     }

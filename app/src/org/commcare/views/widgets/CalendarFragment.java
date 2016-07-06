@@ -67,7 +67,6 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         Window window = getActivity().getWindow();
         window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
         myLayout.setMinimumWidth((int)(displayRectangle.width() * 0.9f));
-
         return myLayout;
     }
 
@@ -199,7 +198,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
             populator.add(Calendar.DAY_OF_MONTH, 1);
         }
 
-        int remainingDays = ((DAYSINWEEK + 1)-(populator.get(Calendar.DAY_OF_WEEK))%DAYSINWEEK);
+        int remainingDays = ((DAYSINWEEK + 1)-(populator.get(Calendar.DAY_OF_WEEK)))%DAYSINWEEK;
 
         for(int i = 0; i < remainingDays; i ++){
             dateList.add(populator.getTime());
@@ -250,12 +249,14 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
                 text.setTextColor(getResources().getColor(R.color.white));
                 text.setBackgroundColor(getResources().getColor(R.color.cc_attention_positive_color));
             }
-
-            if(date.getMonth() != current.getMonth()){
+            else if(date.getMonth() != current.getMonth()){
                 text.setTextColor(getResources().getColor(R.color.grey_dark));
                 text.setBackgroundColor(getResources().getColor(R.color.grey_lighter));
             }
-
+            else{
+                text.setTextColor(getResources().getColor(R.color.black));
+                text.setBackgroundColor(getResources().getColor(R.color.transparent));
+            }
             return text;
         }
     }

@@ -58,7 +58,8 @@
                 android:textSize="28dp"
                 android:inputType="number"
                 android:maxLength="2"
-                android:selectAllOnFocus="true"/>
+                android:selectAllOnFocus="true"
+                android:imeOptions="flagNoExtractUi"/>
 
             <Button
                 android:id="@+id/daydownbtn"
@@ -102,7 +103,8 @@
                 android:inputType="textFilter"
                 android:completionThreshold="1"
                 android:dropDownWidth="150dp"
-                android:selectAllOnFocus="true"/>
+                android:selectAllOnFocus="true"
+                android:imeOptions="actionDone"/>
 
             <Button
                 android:id="@+id/monthdownbtn"
@@ -146,7 +148,8 @@
                 android:inputType="number"
                 android:maxLength="4"
                 android:elevation="@dimen/button_elevation"
-                android:selectAllOnFocus="true"/>
+                android:selectAllOnFocus="true"
+                android:imeOptions="flagNoExtractUi"/>
 
             <Button
                 android:id="@+id/yeardownbtn"
