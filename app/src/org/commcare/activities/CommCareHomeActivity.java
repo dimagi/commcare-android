@@ -1271,7 +1271,7 @@ public class CommCareHomeActivity
     }
 
     private void startAdvancedActionsActivity() {
-        startActivity(new Intent(this, AdvancedActionsActivity.class));
+        startActivityForResult(new Intent(this, AdvancedActionsActivity.class), ADVANCED_ACTIONS_ACTIVITY);
     }
 
     private void showAboutCommCareDialog() {
