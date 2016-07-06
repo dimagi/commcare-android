@@ -30,6 +30,7 @@ import org.robolectric.annotation.Config;
 import java.util.Date;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * Test various key record setup code paths
@@ -98,22 +99,37 @@ public class KeyRecordTest {
         SqlStorage<FormRecord> formRecordStorage =
                 CommCareApplication._().getUserStorage(FormRecord.class);
         assertEquals(2, formRecordStorage.getNumRecords());
+        assertFormInstanceCount(2);
         CommCareApplication._().closeUserSession();
 
         markOutOfDate(recordStorage);
 
         runKeyRecordTask("old_pass", "/inputs/key_record_create_different_uuid.xml");
         TestAppInstaller.login("test", "old_pass");
-        formRecordStorage = CommCareApplication._().getUserStorage(FormRecord.class);
-        assertEquals(2, formRecordStorage.getNumRecords());
 
         assertActiveKeyRecordCount(1, recordStorage);
         CommCareApplication._().closeUserSession();
-        // trigger form record cleanup
+        // trigger form record cleanup.
         runKeyRecordTask("old_pass", "/inputs/key_record_create_different_uuid.xml");
         TestAppInstaller.login("test", "old_pass");
+        formRecordStorage = CommCareApplication._().getUserStorage(FormRecord.class);
+        assertEquals(2, formRecordStorage.getNumRecords());
+        assertFormInstanceCount(2);
 
         testOpeningMigratedForm();
+    }
+
+    private static void assertFormInstanceCount(int expectedCount) {
+        Cursor c =
+                RuntimeEnvironment.application.getContentResolver().query(InstanceProviderAPI.InstanceColumns.CONTENT_URI,
+                        null, null, null, null);
+        if (c == null) {
+            fail("Query returned 'null' when we expected to find " + expectedCount + " instances");
+        } else {
+            assertEquals(expectedCount, c.getCount());
+        }
+
+        c.close();
     }
 
     private static void testOpeningMigratedForm() {
