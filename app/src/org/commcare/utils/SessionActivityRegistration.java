@@ -40,14 +40,16 @@ public class SessionActivityRegistration {
      * listen for session expiration broadcasts. Call this method in onResume
      * methods of activities that are session sensitive.
      */
-    public static void handleOrListenForSessionExpiration(Activity activity) {
+    public static boolean handleOrListenForSessionExpiration(Activity activity) {
         activity.registerReceiver(userSessionExpiredReceiver, expirationFilter);
 
         synchronized (registrationLock) {
             if (unredirectedSessionExpiration) {
                 unredirectedSessionExpiration = false;
                 redirectToLogin(activity);
+                return true;
             }
+            return false;
         }
     }
 
