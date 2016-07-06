@@ -1096,9 +1096,7 @@ public class CommCareHomeActivity
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
+    protected void onResumeSessionSafe() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             refreshActionBar();
         }
