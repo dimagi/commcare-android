@@ -19,10 +19,10 @@ CONFIG_FILE_NAME = "config.txt"
 ZIP_FILE_NAME = "ic_launcher.zip"
 
 # Path to the commcare-odk app directory
-PATH_TO_ODK_DIR = "./commcare-odk/"
+PATH_TO_ANDROID_DIR = "./commcare-android/"
 
 # Path to the standalone directory
-PATH_TO_STANDALONE_DIR = PATH_TO_ODK_DIR + "app/standalone/"
+PATH_TO_STANDALONE_DIR = PATH_TO_ANDROID_DIR + "app/standalone/"
 
 # Path to the directory where all app assets should be placed, RELATIVE to the commcare-odk/
 # directory, since we have cd'ed into that directory at the time this is used
@@ -62,7 +62,7 @@ def build_apk_from_directory_contents(app_sub_dir, files_list, build_type):
     unzip_app_icon(full_path_to_zipfile)
     app_id, domain, build_number, username, password = get_app_fields(full_path_to_config_file)
     
-    os.chdir(PATH_TO_ODK_DIR)
+    os.chdir(PATH_TO_ANDROID_DIR)
     download_ccz(app_id, domain, build_number)
     download_restore_file(domain, username, password)
     assemble_apk(domain, build_number, username, password, build_type)
@@ -120,9 +120,9 @@ def move_apk(app_id, build_type):
     if not os.path.exists(CONSUMER_APKS_DIR):
         os.mkdir(CONSUMER_APKS_DIR) 
     if build_type == 'd':
-        original_apk_filename = "./build/outputs/apk/commcare-odk-standalone-debug.apk"
+        original_apk_filename = "./build/outputs/apk/commcare-android-standalone-debug.apk"
     else:
-        original_apk_filename = "./build/outputs/apk/commcare-odk-standalone-release.apk"
+        original_apk_filename = "./build/outputs/apk/commcare-android-standalone-release.apk"
     shutil.move(original_apk_filename, os.path.join(CONSUMER_APKS_DIR, "{}.apk".format(app_id)))
 
 
