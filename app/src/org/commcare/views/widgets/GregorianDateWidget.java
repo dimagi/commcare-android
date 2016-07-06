@@ -281,7 +281,16 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
         dayText.setText("");
         monthText.setText("");
         yearText.setText("");
-        super.setFocus(getContext());
+        setFocus(getContext());
+    }
+
+    @Override
+    public void setFocus(Context context) {
+        super.setFocus(context);
+        dayText.setCursorVisible(false);
+        monthText.setCursorVisible(false);
+        yearText.setCursorVisible(false);
+
     }
 
     protected void refreshDisplay(){

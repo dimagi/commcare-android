@@ -67,6 +67,8 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         Window window = getActivity().getWindow();
         window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
         myLayout.setMinimumWidth((int)(displayRectangle.width() * 0.9f));
+        myLayout.setMinimumHeight((int)(displayRectangle.height() * 0.7f));
+
         return myLayout;
     }
 
@@ -164,8 +166,10 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Date date = (Date) parent.getItemAtPosition(position);
+                if(calendar.get(Calendar.MONTH) != date.getMonth()){
+                    refresh();
+                }
                 calendar.setTime(date);
-                refresh();
             }
         });
 
