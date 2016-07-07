@@ -422,15 +422,34 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         UserKeyRecord current = getCurrentValidRecord();
 
         if (current == null) {
-            if (loginMode == LoginMode.PIN) {
-                // If we are in pin mode then we did not execute the callout task; just means there
-                // is no existing record matching the username/pin combo
-                return HttpCalloutOutcomes.IncorrectPin;
-            } else {
-                return HttpCalloutOutcomes.UnknownError;
-            }
+            return handleNullRecord();
         }
 
+        setPasswordFromRecord(current);
+
+        if (!processUserKeyRecord(current)) {
+            return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
+        }
+
+        // Log into our local sandbox.
+        CommCareApplication._().startUserSession(current.unWrapKey(password), current, restoreSession);
+
+        setupLoggedInUser();
+
+        return HttpCalloutTask.HttpCalloutOutcomes.Success;
+    }
+
+    private HttpCalloutTask.HttpCalloutOutcomes handleNullRecord() {
+        if (loginMode == LoginMode.PIN) {
+            // If we are in pin mode then we did not execute the callout task; just means there
+            // is no existing record matching the username/pin combo
+            return HttpCalloutOutcomes.IncorrectPin;
+        } else {
+            return HttpCalloutOutcomes.UnknownError;
+        }
+    }
+
+    private void setPasswordFromRecord(UserKeyRecord current) {
         // If we successfully found a matching record in either PIN or Primed mode, we don't yet
         // have access to the un-hashed password, but are going to need it now to finish up
         if (loginMode == LoginMode.PIN) {
@@ -438,47 +457,59 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         } else if (loginMode == LoginMode.PRIMED) {
             this.password = current.getPrimedPassword();
         }
+    }
 
+    private boolean processUserKeyRecord(UserKeyRecord current) {
         // Now, see if we need to do anything to process our new record.
         if (current.getType() != UserKeyRecord.TYPE_NORMAL) {
             if (current.getType() == UserKeyRecord.TYPE_NEW) {
-                // See if we can migrate an old sandbox's data to the new sandbox.
-                if (!lookForAndMigrateOldSandbox(current)) {
-                    // TODO: Problem during migration! Should potentially try again instead of leaving old one
-
-                    // Switching over to using the old record instead of failing
-                    current = getInUserSandbox(current.getUsername(), app.getStorage(UserKeyRecord.class));
-
-                    // Make sure we didn't somehow not get a new sandbox
-                    if (current == null) {
-                        Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
-                                "Somehow we both failed to migrate an old DB and also didn't _havE_ an old db");
-                        return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
-                    }
-
-                    // Otherwise we're now keyed up with the old DB and we should be fine to log in
-                }
+                return processNewUserKeyRecord(current);
             } else if (current.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
-                // Transition the legacy storage to the new format. We don't have a new record,
-                // so don't worry
-                try {
-                    this.publishProgress(Localization.get("key.manage.legacy.begin"));
-                    LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), current.unWrapKey(password), current);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    // Ugh, high level trap catch
-                    // Problem during migration! We should try again? Maybe?
-                    // Or just leave the old one?
-                    Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Error while trying to migrate legacy database! Exception: " + e.getMessage());
-                    // For now, fail.
-                    return HttpCalloutTask.HttpCalloutOutcomes.UnknownError;
-                }
+                return processLegacyUserKeyRecord(current);
             }
         }
+        return true;
+    }
 
-        // Ok, so we're done with everything now. We should log in our local sandbox and proceed to the next step.
-        CommCareApplication._().startUserSession(current.unWrapKey(password), current, restoreSession);
+    private boolean processNewUserKeyRecord(UserKeyRecord current) {
+        // See if we can migrate an old sandbox's data to the new sandbox.
+        if (!lookForAndMigrateOldSandbox(current)) {
+            // TODO: Problem during migration! Should potentially try again instead of leaving old one
 
+            // Switching over to using the old record instead of failing
+            current = getInUserSandbox(current.getUsername(), app.getStorage(UserKeyRecord.class));
+
+            // Make sure we didn't somehow not get a new sandbox
+            if (current == null) {
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                        "Somehow we both failed to migrate an old DB and also didn't _havE_ an old db");
+                return false;
+            }
+
+            // Otherwise we're now keyed up with the old DB and we should be fine to log in
+        }
+        return true;
+    }
+
+    private boolean processLegacyUserKeyRecord(UserKeyRecord current) {
+        // Transition the legacy storage to the new format. We don't have a new record,
+        // so don't worry
+        try {
+            this.publishProgress(Localization.get("key.manage.legacy.begin"));
+            LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), current.unWrapKey(password), current);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Ugh, high level trap catch
+            // Problem during migration! We should try again? Maybe?
+            // Or just leave the old one?
+            Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Error while trying to migrate legacy database! Exception: " + e.getMessage());
+            // For now, fail.
+            return false;
+        }
+    }
+
+    private void setupLoggedInUser() {
         // So we may have logged in a key record but not a user (if we just received the
         // key, but not the user's data, for instance).
         try {
@@ -490,8 +521,6 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         } catch (SessionUnavailableException sue) {
 
         }
-
-        return HttpCalloutTask.HttpCalloutOutcomes.Success;
     }
 
     private UserKeyRecord getInUserSandbox(String username, SqlStorage<UserKeyRecord> storage) {
@@ -537,34 +566,40 @@ public abstract class ManageKeyRecordTask<R extends DataPullController> extends 
         if (oldSandboxToMigrate == null) {
             newRecord.setType(UserKeyRecord.TYPE_NORMAL);
             storage.write(newRecord);
-            //No worries
-            return true;
+        } else {
+            //Otherwise we should start migrating that data over.
+            return migrate(oldSandboxToMigrate, newRecord);
         }
+        return true;
+    }
 
-        //Otherwise we should start migrating that data over.
+    private boolean migrate(UserKeyRecord oldSandboxToMigrate, UserKeyRecord newRecord) {
         byte[] oldKey = oldSandboxToMigrate.unWrapKey(password);
 
-        //First see if the old sandbox is legacy and needs to be transfered over.
+        migrateLegacySandbox(oldSandboxToMigrate, oldKey);
+
+        try {
+            //Otherwise we need to copy the old sandbox to a new location atomically (in case we fail).
+            UserSandboxUtils.migrateData(getContext(), app, oldSandboxToMigrate, oldKey, newRecord,
+                    ByteEncrypter.unwrapByteArrayWithString(newRecord.getEncryptedKey(), password));
+            publishProgress(Localization.get("key.manage.migrate"));
+        } catch (IOException ioe) {
+            Logger.exception(ioe);
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "IO Error while migrating database: " + ioe.getMessage());
+            return false;
+        } catch (Exception e) {
+            Logger.exception(e);
+            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ForceCloseLogger.getStackTrace(e));
+            return false;
+        }
+        return true;
+    }
+
+    private void migrateLegacySandbox(UserKeyRecord oldSandboxToMigrate, byte[] oldKey) {
         if (oldSandboxToMigrate.getType() == UserKeyRecord.TYPE_LEGACY_TRANSITION) {
             //transition the old storage into the new format before we copy the DB over.
             LegacyInstallUtils.transitionLegacyUserStorage(getContext(), CommCareApplication._().getCurrentApp(), oldKey, oldSandboxToMigrate);
             publishProgress(Localization.get("key.manage.legacy.begin"));
-        }
-
-        //TODO: Ok, so what error handling do we need here? 
-        try {
-            //Otherwise we need to copy the old sandbox to a new location atomically (in case we fail).
-            UserSandboxUtils.migrateData(this.getContext(), app, oldSandboxToMigrate, oldKey, newRecord,
-                    ByteEncrypter.unwrapByteArrayWithString(newRecord.getEncryptedKey(), password));
-            publishProgress(Localization.get("key.manage.migrate"));
-            return true;
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "IO Error while migrating database: " + ioe.getMessage());
-            return false;
-        } catch (Exception e) {
-            Logger.log(AndroidLogger.TYPE_MAINTENANCE, "Unexpected error while migrating database: " + ForceCloseLogger.getStackTrace(e));
-            return false;
         }
     }
 

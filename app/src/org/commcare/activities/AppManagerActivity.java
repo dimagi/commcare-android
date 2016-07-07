@@ -142,7 +142,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
 
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
+                            dismissAlertDialog();
                         }
 
                     }));
@@ -179,7 +179,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+                dismissAlertDialog();
                 if (which == AlertDialog.BUTTON_POSITIVE) {
                     CommCareApplication._().expireUserSession();
                     installApp();

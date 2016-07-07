@@ -209,7 +209,6 @@ public class CommCareApplication extends Application {
         //Sets the static strategy for the deserializtion code to be
         //based on an optimized md5 hasher. Major speed improvements.
         AndroidClassHasher.registerAndroidClassHashStrategy();
-        AndroidUtil.initializeStaticHandlers();
 
         CommCareApplication.app = this;
 

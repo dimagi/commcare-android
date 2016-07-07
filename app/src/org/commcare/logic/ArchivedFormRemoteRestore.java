@@ -76,7 +76,7 @@ public class ArchivedFormRemoteRestore {
             }
         };
         pull.connect(activity);
-        pull.execute();
+        pull.executeParallel();
     }
 
     private static void downloadForms(FormRecordListActivity activity, CommCarePlatform platform) {
@@ -109,6 +109,6 @@ public class ArchivedFormRemoteRestore {
                     }
                 };
         task.connect(activity);
-        task.execute();
+        task.executeParallel();
     }
 }

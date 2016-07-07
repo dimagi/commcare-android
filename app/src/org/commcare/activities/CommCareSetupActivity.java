@@ -507,7 +507,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     };
 
             task.connect(this);
-            task.execute(incomingRef);
+            task.executeParallel(incomingRef);
         } else {
             Log.i(TAG, "During install: blocked a resource install press since a task was already running");
         }
@@ -635,11 +635,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                                     }
                                 }
                             };
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                        mTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, textMessageBody);
-                    } else {
-                        mTask.execute(textMessageBody);
-                    }
+                    mTask.executeParallel(textMessageBody);
                     break;
                 }
             }

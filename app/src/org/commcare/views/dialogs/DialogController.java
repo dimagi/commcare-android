@@ -55,4 +55,8 @@ public interface DialogController {
      */
     void showPendingAlertDialog();
 
+    /**
+     * Dismiss the current alert dialog
+     */
+    void dismissAlertDialog();
 }

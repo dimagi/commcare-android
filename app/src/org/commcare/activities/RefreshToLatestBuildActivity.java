@@ -106,7 +106,7 @@ public class RefreshToLatestBuildActivity extends CommCareActivity {
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+                dismissAlertDialog();
                 finish();
             }
         };

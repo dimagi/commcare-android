@@ -308,7 +308,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
                     }
                 };
         task.connect(this);
-        task.execute();
+        task.executeParallel();
         isApplyingUpdate = true;
         uiController.applyingUpdateUiState();
     }

@@ -114,10 +114,10 @@ public class GeoUtils {
                                                          DialogInterface.OnCancelListener onCancel) {
         StandardAlertDialog factory =
                 new StandardAlertDialog(context,
-                        context.getString(R.string.no_gps_title),
-                        context.getString(R.string.no_gps_message));
-        factory.setPositiveButton(context.getString(R.string.change_settings), onChange);
-        factory.setNegativeButton(context.getString(R.string.cancel_location), onChange);
+                        StringUtils.getStringRobust(context, R.string.no_gps_title),
+                        StringUtils.getStringRobust(context, R.string.no_gps_message));
+        factory.setPositiveButton(StringUtils.getStringRobust(context, R.string.change_settings), onChange);
+        factory.setNegativeButton(StringUtils.getStringRobust(context, R.string.cancel_location), onChange);
 
         if (onCancel != null) {
             factory.setOnCancelListener(onCancel);
