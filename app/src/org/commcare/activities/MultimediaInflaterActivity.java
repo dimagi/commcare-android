@@ -114,7 +114,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
                 };
 
                 task.connect(MultimediaInflaterActivity.this);
-                task.execute(editFileLocation.getText().toString(), destination);
+                task.executeParallel(editFileLocation.getText().toString(), destination);
             }
 
         });
@@ -158,8 +158,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onResumeSessionSafe() {
         evalState();
     }
 

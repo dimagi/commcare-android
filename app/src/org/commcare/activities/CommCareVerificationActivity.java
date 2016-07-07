@@ -186,7 +186,7 @@ public class CommCareVerificationActivity
                     }
                 };
         task.connect(this);
-        task.execute((String[])null);
+        task.executeParallel((String[])null);
     }
 
     @Override

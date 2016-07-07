@@ -157,9 +157,7 @@ public class CommCareWiFiDirectActivity
     /**
      * register the broadcast receiver
      */
-    protected void onResume() {
-        super.onResume();
-
+    protected void onResumeSessionSafe() {
         Logger.log(TAG, "resuming wi-fi direct activity");
 
         final WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment)getSupportFragmentManager()
@@ -224,7 +222,7 @@ public class CommCareWiFiDirectActivity
                         beSender();
                         break;
                 }
-                dialog.dismiss();
+                dismissAlertDialog();
             }
         };
         d.setNeutralButton(localize("wifi.direct.receive.forms"), listener);

@@ -7,12 +7,6 @@ import android.os.Build;
 import android.util.TypedValue;
 import android.view.View;
 
-import org.javarosa.core.model.utils.DateUtils;
-import org.javarosa.core.util.DataUtil;
-import org.javarosa.core.util.DataUtil.UnionLambda;
-
-import java.util.HashSet;
-import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -43,62 +37,6 @@ public class AndroidUtil {
         } else {
             //Whatever the current implementation is otherwise
             return View.generateViewId();
-        }
-    }
-
-    /**
-     * Initialize platform specific methods for common handlers
-     */
-    public static void initializeStaticHandlers() {
-        DataUtil.setUnionLambda(new AndroidUnionLambda());
-        DataUtil.setStringSplitter(new AndroidStringSplitter());
-    }
-
-    private static class AndroidUnionLambda extends UnionLambda {
-
-        @Override
-        public <T> Vector<T> union(Vector<T> a, Vector<T> b) {
-            Vector<T> result = new Vector<>();
-            //This is kind of (ok, so really) awkward looking, but we can't use sets in 
-            //ccj2me (Thanks, Nokia!) also, there's no _collections_ interface in
-            //j2me (thanks Sun!) so this is what we get.
-            HashSet<T> joined = new HashSet<>(a);
-            joined.addAll(a);
-
-            HashSet<T> other = new HashSet<>();
-            other.addAll(b);
-
-            joined.retainAll(other);
-
-            result.addAll(joined);
-            return result;
-        }
-
-    }
-
-    public static class AndroidStringSplitter extends DataUtil.StringSplitter {
-
-        @Override
-        public String[] splitOnSpaces(String s) {
-            if ("".equals(s)) {
-                return new String[0];
-            }
-            return s.split("[ ]+");
-        }
-
-        @Override
-        public String[] splitOnDash(String s) {
-            return s.split("-");
-        }
-
-        @Override
-        public String[] splitOnColon(String s) {
-            return s.split(":");
-        }
-
-        @Override
-        public String[] splitOnPlus(String s) {
-            return s.split("[+]");
         }
     }
 
