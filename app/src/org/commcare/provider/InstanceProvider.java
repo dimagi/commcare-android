@@ -195,20 +195,7 @@ public class InstanceProvider extends ContentProvider {
             values.put(InstanceProviderAPI.InstanceColumns.STATUS, InstanceProviderAPI.STATUS_INCOMPLETE);
         }
 
-        // Should we link this instance to the session's form record, create
-        // an unindexed instance, or let assume caller will perform linking (for sandbox migrations)?
-        boolean linkToSession = true;
-        boolean isUnindexedInstance = false;
-        if (values.containsKey(InstanceProviderAPI.SANDBOX_MIGRATION_SUBMISSION)) {
-            values.remove(InstanceProviderAPI.SANDBOX_MIGRATION_SUBMISSION);
-            // sandbox migration handles updating existing form record to
-            // point to this newly created instance
-            linkToSession = false;
-        } else if (values.containsKey(InstanceProviderAPI.UNINDEXED_SUBMISSION)) {
-            values.remove(InstanceProviderAPI.UNINDEXED_SUBMISSION);
-            linkToSession = false;
-            isUnindexedInstance = true;
-        }
+        InstanceProviderInsertType insertType = InstanceProviderInsertType.getInsertionType(values);
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
         long rowId = db.insert(INSTANCES_TABLE_NAME, null, values);
@@ -218,33 +205,43 @@ public class InstanceProvider extends ContentProvider {
             Uri instanceUri = ContentUris.withAppendedId(InstanceProviderAPI.InstanceColumns.CONTENT_URI, rowId);
             notifyChangeSafe(getContext(), uri);
 
-            if (linkToSession) {
-                try {
-                    linkToSessionFormRecord(instanceUri);
-                } catch (IllegalStateException e) {
-                    throw e;
-                } catch (Exception e) {
-                    throw new SQLException("Failed to insert row into " + uri);
-                }
-            } else if (isUnindexedInstance) {
-                // Forms with this flag are being loaded onto the phone
-                // manually and hence shouldn't be attached to the FormRecord
-                // in the current session
-                String xmlns = values.getAsString(InstanceProviderAPI.InstanceColumns.JR_FORM_ID);
-
-                SecretKey key;
-                key = CommCareApplication._().createNewSymmetricKey();
-                FormRecord r = new FormRecord(instanceUri.toString(), FormRecord.STATUS_UNINDEXED,
-                        xmlns, key.getEncoded(), null, new Date(0), mDbHelper.getAppId());
-                IStorageUtilityIndexed<FormRecord> storage =
-                        CommCareApplication._().getUserStorage(FormRecord.class);
-                storage.write(r);
+            switch (insertType) {
+                case SESSION_LINKED:
+                    finalizeSessionLinkedInsertion(instanceUri, uri);
+                    break;
+                case UNINDEXED_IMPORT:
+                    finalizeUnindexedInsertion(values, instanceUri);
+                    break;
+                case SANDBOX_MIGRATED:
+                    break;
             }
 
             return instanceUri;
         }
 
         throw new SQLException("Failed to insert row into " + uri);
+    }
+
+    private void finalizeSessionLinkedInsertion(Uri instanceUri, Uri uri) {
+        try {
+            linkToSessionFormRecord(instanceUri);
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new SQLException("Failed to insert row into " + uri);
+        }
+    }
+
+    private void finalizeUnindexedInsertion(ContentValues values, Uri instanceUri) {
+        String xmlns = values.getAsString(InstanceProviderAPI.InstanceColumns.JR_FORM_ID);
+
+        SecretKey key;
+        key = CommCareApplication._().createNewSymmetricKey();
+        FormRecord r = new FormRecord(instanceUri.toString(), FormRecord.STATUS_UNINDEXED,
+                xmlns, key.getEncoded(), null, new Date(0), mDbHelper.getAppId());
+        IStorageUtilityIndexed<FormRecord> storage =
+                CommCareApplication._().getUserStorage(FormRecord.class);
+        storage.write(r);
     }
 
     /**
