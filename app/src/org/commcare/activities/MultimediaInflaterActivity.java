@@ -158,8 +158,7 @@ public class MultimediaInflaterActivity extends SessionAwareCommCareActivity<Mul
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onResumeSessionSafe() {
         evalState();
     }
 

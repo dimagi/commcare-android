@@ -172,10 +172,6 @@ public class CommCareHomeActivity
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();
         processFromLoginLaunch();
-
-        if (CommCareApplication._().isConsumerApp()) {
-            ConsumerAppsUtil.checkForChangedLocalRestoreFile(this);
-        }
     }
 
     private void loadInstanceState(Bundle savedInstanceState) {
@@ -378,9 +374,9 @@ public class CommCareHomeActivity
     void enterRootModule() {
         Intent i;
         if (useGridMenu(org.commcare.suite.model.Menu.ROOT_MENU_ID)) {
-            i = new Intent(getApplicationContext(), MenuGrid.class);
+            i = new Intent(this, MenuGrid.class);
         } else {
-            i = new Intent(getApplicationContext(), MenuList.class);
+            i = new Intent(this, MenuList.class);
         }
         addPendingDataExtra(i, CommCareApplication._().getCurrentSessionWrapper().getSession());
         startActivityForResult(i, GET_COMMAND);
@@ -867,9 +863,9 @@ public class CommCareHomeActivity
         String command = asw.getSession().getCommand();
 
         if (useGridMenu(command)) {
-            i = new Intent(getApplicationContext(), MenuGrid.class);
+            i = new Intent(this, MenuGrid.class);
         } else {
-            i = new Intent(getApplicationContext(), MenuList.class);
+            i = new Intent(this, MenuList.class);
         }
         i.putExtra(SessionFrame.STATE_COMMAND_ID, command);
         addPendingDataExtra(i, asw.getSession());
@@ -1096,14 +1092,11 @@ public class CommCareHomeActivity
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
+    protected void onResumeSessionSafe() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             refreshActionBar();
         }
         attemptDispatchHomeScreen();
-
         sessionNavigationProceedingAfterOnResume = false;
     }
 
@@ -1276,7 +1269,7 @@ public class CommCareHomeActivity
     }
 
     private void startAdvancedActionsActivity() {
-        startActivity(new Intent(this, AdvancedActionsActivity.class));
+        startActivityForResult(new Intent(this, AdvancedActionsActivity.class), ADVANCED_ACTIONS_ACTIVITY);
     }
 
     private void showAboutCommCareDialog() {

@@ -208,7 +208,6 @@ public class CommCareApplication extends Application {
         //Sets the static strategy for the deserializtion code to be
         //based on an optimized md5 hasher. Major speed improvements.
         AndroidClassHasher.registerAndroidClassHashStrategy();
-        AndroidUtil.initializeStaticHandlers();
 
         CommCareApplication.app = this;
 
@@ -299,14 +298,15 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public void startUserSession(byte[] symetricKey, UserKeyRecord record, boolean restoreSession) {
+    public void startUserSession(byte[] symmetricKey, UserKeyRecord record, boolean restoreSession) {
         synchronized (serviceLock) {
             // if we already have a connection established to
             // CommCareSessionService, close it and open a new one
+            SessionActivityRegistration.unregisterSessionExpiration();
             if (this.mIsBound) {
                 releaseUserResourcesAndServices();
             }
-            bindUserSessionService(symetricKey, record, restoreSession);
+            bindUserSessionService(symmetricKey, record, restoreSession);
         }
     }
 
