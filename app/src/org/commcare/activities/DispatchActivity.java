@@ -114,7 +114,7 @@ public class DispatchActivity extends FragmentActivity {
 
     private void checkForChangedCCZ() {
         alreadyCheckedForAppFilesChange = true;
-        Intent i = new Intent(getApplicationContext(), UpdateActivity.class);
+        Intent i = new Intent(this, UpdateActivity.class);
         startActivity(i);
     }
 
@@ -122,10 +122,6 @@ public class DispatchActivity extends FragmentActivity {
         if (isDbInBadState()) {
             // appropriate error dialog has been triggered, don't continue w/ dispatch
             return;
-        }
-
-        if (CommCareApplication._().isConsumerApp() && !alreadyCheckedForAppFilesChange) {
-            checkForChangedCCZ();
         }
 
         CommCareApp currentApp = CommCareApplication._().getCurrentApp();
@@ -141,6 +137,10 @@ public class DispatchActivity extends FragmentActivity {
             }
         } else {
             // Note that the order in which these conditions are checked matters!!
+            if (CommCareApplication._().isConsumerApp() && !alreadyCheckedForAppFilesChange) {
+                checkForChangedCCZ();
+                return;
+            }
 
             ApplicationRecord currentRecord = currentApp.getAppRecord();
             try {
