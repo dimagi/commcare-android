@@ -3,10 +3,10 @@ package org.commcare.models;
 import org.commcare.android.javarosa.AndroidXFormExtensions;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.android.javarosa.PollSensorAction;
-import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -37,7 +37,7 @@ public class AndroidPrototypeFactory extends PrototypeFactory {
                 PollSensorAction.class);
     }
 
-    public AndroidPrototypeFactory(PrefixTree classNames) {
+    public AndroidPrototypeFactory(HashSet<String> classNames) {
         super(AndroidClassHasher.getInstance(), classNames);
     }
 
