@@ -195,12 +195,19 @@ public class InstanceProvider extends ContentProvider {
             values.put(InstanceProviderAPI.InstanceColumns.STATUS, InstanceProviderAPI.STATUS_INCOMPLETE);
         }
 
-        // Should we link this instance to the session's form record, or create
-        // a new, unindexed one?
+        // Should we link this instance to the session's form record, create
+        // an unindexed instance, or let assume caller will perform linking (for sandbox migrations)?
         boolean linkToSession = true;
-        if (values.containsKey(InstanceProviderAPI.UNINDEXED_SUBMISSION)) {
+        boolean isUnindexedInstance = false;
+        if (values.containsKey(InstanceProviderAPI.SANDBOX_MIGRATION_SUBMISSION)) {
+            values.remove(InstanceProviderAPI.SANDBOX_MIGRATION_SUBMISSION);
+            // sandbox migration handles updating existing form record to
+            // point to this newly created instance
+            linkToSession = false;
+        } else if (values.containsKey(InstanceProviderAPI.UNINDEXED_SUBMISSION)) {
             values.remove(InstanceProviderAPI.UNINDEXED_SUBMISSION);
             linkToSession = false;
+            isUnindexedInstance = true;
         }
 
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
@@ -219,7 +226,7 @@ public class InstanceProvider extends ContentProvider {
                 } catch (Exception e) {
                     throw new SQLException("Failed to insert row into " + uri);
                 }
-            } else {
+            } else if (isUnindexedInstance) {
                 // Forms with this flag are being loaded onto the phone
                 // manually and hence shouldn't be attached to the FormRecord
                 // in the current session
