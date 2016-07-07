@@ -74,8 +74,6 @@ public class CommCareWiFiDirectActivity
 
     private static final String TAG = CommCareWiFiDirectActivity.class.getSimpleName();
 
-    public static final String KEY_NUMBER_DUMPED = "wd_num_dumped";
-
     private WifiP2pManager mManager;
     private Channel mChannel;
     private WiFiDirectBroadcastReceiver mReceiver;
@@ -157,9 +155,7 @@ public class CommCareWiFiDirectActivity
     /**
      * register the broadcast receiver
      */
-    protected void onResume() {
-        super.onResume();
-
+    protected void onResumeSessionSafe() {
         Logger.log(TAG, "resuming wi-fi direct activity");
 
         final WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment)getSupportFragmentManager()
@@ -224,7 +220,7 @@ public class CommCareWiFiDirectActivity
                         beSender();
                         break;
                 }
-                dialog.dismiss();
+                dismissAlertDialog();
             }
         };
         d.setNeutralButton(localize("wifi.direct.receive.forms"), listener);
@@ -419,7 +415,7 @@ public class CommCareWiFiDirectActivity
             protected void deliverResult(CommCareWiFiDirectActivity receiver, Boolean result) {
                 if (result == Boolean.TRUE) {
                     Intent i = new Intent(getIntent());
-                    i.putExtra(KEY_NUMBER_DUMPED, formsOnSD);
+                    i.putExtra(AdvancedActionsActivity.KEY_NUMBER_DUMPED, formsOnSD);
                     receiver.setResult(BULK_SEND_ID, i);
                     Logger.log(TAG, "Sucessfully dumped " + formsOnSD);
                     receiver.finish();
