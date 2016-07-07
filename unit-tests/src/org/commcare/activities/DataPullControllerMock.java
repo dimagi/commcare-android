@@ -13,10 +13,6 @@ import static org.junit.Assert.assertEquals;
 public class DataPullControllerMock implements DataPullController, CommCareTaskConnector<DataPullController> {
     private final MessageTag expectedMessage;
 
-    public DataPullControllerMock() {
-        this(null);
-    }
-
     public DataPullControllerMock(MessageTag expectedMessage) {
         this.expectedMessage = expectedMessage;
     }
@@ -73,7 +69,7 @@ public class DataPullControllerMock implements DataPullController, CommCareTaskC
 
     @Override
     public void raiseLoginMessage(MessageTag messageTag, boolean showTop) {
-        assertEquals(messageTag, expectedMessage);
+        assertEquals(expectedMessage, messageTag);
     }
 
     @Override

@@ -19,6 +19,8 @@ import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.provider.InstanceProviderAPI;
 import org.commcare.tasks.templates.CommCareTaskConnector;
+import org.commcare.views.notifications.MessageTag;
+import org.commcare.views.notifications.NotificationMessageFactory;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +58,8 @@ public class KeyRecordTest {
      */
     @Test
     public void invalidXMLKeyRecordResponseTest() {
-        runKeyRecordTask("old_pass", "/inputs/empty_key_record.xml");
+        runKeyRecordTask("old_pass", "/inputs/empty_key_record.xml",
+                NotificationMessageFactory.StockMessages.Remote_BadRestore);
 
         SqlStorage<UserKeyRecord> recordStorage = app.getStorage(UserKeyRecord.class);
         assertEquals(0, recordStorage.getNumRecords());
@@ -149,10 +152,14 @@ public class KeyRecordTest {
     }
 
     private void runKeyRecordTask(String password, String keyXmlFile) {
+        runKeyRecordTask(password, keyXmlFile, null);
+    }
+
+    private void runKeyRecordTask(String password, String keyXmlFile, MessageTag expectedMessage) {
         ManageKeyRecordTaskFake keyRecordTast =
                 new ManageKeyRecordTaskFake(RuntimeEnvironment.application, 1, "test",
                         password, LoginMode.PASSWORD, app, false, false, keyXmlFile);
-        keyRecordTast.connect((CommCareTaskConnector)new DataPullControllerMock());
+        keyRecordTast.connect((CommCareTaskConnector)new DataPullControllerMock(expectedMessage));
         keyRecordTast.execute();
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
