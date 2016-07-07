@@ -385,9 +385,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
+    protected void onResumeSessionSafe() {
         if (!isFinishing() && !isStartingDetailActivity) {
             if (adapter != null) {
                 adapter.registerDataSetObserver(mListStateObserver);

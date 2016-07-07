@@ -119,8 +119,6 @@ public class UpdateTask
 
         resourceManager.incrementUpdateAttempts();
 
-        app.setupSandbox();
-
         Logger.log(AndroidLogger.TYPE_RESOURCES,
                 "Beginning install attempt for profile " + profileRef);
     }
