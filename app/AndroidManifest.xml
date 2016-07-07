@@ -57,6 +57,7 @@
         android:theme="@style/AppBaseTheme">
         <activity
             android:name="org.commcare.activities.DispatchActivity"
+            android:theme="@style/SplashTheme"
             android:label="@string/application_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
