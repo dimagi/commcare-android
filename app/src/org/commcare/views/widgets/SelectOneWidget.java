@@ -47,7 +47,7 @@ public class SelectOneWidget extends QuestionWidget implements OnCheckedChangeLi
         }
 
         //Is this safe enough from collisions?
-        buttonIdBase = Math.abs(prompt.getIndex().toString().hashCode());
+        buttonIdBase = Math.abs(prompt.getIndex().hashCode());
 
         if (mItems != null) {
             for (int i = 0; i < mItems.size(); i++) {

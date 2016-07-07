@@ -76,6 +76,12 @@ public class SessionActivityRegistration {
         }
     }
 
+    public static void unregisterSessionExpiration() {
+        synchronized (registrationLock) {
+            unredirectedSessionExpiration = false;
+        }
+    }
+
     /**
      * Launch the DispatchActivity, clearing the activity backstack down
      * to its first occurrence, which should be at the very bottom of the

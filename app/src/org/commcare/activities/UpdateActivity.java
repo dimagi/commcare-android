@@ -38,6 +38,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     private static final String IS_APPLYING_UPDATE_KEY = "applying_update_task_running";
 
     private static final int DIALOG_UPGRADE_INSTALL = 6;
+    private static final int DIALOG_CONSUMER_APP_UPGRADE = 7;
 
     private boolean taskIsCancelling;
     private boolean isApplyingUpdate;
@@ -183,27 +184,26 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     @Override
     public void handleTaskCompletion(AppInstallStatus result) {
+        if (CommCareApplication._().isConsumerApp()) {
+            dismissProgressDialog();
+        }
+
         if (result == AppInstallStatus.UpdateStaged) {
             uiController.unappliedUpdateAvailableUiState();
             if (proceedAutomatically) {
                 launchUpdateInstallTask();
-                return;
             }
         } else if (result == AppInstallStatus.UpToDate) {
             uiController.upToDateUiState();
             if (proceedAutomatically) {
-                unregisterTask();
                 finishWithResult(RefreshToLatestBuildActivity.ALREADY_UP_TO_DATE);
-                return;
             }
         } else {
             // Gives user generic failure warning; even if update staging
             // failed for a specific reason like xml syntax
             uiController.checkFailedUiState();
             if (proceedAutomatically) {
-                unregisterTask();
                 finishWithResult(RefreshToLatestBuildActivity.UPDATE_ERROR);
-                return;
             }
         }
 
@@ -228,7 +228,7 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
     protected void startUpdateCheck() {
         try {
             updateTask = UpdateTask.getNewInstance();
-            updateTask.startPinnedNotification(this);
+            initUpdateTaskProgressDisplay();
             if (isLocalUpdate) {
                 updateTask.setLocalAuthority();
             }
@@ -245,6 +245,18 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
         String ref = ResourceInstallUtils.getDefaultProfileRef();
         updateTask.executeParallel(ref);
         uiController.downloadingUiState();
+    }
+
+    /**
+     * Since updates in a consumer app do not use the normal UpdateActivity UI, use an
+     * alternative method of displaying the update check's progress in that case
+     */
+    private void initUpdateTaskProgressDisplay() {
+        if (CommCareApplication._().isConsumerApp()) {
+            showProgressDialog(DIALOG_CONSUMER_APP_UPGRADE);
+        } else {
+            updateTask.startPinnedNotification(this);
+        }
     }
 
     private void connectToRunningTask() {
@@ -315,19 +327,18 @@ public class UpdateActivity extends CommCareActivity<UpdateActivity>
 
     @Override
     public CustomProgressDialog generateProgressDialog(int taskId) {
-        if (taskId != DIALOG_UPGRADE_INSTALL) {
+        if (CommCareApplication._().isConsumerApp()) {
+            return ConsumerAppsUtil.getGenericConsumerAppsProgressDialog(taskId, false);
+        } else if (taskId != DIALOG_UPGRADE_INSTALL) {
             Log.w(TAG, "taskId passed to generateProgressDialog does not match "
                     + "any valid possibilities in CommCareSetupActivity");
             return null;
-        }
-        if (CommCareApplication._().isConsumerApp()) {
-            return ConsumerAppsUtil.getGenericConsumerAppsProgressDialog(taskId, false);
         } else {
-            return generateNormalUpdateDialog(taskId);
+            return generateNormalUpdateInstallDialog(taskId);
         }
     }
 
-    private static CustomProgressDialog generateNormalUpdateDialog(int taskId) {
+    private static CustomProgressDialog generateNormalUpdateInstallDialog(int taskId) {
         String title = Localization.get("updates.installing.title");
         String message = Localization.get("updates.installing.message");
         CustomProgressDialog dialog =
