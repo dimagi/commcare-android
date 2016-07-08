@@ -50,7 +50,7 @@ public class UserfacingErrorHandling {
                             activity.setResult(Activity.RESULT_CANCELED);
                             activity.finish();
                         }
-                        dialog.dismiss();
+                        activity.dismissAlertDialog();
                     }
                 };
         factory.setOnCancelListener(cancelListener);
@@ -65,7 +65,7 @@ public class UserfacingErrorHandling {
                             activity.setResult(Activity.RESULT_CANCELED);
                             activity.finish();
                         }
-                        dialog.dismiss();
+                        activity.dismissAlertDialog();
                     }
                 };
         factory.setPositiveButton(buttonDisplayText, buttonListener);

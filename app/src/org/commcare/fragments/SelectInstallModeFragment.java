@@ -127,7 +127,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                     if (currentActivity instanceof CommCareSetupActivity) {
                         ((CommCareSetupActivity)currentActivity).onURLChosen(app.second);
                     }
-                    chooseApp.dismiss();
+                    ((CommCareActivity)getActivity()).dismissAlertDialog();
                 }
             });
             items[count] = item;

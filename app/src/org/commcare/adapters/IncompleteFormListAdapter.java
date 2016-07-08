@@ -190,7 +190,7 @@ public class IncompleteFormListAdapter extends BaseAdapter implements FormRecord
         // load specific data about the 'records' into the searchCache, such as
         // record title, form name, modified date
         loader.init(searchCache, names);
-        loader.execute(records.toArray(new FormRecord[records.size()]));
+        loader.executeParallel(records.toArray(new FormRecord[records.size()]));
     }
 
     public int findRecordPosition(int formRecordId) {

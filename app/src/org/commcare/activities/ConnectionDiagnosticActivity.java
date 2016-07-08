@@ -12,13 +12,11 @@ import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.ConnectionDiagnosticTask;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.LogSubmissionTask;
 import org.commcare.utils.MarkupUtil;
-import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.UiElement;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -100,7 +98,7 @@ public class ConnectionDiagnosticActivity extends SessionAwareCommCareActivity<C
                         };
 
                 mConnectionDiagnosticTask.connect(ConnectionDiagnosticActivity.this);
-                mConnectionDiagnosticTask.execute();
+                mConnectionDiagnosticTask.executeParallel();
             }
         });
 

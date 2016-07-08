@@ -280,19 +280,25 @@ public class CommCareSessionService extends Service {
 
             this.sessionExpireDate = new Date(new Date().getTime() + sessionLength);
 
-            // Display a notification about us starting.  We put an icon in the status bar.
-            showLoggedInNotification(user);
-
-            maintenanceTimer = new Timer("CommCareService");
-            maintenanceTimer.schedule(new TimerTask() {
-
-                @Override
-                public void run() {
-                    timeToExpireSession();
-                }
-
-            }, MAINTENANCE_PERIOD, MAINTENANCE_PERIOD);
+            if (!CommCareApplication._().isConsumerApp()) {
+                // Put an icon in the status bar for the session, and set up session expiration
+                // (unless this is a consumer app)
+                showLoggedInNotification(user);
+                setUpSessionExpirationTimer();
+            }
         }
+    }
+
+    private void setUpSessionExpirationTimer() {
+        maintenanceTimer = new Timer("CommCareService");
+        maintenanceTimer.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                timeToExpireSession();
+            }
+
+        }, MAINTENANCE_PERIOD, MAINTENANCE_PERIOD);
     }
 
     /**
@@ -568,6 +574,5 @@ public class CommCareSessionService extends Service {
     public void setCurrentUser(User user, String password) {
         this.user = user;
         this.user.setCachedPwd(password);
-        this.key = user.getWrappedKey();
     }
 }

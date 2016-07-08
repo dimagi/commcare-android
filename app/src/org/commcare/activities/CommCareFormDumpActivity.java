@@ -59,8 +59,6 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
 
     private static boolean acknowledgedRisk = false;
 
-    static final String KEY_NUMBER_DUMPED = "num_dumped";
-
     public static final String EXTRA_FILE_DESTINATION = "ccodk_mia_filedest";
 
     private int formsOnPhone;
@@ -97,7 +95,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                         if (result == Boolean.TRUE) {
                             CommCareApplication._().clearNotifications(AIRPLANE_MODE_CATEGORY);
                             Intent i = new Intent(getIntent());
-                            i.putExtra(KEY_NUMBER_DUMPED, formsOnSD);
+                            i.putExtra(AdvancedActionsActivity.KEY_NUMBER_DUMPED, formsOnSD);
                             receiver.setResult(BULK_SEND_ID, i);
                             Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Successfully dumped " + formsOnSD + " forms.");
                             receiver.finish();
@@ -141,7 +139,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                     protected void deliverResult(CommCareFormDumpActivity receiver, Boolean result) {
                         if (result == Boolean.TRUE) {
                             Intent i = new Intent(getIntent());
-                            i.putExtra(KEY_NUMBER_DUMPED, formsOnPhone);
+                            i.putExtra(AdvancedActionsActivity.KEY_NUMBER_DUMPED, formsOnPhone);
                             receiver.setResult(BULK_DUMP_ID, i);
                             Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Successfully dumped " + formsOnPhone + " forms.");
                             receiver.finish();
@@ -195,7 +193,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                 dialog.dismiss();
                 if (id == AlertDialog.BUTTON_POSITIVE) {
                     acknowledgedRisk = true;
-                    dialog.dismiss();
+                    dismissAlertDialog();
                 } else {
                     exitDump();
                 }
