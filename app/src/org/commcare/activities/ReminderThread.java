@@ -49,9 +49,9 @@ public class ReminderThread {
     }
     
     public ReminderThread(Context context) {
-        valueToKey = new HashMap<String, String>();
+        valueToKey = new HashMap<>();
         
-        keyToValue = new HashMap<String, String>();
+        keyToValue = new HashMap<>();
         keyToValue.put("last_exam_time", "minutes_until_next_exam");
         keyToValue.put("last_pv_time", "pv_reminder_minutes"); 
         

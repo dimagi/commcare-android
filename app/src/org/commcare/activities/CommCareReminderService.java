@@ -7,10 +7,13 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+
+import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationCompat.Builder;
+import android.util.Log;
 
 /**
  * The CommCare Session Service is a persistent service which maintains
@@ -83,7 +86,7 @@ public class CommCareReminderService extends Service  {
     // This is the object that receives interactions from clients.  See
     // RemoteService for a more complete example.
     private final IBinder mBinder = new LocalBinder();
-    
+
     public void showNotice() {
         //mNM.cancel(org.commcare.dalvik.R.string.expirenotification);
         
@@ -107,7 +110,7 @@ public class CommCareReminderService extends Service  {
 
         Notification notification = builder.getNotification();
 
-        mReminderJob = new ReminderThread(ReminderApplication._());
+        mReminderJob = new ReminderThread(CommCareApplication._());
         
         mReminderJob.startPolling();
 
@@ -120,4 +123,5 @@ public class CommCareReminderService extends Service  {
         mReminderJob = null;
         this.stopForeground(true);
     }
+
 }

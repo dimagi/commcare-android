@@ -2,14 +2,18 @@ package org.commcare.activities;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Base64;
 import android.util.Log;
 import android.view.Menu;
@@ -158,14 +162,18 @@ public class CommCareHomeActivity
 
     private boolean sessionNavigationProceedingAfterOnResume;
 
+    //REMINDER STUFF
+    private CommCareReminderService mBoundService;
+    private ServiceConnection mConnection;
+    private Object serviceLock = new Object();
+    boolean mIsBound = false;
+    boolean mIsBinding = false;
+
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
-        ReminderApplication app = new ReminderApplication();
-        app.onCreate();
-        ReminderApplication._().launchService();
 
-        Log.d("Reminder", "Launched");
+        launchService();
 
         loadInstanceState(savedInstanceState);
 
@@ -177,6 +185,44 @@ public class CommCareHomeActivity
         processFromExternalLaunch(savedInstanceState);
         processFromShortcutLaunch();
         processFromLoginLaunch();
+    }
+
+
+    //LAUNCHES REMINDER SERVICE
+    public void launchService() {
+        mConnection = new ServiceConnection() {
+
+            @Override
+            public void onServiceConnected(ComponentName className, IBinder service) {
+                synchronized(serviceLock) {
+
+                    mBoundService = ((CommCareReminderService.LocalBinder)service).getService();
+
+                    //service available
+                    mIsBound = true;
+
+                    //Don't signal bind completion until the db is initialized.
+                    mIsBinding = false;
+                    mBoundService.showNotice();
+                }
+            }
+
+            @Override
+            public void onServiceDisconnected(ComponentName className) {
+                // This is called when the connection with the service has been
+                // unexpectedly disconnected -- that is, its process crashed.
+                // Because it is running in our same process, we should never
+                // see this happen.
+                mBoundService = null;
+            }
+        };
+
+        // Establish a connection with the service.  We use an explicit
+        // class name because we want a specific service implementation that
+        // we know will be running in our own process (and thus won't be
+        // supporting component replacement by other applications).
+        CommCareApplication._().bindService(new Intent(this,  CommCareReminderService.class), mConnection, Context.BIND_AUTO_CREATE);
+        mIsBinding = true;
     }
 
     private void loadInstanceState(Bundle savedInstanceState) {
