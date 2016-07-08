@@ -161,6 +161,11 @@ public class CommCareHomeActivity
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
+        ReminderApplication app = new ReminderApplication();
+        app.onCreate();
+        ReminderApplication._().launchService();
+
+        Log.d("Reminder", "Launched");
 
         loadInstanceState(savedInstanceState);
 
