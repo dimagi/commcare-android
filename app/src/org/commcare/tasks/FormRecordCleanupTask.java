@@ -444,7 +444,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             // Otherwise, this gets more tricky. Ideally we'd want to
             // skip this block for compatibility purposes, but we can
             // at least try to get a caseID (which is all we want)
-            return new BestEffortBlockParser(parser, null, null, new String[]{"case_id"}) {
+            return new BestEffortBlockParser(parser, new String[]{"case_id"}) {
                 @Override
                 public void commit(Hashtable<String, String> values) {
                     if (values.containsKey("case_id")) {
