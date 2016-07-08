@@ -433,7 +433,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                 }
 
                 @Override
-                public ACase retrieve(String entityId) {
+                protected ACase retrieve(String entityId) {
                     caseIDs[0] = entityId;
                     ACase c = new ACase("", "");
                     c.setCaseId(entityId);
