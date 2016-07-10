@@ -17,8 +17,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore.Images;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.util.Pair;
@@ -53,7 +51,6 @@ import org.commcare.activities.components.FormRelevancyUpdating;
 import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.utils.MarkupUtil;
 import org.commcare.views.media.MediaLayout;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.android.javarosa.PollSensorAction;
@@ -164,7 +161,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     // Identifies the gp of the form used to launch form entry
     private static final String KEY_FORMPATH = "formpath";
     public static final String KEY_INSTANCEDESTINATION = "instancedestination";
-    public static final String TITLE_FRAGMENT_TAG = "odk_title_fragment";
     public static final String KEY_FORM_CONTENT_URI = "form_content_uri";
     public static final String KEY_INSTANCE_CONTENT_URI = "instance_content_uri";
     public static final String KEY_AES_STORAGE_KEY = "key_aes_storage";
@@ -259,8 +255,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @SuppressLint("NewApi")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        addBreadcrumbBar();
 
         // must be at the beginning of any activity that can be called from an external intent
         try {
@@ -2109,31 +2103,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      */
     private boolean formHasLoaded() {
         return mFormController != null;
-    }
-
-    private void addBreadcrumbBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            final String fragmentClass = this.getIntent().getStringExtra(TITLE_FRAGMENT_TAG);
-            if (fragmentClass != null) {
-                final FragmentManager fm = this.getSupportFragmentManager();
-
-                Fragment bar = fm.findFragmentByTag(TITLE_FRAGMENT_TAG);
-                if (bar == null) {
-                    try {
-                        bar = ((Class<Fragment>)Class.forName(fragmentClass)).newInstance();
-
-                        ActionBar actionBar = getActionBar();
-                        if (actionBar != null) {
-                            actionBar.setDisplayShowCustomEnabled(true);
-                            actionBar.setDisplayShowTitleEnabled(false);
-                        }
-                        fm.beginTransaction().add(bar, TITLE_FRAGMENT_TAG).commit();
-                    } catch(Exception e) {
-                        Log.w(TAG, "couldn't instantiate fragment: " + fragmentClass);
-                    }
-                }
-            }
-        }
     }
 
     private void loadStateFromBundle(Bundle savedInstanceState) {
