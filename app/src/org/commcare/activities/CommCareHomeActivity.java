@@ -46,10 +46,12 @@ import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
 import org.commcare.session.SessionNavigationResponder;
 import org.commcare.session.SessionNavigator;
+import org.commcare.suite.model.Alert;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.SessionDatum;
 import org.commcare.suite.model.StackFrameStep;
+import org.commcare.suite.model.Suite;
 import org.commcare.suite.model.SyncEntry;
 import org.commcare.suite.model.SyncPost;
 import org.commcare.suite.model.Text;
@@ -168,12 +170,17 @@ public class CommCareHomeActivity
     private Object serviceLock = new Object();
     boolean mIsBound = false;
     boolean mIsBinding = false;
+    private Vector<Alert> allAlerts = new Vector<>();
 
     @Override
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
-        launchService();
+        for(Suite s: CommCareApplication._().getCurrentApp().getCommCarePlatform().getInstalledSuites()){
+            allAlerts.addAll(s.getAlerts());
+        }
+
+        launchService(allAlerts);
 
         loadInstanceState(savedInstanceState);
 
@@ -189,7 +196,7 @@ public class CommCareHomeActivity
 
 
     //LAUNCHES REMINDER SERVICE
-    public void launchService() {
+    public void launchService(final Vector<Alert> alerts) {
         mConnection = new ServiceConnection() {
 
             @Override
@@ -203,7 +210,7 @@ public class CommCareHomeActivity
 
                     //Don't signal bind completion until the db is initialized.
                     mIsBinding = false;
-                    mBoundService.showNotice();
+                    mBoundService.showNotice(alerts);
                 }
             }
 

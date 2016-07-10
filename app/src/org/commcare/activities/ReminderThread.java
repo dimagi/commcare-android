@@ -5,7 +5,9 @@ package org.commcare.activities;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Vector;
 
+import org.commcare.suite.model.Alert;
 import org.javarosa.core.model.utils.DateUtils;
 
 import android.content.ContentProviderClient;
@@ -17,6 +19,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.PowerManager;
 import android.os.RemoteException;
+import android.util.Log;
 import android.util.Pair;
 
 /**
@@ -29,9 +32,8 @@ public class ReminderThread {
     
     HashMap<String, String> keyToValue;
     HashMap<String, String> valueToKey;
-    
-    private static final String CASE_TYPE = "patient";
-    
+    private String caseType;
+
     Context mContext;
     
     Cursor c;
@@ -50,14 +52,7 @@ public class ReminderThread {
     
     public ReminderThread(Context context) {
         valueToKey = new HashMap<>();
-        
         keyToValue = new HashMap<>();
-        keyToValue.put("last_exam_time", "minutes_until_next_exam");
-        keyToValue.put("last_pv_time", "pv_reminder_minutes"); 
-        
-        for(String key : keyToValue.keySet()) {
-            valueToKey.put(keyToValue.get(key), key);
-        }
         
         this.mContext = context;
         
@@ -83,7 +78,7 @@ public class ReminderThread {
                     //CASE_TYPE: Need to set this dynamically
                     //caseWalker iterates over cases
                     caseWalker = cpc.query(Uri.parse("content://org.commcare.dalvik.case/casedb/case"), 
-                    					null, "case_type = ? AND\nstatus=?", new String[] { CASE_TYPE,"open" }, null); 
+                    					null, "case_type = ? AND\nstatus=?", new String[] { caseType,"open" }, null);
 
                     if(caseWalker == null) {
                         throw new CommCareLoggedOutException();
@@ -107,7 +102,7 @@ public class ReminderThread {
                         while(moreFields) {
                         	//Get the name of the current field
                             String datumName = fieldWalker.getString(fieldWalker.getColumnIndex("datum_id"));
-                            
+
                             //If it's one of the fields that we're interested in, we store its name and value in dataFields
                             if(valueToKey.containsKey(datumName)) {
                                 String value = fieldWalker.getString(fieldWalker.getColumnIndex("value"));
@@ -130,7 +125,6 @@ public class ReminderThread {
                             //If it's the other field that we're interested in, we store its name and value in dataFields
                             if(keyToValue.containsKey(datumName)) {
                                 String timeMeasured = fieldWalker.getString(fieldWalker.getColumnIndex("value"));
-                                
                                 try {
                                     double days = Double.parseDouble(timeMeasured);
                                     Pair<Double, Integer> pair = new Pair<Double, Integer>(days, null);
@@ -150,13 +144,16 @@ public class ReminderThread {
                         //If this case is overdue, put it in recentTriggers and set match to true
                         for(String key : dataFields.keySet()){
                             Pair<Double, Integer> pair = dataFields.get(key);
+
+                            Log.d("Pair", String.valueOf(pair.first)+", " + String.valueOf(pair.second));
+
                             if(pair.first == null || pair.second == null) {
                                 continue;
                             }
                             int minutesSince = (int)((currentDaysInDouble - pair.first) * 24 * 60);
-                            
                             int timerExpiresOn = (pair.second);
                             if(minutesSince >= timerExpiresOn) {
+                                Log.d("We got one!", "A real trigger!");
                                 if(!recentTriggers.containsKey(caseId)) { 
                                     match = caseId;
                                     recentTriggers.put(caseId, current);
@@ -227,7 +224,17 @@ public class ReminderThread {
         }
     }
     
-    public void startPolling() {
+    public void startPolling(Vector<Alert> alerts) {
+
+        for(Alert a: alerts){
+            keyToValue.put(a.getCaseProperty1(), a.getCaseProperty2());
+            caseType = a.getCaseType();
+        }
+
+        for(String key : keyToValue.keySet()) {
+            valueToKey.put(keyToValue.get(key), key);
+        }
+
         synchronized(myThread) {
             if(!myThread.isAlive()) {
                 myThread.start();
