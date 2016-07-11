@@ -408,7 +408,6 @@ public class QuestionsView extends ScrollView
         StringWidget last = null;
         
         for(QuestionWidget q: widgets){
-            
             if(q instanceof StringWidget){
                 if(last != null){
                     last.setLastQuestion(false);
