@@ -20,11 +20,11 @@ import org.javarosa.form.api.FormEntryPrompt;
  */
 public class WidgetFactory {
 
-    private final FormDef form;
+    private final FormDef formDef;
     private final PendingCalloutInterface pendingCalloutInterface;
 
-    public WidgetFactory(FormDef form, PendingCalloutInterface pendingCalloutInterface) {
-        this.form = form;
+    public WidgetFactory(FormDef formDef, PendingCalloutInterface pendingCalloutInterface) {
+        this.formDef = formDef;
         this.pendingCalloutInterface = pendingCalloutInterface;
     }
 
@@ -40,64 +40,11 @@ public class WidgetFactory {
         switch (fep.getControlType()) {
             case Constants.CONTROL_INPUT:
                 if (appearance != null && appearance.startsWith("intent:")) {
-                    String intentId = appearance.substring("intent:".length());
-                    IntentCallout ic = form.getExtension(AndroidXFormExtensions.class).getIntent(intentId, form);
-                    //Hm, so what do we do if no callout is found? Error? For now, fail fast
-                    if (ic == null) {
-                        throw new RuntimeException("No intent callout could be found for requested id " + intentId + "!");
-                    }
-                    //NOTE: No path specific stuff for now
-                    Intent i = ic.generate(form.getEvaluationContext());
-                    questionWidget = new IntentWidget(context, fep, i, ic, pendingCalloutInterface);
+                    questionWidget = buildIntentWidget(appearance, fep, context);
                     break;
                 }
             case Constants.CONTROL_SECRET:
-                switch (fep.getDataType()) {
-                    case Constants.DATATYPE_DATE_TIME:
-                        questionWidget = new DateTimeWidget(context, fep);
-                        break;
-                    case Constants.DATATYPE_DATE:
-                        if (appearance != null && appearance.toLowerCase().equals("ethiopian")) {
-                            questionWidget = new EthiopianDateWidget(context, fep);
-                        } else if (appearance != null && appearance.toLowerCase().equals("nepali")) {
-                            questionWidget = new NepaliDateWidget(context, fep);
-                        } else {
-                            questionWidget = new DateWidget(context, fep);
-                        }
-                        break;
-                    case Constants.DATATYPE_TIME:
-                        questionWidget = new TimeWidget(context, fep);
-                        break;
-                    case Constants.DATATYPE_LONG:
-                        questionWidget = new IntegerWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, 2);
-                        break;
-                    case Constants.DATATYPE_DECIMAL:
-                        questionWidget = new DecimalWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
-                        break;
-                    case Constants.DATATYPE_INTEGER:
-                        questionWidget = new IntegerWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, 1);
-                        break;
-                    case Constants.DATATYPE_GEOPOINT:
-                        questionWidget = new GeoPointWidget(context, fep, pendingCalloutInterface);
-                        break;
-                    case Constants.DATATYPE_BARCODE:
-                        IntentCallout mIntentCallout = new IntentCallout("com.google.zxing.client.android.SCAN", null, null,
-                                null, null, null, Localization.get("intent.barcode.get"),
-                                Localization.get("intent.barcode.update"), appearance);
-                        Intent mIntent = mIntentCallout.generate(form.getEvaluationContext());
-                        questionWidget = new BarcodeWidget(context, fep, mIntent, mIntentCallout, pendingCalloutInterface);
-                        break;
-                    case Constants.DATATYPE_TEXT:
-                        if (appearance != null && (appearance.equalsIgnoreCase("numbers") || appearance.equalsIgnoreCase("numeric"))) {
-                            questionWidget = new StringNumberWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
-                        } else {
-                            questionWidget = new StringWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
-                        }
-                        break;
-                    default:
-                        questionWidget = new StringWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
-                        break;
-                }
+                questionWidget = buildBasicWidget(appearance, fep, context);
                 break;
             case Constants.CONTROL_IMAGE_CHOOSE:
                 if (appearance != null && appearance.equals("signature")) {
@@ -113,58 +60,10 @@ public class WidgetFactory {
                 questionWidget = new VideoWidget(context, fep, pendingCalloutInterface);
                 break;
             case Constants.CONTROL_SELECT_ONE:
-                if (appearance != null && appearance.contains("compact")) {
-                    int numColumns = -1;
-                    try {
-                        numColumns =
-                                Integer.parseInt(appearance.substring(appearance.indexOf('-') + 1));
-                    } catch (Exception e) {
-                        // Do nothing, leave numColumns as -1
-                        Log.e("WidgetFactory", "Exception parsing numColumns");
-                    }
-
-                    if (appearance.contains("quick")) {
-                        questionWidget = new GridWidget(context, fep, numColumns, true);
-                    } else {
-                        questionWidget = new GridWidget(context, fep, numColumns, false);
-                    }
-                } else if (appearance != null && appearance.equals("minimal")) {
-                    questionWidget = new SpinnerWidget(context, fep);
-                } else if (appearance != null && appearance.equals("quick")) {
-                    questionWidget = new SelectOneAutoAdvanceWidget(context, fep);
-                } else if (appearance != null && appearance.equals("list")) {
-                    questionWidget = new ListWidget(context, fep, true);
-                } else if (appearance != null && appearance.equals("list-nolabel")) {
-                    questionWidget = new ListWidget(context, fep, false);
-                } else if (appearance != null && appearance.equals("label")) {
-                    questionWidget = new LabelWidget(context, fep);
-                } else {
-                    questionWidget = new SelectOneWidget(context, fep);
-                }
+                questionWidget = buildSelectOne(appearance, fep, context);
                 break;
             case Constants.CONTROL_SELECT_MULTI:
-                if (appearance != null && appearance.contains("compact")) {
-                    int numColumns = -1;
-                    try {
-                        numColumns =
-                                Integer.parseInt(appearance.substring(appearance.indexOf('-') + 1));
-                    } catch (Exception e) {
-                        // Do nothing, leave numColumns as -1
-                        Log.e("WidgetFactory", "Exception parsing numColumns");
-                    }
-
-                    questionWidget = new GridMultiWidget(context, fep, numColumns);
-                } else if (appearance != null && appearance.equals("minimal")) {
-                    questionWidget = new SpinnerMultiWidget(context, fep);
-                } else if (appearance != null && appearance.equals("list")) {
-                    questionWidget = new ListMultiWidget(context, fep, true);
-                } else if (appearance != null && appearance.equals("list-nolabel")) {
-                    questionWidget = new ListMultiWidget(context, fep, false);
-                } else if (appearance != null && appearance.equals("label")) {
-                    questionWidget = new LabelWidget(context, fep);
-                } else {
-                    questionWidget = new SelectMultiWidget(context, fep);
-                }
+                questionWidget = buildSelectMulti(appearance, fep, context);
                 break;
             case Constants.CONTROL_TRIGGER:
                 questionWidget = new TriggerWidget(context, fep, appearance);
@@ -180,5 +79,112 @@ public class WidgetFactory {
             questionWidget.applyExtension(extension);
         }
         return questionWidget;
+    }
+
+    private QuestionWidget buildBasicWidget(String appearance, FormEntryPrompt fep, Context context) {
+        switch (fep.getDataType()) {
+            case Constants.DATATYPE_DATE_TIME:
+                return new DateTimeWidget(context, fep);
+            case Constants.DATATYPE_DATE:
+                if (appearance != null && appearance.toLowerCase().equals("ethiopian")) {
+                    return new EthiopianDateWidget(context, fep);
+                } else if (appearance != null && appearance.toLowerCase().equals("nepali")) {
+                    return new NepaliDateWidget(context, fep);
+                } else {
+                    return new DateWidget(context, fep);
+                }
+            case Constants.DATATYPE_TIME:
+                return new TimeWidget(context, fep);
+            case Constants.DATATYPE_LONG:
+                return new IntegerWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, 2);
+            case Constants.DATATYPE_DECIMAL:
+                return new DecimalWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
+            case Constants.DATATYPE_INTEGER:
+                return new IntegerWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET, 1);
+            case Constants.DATATYPE_GEOPOINT:
+                return new GeoPointWidget(context, fep, pendingCalloutInterface);
+            case Constants.DATATYPE_BARCODE:
+                IntentCallout mIntentCallout = new IntentCallout("com.google.zxing.client.android.SCAN", null, null,
+                        null, null, null, Localization.get("intent.barcode.get"),
+                        Localization.get("intent.barcode.update"), appearance);
+                Intent mIntent = mIntentCallout.generate(formDef.getEvaluationContext());
+                return new BarcodeWidget(context, fep, mIntent, mIntentCallout, pendingCalloutInterface);
+            case Constants.DATATYPE_TEXT:
+                if (appearance != null && (appearance.equalsIgnoreCase("numbers") || appearance.equalsIgnoreCase("numeric"))) {
+                    return new StringNumberWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
+                } else {
+                    return new StringWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
+                }
+            default:
+                return new StringWidget(context, fep, fep.getControlType() == Constants.CONTROL_SECRET);
+        }
+    }
+
+    private QuestionWidget buildIntentWidget(String appearance, FormEntryPrompt fep, Context context) {
+        String intentId = appearance.substring("intent:".length());
+        IntentCallout ic = formDef.getExtension(AndroidXFormExtensions.class).getIntent(intentId, formDef);
+        //Hm, so what do we do if no callout is found? Error? For now, fail fast
+        if (ic == null) {
+            throw new RuntimeException("No intent callout could be found for requested id " + intentId + "!");
+        }
+        //NOTE: No path specific stuff for now
+        Intent i = ic.generate(formDef.getEvaluationContext());
+        return new IntentWidget(context, fep, i, ic, pendingCalloutInterface);
+    }
+
+    private QuestionWidget buildSelectOne(String appearance, FormEntryPrompt fep, Context context) {
+        if (appearance != null && appearance.contains("compact")) {
+            int numColumns = -1;
+            try {
+                numColumns =
+                        Integer.parseInt(appearance.substring(appearance.indexOf('-') + 1));
+            } catch (Exception e) {
+                // Do nothing, leave numColumns as -1
+                Log.e("WidgetFactory", "Exception parsing numColumns");
+            }
+
+            if (appearance.contains("quick")) {
+                return new GridWidget(context, fep, numColumns, true);
+            } else {
+                return new GridWidget(context, fep, numColumns, false);
+            }
+        } else if (appearance != null && appearance.equals("minimal")) {
+            return new SpinnerWidget(context, fep);
+        } else if (appearance != null && appearance.equals("quick")) {
+            return new SelectOneAutoAdvanceWidget(context, fep);
+        } else if (appearance != null && appearance.equals("list")) {
+            return new ListWidget(context, fep, true);
+        } else if (appearance != null && appearance.equals("list-nolabel")) {
+            return new ListWidget(context, fep, false);
+        } else if (appearance != null && appearance.equals("label")) {
+            return new LabelWidget(context, fep);
+        } else {
+            return new SelectOneWidget(context, fep);
+        }
+    }
+
+    private QuestionWidget buildSelectMulti(String appearance, FormEntryPrompt fep, Context context) {
+        if (appearance != null && appearance.contains("compact")) {
+            int numColumns = -1;
+            try {
+                numColumns =
+                        Integer.parseInt(appearance.substring(appearance.indexOf('-') + 1));
+            } catch (Exception e) {
+                // Do nothing, leave numColumns as -1
+                Log.e("WidgetFactory", "Exception parsing numColumns");
+            }
+
+            return new GridMultiWidget(context, fep, numColumns);
+        } else if (appearance != null && appearance.equals("minimal")) {
+            return new SpinnerMultiWidget(context, fep);
+        } else if (appearance != null && appearance.equals("list")) {
+            return new ListMultiWidget(context, fep, true);
+        } else if (appearance != null && appearance.equals("list-nolabel")) {
+            return new ListMultiWidget(context, fep, false);
+        } else if (appearance != null && appearance.equals("label")) {
+            return new LabelWidget(context, fep);
+        } else {
+            return new SelectMultiWidget(context, fep);
+        }
     }
 }
