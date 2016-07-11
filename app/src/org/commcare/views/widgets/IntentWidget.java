@@ -156,12 +156,7 @@ public class IntentWidget extends QuestionWidget {
 
     @Override
     public IAnswerData getAnswer() {
-        String s = mStringAnswer.getText().toString();
-        if (s.equals("")) {
-            return null;
-        } else {
-            return new StringData(s);
-        }
+        return mPrompt.getAnswerValue();
     }
 
     @Override
