@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:custom="http://schemas.android.com/tools"
 
     android:orientation="vertical"
     android:layout_width="fill_parent"
@@ -11,13 +12,27 @@
     android:paddingLeft="10dp"
     android:paddingRight="10dp">
 
-    <TextView
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/recording_header"
-        android:textColor="@color/grey"
-        android:textSize="@dimen/text_large"
-        android:layout_marginBottom="10dp"/>
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/recording_header"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/text_large"
+            android:layout_alignParentLeft="true"
+            android:layout_marginBottom="10dp"/>
+
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/discardrecording"
+            android:background="@drawable/icon_exit_form"
+            android:layout_alignParentRight="true"/>
+
+    </RelativeLayout>
 
     <TextView
         android:layout_width="match_parent"
@@ -28,8 +43,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:id="@+id/recording_layout"
-        android:layout_marginTop="20dp">
+        android:id="@+id/recording_layout">
 
         <ImageButton
             android:layout_width="120dp"
@@ -38,28 +52,53 @@
             android:layout_gravity="center"
             android:id = "@+id/startrecording"/>
 
-        <com.liulishuo.magicprogresswidget.MagicProgressCircle
+        <ProgressBar
+            android:layout_width="220dp"
+            android:layout_height="220dp"
             android:id="@+id/demo_mpc"
-            android:layout_width="180dp"
-            android:layout_height="180dp"
-            app:mpc_percent="0"
-            app:mpc_stroke_width="15dp"
-            app:mpc_default_color="@color/grey_light"
-            app:mpc_start_color="@color/cc_brand_color"
-            app:mpc_end_color="@color/cc_brand_color"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center"
+            android:indeterminateDrawable="@drawable/progress_bar"
+            android:indeterminateDuration="2000"
+            android:visibility="invisible"/>
 
     </FrameLayout>
 
-    <Button
+    <Chronometer
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/saverecording"
-        android:layout_gravity="right"
-        android:layout_marginBottom="10dp"
-        android:enabled="false"
-        android:background="@color/transparent"
-        android:textColor="@color/grey"/>
+        android:id="@+id/recording_time"
+        android:visibility="gone"/>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="15dp">
+
+        <Button
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/recycle"
+            android:layout_marginBottom="10dp"
+            android:background="@color/cc_brand_color"
+            android:textColor="@color/white"
+            android:text="Record Again"
+            android:visibility="invisible"
+            android:layout_marginLeft="15dp"/>
+
+        <Button
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/saverecording"
+            android:layout_gravity="right"
+            android:layout_marginBottom="10dp"
+            android:enabled="false"
+            android:background="@color/cc_attention_positive_color"
+            android:textColor="@color/white"
+            android:visibility="invisible"
+            android:layout_marginLeft="15dp" />
+
+    </LinearLayout>
 
 </LinearLayout>

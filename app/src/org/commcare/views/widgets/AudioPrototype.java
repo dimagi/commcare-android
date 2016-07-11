@@ -117,7 +117,7 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
     }
 
     @Override
-    public void onCompletion(){
+    public void onRecordingCompletion(){
         setBinaryData(recorder.getFileName());
         mPlayButton.setEnabled(true);
         mPlayButton.setBackgroundResource(R.drawable.play);
