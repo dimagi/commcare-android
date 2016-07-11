@@ -117,7 +117,7 @@ public abstract class ZipTask extends CommCareTask<Void, String, ZipTask.ZipTask
     protected ZipTaskResult doTaskBackground(Void... params) {
         Log.d(TAG, "Doing UnzipTask");
         try {
-            FileUtil.deleteFileOrDir(toBeZippedFile);
+            FileUtil.deleteFileOrDir(zipFilePath);
             zipParentFolder(toBeZippedFile, zipFilePath);
             FileUtil.deleteFileOrDir(toBeZippedFile);
         } catch (IOException ioe) {

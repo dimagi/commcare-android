@@ -29,8 +29,6 @@ import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localizer;
-import org.javarosa.core.util.OrderedHashtable;
-import org.javarosa.core.util.PrefixTreeNode;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.ExtUtil;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -44,6 +42,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Enumeration;
+import java.util.Hashtable;
 import java.util.Vector;
 
 /**
@@ -53,7 +52,6 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     private static final String TAG = XFormAndroidInstaller.class.getSimpleName();
 
     private String namespace;
-
     private String contentUri;
 
     public XFormAndroidInstaller() {
@@ -185,10 +183,12 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         return updatedRows != 0;
     }
 
+    @Override
     public boolean revert(Resource r, ResourceTable table) {
         return super.revert(r, table) && updateFilePath();
     }
 
+    @Override
     public int rollback(Resource r) {
         int newStatus = super.rollback(r);
         if (newStatus == Resource.RESOURCE_STATUS_INSTALLED) {
@@ -223,6 +223,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         ExtUtil.writeString(out, ExtUtil.emptyIfNull(contentUri));
     }
 
+    @Override
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
         //Check to see whether the formDef exists and reads correctly
         FormDef formDef;
@@ -245,13 +246,12 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
         //available
         Localizer localizer = formDef.getLocalizer();
         //get this out of the memory ASAP!
-        formDef = null;
         if (localizer == null) {
             //things are fine
             return false;
         }
         for (String locale : localizer.getAvailableLocales()) {
-            OrderedHashtable<String, PrefixTreeNode> localeData = localizer.getLocaleData(locale);
+            Hashtable<String, String> localeData = localizer.getLocaleData(locale);
             for (Enumeration en = localeData.keys(); en.hasMoreElements(); ) {
                 String key = (String)en.nextElement();
                 if (key.contains(";")) {
@@ -262,7 +262,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
                             form.equals(FormEntryCaption.TEXT_FORM_IMAGE)) {
                         try {
 
-                            String externalMedia = localeData.get(key).render();
+                            String externalMedia = localeData.get(key);
                             Reference ref = ReferenceManager._().DeriveReference(externalMedia);
                             String localName = ref.getLocalURI();
                             try {

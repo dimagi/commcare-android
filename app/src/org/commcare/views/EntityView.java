@@ -183,7 +183,7 @@ public class EntityView extends LinearLayout {
                 refreshViewForNewEntity(view, data, form, sortField, columnIndex, rowId);
             }
 
-            LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+            LayoutParams l = new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
             addView(view, l);
         }
         return view;
@@ -194,23 +194,21 @@ public class EntityView extends LinearLayout {
      * the entity's text and form
      */
     private View initView(Object data, String form, ViewId uniqueId, String sortField) {
-        View retVal;
         if (FORM_IMAGE.equals(form)) {
-            retVal = View.inflate(getContext(), R.layout.entity_item_image, null);
+            return View.inflate(getContext(), R.layout.entity_item_image, null);
         } else if (FORM_AUDIO.equals(form)) {
             String text = (String) data;
             boolean isVisible = (text != null && text.length() > 0);
-            retVal = new AudioButton(getContext(), text, uniqueId, isVisible);
+            return new AudioButton(getContext(), text, uniqueId, isVisible);
         } else if (FORM_GRAPH.equals(form) && data instanceof GraphData) {
-            retVal = View.inflate(getContext(), R.layout.entity_item_graph, null);
+            return View.inflate(getContext(), R.layout.entity_item_graph, null);
         } else if (FORM_CALLLOUT.equals(form)) {
-            retVal = View.inflate(getContext(), R.layout.entity_item_graph, null);
+            return View.inflate(getContext(), R.layout.entity_item_graph, null);
         } else {
             View layout = View.inflate(getContext(), R.layout.component_text, null);
             setupText(layout, (String) data, sortField);
-            retVal = layout;
+            return layout;
         }
-        return retVal;
     }
 
     public void setSearchTerms(String[] terms) {
@@ -515,80 +513,17 @@ public class EntityView extends LinearLayout {
         }
     }
 
-    /**
-     * Determine width of each child view, based on mHints, the suite's size hints.
-     * mHints contains a width hint for each child view, each one of
-     * - A string like "50%", requesting the field take up 50% of the row
-     * - A string like "200", requesting the field take up 200 pixels
-     * - Null, not specifying a width for the field
-     * This function will parcel out requested widths and divide remaining space among unspecified columns.
-     *
-     * @param fullSize Width, in pixels, of the containing row.
-     * @return Array of integers, each corresponding to a child view,
-     * representing the desired width, in pixels, of that view.
-     */
-    private int[] calculateDetailWidths(int fullSize) {
-        // Convert any percentages to pixels. Percentage columns are treated as percentage of the entire screen width.
-        int[] widths = new int[mHints.size()];
-        int hintIndex = 0;
-        for (String hint : mHints) {
-            if (hint == null) {
-                widths[hintIndex] = -1;
-            } else if (hint.contains("%")) {
-                widths[hintIndex] = fullSize * Integer.parseInt(hint.substring(0, hint.indexOf("%"))) / 100;
-            } else {
-                widths[hintIndex] = Integer.parseInt(hint);
-            }
-            hintIndex++;
-        }
-
-        int claimedSpace = 0;
-        int indeterminateColumns = 0;
-        for (int width : widths) {
-            if (width != -1) {
-                claimedSpace += width;
-            } else {
-                indeterminateColumns++;
-            }
-        }
-        if (fullSize < claimedSpace + indeterminateColumns
-                || (fullSize > claimedSpace && indeterminateColumns == 0)) {
-            // Either more space has been claimed than the screen has room for,
-            // or the full width isn't spoken for and there are no indeterminate columns
-            claimedSpace += indeterminateColumns;
-            for (int i = 0; i < widths.length; i++) {
-                if (widths[i] == -1) {
-                    // Assign indeterminate columns a real width.
-                    // It's arbitrary and tiny, but this is going to look terrible regardless.
-                    widths[i] = 1;
-                } else {
-                    // Shrink or expand columns proportionally
-                    widths[i] = fullSize * widths[i] / claimedSpace;
-                }
-            }
-        } else if (indeterminateColumns > 0) {
-            // Divide remaining space equally among the indeterminate columns
-            int defaultWidth = (fullSize - claimedSpace) / indeterminateColumns;
-            for (int i = 0; i < widths.length; i++) {
-                if (widths[i] == -1) {
-                    widths[i] = defaultWidth;
-                }
-            }
-        }
-
-        return widths;
-    }
-
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         // calculate the view and its children's default measurements
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         // Adjust the children view's widths based on percentage size hints
-        int[] widths = calculateDetailWidths(getMeasuredWidth());
+        int[] widths = ViewUtil.calculateColumnWidths(mHints, getMeasuredWidth());
         int i = 0;
         for (View view : views) {
             if (view != null) {
+                adjustPadding(view, widths[i]);
                 LayoutParams params = (LinearLayout.LayoutParams) view.getLayoutParams();
                 params.width = widths[i];
                 view.setLayoutParams(params);
@@ -603,5 +538,15 @@ public class EntityView extends LinearLayout {
 
         // Re-calculate the view's measurements based on the percentage adjustments above
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    }
+
+    /**
+     * Remove view's if the padding is greater than or close to the view's width.
+     */
+    private static void adjustPadding(View view, int width) {
+        int horizontalPadding = view.getPaddingLeft() + view.getPaddingRight();
+        if (horizontalPadding >= width || horizontalPadding / (float)width > 0.9f) {
+            view.setPadding(0, 0, 0, 0);
+        }
     }
 }

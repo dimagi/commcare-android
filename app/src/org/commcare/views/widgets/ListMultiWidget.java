@@ -79,7 +79,7 @@ public class ListMultiWidget extends QuestionWidget {
         }
 
         //Is this safe enough from collisions?
-        buttonIdBase = Math.abs(mPrompt.getIndex().toString().hashCode());
+        buttonIdBase = Math.abs(mPrompt.getIndex().hashCode());
 
         if (mPrompt.getSelectChoices() != null) {
             for (int i = 0; i < mItems.size(); i++) {

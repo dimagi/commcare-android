@@ -45,11 +45,12 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
     private final static int WIFI_DIRECT_ACTIVITY = 1;
     private final static int DUMP_FORMS_ACTIVITY = 2;
 
-    public final static int RESULT_DATA_RESET = RESULT_FIRST_USER + 1;
-    public final static int RESULT_FORMS_PROCESSED = RESULT_FIRST_USER + 2;
+    public final static int RESULT_DATA_RESET = CommCareHomeActivity.RESULT_RESTART + 1;
+    public final static int RESULT_FORMS_PROCESSED = CommCareHomeActivity.RESULT_RESTART + 2;
 
     public final static String FORM_PROCESS_COUNT_KEY = "forms-processed-count";
     public final static String FORM_PROCESS_MESSAGE_KEY = "forms-processed-message";
+    static final String KEY_NUMBER_DUMPED = "num_dumped";
 
     private final static Map<String, String> keyToTitleMap = new HashMap<>();
 
@@ -246,30 +247,30 @@ public class AdvancedActionsActivity extends SessionAwarePreferenceActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        switch (requestCode) {
-            case WIFI_DIRECT_ACTIVITY:
-                if (resultCode == WipeTask.WIPE_TASK_ID || resultCode == SendTask.BULK_SEND_ID) {
-                    int dumpedCount = intent.getIntExtra(CommCareWiFiDirectActivity.KEY_NUMBER_DUMPED, -1);
+        if (requestCode == WIFI_DIRECT_ACTIVITY || requestCode == DUMP_FORMS_ACTIVITY) {
+            String messageKey = getBulkFormMessageKey(resultCode);
+            if (messageKey == null) {
+                return;
+            }
 
-                    Intent returnIntent = new Intent();
-                    returnIntent.putExtra(FORM_PROCESS_COUNT_KEY, dumpedCount);
-                    returnIntent.putExtra(FORM_PROCESS_MESSAGE_KEY, "bulk.form.send.success");
-                    setResult(RESULT_FORMS_PROCESSED, returnIntent);
-                    finish();
-                }
-                break;
-            case DUMP_FORMS_ACTIVITY:
-                if (resultCode == DumpTask.BULK_DUMP_ID || resultCode == SendTask.BULK_SEND_ID) {
-                    int dumpedCount = intent.getIntExtra(CommCareFormDumpActivity.KEY_NUMBER_DUMPED, -1);
-                    Intent returnIntent = new Intent();
-                    returnIntent.putExtra(FORM_PROCESS_COUNT_KEY, dumpedCount);
-                    returnIntent.putExtra(FORM_PROCESS_MESSAGE_KEY, "bulk.form.dump.success");
-                    setResult(RESULT_FORMS_PROCESSED, returnIntent);
-                    finish();
-                }
-                break;
-            default:
-                break;
+            int dumpedCount = intent.getIntExtra(KEY_NUMBER_DUMPED, -1);
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra(FORM_PROCESS_COUNT_KEY, dumpedCount);
+            returnIntent.putExtra(FORM_PROCESS_MESSAGE_KEY, messageKey);
+            setResult(RESULT_FORMS_PROCESSED, returnIntent);
+            finish();
+        }
+    }
+
+    private static String getBulkFormMessageKey(int resultCode) {
+        if (resultCode == DumpTask.BULK_DUMP_ID) {
+            return "bulk.form.dump.success";
+        } else if (resultCode == SendTask.BULK_SEND_ID ||
+                resultCode == WipeTask.WIPE_TASK_ID ||
+                resultCode == SendTask.BULK_SEND_ID) {
+            return "bulk.form.send.success";
+        } else {
+            return null;
         }
     }
 
