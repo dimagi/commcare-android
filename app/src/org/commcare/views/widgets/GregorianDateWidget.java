@@ -65,7 +65,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
         yearText = (EditText)findViewById(R.id.year_txt_field);
         monthText = (AutoCompleteTextView) findViewById(R.id.month_txt_field);
 
-        //TODO: Current keyboard is full screen for month and half screen for the others. Pick which one we want.
+        //TODO: Current landscape keyboard is full screen for month and half screen for the others. Pick which one we want to use. Applies for month field only.
 
         dayText.setOnClickListener(new OnClickListener() {
             @Override

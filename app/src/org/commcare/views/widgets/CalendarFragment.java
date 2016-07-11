@@ -67,7 +67,6 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         Window window = getActivity().getWindow();
         window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
         myLayout.setMinimumWidth((int)(displayRectangle.width() * 0.9f));
-       // myLayout.setMinimumHeight((int)(displayRectangle.height() * 0.7f));
 
         return myLayout;
     }
