@@ -1,7 +1,10 @@
 package org.commcare.views.widgets;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
@@ -58,6 +61,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
             calendar.setTimeInMillis(savedInstanceState.getLong(TIME));
         }
 
+        disableScreenRotation();
         initDisplay();
         initWeekDays();
         initOnClick();
@@ -92,6 +96,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
     @Override
     public void onDismiss(DialogInterface dialog){
         super.onDismiss(dialog);
+        enableScreenRotation();
         if(myListener != null){
             myListener.onCalendarClose();
         }
@@ -276,5 +281,20 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         Date nextDate = (Date) newDate.getValue();
         calendar.setTimeInMillis(nextDate.getTime());
         refresh();
+    }
+
+    private void disableScreenRotation() {
+        int currentOrientation = getResources().getConfiguration().orientation;
+
+        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+        }
+        else {
+            ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        }
+    }
+
+    private void enableScreenRotation() {
+        ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
     }
 }
