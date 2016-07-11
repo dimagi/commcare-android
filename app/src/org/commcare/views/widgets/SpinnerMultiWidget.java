@@ -99,7 +99,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
                                 }
 
                                 if (hasListener()) {
-                                    widgetChangedListener.widgetEntryChanged();
+                                    widgetChangedListener.widgetEntryChanged(SpinnerMultiWidget.this);
                                 }
                             }
                         });
@@ -111,7 +111,7 @@ public class SpinnerMultiWidget extends QuestionWidget {
                                 selections[which] = isChecked;
 
                                 if (hasListener()) {
-                                    widgetChangedListener.widgetEntryChanged();
+                                    widgetChangedListener.widgetEntryChanged(SpinnerMultiWidget.this);
                                 }
                             }
                         });

@@ -172,6 +172,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static final String KEY_RECORD_FORM_ENTRY_SESSION = "record_form_entry_session";
     private static final String KEY_WIDGET_WITH_VIDEO_PLAYING = "index-of-widget-with-video-playing-on-pause";
     private static final String KEY_POSITION_OF_VIDEO_PLAYING = "position-of-video-playing-on-pause";
+    private static final String KEY_LAST_CHANGED_WIDGET = "index-of-last-changed-widget";
 
     /**
      * Intent extra flag to track if this form is an archive. Used to trigger
@@ -212,6 +213,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private ViewGroup mViewPane;
     private QuestionsView questionsView;
+    private int indexOfLastChangedWidget = -1;
 
     private boolean mIncompleteEnabled = true;
     private boolean hasFormLoadBeenTriggered = false;
@@ -417,6 +419,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (indexOfWidgetWithVideoPlaying != -1) {
             outState.putInt(KEY_WIDGET_WITH_VIDEO_PLAYING, indexOfWidgetWithVideoPlaying);
             outState.putInt(KEY_POSITION_OF_VIDEO_PLAYING, positionOfVideoProgress);
+        }
+        if (indexOfLastChangedWidget != -1) {
+            outState.putInt(KEY_LAST_CHANGED_WIDGET, indexOfLastChangedWidget);
         }
 
         if(symetricKey != null) {
@@ -960,6 +965,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         }
 
+        resetLastChangedWidget();
+
         if (mFormController.getEvent() != FormEntryController.EVENT_END_OF_FORM) {
             int event;
 
@@ -1103,7 +1110,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         if (questionsView != null) {
-            if(animateLastView) {
+            if (animateLastView) {
                 questionsView.startAnimation(mOutAnimation);
             }
         	mViewPane.removeView(questionsView);
@@ -1119,7 +1126,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         mViewPane.addView(questionsView, lp);
 
         questionsView.startAnimation(mInAnimation);
-        questionsView.setFocus(this);
+        questionsView.setFocus(this, indexOfLastChangedWidget);
 
         setupGroupLabel();
     }
@@ -2082,8 +2089,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    public void widgetEntryChanged() {
+    public void widgetEntryChanged(QuestionWidget changedWidget) {
         try {
+            recordLastChangedWidgetIndex(changedWidget);
             updateFormRelevancies();
         } catch (XPathTypeMismatchException | XPathArityException e) {
             UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
@@ -2091,6 +2099,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         FormNavigationUI.updateNavigationCues(this, mFormController, questionsView);
+    }
+
+    private void resetLastChangedWidget() {
+        indexOfLastChangedWidget = -1;
+    }
+
+    private void recordLastChangedWidgetIndex(QuestionWidget changedWidget) {
+        indexOfLastChangedWidget = questionsView.getWidgets().indexOf(changedWidget);
     }
 
     private boolean canNavigateForward() {
@@ -2157,6 +2173,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             if (savedInstanceState.containsKey(KEY_WIDGET_WITH_VIDEO_PLAYING)) {
                 indexOfWidgetWithVideoPlaying = savedInstanceState.getInt(KEY_WIDGET_WITH_VIDEO_PLAYING);
                 positionOfVideoProgress = savedInstanceState.getInt(KEY_POSITION_OF_VIDEO_PLAYING);
+            }
+            if (savedInstanceState.containsKey(KEY_LAST_CHANGED_WIDGET)) {
+                indexOfLastChangedWidget = savedInstanceState.getInt(KEY_LAST_CHANGED_WIDGET);
             }
         }
     }

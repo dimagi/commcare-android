@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -139,7 +140,7 @@ public class QuestionsView extends ScrollView
             qw.setChangedListener(this);
         }
         
-        updateLastQuestion();
+        markLastStringWidget();
 
         addView(mView);
     }
@@ -231,9 +232,9 @@ public class QuestionsView extends ScrollView
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
     
-    private void updateConstraintRelevancies(){
-        if(hasListener){
-            wcListener.widgetEntryChanged();
+    private void updateConstraintRelevancies(QuestionWidget changedWidget) {
+        if (hasListener) {
+            wcListener.widgetEntryChanged(changedWidget);
         }
     }
 
@@ -320,8 +321,10 @@ public class QuestionsView extends ScrollView
         }
     }
 
-    public void setFocus(Context context) {
-        if (widgets.size() > 0) {
+    public void setFocus(Context context, int indexOfLastChangedWidget) {
+        if (indexOfLastChangedWidget != -1) {
+            widgets.get(indexOfLastChangedWidget).setFocus(context);
+        } else if (widgets.size() > 0) {
             widgets.get(0).setFocus(context);
         }
     }
@@ -399,18 +402,16 @@ public class QuestionsView extends ScrollView
     }
 
     @Override
-    public void widgetEntryChanged() {
-        updateConstraintRelevancies();
-        updateLastQuestion();
+    public void widgetEntryChanged(QuestionWidget changedWidget) {
+        updateConstraintRelevancies(changedWidget);
+        markLastStringWidget();
     }
-    
-    private void updateLastQuestion(){
+
+    private void markLastStringWidget() {
         StringWidget last = null;
-        
-        for(QuestionWidget q: widgets){
-            
-            if(q instanceof StringWidget){
-                if(last != null){
+        for (QuestionWidget q: widgets) {
+            if (q instanceof StringWidget) {
+                if (last != null) {
                     last.setLastQuestion(false);
                 }
                 last = (StringWidget)q;
@@ -430,13 +431,13 @@ public class QuestionsView extends ScrollView
 
     /**
      * Takes in a form entry prompt that is obtained generically and if there
-     * is already one on screen (which, for isntance, may have cached some of its data)
+     * is already one on screen (which, for instance, may have cached some of its data)
      * returns the object in use currently.
      */
     public FormEntryPrompt getOnScreenPrompt(FormEntryPrompt prompt) {
         FormIndex index = prompt.getIndex();
-        for(QuestionWidget widget : this.getWidgets()) {
-            if(widget.getFormId().equals(index)) {
+        for (QuestionWidget widget : this.getWidgets()) {
+            if (widget.getFormId().equals(index)) {
                 return widget.getPrompt();
             }
         }
