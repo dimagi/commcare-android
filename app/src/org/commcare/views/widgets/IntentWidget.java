@@ -35,7 +35,7 @@ public class IntentWidget extends QuestionWidget {
     private final int calloutId;
     private final String getButtonLocalizationKey;
     private final String updateButtonLocalizationKey;
-    
+
     protected final Button launchIntentButton;
     protected final PendingCalloutInterface pendingCalloutInterface;
     protected final IntentCallout ic;
@@ -95,7 +95,7 @@ public class IntentWidget extends QuestionWidget {
         }
     }
 
-    private void setupButton() {
+    protected void setupButton() {
         setOrientation(LinearLayout.VERTICAL);
 
         WidgetUtils.setupButton(launchIntentButton,

@@ -120,7 +120,7 @@ public class WidgetFactory {
         }
     }
 
-    private QuestionWidget buildIntentWidget(String appearance, FormEntryPrompt fep, Context context) {
+    private IntentWidget buildIntentWidget(String appearance, FormEntryPrompt fep, Context context) {
         String intentId = appearance.substring("intent:".length());
         IntentCallout ic = formDef.getExtension(AndroidXFormExtensions.class).getIntent(intentId, formDef);
         //Hm, so what do we do if no callout is found? Error? For now, fail fast
@@ -132,7 +132,7 @@ public class WidgetFactory {
         return new IntentWidget(context, fep, i, ic, pendingCalloutInterface);
     }
 
-    private QuestionWidget buildSelectOne(String appearance, FormEntryPrompt fep, Context context) {
+    private static QuestionWidget buildSelectOne(String appearance, FormEntryPrompt fep, Context context) {
         if (appearance != null && appearance.contains("compact")) {
             int numColumns = -1;
             try {
@@ -163,7 +163,7 @@ public class WidgetFactory {
         }
     }
 
-    private QuestionWidget buildSelectMulti(String appearance, FormEntryPrompt fep, Context context) {
+    private static QuestionWidget buildSelectMulti(String appearance, FormEntryPrompt fep, Context context) {
         if (appearance != null && appearance.contains("compact")) {
             int numColumns = -1;
             try {

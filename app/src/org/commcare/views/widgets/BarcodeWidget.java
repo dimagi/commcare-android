@@ -40,9 +40,8 @@ public class BarcodeWidget extends IntentWidget {
     }
 
     @Override
-    public void setupButton() {
+    protected void setupButton() {
         setOrientation(LinearLayout.VERTICAL);
-        launchIntentButton = new Button(getContext());
         WidgetUtils.setupButton(launchIntentButton,
                 getButtonLabel(),
                 mAnswerFontsize,
