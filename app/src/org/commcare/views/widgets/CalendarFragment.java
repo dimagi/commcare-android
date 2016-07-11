@@ -73,6 +73,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
     @Override
     public void onSaveInstanceState(Bundle bundle){
+        Log.d("Time", String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)));
         bundle.putLong(TIME, calendar.getTimeInMillis());
     }
 
@@ -165,10 +166,8 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Date date = (Date) parent.getItemAtPosition(position);
-                if(calendar.get(Calendar.MONTH) != date.getMonth()){
-                    refresh();
-                }
                 calendar.setTime(date);
+                refresh();
             }
         });
 
