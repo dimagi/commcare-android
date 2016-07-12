@@ -184,7 +184,6 @@ public class CustomProgressDialog extends DialogFragment {
         bar.setMax(progressBarMax);
 
         if (usingCheckbox) {
-
             CheckBox cb = (CheckBox)view.findViewById(R.id.progress_dialog_checkbox);
             cb.setVisibility(View.VISIBLE);
             cb.setText(checkboxText);
@@ -235,12 +234,21 @@ public class CustomProgressDialog extends DialogFragment {
         cancelButton.setEnabled(false);
     }
 
-    public void updateMessage(String text) {
-        this.message = text;
-        AlertDialog pd = (AlertDialog)getDialog();
-        if (pd != null) {
-            TextView tv = (TextView)pd.findViewById(R.id.progress_dialog_message);
-            tv.setText(this.message);
+    public void updateTitle(String newTitle) {
+        this.title = newTitle;
+        updateTextView(newTitle, R.id.dialog_title_text);
+    }
+
+    public void updateMessage(String newMessage) {
+        this.message = newMessage;
+        updateTextView(newMessage, R.id.progress_dialog_message);
+    }
+
+    public void updateTextView(String newText, int idOfViewToUpdate) {
+        AlertDialog dialog = (AlertDialog)getDialog();
+        if (dialog != null) {
+            TextView tv = (TextView)dialog.findViewById(idOfViewToUpdate);
+            tv.setText(newText);
         }
     }
 
@@ -261,17 +269,32 @@ public class CustomProgressDialog extends DialogFragment {
         outState.putInt(KEY_PROGRESS_BAR_MAX, this.progressBarMax);
     }
 
-    public void updateProgressBar(int progress, int max) {
-        if (!usingHorizontalProgressBar) {
-            return;
+    public void updateProgressBarVisibility(boolean visible) {
+        if (usingHorizontalProgressBar) {
+            Dialog dialog = getDialog();
+            if (dialog != null) {
+                ProgressBar bar = (ProgressBar) dialog.findViewById(R.id.progress_bar_horizontal);
+                if (visible) {
+                    bar.setVisibility(View.VISIBLE);
+                } else {
+                    bar.setVisibility(View.GONE);
+                }
+            }
         }
-        this.progressBarProgress = progress;
-        this.progressBarMax = max;
-        Dialog dialog = getDialog();
-        if (dialog != null) {
-            ProgressBar bar = (ProgressBar)dialog.findViewById(R.id.progress_bar_horizontal);
-            bar.setProgress(progress);
-            bar.setMax(max);
+
+    }
+
+    public void updateProgressBar(int progress, int max) {
+        if (usingHorizontalProgressBar) {
+            updateProgressBarVisibility(true);
+            this.progressBarProgress = progress;
+            this.progressBarMax = max;
+            Dialog dialog = getDialog();
+            if (dialog != null) {
+                ProgressBar bar = (ProgressBar)dialog.findViewById(R.id.progress_bar_horizontal);
+                bar.setProgress(progress);
+                bar.setMax(max);
+            }
         }
     }
 }

@@ -68,6 +68,7 @@ public class SyncUIHandling {
             activity.updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
         } else if (progressCode == DataPullTask.PROGRESS_CLEANED) {
             activity.updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
+            activity.updateProgressBarVisibility(false);
         } else if (progressCode == DataPullTask.PROGRESS_AUTHED) {
             activity.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
         } else if (progressCode == DataPullTask.PROGRESS_DOWNLOADING) {
@@ -75,7 +76,10 @@ public class SyncUIHandling {
         } else if (progressCode == DataPullTask.PROGRESS_DOWNLOADING_COMPLETE) {
             activity.hideTaskCancelButton();
         } else if (progressCode == DataPullTask.PROGRESS_PROCESSING) {
-            activity.updateProgress(Localization.get("sync.process.processing", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
+            activity.updateProgress(
+                    Localization.get("sync.progress", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}),
+                    Localization.get("sync.processing.title"),
+                    DataPullTask.DATA_PULL_TASK_ID);
             activity.updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
         } else if (progressCode == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
             activity.updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
