@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -62,6 +63,8 @@ public class QuestionsView extends ScrollView
     private int mViewBannerCount = 0;
 
     private SpannableStringBuilder mGroupLabel;
+
+    //private int indexOfCalloutWidgetJustAnswered;
 
     /**
      * If enabled, we use dividers between question prompts
@@ -322,11 +325,44 @@ public class QuestionsView extends ScrollView
     }
 
     public void setFocus(Context context, int indexOfLastChangedWidget) {
+        QuestionWidget widgetToFocus = null;
         if (indexOfLastChangedWidget != -1) {
-            widgets.get(indexOfLastChangedWidget).setFocus(context);
+            widgetToFocus = widgets.get(indexOfLastChangedWidget);
         } else if (widgets.size() > 0) {
-            widgets.get(0).setFocus(context);
+            widgetToFocus = widgets.get(0);
         }
+        if (widgetToFocus != null) {
+            scrollToWidget(widgetToFocus);
+            widgetToFocus.setFocus(context);
+        }
+    }
+
+    private void scrollToWidget(final QuestionWidget widget) {
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                QuestionsView.this.scrollTo(0, widget.getBottom());
+            }
+        });
+    }
+
+    /**
+     *
+     * @param context
+     * @param pendingIntentWidget
+     * @return the index of the widget that focus was restored to, or -1 if there was no
+     * widget that just called out to restore to
+     */
+    public int restoreFocusToQuestionThatCalledOut(Context context, QuestionWidget pendingIntentWidget) {
+        if (pendingIntentWidget != null) {
+            int index = widgets.indexOf(pendingIntentWidget);
+            setFocus(context, index);
+            return index;
+        } /*else if (indexOfCalloutWidgetJustAnswered != -1) {
+            indexToFocusOn = indexOfCalloutWidgetJustAnswered;
+            indexOfCalloutWidgetJustAnswered = -1;
+        }*/
+        return -1;
     }
 
     /**
@@ -343,7 +379,8 @@ public class QuestionsView extends ScrollView
         for (QuestionWidget q : widgets) {
             if (questionFormIndex.equals(q.getFormId())) {
                 q.setBinaryData(answer);
-                pendingCalloutInterface.setPendingCalloutFormIndex(null);
+                //pendingCalloutInterface.setPendingCalloutFormIndex(null);
+                //indexOfCalloutWidgetJustAnswered = widgets.indexOf(q);
                 return;
             }
         }

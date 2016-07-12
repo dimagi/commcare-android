@@ -556,19 +556,21 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * pending callout with the form controller
      */
     public QuestionWidget getPendingWidget() {
-        FormIndex pendingIndex = mFormController.getPendingCalloutFormIndex();
-        if (pendingIndex == null) {
-            Logger.log(AndroidLogger.SOFT_ASSERT,
-                    "getPendingWidget called when pending callout form index was null");
-            return null;
-        }
-        for (QuestionWidget q : questionsView.getWidgets()) {
-            if (q.getFormId().equals(pendingIndex)) {
-                return q;
+        if (mFormController != null) {
+            FormIndex pendingIndex = mFormController.getPendingCalloutFormIndex();
+            if (pendingIndex == null) {
+                Logger.log(AndroidLogger.SOFT_ASSERT,
+                        "getPendingWidget called when pending callout form index was null");
+                return null;
             }
+            for (QuestionWidget q : questionsView.getWidgets()) {
+                if (q.getFormId().equals(pendingIndex)) {
+                    return q;
+                }
+            }
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "getPendingWidget couldn't find question widget with a form index that matches the pending callout.");
         }
-        Logger.log(AndroidLogger.SOFT_ASSERT,
-                "getPendingWidget couldn't find question widget with a form index that matches the pending callout.");
         return null;
     }
 
@@ -686,9 +688,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         //If we're at the beginning of form event, but don't show the screen for that, we need 
         //to get the next valid screen
-        if(event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
+        if (event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
             showNextView(true);
-        } else if(event == FormEntryController.EVENT_END_OF_FORM) {
+        } else if (event == FormEntryController.EVENT_END_OF_FORM) {
             showPreviousView(false);
         } else {
             QuestionsView current = createView();
@@ -1582,16 +1584,27 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         registerFormEntryReceiver();
-        if (questionsView != null) {
-            questionsView.restoreTimePickerData();
-        }
+        restorePriorStates();
 
         if (mFormController != null) {
-            // clear pending callout post onActivityResult processing
             mFormController.setPendingCalloutFormIndex(null);
         }
+    }
 
-        restoreInlineVideoState();
+    private void restorePriorStates() {
+        if (questionsView != null) {
+            questionsView.restoreTimePickerData();
+            restoreFocusToCalloutQuestion();
+            restoreInlineVideoState();
+        }
+    }
+
+    private void restoreFocusToCalloutQuestion() {
+        int restoredFocusTo =
+                questionsView.restoreFocusToQuestionThatCalledOut(this, getPendingWidget());
+        if (restoredFocusTo != -1) {
+            indexOfLastChangedWidget = restoredFocusTo;
+        }
     }
 
     private void loadForm() {
