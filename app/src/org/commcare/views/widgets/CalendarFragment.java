@@ -37,29 +37,27 @@ import java.util.Map;
  */
 public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
-    private GridView myGrid;
+    protected GridView myGrid;
     private Button decMonth;
     private Button incMonth;
-    private Button decYear;
-    private Button incYear;
-    private ImageButton cancel;
-    private Button today;
+    protected Button decYear;
+    protected Button incYear;
+    protected ImageButton cancel;
+    protected Button today;
     private TextView myMonth;
-    private TextView myYear;
-    private Calendar calendar;
-    private LinearLayout myLayout;
-    private CalendarCloseListener myListener;
-    private long todaysDateInMillis;
-
-
-    private static final int DAYSINWEEK = 7;
-    private static final String TIME = "TIME";
+    protected TextView myYear;
+    protected Calendar calendar;
+    protected LinearLayout myLayout;
+    protected CalendarCloseListener myListener;
+    protected long todaysDateInMillis;
+    protected static final int DAYSINWEEK = 7;
+    protected static final String TIME = "TIME";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
-        myLayout = (LinearLayout) inflater.inflate(R.layout.calendar_widget, container);
+        inflateView(inflater, container);
 
         if(savedInstanceState != null && savedInstanceState.containsKey(TIME)){
             calendar = Calendar.getInstance();
@@ -78,6 +76,10 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         myLayout.setMinimumWidth((int)(displayRectangle.width() * 0.9f));
 
         return myLayout;
+    }
+
+    protected void inflateView(LayoutInflater inflater, ViewGroup container) {
+        myLayout = (LinearLayout) inflater.inflate(R.layout.calendar_widget, container);
     }
 
     @Override
@@ -129,9 +131,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
     private void initDisplay(){
         myGrid = (GridView) myLayout.findViewById(R.id.calendar_grid);
-        decMonth = (Button) myLayout.findViewById(R.id.prev_month_button);
-        incMonth = (Button) myLayout.findViewById(R.id.next_month_button);
-        myMonth = (TextView) myLayout.findViewById(R.id.current_month);
+        initMonthComponents();
         decYear = (Button) myLayout.findViewById(R.id.prev_year_button);
         incYear = (Button) myLayout.findViewById(R.id.next_year_button);
         myYear = (TextView) myLayout.findViewById(R.id.current_year);
@@ -139,15 +139,13 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         today = (Button) myLayout.findViewById(R.id.today);
     }
 
-    private void initOnClick(){
 
-        decMonth.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                calendar.add(Calendar.MONTH, -1);
-                refresh();
-            }
-        });
+    //Refactored these into a separate method because we want to experiment with several
+    //different month behaviors in testing
+    protected void initMonthComponents() {
+        decMonth = (Button) myLayout.findViewById(R.id.prev_month_button);
+        incMonth = (Button) myLayout.findViewById(R.id.next_month_button);
+        myMonth = (TextView) myLayout.findViewById(R.id.current_month);
 
         incMonth.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -156,6 +154,17 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
                 refresh();
             }
         });
+
+        decMonth.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                calendar.add(Calendar.MONTH, -1);
+                refresh();
+            }
+        });
+    }
+
+    private void initOnClick(){
 
         decYear.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -221,8 +230,12 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         populateListOfDates(dateList, populator, totalDays);
 
         myYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
-        myMonth.setText(calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()));
+        updateMonthOnDateChange();
         myGrid.setAdapter(new CalendarAdapter(getContext(), dateList));
+    }
+
+    protected void updateMonthOnDateChange() {
+        myMonth.setText(calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()));
     }
 
     //Populates an arraylist with dates

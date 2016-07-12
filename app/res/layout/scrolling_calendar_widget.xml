@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:layout_gravity="center_horizontal"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp">
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent"
+        android:text="Today"
+        android:textStyle="bold"
+        android:id="@+id/today"/>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".05"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:layout_gravity="center">
+
+      <Spinner
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:id="@+id/calendar_spinner">
+
+      </Spinner>
+
+        <Button
+            android:id="@+id/prev_year_button"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:layout_marginLeft="25dp"
+            android:layout_weight=".1"
+            android:layout_gravity="center"
+            android:text="&lt;"
+            android:background="@color/transparent"
+            android:textStyle="bold"
+            android:textColor="@color/blue"
+            android:textSize="30dp"
+            android:gravity="center" />
+
+        <TextView
+            android:id="@+id/current_year"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:textStyle="bold"
+            android:layout_weight=".2"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal" />
+
+        <Button
+            android:id="@+id/next_year_button"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:layout_weight=".1"
+            android:layout_gravity="center"
+            android:text="&gt;"
+            android:background="@color/transparent"
+            android:textColor="@color/blue"
+            android:textStyle="bold"
+            android:textSize="30dp"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal"
+        android:layout_marginLeft="10dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:textStyle="bold"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/day1"/>
+
+        <TextView
+            android:layout_width="0dp"
+            android:textStyle="bold"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/day2"/>
+
+        <TextView
+            android:id="@+id/day3"
+            android:textStyle="bold"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"/>
+
+        <TextView
+            android:id="@+id/day4"
+            android:textStyle="bold"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"/>
+
+        <TextView
+            android:id="@+id/day5"
+            android:textStyle="bold"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"/>
+
+        <TextView
+            android:id="@+id/day6"
+            android:textStyle="bold"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:id="@+id/day7"
+            android:textStyle="bold"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_horizontal"/>
+
+    </LinearLayout>
+
+    <GridView
+        android:id="@+id/calendar_grid"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".5"
+        android:numColumns="7"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:horizontalSpacing="3dp"
+        android:verticalSpacing="3dp"
+        android:layout_marginBottom="20dp"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@android:color/darker_gray"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".1">
+
+        <ImageButton
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/icon_exit_form"
+            android:id="@+id/cancel_calendar"
+            android:layout_marginBottom="10dp"
+            android:layout_alignParentLeft="true"/>
+
+        <ImageButton
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/green_check_mark"
+            android:id="@+id/close_calendar"
+            android:layout_marginBottom="10dp"
+            android:layout_alignParentRight="true"/>
+
+    </RelativeLayout>
+
+
+
+</LinearLayout>

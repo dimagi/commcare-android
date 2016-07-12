@@ -1,6 +1,8 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,7 +33,20 @@ import java.util.Map;
  * Created by Saumya on 5/27/2016.
  * A widget that accepts Gregorian dates using logic and GUI that are similar to the Nepali and Ethiopian widgets
  */
-public class GregorianDateWidget extends AbstractUniversalDateWidget {
+
+/**
+ * Month Type: text, spinner, list
+ * Cancel Button type: true, false
+ * Calendar type: arrow, calspinner, callist
+ *
+ * Default" [text, true, arrow]
+ *
+ * Given spinner and list, instantiate different subclasses of prototype1 from factory
+ * Given cancel button type, pass true/false as a constructor param to the prototype
+ * Given calendar type, pass it as a constructor param to the prototype and instantiate a different subclass of calendarfragment
+ *
+ */
+public class GregorianDateWidget extends AbstractUniversalDateWidget implements CalendarFragment.CalendarCloseListener {
 
     private EditText dayText;
     private AutoCompleteTextView monthText;
@@ -45,19 +60,54 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
     private int maxYear;
     protected long todaysDateInMillis;
 
+    private CalendarFragment myCalendarFragment;
+    private ImageButton openCalButton;
+    private FragmentManager fm;
+    private long timeBeforeCalendarOpened;
+
     protected LinearLayout gregorianView;
 
-    public GregorianDateWidget(Context context, FormEntryPrompt prompt){
+    public GregorianDateWidget(Context context, FormEntryPrompt prompt, boolean closeButton, String calendarType){
         super(context, prompt);
         maxYear = calendar.get(Calendar.YEAR) + 1;
         todaysDateInMillis = calendar.getTimeInMillis();
         ImageButton clearAll = (ImageButton) findViewById(R.id.clear_all);
-        clearAll.setOnClickListener(new OnClickListener() {
+
+        if(closeButton){
+            clearAll.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    clearAll();
+                }
+            });
+        }else{
+            clearAll.setVisibility(View.GONE);
+        }
+
+        fm = ((FragmentActivity) getContext()).getSupportFragmentManager();
+
+        if(calendarType.equals("calspinner")){
+            myCalendarFragment = new SpinnerCalendarFragment();
+        }
+        else if(calendarType.equals("callist")){
+            myCalendarFragment = new ScrollingCalendarFragment();
+        }
+        else{
+            myCalendarFragment = new CalendarFragment();
+        }
+
+        myCalendarFragment.setCalendar(calendar, todaysDateInMillis);
+
+        openCalButton = (ImageButton) findViewById(R.id.open_calendar_bottom);
+        openCalButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                clearAll();
+                openCalendar();
             }
         });
+
+        myCalendarFragment.setListener(this);
+        myCalendarFragment.setCancelable(false);
     }
 
     @Override
@@ -93,6 +143,13 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
 
         MonthAdapter monthAdapter = new MonthAdapter(getContext(), monthList);
         monthText.setAdapter(monthAdapter);
+        monthText.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                monthText.showDropDown();
+            }
+        });
+        monthText.setDropDownHeight(500);
     }
 
     @Override
@@ -301,7 +358,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
 
         private LayoutInflater mInflater;
 
-        public MonthAdapter(Context context,List<String> months){
+        public MonthAdapter(Context context, List<String> months){
             super(context, R.layout.calendar_date, months);
             mInflater = LayoutInflater.from(context);
         }
@@ -319,5 +376,23 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
             text.setText(month);
             return text;
         }
+    }
+
+    protected void openCalendar() {
+        setFocus(getContext());
+        timeBeforeCalendarOpened = calendar.getTimeInMillis();
+        myCalendarFragment.show(fm, "Calendar Popup");
+    }
+
+    @Override
+    public void onCalendarClose() {
+        refreshDisplay();
+        setFocus(getContext());
+    }
+
+    @Override
+    public void onCalendarCancel(){
+        calendar.setTimeInMillis(timeBeforeCalendarOpened);
+        onCalendarClose();
     }
 }

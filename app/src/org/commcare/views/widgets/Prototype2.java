@@ -10,7 +10,7 @@ import org.javarosa.form.api.FormEntryPrompt;
  * Created by Saumya on 6/2/2016.
  * Prototype 2 of 3
  */
-public class Prototype2 extends Prototype1 {
+public class Prototype2 extends Prototype {
 
     public Prototype2(Context context, FormEntryPrompt prompt){
         super(context, prompt);
