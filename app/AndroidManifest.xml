@@ -329,6 +329,10 @@
                 <action android:name="${applicationId}.api.action.TriggerSyncRecover"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
+            <intent-filter>
+                <action android:name="${applicationId}.api.action.ExpireUserKeyRecord"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
         </receiver>
 
         <activity android:name="org.commcare.activities.MultimediaInflaterActivity">

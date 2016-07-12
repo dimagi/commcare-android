@@ -328,7 +328,7 @@ public class UserKeyRecord extends Persisted {
 
     /**
      * Does today lie within the record's validity range.
-     * <p/>
+     *
      * Expiration dates that are null or overflowed are ignored during this
      * check.
      */

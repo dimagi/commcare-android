@@ -15,6 +15,7 @@ HELP_MSG = """'capture' saves the current session for restoring later.
 'uninstall app_id' uninstalls an installed app.
 'login username password' logs into the currently seated app
 'invalidate' forces recovery on next sync by providing fake case db hash.
+'expire_key username' updates a user key record to expire yesterday.
 'remote domain app_id build' downloads an app from HQ and installs it.
                              The 'build' argument is optional
 """
@@ -53,6 +54,18 @@ def stage_recover():
     """
     cmd = receiver_command("org.commcare.dalvik.api.action" +
                            ".TriggerSyncRecover")
+    print(cmd)
+    subprocess.call(cmd, shell=True)
+
+
+# String -> None
+def expire_key(username):
+    """
+    Expire user key record for user by setting 'validTo' to yesterday
+    """
+    extras = {"username": username}
+    cmd = receiver_command("org.commcare.dalvik.api.action" +
+                           ".ExpireUserKeyRecord", extras)
     print(cmd)
     subprocess.call(cmd, shell=True)
 
@@ -169,6 +182,7 @@ def main():
     dispatch = {'capture': lambda: capture(),
                 'uninstall': lambda: uninstall(sys.argv[2]),
                 'invalidate': lambda: stage_recover(),
+                'expire_key': lambda: expire_key(sys.argv[2]),
                 'remote': lambda: remote_install(*sys.argv[2:5]),
                 'help': lambda: print(HELP_MSG),
                 'install': lambda: install(sys.argv[2])}
