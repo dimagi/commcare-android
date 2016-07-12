@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -37,15 +38,19 @@ import java.util.Map;
 public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
     private GridView myGrid;
-    private ImageButton decMonth;
-    private ImageButton incMonth;
-    private ImageButton decYear;
-    private ImageButton incYear;
+    private Button decMonth;
+    private Button incMonth;
+    private Button decYear;
+    private Button incYear;
+    private ImageButton cancel;
+    private Button today;
     private TextView myMonth;
     private TextView myYear;
     private Calendar calendar;
     private LinearLayout myLayout;
     private CalendarCloseListener myListener;
+    private long todaysDateInMillis;
+
 
     private static final int DAYSINWEEK = 7;
     private static final String TIME = "TIME";
@@ -81,12 +86,14 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         bundle.putLong(TIME, calendar.getTimeInMillis());
     }
 
-    public void setCalendar(Calendar cal){
+    public void setCalendar(Calendar cal, long currentDayInMillis){
+        todaysDateInMillis = currentDayInMillis;
         calendar = cal;
     }
 
     public interface CalendarCloseListener {
         void onCalendarClose();
+        void onCalendarCancel();
     }
 
     public void setListener(CalendarCloseListener listener){
@@ -97,9 +104,6 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
     public void onDismiss(DialogInterface dialog){
         super.onDismiss(dialog);
         enableScreenRotation();
-        if(myListener != null){
-            myListener.onCalendarClose();
-        }
     }
 
     private void initWeekDays(){
@@ -125,12 +129,14 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
     private void initDisplay(){
         myGrid = (GridView) myLayout.findViewById(R.id.calendar_grid);
-        decMonth = (ImageButton) myLayout.findViewById(R.id.prev_month_button);
-        incMonth = (ImageButton) myLayout.findViewById(R.id.next_month_button);
+        decMonth = (Button) myLayout.findViewById(R.id.prev_month_button);
+        incMonth = (Button) myLayout.findViewById(R.id.next_month_button);
         myMonth = (TextView) myLayout.findViewById(R.id.current_month);
-        decYear = (ImageButton) myLayout.findViewById(R.id.prev_year_button);
-        incYear = (ImageButton) myLayout.findViewById(R.id.next_year_button);
+        decYear = (Button) myLayout.findViewById(R.id.prev_year_button);
+        incYear = (Button) myLayout.findViewById(R.id.next_year_button);
         myYear = (TextView) myLayout.findViewById(R.id.current_year);
+        cancel = (ImageButton) myLayout.findViewById(R.id.cancel_calendar);
+        today = (Button) myLayout.findViewById(R.id.today);
     }
 
     private void initOnClick(){
@@ -176,11 +182,32 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
             }
         });
 
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+                if(myListener != null){
+                    myListener.onCalendarCancel();
+                }
+            }
+        });
+
         ImageButton closer = (ImageButton) myLayout.findViewById(R.id.close_calendar);
         closer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dismiss();
+                if(myListener != null){
+                    myListener.onCalendarClose();
+                }
+            }
+        });
+
+        today.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                calendar.setTimeInMillis(todaysDateInMillis);
+                refresh();
             }
         });
     }

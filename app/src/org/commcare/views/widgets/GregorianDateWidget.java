@@ -43,12 +43,14 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget {
     private final String DAYFORMAT = "%02d";
     private final String YEARFORMAT = "%04d";
     private int maxYear;
+    protected long todaysDateInMillis;
 
     protected LinearLayout gregorianView;
 
     public GregorianDateWidget(Context context, FormEntryPrompt prompt){
         super(context, prompt);
         maxYear = calendar.get(Calendar.YEAR) + 1;
+        todaysDateInMillis = calendar.getTimeInMillis();
         ImageButton clearAll = (ImageButton) findViewById(R.id.clear_all);
         clearAll.setOnClickListener(new OnClickListener() {
             @Override

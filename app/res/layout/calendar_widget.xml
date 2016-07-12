@@ -7,20 +7,34 @@
     android:paddingLeft="20dp"
     android:paddingRight="20dp">
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/transparent"
+        android:text="Today"
+        android:textStyle="bold"
+        android:id="@+id/today"/>
+
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:layout_gravity="center_horizontal"
+        android:layout_height="0dp"
+        android:layout_weight=".05"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_gravity="center">
 
-        <ImageButton
+        <Button
             android:id="@+id/prev_month_button"
             android:layout_width="0dp"
             android:layout_height="45dp"
-            android:background="@drawable/icon_chevron_left_primary"
             android:layout_weight=".1"
-            android:layout_gravity="center" />
+            android:layout_gravity="center"
+            android:text="&lt;"
+            android:background="@color/transparent"
+            android:textStyle="bold"
+            android:textColor="@color/blue"
+            android:textSize="30dp"
+            android:gravity="center" />
 
         <TextView
             android:id="@+id/current_month"
@@ -31,22 +45,32 @@
             android:layout_gravity="center"
             android:gravity="center_horizontal" />
 
-        <ImageButton
+        <Button
             android:id="@+id/next_month_button"
             android:layout_width="0dp"
             android:layout_height="45dp"
             android:layout_weight=".1"
-            android:background="@drawable/icon_chevron_right_primary"
-            android:layout_gravity="center" />
+            android:layout_gravity="center"
+            android:text="&gt;"
+            android:background="@color/transparent"
+            android:textStyle="bold"
+            android:textColor="@color/blue"
+            android:textSize="30dp"
+            android:gravity="center" />
 
-        <ImageButton
+        <Button
             android:id="@+id/prev_year_button"
             android:layout_width="0dp"
             android:layout_height="45dp"
             android:layout_marginLeft="25dp"
             android:layout_weight=".1"
-            android:background="@drawable/icon_chevron_left_primary"
-            android:layout_gravity="center" />
+            android:layout_gravity="center"
+            android:text="&lt;"
+            android:background="@color/transparent"
+            android:textStyle="bold"
+            android:textColor="@color/blue"
+            android:textSize="30dp"
+            android:gravity="center" />
 
         <TextView
             android:id="@+id/current_year"
@@ -58,19 +82,24 @@
             android:layout_gravity="center"
             android:gravity="center_horizontal" />
 
-        <ImageButton
+        <Button
             android:id="@+id/next_year_button"
             android:layout_width="0dp"
             android:layout_height="45dp"
-            android:background="@drawable/icon_chevron_right_primary"
             android:layout_weight=".1"
-            android:layout_gravity="center" />
+            android:layout_gravity="center"
+            android:text="&gt;"
+            android:background="@color/transparent"
+            android:textColor="@color/blue"
+            android:textStyle="bold"
+            android:textSize="30dp"
+            android:gravity="center" />
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:gravity="center_horizontal"
         android:layout_marginLeft="10dp"
@@ -137,7 +166,8 @@
     <GridView
         android:id="@+id/calendar_grid"
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".5"
         android:numColumns="7"
         android:gravity="center"
         android:layout_marginTop="10dp"
@@ -150,13 +180,31 @@
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"/>
 
-    <ImageButton
-        android:layout_width="25dp"
-        android:layout_height="fill_parent"
-        android:layout_gravity="right"
-        android:layout_marginTop="10dp"
-        android:background="@drawable/green_check_mark"
-        android:id="@+id/close_calendar"
-        android:layout_marginBottom="10dp"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".1">
+
+        <ImageButton
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/icon_exit_form"
+            android:id="@+id/cancel_calendar"
+            android:layout_marginBottom="10dp"
+            android:layout_alignParentLeft="true"/>
+
+        <ImageButton
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/green_check_mark"
+            android:id="@+id/close_calendar"
+            android:layout_marginBottom="10dp"
+            android:layout_alignParentRight="true"/>
+
+    </RelativeLayout>
+
+
 
 </LinearLayout>
