@@ -159,7 +159,6 @@ public class FormStorageTest {
             , "org.javarosa.core.reference.ReferenceDataSource"
             , "org.javarosa.core.reference.RootTranslator"
             , "org.javarosa.core.services.locale.Localizer"
-            , "org.javarosa.core.services.locale.ResourceFileDataSource"
             , "org.javarosa.core.services.locale.TableLocaleSource"
             , "org.javarosa.core.services.properties.Property"
             , "org.javarosa.core.services.transport.payload.ByteArrayPayload"
