@@ -31,6 +31,7 @@ import org.commcare.cases.util.CaseDBUtils;
 import org.commcare.interfaces.HttpRequestEndpoints;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
+import org.commcare.provider.DebugControlsReceiver;
 import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.utils.DateUtils;
@@ -216,8 +217,14 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         return storage.getMetaDataFieldForRecord(users.firstElement(), User.META_SYNC_TOKEN);
     }
 
-    private String getDigest() {
-        return CaseDBUtils.computeHash(CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class));
+    private static String getDigest() {
+        String fakeHash = DebugControlsReceiver.getFakeCaseDbHash();
+        if (fakeHash != null) {
+            // For integration tests, use fake hash to trigger 412 recovery on this sync
+            return fakeHash;
+        } else {
+            return CaseDBUtils.computeCaseDbHash(CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class));
+        }
     }
 
     @Override
