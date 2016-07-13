@@ -76,6 +76,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.framework.Table;
 import org.commcare.models.legacy.LegacyInstallUtils;
+import org.commcare.network.AndroidModernHttpRequester;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
 import org.commcare.network.HttpUtils;
@@ -1487,7 +1488,7 @@ public class CommCareApplication extends Application {
                                                         boolean isAuthenticatedRequest,
                                                         boolean isPostRequest) {
         Pair<User, String> userAndDomain = HttpUtils.getUserAndDomain(isAuthenticatedRequest);
-        return new ModernHttpRequester(new AndroidCacheDirSetup(context), url,
+        return new AndroidModernHttpRequester(new AndroidCacheDirSetup(context), url,
                 params, userAndDomain.first, userAndDomain.second, isAuthenticatedRequest, isPostRequest);
     }
 
