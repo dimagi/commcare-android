@@ -252,8 +252,8 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
 
     private HttpClient client() {
         HttpParams params = new BasicHttpParams();
-        HttpConnectionParams.setConnectionTimeout(params, GlobalConstants.CONNECTION_TIMEOUT);
-        HttpConnectionParams.setSoTimeout(params, GlobalConstants.CONNECTION_SO_TIMEOUT);
+        HttpConnectionParams.setConnectionTimeout(params, ModernHttpRequester.CONNECTION_TIMEOUT);
+        HttpConnectionParams.setSoTimeout(params, ModernHttpRequester.CONNECTION_SO_TIMEOUT);
         HttpClientParams.setRedirecting(params, true);
 
         DefaultHttpClient client = new DefaultHttpClient(params);

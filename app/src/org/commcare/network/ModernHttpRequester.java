@@ -2,12 +2,9 @@ package org.commcare.network;
 
 import android.net.Uri;
 
-import org.commcare.CommCareApplication;
 import org.commcare.interfaces.HttpResponseProcessor;
 import org.commcare.interfaces.ResponseStreamAccessor;
 import org.commcare.utils.AndroidStreamUtil;
-import org.commcare.utils.GlobalConstants;
-import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.bitcache.BitCache;
 import org.commcare.utils.bitcache.BitCacheFactory;
 import org.javarosa.core.model.User;
@@ -24,6 +21,7 @@ import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Make http get/post requests with query params encoded in get url or post
@@ -32,6 +30,16 @@ import java.util.Map;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ModernHttpRequester implements ResponseStreamAccessor {
+    /**
+     * How long to wait when opening network connection in milliseconds
+     */
+    public static final int CONNECTION_TIMEOUT = (int)TimeUnit.SECONDS.toMillis(2);
+
+    /**
+     * How long to wait when receiving data (in milliseconds)
+     */
+    public static final int CONNECTION_SO_TIMEOUT = (int)TimeUnit.SECONDS.toMillis(1);
+
     private final boolean isPostRequest;
     private final BitCacheFactory.CacheDirSetup cacheDirSetup;
     private HttpResponseProcessor responseProcessor;
@@ -41,39 +49,40 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
 
     public ModernHttpRequester(BitCacheFactory.CacheDirSetup cacheDirSetup,
                                URL url, HashMap<String, String> params,
-                               boolean isAuthenticatedRequest,
+                               User user, String domain, boolean isAuthenticatedRequest,
                                boolean isPostRequest) {
         this.isPostRequest = isPostRequest;
         this.cacheDirSetup = cacheDirSetup;
         this.params = params;
         this.url = url;
 
-        setupAuthentication(isAuthenticatedRequest);
+        setupAuthentication(isAuthenticatedRequest, user, domain);
     }
 
     public void setResponseProcessor(HttpResponseProcessor responseProcessor) {
         this.responseProcessor = responseProcessor;
     }
 
-    private void setupAuthentication(boolean isAuth) {
+    private void setupAuthentication(boolean isAuth, User user, String domain) {
         if (isAuth) {
-            User u = getCurrentUser();
-            final String username = u.getUsername();
-            final String password = u.getCachedPwd();
-            if (username == null || password == null || User.TYPE_DEMO.equals(u.getUserType())) {
+            final String username;
+            if (domain != null) {
+                username = user.getUsername() + "@" + domain;
+            } else {
+                username = user.getUsername();
+            }
+            final String password = user.getCachedPwd();
+            if (username == null || password == null || User.TYPE_DEMO.equals(user.getUserType())) {
                 String message =
                         "Trying to make authenticated http request without proper credentials";
                 throw new RuntimeException(message);
             } else if (!"https".equals(url.getProtocol())) {
                 throw new PlainTextPasswordException();
             } else {
-                // make authenticated requests
                 Authenticator.setDefault(new Authenticator() {
                     @Override
                     protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(
-                                HttpRequestGenerator.buildDomainUser(username),
-                                password.toCharArray());
+                        return new PasswordAuthentication(username, password.toCharArray());
                     }
                 });
             }
@@ -84,14 +93,6 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     }
 
     public static class PlainTextPasswordException extends RuntimeException {
-    }
-
-    private static User getCurrentUser() {
-        try {
-            return CommCareApplication._().getSession().getLoggedInUser();
-        } catch (SessionUnavailableException sue) {
-            throw new RuntimeException("Can't find user to make authenticated http request.");
-        }
     }
 
     public void request() {
@@ -131,8 +132,8 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     }
 
     private static void setupConnectionInner(HttpURLConnection httpConnection) {
-        httpConnection.setConnectTimeout(GlobalConstants.CONNECTION_TIMEOUT);
-        httpConnection.setReadTimeout(GlobalConstants.CONNECTION_SO_TIMEOUT);
+        httpConnection.setConnectTimeout(CONNECTION_TIMEOUT);
+        httpConnection.setReadTimeout(CONNECTION_SO_TIMEOUT);
         httpConnection.setDoInput(true);
         httpConnection.setInstanceFollowRedirects(true);
     }

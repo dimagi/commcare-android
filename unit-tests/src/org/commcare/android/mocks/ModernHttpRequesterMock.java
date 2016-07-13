@@ -7,6 +7,7 @@ import android.os.Build;
 
 import org.commcare.network.ModernHttpRequester;
 import org.commcare.utils.bitcache.BitCacheFactory;
+import org.javarosa.core.model.User;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
@@ -31,10 +32,11 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
 
     public ModernHttpRequesterMock(Context context, URL url,
                                    HashMap<String, String> params,
+                                   User user, String domain,
                                    boolean isAuthenticatedRequest,
                                    boolean isPostRequest) {
         super((BitCacheFactory.CacheDirSetup)context,
-                url, params, isAuthenticatedRequest, isPostRequest);
+                url, params, user, domain, isAuthenticatedRequest, isPostRequest);
     }
 
     /**

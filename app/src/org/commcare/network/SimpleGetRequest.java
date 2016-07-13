@@ -88,8 +88,8 @@ class SimpleGetRequest {
     }
 
     private static void setupGetConnection(HttpURLConnection con) throws IOException {
-        con.setConnectTimeout(GlobalConstants.CONNECTION_TIMEOUT);
-        con.setReadTimeout(GlobalConstants.CONNECTION_SO_TIMEOUT);
+        con.setConnectTimeout(ModernHttpRequester.CONNECTION_TIMEOUT);
+        con.setReadTimeout(ModernHttpRequester.CONNECTION_SO_TIMEOUT);
         con.setRequestMethod("GET");
         con.setDoInput(true);
         con.setInstanceFollowRedirects(true);

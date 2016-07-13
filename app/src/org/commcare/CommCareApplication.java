@@ -28,6 +28,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.util.Pair;
 import android.telephony.TelephonyManager;
 import android.text.format.DateUtils;
 import android.util.Log;
@@ -76,6 +77,8 @@ import org.commcare.models.framework.Table;
 import org.commcare.models.legacy.LegacyInstallUtils;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.DataPullResponseFactory;
+import org.commcare.network.HttpRequestGenerator;
+import org.commcare.network.HttpUtils;
 import org.commcare.network.ModernHttpRequester;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
@@ -1484,8 +1487,9 @@ public class CommCareApplication extends Application {
                                                         HashMap<String, String> params,
                                                         boolean isAuthenticatedRequest,
                                                         boolean isPostRequest) {
+        Pair<User, String> userAndDomain = HttpUtils.getUserAndDomain(isAuthenticatedRequest);
         return new ModernHttpRequester((BitCacheFactory.CacheDirSetup)context,
-                url, params, isAuthenticatedRequest, isPostRequest);
+                url, params, userAndDomain.first, userAndDomain.second, isAuthenticatedRequest, isPostRequest);
     }
 
     public DataPullRequester getDataPullRequester(){
