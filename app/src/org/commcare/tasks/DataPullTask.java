@@ -671,6 +671,9 @@ public abstract class DataPullTask<R>
     private void startReportingServerProgress() {
         long millisUntilNextAttempt = retryAtTime - System.currentTimeMillis();
         int amountOfProgressToCoverThisCycle = serverProgressCompletedSoFar - lastReportedServerProgressValue;
+        if (amountOfProgressToCoverThisCycle == 0) {
+            return;
+        }
         long intervalAllottedPerProgressUnit = millisUntilNextAttempt / amountOfProgressToCoverThisCycle;
 
         final Timer reportServerProgressTimer = new Timer();
