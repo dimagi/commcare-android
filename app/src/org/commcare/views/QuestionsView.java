@@ -341,7 +341,8 @@ public class QuestionsView extends ScrollView
         new Handler().post(new Runnable() {
             @Override
             public void run() {
-                QuestionsView.this.scrollTo(0, widget.getBottom());
+                //QuestionsView.this.scrollTo(0, (widget.getTop()-widget.getBottom())/2);
+                QuestionsView.this.scrollTo(0, widget.getTop());
             }
         });
     }

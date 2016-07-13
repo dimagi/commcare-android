@@ -415,13 +415,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
         saveFormEntrySession(outState);
         outState.putBoolean(KEY_RECORD_FORM_ENTRY_SESSION, recordEntrySession);
+        outState.putInt(KEY_LAST_CHANGED_WIDGET, indexOfLastChangedWidget);
 
         if (indexOfWidgetWithVideoPlaying != -1) {
             outState.putInt(KEY_WIDGET_WITH_VIDEO_PLAYING, indexOfWidgetWithVideoPlaying);
             outState.putInt(KEY_POSITION_OF_VIDEO_PLAYING, positionOfVideoProgress);
-        }
-        if (indexOfLastChangedWidget != -1) {
-            outState.putInt(KEY_LAST_CHANGED_WIDGET, indexOfLastChangedWidget);
         }
 
         if(symetricKey != null) {
@@ -967,6 +965,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         }
 
+        // Any info stored about the last changed widget is useless when we move to a new view
         resetLastChangedWidget();
 
         if (mFormController.getEvent() != FormEntryController.EVENT_END_OF_FORM) {
