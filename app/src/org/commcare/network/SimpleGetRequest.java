@@ -1,5 +1,6 @@
 package org.commcare.network;
 
+import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.logging.AndroidLogger;
 import org.javarosa.core.services.Logger;
 
