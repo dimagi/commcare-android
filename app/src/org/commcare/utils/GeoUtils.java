@@ -18,6 +18,7 @@ import org.javarosa.core.model.data.UncastData;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Static functions for dealing with GPS data, specifically Location and LocationManager objects.
@@ -25,9 +26,14 @@ import java.util.Set;
  * @author jschweers
  */
 public class GeoUtils {
-    public static final double GOOD_ACCURACY = 5;             // Good enough accuracy to stop pinging the GPS altogether
-    public static final double ACCEPTABLE_ACCURACY = 1600;    // Good enough accuracy to ask user if they want to record
-    public static final int MAXIMUM_WAIT = 300 * 1000;        // For passive collection, milliseconds to wait for GPS before giving up
+    // Good enough accuracy to stop pinging the GPS altogether
+    public static final double GOOD_ACCURACY = 5;
+
+    // Good enough accuracy to ask user if they want to record
+    public static final double ACCEPTABLE_ACCURACY = 1600;
+
+    // For passive collection, milliseconds to wait for GPS before giving up
+    public static final int MAXIMUM_WAIT = (int)TimeUnit.MINUTES.toMillis(5);
 
     public static final String ACTION_CHECK_GPS_ENABLED = "org.commcare.utils.GeoUtils.check";
 
