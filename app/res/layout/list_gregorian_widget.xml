@@ -1,0 +1,182 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:id="@+id/widgetinfo"
+        android:gravity="left|center_vertical"
+        android:layout_gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/greg_day_of_week"
+            android:layout_weight=".9"
+            android:layout_marginLeft="20dp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:orientation="horizontal">
+
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.15"
+            android:orientation="vertical"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="10dp">
+
+            <Button
+                android:id="@+id/dayupbtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="+"
+                android:textSize="@dimen/text_largest"
+                android:textColor="@color/white"
+                android:background="@color/bright_blue_grad_start"
+                android:elevation="@dimen/button_elevation"/>
+
+            <EditText
+                android:id="@+id/day_txt_field"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:gravity="center"
+                android:padding="3dp"
+                android:textSize="28dp"
+                android:inputType="number"
+                android:maxLength="2"
+                android:selectAllOnFocus="true"
+                android:imeOptions="flagNoExtractUi"/>
+
+            <Button
+                android:id="@+id/daydownbtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="-"
+                android:textSize="@dimen/text_largest"
+                android:textColor="@color/white"
+                android:background="@color/dark_blue"
+                android:elevation="@dimen/button_elevation" />
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".5"
+            android:orientation="vertical"
+            android:layout_marginRight="10dp">
+
+            <Button
+                android:id="@+id/monthupbtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:text="+"
+                android:textSize="@dimen/text_largest"
+                android:textColor="@color/white"
+                android:background="@color/bright_blue_grad_start"
+                android:elevation="@dimen/button_elevation" />
+
+           <Spinner
+               android:layout_width="match_parent"
+               android:layout_height="45dp"
+               android:id="@+id/month_spinner">
+           </Spinner>
+
+            <Button
+                android:id="@+id/monthdownbtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:text="-"
+                android:textSize="@dimen/text_largest"
+                android:textColor="@color/white"
+                android:background="@color/dark_blue"
+                android:elevation="@dimen/button_elevation"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".20"
+            android:orientation="vertical"
+            android:layout_marginRight="20dp">
+
+            <Button
+                android:id="@+id/yearupbtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:text="+"
+                android:textSize="@dimen/text_largest"
+                android:textColor="@color/white"
+                android:background="@color/bright_blue_grad_start"
+                android:elevation="@dimen/button_elevation" />
+
+            <EditText
+                android:id="@+id/year_txt_field"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginLeft="5dp"
+                android:gravity="center"
+                android:padding="3dp"
+                android:textSize="@dimen/text_larger"
+                android:inputType="number"
+                android:maxLength="4"
+                android:elevation="@dimen/button_elevation"
+                android:selectAllOnFocus="true"
+                android:imeOptions="flagNoExtractUi"/>
+
+            <Button
+                android:id="@+id/yeardownbtn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:text="-"
+                android:textSize="@dimen/text_largest"
+                android:textColor="@color/white"
+                android:background="@color/dark_blue"
+                android:elevation="@dimen/button_elevation"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/gregfooter"
+        android:gravity="center"
+        android:layout_gravity="center_horizontal">
+
+        <ImageButton
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/icon_clear_circle_orange"
+            android:id="@+id/clear_all"/>
+        <ImageButton
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:background="@drawable/icon_calendar_circle_turquoise"
+            android:id="@+id/open_calendar_bottom"
+            android:layout_marginLeft="15dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

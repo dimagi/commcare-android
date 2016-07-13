@@ -3,6 +3,7 @@ package org.commcare.views.widgets;
 import android.content.Context;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,16 +49,16 @@ import java.util.Map;
  */
 public class GregorianDateWidget extends AbstractUniversalDateWidget implements CalendarFragment.CalendarCloseListener {
 
-    private EditText dayText;
+    protected EditText dayText;
     private AutoCompleteTextView monthText;
-    private EditText yearText;
-    private TextView dayOfWeek;
+    protected EditText yearText;
+    protected TextView dayOfWeek;
     protected Calendar calendar;
-    private List<String> monthList;
-    private final int MINYEAR = 1900;
-    private final String DAYFORMAT = "%02d";
-    private final String YEARFORMAT = "%04d";
-    private int maxYear;
+    protected List<String> monthList;
+    protected final int MINYEAR = 1900;
+    protected final String DAYFORMAT = "%02d";
+    protected final String YEARFORMAT = "%04d";
+    protected int maxYear;
     protected long todaysDateInMillis;
 
     private CalendarFragment myCalendarFragment;
@@ -115,7 +116,6 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
         dayOfWeek = (TextView) findViewById(R.id.greg_day_of_week);
         dayText = (EditText)findViewById(R.id.day_txt_field);
         yearText = (EditText)findViewById(R.id.year_txt_field);
-        monthText = (AutoCompleteTextView) findViewById(R.id.month_txt_field);
 
         dayText.setOnClickListener(new OnClickListener() {
             @Override
@@ -133,6 +133,12 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
             }
         });
 
+        setupMonthComponents();
+
+    }
+
+    protected void setupMonthComponents(){
+        monthText = (AutoCompleteTextView) findViewById(R.id.month_txt_field);
         monthText.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -143,13 +149,6 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
 
         MonthAdapter monthAdapter = new MonthAdapter(getContext(), monthList);
         monthText.setAdapter(monthAdapter);
-        monthText.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                monthText.showDropDown();
-            }
-        });
-        monthText.setDropDownHeight(500);
     }
 
     @Override
@@ -183,7 +182,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
         return toMillisFromJavaEpoch(year, month, day, millisOfDayOffset);
     }
 
-    private void autoFillEmptyTextFields() {
+    protected void autoFillEmptyTextFields() {
         if(dayText.getText().toString().isEmpty()){
             dayText.setText(String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)));
         }
@@ -198,7 +197,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
     }
 
     //Checks if all text fields contain valid values, corrects fields with invalid values, updates calendar based on text fields
-    private void validateTextOnButtonPress(){
+    protected void validateTextOnButtonPress(){
         String dayTextValue = dayText.getText().toString();
         int num = Integer.parseInt(dayTextValue);
         int monthMax = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
@@ -334,7 +333,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
         );
     }
 
-    private void clearAll(){
+    protected void clearAll(){
         dayText.setText("");
         monthText.setText("");
         yearText.setText("");
@@ -379,6 +378,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
     }
 
     protected void openCalendar() {
+        Log.d("MONTH", String.valueOf(calendar.get(Calendar.MONTH)));
         setFocus(getContext());
         timeBeforeCalendarOpened = calendar.getTimeInMillis();
         myCalendarFragment.show(fm, "Calendar Popup");

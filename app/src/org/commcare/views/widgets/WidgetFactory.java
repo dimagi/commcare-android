@@ -62,7 +62,7 @@ public class WidgetFactory {
                         } else if (appearance != null && appearance.toLowerCase().equals("nepali")) {
                             questionWidget = new NepaliDateWidget(context, fep);
                         }else if(appearance != null && appearance.toLowerCase().equals("gregorian")){
-                            questionWidget = new GregorianDateWidget(context, fep, true, "callist");
+                            questionWidget = new ListGregorianWidget(context, fep, true, "callist");
                         }else {
                             questionWidget = new DateWidget(context, fep);
                         }
