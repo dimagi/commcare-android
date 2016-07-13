@@ -14,8 +14,8 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.resources.model.UnreliableSourceException;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.utils.AndroidCommCarePlatform;
-import org.commcare.utils.AndroidStreamUtil;
 import org.commcare.utils.FileUtil;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -108,7 +108,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
             }
 
             //Write the full file to the temporary location
-            AndroidStreamUtil.writeFromInputToOutput(input, os);
+            StreamsUtil.writeFromInputToOutputNew(input, os);
 
             //Get a cannonical path
             String localUri = localReference.getLocalURI();

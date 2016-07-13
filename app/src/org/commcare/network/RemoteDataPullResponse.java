@@ -6,9 +6,9 @@ import android.util.Log;
 
 import org.apache.http.HttpResponse;
 import org.commcare.tasks.DataPullTask;
-import org.commcare.utils.AndroidStreamUtil;
 import org.commcare.utils.bitcache.BitCache;
 import org.commcare.utils.bitcache.BitCacheFactory;
+import org.javarosa.core.io.StreamsUtil;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -59,9 +59,9 @@ public class RemoteDataPullResponse {
             InputStream input = getInputStream();
 
             Log.i("commcare-network", "Starting network read, expected content size: " + dataSizeGuess + "b");
-            AndroidStreamUtil.writeFromInputToOutput(new BufferedInputStream(input),
+            StreamsUtil.writeFromInputToOutputNew(new BufferedInputStream(input),
                     cacheOut,
-                    new AndroidStreamUtil.StreamReadObserver() {
+                    new StreamsUtil.StreamReadObserver() {
                         long lastOutput = 0;
 
                         /** The notification threshold. **/

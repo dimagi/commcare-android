@@ -1,6 +1,6 @@
 package org.commcare.models.encryption;
 
-import org.commcare.utils.AndroidStreamUtil;
+import org.javarosa.core.io.StreamsUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -68,7 +68,7 @@ public class CryptUtil {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         try {
-            AndroidStreamUtil.writeFromInputToOutput(cis, bos);
+            StreamsUtil.writeFromInputToOutputNew(cis, bos);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -1,7 +1,6 @@
 package org.commcare.network;
 
 import org.commcare.logging.AndroidLogger;
-import org.commcare.utils.GlobalConstants;
 import org.javarosa.core.services.Logger;
 
 import java.io.IOException;
