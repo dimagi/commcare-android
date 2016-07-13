@@ -49,6 +49,8 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.crypto.SecretKey;
 
@@ -88,12 +90,14 @@ public abstract class DataPullTask<R>
     private UserKeyRecord ukrForLogin;
     private boolean wasKeyLoggedIn;
 
+    // Fields for managing retry responses and associated reporting of server progress
     private long waitPeriodBeginTime = -1;
     public long retryAtTime = -1;
     public int serverProgressCompleted = -1;
     private int serverProgressTotal = -1;
     private int retryLimit = -1;
     public int numTries = 0;
+    private int lastReportedServerProgressValue = 0;
 
     public DataPullTask(String username, String password,
                          String server, Context context, DataPullRequester dataPullRequester) {
@@ -238,6 +242,7 @@ public abstract class DataPullTask<R>
         try {
             ResultAndError<PullTaskResult> result = makeRequestAndHandleResponse(factory);
             if (PullTaskResult.RETRY_NEEDED.equals(result.data)) {
+                startReportingServerProgress();
                 return getRequestResultOrRetry(factory);
             } else {
                 return result;
@@ -276,7 +281,6 @@ public abstract class DataPullTask<R>
                 // stop waiting if the user canceled the task
                 return;
             }
-            reportServerProgress();
         }
     }
 
@@ -341,6 +345,7 @@ public abstract class DataPullTask<R>
             RemoteDataPullResponse pullResponse, AndroidTransactionParserFactory factory)
             throws IOException, UnknownSyncError {
 
+        completeServerProgressBarIfShowing();
         handleLoginNeededOnSuccess();
         this.publishProgress(PROGRESS_AUTHED, 0);
 
@@ -394,6 +399,15 @@ public abstract class DataPullTask<R>
             Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                     "Storage Full during user sync |" + e.getMessage());
             return new ResultAndError<>(PullTaskResult.STORAGE_FULL);
+        }
+    }
+
+    /**
+     * If we were showing a progress bar for server progress, make it fill up before we proceed
+     */
+    private void completeServerProgressBarIfShowing() {
+        if (lastReportedServerProgressValue > 0) {
+            publishProgress(PROGRESS_SERVER_PROCESSING, serverProgressTotal, serverProgressTotal);
         }
     }
 
@@ -586,7 +600,7 @@ public abstract class DataPullTask<R>
         }
     }
 
-    // currently for testing purposes only
+    // FOR TESTING PURPOSES ONLY
     public void setRetryLimitForAsyncRestore(int limit) {
         this.retryLimit = limit;
     }
@@ -664,19 +678,26 @@ public abstract class DataPullTask<R>
         publishProgress(DataPullTask.PROGRESS_DOWNLOADING, totalRead);
     }
 
-    //TODO: flesh this out more
-    private void reportServerProgress() {
-        reportServerProgressByTime();
-    }
+    private void startReportingServerProgress() {
+        long millisUntilNextAttempt = retryAtTime - System.currentTimeMillis();
+        int amountOfProgressToCoverThisCycle = serverProgressCompleted - lastReportedServerProgressValue;
+        long intervalAllottedPerProgressUnit = millisUntilNextAttempt / amountOfProgressToCoverThisCycle;
 
-    private void reportServerProgressByTime() {
-        int secondsUntilNextAttempt = (int)((retryAtTime - System.currentTimeMillis()) / 1000);
-        int secondsSinceWaitPeriodStart = (int)((System.currentTimeMillis() - waitPeriodBeginTime) / 1000);
-        this.publishProgress(PROGRESS_SERVER_PROCESSING, secondsUntilNextAttempt, secondsSinceWaitPeriodStart);
-    }
+        final Timer reportServerProgressTimer = new Timer();
+        reportServerProgressTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if (lastReportedServerProgressValue == serverProgressCompleted) {
+                        reportServerProgressTimer.cancel();
+                        reportServerProgressTimer.purge();
+                        return;
+                    }
+                    DataPullTask.this.publishProgress(PROGRESS_SERVER_PROCESSING,
+                            ++lastReportedServerProgressValue, serverProgressTotal);
 
-    private void reportServerProgressByPortionCompleted() {
-        //TODO: implement
+                }
+            }, 0, intervalAllottedPerProgressUnit);
+
     }
 
     public enum PullTaskResult {

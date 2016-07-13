@@ -137,7 +137,7 @@ sync.progress.purge=Cleaning local data
 sync.progress.authing=Contacting server for sync...
 sync.progress.downloading=Server contacted, downloading data.
 sync.process.downloading.progress=Download Progress: ${0}%
-sync.progress=Progress: ${0} of ${1} completed
+sync.progress=Completed: ${0}/${1}
 
 sync.recover.needed=Updating phone data from server.
 sync.recover.started=Recovering local DB State. Please do not turn off the app!
