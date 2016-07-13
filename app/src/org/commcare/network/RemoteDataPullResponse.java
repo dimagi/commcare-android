@@ -51,7 +51,7 @@ public class RemoteDataPullResponse {
         try {
             final long dataSizeGuess = guessDataSize();
 
-            cache = BitCacheFactory.getCache(c, dataSizeGuess);
+            cache = BitCacheFactory.getCache((BitCacheFactory.CacheDirSetup)c, dataSizeGuess);
 
             cache.initializeCache();
 

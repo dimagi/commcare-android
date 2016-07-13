@@ -1,7 +1,5 @@
 package org.commcare.utils.bitcache;
 
-import android.content.Context;
-
 import org.commcare.models.encryption.CryptUtil;
 
 import java.io.BufferedInputStream;
@@ -26,17 +24,17 @@ import javax.crypto.SecretKey;
  * @author ctsims
  */
 public class FileBitCache implements BitCache {
-    private Context context;
+    private BitCacheFactory.CacheDirSetup cacheDirSetup;
     private SecretKey key;
     private File temp;
 
-    protected FileBitCache(Context context) {
-        this.context = context;
+    protected FileBitCache(BitCacheFactory.CacheDirSetup cacheDirSetup) {
+        this.cacheDirSetup = cacheDirSetup;
     }
 
     @Override
     public void initializeCache() throws IOException {
-        File cacheLocation = context.getCacheDir();
+        File cacheLocation = cacheDirSetup.getCacheDir();
 
         //generate temp file
         temp = File.createTempFile("commcare_pull_" + new Date().getTime(), "xml", cacheLocation);
@@ -93,7 +91,7 @@ public class FileBitCache implements BitCache {
 
     public void release() {
         key = null;
-        context = null;
+        cacheDirSetup = null;
         temp.delete();
     }
 }

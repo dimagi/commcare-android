@@ -1,8 +1,6 @@
 package org.commcare.network;
 
-import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import org.commcare.CommCareApplication;
 import org.commcare.interfaces.HttpResponseProcessor;
@@ -34,20 +32,19 @@ import java.util.Map;
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class ModernHttpRequester implements ResponseStreamAccessor {
-    private static final String TAG = ModernHttpRequester.class.getSimpleName();
     private final boolean isPostRequest;
-    private final Context context;
+    private final BitCacheFactory.CacheDirSetup cacheDirSetup;
     private HttpResponseProcessor responseProcessor;
     private final URL url;
     private final HashMap<String, String> params;
     private HttpURLConnection httpConnection;
 
-    public ModernHttpRequester(Context context, URL url,
-                               HashMap<String, String> params,
+    public ModernHttpRequester(BitCacheFactory.CacheDirSetup cacheDirSetup,
+                               URL url, HashMap<String, String> params,
                                boolean isAuthenticatedRequest,
                                boolean isPostRequest) {
         this.isPostRequest = isPostRequest;
-        this.context = context;
+        this.cacheDirSetup = cacheDirSetup;
         this.params = params;
         this.url = url;
 
@@ -120,7 +117,6 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
     }
 
     protected HttpURLConnection setupConnection(URL builtUrl) throws IOException {
-        Log.d(TAG, builtUrl.toString());
         HttpURLConnection httpConnection = (HttpURLConnection)builtUrl.openConnection();
         setupConnectionInner(httpConnection);
         if (isPostRequest) {
@@ -143,7 +139,6 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
 
     private void buildPostPayload(HttpURLConnection httpConnection) throws IOException {
         String paramsString = buildUrlWithParams().getQuery();
-        Log.d(TAG, paramsString);
         int bodySize = paramsString.length();
         httpConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
         httpConnection.setRequestProperty("Content-Length", bodySize + "");
@@ -198,7 +193,7 @@ public class ModernHttpRequester implements ResponseStreamAccessor {
         InputStream connectionStream = httpConnection.getInputStream();
 
         long dataSizeGuess = setContentLengthProps(httpConnection);
-        BitCache cache = BitCacheFactory.getCache(context, dataSizeGuess);
+        BitCache cache = BitCacheFactory.getCache(cacheDirSetup, dataSizeGuess);
 
         cache.initializeCache();
 

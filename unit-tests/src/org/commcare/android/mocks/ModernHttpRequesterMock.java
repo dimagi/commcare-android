@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Build;
 
 import org.commcare.network.ModernHttpRequester;
+import org.commcare.utils.bitcache.BitCacheFactory;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
@@ -32,7 +33,8 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
                                    HashMap<String, String> params,
                                    boolean isAuthenticatedRequest,
                                    boolean isPostRequest) {
-        super(context, url, params, isAuthenticatedRequest, isPostRequest);
+        super((BitCacheFactory.CacheDirSetup)context,
+                url, params, isAuthenticatedRequest, isPostRequest);
     }
 
     /**

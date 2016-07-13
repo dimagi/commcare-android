@@ -159,7 +159,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
             }
         }
 
-        BitCache cache = BitCacheFactory.getCache(c, dataSizeGuess);
+        BitCache cache = BitCacheFactory.getCache((BitCacheFactory.CacheDirSetup)c, dataSizeGuess);
 
         cache.initializeCache();
 

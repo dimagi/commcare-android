@@ -99,6 +99,7 @@ import org.commcare.utils.ODKPropertyManager;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.utils.bitcache.BitCacheFactory;
 import org.commcare.views.notifications.NotificationClearReceiver;
 import org.commcare.views.notifications.NotificationMessage;
 import org.javarosa.core.model.User;
@@ -1483,7 +1484,8 @@ public class CommCareApplication extends Application {
                                                         HashMap<String, String> params,
                                                         boolean isAuthenticatedRequest,
                                                         boolean isPostRequest) {
-        return new ModernHttpRequester(context, url, params, isAuthenticatedRequest, isPostRequest);
+        return new ModernHttpRequester((BitCacheFactory.CacheDirSetup)context,
+                url, params, isAuthenticatedRequest, isPostRequest);
     }
 
     public DataPullRequester getDataPullRequester(){
