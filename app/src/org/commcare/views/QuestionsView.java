@@ -345,11 +345,10 @@ public class QuestionsView extends ScrollView
     }
 
     /**
-     *
-     * @param context
-     * @param pendingIntentWidget
+     * @param pendingIntentWidget - the widget for which a callout from form entry just occurred,
+     *                            if there is one
      * @return the index of the widget that focus was restored to, or -1 if there was no
-     * widget that just called out to restore to
+     * widget that just called out
      */
     public int restoreFocusToQuestionThatCalledOut(Context context, QuestionWidget pendingIntentWidget) {
         if (pendingIntentWidget != null) {
