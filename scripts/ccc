@@ -169,6 +169,7 @@ def main():
     dispatch = {'capture': lambda: capture(),
                 'uninstall': lambda: uninstall(sys.argv[2]),
                 'invalidate': lambda: stage_recover(),
+                'login': lambda: login(sys.argv[2], sys.argv[3]),
                 'remote': lambda: remote_install(*sys.argv[2:5]),
                 'help': lambda: print(HELP_MSG),
                 'install': lambda: install(sys.argv[2])}
