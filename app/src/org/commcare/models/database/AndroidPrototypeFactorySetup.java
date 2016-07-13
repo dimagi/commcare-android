@@ -3,7 +3,6 @@ package org.commcare.models.database;
 import android.content.Context;
 
 import org.commcare.models.AndroidPrototypeFactory;
-import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 
@@ -12,6 +11,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
 
 import dalvik.system.DexFile;
@@ -31,18 +31,12 @@ public class AndroidPrototypeFactorySetup {
             return factory;
         }
 
-        PrefixTree tree = new PrefixTree();
-
         try {
-            List<String> classes = getClasses(c);
-            for (String cl : classes) {
-                tree.addString(cl);
-            }
+            factory = new AndroidPrototypeFactory(new HashSet<>(getClasses(c)));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        factory = new AndroidPrototypeFactory(tree);
         return factory;
     }
 
