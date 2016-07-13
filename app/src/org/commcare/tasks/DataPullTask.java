@@ -668,6 +668,12 @@ public abstract class DataPullTask<R>
         publishProgress(DataPullTask.PROGRESS_DOWNLOADING, totalRead);
     }
 
+    /**
+     * In order to achieve the impression of the progress bar updating smoothly during the wait
+     * period after a retry response is received, use a timer task to report incremental progress
+     * from the state we were last in to the progress value that the server just reported back to
+     * us, splitting up the wait time into uniform time periods for reporting each unit of progress.
+     */
     private void startReportingServerProgress() {
         long millisUntilNextAttempt = retryAtTime - System.currentTimeMillis();
         int amountOfProgressToCoverThisCycle = serverProgressCompletedSoFar - lastReportedServerProgressValue;
