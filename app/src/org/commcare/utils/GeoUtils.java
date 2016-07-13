@@ -33,7 +33,7 @@ public class GeoUtils {
     public static final double ACCEPTABLE_ACCURACY = 1600;
 
     // For passive collection, milliseconds to wait for GPS before giving up
-    public static final int MAXIMUM_WAIT = (int)TimeUnit.MINUTES.toMillis(5);
+    public static final int MAXIMUM_WAIT = (int)TimeUnit.MINUTES.toMillis(2);
 
     public static final String ACTION_CHECK_GPS_ENABLED = "org.commcare.utils.GeoUtils.check";
 
