@@ -50,10 +50,10 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         this(parser, storage, new EntityStorageCache("case"), new CaseIndexTable());
     }
 
-    public AndroidCaseXmlParser(KXmlParser parser, int[] tallies,
-                                boolean b, IStorageUtilityIndexed<Case> storage,
+    public AndroidCaseXmlParser(KXmlParser parser, boolean acceptCreateOverwrites,
+                                IStorageUtilityIndexed<Case> storage,
                                 HttpRequestEndpoints generator) {
-        super(parser, tallies, b, storage);
+        super(parser, acceptCreateOverwrites, storage);
         this.generator = generator;
         mEntityCache = new EntityStorageCache("case");
         mCaseIndexTable = new CaseIndexTable();
@@ -208,7 +208,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     }
 
     @Override
-    protected Case CreateCase(String name, String typeId) {
+    protected Case buildCase(String name, String typeId) {
         return new ACase(name, typeId);
     }
 }
