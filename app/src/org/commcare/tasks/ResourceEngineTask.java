@@ -32,10 +32,6 @@ public abstract class ResourceEngineTask<R>
     private static final int PHASE_CHECKING = 0;
     public static final int PHASE_DOWNLOAD = 1;
 
-    /**
-     * Wait time between dialog updates in milliseconds
-     */
-    private static final long STATUS_UPDATE_WAIT_TIME = 1000;
     private int installedResourceCountWhileUpdating = 0;
     private int installedResourceCount = 0;
     private int totalResourceCount = -1;
