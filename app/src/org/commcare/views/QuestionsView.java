@@ -64,8 +64,6 @@ public class QuestionsView extends ScrollView
 
     private SpannableStringBuilder mGroupLabel;
 
-    //private int indexOfCalloutWidgetJustAnswered;
-
     /**
      * If enabled, we use dividers between question prompts
      */
@@ -341,7 +339,6 @@ public class QuestionsView extends ScrollView
         new Handler().post(new Runnable() {
             @Override
             public void run() {
-                //QuestionsView.this.scrollTo(0, (widget.getTop()-widget.getBottom())/2);
                 QuestionsView.this.scrollTo(0, widget.getTop());
             }
         });
@@ -359,10 +356,7 @@ public class QuestionsView extends ScrollView
             int index = widgets.indexOf(pendingIntentWidget);
             setFocus(context, index);
             return index;
-        } /*else if (indexOfCalloutWidgetJustAnswered != -1) {
-            indexToFocusOn = indexOfCalloutWidgetJustAnswered;
-            indexOfCalloutWidgetJustAnswered = -1;
-        }*/
+        }
         return -1;
     }
 
@@ -380,8 +374,6 @@ public class QuestionsView extends ScrollView
         for (QuestionWidget q : widgets) {
             if (questionFormIndex.equals(q.getFormId())) {
                 q.setBinaryData(answer);
-                //pendingCalloutInterface.setPendingCalloutFormIndex(null);
-                //indexOfCalloutWidgetJustAnswered = widgets.indexOf(q);
                 return;
             }
         }

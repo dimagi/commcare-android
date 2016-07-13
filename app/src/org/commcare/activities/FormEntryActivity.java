@@ -1038,6 +1038,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         }
 
+        // Any info stored about the last changed widget is useless when we move to a new view
+        resetLastChangedWidget();
+
         FormIndex startIndex = mFormController.getFormIndex();
         FormIndex lastValidIndex = startIndex;
 
