@@ -8,6 +8,7 @@ import org.apache.http.HttpResponse;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
+import org.commcare.utils.AndroidCacheDirSetup;
 import org.javarosa.core.io.StreamsUtil;
 
 import java.io.BufferedInputStream;
@@ -51,7 +52,7 @@ public class RemoteDataPullResponse {
         try {
             final long dataSizeGuess = guessDataSize();
 
-            cache = BitCacheFactory.getCache((BitCacheFactory.CacheDirSetup)c, dataSizeGuess);
+            cache = BitCacheFactory.getCache(new AndroidCacheDirSetup(c), dataSizeGuess);
 
             cache.initializeCache();
 

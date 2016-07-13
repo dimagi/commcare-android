@@ -10,6 +10,7 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.core.network.bitcache.BitCacheFactory;
+import org.commcare.utils.AndroidCacheDirSetup;
 import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.InvalidStructureException;
@@ -159,7 +160,7 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
             }
         }
 
-        BitCache cache = BitCacheFactory.getCache((BitCacheFactory.CacheDirSetup)c, dataSizeGuess);
+        BitCache cache = BitCacheFactory.getCache(new AndroidCacheDirSetup(c), dataSizeGuess);
 
         cache.initializeCache();
 

@@ -92,6 +92,7 @@ import org.commcare.tasks.PurgeStaleArchivedFormsTask;
 import org.commcare.tasks.UpdateTask;
 import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.utils.ACRAUtil;
+import org.commcare.utils.AndroidCacheDirSetup;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.FileUtil;
@@ -1486,8 +1487,8 @@ public class CommCareApplication extends Application {
                                                         boolean isAuthenticatedRequest,
                                                         boolean isPostRequest) {
         Pair<User, String> userAndDomain = HttpUtils.getUserAndDomain(isAuthenticatedRequest);
-        return new ModernHttpRequester((BitCacheFactory.CacheDirSetup)context,
-                url, params, userAndDomain.first, userAndDomain.second, isAuthenticatedRequest, isPostRequest);
+        return new ModernHttpRequester(new AndroidCacheDirSetup(context), url,
+                params, userAndDomain.first, userAndDomain.second, isAuthenticatedRequest, isPostRequest);
     }
 
     public DataPullRequester getDataPullRequester(){

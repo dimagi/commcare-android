@@ -1,11 +1,10 @@
 package org.commcare.android.mocks;
 
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 
-import org.commcare.network.ModernHttpRequester;
+import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.core.network.bitcache.BitCacheFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -30,13 +29,13 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
     private static final List<String> expectedUrlStack = new ArrayList<>();
     private static final List<String> requestPayloadStack = new ArrayList<>();
 
-    public ModernHttpRequesterMock(Context context, URL url,
-                                   HashMap<String, String> params,
+    public ModernHttpRequesterMock(BitCacheFactory.CacheDirSetup cacheDirSetup,
+                                   URL url, HashMap<String, String> params,
                                    User user, String domain,
                                    boolean isAuthenticatedRequest,
                                    boolean isPostRequest) {
-        super((BitCacheFactory.CacheDirSetup)context,
-                url, params, user, domain, isAuthenticatedRequest, isPostRequest);
+        super(cacheDirSetup, url, params, user, domain,
+                isAuthenticatedRequest, isPostRequest);
     }
 
     /**

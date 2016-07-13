@@ -195,7 +195,7 @@ public class PostRequestActivityTest {
         String intentActivityName = postActivityIntent.getComponent().getClassName();
         assertTrue(intentActivityName.equals(PostRequestActivity.class.getName()));
 
-        assertEquals("https://www.fake.com/claim_patient/", postActivityIntent.getStringExtra(PostRequestActivity.URL_KEY));
+        assertEquals("https://www.fake.com/claim_patient/", postActivityIntent.getSerializableExtra(PostRequestActivity.URL_KEY).toString());
         HashMap<String, String> postUrlParams =
                 (HashMap<String, String>)postActivityIntent.getSerializableExtra(PostRequestActivity.PARAMS_KEY);
         assertEquals("321", postUrlParams.get("selected_case_id"));
