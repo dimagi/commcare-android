@@ -70,7 +70,10 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
     public abstract boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException;
 
     @Override
-    public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
+    public boolean install(Resource r, ResourceLocation location,
+                           Reference ref, ResourceTable table,
+                           AndroidCommCarePlatform instance, boolean upgrade)
+            throws UnresolvedResourceException, UnfullfilledRequirementsException {
         try {
             OutputStream os;
             Reference localReference;
