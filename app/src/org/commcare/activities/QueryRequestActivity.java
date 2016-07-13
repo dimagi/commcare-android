@@ -178,14 +178,7 @@ public class QueryRequestActivity
 
     private void makeQueryRequest() {
         clearErrorState();
-        URL url;
-        String urlString = remoteQuerySessionManager.getBaseUrl();
-        try {
-            url = new URL(urlString);
-        } catch (MalformedURLException e) {
-            enterErrorState(Localization.get("post.malformed.url", urlString));
-            return;
-        }
+        URL url = remoteQuerySessionManager.getBaseUrl();
 
         SimpleHttpTask httpTask;
         try {

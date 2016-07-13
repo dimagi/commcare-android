@@ -31,11 +31,14 @@ import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Phillip Mates (pmates@dimagi.com)
@@ -54,11 +57,10 @@ public class PostRequestActivityTest {
     @Test
     public void postingToNonHttpsURLTest() {
         // NOTE PLM: we will eventually support 'http' urls, but won't include authentication credentials in them
-        String badURL = "http://bad.url.com";
+        String urlString = "http://bad.url.com";
+        PostRequestActivity postRequestActivity = buildPostActivity(urlString);
 
-        PostRequestActivity postRequestActivity = buildPostActivity(badURL);
-
-        assertErrorMessage(postRequestActivity, true, Localization.get("post.not.using.https", badURL));
+        assertErrorMessage(postRequestActivity, true, Localization.get("post.not.using.https", urlString));
     }
 
     private static void assertErrorMessage(PostRequestActivity postRequestActivity,
@@ -76,7 +78,8 @@ public class PostRequestActivityTest {
         }
     }
 
-    private static PostRequestActivity buildPostActivity(String url) {
+    private static PostRequestActivity buildPostActivity(String urlString) {
+        URL url = stringToUrl(urlString);
         Intent postLaunchIntent = new Intent();
         if (url != null) {
             postLaunchIntent.putExtra(PostRequestActivity.URL_KEY, url);
@@ -85,15 +88,6 @@ public class PostRequestActivityTest {
         }
         return Robolectric.buildActivity(PostRequestActivity.class).withIntent(postLaunchIntent)
                 .create().start().resume().get();
-    }
-
-    @Test
-    public void postingToMalformedURLTest() {
-        String badURL = "bad.url.com";
-
-        PostRequestActivity postRequestActivity = buildPostActivity(badURL);
-
-        assertErrorMessage(postRequestActivity, true, Localization.get("post.malformed.url", badURL));
     }
 
     @Test
@@ -211,5 +205,17 @@ public class PostRequestActivityTest {
                         .create().start().resume().get();
 
         assertTrue(postRequestActivity.isFinishing());
+    }
+
+    private static URL stringToUrl(String urlAsString) {
+        if (urlAsString == null) {
+            return null;
+        }
+        try {
+            return new URL(urlAsString);
+        } catch (MalformedURLException e) {
+            fail(e.getMessage());
+            return null;
+        }
     }
 }
