@@ -54,23 +54,6 @@ public class PollSensorAction extends Action implements LocationListener {
     private FormDef mModel;
     private TreeReference mContextRef;
 
-    private class ProvidersChangedHandler extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Set<String> providers = GeoUtils.evaluateProviders(mLocationManager);
-            requestLocationUpdates(providers);
-        }
-    }
-
-    private class StopPollingTask extends TimerTask {
-        @Override
-        public void run() {
-            if (hasLocationPerms()) {
-                mLocationManager.removeUpdates(PollSensorAction.this);
-            }
-        }
-    }
-
     public PollSensorAction() {
         super(ELEMENT_NAME);
     }
@@ -142,19 +125,6 @@ public class PollSensorAction extends Action implements LocationListener {
         timeout.schedule(new StopPollingTask(), GeoUtils.MAXIMUM_WAIT);
     }
 
-    @Override
-    public void readExternal(DataInputStream in, PrototypeFactory pf)
-            throws IOException, DeserializationException {
-        super.readExternal(in, pf);
-        target = (TreeReference)ExtUtil.read(in, new ExtWrapNullable(TreeReference.class), pf);
-    }
-
-    @Override
-    public void writeExternal(DataOutputStream out) throws IOException {
-        super.writeExternal(out);
-        ExtUtil.write(out, new ExtWrapNullable(target));
-    }
-
     /**
      * If this action has a target node, update its value with the given location.
      */
@@ -208,4 +178,38 @@ public class PollSensorAction extends Action implements LocationListener {
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
     }
+
+    @Override
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
+        super.readExternal(in, pf);
+
+        target = (TreeReference)ExtUtil.read(in, new ExtWrapNullable(TreeReference.class), pf);
+    }
+
+    @Override
+    public void writeExternal(DataOutputStream out) throws IOException {
+        super.writeExternal(out);
+
+        ExtUtil.write(out, new ExtWrapNullable(target));
+    }
+
+
+    private class ProvidersChangedHandler extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Set<String> providers = GeoUtils.evaluateProviders(mLocationManager);
+            requestLocationUpdates(providers);
+        }
+    }
+
+    private class StopPollingTask extends TimerTask {
+        @Override
+        public void run() {
+            if (hasLocationPerms()) {
+                mLocationManager.removeUpdates(PollSensorAction.this);
+            }
+        }
+    }
+
 }
