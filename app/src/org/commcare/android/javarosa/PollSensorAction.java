@@ -37,7 +37,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
- * XForms Action extension to periodically poll a sensor and optionally save its value.
+ * XForms Action extension to periodically poll a sensor and optionally save
+ * its value.
  *
  * @author jschweers
  */
@@ -80,7 +81,8 @@ public class PollSensorAction extends Action implements LocationListener {
     }
 
     /**
-     * Deal with a pollsensor action: start getting a GPS fix, and prepare to cancel after maximum amount of time.
+     * Deal with a pollsensor action: start getting a GPS fix, and prepare to
+     * cancel after maximum amount of time.
      *
      * @param model The FormDef that triggered the action
      */
@@ -89,7 +91,8 @@ public class PollSensorAction extends Action implements LocationListener {
         mModel = model;
         mContextRef = contextRef;
 
-        // LocationManager needs to be dealt with in the main UI thread, so wrap GPS-checking logic in a Handler
+        // LocationManager needs to be dealt with in the main UI thread, so
+        // wrap GPS-checking logic in a Handler
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             public void run() {
                 // Start requesting GPS updates
@@ -102,8 +105,9 @@ public class PollSensorAction extends Action implements LocationListener {
                             new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
                     );
 
-                    // This thread can't take action on the UI, so instead send a message that actual activities
-                    // notice and then display a dialog asking user to enable location access
+                    // This thread can't take action on the UI, so instead send
+                    // a message that actual activities notice and then display
+                    // a dialog asking user to enable location access
                     Intent noGPSIntent = new Intent(GeoUtils.ACTION_CHECK_GPS_ENABLED);
                     context.sendStickyBroadcast(noGPSIntent);
                 }
@@ -115,9 +119,11 @@ public class PollSensorAction extends Action implements LocationListener {
     }
 
     /**
-     * Start polling for location, based on whatever providers are given, and set up a timeout after MAXIMUM_WAIT is exceeded.
+     * Start polling for location, based on whatever providers are given, and
+     * set up a timeout after MAXIMUM_WAIT is exceeded.
      *
-     * @param providers Set of String objects that may contain LocationManager.GPS_PROVDER and/or LocationManager.NETWORK_PROVIDER
+     * @param providers Set of String objects that may contain
+     *                  LocationManager.GPS_PROVDER and/or LocationManager.NETWORK_PROVIDER
      */
     private void requestLocationUpdates(Set<String> providers) {
         if (providers.isEmpty() && hasLocationPerms()) {
@@ -136,11 +142,14 @@ public class PollSensorAction extends Action implements LocationListener {
         timeout.schedule(new StopPollingTask(), GeoUtils.MAXIMUM_WAIT);
     }
 
-    public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
+    @Override
+    public void readExternal(DataInputStream in, PrototypeFactory pf)
+            throws IOException, DeserializationException {
         super.readExternal(in, pf);
         target = (TreeReference)ExtUtil.read(in, new ExtWrapNullable(TreeReference.class), pf);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
         ExtUtil.write(out, new ExtWrapNullable(target));
@@ -165,7 +174,13 @@ public class PollSensorAction extends Action implements LocationListener {
                 } else {
                     int dataType = node.getDataType();
                     IAnswerData val = Recalculate.wrapData(result, dataType);
-                    mModel.setValue(val == null ? null : AnswerDataFactory.templateByDataType(dataType).cast(val.uncast()), qualifiedReference);
+                    if (val == null) {
+                        mModel.setValue(null, qualifiedReference);
+                    } else {
+                        IAnswerData answer =
+                                AnswerDataFactory.templateByDataType(dataType).cast(val.uncast());
+                        mModel.setValue(answer, qualifiedReference);
+                    }
                 }
             }
 
