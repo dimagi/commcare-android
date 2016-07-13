@@ -5,10 +5,18 @@ package org.commcare.activities;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.Vector;
 
 import org.commcare.suite.model.Alert;
+import org.javarosa.core.model.condition.EvaluationContext;
+import org.javarosa.core.model.instance.DataInstance;
+import org.javarosa.core.model.instance.ExternalDataInstance;
+import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.model.utils.DateUtils;
+import org.javarosa.model.xform.XPathReference;
+import org.javarosa.xpath.XPathParseTool;
+import org.javarosa.xpath.expr.XPathExpression;
 
 import android.content.ContentProviderClient;
 import android.content.ContentResolver;
@@ -59,6 +67,24 @@ public class ReminderThread {
         runnable = new Runnable() {
             @Override
             public void run() {
+
+
+                TreeReference ref = XPathReference.getPathExpr("instance('casedb')/casedb/case[@case_type='patient']").getReference();
+                XPathExpression expr = XPathParseTool.parseXPath("last_lmp + lmp_mins > now()")
+                EvaluationContext ec = new EvaluationContext(); //Get this from CommCareSession
+
+                AndroidSessionWrapper.getEvaluationContext(Hashtable<String, DateInstance>); //Write new version of this method that takes instances as a param
+                Hashtable<String, DataInstance> instances = new Hashtable<>();
+                instances.put("casedb", new ExternalDataInstance("jr://instance/casedb","casedb"));
+
+
+                List<TreeReference> refs = ec.expandReference(ref);
+                for(TreeReference ref : refs) {
+                    EvaluationContext internal = new EvaluationContext(ec);
+                    expr.eval(internal);
+                }
+
+
                 while(mContinuePolling) {
                     long current = System.currentTimeMillis();
                     double currentDaysInDouble = DateUtils.fractionalDaysSinceEpoch(new Date());
