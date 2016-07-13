@@ -26,19 +26,13 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.javarosa.core.services.locale.Localization;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
  * Created by Saumya on 6/15/2016.
  * A popup dialog fragment that handles recording_fragment and saving of audio files without external callout
  */
-
-//TODO:
-    /*
-Recording Popup:
-    -Add ability to pause and resume recording: Can't do this
-    -Add a timer for recording and playback
-     */
 
 public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
@@ -63,12 +57,28 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         layout = (LinearLayout) inflater.inflate(R.layout.recording_fragment, container);
-        enableScreenRotation();
+        disableScreenRotation();
         prepareButtons();
         prepareText();
         setWindowSize();
         fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_EXT;
-        setCancelable(false);
+
+        File f = new File(fileName);
+        if(f.exists()){
+            recycle.setVisibility(View.VISIBLE);
+            saveRecording.setVisibility(View.VISIBLE);
+            chron.setVisibility(View.VISIBLE);
+            toggleRecording.setBackgroundResource(R.drawable.play);
+            toggleRecording.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    playAudio();
+                }
+            });
+            saveRecording.setEnabled(true);
+            instruction.setText(Localization.get("after.recording"));
+        }
+
         return layout;
     }
 
@@ -149,6 +159,8 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
     private void startRecording(){
         disableScreenRotation();
+        setCancelable(false);
+
         if(recorder == null){
             recorder = new MediaRecorder();
         }
@@ -221,7 +233,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     @Override
     public void onDismiss(DialogInterface dialog){
         super.onDismiss(dialog);
-
+        enableScreenRotation();
         if(recorder != null){
             recorder.release();
             this.recorder = null;
