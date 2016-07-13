@@ -48,9 +48,6 @@ public abstract class ResourceEngineTask<R>
     // launch this task
     private final boolean shouldSleep;
 
-    // last time in system millis that we updated the status dialog
-    private long lastTime = 0;
-
     protected String vAvailable;
     protected String vRequired;
     protected boolean majorIsProblem;
@@ -129,7 +126,7 @@ public abstract class ResourceEngineTask<R>
         synchronized (statusLock) {
             // if last time isn't set or is less than our spacing count, do not
             // perform status update. Also if we are already running one, just skip this.
-            if (statusCheckRunning || System.currentTimeMillis() - lastTime < ResourceEngineTask.STATUS_UPDATE_WAIT_TIME) {
+            if (statusCheckRunning) {
                 return;
             }
 
@@ -180,7 +177,6 @@ public abstract class ResourceEngineTask<R>
                 
                 private void signalStatusCheckComplete() {
                     synchronized (statusLock) {
-                        lastTime = System.currentTimeMillis();
                         statusCheckRunning = false;
                     }
 
