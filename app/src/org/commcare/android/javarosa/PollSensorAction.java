@@ -50,7 +50,7 @@ public class PollSensorAction extends Action implements LocationListener {
     public static final String XPATH_ERROR_ACTION = "poll_sensor_xpath_error_action";
     private TreeReference target;
 
-    private LocationManager mLocationManager;
+    private static LocationManager mLocationManager;
     private FormDef mModel;
     private TreeReference mContextRef;
 
@@ -70,10 +70,22 @@ public class PollSensorAction extends Action implements LocationListener {
      * @param model The FormDef that triggered the action
      */
     @Override
-    public TreeReference processAction(FormDef model, TreeReference contextRef) {
-        mModel = model;
-        mContextRef = contextRef;
+    public TreeReference processAction(FormDef model, TreeReference contextRef, String event) {
+        if (Action.EVENT_XFORMS_REVALIDATE.equals(event)) {
+            // form is done, stop listening
+            if (hasLocationPerms() && mLocationManager != null) {
+                mLocationManager.removeUpdates(this);
+                mLocationManager = null;
+            }
+        } else {
+            mModel = model;
+            mContextRef = contextRef;
+            startLocationPolling();
+        }
+        return null;
+    }
 
+    private void startLocationPolling() {
         // LocationManager needs to be dealt with in the main UI thread, so
         // wrap GPS-checking logic in a Handler
         new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -97,8 +109,6 @@ public class PollSensorAction extends Action implements LocationListener {
                 requestLocationUpdates(providers);
             }
         });
-
-        return null;
     }
 
     /**
@@ -110,13 +120,14 @@ public class PollSensorAction extends Action implements LocationListener {
      */
     private void requestLocationUpdates(Set<String> providers) {
         if (providers.isEmpty() && hasLocationPerms()) {
-            mLocationManager.removeUpdates(PollSensorAction.this);
+            mLocationManager.removeUpdates(this);
+            mLocationManager = null;
             return;
         }
 
         for (String provider : providers) {
             if (hasLocationPerms()) {
-                mLocationManager.requestLocationUpdates(provider, 0, 0, PollSensorAction.this);
+                mLocationManager.requestLocationUpdates(provider, 0, 0, this);
             }
         }
 
@@ -157,6 +168,7 @@ public class PollSensorAction extends Action implements LocationListener {
             if (location.getAccuracy() <= GeoUtils.GOOD_ACCURACY
                     && hasLocationPerms()) {
                 mLocationManager.removeUpdates(this);
+                mLocationManager = null;
             }
         }
     }
@@ -208,6 +220,7 @@ public class PollSensorAction extends Action implements LocationListener {
         public void run() {
             if (hasLocationPerms()) {
                 mLocationManager.removeUpdates(PollSensorAction.this);
+                mLocationManager = null;
             }
         }
     }
