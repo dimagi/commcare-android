@@ -26,7 +26,6 @@ public class RemoteDataPullResponse {
     private final DataPullTask task;
     public final int responseCode;
     private final HttpResponse response;
-    public final Header retryHeader;
 
     /**
      * Makes data pulling request and keeps response for local caching
@@ -38,7 +37,6 @@ public class RemoteDataPullResponse {
                                      HttpResponse response) throws IOException {
         this.response = response;
         this.responseCode = response.getStatusLine().getStatusCode();
-        this.retryHeader = response.getFirstHeader("Retry-After");
         this.task = task;
     }
 
@@ -130,5 +128,9 @@ public class RemoteDataPullResponse {
             }
         }
         return -1;
+    }
+
+    public String getRetryHeaderValue() {
+        return response.getFirstHeader("Retry-After").getValue();
     }
 }

@@ -244,7 +244,7 @@ public class CustomProgressDialog extends DialogFragment {
         updateTextView(newMessage, R.id.progress_dialog_message);
     }
 
-    public void updateTextView(String newText, int idOfViewToUpdate) {
+    private void updateTextView(String newText, int idOfViewToUpdate) {
         AlertDialog dialog = (AlertDialog)getDialog();
         if (dialog != null) {
             TextView tv = (TextView)dialog.findViewById(idOfViewToUpdate);
@@ -281,7 +281,6 @@ public class CustomProgressDialog extends DialogFragment {
                 }
             }
         }
-
     }
 
     public void updateProgressBar(int progress, int max) {

@@ -91,9 +91,8 @@ public abstract class DataPullTask<R>
     private boolean wasKeyLoggedIn;
 
     // Fields for managing retry responses and associated reporting of server progress
-    private long waitPeriodBeginTime = -1;
     public long retryAtTime = -1;
-    public int serverProgressCompleted = -1;
+    public int serverProgressCompletedSoFar = -1;
     private int serverProgressTotal = -1;
     private int retryLimit = -1;
     public int numTries = 0;
@@ -228,13 +227,15 @@ public abstract class DataPullTask<R>
 
     private ResultAndError<PullTaskResult> getRequestResultOrRetry(AndroidTransactionParserFactory factory) {
         if (retryLimit != -1 && numTries >= retryLimit) {
+            // for testing purposes only
             return new ResultAndError<>(PullTaskResult.RETRY_LIMIT_EXCEEDED);
         }
 
-        waitAndUpdateDuringRetryPeriod();
-
-        if (isCancelled()) {
-            return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
+        while (retryAtTime != -1 && retryAtTime > System.currentTimeMillis()) {
+            // wait during retry period
+            if (isCancelled()) {
+                return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
+            }
         }
 
         PullTaskResult responseError = PullTaskResult.UNKNOWN_FAILURE;
@@ -273,15 +274,6 @@ public abstract class DataPullTask<R>
         wipeLoginIfItOccurred();
         this.publishProgress(PROGRESS_DONE);
         return new ResultAndError<>(responseError);
-    }
-
-    private void waitAndUpdateDuringRetryPeriod() {
-        while (retryAtTime != -1 && retryAtTime > System.currentTimeMillis()) {
-            if (isCancelled()) {
-                // stop waiting if the user canceled the task
-                return;
-            }
-        }
     }
 
     /*
@@ -323,11 +315,10 @@ public abstract class DataPullTask<R>
     }
 
     private ResultAndError<PullTaskResult> handleRetryResponseCode(RemoteDataPullResponse response) {
-        String headerValue = response.retryHeader.getValue();
+        String headerValue = response.getRetryHeaderValue();
         try {
             long waitTimeInMilliseconds = Integer.parseInt(headerValue) * 1000;
-            waitPeriodBeginTime = System.currentTimeMillis();
-            retryAtTime = waitPeriodBeginTime + waitTimeInMilliseconds;
+            retryAtTime = System.currentTimeMillis() + waitTimeInMilliseconds;
             parseProgressFromRetryResult(response);
             return new ResultAndError<>(PullTaskResult.RETRY_NEEDED);
         } catch (NumberFormatException e) {
@@ -580,15 +571,14 @@ public abstract class DataPullTask<R>
 
     private void parseProgressFromRetryResult(RemoteDataPullResponse response) {
         try {
-            BitCache cache = response.writeResponseToCache(context);
-            InputStream stream = cache.retrieveCache();
+            InputStream stream = response.writeResponseToCache(context).retrieveCache();
             KXmlParser parser = ElementParser.instantiateParser(stream);
             parser.next();
             int eventType = parser.getEventType();
             do {
                 if (eventType == KXmlParser.START_TAG) {
                     if (parser.getName().toLowerCase().equals("progress")) {
-                        serverProgressCompleted = Integer.parseInt(parser.getAttributeValue(null, "done"));
+                        serverProgressCompletedSoFar = Integer.parseInt(parser.getAttributeValue(null, "done"));
                         serverProgressTotal = Integer.parseInt(parser.getAttributeValue(null, "total"));
                         return;
                     }
@@ -680,24 +670,22 @@ public abstract class DataPullTask<R>
 
     private void startReportingServerProgress() {
         long millisUntilNextAttempt = retryAtTime - System.currentTimeMillis();
-        int amountOfProgressToCoverThisCycle = serverProgressCompleted - lastReportedServerProgressValue;
+        int amountOfProgressToCoverThisCycle = serverProgressCompletedSoFar - lastReportedServerProgressValue;
         long intervalAllottedPerProgressUnit = millisUntilNextAttempt / amountOfProgressToCoverThisCycle;
 
         final Timer reportServerProgressTimer = new Timer();
         reportServerProgressTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    if (lastReportedServerProgressValue == serverProgressCompleted) {
+                    if (lastReportedServerProgressValue == serverProgressCompletedSoFar) {
                         reportServerProgressTimer.cancel();
                         reportServerProgressTimer.purge();
                         return;
                     }
                     DataPullTask.this.publishProgress(PROGRESS_SERVER_PROCESSING,
                             ++lastReportedServerProgressValue, serverProgressTotal);
-
                 }
             }, 0, intervalAllottedPerProgressUnit);
-
     }
 
     public enum PullTaskResult {
