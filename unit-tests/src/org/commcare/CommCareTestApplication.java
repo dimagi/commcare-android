@@ -2,7 +2,6 @@ package org.commcare;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.v4.util.Pair;
 import android.util.Log;
 
@@ -14,15 +13,13 @@ import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.models.encryption.ByteEncrypter;
-import org.commcare.models.encryption.CryptUtil;
+import org.commcare.core.encryption.CryptUtil;
 import org.commcare.network.DataPullRequester;
-import org.commcare.network.HttpRequestGenerator;
 import org.commcare.network.HttpUtils;
 import org.commcare.network.ModernHttpRequester;
 import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.services.CommCareSessionService;
-import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;

@@ -6,7 +6,7 @@ import android.net.Uri;
 import android.os.Build;
 
 import org.commcare.network.ModernHttpRequester;
-import org.commcare.utils.bitcache.BitCacheFactory;
+import org.commcare.core.network.bitcache.BitCacheFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;

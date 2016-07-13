@@ -6,8 +6,8 @@ import android.util.Log;
 
 import org.apache.http.HttpResponse;
 import org.commcare.tasks.DataPullTask;
-import org.commcare.utils.bitcache.BitCache;
-import org.commcare.utils.bitcache.BitCacheFactory;
+import org.commcare.core.network.bitcache.BitCache;
+import org.commcare.core.network.bitcache.BitCacheFactory;
 import org.javarosa.core.io.StreamsUtil;
 
 import java.io.BufferedInputStream;
