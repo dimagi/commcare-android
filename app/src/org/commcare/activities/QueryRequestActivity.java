@@ -13,10 +13,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApplication;
+import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.R;
-import org.commcare.interfaces.HttpResponseProcessor;
+import org.commcare.core.interfaces.HttpResponseProcessor;
 import org.commcare.models.AndroidSessionWrapper;
-import org.commcare.network.ModernHttpRequester;
 import org.commcare.session.RemoteQuerySessionManager;
 import org.commcare.suite.model.DisplayData;
 import org.commcare.suite.model.DisplayUnit;
@@ -40,7 +40,6 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -178,14 +177,7 @@ public class QueryRequestActivity
 
     private void makeQueryRequest() {
         clearErrorState();
-        URL url;
-        String urlString = remoteQuerySessionManager.getBaseUrl();
-        try {
-            url = new URL(urlString);
-        } catch (MalformedURLException e) {
-            enterErrorState(Localization.get("post.malformed.url", urlString));
-            return;
-        }
+        URL url = remoteQuerySessionManager.getBaseUrl();
 
         SimpleHttpTask httpTask;
         try {

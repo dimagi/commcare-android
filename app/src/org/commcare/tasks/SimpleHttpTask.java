@@ -3,9 +3,9 @@ package org.commcare.tasks;
 import android.content.Context;
 
 import org.commcare.CommCareApplication;
-import org.commcare.interfaces.HttpResponseProcessor;
-import org.commcare.interfaces.ResponseStreamAccessor;
-import org.commcare.network.ModernHttpRequester;
+import org.commcare.core.interfaces.HttpResponseProcessor;
+import org.commcare.core.interfaces.ResponseStreamAccessor;
+import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.tasks.templates.CommCareTask;
 
 import java.io.IOException;
