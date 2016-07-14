@@ -1092,10 +1092,13 @@ public class CommCareHomeActivity
 
     @Override
     protected void onResumeSessionSafe() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            refreshActionBar();
+        if (!sessionNavigationProceedingAfterOnResume) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                refreshActionBar();
+            }
+            attemptDispatchHomeScreen();
         }
-        attemptDispatchHomeScreen();
+
         sessionNavigationProceedingAfterOnResume = false;
     }
 
@@ -1115,7 +1118,7 @@ public class CommCareHomeActivity
         if (CommCareApplication._().isSyncPending(false)) {
             // There is a sync pending
             handlePendingSync();
-        } else if (CommCareApplication._().isConsumerApp() && !sessionNavigationProceedingAfterOnResume) {
+        } else if (CommCareApplication._().isConsumerApp()) {
             // so that the user never sees the real home screen in a consumer app
             enterRootModule();
         } else {
