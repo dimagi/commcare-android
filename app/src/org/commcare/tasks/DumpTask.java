@@ -267,12 +267,9 @@ public abstract class DumpTask extends CommCareTask<String, String, Boolean, Com
                         result = results[i];
                     }
                 }
+            // if any individual send has failed the result will be > 0
+            return result <= 0;
 
-            if(result > 0){
-                return false;
-            }
-
-            return true;
         } else {
             publishProgress(Localization.get("bulk.form.no.unsynced"));
             return false;
