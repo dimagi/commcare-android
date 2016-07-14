@@ -112,9 +112,7 @@ public class DateTimeWidget extends QuestionWidget implements OnTimeChangedListe
             clearAnswer();
         }
 
-        if (hasListener()) {
-            widgetChangedListener.widgetEntryChanged(this);
-        }
+        widgetEntryChanged();
     }
 
 
