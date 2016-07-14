@@ -77,7 +77,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
             public void onClick(View v) {
 
                 formsOnSD = getDumpFiles().length;
-                Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Send task found " + formsOnSD + " forms on the SD card.");
+                Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Send task found " + formsOnSD + " forms on the phone.");
 
                 //if there're no forms to dump, just return
                 if (formsOnSD == 0) {
@@ -97,7 +97,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
                             Intent i = new Intent(getIntent());
                             i.putExtra(AdvancedActionsActivity.KEY_NUMBER_DUMPED, formsOnSD);
                             receiver.setResult(BULK_SEND_ID, i);
-                            Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Successfully dumped " + formsOnSD + " forms.");
+                            Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Successfully submitted " + formsOnSD + " forms.");
                             receiver.finish();
                         } else {
                             //assume that we've already set the error message, but make it look scary
@@ -128,6 +128,8 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
         btnDumpForms.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                Logger.log(AndroidLogger.TYPE_FORM_DUMP, "Dump task found " + formsOnSD + " forms on the SD card.");
 
                 if (formsOnPhone == 0) {
                     txtInteractiveMessages.setText(Localization.get("bulk.form.no.unsynced.dump"));
