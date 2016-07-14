@@ -19,7 +19,7 @@ public class GlobalPrivilegesManager {
 
     private static final String GLOBAL_PRIVELEGES_FILENAME = "global-preferences-filename";
 
-    public static final String PRIVILEGE_SUPERUSER = "dimagi_superuser";
+    public static final String PRIVILEGE_SUPERUSER = "superuser";
 
     public static final ArrayList<String> allGlobalPrivilegesList = new ArrayList<>();
     static {
