@@ -81,14 +81,13 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
 
     @Override
     public void initCaseParser() {
-        final int[] tallies = new int[3];
         caseParser = new TransactionParserFactory() {
             CaseXmlParser created = null;
 
             @Override
             public TransactionParser<Case> getParser(KXmlParser parser) {
                 if (created == null) {
-                    created = new AndroidCaseXmlParser(parser, tallies, true, sandbox.getCaseStorage(), generator) {
+                    created = new AndroidCaseXmlParser(parser, true, sandbox.getCaseStorage(), generator) {
 
                         @Override
                         public void onIndexDisrupted(String caseId) {

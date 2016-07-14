@@ -14,9 +14,9 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
-import org.commcare.utils.AndroidStreamUtil;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -50,10 +50,10 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
         this(parser, storage, new EntityStorageCache("case"), new CaseIndexTable());
     }
 
-    public AndroidCaseXmlParser(KXmlParser parser, int[] tallies,
-                                boolean b, IStorageUtilityIndexed<Case> storage,
+    public AndroidCaseXmlParser(KXmlParser parser, boolean acceptCreateOverwrites,
+                                IStorageUtilityIndexed<Case> storage,
                                 HttpRequestEndpoints generator) {
-        super(parser, tallies, b, storage);
+        super(parser, acceptCreateOverwrites, storage);
         this.generator = generator;
         mEntityCache = new EntityStorageCache("case");
         mCaseIndexTable = new CaseIndexTable();
@@ -157,7 +157,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
                         Logger.log(AndroidLogger.TYPE_RESOURCES, "Couldn't create placeholder for new file at " + dest.first.getAbsolutePath());
                     }
                     try {
-                        AndroidStreamUtil.writeFromInputToOutput(remote.getStream(), new FileOutputStream(dest.first));
+                        StreamsUtil.writeFromInputToOutputNew(remote.getStream(), new FileOutputStream(dest.first));
                         readAttachment = true;
                         break;
                     } catch (IOException e) {
@@ -208,7 +208,7 @@ public class AndroidCaseXmlParser extends CaseXmlParser {
     }
 
     @Override
-    protected Case CreateCase(String name, String typeId) {
+    protected Case buildCase(String name, String typeId) {
         return new ACase(name, typeId);
     }
 }
