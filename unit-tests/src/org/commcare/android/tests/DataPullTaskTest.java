@@ -122,8 +122,8 @@ public class DataPullTaskTest {
         Assert.assertTrue(pullTask.numTries == 3);
 
         // Indicates that the retry result was parsed correctly
-        Assert.assertTrue(pullTask.getAsyncRestorer().retryAtTime != -1
-                && pullTask.getAsyncRestorer().serverProgressCompletedSoFar == 55);
+        Assert.assertTrue(pullTask.getAsyncRestoreHelper().retryAtTime != -1
+                && pullTask.getAsyncRestoreHelper().serverProgressCompletedSoFar == 55);
     }
 
     private static void runDataPullWithAsyncRestore() {
@@ -163,7 +163,7 @@ public class DataPullTaskTest {
                 };
 
         if (runAsyncRestore) {
-            task.getAsyncRestorer().setRetryLimitFor(3);
+            task.getAsyncRestoreHelper().setRetryLimitFor(3);
         }
         task.connect(TestAppInstaller.fakeConnector);
         task.execute();

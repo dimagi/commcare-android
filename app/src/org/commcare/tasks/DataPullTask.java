@@ -81,7 +81,7 @@ public abstract class DataPullTask<R>
     public static final int PROGRESS_SERVER_PROCESSING = 1024;
 
     private DataPullRequester dataPullRequester;
-    private final AsyncRestoreHelper asyncRestorer;
+    private final AsyncRestoreHelper asyncRestoreHelper;
 
     private boolean loginNeeded;
     private UserKeyRecord ukrForLogin;
@@ -98,7 +98,7 @@ public abstract class DataPullTask<R>
         this.taskId = DATA_PULL_TASK_ID;
         this.dataPullRequester = dataPullRequester;
         this.requestor = dataPullRequester.getHttpGenerator(username, password);
-        this.asyncRestorer = new AsyncRestoreHelper(this);
+        this.asyncRestoreHelper = new AsyncRestoreHelper(this);
 
         TAG = DataPullTask.class.getSimpleName();
     }
@@ -218,23 +218,23 @@ public abstract class DataPullTask<R>
     }
 
     private ResultAndError<PullTaskResult> getRequestResultOrRetry(AndroidTransactionParserFactory factory) {
-        if (asyncRestorer.retryLimitExceeded(numTries)) {
+        if (asyncRestoreHelper.retryLimitExceeded(numTries)) {
             // for testing purposes only
             return new ResultAndError<>(PullTaskResult.RETRY_LIMIT_EXCEEDED);
         }
 
-        while (asyncRestorer.retryWaitPeriodInProgress()) {
+        while (asyncRestoreHelper.retryWaitPeriodInProgress()) {
             if (isCancelled()) {
                 return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
             }
         }
 
         PullTaskResult responseError = PullTaskResult.UNKNOWN_FAILURE;
-        asyncRestorer.retryAtTime = -1;
+        asyncRestoreHelper.retryAtTime = -1;
         try {
             ResultAndError<PullTaskResult> result = makeRequestAndHandleResponse(factory);
             if (PullTaskResult.RETRY_NEEDED.equals(result.data)) {
-                asyncRestorer.startReportingServerProgress();
+                asyncRestoreHelper.startReportingServerProgress();
                 return getRequestResultOrRetry(factory);
             } else {
                 return result;
@@ -286,7 +286,7 @@ public abstract class DataPullTask<R>
             return handleAuthFailed();
         } else if (responseCode >= 200 && responseCode < 300) {
             if (responseCode == 202) {
-                return asyncRestorer.handleRetryResponseCode(pullResponse);
+                return asyncRestoreHelper.handleRetryResponseCode(pullResponse);
             } else {
                 return handleSuccessResponseCode(pullResponse, factory);
             }
@@ -314,7 +314,7 @@ public abstract class DataPullTask<R>
             RemoteDataPullResponse pullResponse, AndroidTransactionParserFactory factory)
             throws IOException, UnknownSyncError {
 
-        asyncRestorer.completeServerProgressBarIfShowing();
+        asyncRestoreHelper.completeServerProgressBarIfShowing();
         handleLoginNeededOnSuccess();
         this.publishProgress(PROGRESS_AUTHED, 0);
 
@@ -615,8 +615,8 @@ public abstract class DataPullTask<R>
         publishProgress(PROGRESS_DOWNLOADING, totalRead);
     }
 
-    public AsyncRestoreHelper getAsyncRestorer() {
-        return this.asyncRestorer;
+    public AsyncRestoreHelper getAsyncRestoreHelper() {
+        return this.asyncRestoreHelper;
     }
 
     public enum PullTaskResult {
