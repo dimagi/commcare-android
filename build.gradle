@@ -311,8 +311,8 @@ android {
             debuggable true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
             // used in test suite to build the prototype factory; otherwise unneeded
-            buildConfigField "String", "BUILD_DIR", "\"${buildDir}\""
-            buildConfigField "String", "PROJECT_DIR", "\"${projectDir}\""
+
+
         }
 
         release {
