@@ -64,7 +64,7 @@ public abstract class DataPullTask<R>
     private final String server;
     private final String username;
     private final String password;
-    private final Context context;
+    protected final Context context;
 
     private int mCurrentProgress;
     private int mTotalItems;
@@ -86,18 +86,14 @@ public abstract class DataPullTask<R>
     public static final int PROGRESS_SERVER_PROCESSING = 1024;
 
     private DataPullRequester dataPullRequester;
+    private final AsyncRestoreHelper asyncRestorer;
 
     private boolean loginNeeded;
     private UserKeyRecord ukrForLogin;
     private boolean wasKeyLoggedIn;
 
-    // Fields for managing retry responses and associated reporting of server progress
-    public long retryAtTime = -1;
-    public int serverProgressCompletedSoFar = -1;
-    private int serverProgressTotal = -1;
     private int retryLimit = -1;
     public int numTries = 0;
-    private int lastReportedServerProgressValue = 0;
 
     public DataPullTask(String username, String password,
                          String server, Context context, DataPullRequester dataPullRequester) {
@@ -108,6 +104,7 @@ public abstract class DataPullTask<R>
         this.taskId = DATA_PULL_TASK_ID;
         this.dataPullRequester = dataPullRequester;
         this.requestor = dataPullRequester.getHttpGenerator(username, password);
+        this.asyncRestorer = new AsyncRestoreHelper(this);
 
         TAG = DataPullTask.class.getSimpleName();
     }
@@ -232,19 +229,18 @@ public abstract class DataPullTask<R>
             return new ResultAndError<>(PullTaskResult.RETRY_LIMIT_EXCEEDED);
         }
 
-        while (retryAtTime != -1 && retryAtTime > System.currentTimeMillis()) {
-            // wait during retry period
+        while (asyncRestorer.retryWaitPeriodInProgress()) {
             if (isCancelled()) {
                 return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
             }
         }
 
         PullTaskResult responseError = PullTaskResult.UNKNOWN_FAILURE;
-        retryAtTime = -1;
+        asyncRestorer.retryAtTime = -1;
         try {
             ResultAndError<PullTaskResult> result = makeRequestAndHandleResponse(factory);
             if (PullTaskResult.RETRY_NEEDED.equals(result.data)) {
-                startReportingServerProgress();
+                asyncRestorer.startReportingServerProgress();
                 return getRequestResultOrRetry(factory);
             } else {
                 return result;
@@ -296,7 +292,7 @@ public abstract class DataPullTask<R>
             return handleAuthFailed();
         } else if (responseCode >= 200 && responseCode < 300) {
             if (responseCode == 202) {
-                return handleRetryResponseCode(pullResponse);
+                return asyncRestorer.handleRetryResponseCode(pullResponse);
             } else {
                 return handleSuccessResponseCode(pullResponse, factory);
             }
@@ -315,24 +311,6 @@ public abstract class DataPullTask<R>
         return new ResultAndError<>(PullTaskResult.AUTH_FAILED);
     }
 
-    private ResultAndError<PullTaskResult> handleRetryResponseCode(RemoteDataPullResponse response) {
-        Header retryHeader = response.getRetryHeader();
-        if (retryHeader == null) {
-            return new ResultAndError<>(PullTaskResult.BAD_DATA);
-        }
-        try {
-            long waitTimeInMilliseconds = Integer.parseInt(retryHeader.getValue()) * 1000;
-            retryAtTime = System.currentTimeMillis() + waitTimeInMilliseconds;
-            if (!parseProgressFromRetryResult(response)) {
-                return new ResultAndError<>(PullTaskResult.BAD_DATA);
-            }
-            return new ResultAndError<>(PullTaskResult.RETRY_NEEDED);
-        } catch (NumberFormatException e) {
-            Logger.log(AndroidLogger.TYPE_USER, "Invalid Retry-After header value: " + retryHeader.getValue());
-            return new ResultAndError<>(PullTaskResult.BAD_DATA);
-        }
-    }
-
     /**
      * @return the proper result, or null if we have not yet been able to determine the result to
      * return
@@ -342,7 +320,7 @@ public abstract class DataPullTask<R>
             RemoteDataPullResponse pullResponse, AndroidTransactionParserFactory factory)
             throws IOException, UnknownSyncError {
 
-        completeServerProgressBarIfShowing();
+        asyncRestorer.completeServerProgressBarIfShowing();
         handleLoginNeededOnSuccess();
         this.publishProgress(PROGRESS_AUTHED, 0);
 
@@ -396,15 +374,6 @@ public abstract class DataPullTask<R>
             Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                     "Storage Full during user sync |" + e.getMessage());
             return new ResultAndError<>(PullTaskResult.STORAGE_FULL);
-        }
-    }
-
-    /**
-     * If we were showing a progress bar for server progress, make it fill up before we proceed
-     */
-    private void completeServerProgressBarIfShowing() {
-        if (lastReportedServerProgressValue > 0) {
-            publishProgress(PROGRESS_SERVER_PROCESSING, serverProgressTotal, serverProgressTotal);
         }
     }
 
@@ -575,28 +544,6 @@ public abstract class DataPullTask<R>
         }
     }
 
-    private boolean parseProgressFromRetryResult(RemoteDataPullResponse response) {
-        try {
-            InputStream stream = response.writeResponseToCache(context).retrieveCache();
-            KXmlParser parser = ElementParser.instantiateParser(stream);
-            parser.next();
-            int eventType = parser.getEventType();
-            do {
-                if (eventType == KXmlParser.START_TAG) {
-                    if (parser.getName().toLowerCase().equals("progress")) {
-                        serverProgressCompletedSoFar = Integer.parseInt(parser.getAttributeValue(null, "done"));
-                        serverProgressTotal = Integer.parseInt(parser.getAttributeValue(null, "total"));
-                        return true;
-                    }
-                }
-                eventType = parser.next();
-            } while (eventType != KXmlParser.END_DOCUMENT);
-        } catch (IOException | XmlPullParserException e) {
-            Logger.log(AndroidLogger.TYPE_USER, "Error while parsing progress values of retry result");
-        }
-        return false;
-    }
-
     // FOR TESTING PURPOSES ONLY
     public void setRetryLimitForAsyncRestore(int limit) {
         this.retryLimit = limit;
@@ -671,37 +618,16 @@ public abstract class DataPullTask<R>
     public void onFailure(String failMessage) {
     }
 
-    public void reportDownloadProgress(int totalRead) {
-        publishProgress(DataPullTask.PROGRESS_DOWNLOADING, totalRead);
+    protected void reportServerProgress(int completedSoFar, int total) {
+        publishProgress(PROGRESS_SERVER_PROCESSING, completedSoFar, total);
     }
 
-    /**
-     * In order to achieve the impression of the progress bar updating smoothly during the wait
-     * period after a retry response is received, use a timer task to report incremental progress
-     * from the state we were last in to the progress value that the server just reported back to
-     * us, splitting up the wait time into uniform time periods for reporting each unit of progress.
-     */
-    private void startReportingServerProgress() {
-        long millisUntilNextAttempt = retryAtTime - System.currentTimeMillis();
-        int amountOfProgressToCoverThisCycle = serverProgressCompletedSoFar - lastReportedServerProgressValue;
-        if (amountOfProgressToCoverThisCycle == 0) {
-            return;
-        }
-        long intervalAllottedPerProgressUnit = millisUntilNextAttempt / amountOfProgressToCoverThisCycle;
+    public void reportDownloadProgress(int totalRead) {
+        publishProgress(PROGRESS_DOWNLOADING, totalRead);
+    }
 
-        final Timer reportServerProgressTimer = new Timer();
-        reportServerProgressTimer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    if (lastReportedServerProgressValue == serverProgressCompletedSoFar) {
-                        reportServerProgressTimer.cancel();
-                        reportServerProgressTimer.purge();
-                        return;
-                    }
-                    DataPullTask.this.publishProgress(PROGRESS_SERVER_PROCESSING,
-                            ++lastReportedServerProgressValue, serverProgressTotal);
-                }
-            }, 0, intervalAllottedPerProgressUnit);
+    public AsyncRestoreHelper getAsyncRestorer() {
+        return this.asyncRestorer;
     }
 
     public enum PullTaskResult {

@@ -122,7 +122,8 @@ public class DataPullTaskTest {
         Assert.assertTrue(pullTask.numTries == 3);
 
         // Indicates that the retry result was parsed correctly
-        Assert.assertTrue(pullTask.retryAtTime != -1 && pullTask.serverProgressCompletedSoFar == 55);
+        Assert.assertTrue(pullTask.getAsyncRestorer().retryAtTime != -1
+                && pullTask.getAsyncRestorer().serverProgressCompletedSoFar == 55);
     }
 
     private static void runDataPullWithAsyncRestore() {
