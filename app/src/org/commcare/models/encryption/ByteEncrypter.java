@@ -1,5 +1,7 @@
 package org.commcare.models.encryption;
 
+import org.commcare.core.encryption.CryptUtil;
+
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;

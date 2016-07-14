@@ -1,11 +1,12 @@
 package org.commcare.android.mocks;
 
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
 
-import org.commcare.network.ModernHttpRequester;
+import org.commcare.core.network.bitcache.BitCacheFactory;
+import org.commcare.network.AndroidModernHttpRequester;
+import org.javarosa.core.model.User;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.ReferenceManager;
 
@@ -23,16 +24,18 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Phillip Mates (pmates@dimagi.com)
  */
-public class ModernHttpRequesterMock extends ModernHttpRequester {
+public class ModernHttpRequesterMock extends AndroidModernHttpRequester {
     private static final List<Integer> responseCodeStack = new ArrayList<>();
     private static final List<String> expectedUrlStack = new ArrayList<>();
     private static final List<String> requestPayloadStack = new ArrayList<>();
 
-    public ModernHttpRequesterMock(Context context, URL url,
-                                   HashMap<String, String> params,
+    public ModernHttpRequesterMock(BitCacheFactory.CacheDirSetup cacheDirSetup,
+                                   URL url, HashMap<String, String> params,
+                                   User user, String domain,
                                    boolean isAuthenticatedRequest,
                                    boolean isPostRequest) {
-        super(context, url, params, isAuthenticatedRequest, isPostRequest);
+        super(cacheDirSetup, url, params, user, domain,
+                isAuthenticatedRequest, isPostRequest);
     }
 
     /**
@@ -85,7 +88,7 @@ public class ModernHttpRequesterMock extends ModernHttpRequester {
     private static void assertUrlsEqual(String expected, String request) {
         Uri requestUrl = Uri.parse(request);
         Uri expectedUrl = Uri.parse(expected);
-        assertEquals(requestUrl.getPath(), expectedUrl.getPath());
+        assertEquals(expectedUrl.getPath(), requestUrl.getPath());
         for (String queryParam : expectedUrl.getQueryParameterNames()) {
             assertEquals(requestUrl.getQueryParameter(queryParam), expectedUrl.getQueryParameter(queryParam));
         }

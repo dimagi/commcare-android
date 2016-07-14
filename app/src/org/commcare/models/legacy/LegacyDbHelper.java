@@ -7,7 +7,7 @@ import android.util.Pair;
 
 import org.commcare.models.database.AndroidTableBuilder;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
-import org.commcare.models.encryption.CryptUtil;
+import org.commcare.core.encryption.CryptUtil;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
 import org.commcare.utils.Base64;

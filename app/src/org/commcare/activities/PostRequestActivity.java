@@ -7,10 +7,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.commcare.core.network.ModernHttpRequester;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.ConnectorWithHttpResponseProcessor;
 import org.commcare.interfaces.ConnectorWithResultCallback;
-import org.commcare.network.ModernHttpRequester;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.tasks.PullTaskReceiver;
 import org.commcare.tasks.ResultAndError;
@@ -23,7 +23,6 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 
@@ -85,12 +84,7 @@ public class PostRequestActivity
 
     private void loadStateFromIntent(Intent intent) {
         if (intent.hasExtra(URL_KEY) && intent.hasExtra(PARAMS_KEY)) {
-            String urlString = intent.getStringExtra(URL_KEY);
-            try {
-                url = new URL(urlString);
-            } catch (MalformedURLException e) {
-                enterErrorState(Localization.get("post.malformed.url", urlString));
-            }
+            url = (URL)intent.getSerializableExtra(URL_KEY);
             Object o = intent.getSerializableExtra(PARAMS_KEY);
             params = (HashMap<String, String>)o;
         } else {
