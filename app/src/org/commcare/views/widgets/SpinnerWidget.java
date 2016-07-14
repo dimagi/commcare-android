@@ -67,7 +67,7 @@ public class SpinnerWidget extends QuestionWidget {
             for (int i = 0; i < mItems.size(); ++i) {
                 String sMatch = mItems.get(i).getValue();
                 if (sMatch.equals(s)) {
-                    spinner.setSelection(i);
+                    spinner.setSelection(i+1);
                 }
             }
         }
@@ -106,7 +106,7 @@ public class SpinnerWidget extends QuestionWidget {
         if (i < 1) {
             return null;
         } else {
-            SelectChoice sc = mItems.elementAt(i-1); // 0th spot is empty
+            SelectChoice sc = mItems.elementAt(i-1);
             return new SelectOneData(new Selection(sc));
         }
     }
