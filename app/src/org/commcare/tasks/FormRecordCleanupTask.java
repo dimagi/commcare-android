@@ -203,7 +203,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             SqlStorage<SessionStateDescriptor> ssdStorage =
                     CommCareApplication._().getUserStorage(SessionStateDescriptor.class);
 
-            ssdStorage.write(asw.getSessionStateDescriptor());
+            ssdStorage.write(SessionStateDescriptor.buildFromSessionWrapper(asw));
         }
 
         storage.write(updated);
@@ -340,6 +340,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                             "Inconsistent formRecordId's in session storage");
                 }
             } catch (Exception e) {
+                Logger.exception(e);
                 Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                         "Session ID exists, but with no record (or broken record)");
             }
@@ -355,7 +356,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                     sessionId = loadSSDIDFromFormRecord(ssdStorage, formRecordId);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                Logger.exception(e);
                 Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
                         "Session ID exists, but with no record (or broken record)");
             }
@@ -432,7 +433,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
                 }
 
                 @Override
-                public ACase retrieve(String entityId) {
+                protected ACase retrieve(String entityId) {
                     caseIDs[0] = entityId;
                     ACase c = new ACase("", "");
                     c.setCaseId(entityId);
@@ -443,7 +444,7 @@ public abstract class FormRecordCleanupTask<R> extends CommCareTask<Void, Intege
             // Otherwise, this gets more tricky. Ideally we'd want to
             // skip this block for compatibility purposes, but we can
             // at least try to get a caseID (which is all we want)
-            return new BestEffortBlockParser(parser, null, null, new String[]{"case_id"}) {
+            return new BestEffortBlockParser(parser, new String[]{"case_id"}) {
                 @Override
                 public void commit(Hashtable<String, String> values) {
                     if (values.containsKey("case_id")) {

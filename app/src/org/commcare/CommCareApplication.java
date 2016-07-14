@@ -22,6 +22,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings.Secure;
@@ -298,14 +299,15 @@ public class CommCareApplication extends Application {
         }
     }
 
-    public void startUserSession(byte[] symetricKey, UserKeyRecord record, boolean restoreSession) {
+    public void startUserSession(byte[] symmetricKey, UserKeyRecord record, boolean restoreSession) {
         synchronized (serviceLock) {
             // if we already have a connection established to
             // CommCareSessionService, close it and open a new one
+            SessionActivityRegistration.unregisterSessionExpiration();
             if (this.mIsBound) {
                 releaseUserResourcesAndServices();
             }
-            bindUserSessionService(symetricKey, record, restoreSession);
+            bindUserSessionService(symmetricKey, record, restoreSession);
         }
     }
 
@@ -1163,8 +1165,14 @@ public class CommCareApplication extends Application {
         long started = System.currentTimeMillis();
         //If binding is currently in process, just wait for it.
         while (mIsBinding) {
+            if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+                throw new SessionUnavailableException(
+                        "Trying to access session on UI thread while session is binding");
+            }
             if (System.currentTimeMillis() - started > mCurrentServiceBindTimeout) {
-                //Something bad happened
+                // Something bad happened
+                Log.e(TAG, "WARNING: Timed out while binding to session service, " +
+                        "this may cause serious problems.");
                 unbindUserSessionService();
                 throw new SessionUnavailableException("Timeout binding to session service");
             }

@@ -217,6 +217,7 @@ public class InstanceProvider extends ContentProvider {
                 } catch (IllegalStateException e) {
                     throw e;
                 } catch (Exception e) {
+                    Logger.exception(e);
                     throw new SQLException("Failed to insert row into " + uri);
                 }
             } else {
