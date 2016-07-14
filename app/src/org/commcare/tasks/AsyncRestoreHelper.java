@@ -27,6 +27,8 @@ public class AsyncRestoreHelper {
     protected int serverProgressTotal = -1;
     protected int lastReportedServerProgressValue = 0;
 
+    private int retryLimit = -1;
+
     public AsyncRestoreHelper(DataPullTask task) {
         this.syncTask = task;
     }
@@ -116,6 +118,15 @@ public class AsyncRestoreHelper {
 
     protected boolean retryWaitPeriodInProgress() {
         return retryAtTime != -1 && retryAtTime > System.currentTimeMillis();
+    }
+
+    protected boolean retryLimitExceeded(int numTries) {
+        return retryLimit != -1 && numTries >= retryLimit;
+    }
+
+    // FOR TESTING PURPOSES ONLY
+    public void setRetryLimitFor(int limit) {
+        this.retryLimit = limit;
     }
 
 }

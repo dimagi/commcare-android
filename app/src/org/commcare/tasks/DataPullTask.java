@@ -6,7 +6,6 @@ import android.support.v4.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
-import org.apache.http.Header;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.commcare.CommCareApplication;
@@ -36,11 +35,9 @@ import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.storage.StorageFullException;
 import org.javarosa.core.util.PropertyUtils;
-import org.javarosa.xml.ElementParser;
 import org.javarosa.xml.util.ActionableInvalidStructureException;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
-import org.kxml2.io.KXmlParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
@@ -50,8 +47,6 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.NoSuchElementException;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.crypto.SecretKey;
 
@@ -92,7 +87,6 @@ public abstract class DataPullTask<R>
     private UserKeyRecord ukrForLogin;
     private boolean wasKeyLoggedIn;
 
-    private int retryLimit = -1;
     public int numTries = 0;
 
     public DataPullTask(String username, String password,
@@ -224,7 +218,7 @@ public abstract class DataPullTask<R>
     }
 
     private ResultAndError<PullTaskResult> getRequestResultOrRetry(AndroidTransactionParserFactory factory) {
-        if (retryLimit != -1 && numTries >= retryLimit) {
+        if (asyncRestorer.retryLimitExceeded(numTries)) {
             // for testing purposes only
             return new ResultAndError<>(PullTaskResult.RETRY_LIMIT_EXCEEDED);
         }
@@ -542,11 +536,6 @@ public abstract class DataPullTask<R>
         } catch (NoSuchElementException nsee) {
             //TODO: Something here? Maybe figure out if we downloaded a user from the server and attach the data to it?
         }
-    }
-
-    // FOR TESTING PURPOSES ONLY
-    public void setRetryLimitForAsyncRestore(int limit) {
-        this.retryLimit = limit;
     }
 
     private String readInput(InputStream stream, AndroidTransactionParserFactory factory)

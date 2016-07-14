@@ -163,7 +163,7 @@ public class DataPullTaskTest {
                 };
 
         if (runAsyncRestore) {
-            task.setRetryLimitForAsyncRestore(3);
+            task.getAsyncRestorer().setRetryLimitFor(3);
         }
         task.connect(TestAppInstaller.fakeConnector);
         task.execute();
