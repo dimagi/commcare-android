@@ -660,8 +660,6 @@ public class CommCareWiFiDirectActivity
 
 
     private void onRecordPullCompleted(Pair<Long, FormRecord[]> result, CommCareWiFiDirectActivity receiver) {
-
-        // for the time being we're going to ignore the result of the record pull and proceed regardless
         myStatusText.setText(localize("wifi.direct.pull.successful"));
         if(result != null){
             if(result.first > 0){
