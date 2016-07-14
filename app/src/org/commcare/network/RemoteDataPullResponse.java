@@ -131,7 +131,7 @@ public class RemoteDataPullResponse {
         return -1;
     }
 
-    public String getRetryHeaderValue() {
-        return response.getFirstHeader("Retry-After").getValue();
+    public Header getRetryHeader() {
+        return response.getFirstHeader("Retry-After");
     }
 }

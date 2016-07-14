@@ -6,6 +6,7 @@ import android.support.v4.util.Pair;
 
 import net.sqlcipher.database.SQLiteDatabase;
 
+import org.apache.http.Header;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.conn.ConnectTimeoutException;
 import org.commcare.CommCareApplication;
@@ -315,14 +316,19 @@ public abstract class DataPullTask<R>
     }
 
     private ResultAndError<PullTaskResult> handleRetryResponseCode(RemoteDataPullResponse response) {
-        String headerValue = response.getRetryHeaderValue();
+        Header retryHeader = response.getRetryHeader();
+        if (retryHeader == null) {
+            return new ResultAndError<>(PullTaskResult.BAD_DATA);
+        }
         try {
-            long waitTimeInMilliseconds = Integer.parseInt(headerValue) * 1000;
+            long waitTimeInMilliseconds = Integer.parseInt(retryHeader.getValue()) * 1000;
             retryAtTime = System.currentTimeMillis() + waitTimeInMilliseconds;
-            parseProgressFromRetryResult(response);
+            if (!parseProgressFromRetryResult(response)) {
+                return new ResultAndError<>(PullTaskResult.BAD_DATA);
+            }
             return new ResultAndError<>(PullTaskResult.RETRY_NEEDED);
         } catch (NumberFormatException e) {
-            Logger.log(AndroidLogger.TYPE_USER, "Invalid Retry-After header value: " + headerValue);
+            Logger.log(AndroidLogger.TYPE_USER, "Invalid Retry-After header value: " + retryHeader.getValue());
             return new ResultAndError<>(PullTaskResult.BAD_DATA);
         }
     }
@@ -569,7 +575,7 @@ public abstract class DataPullTask<R>
         }
     }
 
-    private void parseProgressFromRetryResult(RemoteDataPullResponse response) {
+    private boolean parseProgressFromRetryResult(RemoteDataPullResponse response) {
         try {
             InputStream stream = response.writeResponseToCache(context).retrieveCache();
             KXmlParser parser = ElementParser.instantiateParser(stream);
@@ -580,7 +586,7 @@ public abstract class DataPullTask<R>
                     if (parser.getName().toLowerCase().equals("progress")) {
                         serverProgressCompletedSoFar = Integer.parseInt(parser.getAttributeValue(null, "done"));
                         serverProgressTotal = Integer.parseInt(parser.getAttributeValue(null, "total"));
-                        return;
+                        return true;
                     }
                 }
                 eventType = parser.next();
@@ -588,6 +594,7 @@ public abstract class DataPullTask<R>
         } catch (IOException | XmlPullParserException e) {
             Logger.log(AndroidLogger.TYPE_USER, "Error while parsing progress values of retry result");
         }
+        return false;
     }
 
     // FOR TESTING PURPOSES ONLY
