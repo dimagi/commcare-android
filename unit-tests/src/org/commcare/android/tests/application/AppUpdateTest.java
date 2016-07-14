@@ -8,12 +8,14 @@ import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.resource.AppInstallStatus;
-import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.models.database.AndroidSandbox;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.tasks.UpdateTask;
+import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -171,5 +173,21 @@ public class AppUpdateTest {
             public void handleTaskCancellation(AppInstallStatus result) {
             }
         };
+    }
+
+    @Test
+    public void testAppUpdateWithSuiteFixture() {
+        Log.d(TAG, "Applying a app update with a suite fixture");
+
+        installUpdate("update_with_suite_fixture",
+                taskListenerFactory(AppInstallStatus.UpdateStaged),
+                AppInstallStatus.Installed);
+
+        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
+        AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication._());
+        IStorageUtilityIndexed<FormInstance> appFixtureStorage = sandbox.getAppFixtureStorage();
+        FormInstance suiteFixture = appFixtureStorage.read(0);
+        System.out.print(suiteFixture);
+        Assert.assertTrue(p.getVersion() == 9);
     }
 }
