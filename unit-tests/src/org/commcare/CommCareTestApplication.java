@@ -2,22 +2,26 @@ package org.commcare;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.util.Pair;
 import android.util.Log;
 
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
+import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.core.network.bitcache.BitCacheFactory;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.models.encryption.ByteEncrypter;
-import org.commcare.models.encryption.CryptUtil;
+import org.commcare.core.encryption.CryptUtil;
 import org.commcare.network.DataPullRequester;
-import org.commcare.network.ModernHttpRequester;
+import org.commcare.network.HttpUtils;
 import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.services.CommCareSessionService;
+import org.commcare.utils.AndroidCacheDirSetup;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
@@ -187,7 +191,10 @@ public class CommCareTestApplication extends CommCareApplication {
                                                         HashMap<String, String> params,
                                                         boolean isAuthenticatedRequest,
                                                         boolean isPostRequest) {
-        return new ModernHttpRequesterMock(context, url, params, isAuthenticatedRequest, isPostRequest);
+        Pair<User, String> userAndDomain = HttpUtils.getUserAndDomain(isAuthenticatedRequest);
+        return new ModernHttpRequesterMock(new AndroidCacheDirSetup(context),
+                url, params, userAndDomain.first, userAndDomain.second,
+                isAuthenticatedRequest, isPostRequest);
     }
 
     @Override

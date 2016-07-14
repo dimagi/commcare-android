@@ -11,7 +11,7 @@ import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.models.database.ConcreteAndroidDbHelper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.app.models.UserKeyRecord;
-import org.commcare.models.encryption.CryptUtil;
+import org.commcare.core.encryption.CryptUtil;
 import org.commcare.models.encryption.ByteEncrypter;
 import org.javarosa.core.model.User;
 import org.javarosa.core.util.PropertyUtils;

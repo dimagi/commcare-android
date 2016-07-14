@@ -8,9 +8,10 @@ import org.commcare.data.xml.DataModelPullParser;
 import org.commcare.data.xml.TransactionParserFactory;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.tasks.templates.CommCareTask;
-import org.commcare.utils.AndroidStreamUtil;
-import org.commcare.utils.bitcache.BitCache;
-import org.commcare.utils.bitcache.BitCacheFactory;
+import org.commcare.core.network.bitcache.BitCache;
+import org.commcare.core.network.bitcache.BitCacheFactory;
+import org.commcare.utils.AndroidCacheDirSetup;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.services.Logger;
 import org.javarosa.xml.util.InvalidStructureException;
 import org.javarosa.xml.util.UnfullfilledRequirementsException;
@@ -159,12 +160,12 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
             }
         }
 
-        BitCache cache = BitCacheFactory.getCache(c, dataSizeGuess);
+        BitCache cache = BitCacheFactory.getCache(new AndroidCacheDirSetup(c), dataSizeGuess);
 
         cache.initializeCache();
 
         OutputStream cacheOut = cache.getCacheStream();
-        AndroidStreamUtil.writeFromInputToOutput(response.getEntity().getContent(), cacheOut);
+        StreamsUtil.writeFromInputToOutputNew(response.getEntity().getContent(), cacheOut);
 
         return cache.retrieveCache();
     }
