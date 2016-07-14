@@ -33,6 +33,7 @@ import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.session.SessionFrame;
+import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.tasks.templates.CommCareTask;
@@ -84,7 +85,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     private GestureDetector mGestureDetector;
 
-    private static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
     protected String lastQueryString;
 
     /**
@@ -412,11 +412,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     protected void restoreLastQueryString() {
-        lastQueryString = (String)CommCareApplication._().getCurrentSession().getCurrentFrameStepExtra(KEY_LAST_QUERY_STRING);
+        lastQueryString = (String)CommCareApplication._().getCurrentSession().getCurrentFrameStepExtra(SessionInstanceBuilder.KEY_LAST_QUERY_STRING);
     }
 
     protected void saveLastQueryString() {
-        CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(KEY_LAST_QUERY_STRING, lastQueryString);
+        CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_LAST_QUERY_STRING, lastQueryString);
     }
 
     //Graphical stuff below, needs to get modularized
