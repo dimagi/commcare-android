@@ -86,7 +86,7 @@ public class FormRecordProcessor {
         //Let anyone who is listening know!
         Intent i = new Intent("org.commcare.dalvik.api.action.data.update");
         i.putStringArrayListExtra("cases", factory.getCreatedAndUpdatedCases());
-        c.sendBroadcast(i);
+        c.sendBroadcast(i, "org.commcare.dalvik.provider.cases.read");
 
         //Update the record before trying to purge, so we don't block on this, in case
         //anything weird happens. We don't want to get into a loop
