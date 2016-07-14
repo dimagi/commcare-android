@@ -19,7 +19,7 @@ public enum LocalDataPullResponseFactory implements DataPullRequester {
 
     // data pull requests will pop off and use the top reference in this list
     private final List<String> xmlPayloadReferences = new ArrayList<>();
-    private boolean isAsyncRestore;
+    protected boolean isAsyncRestore;
 
     public static void setRequestPayloads(String[] payloadReferences) {
         INSTANCE.xmlPayloadReferences.clear();
@@ -36,12 +36,7 @@ public enum LocalDataPullResponseFactory implements DataPullRequester {
                                                       HttpRequestEndpoints requestor,
                                                       String server,
                                                       boolean includeSyncToken) throws IOException {
-        HttpResponse response;
-        if (isAsyncRestore) {
-            response = requestor.makeAsyncCaseFetchRequest();
-        } else {
-            response = requestor.makeCaseFetchRequest(server, includeSyncToken);
-        }
+        HttpResponse response = requestor.makeCaseFetchRequest(server, includeSyncToken);
         return new LocalDataPullResponse(xmlPayloadReferences.remove(0), response);
     }
 

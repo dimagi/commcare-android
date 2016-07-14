@@ -334,9 +334,4 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         }
     }
 
-    // FOR TESTING PURPOSES ONLY
-    @Override
-    public HttpResponse makeAsyncCaseFetchRequest() {
-        return null;
-    }
 }

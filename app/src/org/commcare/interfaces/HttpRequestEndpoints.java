@@ -24,7 +24,4 @@ public interface HttpRequestEndpoints {
     InputStream simpleGet(URL url) throws IOException;
 
     void abortCurrentRequest();
-
-    // for testing purposes only
-    HttpResponse makeAsyncCaseFetchRequest();
 }
