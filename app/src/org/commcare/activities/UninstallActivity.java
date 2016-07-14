@@ -10,8 +10,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 
 /**
  * Created by Saumya on 6/30/2016.
- * Janky-ass activity that uninstalls whatever app is currently installed.
- * Doesn't really work.
+ * Uninstalls whatever app is currently selected and navigates back to SetupActivity
  */
 public class UninstallActivity extends Activity {
 
@@ -24,12 +23,12 @@ public class UninstallActivity extends Activity {
         startActivity(i);
     }
 
-    private static void uninstallApp(String appId) {
-        Log.d("UNINSTALL", appId);
+    private void uninstallApp(String appId) {
         ApplicationRecord appRecord = CommCareApplication._().getAppById(appId);
         if (appRecord != null) {
             CommCareApplication._().expireUserSession();
             CommCareApplication._().uninstall(appRecord);
+            CommCareApplication.restartCommCare(this, false);
         }
     }
 }
