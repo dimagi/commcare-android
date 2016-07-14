@@ -171,7 +171,6 @@ query.dialog.body=Searching server for relevant data
 query.response.format.error=Error processing server response: ${0}
 query.response.empty=Query response had no results
 post.request.button=Claim
-post.malformed.url=${0} is not a valid URL
 post.generic.error=An error occurred while preparing the HTTP request
 post.not.using.https=${0} is an invalid URL. You must use HTTPS.
 post.dialog.title=Claiming...

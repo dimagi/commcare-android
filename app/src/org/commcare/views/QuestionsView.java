@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -139,7 +141,7 @@ public class QuestionsView extends ScrollView
             qw.setChangedListener(this);
         }
         
-        updateLastQuestion();
+        markLastStringWidget();
 
         addView(mView);
     }
@@ -231,9 +233,9 @@ public class QuestionsView extends ScrollView
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
     
-    private void updateConstraintRelevancies(){
-        if(hasListener){
-            wcListener.widgetEntryChanged();
+    private void updateConstraintRelevancies(QuestionWidget changedWidget) {
+        if (hasListener) {
+            wcListener.widgetEntryChanged(changedWidget);
         }
     }
 
@@ -320,10 +322,41 @@ public class QuestionsView extends ScrollView
         }
     }
 
-    public void setFocus(Context context) {
-        if (widgets.size() > 0) {
-            widgets.get(0).setFocus(context);
+    public void setFocus(Context context, int indexOfLastChangedWidget) {
+        QuestionWidget widgetToFocus = null;
+        if (indexOfLastChangedWidget != -1) {
+            widgetToFocus = widgets.get(indexOfLastChangedWidget);
+        } else if (widgets.size() > 0) {
+            widgetToFocus = widgets.get(0);
         }
+        if (widgetToFocus != null) {
+            scrollToWidget(widgetToFocus);
+            widgetToFocus.setFocus(context);
+        }
+    }
+
+    private void scrollToWidget(final QuestionWidget widget) {
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                QuestionsView.this.scrollTo(0, widget.getTop());
+            }
+        });
+    }
+
+    /**
+     * @param pendingIntentWidget - the widget for which a callout from form entry just occurred,
+     *                            if there is one
+     * @return the index of the widget that focus was restored to, or -1 if there was no
+     * widget that just called out
+     */
+    public int restoreFocusToQuestionThatCalledOut(Context context, QuestionWidget pendingIntentWidget) {
+        if (pendingIntentWidget != null) {
+            int index = widgets.indexOf(pendingIntentWidget);
+            setFocus(context, index);
+            return index;
+        }
+        return -1;
     }
 
     /**
@@ -340,7 +373,6 @@ public class QuestionsView extends ScrollView
         for (QuestionWidget q : widgets) {
             if (questionFormIndex.equals(q.getFormId())) {
                 q.setBinaryData(answer);
-                pendingCalloutInterface.setPendingCalloutFormIndex(null);
                 return;
             }
         }
@@ -399,18 +431,16 @@ public class QuestionsView extends ScrollView
     }
 
     @Override
-    public void widgetEntryChanged() {
-        updateConstraintRelevancies();
-        updateLastQuestion();
+    public void widgetEntryChanged(QuestionWidget changedWidget) {
+        updateConstraintRelevancies(changedWidget);
+        markLastStringWidget();
     }
-    
-    private void updateLastQuestion(){
+
+    private void markLastStringWidget() {
         StringWidget last = null;
-        
-        for(QuestionWidget q: widgets){
-            
-            if(q instanceof StringWidget){
-                if(last != null){
+        for (QuestionWidget q: widgets) {
+            if (q instanceof StringWidget) {
+                if (last != null) {
                     last.setLastQuestion(false);
                 }
                 last = (StringWidget)q;
@@ -430,13 +460,13 @@ public class QuestionsView extends ScrollView
 
     /**
      * Takes in a form entry prompt that is obtained generically and if there
-     * is already one on screen (which, for isntance, may have cached some of its data)
+     * is already one on screen (which, for instance, may have cached some of its data)
      * returns the object in use currently.
      */
     public FormEntryPrompt getOnScreenPrompt(FormEntryPrompt prompt) {
         FormIndex index = prompt.getIndex();
-        for(QuestionWidget widget : this.getWidgets()) {
-            if(widget.getFormId().equals(index)) {
+        for (QuestionWidget widget : this.getWidgets()) {
+            if (widget.getFormId().equals(index)) {
                 return widget.getPrompt();
             }
         }
