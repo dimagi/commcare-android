@@ -1,6 +1,7 @@
 package org.commcare.activities;
 
 import android.annotation.TargetApi;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -42,6 +43,7 @@ import org.commcare.utils.Permissions;
 import org.commcare.views.ViewUtil;
 import org.commcare.views.dialogs.CustomProgressDialog;
 import org.commcare.views.dialogs.DialogCreationHelpers;
+import org.commcare.views.dialogs.StandardAlertDialog;
 import org.commcare.views.notifications.MessageTag;
 import org.commcare.views.notifications.NotificationMessage;
 import org.commcare.views.notifications.NotificationMessageFactory;
@@ -63,6 +65,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private static final int MENU_ABOUT = Menu.FIRST + 1;
     private static final int MENU_PERMISSIONS = Menu.FIRST + 2;
     private static final int MENU_PASSWORD_MODE = Menu.FIRST + 3;
+    private static final int MENU_INVALIDATE_CACHE = Menu.FIRST + 4;
 
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public final static String KEY_LAST_APP = "id-last-seated-app";
@@ -348,6 +351,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         menu.add(0, MENU_ABOUT, 1, Localization.get("home.menu.about")).setIcon(android.R.drawable.ic_menu_help);
         menu.add(0, MENU_PERMISSIONS, 1, Localization.get("permission.acquire.required")).setIcon(android.R.drawable.ic_menu_manage);
         menu.add(0, MENU_PASSWORD_MODE, 1, Localization.get("login.menu.password.mode"));
+        menu.add(0, MENU_INVALIDATE_CACHE, 1, Localization.get("login.menu.invalide.cache"));
         return true;
     }
 
@@ -356,6 +360,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         super.onPrepareOptionsMenu(menu);
         menu.findItem(MENU_PERMISSIONS).setVisible(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M);
         menu.findItem(MENU_PASSWORD_MODE).setVisible(uiController.getLoginMode() == LoginMode.PIN);
+        menu.findItem(MENU_INVALIDATE_CACHE).setVisible(BuildConfig.DEBUG);
         return true;
     }
 
@@ -377,9 +382,37 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
             case MENU_PASSWORD_MODE:
                 uiController.manualSwitchToPasswordMode();
                 return true;
+            case MENU_INVALIDATE_CACHE:
+                showInvalidateCacheConfirmationDialog();
+                return true;
             default:
                 return otherResult;
         }
+    }
+
+    private void showInvalidateCacheConfirmationDialog() {
+        StandardAlertDialog dialog = StandardAlertDialog.getBasicAlertDialog(this,
+                Localization.get("invalidate.cache.dialog.title"),
+                Localization.get("invalidate.cache.dialog.message"),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        CommCareApplication._().setInvalidateCacheFlag(true);
+                    }
+                }
+        );
+
+        dialog.setNegativeButton(Localization.get("option.cancel"),
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                }
+        );
+
+        showAlertDialog(dialog);
     }
 
     @Override

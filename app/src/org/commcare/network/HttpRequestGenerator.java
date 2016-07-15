@@ -25,6 +25,7 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.ExecutionContext;
 import org.apache.http.protocol.HttpContext;
+import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
 import org.commcare.cases.util.CaseDBUtils;
@@ -167,6 +168,12 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
 
         //Add items count to fetch request
         serverUri = serverUri.buildUpon().appendQueryParameter("items", "true").build();
+
+        if (CommCareApplication._().shouldInvalidateCacheOnRestore()) {
+            serverUri = serverUri.buildUpon().appendQueryParameter("overwrite_cache", "true").build();
+            // Always wipe this flag after we have used it once
+            CommCareApplication._().setInvalidateCacheFlag(false);
+        }
 
         String uri = serverUri.toString();
         Log.d(TAG, "Fetching from: " + uri);
