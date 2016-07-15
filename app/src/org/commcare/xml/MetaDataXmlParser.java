@@ -18,7 +18,7 @@ public class MetaDataXmlParser extends TransactionParser<String[]> {
     }
 
     @Override
-    public void commit(String[] data) throws IOException {
+    protected void commit(String[] data) throws IOException {
         //nothing;
     }
 
