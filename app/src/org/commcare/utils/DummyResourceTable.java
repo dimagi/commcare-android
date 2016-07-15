@@ -61,24 +61,18 @@ public class DummyResourceTable extends ResourceTable {
                     public void readExternal(DataInputStream in,
                                              PrototypeFactory pf) throws IOException,
                             DeserializationException {
-                        // TODO Auto-generated method stub
-
                     }
 
                     public void writeExternal(DataOutputStream out)
                             throws IOException {
-                        // TODO Auto-generated method stub
-
                     }
 
                     public boolean requiresRuntimeInitialization() {
-                        // TODO Auto-generated method stub
                         return false;
                     }
 
-                    public boolean initialize(CommCareInstance instance)
+                    public boolean initialize(CommCareInstance instance, boolean isUpgrade)
                             throws ResourceInitializationException {
-                        // TODO Auto-generated method stub
                         return true;
                     }
 
@@ -88,7 +82,6 @@ public class DummyResourceTable extends ResourceTable {
                                            boolean upgrade)
                             throws UnresolvedResourceException,
                             UnfullfilledRequirementsException {
-                        // TODO Auto-generated method stub
                         return true;
                     }
 
@@ -99,39 +92,32 @@ public class DummyResourceTable extends ResourceTable {
                     @Override
                     public boolean uninstall(Resource r)
                             throws UnresolvedResourceException {
-                        // TODO Auto-generated method stub
                         return true;
                     }
 
                     @Override
                     public boolean unstage(Resource r, int newStatus) {
-                        // TODO Auto-generated method stub
                         return true;
                     }
 
                     @Override
                     public boolean revert(Resource r, ResourceTable table) {
-                        // TODO Auto-generated method stub
                         return true;
                     }
 
                     @Override
                     public boolean upgrade(Resource r)
                             throws UnresolvedResourceException {
-                        // TODO Auto-generated method stub
                         return true;
                     }
 
 
                     public void cleanup() {
-                        // TODO Auto-generated method stub
-
                     }
 
                     public boolean verifyInstallation(Resource r, Vector problems) {
                         return false;
                     }
-
                 };
             }
 
@@ -213,7 +199,7 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void initializeResources(CommCareInstance instance)
+    public void initializeResources(CommCareInstance instance, boolean isUpgrade)
             throws ResourceInitializationException {
     }
 

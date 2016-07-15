@@ -45,7 +45,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
 
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
+    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) throws ResourceInitializationException {
         try {
 
             Reference local = ReferenceManager._().DeriveReference(localLocation);
@@ -157,6 +157,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         return true;
     }
 
+    @Override
     protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
         return Resource.RESOURCE_STATUS_LOCAL;
     }
