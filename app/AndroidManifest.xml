@@ -126,6 +126,15 @@
         </activity>
         <activity android:name="org.commcare.activities.CallOutActivity">
         </activity>
+
+        <activity
+            android:name="org.commcare.activities.RestoreActivity">
+            <intent-filter>
+                <action android:name="OPEN_ACTIVITY_4"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name="org.commcare.activities.CommCareSetupActivity"
             android:windowSoftInputMode="adjustResize">

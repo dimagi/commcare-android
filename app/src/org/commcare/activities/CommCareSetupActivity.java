@@ -38,6 +38,7 @@ import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.resources.model.UnresolvedResourceException;
+import org.commcare.services.CommCareFirebaseMessagingService;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.ResourceEngineTask;
 import org.commcare.tasks.RetrieveParseVerifyMessageListener;
@@ -153,8 +154,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
 
         //If Intent was from a Notification
-        if(getIntent().getExtras() != null){
-            String URL = getIntent().getExtras().getString("BODY");
+        if(getIntent().hasExtra(CommCareFirebaseMessagingService.LINK)){
+            String URL = getIntent().getExtras().getString(CommCareFirebaseMessagingService.LINK);
             this.setReadyToInstall(URL);
         }
 

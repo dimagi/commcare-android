@@ -129,6 +129,9 @@ public class DevSessionRestorer {
                 .putString(CommCarePreferences.CURRENT_SESSION, serializedSession)
                 .putString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, formEntrySession)
                 .apply();
+
+        Log.d("Session", serializedSession);
+        Log.d("form", formEntrySession);
     }
 
     public static String getSerializedSessionString() {
