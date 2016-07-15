@@ -180,16 +180,16 @@ public class AppUpdateTest {
     public void testAppUpdateWithSuiteFixture() {
         Log.d(TAG, "Applying a app update with a suite fixture");
 
+        AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication._());
+        IStorageUtilityIndexed<FormInstance> appFixtureStorage = sandbox.getAppFixtureStorage();
+        assertEquals(1, appFixtureStorage.getNumRecords());
+        assertEquals(1, appFixtureStorage.read(1).getRoot().getNumChildren());
+
         installUpdate("update_with_suite_fixture",
                 taskListenerFactory(AppInstallStatus.UpdateStaged),
                 AppInstallStatus.Installed);
 
-        Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
-        AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication._());
-        IStorageUtilityIndexed<FormInstance> appFixtureStorage = sandbox.getAppFixtureStorage();
         assertEquals(1, appFixtureStorage.getNumRecords());
-        FormInstance suiteFixture = appFixtureStorage.read(1);
-        System.out.print(suiteFixture);
-        Assert.assertTrue(p.getVersion() == 9);
+        assertEquals(2, appFixtureStorage.read(1).getRoot().getNumChildren());
     }
 }

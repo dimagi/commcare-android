@@ -36,6 +36,7 @@ import java.util.Vector;
 public class SuiteAndroidInstaller extends FileSystemInstaller {
     private static final String TAG = SuiteAndroidInstaller.class.getSimpleName();
 
+    @SuppressWarnings("unused")
     public SuiteAndroidInstaller() {
         // for externalization
     }
@@ -53,8 +54,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
             SuiteParser parser = new AndroidSuiteParser(local.getStream(),
-                    instance.getGlobalResourceTable(), null, instance.getFixtureStorage());
-            parser.setSkipResources(true);
+                    instance.getGlobalResourceTable(), null, true, false, instance.getFixtureStorage());
 
             Suite s = parser.parse();
 
@@ -77,7 +77,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
             SuiteParser parser = new AndroidSuiteParser(local.getStream(), table,
-                    r.getRecordGuid(), instance.getFixtureStorage());
+                    r.getRecordGuid(), false, false, instance.getFixtureStorage());
 
             Suite s = parser.parse();
 
@@ -102,15 +102,11 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         return true;
     }
 
+    @Override
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
-            Suite mSuite = (new AndroidSuiteParser(local.getStream(), new DummyResourceTable(), null, null) {
-                @Override
-                protected boolean inValidationMode() {
-                    return true;
-                }
-            }).parse();
+            Suite mSuite = new AndroidSuiteParser(local.getStream(), new DummyResourceTable(), null, false, true, null).parse();
             Hashtable<String, Entry> mHashtable = mSuite.getEntries();
             for (Enumeration en = mHashtable.keys(); en.hasMoreElements(); ) {
                 String key = (String)en.nextElement();

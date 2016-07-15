@@ -95,10 +95,10 @@
         <command id="m0-f1"/>
     </menu>
 
-    <fixture id="schedule:m3:p1:f0">
-        <schedule allow_unscheduled="False" expires="" starts="0">
-            <visit due="1" id="1" repeats="False" starts="0"/>
-            <visit due="2" id="2" repeats="False" starts="0"/>
-        </schedule>
+    <fixture id="entries">
+        <entries>
+            <entry id="1"/>
+            <entry id="2"/>
+        </entries>
     </fixture>
 </suite>

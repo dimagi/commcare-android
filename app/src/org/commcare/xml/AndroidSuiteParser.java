@@ -12,8 +12,10 @@ import java.io.InputStream;
  */
 public class AndroidSuiteParser extends SuiteParser {
 
-    public AndroidSuiteParser(InputStream suiteStream, ResourceTable table, String resourceGuid, IStorageUtilityIndexed<FormInstance> fixtureStorage) throws IOException {
-        super(suiteStream, table, resourceGuid, fixtureStorage);
+    public AndroidSuiteParser(InputStream suiteStream, ResourceTable table,
+                              String resourceGuid, boolean skipResources, boolean isValidationPass,
+                              IStorageUtilityIndexed<FormInstance> fixtureStorage) throws IOException {
+        super(suiteStream, table, resourceGuid, fixtureStorage, skipResources, isValidationPass);
     }
 
     @Override
