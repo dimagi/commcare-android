@@ -4,11 +4,13 @@ import android.content.Context;
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.commcare.tasks.DataPullTask;
-import org.commcare.utils.AndroidStreamUtil;
-import org.commcare.utils.bitcache.BitCache;
-import org.commcare.utils.bitcache.BitCacheFactory;
+import org.commcare.core.network.bitcache.BitCache;
+import org.commcare.core.network.bitcache.BitCacheFactory;
+import org.commcare.utils.AndroidCacheDirSetup;
+import org.javarosa.core.io.StreamsUtil;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -51,7 +53,7 @@ public class RemoteDataPullResponse {
         try {
             final long dataSizeGuess = guessDataSize();
 
-            cache = BitCacheFactory.getCache(c, dataSizeGuess);
+            cache = BitCacheFactory.getCache(new AndroidCacheDirSetup(c), dataSizeGuess);
 
             cache.initializeCache();
 
@@ -59,9 +61,9 @@ public class RemoteDataPullResponse {
             InputStream input = getInputStream();
 
             Log.i("commcare-network", "Starting network read, expected content size: " + dataSizeGuess + "b");
-            AndroidStreamUtil.writeFromInputToOutput(new BufferedInputStream(input),
+            StreamsUtil.writeFromInputToOutputNew(new BufferedInputStream(input),
                     cacheOut,
-                    new AndroidStreamUtil.StreamReadObserver() {
+                    new StreamsUtil.StreamReadObserver() {
                         long lastOutput = 0;
 
                         /** The notification threshold. **/
@@ -127,5 +129,9 @@ public class RemoteDataPullResponse {
             }
         }
         return -1;
+    }
+
+    public Header getRetryHeader() {
+        return response.getFirstHeader("Retry-After");
     }
 }

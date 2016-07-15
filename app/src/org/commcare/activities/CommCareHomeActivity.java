@@ -995,7 +995,6 @@ public class CommCareHomeActivity
         // Create our form entry activity callout
         Intent i = new Intent(getApplicationContext(), FormEntryActivity.class);
         i.setAction(Intent.ACTION_EDIT);
-        i.putExtra(FormEntryActivity.TITLE_FRAGMENT_TAG, BreadcrumbBarFragment.class.getName());
         i.putExtra(FormEntryActivity.KEY_INSTANCEDESTINATION, CommCareApplication._().getCurrentApp().fsPath((GlobalConstants.FILE_CC_FORMS)));
         
         // See if there's existing form data that we want to continue entering
@@ -1093,10 +1092,13 @@ public class CommCareHomeActivity
 
     @Override
     protected void onResumeSessionSafe() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            refreshActionBar();
+        if (!sessionNavigationProceedingAfterOnResume) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                refreshActionBar();
+            }
+            attemptDispatchHomeScreen();
         }
-        attemptDispatchHomeScreen();
+
         sessionNavigationProceedingAfterOnResume = false;
     }
 
@@ -1116,7 +1118,7 @@ public class CommCareHomeActivity
         if (CommCareApplication._().isSyncPending(false)) {
             // There is a sync pending
             handlePendingSync();
-        } else if (CommCareApplication._().isConsumerApp() && !sessionNavigationProceedingAfterOnResume) {
+        } else if (CommCareApplication._().isConsumerApp()) {
             // so that the user never sees the real home screen in a consumer app
             enterRootModule();
         } else {
@@ -1314,7 +1316,7 @@ public class CommCareHomeActivity
                 dialog.addProgressBar();
                 break;
             case DataPullTask.DATA_PULL_TASK_ID:
-                title = Localization.get("sync.progress.title");
+                title = Localization.get("sync.communicating.title");
                 message = Localization.get("sync.progress.purge");
                 dialog = CustomProgressDialog.newInstance(title, message, taskId);
                 if (isSyncUserLaunched) {

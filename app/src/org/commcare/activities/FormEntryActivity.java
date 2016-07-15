@@ -17,8 +17,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore.Images;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.util.Pair;
@@ -163,7 +161,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     // Identifies the gp of the form used to launch form entry
     private static final String KEY_FORMPATH = "formpath";
     public static final String KEY_INSTANCEDESTINATION = "instancedestination";
-    public static final String TITLE_FRAGMENT_TAG = "odk_title_fragment";
     public static final String KEY_FORM_CONTENT_URI = "form_content_uri";
     public static final String KEY_INSTANCE_CONTENT_URI = "instance_content_uri";
     public static final String KEY_AES_STORAGE_KEY = "key_aes_storage";
@@ -175,6 +172,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static final String KEY_RECORD_FORM_ENTRY_SESSION = "record_form_entry_session";
     private static final String KEY_WIDGET_WITH_VIDEO_PLAYING = "index-of-widget-with-video-playing-on-pause";
     private static final String KEY_POSITION_OF_VIDEO_PLAYING = "position-of-video-playing-on-pause";
+    private static final String KEY_LAST_CHANGED_WIDGET = "index-of-last-changed-widget";
 
     /**
      * Intent extra flag to track if this form is an archive. Used to trigger
@@ -215,6 +213,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private ViewGroup mViewPane;
     private QuestionsView questionsView;
+    private int indexOfLastChangedWidget = -1;
 
     private boolean mIncompleteEnabled = true;
     private boolean hasFormLoadBeenTriggered = false;
@@ -258,8 +257,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @SuppressLint("NewApi")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        addBreadcrumbBar();
 
         // must be at the beginning of any activity that can be called from an external intent
         try {
@@ -418,6 +415,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
         saveFormEntrySession(outState);
         outState.putBoolean(KEY_RECORD_FORM_ENTRY_SESSION, recordEntrySession);
+        outState.putInt(KEY_LAST_CHANGED_WIDGET, indexOfLastChangedWidget);
 
         if (indexOfWidgetWithVideoPlaying != -1) {
             outState.putInt(KEY_WIDGET_WITH_VIDEO_PLAYING, indexOfWidgetWithVideoPlaying);
@@ -556,19 +554,21 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * pending callout with the form controller
      */
     public QuestionWidget getPendingWidget() {
-        FormIndex pendingIndex = mFormController.getPendingCalloutFormIndex();
-        if (pendingIndex == null) {
-            Logger.log(AndroidLogger.SOFT_ASSERT,
-                    "getPendingWidget called when pending callout form index was null");
-            return null;
-        }
-        for (QuestionWidget q : questionsView.getWidgets()) {
-            if (q.getFormId().equals(pendingIndex)) {
-                return q;
+        if (mFormController != null) {
+            FormIndex pendingIndex = mFormController.getPendingCalloutFormIndex();
+            if (pendingIndex == null) {
+                Logger.log(AndroidLogger.SOFT_ASSERT,
+                        "getPendingWidget called when pending callout form index was null");
+                return null;
             }
+            for (QuestionWidget q : questionsView.getWidgets()) {
+                if (q.getFormId().equals(pendingIndex)) {
+                    return q;
+                }
+            }
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "getPendingWidget couldn't find question widget with a form index that matches the pending callout.");
         }
-        Logger.log(AndroidLogger.SOFT_ASSERT,
-                "getPendingWidget couldn't find question widget with a form index that matches the pending callout.");
         return null;
     }
 
@@ -686,9 +686,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         //If we're at the beginning of form event, but don't show the screen for that, we need 
         //to get the next valid screen
-        if(event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
+        if (event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
             showNextView(true);
-        } else if(event == FormEntryController.EVENT_END_OF_FORM) {
+        } else if (event == FormEntryController.EVENT_END_OF_FORM) {
             showPreviousView(false);
         } else {
             QuestionsView current = createView();
@@ -965,6 +965,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         }
 
+        // Any info stored about the last changed widget is useless when we move to a new view
+        resetLastChangedWidget();
+
         if (mFormController.getEvent() != FormEntryController.EVENT_END_OF_FORM) {
             int event;
 
@@ -1034,6 +1037,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         }
+
+        // Any info stored about the last changed widget is useless when we move to a new view
+        resetLastChangedWidget();
 
         FormIndex startIndex = mFormController.getFormIndex();
         FormIndex lastValidIndex = startIndex;
@@ -1108,7 +1114,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         if (questionsView != null) {
-            if(animateLastView) {
+            if (animateLastView) {
                 questionsView.startAnimation(mOutAnimation);
             }
         	mViewPane.removeView(questionsView);
@@ -1124,7 +1130,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         mViewPane.addView(questionsView, lp);
 
         questionsView.startAnimation(mInAnimation);
-        questionsView.setFocus(this);
+        questionsView.setFocus(this, indexOfLastChangedWidget);
 
         setupGroupLabel();
     }
@@ -1580,16 +1586,27 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         registerFormEntryReceiver();
-        if (questionsView != null) {
-            questionsView.restoreTimePickerData();
-        }
+        restorePriorStates();
 
         if (mFormController != null) {
-            // clear pending callout post onActivityResult processing
             mFormController.setPendingCalloutFormIndex(null);
         }
+    }
 
-        restoreInlineVideoState();
+    private void restorePriorStates() {
+        if (questionsView != null) {
+            questionsView.restoreTimePickerData();
+            restoreFocusToCalloutQuestion();
+            restoreInlineVideoState();
+        }
+    }
+
+    private void restoreFocusToCalloutQuestion() {
+        int restoredFocusTo =
+                questionsView.restoreFocusToQuestionThatCalledOut(this, getPendingWidget());
+        if (restoredFocusTo != -1) {
+            indexOfLastChangedWidget = restoredFocusTo;
+        }
     }
 
     private void loadForm() {
@@ -2087,8 +2104,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    public void widgetEntryChanged() {
+    public void widgetEntryChanged(QuestionWidget changedWidget) {
         try {
+            recordLastChangedWidgetIndex(changedWidget);
             updateFormRelevancies();
         } catch (XPathTypeMismatchException | XPathArityException e) {
             UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
@@ -2096,6 +2114,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         FormNavigationUI.updateNavigationCues(this, mFormController, questionsView);
+    }
+
+    private void resetLastChangedWidget() {
+        indexOfLastChangedWidget = -1;
+    }
+
+    private void recordLastChangedWidgetIndex(QuestionWidget changedWidget) {
+        indexOfLastChangedWidget = questionsView.getWidgets().indexOf(changedWidget);
     }
 
     private boolean canNavigateForward() {
@@ -2108,31 +2134,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      */
     private boolean formHasLoaded() {
         return mFormController != null;
-    }
-
-    private void addBreadcrumbBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            final String fragmentClass = this.getIntent().getStringExtra(TITLE_FRAGMENT_TAG);
-            if (fragmentClass != null) {
-                final FragmentManager fm = this.getSupportFragmentManager();
-
-                Fragment bar = fm.findFragmentByTag(TITLE_FRAGMENT_TAG);
-                if (bar == null) {
-                    try {
-                        bar = ((Class<Fragment>)Class.forName(fragmentClass)).newInstance();
-
-                        ActionBar actionBar = getActionBar();
-                        if (actionBar != null) {
-                            actionBar.setDisplayShowCustomEnabled(true);
-                            actionBar.setDisplayShowTitleEnabled(false);
-                        }
-                        fm.beginTransaction().add(bar, TITLE_FRAGMENT_TAG).commit();
-                    } catch(Exception e) {
-                        Log.w(TAG, "couldn't instantiate fragment: " + fragmentClass);
-                    }
-                }
-            }
-        }
     }
 
     private void loadStateFromBundle(Bundle savedInstanceState) {
@@ -2187,6 +2188,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             if (savedInstanceState.containsKey(KEY_WIDGET_WITH_VIDEO_PLAYING)) {
                 indexOfWidgetWithVideoPlaying = savedInstanceState.getInt(KEY_WIDGET_WITH_VIDEO_PLAYING);
                 positionOfVideoProgress = savedInstanceState.getInt(KEY_POSITION_OF_VIDEO_PLAYING);
+            }
+            if (savedInstanceState.containsKey(KEY_LAST_CHANGED_WIDGET)) {
+                indexOfLastChangedWidget = savedInstanceState.getInt(KEY_LAST_CHANGED_WIDGET);
             }
         }
     }
