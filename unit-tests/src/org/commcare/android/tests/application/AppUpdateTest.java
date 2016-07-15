@@ -25,6 +25,7 @@ import org.robolectric.annotation.Config;
 
 import java.io.File;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
@@ -153,7 +154,7 @@ public class AppUpdateTest {
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
 
-        Assert.assertEquals(expectedInstallStatus,
+        assertEquals(expectedInstallStatus,
                 InstallStagedUpdateTask.installStagedUpdate());
         updateTask.clearTaskInstance();
     }
@@ -186,7 +187,8 @@ public class AppUpdateTest {
         Profile p = CommCareApplication._().getCommCarePlatform().getCurrentProfile();
         AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication._());
         IStorageUtilityIndexed<FormInstance> appFixtureStorage = sandbox.getAppFixtureStorage();
-        FormInstance suiteFixture = appFixtureStorage.read(0);
+        assertEquals(1, appFixtureStorage.getNumRecords());
+        FormInstance suiteFixture = appFixtureStorage.read(1);
         System.out.print(suiteFixture);
         Assert.assertTrue(p.getVersion() == 9);
     }
