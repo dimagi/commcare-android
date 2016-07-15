@@ -614,7 +614,6 @@ public abstract class DataPullTask<R>
     public enum PullTaskResult {
         DOWNLOAD_SUCCESS(-1),
         RETRY_NEEDED(-1),
-        RETRY_LIMIT_EXCEEDED(-1),
         AUTH_FAILED(GoogleAnalyticsFields.VALUE_AUTH_FAILED),
         BAD_DATA(GoogleAnalyticsFields.VALUE_BAD_DATA),
         BAD_DATA_REQUIRES_INTERVENTION(GoogleAnalyticsFields.VALUE_BAD_DATA_REQUIRES_INTERVENTION),
