@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.res.Resources;
 
 import org.commcare.dalvik.R;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xform.util.CalendarUtils;
 import org.javarosa.xform.util.UniversalDate;
@@ -38,9 +39,7 @@ public class NepaliDateWidget extends AbstractUniversalDateWidget {
 
     @Override
     protected String[] getMonthsArray() {
-        Resources res = getResources();
-        // load the months - will automatically get correct strings for current phone locale
-        return res.getStringArray(R.array.nepali_months);
+        return Localization.getArray("nepali.months.list");
     }
 
     @Override
