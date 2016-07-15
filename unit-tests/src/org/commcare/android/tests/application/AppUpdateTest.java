@@ -143,6 +143,15 @@ public class AppUpdateTest {
     private void installUpdate(String appFolder,
                                TaskListener<Integer, AppInstallStatus> listener,
                                AppInstallStatus expectedInstallStatus) {
+        UpdateTask updateTask = stageUpdate(appFolder, listener);
+
+        assertEquals(expectedInstallStatus,
+                InstallStagedUpdateTask.installStagedUpdate());
+        updateTask.clearTaskInstance();
+    }
+
+    private UpdateTask stageUpdate(String appFolder,
+                                   TaskListener<Integer, AppInstallStatus> listener) {
         UpdateTask updateTask = UpdateTask.getNewInstance();
         try {
             updateTask.registerTaskListener(listener);
@@ -153,10 +162,7 @@ public class AppUpdateTest {
 
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
-
-        assertEquals(expectedInstallStatus,
-                InstallStagedUpdateTask.installStagedUpdate());
-        updateTask.clearTaskInstance();
+        return updateTask;
     }
 
     private TaskListener<Integer, AppInstallStatus> taskListenerFactory(final AppInstallStatus expectedResult) {
@@ -185,9 +191,15 @@ public class AppUpdateTest {
         assertEquals(1, appFixtureStorage.getNumRecords());
         assertEquals(1, appFixtureStorage.read(1).getRoot().getNumChildren());
 
-        installUpdate("update_with_suite_fixture",
-                taskListenerFactory(AppInstallStatus.UpdateStaged),
-                AppInstallStatus.Installed);
+        UpdateTask updateTask = stageUpdate("update_with_suite_fixture",
+                taskListenerFactory(AppInstallStatus.UpdateStaged));
+
+        assertEquals(1, appFixtureStorage.getNumRecords());
+        assertEquals(1, appFixtureStorage.read(1).getRoot().getNumChildren());
+
+        assertEquals(AppInstallStatus.Installed,
+                InstallStagedUpdateTask.installStagedUpdate());
+        updateTask.clearTaskInstance();
 
         assertEquals(1, appFixtureStorage.getNumRecords());
         assertEquals(2, appFixtureStorage.read(1).getRoot().getNumChildren());
