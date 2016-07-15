@@ -53,8 +53,12 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
             }
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
-            SuiteParser parser = new AndroidSuiteParser(local.getStream(),
-                    instance.getGlobalResourceTable(), null, true, false, isUpgrade, instance.getFixtureStorage());
+            SuiteParser parser;
+            if (isUpgrade) {
+                parser = AndroidSuiteParser.buildUpgradeParser(local.getStream(), instance.getGlobalResourceTable(), null, instance.getFixtureStorage());
+            } else {
+                parser = AndroidSuiteParser.buildInitParser(local.getStream(), instance.getGlobalResourceTable(), null, instance.getFixtureStorage());
+            }
 
             Suite s = parser.parse();
 
@@ -70,16 +74,15 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         return false;
     }
 
+    @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, final AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
         super.install(r, location, ref, table, instance, upgrade);
+
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
-            SuiteParser parser = new AndroidSuiteParser(local.getStream(), table,
-                    r.getRecordGuid(), false, false, false, instance.getFixtureStorage());
-
-            Suite s = parser.parse();
+            AndroidSuiteParser.buildInstallParser(local.getStream(), table, r.getRecordGuid(), instance.getFixtureStorage()).parse();
 
             table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
             return true;
@@ -106,7 +109,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
-            Suite mSuite = new AndroidSuiteParser(local.getStream(), new DummyResourceTable(), null, false, true, false, null).parse();
+            Suite mSuite = AndroidSuiteParser.buildVerifyParser(local.getStream(), new DummyResourceTable(), null, null).parse();
             Hashtable<String, Entry> mHashtable = mSuite.getEntries();
             for (Enumeration en = mHashtable.keys(); en.hasMoreElements(); ) {
                 String key = (String)en.nextElement();

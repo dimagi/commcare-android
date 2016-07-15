@@ -12,10 +12,42 @@ import java.io.InputStream;
  */
 public class AndroidSuiteParser extends SuiteParser {
 
-    public AndroidSuiteParser(InputStream suiteStream, ResourceTable table, String resourceGuid,
-                              boolean skipResources, boolean isValidationPass, boolean isUpgrade,
-                              IStorageUtilityIndexed<FormInstance> fixtureStorage) throws IOException {
+    private AndroidSuiteParser(InputStream suiteStream, ResourceTable table, String resourceGuid,
+                               boolean skipResources, boolean isValidationPass, boolean isUpgrade,
+                               IStorageUtilityIndexed<FormInstance> fixtureStorage) throws IOException {
         super(suiteStream, table, resourceGuid, fixtureStorage, skipResources, isValidationPass, isUpgrade);
+    }
+
+    public static AndroidSuiteParser buildInstallParser(InputStream suiteStream,
+                                                        ResourceTable table,
+                                                        String resourceGuid,
+                                                        IStorageUtilityIndexed<FormInstance> fixtureStorage)
+            throws IOException {
+        return new AndroidSuiteParser(suiteStream, table, resourceGuid, false, false, false, fixtureStorage);
+    }
+
+    public static AndroidSuiteParser buildUpgradeParser(InputStream suiteStream,
+                                                        ResourceTable table,
+                                                        String resourceGuid,
+                                                        IStorageUtilityIndexed<FormInstance> fixtureStorage)
+            throws IOException {
+        return new AndroidSuiteParser(suiteStream, table, resourceGuid, false, false, true, fixtureStorage);
+    }
+
+    public static AndroidSuiteParser buildInitParser(InputStream suiteStream,
+                                                     ResourceTable table,
+                                                     String resourceGuid,
+                                                     IStorageUtilityIndexed<FormInstance> fixtureStorage)
+            throws IOException {
+        return new AndroidSuiteParser(suiteStream, table, resourceGuid, true, false, false, fixtureStorage);
+    }
+
+    public static AndroidSuiteParser buildVerifyParser(InputStream suiteStream,
+                                                       ResourceTable table,
+                                                       String resourceGuid,
+                                                       IStorageUtilityIndexed<FormInstance> fixtureStorage)
+            throws IOException {
+        return new AndroidSuiteParser(suiteStream, table, resourceGuid, false, true, false, fixtureStorage);
     }
 
     @Override

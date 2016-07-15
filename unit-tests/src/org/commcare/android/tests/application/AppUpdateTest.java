@@ -194,6 +194,7 @@ public class AppUpdateTest {
         UpdateTask updateTask = stageUpdate("update_with_suite_fixture",
                 taskListenerFactory(AppInstallStatus.UpdateStaged));
 
+        // ensure suite fixture didn't change if you only staged an update but haven't applied it
         assertEquals(1, appFixtureStorage.getNumRecords());
         assertEquals(1, appFixtureStorage.read(1).getRoot().getNumChildren());
 
@@ -201,6 +202,7 @@ public class AppUpdateTest {
                 InstallStagedUpdateTask.installStagedUpdate());
         updateTask.clearTaskInstance();
 
+        // ensure suite fixture updated after actually applying a staged update
         assertEquals(1, appFixtureStorage.getNumRecords());
         assertEquals(2, appFixtureStorage.read(1).getRoot().getNumChildren());
     }
