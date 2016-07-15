@@ -351,7 +351,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         menu.add(0, MENU_ABOUT, 1, Localization.get("home.menu.about")).setIcon(android.R.drawable.ic_menu_help);
         menu.add(0, MENU_PERMISSIONS, 1, Localization.get("permission.acquire.required")).setIcon(android.R.drawable.ic_menu_manage);
         menu.add(0, MENU_PASSWORD_MODE, 1, Localization.get("login.menu.password.mode"));
-        menu.add(0, MENU_INVALIDATE_CACHE, 1, Localization.get("login.menu.invalide.cache"));
+        menu.add(0, MENU_INVALIDATE_CACHE, 1, Localization.get("login.menu.invalidate.cache"));
         return true;
     }
 
@@ -399,6 +399,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         CommCareApplication._().setInvalidateCacheFlag(true);
+                        dialog.dismiss();
                     }
                 }
         );
