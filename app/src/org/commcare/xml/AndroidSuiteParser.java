@@ -28,26 +28,22 @@ public class AndroidSuiteParser extends SuiteParser {
 
     public static AndroidSuiteParser buildUpgradeParser(InputStream suiteStream,
                                                         ResourceTable table,
-                                                        String resourceGuid,
                                                         IStorageUtilityIndexed<FormInstance> fixtureStorage)
             throws IOException {
-        return new AndroidSuiteParser(suiteStream, table, resourceGuid, false, false, true, fixtureStorage);
+        return new AndroidSuiteParser(suiteStream, table, null, false, false, true, fixtureStorage);
     }
 
     public static AndroidSuiteParser buildInitParser(InputStream suiteStream,
                                                      ResourceTable table,
-                                                     String resourceGuid,
                                                      IStorageUtilityIndexed<FormInstance> fixtureStorage)
             throws IOException {
-        return new AndroidSuiteParser(suiteStream, table, resourceGuid, true, false, false, fixtureStorage);
+        return new AndroidSuiteParser(suiteStream, table, null, true, false, false, fixtureStorage);
     }
 
     public static AndroidSuiteParser buildVerifyParser(InputStream suiteStream,
-                                                       ResourceTable table,
-                                                       String resourceGuid,
-                                                       IStorageUtilityIndexed<FormInstance> fixtureStorage)
+                                                       ResourceTable table)
             throws IOException {
-        return new AndroidSuiteParser(suiteStream, table, resourceGuid, false, true, false, fixtureStorage);
+        return new AndroidSuiteParser(suiteStream, table, null, false, true, false, null);
     }
 
     @Override

@@ -55,9 +55,9 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
 
             SuiteParser parser;
             if (isUpgrade) {
-                parser = AndroidSuiteParser.buildUpgradeParser(local.getStream(), instance.getGlobalResourceTable(), null, instance.getFixtureStorage());
+                parser = AndroidSuiteParser.buildUpgradeParser(local.getStream(), instance.getGlobalResourceTable(), instance.getFixtureStorage());
             } else {
-                parser = AndroidSuiteParser.buildInitParser(local.getStream(), instance.getGlobalResourceTable(), null, instance.getFixtureStorage());
+                parser = AndroidSuiteParser.buildInitParser(local.getStream(), instance.getGlobalResourceTable(), instance.getFixtureStorage());
             }
 
             Suite s = parser.parse();
@@ -109,7 +109,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
-            Suite mSuite = AndroidSuiteParser.buildVerifyParser(local.getStream(), new DummyResourceTable(), null, null).parse();
+            Suite mSuite = AndroidSuiteParser.buildVerifyParser(local.getStream(), new DummyResourceTable()).parse();
             Hashtable<String, Entry> mHashtable = mSuite.getEntries();
             for (Enumeration en = mHashtable.keys(); en.hasMoreElements(); ) {
                 String key = (String)en.nextElement();
