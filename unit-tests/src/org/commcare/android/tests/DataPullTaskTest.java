@@ -117,31 +117,27 @@ public class DataPullTaskTest {
         installAndUseLocalKeys();
         runDataPullWithAsyncRestore();
 
-        // Indicates that the task stopped when it reached the retry limit we set
-        Assert.assertEquals(DataPullTask.PullTaskResult.RETRY_LIMIT_EXCEEDED, dataPullResult.data);
-        Assert.assertTrue(pullTask.numTries == 3);
+        Assert.assertEquals(DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS, dataPullResult.data);
+        
+        // Indicates that the task executed all of the retries we indicated, and then successfully
+        // parsed the final success response
+        Assert.assertEquals(4, LocalDataPullResponseFactory.getNumRequestsMade());
 
-        // Indicates that the retry result was parsed correctly
-        Assert.assertTrue(pullTask.getAsyncRestoreHelper().retryAtTime != -1
-                && pullTask.getAsyncRestoreHelper().serverProgressCompletedSoFar == 55);
+        // Indicates that the mock retry result was parsed correctly
+        Assert.assertTrue(pullTask.getAsyncRestoreHelper().serverProgressCompletedSoFar == 55);
     }
 
     private static void runDataPullWithAsyncRestore() {
-        runDataPull(new Integer[]{202}, new String[]{RETRY_RESPONSE, RETRY_RESPONSE, RETRY_RESPONSE}, true);
+        runDataPull(new Integer[]{202, 202, 202, 200},
+                new String[]{RETRY_RESPONSE, RETRY_RESPONSE, RETRY_RESPONSE, GOOD_RESTORE});
     }
 
     private static void runDataPull(Integer resultCode, String payloadResource) {
-        runDataPull(new Integer[]{resultCode}, new String[]{payloadResource}, false);
+        runDataPull(new Integer[]{resultCode}, new String[]{payloadResource});
     }
 
     private static void runDataPull(Integer[] resultCodes, String[] payloadResources) {
-        runDataPull(resultCodes, payloadResources, false);
-    }
-
-    private static void runDataPull(Integer[] resultCodes, String[] payloadResources,
-                                    boolean runAsyncRestore) {
         HttpRequestEndpointsMock.setCaseFetchResponseCodes(resultCodes);
-        LocalDataPullResponseFactory.setAsyncRestore(runAsyncRestore);
         LocalDataPullResponseFactory.setRequestPayloads(payloadResources);
 
         DataPullTask<Object> task =
@@ -162,9 +158,6 @@ public class DataPullTaskTest {
                     }
                 };
 
-        if (runAsyncRestore) {
-            task.getAsyncRestoreHelper().setRetryLimitFor(3);
-        }
         task.connect(TestAppInstaller.fakeConnector);
         task.execute();
         pullTask = task;

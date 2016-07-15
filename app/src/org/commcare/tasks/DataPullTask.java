@@ -87,8 +87,6 @@ public abstract class DataPullTask<R>
     private UserKeyRecord ukrForLogin;
     private boolean wasKeyLoggedIn;
 
-    public int numTries = 0;
-
     public DataPullTask(String username, String password,
                          String server, Context context, DataPullRequester dataPullRequester) {
         this.server = server;
@@ -218,11 +216,6 @@ public abstract class DataPullTask<R>
     }
 
     private ResultAndError<PullTaskResult> getRequestResultOrRetry(AndroidTransactionParserFactory factory) {
-        if (asyncRestoreHelper.retryLimitExceeded(numTries)) {
-            // for testing purposes only
-            return new ResultAndError<>(PullTaskResult.RETRY_LIMIT_EXCEEDED);
-        }
-
         while (asyncRestoreHelper.retryWaitPeriodInProgress()) {
             if (isCancelled()) {
                 return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
@@ -275,7 +268,6 @@ public abstract class DataPullTask<R>
     private ResultAndError<PullTaskResult> makeRequestAndHandleResponse(AndroidTransactionParserFactory factory)
             throws IOException, UnknownSyncError {
 
-        numTries++;
         RemoteDataPullResponse pullResponse =
                 dataPullRequester.makeDataPullRequest(this, requestor, server, !loginNeeded);
         int responseCode = pullResponse.responseCode;
