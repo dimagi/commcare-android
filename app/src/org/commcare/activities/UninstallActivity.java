@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.global.models.ApplicationRecord;
 
@@ -18,8 +19,13 @@ public class UninstallActivity extends Activity {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        uninstallApp(CommCareApplication._().getCurrentApp().getUniqueId());
-        Intent i = new Intent(this, CommCareSetupActivity.class);
+        CommCareApp currentApp = CommCareApplication._().getCurrentApp();
+
+        if(currentApp != null){
+            uninstallApp(currentApp.getUniqueId());
+        }
+
+        Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
         startActivity(i);
     }
 
@@ -28,7 +34,7 @@ public class UninstallActivity extends Activity {
         if (appRecord != null) {
             CommCareApplication._().expireUserSession();
             CommCareApplication._().uninstall(appRecord);
-            CommCareApplication.restartCommCare(this, false);
+           // CommCareApplication.restartCommCare(this, false);
         }
     }
 }

@@ -135,13 +135,16 @@
             </intent-filter>
         </activity>
 
+        <activity android:name="org.commcare.activities.InstallationActivity">
+            <intent-filter>
+                <action android:name="OPEN_ACTIVITY_1"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name="org.commcare.activities.CommCareSetupActivity"
             android:windowSoftInputMode="adjustResize">
-            <intent-filter>
-                <action android:name="OPEN_ACTIVITY_1" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
 

@@ -22,25 +22,39 @@ public class RestoreActivity extends Activity {
     public void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
 
-        String sessionString = getIntent().getStringExtra(SESSION);
-        String formEntryString = getIntent().getStringExtra(FORM);
-
-        CommCareApp ccApp = CommCareApplication._().getCurrentApp();
-        if (ccApp == null) {
-            return;
-        }
-
-        ccApp.getAppPreferences().edit()
-                .putString(CommCarePreferences.CURRENT_SESSION, sessionString)
-                .putString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, formEntryString)
-                .apply();
-
-        DevSessionRestorer restorer = new DevSessionRestorer();
-        CommCareApplication._().setSessionWrapper(restorer.restoreSessionFromPrefs(CommCareApplication._().getCommCarePlatform()));
+        if (!restoreSessionData()) return;
 
         Intent i = new Intent(getApplicationContext(), CommCareHomeActivity.class);
         i.putExtra(DispatchActivity.WAS_EXTERNAL, true);
         i.putExtra(CommCareHomeActivity.IS_RESTORING, true);
         this.startActivity(i);
+        finish();
+    }
+
+    private boolean restoreSessionData() {
+
+        String sessionString = getIntent().getStringExtra(SESSION);
+        String formEntryString = getIntent().getStringExtra(FORM);
+
+        CommCareApp ccApp = CommCareApplication._().getCurrentApp();
+        if (ccApp == null) {
+            return false;
+        }
+
+        if(sessionString != null){
+            ccApp.getAppPreferences().edit()
+                    .putString(CommCarePreferences.CURRENT_SESSION, sessionString)
+                    .apply();
+        }
+
+        if(formEntryString != null){
+            ccApp.getAppPreferences().edit()
+                    .putString(CommCarePreferences.CURRENT_FORM_ENTRY_SESSION, formEntryString)
+                    .apply();
+        }
+
+        DevSessionRestorer restorer = new DevSessionRestorer();
+        CommCareApplication._().setSessionWrapper(restorer.restoreSessionFromPrefs(CommCareApplication._().getCommCarePlatform()));
+        return true;
     }
 }
