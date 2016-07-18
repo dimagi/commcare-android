@@ -32,6 +32,7 @@ public abstract class RetrieveParseVerifyMessageTask<R> extends CommCareTask<Obj
     }
 
     protected void onPostExecute(String url) {
+        super.onPostExecute(url);
         if (exception != null) {
             listener.exceptionReceived(exception);
         }
