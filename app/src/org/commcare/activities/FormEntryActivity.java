@@ -17,8 +17,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore.Images;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.text.SpannableStringBuilder;
 import android.util.Log;
 import android.util.Pair;
@@ -106,6 +104,7 @@ import org.javarosa.model.xform.XFormsModule;
 import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
+import org.javarosa.xpath.XPathUnhandledException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -162,7 +161,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     // Identifies the gp of the form used to launch form entry
     private static final String KEY_FORMPATH = "formpath";
     public static final String KEY_INSTANCEDESTINATION = "instancedestination";
-    public static final String TITLE_FRAGMENT_TAG = "odk_title_fragment";
     public static final String KEY_FORM_CONTENT_URI = "form_content_uri";
     public static final String KEY_INSTANCE_CONTENT_URI = "instance_content_uri";
     public static final String KEY_AES_STORAGE_KEY = "key_aes_storage";
@@ -174,6 +172,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static final String KEY_RECORD_FORM_ENTRY_SESSION = "record_form_entry_session";
     private static final String KEY_WIDGET_WITH_VIDEO_PLAYING = "index-of-widget-with-video-playing-on-pause";
     private static final String KEY_POSITION_OF_VIDEO_PLAYING = "position-of-video-playing-on-pause";
+    private static final String KEY_LAST_CHANGED_WIDGET = "index-of-last-changed-widget";
 
     /**
      * Intent extra flag to track if this form is an archive. Used to trigger
@@ -214,6 +213,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     private ViewGroup mViewPane;
     private QuestionsView questionsView;
+    private int indexOfLastChangedWidget = -1;
 
     private boolean mIncompleteEnabled = true;
     private boolean hasFormLoadBeenTriggered = false;
@@ -257,8 +257,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     @SuppressLint("NewApi")
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        addBreadcrumbBar();
 
         // must be at the beginning of any activity that can be called from an external intent
         try {
@@ -417,6 +415,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         outState.putString(KEY_RESIZING_ENABLED, ResizingImageView.resizeMethod);
         saveFormEntrySession(outState);
         outState.putBoolean(KEY_RECORD_FORM_ENTRY_SESSION, recordEntrySession);
+        outState.putInt(KEY_LAST_CHANGED_WIDGET, indexOfLastChangedWidget);
 
         if (indexOfWidgetWithVideoPlaying != -1) {
             outState.putInt(KEY_WIDGET_WITH_VIDEO_PLAYING, indexOfWidgetWithVideoPlaying);
@@ -555,19 +554,21 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      * pending callout with the form controller
      */
     public QuestionWidget getPendingWidget() {
-        FormIndex pendingIndex = mFormController.getPendingCalloutFormIndex();
-        if (pendingIndex == null) {
-            Logger.log(AndroidLogger.SOFT_ASSERT,
-                    "getPendingWidget called when pending callout form index was null");
-            return null;
-        }
-        for (QuestionWidget q : questionsView.getWidgets()) {
-            if (q.getFormId().equals(pendingIndex)) {
-                return q;
+        if (mFormController != null) {
+            FormIndex pendingIndex = mFormController.getPendingCalloutFormIndex();
+            if (pendingIndex == null) {
+                Logger.log(AndroidLogger.SOFT_ASSERT,
+                        "getPendingWidget called when pending callout form index was null");
+                return null;
             }
+            for (QuestionWidget q : questionsView.getWidgets()) {
+                if (q.getFormId().equals(pendingIndex)) {
+                    return q;
+                }
+            }
+            Logger.log(AndroidLogger.SOFT_ASSERT,
+                    "getPendingWidget couldn't find question widget with a form index that matches the pending callout.");
         }
-        Logger.log(AndroidLogger.SOFT_ASSERT,
-                "getPendingWidget couldn't find question widget with a form index that matches the pending callout.");
         return null;
     }
 
@@ -692,9 +693,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         //If we're at the beginning of form event, but don't show the screen for that, we need 
         //to get the next valid screen
-        if(event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
+        if (event == FormEntryController.EVENT_BEGINNING_OF_FORM) {
             showNextView(true);
-        } else if(event == FormEntryController.EVENT_END_OF_FORM) {
+        } else if (event == FormEntryController.EVENT_END_OF_FORM) {
             showPreviousView(false);
         } else {
             QuestionsView current = createView();
@@ -971,6 +972,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             }
         }
 
+        // Any info stored about the last changed widget is useless when we move to a new view
+        resetLastChangedWidget();
+
         if (mFormController.getEvent() != FormEntryController.EVENT_END_OF_FORM) {
             int event;
 
@@ -1040,6 +1044,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if (currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         }
+
+        // Any info stored about the last changed widget is useless when we move to a new view
+        resetLastChangedWidget();
 
         FormIndex startIndex = mFormController.getFormIndex();
         FormIndex lastValidIndex = startIndex;
@@ -1114,7 +1121,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         if (questionsView != null) {
-            if(animateLastView) {
+            if (animateLastView) {
                 questionsView.startAnimation(mOutAnimation);
             }
         	mViewPane.removeView(questionsView);
@@ -1130,7 +1137,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         mViewPane.addView(questionsView, lp);
 
         questionsView.startAnimation(mInAnimation);
-        questionsView.setFocus(this);
+        questionsView.setFocus(this, indexOfLastChangedWidget);
 
         setupGroupLabel();
     }
@@ -1202,26 +1209,18 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         final boolean nextExitsForm = details.relevantAfterCurrentScreen == 0;
 
         // Assign title and text strings based on the current state
-        String title, addAnotherText, skipText, backText;
-        backText = StringUtils.getStringSpannableRobust(this, R.string.repeat_go_back).toString();
-        if (mFormController.getLastRepeatCount() > 0) {
-            title = StringUtils.getStringSpannableRobust(this, R.string.add_another_repeat,
-                    mFormController.getLastGroupText()).toString();
-            addAnotherText = StringUtils.getStringSpannableRobust(this, R.string.add_another).toString();
-            if (!nextExitsForm) {
-                skipText = StringUtils.getStringSpannableRobust(this, R.string.leave_repeat_yes).toString();
-            } else {
-                skipText = StringUtils.getStringSpannableRobust(this, R.string.leave_repeat_yes_exits).toString();
-            }
+        String backText = Localization.get("repeat.dialog.go.back");
+        String addAnotherText = Localization.get("repeat.dialog.add");
+        String title, skipText;
+        if (!nextExitsForm) {
+            skipText = Localization.get("repeat.dialog.leave");
         } else {
-            title = StringUtils.getStringSpannableRobust(this, R.string.add_repeat,
-                    mFormController.getLastGroupText()).toString();
-            addAnotherText = StringUtils.getStringSpannableRobust(this, R.string.entering_repeat).toString();
-            if (!nextExitsForm) {
-                skipText = StringUtils.getStringSpannableRobust(this, R.string.add_repeat_no).toString();
-            } else {
-                skipText = StringUtils.getStringSpannableRobust(this, R.string.add_repeat_no_exits).toString();
-            }
+            skipText = Localization.get("repeat.dialog.exit");
+        }
+        if (mFormController.getLastRepeatCount() > 0) {
+            title = Localization.get("repeat.dialog.add.another", mFormController.getLastGroupText());
+        } else {
+            title = Localization.get("repeat.dialog.add.new", mFormController.getLastGroupText());
         }
 
         // Create the choice dialog
@@ -1235,7 +1234,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 if (backExitsForm) {
                     FormEntryActivity.this.triggerUserQuitInput();
                 } else {
-                    dialog.dismiss();
+                    dismissAlertDialog();
                     FormEntryActivity.this.refreshCurrentView(false);
                 }
             }
@@ -1252,10 +1251,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         View.OnClickListener addAnotherListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialog.dismiss();
+                dismissAlertDialog();
                 try {
                     mFormController.newRepeat();
-                } catch (XPathTypeMismatchException | XPathArityException e) {
+                } catch (XPathUnhandledException | XPathTypeMismatchException | XPathArityException e) {
                     Logger.exception(e);
                     UserfacingErrorHandling.logErrorAndShowDialog(FormEntryActivity.this, e, EXIT);
                     return;
@@ -1269,7 +1268,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         View.OnClickListener skipListener = new OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialog.dismiss();
+                dismissAlertDialog();
                 if (!nextExitsForm) {
                     showNextView();
                 } else {
@@ -1295,7 +1294,12 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     }
                 }
         );
-        showAlertDialog(dialog);
+        // Purposefully don't persist this dialog accross rotation! Rotation
+        // refreshes the view, which steps the form index back from the repeat
+        // event. This can be fixed, but the dialog click listeners closures
+        // capture refences to the old activity, so we need to redo our
+        // infrastructure to forward new activities.
+        dialog.showNonPersistentDialog();
     }
 
     private void saveFormToDisk(boolean exit) {
@@ -1358,11 +1362,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             mSaveToDiskTask.connect(this);
         }
         mSaveToDiskTask.setFormSavedListener(this);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            mSaveToDiskTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
-        } else {
-            mSaveToDiskTask.execute();
-        }
+        mSaveToDiskTask.executeParallel();
     }
 
     /**
@@ -1376,7 +1376,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             @Override
             public void onClick(View v) {
                 GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_BACK_TO_FORM);
-                dialog.dismiss();
+                dismissAlertDialog();
             }
         };
         DialogChoiceItem stayInFormItem = new DialogChoiceItem(
@@ -1389,7 +1389,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             public void onClick(View v) {
                 GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_EXIT_NO_SAVE);
                 discardChangesAndExit();
-                dialog.dismiss();
+                dismissAlertDialog();
             }
         };
         DialogChoiceItem quitFormItem = new DialogChoiceItem(
@@ -1404,7 +1404,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 public void onClick(View v) {
                     GoogleAnalyticsUtils.reportFormExit(GoogleAnalyticsFields.LABEL_SAVE_AND_EXIT);
                     saveFormToDisk(EXIT);
-                    dialog.dismiss();
+                    dismissAlertDialog();
                 }
             };
             DialogChoiceItem saveIncompleteItem = new DialogChoiceItem(
@@ -1450,7 +1450,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                     case DialogInterface.BUTTON_NEGATIVE:
                         break;
                 }
-                dialog.dismiss();
+                dismissAlertDialog();
             }
         };
         d.setPositiveButton(StringUtils.getStringSpannableRobust(this, R.string.discard_answer), quitListener);
@@ -1487,7 +1487,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                             + updated + " rows");
 
                     mFormController.setLanguage(languages[index]);
-                    dialog.dismiss();
+                    dismissAlertDialog();
                     if (currentPromptIsQuestion()) {
                         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
                     }
@@ -1499,10 +1499,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         dialog.addButton(StringUtils.getStringSpannableRobust(this, R.string.cancel).toString(),
                 new View.OnClickListener() {
-
                     @Override
                     public void onClick(View v) {
-                        dialog.dismiss();
+                        dismissAlertDialog();
                     }
                 }
         );
@@ -1588,24 +1587,33 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
+    protected void onResumeSessionSafe() {
         if (!hasFormLoadBeenTriggered) {
             loadForm();
         }
 
         registerFormEntryReceiver();
-        if (questionsView != null) {
-            questionsView.restoreTimePickerData();
-        }
+        restorePriorStates();
 
         if (mFormController != null) {
-            // clear pending callout post onActivityResult processing
             mFormController.setPendingCalloutFormIndex(null);
         }
+    }
 
-        restoreInlineVideoState();
+    private void restorePriorStates() {
+        if (questionsView != null) {
+            questionsView.restoreTimePickerData();
+            restoreFocusToCalloutQuestion();
+            restoreInlineVideoState();
+        }
+    }
+
+    private void restoreFocusToCalloutQuestion() {
+        int restoredFocusTo =
+                questionsView.restoreFocusToQuestionThatCalledOut(this, getPendingWidget());
+        if (restoredFocusTo != -1) {
+            indexOfLastChangedWidget = restoredFocusTo;
+        }
     }
 
     private void loadForm() {
@@ -1741,7 +1749,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                         startActivity(intent);
                     }
-                    dialog.dismiss();
+                    dismissAlertDialog();
                 }
             };
             GeoUtils.showNoGpsDialog(this, onChangeListener);
@@ -2097,14 +2105,15 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
     @Override
     public void advance() {
-        if (!questionsView.isQuestionList() && canNavigateForward()) {
+        if (canNavigateForward()) {
             next();
         }
     }
 
     @Override
-    public void widgetEntryChanged() {
+    public void widgetEntryChanged(QuestionWidget changedWidget) {
         try {
+            recordLastChangedWidgetIndex(changedWidget);
             updateFormRelevancies();
         } catch (XPathTypeMismatchException | XPathArityException e) {
             UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
@@ -2112,6 +2121,14 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         FormNavigationUI.updateNavigationCues(this, mFormController, questionsView);
+    }
+
+    private void resetLastChangedWidget() {
+        indexOfLastChangedWidget = -1;
+    }
+
+    private void recordLastChangedWidgetIndex(QuestionWidget changedWidget) {
+        indexOfLastChangedWidget = questionsView.getWidgets().indexOf(changedWidget);
     }
 
     private boolean canNavigateForward() {
@@ -2124,31 +2141,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      */
     private boolean formHasLoaded() {
         return mFormController != null;
-    }
-
-    private void addBreadcrumbBar() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            final String fragmentClass = this.getIntent().getStringExtra(TITLE_FRAGMENT_TAG);
-            if (fragmentClass != null) {
-                final FragmentManager fm = this.getSupportFragmentManager();
-
-                Fragment bar = fm.findFragmentByTag(TITLE_FRAGMENT_TAG);
-                if (bar == null) {
-                    try {
-                        bar = ((Class<Fragment>)Class.forName(fragmentClass)).newInstance();
-
-                        ActionBar actionBar = getActionBar();
-                        if (actionBar != null) {
-                            actionBar.setDisplayShowCustomEnabled(true);
-                            actionBar.setDisplayShowTitleEnabled(false);
-                        }
-                        fm.beginTransaction().add(bar, TITLE_FRAGMENT_TAG).commit();
-                    } catch(Exception e) {
-                        Log.w(TAG, "couldn't instantiate fragment: " + fragmentClass);
-                    }
-                }
-            }
-        }
     }
 
     private void loadStateFromBundle(Bundle savedInstanceState) {
@@ -2203,6 +2195,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             if (savedInstanceState.containsKey(KEY_WIDGET_WITH_VIDEO_PLAYING)) {
                 indexOfWidgetWithVideoPlaying = savedInstanceState.getInt(KEY_WIDGET_WITH_VIDEO_PLAYING);
                 positionOfVideoProgress = savedInstanceState.getInt(KEY_POSITION_OF_VIDEO_PLAYING);
+            }
+            if (savedInstanceState.containsKey(KEY_LAST_CHANGED_WIDGET)) {
+                indexOfLastChangedWidget = savedInstanceState.getInt(KEY_LAST_CHANGED_WIDGET);
             }
         }
     }

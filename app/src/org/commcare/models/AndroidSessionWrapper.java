@@ -8,6 +8,7 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.session.CommCareSession;
 import org.commcare.session.SessionFrame;
+import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.EntityDatum;
 import org.commcare.suite.model.Entry;
 import org.commcare.suite.model.FormEntry;
@@ -46,19 +47,11 @@ public class AndroidSessionWrapper {
         this.session = session;
     }
 
-    /**
-     * Serialize the state of this session so it can be restored
-     * at a later time.
-     */
-    public SessionStateDescriptor getSessionStateDescriptor() {
-        return new SessionStateDescriptor(this);
-    }
-
     public void loadFromStateDescription(SessionStateDescriptor descriptor) {
         this.reset();
         this.sessionStateRecordId = descriptor.getID();
         this.formRecordId = descriptor.getFormRecordId();
-        descriptor.loadSession(this.session);
+        descriptor.loadSessionFromDescriptor(session);
     }
 
     /**
@@ -118,7 +111,7 @@ public class AndroidSessionWrapper {
      * otherwise null.
      */
     public SessionStateDescriptor getExistingIncompleteCaseDescriptor() {
-        SessionStateDescriptor ssd = getSessionStateDescriptor();
+        SessionStateDescriptor ssd = SessionStateDescriptor.buildFromSessionWrapper(this);
 
         if (!ssd.getSessionDescriptor().contains(SessionFrame.STATE_DATUM_VAL)) {
             // don't continue if the current session doesn't use a case
@@ -171,7 +164,7 @@ public class AndroidSessionWrapper {
         storage.write(r);
         setFormRecordId(r.getID());
 
-        SessionStateDescriptor ssd = getSessionStateDescriptor();
+        SessionStateDescriptor ssd = SessionStateDescriptor.buildFromSessionWrapper(this);
         sessionStorage.write(ssd);
         sessionStateRecordId = ssd.getID();
     }
@@ -211,7 +204,7 @@ public class AndroidSessionWrapper {
         Hashtable<String, Entry> menuMap = platform.getMenuMap();
         for (String key : menuMap.keySet()) {
             Entry e = menuMap.get(key);
-            if (!e.isView() && formNamespace.equals(((FormEntry)e).getXFormNamespace())) {
+            if (!(e.isView() || e.isSync()) && formNamespace.equals(((FormEntry)e).getXFormNamespace())) {
                 //We have an entry. Don't worry too much about how we're supposed to get there for now.
 
                 //The ideal is that we only need one piece of data
@@ -219,7 +212,13 @@ public class AndroidSessionWrapper {
                     //This should fit the bill. Single selection.
                     SessionDatum datum = e.getSessionDataReqs().firstElement();
                     // we only know how to mock a single case selection
-                    if (datum instanceof EntityDatum) {
+                    if (datum instanceof ComputedDatum) {
+                        // Allow mocking of routes that need computed data, useful for case creation forms
+                        wrapper = new AndroidSessionWrapper(platform);
+                        wrapper.session.setCommand(platform.getModuleNameForEntry((FormEntry) e));
+                        wrapper.session.setCommand(e.getCommandId());
+                        wrapper.session.setComputedDatum(wrapper.getEvaluationContext());
+                    } else if (datum instanceof EntityDatum) {
                         EntityDatum entityDatum = (EntityDatum)datum;
                         //The only thing we need to know now is whether we have a better option available
                         int countPredicates = CommCareUtil.countPreds(entityDatum.getNodeset());

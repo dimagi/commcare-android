@@ -263,6 +263,8 @@ public class IntentCallout implements Externalizable {
         component = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         buttonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
         updateButtonLabel = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        type = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
+        data = (String)ExtUtil.read(in, new ExtWrapNullable(String.class));
     }
 
     @Override
@@ -274,6 +276,8 @@ public class IntentCallout implements Externalizable {
         ExtUtil.write(out, new ExtWrapNullable(component));
         ExtUtil.write(out, new ExtWrapNullable(buttonLabel));
         ExtUtil.write(out, new ExtWrapNullable(updateButtonLabel));
+        ExtUtil.write(out, new ExtWrapNullable(type));
+        ExtUtil.write(out, new ExtWrapNullable(data));
     }
 
     public String getButtonLabel() {

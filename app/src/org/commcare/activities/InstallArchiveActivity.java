@@ -124,7 +124,7 @@ public class InstallArchiveActivity extends CommCareActivity<InstallArchiveActiv
         FileUtil.deleteFileOrDir(targetDirectory);
 
         mUnzipTask.connect(this);
-        mUnzipTask.execute(filepath, targetDirectory);
+        mUnzipTask.executeParallel(filepath, targetDirectory);
     }
 
     private void onUnzipSuccessful() {

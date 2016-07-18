@@ -119,8 +119,6 @@ public class UpdateTask
 
         resourceManager.incrementUpdateAttempts();
 
-        app.setupSandbox();
-
         Logger.log(AndroidLogger.TYPE_RESOURCES,
                 "Beginning install attempt for profile " + profileRef);
     }
@@ -194,7 +192,7 @@ public class UpdateTask
      * Calculate and report the resource install progress a table has made.
      */
     @Override
-    public void resourceStateUpdated(ResourceTable table) {
+    public void compoundResourceAdded(ResourceTable table) {
         Vector<Resource> resources =
                 AndroidResourceManager.getResourceListFromProfile(table);
 
@@ -208,6 +206,11 @@ public class UpdateTask
         }
         maxProgress = resources.size();
         incrementProgress(currentProgress, maxProgress);
+    }
+
+    @Override
+    public void simpleResourceAdded() {
+        incrementProgress(++currentProgress, maxProgress);
     }
 
     @Override

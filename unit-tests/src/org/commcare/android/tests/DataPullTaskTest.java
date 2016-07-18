@@ -31,6 +31,7 @@ public class DataPullTaskTest {
     private final static String GOOD_RESTORE = APP_BASE + "simple_data_restore.xml";
     private final static String BAD_RESTORE_XML = APP_BASE + "bad_xml_data_restore.xml";
     private final static String SELF_INDEXING_CASE_RESTORE = APP_BASE + "self_indexing_case_data_restore.xml";
+    private final static String RETRY_RESPONSE = APP_BASE + "async_restore_response.xml";
 
     /**
      * Stores the result of the data pull task
@@ -39,13 +40,14 @@ public class DataPullTaskTest {
      * requires making a smarter task connector
      */
     private static ResultAndError<DataPullTask.PullTaskResult> dataPullResult;
+    private static DataPullTask pullTask;
 
     @Test
     public void dataPullWithMissingRemoteKeyRecordTest() {
         TestAppInstaller.installApp(APP_BASE + "profile.ccpr");
         runDataPull(200, GOOD_RESTORE);
         Assert.assertEquals(DataPullTask.PullTaskResult.UNKNOWN_FAILURE, dataPullResult.data);
-        Assert.assertEquals("Unable to generate encryption key", dataPullResult.errorMessage);
+        Assert.assertEquals("Unable to get or generate encryption key", dataPullResult.errorMessage);
     }
 
     @Test
@@ -110,13 +112,32 @@ public class DataPullTaskTest {
         Assert.assertEquals(DataPullTask.PullTaskResult.BAD_DATA_REQUIRES_INTERVENTION, dataPullResult.data);
     }
 
+    @Test
+    public void asyncRestoreTest() {
+        installAndUseLocalKeys();
+        runDataPullWithAsyncRestore();
+
+        Assert.assertEquals(DataPullTask.PullTaskResult.DOWNLOAD_SUCCESS, dataPullResult.data);
+        
+        // Indicates that the task executed all of the retries we indicated, and then successfully
+        // parsed the final success response
+        Assert.assertEquals(4, LocalDataPullResponseFactory.getNumRequestsMade());
+
+        // Indicates that the mock retry result was parsed correctly
+        Assert.assertTrue(pullTask.getAsyncRestoreHelper().serverProgressCompletedSoFar == 55);
+    }
+
+    private static void runDataPullWithAsyncRestore() {
+        runDataPull(new Integer[]{202, 202, 202, 200},
+                new String[]{RETRY_RESPONSE, RETRY_RESPONSE, RETRY_RESPONSE, GOOD_RESTORE});
+    }
+
     private static void runDataPull(Integer resultCode, String payloadResource) {
         runDataPull(new Integer[]{resultCode}, new String[]{payloadResource});
     }
 
     private static void runDataPull(Integer[] resultCodes, String[] payloadResources) {
         HttpRequestEndpointsMock.setCaseFetchResponseCodes(resultCodes);
-
         LocalDataPullResponseFactory.setRequestPayloads(payloadResources);
 
         DataPullTask<Object> task =
@@ -136,8 +157,10 @@ public class DataPullTaskTest {
 
                     }
                 };
+
         task.connect(TestAppInstaller.fakeConnector);
         task.execute();
+        pullTask = task;
 
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();

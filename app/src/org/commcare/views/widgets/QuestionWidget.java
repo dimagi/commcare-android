@@ -606,13 +606,13 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         setChangedListener(null);
     }
 
-    public void widgetEntryChanged(){
+    public void widgetEntryChanged() {
         if (this.warningView != null) {
             this.warningView.setVisibility(View.GONE);
             ViewUtil.setBackgroundRetainPadding(this, null);
         }
         if (hasListener()) {
-            widgetChangedListener.widgetEntryChanged();
+            widgetChangedListener.widgetEntryChanged(this);
         }
     }
 

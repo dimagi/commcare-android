@@ -74,13 +74,6 @@
         android:key="cc-fire-triggers-on-save"
         android:title="Fire triggers on form save"/>
     <ListPreference
-        android:defaultValue="no"
-        android:enabled="true"
-        android:entries="@array/pref_enabled_labels"
-        android:entryValues="@array/pref_enabled_vals"
-        android:key="cc-animate-form-submit-button"
-        android:title="Animate form submit button"/>
-    <ListPreference
         android:enabled="true"
         android:entries="@array/pref_enabled_labels"
         android:entryValues="@array/pref_enabled_vals"
@@ -99,7 +92,7 @@
         android:key="cc-auto-purge"
         android:title="Detect and Trigger Purge on Form Save"/>
     <ListPreference
-        android:defaultValue="yes"
+        android:defaultValue="saved"
         android:enabled="true"
         android:entries="@array/pref_load_form_payload_as_labels"
         android:entryValues="@array/pref_load_form_payload_as_vals"

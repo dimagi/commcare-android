@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.Spannable;
@@ -497,11 +498,23 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     // region - All methods for implementation of DialogController
 
     @Override
-    public void updateProgress(String updateText, int taskId) {
+    public void updateProgress(String newMessage, String newTitle, int taskId) {
+        updateDialogContent(newMessage, newTitle, taskId);
+    }
+
+    @Override
+    public void updateProgress(String newMessage, int taskId) {
+        updateDialogContent(newMessage, null, taskId);
+    }
+
+    private void updateDialogContent(String newMessage, String newTitle, int taskId) {
         CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
         if (mProgressDialog != null && !areFragmentsPaused) {
             if (mProgressDialog.getTaskId() == taskId) {
-                mProgressDialog.updateMessage(updateText);
+                mProgressDialog.updateMessage(newMessage);
+                if (newTitle != null) {
+                    mProgressDialog.updateTitle(newTitle);
+                }
             } else {
                 warnInvalidProgressUpdate(taskId);
             }
@@ -513,6 +526,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
         if (mProgressDialog != null) {
             mProgressDialog.removeCancelButton();
+        }
+    }
+
+    @Override
+    public void updateProgressBarVisibility(boolean visible) {
+        CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
+        if (mProgressDialog != null && !areFragmentsPaused) {
+            mProgressDialog.updateProgressBarVisibility(visible);
         }
     }
 
@@ -582,7 +603,7 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     @Override
     public void showPendingAlertDialog() {
-        if (alertDialogToShowOnResume != null && getCurrentAlertDialog() == null) {
+        if (alertDialogToShowOnResume != null) {
             alertDialogToShowOnResume.show(getSupportFragmentManager(), KEY_ALERT_DIALOG_FRAG);
             alertDialogToShowOnResume = null;
         } else {
@@ -591,15 +612,23 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     @Override
-    public void showAlertDialog(CommCareAlertDialog d) {
-        if (getCurrentAlertDialog() != null) {
-            // Means we already have an alert dialog on screen
-            return;
+    public void dismissAlertDialog() {
+        DialogFragment alertDialog = getCurrentAlertDialog();
+        if (alertDialog != null) {
+            alertDialog.dismiss();
         }
+    }
+
+    @Override
+    public void showAlertDialog(CommCareAlertDialog d) {
         AlertDialogFragment dialog = AlertDialogFragment.fromCommCareAlertDialog(d);
         if (areFragmentsPaused) {
             alertDialogToShowOnResume = dialog;
         } else {
+            if (getCurrentAlertDialog() != null) {
+                // replace existing dialog by dismissing it
+                dismissAlertDialog();
+            }
             dialog.show(getSupportFragmentManager(), KEY_ALERT_DIALOG_FRAG);
         }
     }

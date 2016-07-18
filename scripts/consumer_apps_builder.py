@@ -19,10 +19,10 @@ CONFIG_FILE_NAME = "config.txt"
 ZIP_FILE_NAME = "ic_launcher.zip"
 
 # Path to the commcare-odk app directory
-PATH_TO_ODK_DIR = "./commcare-odk/"
+PATH_TO_ANDROID_DIR = "./commcare-android/"
 
 # Path to the standalone directory
-PATH_TO_STANDALONE_DIR = PATH_TO_ODK_DIR + "app/standalone/"
+PATH_TO_STANDALONE_DIR = PATH_TO_ANDROID_DIR + "app/standalone/"
 
 # Path to the directory where all app assets should be placed, RELATIVE to the commcare-odk/
 # directory, since we have cd'ed into that directory at the time this is used
@@ -38,10 +38,16 @@ def checkout_or_update_static_resources_repo():
     os.chdir('../')
 
 
-def build_apks_from_resources(build_type):
+def build_apks_from_resources(build_type, subset_of_apps_to_build):
     for (app_dir_name, sub_dir_list, files_list) in os.walk(PATH_TO_STATIC_RESOURCES_DIR):
         if '.git' not in app_dir_name and app_dir_name != PATH_TO_STATIC_RESOURCES_DIR:
-            build_apk_from_directory_contents(app_dir_name, files_list, build_type)
+            if subset_of_apps_to_build is None or in_list(subset_of_apps_to_build, app_dir_name):
+                build_apk_from_directory_contents(app_dir_name, files_list, build_type)
+
+
+def in_list(app_list, app_dir_path):
+    plain_app_name = app_dir_path[(app_dir_path.rfind('/') + 1):]
+    return plain_app_name in app_list
 
 
 def build_apk_from_directory_contents(app_sub_dir, files_list, build_type):
@@ -56,7 +62,7 @@ def build_apk_from_directory_contents(app_sub_dir, files_list, build_type):
     unzip_app_icon(full_path_to_zipfile)
     app_id, domain, build_number, username, password = get_app_fields(full_path_to_config_file)
     
-    os.chdir(PATH_TO_ODK_DIR)
+    os.chdir(PATH_TO_ANDROID_DIR)
     download_ccz(app_id, domain, build_number)
     download_restore_file(domain, username, password)
     assemble_apk(domain, build_number, username, password, build_type)
@@ -100,7 +106,13 @@ def assemble_apk(domain, build_number, username, password, build_type):
 
 def get_app_name_from_profile():
     tree = ET.parse(PATH_TO_ASSETS_DIR_FROM_ODK + '/direct_install/profile.ccpr')
-    return tree.getroot().get("name")
+    return escape_apostrophes(tree.getroot().get("name").encode('utf-8'))
+
+
+# Necessary because down the line, application_name ends up in the values.xml file, where any
+# quotes need to be escaped
+def escape_apostrophes(s):
+    return s.replace("'", "\\'")
 
 
 def move_apk(app_id, build_type):
@@ -108,20 +120,30 @@ def move_apk(app_id, build_type):
     if not os.path.exists(CONSUMER_APKS_DIR):
         os.mkdir(CONSUMER_APKS_DIR) 
     if build_type == 'd':
-        original_apk_filename = "./build/outputs/apk/commcare-odk-standalone-debug.apk"
+        original_apk_filename = "./build/outputs/apk/commcare-android-standalone-debug.apk"
     else:
-        original_apk_filename = "./build/outputs/apk/commcare-odk-standalone-release.apk"
+        original_apk_filename = "./build/outputs/apk/commcare-android-standalone-release.apk"
     shutil.move(original_apk_filename, os.path.join(CONSUMER_APKS_DIR, "{}.apk".format(app_id)))
 
 
 def main():
     if len(sys.argv) < 2:
         raise Exception("Must specify a build type. Use 'd' for debug or 'r' for release.")
+
     build_type = sys.argv[1]
     if build_type != 'd' and build_type != 'r':
         raise Exception("Must specify a build type. Use 'd' for debug or 'r' for release.")
+
+    if len(sys.argv) > 2:
+        # For debugging purposes- Allows the user to pass in a comma-separated list of app
+        # directory names, to tell the script that only those apps should be built, instead
+        # of just building all apps in the consumer_apps_resources repo
+        subset_of_apps_to_build = sys.argv[2].split(",")
+    else:
+        subset_of_apps_to_build = None
+
     checkout_or_update_static_resources_repo()
-    build_apks_from_resources(build_type)
+    build_apks_from_resources(build_type, subset_of_apps_to_build)
 
 
 if __name__ == "__main__":

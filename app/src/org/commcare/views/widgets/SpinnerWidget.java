@@ -1,6 +1,7 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,7 +48,8 @@ public class SpinnerWidget extends QuestionWidget {
 
         // The spinner requires a custom adapter. It is defined below
         SpinnerAdapter adapter =
-                new SpinnerAdapter(getContext(), android.R.layout.simple_spinner_item, choices,
+                new SpinnerAdapter(getContext(), android.R.layout.simple_spinner_item,
+                        getChoicesWithEmptyFirstSlot(choices),
                         TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
 
         spinner.setAdapter(adapter);
@@ -65,18 +67,15 @@ public class SpinnerWidget extends QuestionWidget {
             for (int i = 0; i < mItems.size(); ++i) {
                 String sMatch = mItems.get(i).getValue();
                 if (sMatch.equals(s)) {
-                    spinner.setSelection(i);
+                    spinner.setSelection(i+1);
                 }
-
             }
         }
 
         spinner.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-                if (hasListener()) {
-                    widgetChangedListener.widgetEntryChanged();
-                }
+                widgetEntryChanged();
             }
 
             @Override
@@ -90,14 +89,22 @@ public class SpinnerWidget extends QuestionWidget {
 
     }
 
+    private static String[] getChoicesWithEmptyFirstSlot(String[] originalChoices) {
+        //Creates an empty option to be displayed the first time the widget is shown
+        String[] newChoicesList = new String[originalChoices.length+1];
+        newChoicesList[0] = "";
+        System.arraycopy(originalChoices, 0, newChoicesList, 1, originalChoices.length);
+        return newChoicesList;
+    }
+
 
     @Override
     public IAnswerData getAnswer() {
         int i = spinner.getSelectedItemPosition();
-        if (i == -1) {
+        if (i < 1) {
             return null;
         } else {
-            SelectChoice sc = mItems.elementAt(i); // - RANDOM_BUTTON_ID);
+            SelectChoice sc = mItems.elementAt(i-1);
             return new SelectOneData(new Selection(sc));
         }
     }
@@ -108,7 +115,6 @@ public class SpinnerWidget extends QuestionWidget {
         // It seems that spinners cannot return a null answer. This resets the answer
         // to its original value, but it is not null.
         spinner.setSelection(0);
-
     }
 
 
@@ -124,7 +130,7 @@ public class SpinnerWidget extends QuestionWidget {
     // Defines how to display the select answers
     private class SpinnerAdapter extends ArrayAdapter<String> {
         final Context context;
-        String[] items = new String[]{};
+        String[] items;
         final int textUnit;
         final float textSize;
 
@@ -149,9 +155,11 @@ public class SpinnerWidget extends QuestionWidget {
             }
 
             TextView tv = (TextView)convertView.findViewById(android.R.id.text1);
+
             tv.setText(items[position]);
             tv.setTextSize(textUnit, textSize);
-            tv.setPadding(10, 10, 10, 10); // Are these values OK?
+            tv.setPadding(10, 10, 10, 10);
+
             return convertView;
         }
 
