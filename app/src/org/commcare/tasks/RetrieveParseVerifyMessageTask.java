@@ -5,7 +5,7 @@ import android.util.Pair;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.SigningUtil;
 
-public abstract class RetrieveParseVerifyMessageTask<R> extends CommCareTask<String, Void, String, R> {
+public abstract class RetrieveParseVerifyMessageTask<R> extends CommCareTask<Object, Void, String, R> {
 
     private Exception exception;
     private final RetrieveParseVerifyMessageListener listener;
@@ -18,9 +18,9 @@ public abstract class RetrieveParseVerifyMessageTask<R> extends CommCareTask<Str
     }
 
     @Override
-    protected String doTaskBackground(String[] params) {
+    protected String doTaskBackground(Object... params) {
         try {
-            String url = SigningUtil.trimMessagePayload(params[0]);
+            String url = SigningUtil.trimMessagePayload(params[0].toString());
             String messagePayload = SigningUtil.convertUrlToPayload(url);
             byte[] messagePayloadBytes = SigningUtil.getBytesFromString(messagePayload);
             Pair<String, byte[]> messageAndBytes = SigningUtil.getUrlAndSignatureFromPayload(messagePayloadBytes);
