@@ -300,22 +300,13 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         String value = session.getPoppedStep().getValue();
 
         //Now determine what nodeset that was going to be used to load this select
-        TreeReference nodesetRef = entityDatum.getNodeset().clone();
-        Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() - 1);
-        XPathEqExpr caseIdSelection =
-                new XPathEqExpr(XPathEqExpr.EQ, XPathReference.getPathExpr(entityDatum.getValue()), new XPathStringLiteral(value));
-        predicates.insertElementAt(caseIdSelection, 0);
-
-        Vector<TreeReference> elements = ec.expandReference(nodesetRef);
-
-        //If we got our ref, awesome. Otherwise we need to bail.
-        if (elements.size() != 1) {
+        TreeReference elem = entityDatum.getEntityFromID(ec, value);
+        if (elem == null) {
             return null;
         }
 
         //Now generate a context for our element
-        EvaluationContext element = new EvaluationContext(ec, elements.firstElement());
-
+        EvaluationContext element = new EvaluationContext(ec, elem);
 
         //Ok, so get our Text.
         Text t = session.getDetail(entityDatum.getLongDetail()).getTitle().getText();
