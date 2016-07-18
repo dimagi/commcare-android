@@ -607,6 +607,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                                     }
                                 }
                             };
+                    mTask.connect(this);
                     mTask.executeParallel(textMessageBody);
                     break;
                 }
