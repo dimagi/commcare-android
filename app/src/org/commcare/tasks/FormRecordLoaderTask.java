@@ -18,10 +18,6 @@ import org.commcare.tasks.templates.ManagedAsyncTask;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.TreeReference;
-import org.javarosa.model.xform.XPathReference;
-import org.javarosa.xpath.expr.XPathEqExpr;
-import org.javarosa.xpath.expr.XPathExpression;
-import org.javarosa.xpath.expr.XPathStringLiteral;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -29,7 +25,6 @@ import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
-import java.util.Vector;
 import java.util.Set;
 
 /**
@@ -272,24 +267,10 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
     }
 
     private static String getTitleFromSession(AndroidSessionWrapper androidSessionWrapper) {
-        //TODO: Most of this mimicks what we need to do in entrydetail activity, remove it from there
-        //and generalize the walking
-
-        // get a copy of the session
         CommCareSession session = new CommCareSession(androidSessionWrapper.getSession());
 
-        // Walk backwards until we find something with a long detail
-        EntityDatum entityDatum = null;
-        while (session.getFrame().getSteps().size() > 0) {
-            SessionDatum datum = session.getNeededDatum();
-            if (datum instanceof EntityDatum && ((EntityDatum)datum).getLongDetail() != null) {
-                entityDatum = (EntityDatum)datum;
-                if (datum.getValue().startsWith("case_id")) {
-                    break;
-                }
-            }
-            session.stepBack(androidSessionWrapper.getEvaluationContext());
-        }
+        EntityDatum entityDatum =
+                findDatumWithLongDetail(session, androidSessionWrapper.getEvaluationContext());
         if (entityDatum == null || session.getFrame().getSteps().size() == 0) {
             return null;
         }
@@ -299,24 +280,20 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         //Get the value that was chosen for this item
         String value = session.getPoppedStep().getValue();
 
-        //Now determine what nodeset that was going to be used to load this select
+        // Now determine what nodeset that was going to be used to load this select
         TreeReference elem = entityDatum.getEntityFromID(ec, value);
         if (elem == null) {
             return null;
         }
 
-        //Now generate a context for our element
-        EvaluationContext element = new EvaluationContext(ec, elem);
-
-        //Ok, so get our Text.
-        Text t = session.getDetail(entityDatum.getLongDetail()).getTitle().getText();
+        Text detailText = session.getDetail(entityDatum.getLongDetail()).getTitle().getText();
         boolean isPrettyPrint = true;
 
         //CTS: this is... not awesome.
         //But we're going to use this to test whether we _need_ an evaluation context
         //for this. (If not, the title doesn't have prettyprint for us)
         try {
-            String outcome = t.evaluate();
+            String outcome = detailText.evaluate();
             if (outcome != null) {
                 isPrettyPrint = false;
             }
@@ -325,24 +302,42 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         }
 
         if (isPrettyPrint) {
-            //Now just get the detail title for that element
-            return t.evaluate(element);
+            // Get the detail title for that element
+            EvaluationContext elementContext = new EvaluationContext(ec, elem);
+            return detailText.evaluate(elementContext);
         } else {
-            //Otherwise, this is _almost certainly_ a case. See if it is, and
-            //if so, grab the case name. otherwise, who knows?
-            SqlStorage<ACase> storage = CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
-            try {
-                ACase ourCase = storage.getRecordForValue(ACase.INDEX_CASE_ID, value);
-                if (ourCase != null) {
-                    return ourCase.getName();
-                } else {
-                    return null;
-                }
-            } catch (Exception e) {
-                return null;
-            }
+            return getCaseName(value);
         }
     }
 
+    private static EntityDatum findDatumWithLongDetail(CommCareSession session,
+                                                       EvaluationContext evaluationContext) {
+        EntityDatum entityDatum = null;
+        while (session.getFrame().getSteps().size() > 0) {
+            SessionDatum datum = session.getNeededDatum();
+            if (datum instanceof EntityDatum && ((EntityDatum)datum).getLongDetail() != null) {
+                entityDatum = (EntityDatum)datum;
+                if (datum.getValue().startsWith("case_id")) {
+                    break;
+                }
+            }
+            session.stepBack(evaluationContext);
+        }
+        return entityDatum;
+    }
 
+    private static String getCaseName(String caseId) {
+        SqlStorage<ACase> storage =
+                CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
+        try {
+            ACase ourCase = storage.getRecordForValue(ACase.INDEX_CASE_ID, caseId);
+            if (ourCase != null) {
+                return ourCase.getName();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }
