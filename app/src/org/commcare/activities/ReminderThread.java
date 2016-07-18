@@ -26,7 +26,7 @@ import android.net.Uri;
 import android.util.Log;
 
 /**
- * @author ctsims
+ * @author ctsims, Saumya Jain
  *
  */
 public class ReminderThread {
@@ -89,10 +89,10 @@ public class ReminderThread {
                     }
                     
                     long delay = (System.currentTimeMillis() - current);
-                    System.out.println("Polled in: " + delay );
                     
                     try {
                         Thread.sleep(sleepTime * 1000 - delay);
+                        System.out.println("Sleeping for" + String.valueOf(sleepTime*1000-delay));
                         sleepTime *= 2;
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -122,11 +122,7 @@ public class ReminderThread {
         for(Alert a: alerts){
             caseTypeString = a.getCaseType();
             xPathConditionString = a.getCondition();
-
-            Log.d("Type", caseTypeString);
-            Log.d("Condition", xPathConditionString);
         }
-
 
         synchronized(myThread) {
             if(!myThread.isAlive()) {
