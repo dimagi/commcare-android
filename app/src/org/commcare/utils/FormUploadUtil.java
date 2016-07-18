@@ -16,6 +16,7 @@ import org.commcare.network.DataSubmissionEntity;
 import org.commcare.network.EncryptedFileBody;
 import org.commcare.network.HttpRequestGenerator;
 import org.commcare.tasks.DataSubmissionListener;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.io.StreamsUtil.InputIOException;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
@@ -195,7 +196,7 @@ public class FormUploadUtil {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
         try {
-            AndroidStreamUtil.writeFromInputToOutput(response.getEntity().getContent(), bos);
+            StreamsUtil.writeFromInputToOutputNew(response.getEntity().getContent(), bos);
         } catch (IllegalStateException | IOException e) {
             e.printStackTrace();
         }

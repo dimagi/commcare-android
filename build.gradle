@@ -309,8 +309,8 @@ android {
             debuggable true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
             // used in test suite to build the prototype factory; otherwise unneeded
-            buildConfigField "String", "BUILD_DIR", "\"${buildDir}\""
-            buildConfigField "String", "PROJECT_DIR", "\"${projectDir}\""
+            buildConfigField "String", "BUILD_DIR", fixEscaping("\"${buildDir}\"")
+            buildConfigField "String", "PROJECT_DIR", fixEscaping("\"${projectDir}\"")
         }
 
         release {
@@ -509,6 +509,10 @@ def numbersToLetters(String version) {
         }
     }
     return words.toString();
+}
+
+def fixEscaping(String s) {
+    return s.replaceAll("\\\\", "\\\\\\\\");
 }
 
 def getStandalonePackageIdentifier(ccDomainSafe, isConsumerApp) {
