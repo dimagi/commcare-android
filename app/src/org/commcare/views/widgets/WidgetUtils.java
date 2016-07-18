@@ -17,8 +17,9 @@ class WidgetUtils {
 
     public static void setupButton(Button btn, Spannable text, int fontSize, boolean enabled) {
         btn.setText(text);
+        int verticalPadding = (int)btn.getResources().getDimension(R.dimen.widget_button_padding);
         btn.setTextSize(TypedValue.COMPLEX_UNIT_DIP, fontSize);
-        btn.setPadding(20, R.dimen.widget_button_padding, 20, R.dimen.widget_button_padding);
+        btn.setPadding(20, verticalPadding, 20, verticalPadding);
         btn.setEnabled(enabled);
         btn.setLayoutParams(WidgetUtils.params);
     }

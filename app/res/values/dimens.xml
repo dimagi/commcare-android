@@ -27,7 +27,7 @@
     <dimen name="min_button_height">52dp</dimen>
     <dimen name="spacer">10dp</dimen>
 
-    <dimen name="widget_button_padding">20dp</dimen>
+    <dimen name="widget_button_padding">10dp</dimen>
 
     <dimen name="login_box_margins">30dp</dimen>
 
