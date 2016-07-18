@@ -22,7 +22,7 @@ import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.models.database.user.DatabaseUserOpenHelper;
 import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.CipherPool;
-import org.commcare.models.encryption.CryptUtil;
+import org.commcare.core.encryption.CryptUtil;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.ProcessAndSendTask;
@@ -280,19 +280,25 @@ public class CommCareSessionService extends Service {
 
             this.sessionExpireDate = new Date(new Date().getTime() + sessionLength);
 
-            // Display a notification about us starting.  We put an icon in the status bar.
-            showLoggedInNotification(user);
-
-            maintenanceTimer = new Timer("CommCareService");
-            maintenanceTimer.schedule(new TimerTask() {
-
-                @Override
-                public void run() {
-                    timeToExpireSession();
-                }
-
-            }, MAINTENANCE_PERIOD, MAINTENANCE_PERIOD);
+            if (!CommCareApplication._().isConsumerApp()) {
+                // Put an icon in the status bar for the session, and set up session expiration
+                // (unless this is a consumer app)
+                showLoggedInNotification(user);
+                setUpSessionExpirationTimer();
+            }
         }
+    }
+
+    private void setUpSessionExpirationTimer() {
+        maintenanceTimer = new Timer("CommCareService");
+        maintenanceTimer.schedule(new TimerTask() {
+
+            @Override
+            public void run() {
+                timeToExpireSession();
+            }
+
+        }, MAINTENANCE_PERIOD, MAINTENANCE_PERIOD);
     }
 
     /**

@@ -2,26 +2,28 @@ package org.commcare;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.util.Pair;
 import android.util.Log;
 
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.mocks.ModernHttpRequesterMock;
 import org.commcare.android.util.TestUtils;
+import org.commcare.core.network.ModernHttpRequester;
+import org.commcare.core.network.bitcache.BitCacheFactory;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.models.AndroidPrototypeFactory;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
 import org.commcare.models.database.HybridFileBackedSqlStorageMock;
 import org.commcare.models.encryption.ByteEncrypter;
-import org.commcare.models.encryption.CryptUtil;
+import org.commcare.core.encryption.CryptUtil;
 import org.commcare.network.DataPullRequester;
-import org.commcare.network.ModernHttpRequester;
-import org.commcare.android.database.app.models.UserKeyRecord;
+import org.commcare.network.HttpUtils;
 import org.commcare.network.LocalDataPullResponseFactory;
 import org.commcare.models.database.AndroidPrototypeFactorySetup;
 import org.commcare.services.CommCareSessionService;
+import org.commcare.utils.AndroidCacheDirSetup;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.storage.Persistable;
-import org.javarosa.core.util.PrefixTree;
 import org.javarosa.core.util.externalizable.PrototypeFactory;
 import org.junit.Assert;
 import org.robolectric.Robolectric;
@@ -32,6 +34,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -80,18 +83,14 @@ public class CommCareTestApplication extends CommCareApplication {
         }
 
         // Sort of hack-y way to get the classfile dirs
-        PrefixTree tree = new PrefixTree();
         initFactoryClassList();
 
         try {
-            for (String cl : factoryClassNames) {
-                tree.addString(cl);
-            }
+            testPrototypeFactory = new AndroidPrototypeFactory(new HashSet<>(factoryClassNames));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        testPrototypeFactory = new AndroidPrototypeFactory(tree);
         return testPrototypeFactory;
     }
 
@@ -192,7 +191,10 @@ public class CommCareTestApplication extends CommCareApplication {
                                                         HashMap<String, String> params,
                                                         boolean isAuthenticatedRequest,
                                                         boolean isPostRequest) {
-        return new ModernHttpRequesterMock(context, url, params, isAuthenticatedRequest, isPostRequest);
+        Pair<User, String> userAndDomain = HttpUtils.getUserAndDomain(isAuthenticatedRequest);
+        return new ModernHttpRequesterMock(new AndroidCacheDirSetup(context),
+                url, params, userAndDomain.first, userAndDomain.second,
+                isAuthenticatedRequest, isPostRequest);
     }
 
     @Override

@@ -182,7 +182,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
     }
 
     @Override
-    public void commit(FormRecord parsed) throws IOException {
+    protected void commit(FormRecord parsed) throws IOException {
         //This is unused.
     }
 }
