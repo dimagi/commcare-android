@@ -3,7 +3,7 @@ package org.commcare.android.nsd;
 import android.support.v4.util.Pair;
 
 import org.commcare.network.HttpRequestGenerator;
-import org.commcare.utils.AndroidStreamUtil;
+import org.javarosa.core.io.StreamsUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,7 +38,7 @@ public class MicroNode {
             try {
                 InputStream is = new BufferedInputStream(
                         HttpRequestGenerator.buildNoAuthGenerator().simpleGet(new URL(serviceUrlRoot + "/apps/manifest")));
-                byte[] manifest = AndroidStreamUtil.inputStreamToByteArray(is);
+                byte[] manifest = StreamsUtil.inputStreamToByteArray(is);
 
                 JSONObject object = new JSONObject(new String(manifest));
 
