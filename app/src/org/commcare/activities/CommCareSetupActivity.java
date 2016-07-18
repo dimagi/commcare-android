@@ -607,6 +607,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                                     }
                                 }
                             };
+                    mTask.connect(this);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
                         mTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, textMessageBody);
                     } else {
