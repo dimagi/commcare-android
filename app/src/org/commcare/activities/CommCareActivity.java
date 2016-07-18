@@ -498,11 +498,23 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     // region - All methods for implementation of DialogController
 
     @Override
-    public void updateProgress(String updateText, int taskId) {
+    public void updateProgress(String newMessage, String newTitle, int taskId) {
+        updateDialogContent(newMessage, newTitle, taskId);
+    }
+
+    @Override
+    public void updateProgress(String newMessage, int taskId) {
+        updateDialogContent(newMessage, null, taskId);
+    }
+
+    private void updateDialogContent(String newMessage, String newTitle, int taskId) {
         CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
         if (mProgressDialog != null && !areFragmentsPaused) {
             if (mProgressDialog.getTaskId() == taskId) {
-                mProgressDialog.updateMessage(updateText);
+                mProgressDialog.updateMessage(newMessage);
+                if (newTitle != null) {
+                    mProgressDialog.updateTitle(newTitle);
+                }
             } else {
                 warnInvalidProgressUpdate(taskId);
             }
@@ -514,6 +526,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
         if (mProgressDialog != null) {
             mProgressDialog.removeCancelButton();
+        }
+    }
+
+    @Override
+    public void updateProgressBarVisibility(boolean visible) {
+        CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
+        if (mProgressDialog != null && !areFragmentsPaused) {
+            mProgressDialog.updateProgressBarVisibility(visible);
         }
     }
 
