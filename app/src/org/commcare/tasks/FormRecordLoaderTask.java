@@ -284,7 +284,9 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
             SessionDatum datum = session.getNeededDatum();
             if (datum instanceof EntityDatum && ((EntityDatum)datum).getLongDetail() != null) {
                 entityDatum = (EntityDatum)datum;
-                break;
+                if (datum.getValue().startsWith("case_id")) {
+                    break;
+                }
             }
             session.stepBack(androidSessionWrapper.getEvaluationContext());
         }
@@ -300,7 +302,9 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         //Now determine what nodeset that was going to be used to load this select
         TreeReference nodesetRef = entityDatum.getNodeset().clone();
         Vector<XPathExpression> predicates = nodesetRef.getPredicate(nodesetRef.size() - 1);
-        predicates.add(new XPathEqExpr(XPathEqExpr.EQ, XPathReference.getPathExpr(entityDatum.getValue()), new XPathStringLiteral(value)));
+        XPathEqExpr caseIdSelection =
+                new XPathEqExpr(XPathEqExpr.EQ, XPathReference.getPathExpr(entityDatum.getValue()), new XPathStringLiteral(value));
+        predicates.insertElementAt(caseIdSelection, 0);
 
         Vector<TreeReference> elements = ec.expandReference(nodesetRef);
 
