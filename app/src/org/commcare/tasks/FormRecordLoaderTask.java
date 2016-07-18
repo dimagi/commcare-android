@@ -6,7 +6,10 @@ import android.util.Pair;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.database.user.models.ACase;
+import org.commcare.cases.model.Case;
+import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.models.AndroidSessionWrapper;
+import org.commcare.models.database.AndroidSandbox;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.session.CommCareSession;
 import org.commcare.suite.model.EntityDatum;
@@ -179,7 +182,8 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
                 AndroidSessionWrapper asw = new AndroidSessionWrapper(platform);
                 asw.loadFromStateDescription(ssd);
                 try {
-                    dataTitle = getTitleFromSession(asw);
+                    dataTitle = getTitleFromSession(new AndroidSandbox(CommCareApplication._()),
+                            asw.getSession(), asw.getEvaluationContext());
                 } catch (RuntimeException e) {
                     dataTitle = "[Unavailable]";
                 }
@@ -266,27 +270,27 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
         }
     }
 
-    private static String getTitleFromSession(AndroidSessionWrapper androidSessionWrapper) {
-        CommCareSession session = new CommCareSession(androidSessionWrapper.getSession());
+    private static String getTitleFromSession(UserSandbox userSandbox,
+                                              CommCareSession session,
+                                              EvaluationContext evalContext) {
+        CommCareSession sessionCopy = new CommCareSession(session);
 
         EntityDatum entityDatum =
-                findDatumWithLongDetail(session, androidSessionWrapper.getEvaluationContext());
-        if (entityDatum == null || session.getFrame().getSteps().size() == 0) {
+                findDatumWithLongDetail(sessionCopy, evalContext);
+        if (entityDatum == null || sessionCopy.getFrame().getSteps().size() == 0) {
             return null;
         }
 
-        EvaluationContext ec = androidSessionWrapper.getEvaluationContext();
-
         //Get the value that was chosen for this item
-        String value = session.getPoppedStep().getValue();
+        String value = sessionCopy.getPoppedStep().getValue();
 
         // Now determine what nodeset that was going to be used to load this select
-        TreeReference elem = entityDatum.getEntityFromID(ec, value);
+        TreeReference elem = entityDatum.getEntityFromID(evalContext, value);
         if (elem == null) {
             return null;
         }
 
-        Text detailText = session.getDetail(entityDatum.getLongDetail()).getTitle().getText();
+        Text detailText = sessionCopy.getDetail(entityDatum.getLongDetail()).getTitle().getText();
         boolean isPrettyPrint = true;
 
         //CTS: this is... not awesome.
@@ -303,34 +307,28 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
 
         if (isPrettyPrint) {
             // Get the detail title for that element
-            EvaluationContext elementContext = new EvaluationContext(ec, elem);
+            EvaluationContext elementContext = new EvaluationContext(evalContext, elem);
             return detailText.evaluate(elementContext);
         } else {
-            return getCaseName(value);
+            return getCaseName(userSandbox, value);
         }
     }
 
     private static EntityDatum findDatumWithLongDetail(CommCareSession session,
                                                        EvaluationContext evaluationContext) {
-        EntityDatum entityDatum = null;
         while (session.getFrame().getSteps().size() > 0) {
             SessionDatum datum = session.getNeededDatum();
             if (datum instanceof EntityDatum && ((EntityDatum)datum).getLongDetail() != null) {
-                entityDatum = (EntityDatum)datum;
-                if (datum.getValue().startsWith("case_id")) {
-                    break;
-                }
+                return (EntityDatum)datum;
             }
             session.stepBack(evaluationContext);
         }
-        return entityDatum;
+        return null;
     }
 
-    private static String getCaseName(String caseId) {
-        SqlStorage<ACase> storage =
-                CommCareApplication._().getUserStorage(ACase.STORAGE_KEY, ACase.class);
+    private static String getCaseName(UserSandbox userSandbox, String caseId) {
         try {
-            ACase ourCase = storage.getRecordForValue(ACase.INDEX_CASE_ID, caseId);
+            Case ourCase = userSandbox.getCaseStorage().getRecordForValue(ACase.INDEX_CASE_ID, caseId);
             if (ourCase != null) {
                 return ourCase.getName();
             } else {
