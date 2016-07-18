@@ -6,9 +6,13 @@ package org.commcare.activities;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 
+import org.commcare.CommCareApplication;
+import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.suite.model.Alert;
+import org.commcare.util.CommCarePlatform;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
 import org.javarosa.core.model.instance.ExternalDataInstance;
@@ -68,20 +72,28 @@ public class ReminderThread {
             @Override
             public void run() {
 
+                //Prepare xpath expression
+                XPathExpression condition;
 
-                TreeReference ref = XPathReference.getPathExpr("instance('casedb')/casedb/case[@case_type='patient']").getReference();
-                XPathExpression expr = XPathParseTool.parseXPath("last_lmp + lmp_mins > now()")
-                EvaluationContext ec = new EvaluationContext(); //Get this from CommCareSession
+                try{
+                    condition = XPathParseTool.parseXPath("Lmp + Lmp_minutes > now()");
+                }catch (Exception e){
+                    e.printStackTrace();
+                    return;
+                }
 
-                AndroidSessionWrapper.getEvaluationContext(Hashtable<String, DateInstance>); //Write new version of this method that takes instances as a param
+                //Prepare evaluation context
                 Hashtable<String, DataInstance> instances = new Hashtable<>();
                 instances.put("casedb", new ExternalDataInstance("jr://instance/casedb","casedb"));
+                EvaluationContext ec = CommCareApplication._().getCurrentSessionWrapper().getEvaluationContext(instances);
 
+                //Prepare TreeReferences
+                TreeReference caseType = XPathReference.getPathExpr("instance('casedb')/casedb/case[@case_type='patient']").getReference(); //This is more of an abstract reference to a bunch of stuff in the tree
+                List<TreeReference> refs = ec.expandReference(caseType); //When we expand the reference within the context ec we get the x number of references that actually "exist"
 
-                List<TreeReference> refs = ec.expandReference(ref);
                 for(TreeReference ref : refs) {
-                    EvaluationContext internal = new EvaluationContext(ec);
-                    expr.eval(internal);
+                    EvaluationContext internal = new EvaluationContext(ec, ref);
+                    condition.eval(internal);
                 }
 
 
@@ -104,7 +116,7 @@ public class ReminderThread {
                     //CASE_TYPE: Need to set this dynamically
                     //caseWalker iterates over cases
                     caseWalker = cpc.query(Uri.parse("content://org.commcare.dalvik.case/casedb/case"), 
-                    					null, "case_type = ? AND\nstatus=?", new String[] { caseType,"open" }, null);
+                    					null, "case_type = ? AND\nstatus=?", new String[] {ReminderThread.this.caseType,"open" }, null);
 
                     if(caseWalker == null) {
                         throw new CommCareLoggedOutException();
