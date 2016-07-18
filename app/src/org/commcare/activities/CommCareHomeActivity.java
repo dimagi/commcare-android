@@ -1323,7 +1323,7 @@ public class CommCareHomeActivity
                 dialog.addProgressBar();
                 break;
             case DataPullTask.DATA_PULL_TASK_ID:
-                title = Localization.get("sync.progress.title");
+                title = Localization.get("sync.communicating.title");
                 message = Localization.get("sync.progress.purge");
                 dialog = CustomProgressDialog.newInstance(title, message, taskId);
                 if (isSyncUserLaunched) {
