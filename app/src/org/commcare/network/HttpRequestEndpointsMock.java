@@ -30,14 +30,19 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
     }
 
     @Override
-    public HttpResponse makeCaseFetchRequest(String baseUri, boolean includeStateFlags) throws ClientProtocolException, IOException {
+    public HttpResponse makeCaseFetchRequest(String baseUri, boolean includeStateFlags)
+            throws ClientProtocolException, IOException {
         int responseCode;
         if (caseFetchResponseCodeStack.size() > 0) {
             responseCode = caseFetchResponseCodeStack.remove(0);
         } else {
             responseCode = 200;
         }
-        return HttpResponseMock.buildHttpResponseMock(responseCode);
+        if (responseCode == 202) {
+            return HttpResponseMock.buildHttpResponseMockForAsyncRestore();
+        } else {
+            return HttpResponseMock.buildHttpResponseMock(responseCode);
+        }
     }
 
     @Override

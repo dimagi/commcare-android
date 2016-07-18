@@ -79,13 +79,12 @@ public class MediaUtil {
 
             if (CommCarePreferences.isSmartInflationEnabled()) {
                 GoogleAnalyticsUtils.reportFeatureUsage(GoogleAnalyticsFields.ACTION_USING_SMART_IMAGE_INFLATION);
-                // scale based on native density AND bounding dimens
+                // scale based on bounding dimens AND native density
                 return getBitmapScaledForNativeDensity(
                         context.getResources().getDisplayMetrics(), imageFile.getAbsolutePath(),
-                        boundingHeight, boundingWidth,
-                        CommCarePreferences.getTargetInflationDensity());
+                        boundingHeight, boundingWidth, CommCarePreferences.getTargetInflationDensity());
             } else {
-                // just scaling down if the original image is too big for its container
+                // just scale down if the original image is way too big for its container
                 return getBitmapScaledToContainer(imageFile.getAbsolutePath(), boundingHeight,
                         boundingWidth);
             }
@@ -125,40 +124,44 @@ public class MediaUtil {
         int calculatedHeight = Math.round((float)(imageHeight * scaleFactor));
         int calculatedWidth = Math.round((float)(imageWidth * scaleFactor));
 
-        if (containerHeight < imageHeight || containerWidth < imageWidth || calculatedHeight < imageHeight) {
-            // If either the container dimens or calculated dimens impose a smaller dimension,
-            // scale down
-            return getBitmapScaledByTargetOrContainer(imageFilepath, imageHeight, imageWidth,
-                    calculatedHeight, calculatedWidth, containerHeight, containerWidth, false);
-        } else {
+        if (scaleFactor > 1) {
             return attemptBoundedScaleUp(imageFilepath, calculatedHeight, calculatedWidth,
                     containerHeight, containerWidth);
+        } else  {
+            return scaleDownToTargetOrContainer(imageFilepath, imageHeight, imageWidth,
+                    calculatedHeight, calculatedWidth, containerHeight, containerWidth, false);
         }
     }
 
+    /**
+     * @return Our custom scale factor, based on this device's density and what the image's target
+     * density was
+     */
     public static double computeInflationScaleFactor(DisplayMetrics metrics, int targetDensity) {
         final int SCREEN_DENSITY = metrics.densityDpi;
+        double customDpiScaleFactor = (double)SCREEN_DENSITY / targetDensity;
+        double proportionalAdjustmentFactor = getCustomAndroidAdjustmentFactor(metrics);
+        return customDpiScaleFactor * proportionalAdjustmentFactor;
+    }
 
-        double actualNativeScaleFactor = metrics.density;
-        // The formula below is what Android *usually* uses to compute the value of metrics.density
+    private static double getCustomAndroidAdjustmentFactor(DisplayMetrics metrics) {
+        // This is the formula Android *usually* uses to compute the value of metrics.density
         // for a device. If this is in fact the value being used, we are not interested in it.
         // However, if the actual value differs at all from the standard calculation, it means
-        // Android is taking other factors into consideration (such as straight up screen size),
-        // and we want to incorporate that proportionally into our own version of the scale factor
-        double standardNativeScaleFactor = (double)SCREEN_DENSITY / DisplayMetrics.DENSITY_DEFAULT;
-        double proportionalAdjustmentFactor = 1;
+        // Android is taking other factors into consideration (such as straight up screen size)
+        // when it re-sizes an image for this device, so we want to incorporate that proportionally
+        // into our own version of the scale factor
+        double standardNativeScaleFactor = (double)metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT;
+
+        double actualNativeScaleFactor = metrics.density;
         if (actualNativeScaleFactor > standardNativeScaleFactor) {
-            proportionalAdjustmentFactor = 1 +
+            return 1 +
                     ((actualNativeScaleFactor - standardNativeScaleFactor) / standardNativeScaleFactor);
         } else if (actualNativeScaleFactor < standardNativeScaleFactor) {
-            proportionalAdjustmentFactor = actualNativeScaleFactor / standardNativeScaleFactor;
+            return actualNativeScaleFactor / standardNativeScaleFactor;
+        } else {
+            return 1;
         }
-
-        // Get our custom scale factor, based on this device's density and what the image's target
-        // density was
-        double customDpiScaleFactor = (double)SCREEN_DENSITY / targetDensity;
-
-        return customDpiScaleFactor * proportionalAdjustmentFactor;
     }
 
     /**
@@ -180,7 +183,7 @@ public class MediaUtil {
         int imageHeight = o.outHeight;
         int imageWidth = o.outWidth;
 
-        return getBitmapScaledByTargetOrContainer(imageFilepath, imageHeight, imageWidth, -1, -1,
+        return scaleDownToTargetOrContainer(imageFilepath, imageHeight, imageWidth, -1, -1,
                 containerHeight, containerWidth, true);
     }
 
@@ -196,18 +199,19 @@ public class MediaUtil {
      *                             of an exact size based on a target width and height. In this
      *                             case, targetWidth and targetHeight are ignored and the 2nd case
      *                             below is used.
-     * @return A bitmap representation of the given image file, scaled such that the new
-     * dimensions of the image are the SMALLER of the following 2 options:
+     *
+     * @return A bitmap representation of the given image file, scaled down if necessary such that
+     * the new dimensions of the image are the SMALLER of the following 2 options:
      * 1) targetHeight and targetWidth
      * 2) the largest dimensions for which the original aspect ratio is maintained, without
      * exceeding either boundingWidth or boundingHeight (or just the original dimensions if the
      * image already roughly fits in the bounds)
      */
-    private static Bitmap getBitmapScaledByTargetOrContainer(String imageFilepath,
-                                                             int originalHeight, int originalWidth,
-                                                             int targetHeight, int targetWidth,
-                                                             int boundingHeight, int boundingWidth,
-                                                             boolean scaleByContainerOnly) {
+    private static Bitmap scaleDownToTargetOrContainer(String imageFilepath,
+                                                       int originalHeight, int originalWidth,
+                                                       int targetHeight, int targetWidth,
+                                                       int boundingHeight, int boundingWidth,
+                                                       boolean scaleByContainerOnly) {
         Pair<Integer, Integer> dimensImposedByContainer = getRoughDimensImposedByContainer(
                 originalHeight, originalWidth, boundingHeight, boundingWidth);
 
@@ -220,29 +224,20 @@ public class MediaUtil {
             newHeight = Math.min(dimensImposedByContainer.second, targetHeight);
         }
 
-        int approximateScaleFactor = getApproxScaleFactor(newWidth, originalWidth);
+        int approximateScaleDownFactor = getApproxScaleDownFactor(newWidth, originalWidth);
+        Bitmap b = inflateImageSafe(imageFilepath, approximateScaleDownFactor).first;
 
-        try {
-            BitmapFactory.Options o = new BitmapFactory.Options();
-            o.inSampleSize = approximateScaleFactor;
-            // Decode the bitmap with the largest integer scale down factor that will not make it
-            // smaller than the final desired size
-            Bitmap originalBitmap = BitmapFactory.decodeFile(imageFilepath, o);
-            if (scaleByContainerOnly) {
-                // Not worth performance loss of creating an exact scaled bitmap in this case
-                return originalBitmap;
-            } else {
-                // Here we want to be more precise because we had a target width and height
-                return Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
-            }
-        } catch (OutOfMemoryError e) {
-            // OOM encountered trying to decode the bitmap, so we know we need to scale down by
-            // a larger factor
-            return performSafeScaleDown(imageFilepath, approximateScaleFactor + 1, 1).first;
+        if (scaleByContainerOnly) {
+            // Not worth performance loss of creating an exact scaled bitmap in this case
+            return b;
+        } else {
+            // Here we want to be more precise because we had a target width and height
+            return Bitmap.createScaledBitmap(b, newWidth, newHeight, false);
         }
+
     }
 
-    private static int getApproxScaleFactor(int newWidth, int originalWidth) {
+    private static int getApproxScaleDownFactor(int newWidth, int originalWidth) {
         if (newWidth == 0) {
             return 1;
         } else {
@@ -330,13 +325,17 @@ public class MediaUtil {
     }
 
     /**
-     * Inflate an image file into a bitmap, attempting first to inflate it at its full size,
-     * but progressively scaling down if an OutOfMemoryError is encountered
+     * Inflate an image file into a bitmap, attempting first to inflate it at the given scale-down
+     * factor, but progressively scaling down further if an OutOfMemoryError is encountered
      *
      * @return the bitmap, plus a boolean value representing whether the image had to be downsized
      */
+    public static Pair<Bitmap, Boolean> inflateImageSafe(String imageFilepath, int scaleDownFactor) {
+        return performSafeScaleDown(imageFilepath, scaleDownFactor, 0);
+    }
+
     public static Pair<Bitmap, Boolean> inflateImageSafe(String imageFilepath) {
-        return performSafeScaleDown(imageFilepath, 1, 0);
+        return inflateImageSafe(imageFilepath, 1);
     }
 
     /**
@@ -344,17 +343,19 @@ public class MediaUtil {
      * scale-down factor by 1 until allocating memory for the bitmap does not cause an OOM error,
      * and a boolean value representing whether the image had to be downsized
      */
-    private static Pair<Bitmap, Boolean> performSafeScaleDown(String imageFilepath, int scale, int depth) {
+    private static Pair<Bitmap, Boolean> performSafeScaleDown(String imageFilepath,
+                                                              int scaleDownFactor, int depth) {
         if (depth == 5) {
             // Limit the number of recursive calls
             return new Pair<>(null, true);
         }
         BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inSampleSize = scale;
+        options.inSampleSize = scaleDownFactor;
         try {
-            return new Pair<>(BitmapFactory.decodeFile(imageFilepath, options), scale > 1);
+            return new Pair<>(BitmapFactory.decodeFile(imageFilepath, options), scaleDownFactor > 1);
         } catch (OutOfMemoryError e) {
-            return performSafeScaleDown(imageFilepath, scale + 1, depth + 1);
+            return performSafeScaleDown(imageFilepath, scaleDownFactor + 1, depth + 1);
         }
     }
+
 }
