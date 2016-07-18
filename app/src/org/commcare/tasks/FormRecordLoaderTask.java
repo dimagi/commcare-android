@@ -5,22 +5,15 @@ import android.text.format.DateUtils;
 import android.util.Pair;
 
 import org.commcare.CommCareApplication;
-import org.commcare.android.database.user.models.ACase;
-import org.commcare.cases.model.Case;
-import org.commcare.core.interfaces.UserSandbox;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.AndroidSandbox;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.session.CommCareSession;
-import org.commcare.suite.model.EntityDatum;
-import org.commcare.suite.model.SessionDatum;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.suite.model.Text;
 import org.commcare.tasks.templates.ManagedAsyncTask;
+import org.commcare.util.FormDataUtil;
 import org.commcare.utils.AndroidCommCarePlatform;
-import org.javarosa.core.model.condition.EvaluationContext;
-import org.javarosa.core.model.instance.TreeReference;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -182,8 +175,9 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
                 AndroidSessionWrapper asw = new AndroidSessionWrapper(platform);
                 asw.loadFromStateDescription(ssd);
                 try {
-                    dataTitle = getTitleFromSession(new AndroidSandbox(CommCareApplication._()),
-                            asw.getSession(), asw.getEvaluationContext());
+                    dataTitle =
+                            FormDataUtil.getTitleFromSession(new AndroidSandbox(CommCareApplication._()),
+                                    asw.getSession(), asw.getEvaluationContext());
                 } catch (RuntimeException e) {
                     dataTitle = "[Unavailable]";
                 }
@@ -267,75 +261,6 @@ public class FormRecordLoaderTask extends ManagedAsyncTask<FormRecord, Pair<Form
                 priorityQueue.add(record);
                 return true;
             }
-        }
-    }
-
-    private static String getTitleFromSession(UserSandbox userSandbox,
-                                              CommCareSession session,
-                                              EvaluationContext evalContext) {
-        CommCareSession sessionCopy = new CommCareSession(session);
-
-        EntityDatum entityDatum =
-                findDatumWithLongDetail(sessionCopy, evalContext);
-        if (entityDatum == null || sessionCopy.getFrame().getSteps().size() == 0) {
-            return null;
-        }
-
-        //Get the value that was chosen for this item
-        String value = sessionCopy.getPoppedStep().getValue();
-
-        // Now determine what nodeset that was going to be used to load this select
-        TreeReference elem = entityDatum.getEntityFromID(evalContext, value);
-        if (elem == null) {
-            return null;
-        }
-
-        Text detailText = sessionCopy.getDetail(entityDatum.getLongDetail()).getTitle().getText();
-        boolean isPrettyPrint = true;
-
-        //CTS: this is... not awesome.
-        //But we're going to use this to test whether we _need_ an evaluation context
-        //for this. (If not, the title doesn't have prettyprint for us)
-        try {
-            String outcome = detailText.evaluate();
-            if (outcome != null) {
-                isPrettyPrint = false;
-            }
-        } catch (Exception e) {
-            //Cool. Got us a fancy string.
-        }
-
-        if (isPrettyPrint) {
-            // Get the detail title for that element
-            EvaluationContext elementContext = new EvaluationContext(evalContext, elem);
-            return detailText.evaluate(elementContext);
-        } else {
-            return getCaseName(userSandbox, value);
-        }
-    }
-
-    private static EntityDatum findDatumWithLongDetail(CommCareSession session,
-                                                       EvaluationContext evaluationContext) {
-        while (session.getFrame().getSteps().size() > 0) {
-            SessionDatum datum = session.getNeededDatum();
-            if (datum instanceof EntityDatum && ((EntityDatum)datum).getLongDetail() != null) {
-                return (EntityDatum)datum;
-            }
-            session.stepBack(evaluationContext);
-        }
-        return null;
-    }
-
-    private static String getCaseName(UserSandbox userSandbox, String caseId) {
-        try {
-            Case ourCase = userSandbox.getCaseStorage().getRecordForValue(ACase.INDEX_CASE_ID, caseId);
-            if (ourCase != null) {
-                return ourCase.getName();
-            } else {
-                return null;
-            }
-        } catch (Exception e) {
-            return null;
         }
     }
 }
