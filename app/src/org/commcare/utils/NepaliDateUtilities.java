@@ -2,8 +2,6 @@ package org.commcare.utils;
 
 import android.util.SparseArray;
 
-import org.javarosa.xform.util.UniversalDate;
-
 import java.util.Date;
 import java.util.TimeZone;
 
