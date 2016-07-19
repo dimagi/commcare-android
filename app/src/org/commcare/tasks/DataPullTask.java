@@ -579,22 +579,6 @@ public abstract class DataPullTask<R>
     public void refreshView() {
     }
 
-    @Override
-    public void getCredentials() {
-    }
-
-    @Override
-    public void promptRetry(String msg) {
-    }
-
-    @Override
-    public void onSuccess() {
-    }
-
-    @Override
-    public void onFailure(String failMessage) {
-    }
-
     protected void reportServerProgress(int completedSoFar, int total) {
         publishProgress(PROGRESS_SERVER_PROCESSING, completedSoFar, total);
     }
