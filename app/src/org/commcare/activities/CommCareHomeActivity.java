@@ -1177,7 +1177,9 @@ public class CommCareHomeActivity
             User u = CommCareApplication._().getSession().getLoggedInUser();
             return (User.TYPE_DEMO.equals(u.getUserType()));
         } catch (SessionUnavailableException e) {
-            return true;
+            // Default to a normal user: this should only happen if session
+            // expires and hasn't redirected to login.
+            return false;
         }
     }
 
