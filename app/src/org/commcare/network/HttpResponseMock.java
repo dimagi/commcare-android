@@ -225,7 +225,7 @@ public class HttpResponseMock {
     }
 
     public static HttpResponse buildHttpResponseMockForAsyncRestore() {
-        HttpResponse response = buildHttpResponseMock(202);
+        HttpResponse response = buildHttpResponseMock(202, null);
         response.setHeader("Retry-After", "2");
         return response;
     }
