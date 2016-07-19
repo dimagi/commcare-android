@@ -108,6 +108,11 @@ public class GoogleAnalyticsUtils {
                     GoogleAnalyticsFields.ACTION_STOP_RECORD);
     }
 
+    public static void reportRecordingRecycled(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_RECORD_AGAIN);
+    }
+
 
     /**
      * Report a user event of navigating forward in form entry

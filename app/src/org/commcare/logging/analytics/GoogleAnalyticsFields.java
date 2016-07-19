@@ -32,6 +32,7 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_SAVE_RECORDING = "Click the button to save an audio recording";
     public static final String ACTION_PLAY_AUDIO = "Click the button to play audio";
     public static final String ACTION_PAUSE_AUDIO = "Click the button to pause audio playback";
+    public static final String ACTION_RECORD_AGAIN = "Click the button to Record Again";
 
 
     // Actions for CATEGORY_HOME_SCREEN only

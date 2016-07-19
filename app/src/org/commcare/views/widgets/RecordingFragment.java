@@ -129,6 +129,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
                 saveRecording.setVisibility(View.INVISIBLE);
                 recycle.setVisibility(View.INVISIBLE);
                 chron.setVisibility(View.INVISIBLE);
+                GoogleAnalyticsUtils.reportRecordingRecycled();
             }
         });
 
@@ -208,6 +209,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
             @Override
             public void onClick(View v) {
                 playAudio();
+                GoogleAnalyticsUtils.reportAudioPlayed();
             }
         });
         saveRecording.setEnabled(true);
