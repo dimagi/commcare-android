@@ -1172,8 +1172,12 @@ public class CommCareHomeActivity
     }
 
     public static boolean isDemoUser() {
-        User u = CommCareApplication._().getSession().getLoggedInUser();
-        return (User.TYPE_DEMO.equals(u.getUserType()));
+        try {
+            User u = CommCareApplication._().getSession().getLoggedInUser();
+            return (User.TYPE_DEMO.equals(u.getUserType()));
+        } catch (SessionUnavailableException e) {
+            return true;
+        }
     }
 
     @Override
@@ -1202,8 +1206,7 @@ public class CommCareHomeActivity
         super.onPrepareOptionsMenu(menu);
         GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN);
         //In Holo theme this gets called on startup
-        User u = CommCareApplication._().getSession().getLoggedInUser();
-        boolean enableMenus = !User.TYPE_DEMO.equals(u.getUserType());
+        boolean enableMenus = !isDemoUser();
         menu.findItem(MENU_UPDATE).setVisible(enableMenus);
         menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
         menu.findItem(MENU_CHANGE_LANGUAGE).setVisible(enableMenus);
