@@ -11,6 +11,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
+import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.engine.extensions.CalendaredDateFormatHandler;
 import org.commcare.logging.UserCausedRuntimeException;
 import org.commcare.logging.XPathErrorLogger;
@@ -206,6 +207,8 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
             formDef.initialize(isNewFormInstance, iif, getSystemLocale());
         } catch (XPathException e) {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
+            throw new UserCausedRuntimeException(e.getMessage(), e);
+        } catch (CommCareInstanceInitializer.FixtureInitializationException e) {
             throw new UserCausedRuntimeException(e.getMessage(), e);
         }
 

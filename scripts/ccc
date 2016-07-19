@@ -17,6 +17,8 @@ HELP_MSG = """'capture' saves the current session for restoring later.
 'invalidate' forces recovery on next sync by providing fake case db hash.
 'remote domain app_id build' downloads an app from HQ and installs it.
                              The 'build' argument is optional
+'download domain app_id build' downloads an app from HQ.
+                               The 'build' argument is optional
 """
 BASE_RECEIVER_CMD = "adb shell am broadcast -a"
 BASE_ACTIVITY_CMD = "adb shell am start -n"
@@ -83,11 +85,21 @@ def remote_install(domain, app_id, build_number=None):
     """
     Downloads CCZ from HQ and installs it on Commcare.
     """
+    ccz_file = download(domain, app_id, build_number)
+    install(ccz_file)
+    os.remove(ccz_file)
+
+
+# String String String -> String
+def download(domain, app_id, build_number=None):
+    """
+    Downloads CCZ from HQ and installs it on Commcare.
+    """
     url = ("https://www.commcarehq.org/a/{domain}/apps/api/download_ccz" +
            "?app_id={app_id}").format(domain=domain, app_id=app_id)
     if build_number:
         url += "&version={build}".format(build=build_number)
-    ccz_file = "commcare.ccz"
+    ccz_file = "{}.ccz".format(domain)
     try:
         urllib.request.urlretrieve(url, ccz_file)
     except urllib.error.HTTPError as e:
@@ -95,8 +107,7 @@ def remote_install(domain, app_id, build_number=None):
             # assume that the app is on india, not prod
             india_url = url.replace("www.commcarehq", "india.commcarehq")
             urllib.request.urlretrieve(india_url, ccz_file)
-    install(ccz_file)
-    os.remove(ccz_file)
+    return ccz_file
 
 
 # Filepath -> None
@@ -171,6 +182,7 @@ def main():
                 'invalidate': lambda: stage_recover(),
                 'login': lambda: login(sys.argv[2], sys.argv[3]),
                 'remote': lambda: remote_install(*sys.argv[2:5]),
+                'download': lambda: download(*sys.argv[2:5]),
                 'help': lambda: print(HELP_MSG),
                 'install': lambda: install(sys.argv[2])}
 
