@@ -191,6 +191,8 @@ public class DispatchActivity extends FragmentActivity {
     }
 
     private void handleDamagedApp() {
+        createNoStorageDialog();
+        /*
         if (!CommCareApplication._().isStorageAvailable()) {
             createNoStorageDialog();
         } else {
@@ -204,6 +206,7 @@ public class DispatchActivity extends FragmentActivity {
                 launchLoginScreen();
             }
         }
+        */
     }
 
     private void createNoStorageDialog() {
