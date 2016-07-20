@@ -68,26 +68,6 @@ public class DispatchActivity extends FragmentActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        FirebaseInstanceId instanceID = FirebaseInstanceId.getInstance();
-//        try {
-//            instanceID.deleteInstanceId();
-//        } catch(IOException e)
-//        {
-//            e.printStackTrace();
-//        }
-//        instanceID = FirebaseInstanceId.getInstance();
-        final FirebaseInstanceId copy = instanceID;
-
-        new Thread(new Runnable() {
-            public void run() {
-                try{
-                    Log.d("INSTANCE", copy.getToken("139642101642", "GCM"));
-                }catch(Exception e){
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
         if (finishIfNotRoot()) {
             return;
         }
