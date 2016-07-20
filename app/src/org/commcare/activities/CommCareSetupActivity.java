@@ -561,7 +561,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
                 if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
                     attemptedInstall = true;
-                    RetrieveParseVerifyMessageTask mTask =
+                    RetrieveParseVerifyMessageTask<CommCareSetupActivity> mTask =
                             new RetrieveParseVerifyMessageTask<CommCareSetupActivity>(this, installTriggeredManually) {
 
                                 @Override
