@@ -11,6 +11,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
+import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.engine.extensions.CalendaredDateFormatHandler;
 import org.commcare.logging.UserCausedRuntimeException;
 import org.commcare.logging.XPathErrorLogger;
@@ -207,6 +208,8 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
         } catch (XPathException e) {
             XPathErrorLogger.INSTANCE.logErrorToCurrentApp(e);
             throw new UserCausedRuntimeException(e.getMessage(), e);
+        } catch (CommCareInstanceInitializer.FixtureInitializationException e) {
+            throw new UserCausedRuntimeException(e.getMessage(), e);
         }
 
         if (mReadOnly) {
@@ -276,15 +279,6 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
 
             // populated model to current form
             fec.getModel().getForm().getInstance().setRoot(templateRoot);
-
-            // fix any language issues
-            // : http://bitbucket.org/javarosa/main/issue/5/itext-n-appearing-in-restored-instances
-            if (fec.getModel().getLanguages() != null) {
-                fec.getModel()
-                        .getForm()
-                        .localeChanged(fec.getModel().getLanguage(),
-                                fec.getModel().getForm().getLocalizer());
-            }
             return true;
         }
     }
