@@ -17,6 +17,7 @@ import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -146,7 +147,8 @@ import java.util.Locale;
             if(Integer.parseInt(year) > maxYear){
                 return new InvalidData(Localization.get("high.year") + " " + String.valueOf(maxYear), new DateData(calendar.getTime()));
             }
-            return super.getAnswer();
+            Date date = getDateAsGregorian();
+            return new DateData(date);
         }
 
         @Override

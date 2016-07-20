@@ -61,8 +61,8 @@ public class WidgetFactory {
                             questionWidget = new EthiopianDateWidget(context, fep);
                         } else if (appearance != null && appearance.toLowerCase().equals("nepali")) {
                             questionWidget = new NepaliDateWidget(context, fep);
-                        }else if(appearance != null && appearance.toLowerCase().equals("gregorian")){
-                            questionWidget = new ListGregorianWidget(context, fep, true, "callist");
+                        }else if(appearance != null && appearance.toLowerCase().contains("gregorian")){
+                            questionWidget = new DatePrototypeFactory().getWidget(context, fep, appearance.toLowerCase());
                         }else {
                             questionWidget = new DateWidget(context, fep);
                         }
