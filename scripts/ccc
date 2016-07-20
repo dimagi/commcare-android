@@ -96,7 +96,8 @@ def download(domain, app_id, build_number=None):
     Downloads CCZ from HQ and installs it on Commcare.
     """
     url = ("https://www.commcarehq.org/a/{domain}/apps/api/download_ccz" +
-           "?app_id={app_id}").format(domain=domain, app_id=app_id)
+           "?app_id={app_id}&include_multimedia=true").format(domain=domain,
+                                                              app_id=app_id)
     if build_number:
         url += "&version={build}".format(build=build_number)
     ccz_file = "{}.ccz".format(domain)

@@ -105,7 +105,6 @@ import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnhandledException;
-import org.javarosa.xpath.expr.XPathExpression;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
