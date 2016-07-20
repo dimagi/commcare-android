@@ -1,6 +1,5 @@
 package org.commcare.activities;
 
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +14,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.utils.AndroidShortcuts;
 import org.commcare.utils.SessionUnavailableException;
+import org.commcare.views.dialogs.AlertDialogFragment;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
@@ -29,8 +29,6 @@ public class DispatchActivity extends FragmentActivity {
     public static final String WAS_EXTERNAL = "launch_from_external";
     public static final String WAS_SHORTCUT_LAUNCH = "launch_from_shortcut";
     public static final String START_FROM_LOGIN = "process_successful_login";
-
-    private static final int DIALOG_CORRUPTED = 1;
 
     private static final int LOGIN_USER = 0;
     private static final int HOME_SCREEN = 1;
@@ -199,7 +197,8 @@ public class DispatchActivity extends FragmentActivity {
             // See if we're logged in. If so, prompt for recovery.
             try {
                 CommCareApplication._().getSession();
-                showDialog(DIALOG_CORRUPTED);
+
+                createAskFixDialog().show(getSupportFragmentManager(), "damage-dialog");
             } catch (SessionUnavailableException e) {
                 // Otherwise, log in first
                 launchLoginScreen();
@@ -357,15 +356,7 @@ public class DispatchActivity extends FragmentActivity {
         super.onActivityResult(requestCode, resultCode, intent);
     }
 
-    protected Dialog onCreateDialog(int id) {
-        if (id == DIALOG_CORRUPTED) {
-            return createAskFixDialog();
-        } else {
-            return null;
-        }
-    }
-
-    private Dialog createAskFixDialog() {
+    private AlertDialogFragment createAskFixDialog() {
         //TODO: Localize this in theory, but really shift it to the upgrade/management state
         String title = "Storage is Corrupt :/";
         String message = "Sorry, something really bad has happened, and the app can't start up. " +
@@ -386,6 +377,6 @@ public class DispatchActivity extends FragmentActivity {
         };
         d.setPositiveButton("Enter Recovery Mode", listener);
         d.setNegativeButton("Shut Down", listener);
-        return d.getDialog();
+        return AlertDialogFragment.fromCommCareAlertDialog(d);
     }
 }
