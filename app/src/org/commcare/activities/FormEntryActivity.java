@@ -105,6 +105,7 @@ import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnhandledException;
+import org.javarosa.xpath.expr.XPathExpression;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -621,7 +622,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
 
-        FormEntryPrompt[] newValidPrompts = mFormController.getQuestionPrompts();
+        FormEntryPrompt[] newValidPrompts;
+        try {
+            newValidPrompts = mFormController.getQuestionPrompts();
+        } catch (XPathException e) {
+            UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
+            return;
+        }
         Set<FormEntryPrompt> promptsLeftInView = new HashSet<>();
 
         ArrayList<Integer> shouldRemoveFromView = new ArrayList<>();
