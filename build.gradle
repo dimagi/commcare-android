@@ -157,6 +157,8 @@ android {
 
         versionCode computeVersionCode()
 
+        multiDexEnabled true
+
         // when set, app won't show install screen and try to install
         // resources from assets folder
         buildConfigField "boolean", "IS_SINGLE_APP_BUILD", "false"
