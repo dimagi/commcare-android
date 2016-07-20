@@ -102,8 +102,8 @@ public class CommCareTestApplication extends CommCareApplication {
         if (factoryClassNames.isEmpty()) {
             String baseODK = BuildConfig.BUILD_DIR + "/intermediates/classes/commcare/debug/";
             String baseCC = BuildConfig.PROJECT_DIR + "/../commcare-core/build/classes/main/";
-            addExternalizableClassesFromDir(baseODK, factoryClassNames);
-            addExternalizableClassesFromDir(baseCC, factoryClassNames);
+            addExternalizableClassesFromDir(baseODK.replace("/", File.separator), factoryClassNames);
+            addExternalizableClassesFromDir(baseCC.replace("/", File.separator), factoryClassNames);
         }
     }
 
@@ -116,7 +116,7 @@ public class CommCareTestApplication extends CommCareApplication {
             for (File file : files) {
                 String className = file.getAbsolutePath()
                         .replace(baseClassPath, "")
-                        .replace("/", ".")
+                        .replace(File.separator, ".")
                         .replace(".class", "")
                         .replace(".class", "");
                 AndroidPrototypeFactorySetup.loadClass(className, externClasses);
