@@ -1,0 +1,79 @@
+<h:html xmlns:h="http://www.w3.org/1999/xhtml" xmlns:orx="http://openrosa.org/jr/xforms" xmlns="http://www.w3.org/2002/xforms" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:jr="http://openrosa.org/javarosa" xmlns:vellum="http://commcarehq.org/xforms/vellum">
+    <h:head>
+        <h:title>Test Print</h:title>
+        <model>
+            <instance>
+                <data xmlns:jrm="http://dev.commcarehq.org/jr/xforms" xmlns="http://openrosa.org/formdesigner/616F4108-566E-4E32-85C5-6153E3351D46" uiVersion="1" version="10" name="Test Print">
+                    <repeat_index/>
+                    <lone_printout/>
+                    <printout_list>
+                        <unique_nested/>
+                        <nested_repeats ids="" count="" current_index="">
+                            <item id="" index="" jr:template="">
+                                <internal_nested/>
+                            </item>
+                        </nested_repeats>
+                    </printout_list>
+                    <orx:meta xmlns:cc="http://commcarehq.org/xforms"><orx:deviceID/><orx:timeStart/><orx:timeEnd/><orx:username/><orx:userID/><orx:instanceID/><cc:appVersion/></orx:meta></data>
+            </instance><instance id="commcaresession" src="jr://instance/session"/>
+            <bind nodeset="/data/repeat_index" calculate="&quot;1 2 3&quot;"/>
+            <bind nodeset="/data/lone_printout" type="intent"/>
+            <bind nodeset="/data/printout_list"/>
+            <bind nodeset="/data/printout_list/unique_nested" type="intent"/>
+            <bind nodeset="/data/printout_list/nested_repeats/@current_index" calculate="count(/data/printout_list/nested_repeats/item)"/>
+            <bind nodeset="/data/printout_list/nested_repeats/item"/>
+            <bind nodeset="/data/printout_list/nested_repeats/item/internal_nested" type="intent"/>
+            <setvalue event="xforms-ready" ref="/data/printout_list/nested_repeats/@ids" value="join(' ', &quot;1 2 3&quot;)"/>
+            <setvalue event="xforms-ready" ref="/data/printout_list/nested_repeats/@count" value="count-selected(/data/printout_list/nested_repeats/@ids)"/>
+            <setvalue event="jr-insert" ref="/data/printout_list/nested_repeats/item/@index" value="int(/data/printout_list/nested_repeats/@current_index)"/>
+            <setvalue event="jr-insert" ref="/data/printout_list/nested_repeats/item/@id" value="selected-at(/data/printout_list/nested_repeats/@ids, ../@index)"/>
+            <itext>
+                <translation lang="en" default="">
+                    <text id="lone_printout-label">
+                        <value>callout_single</value>
+                    </text>
+                    <text id="printout_list-label">
+                        <value>Multiple Prints!</value>
+                    </text>
+                    <text id="printout_list/unique_nested-label">
+                        <value>unique_nested</value>
+                    </text>
+                    <text id="printout_list/nested_repeats/item-label">
+                        <value>nested_repeats</value>
+                    </text>
+                    <text id="printout_list/nested_repeats/item/internal_nested-label">
+                        <value>Print Label: <output value="../@id"/></value>
+                    </text>
+                </translation>
+            </itext>
+            <setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
+        <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="lone_printout" class="org.commcare.dalvik.action.PRINT">
+            <extra key="cc:print_template_reference" ref="'jr://file/commcare/text/question1.html'"/>
+        </odkx:intent>
+        <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="unique_nested" class="org.commcare.dalvik.action.PRINT">
+            <extra key="cc:print_template_reference" ref="'jr://file/commcare/text/question4.html'"/>
+        </odkx:intent>
+        <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="internal_nested" class="org.commcare.dalvik.action.PRINT">
+            <extra key="cc:print_template_reference" ref="'jr://file/commcare/text/question7.html'"/>
+        </odkx:intent>
+    </h:head>
+    <h:body>
+        <input ref="/data/lone_printout" appearance="intent:lone_printout">
+            <label ref="jr:itext('lone_printout-label')"/>
+        </input>
+        <group ref="/data/printout_list" appearance="field-list">
+            <label ref="jr:itext('printout_list-label')"/>
+            <input ref="/data/printout_list/unique_nested" appearance="intent:unique_nested">
+                <label ref="jr:itext('printout_list/unique_nested-label')"/>
+            </input>
+            <group>
+                <label ref="jr:itext('printout_list/nested_repeats/item-label')"/>
+                <repeat jr:count="/data/printout_list/nested_repeats/@count" jr:noAddRemove="true()" nodeset="/data/printout_list/nested_repeats/item">
+                    <input ref="/data/printout_list/nested_repeats/item/internal_nested" appearance="intent:internal_nested">
+                        <label ref="jr:itext('printout_list/nested_repeats/item/internal_nested-label')"/>
+                    </input>
+                </repeat>
+            </group>
+        </group>
+    </h:body>
+</h:html>

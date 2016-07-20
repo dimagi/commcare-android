@@ -18,10 +18,14 @@ import android.widget.Toast;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
+import org.commcare.utils.CompoundIntentList;
+import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
+
+import java.util.ArrayList;
 
 /**
  * Widget that allows user to scan barcodes and add them to the form.
@@ -201,4 +205,20 @@ public class IntentWidget extends QuestionWidget {
         //is silly. It's not generalizable
         return ic;
     }
+
+
+    public CompoundIntentList addToCompoundIntent(CompoundIntentList compoundedCallout) {
+        if(!this.ic.canCompound()) {
+            return compoundedCallout;
+        }
+        if(compoundedCallout == null) {
+            return new CompoundIntentList(intent, this.getFormId().toString());
+        }
+        if(!compoundedCallout.addIntentIfCompatible(intent,this.getFormId().toString() )) {
+            return null;
+        } else {
+            return compoundedCallout;
+        }
+    }
+
 }

@@ -1153,6 +1153,18 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             hasGroupLabel = true;
             FormLayoutHelpers.updateGroupViewVisibility(this, true, shouldHideGroupLabel);
         }
+        updateIntentAggregateView();
+    }
+
+    /**
+     * Identifies whether the questionlist featues an aggregatable intent callout and
+     * displays the appropriate button if so.
+     */
+    private void updateIntentAggregateView() {
+//        Intent i = getODKView().getAggregateIntentCallout();
+//        if(i == null) {
+//
+//        }
     }
 
     /**

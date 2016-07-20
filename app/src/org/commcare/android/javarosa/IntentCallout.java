@@ -299,4 +299,8 @@ public class IntentCallout implements Externalizable {
     public boolean getCancelled() {
         return isCancelled;
     }
+
+    public boolean canCompound() {
+        return true;
+    }
 }
