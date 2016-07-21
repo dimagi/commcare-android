@@ -4,6 +4,7 @@ import org.commcare.CommCareApp;
 import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
@@ -34,7 +35,7 @@ public class ArchivedFormPurgeTest {
                 "jr://resource/commcare-apps/archive_form_tests/profile.ccpr",
                 "test", "123");
 
-        SavedFormLoader.loadFormsFromPayload("/commcare-apps/archive_form_tests/saved_form_payload.xml");
+        SavedFormLoader.loadFormsFromPayload("/commcare-apps/archive_form_tests/saved_form_payload.xml", FormRecord.STATUS_SAVED);
     }
 
     /**

@@ -6,6 +6,7 @@ import org.commcare.CommCareTestApplication;
 import org.commcare.activities.FormRecordListActivity;
 import org.commcare.adapters.IncompleteFormListAdapter;
 import org.commcare.android.CommCareTestRunner;
+import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.SavedFormLoader;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
@@ -30,7 +31,7 @@ public class FormRecordListActivityTest {
         TestAppInstaller.installAppAndLogin(
                 "jr://resource/commcare-apps/form_nav_tests/profile.ccpr",
                 "test", "123");
-        SavedFormLoader.loadFormsFromPayload("/commcare-apps/form_nav_tests/form_instances_restore.xml");
+        SavedFormLoader.loadFormsFromPayload("/commcare-apps/form_nav_tests/form_instances_restore.xml", FormRecord.STATUS_SAVED);
     }
 
     /**
