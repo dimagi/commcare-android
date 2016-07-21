@@ -48,7 +48,6 @@ public class StorageUtils {
                 new String[]{FormRecord.STATUS_INCOMPLETE, currentAppId}).size();
     }
 
-    @SuppressWarnings("deprecation")
     public static FormRecord[] getUnsentRecords(SqlStorage<FormRecord> storage) {
         //TODO: This could all be one big sql query instead of doing it in code
 
@@ -72,22 +71,17 @@ public class StorageUtils {
         for (int id : ids) {
             //Last modified for a unsent and complete forms is the formEnd date that was captured and locked when form
             //entry, so it's a safe cannonical ordering
-            String dateValue = storage.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
+            String dateAsString = storage.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
+            long dateAsSeconds;
             try {
-                idToDateIndex.put(id, Date.parse(dateValue));
-            } catch (IllegalArgumentException iae) {
-                //As it turns out this string format is terrible! We need to use a diferent one in the future
-                try {
-                    //Try to use what the toString does on most devices
-                    SimpleDateFormat sdf = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
-                    idToDateIndex.put(id, sdf.parse(dateValue).getTime());
-                } catch (Exception e) {
-                    //If it still doesn't work, fallback to using ids
-                    Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Invalid date in last modified value: " + dateValue);
-                    //For some reason this seems to be crashing on some devices... go with the next best ordering for now
-                    idToDateIndex.put(id, (long)id);
-                }
+                dateAsSeconds = Long.valueOf(dateAsString);
+            } catch (NumberFormatException e) {
+                //For some reason this seems to be crashing on some devices... go with the next best ordering for now
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Invalid date in last modified value: " + dateAsString);
+                idToDateIndex.put(id, (long)id);
+                continue;
             }
+            idToDateIndex.put(id, dateAsSeconds);
         }
 
         Collections.sort(ids, new Comparator<Integer>() {

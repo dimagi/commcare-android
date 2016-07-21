@@ -136,32 +136,23 @@ public class PurgeStaleArchivedFormsTask
                 new Object[]{FormRecord.STATUS_SAVED, currentAppId});
 
         for (int id : savedFormsForThisApp) {
-            String date =
+            String dateAsString =
                     formStorage.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
+            long timeSinceEpoch;
             try {
-                DateTime modifiedDate = parseModifiedDate(date);
-                if (modifiedDate.isBefore(lastValidDate)) {
-                    toPurge.add(id);
-                }
-            } catch (Exception e) {
+                timeSinceEpoch = Long.valueOf(dateAsString);
+            } catch (NumberFormatException e) {
                 Logger.log(AndroidLogger.SOFT_ASSERT,
-                        "Unable to parse modified date of form record: " + date);
+                        "Unable to parse modified date of form record: " + dateAsString);
+                toPurge.add(id);
+                continue;
+            }
+
+            DateTime modifiedDate = new DateTime(timeSinceEpoch);
+            if (modifiedDate.isBefore(lastValidDate)) {
                 toPurge.add(id);
             }
         }
         return toPurge;
     }
-
-    private static DateTime parseModifiedDate(String dateString)
-            throws ParseException {
-        // TODO PLM: the use of text timezones is buggy because timezone
-        // abbreviations aren't unique. We need to do a refactor to use a
-        // string date representation that is easily parsable by Joda's
-        // DateTime.
-        SimpleDateFormat format =
-                new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy");
-        Date parsed = format.parse(dateString);
-        return new DateTime(parsed);
-    }
-
 }
