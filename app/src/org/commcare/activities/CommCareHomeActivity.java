@@ -29,7 +29,6 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.interfaces.WithUIController;
@@ -66,7 +65,6 @@ import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.ConnectivityStatus;
-import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
@@ -176,11 +174,7 @@ public class CommCareHomeActivity
     protected void onCreateSessionSafe(Bundle savedInstanceState) {
         super.onCreateSessionSafe(savedInstanceState);
 
-        for(Suite s: CommCareApplication._().getCurrentApp().getCommCarePlatform().getInstalledSuites()){
-            allAlerts.addAll(s.getAlerts());
-        }
-
-        launchService(allAlerts);
+        launchReminderService();
 
         loadInstanceState(savedInstanceState);
 
@@ -196,7 +190,16 @@ public class CommCareHomeActivity
 
 
     //LAUNCHES REMINDER SERVICE
-    public void launchService(final Vector<Alert> alerts) {
+    public void launchReminderService() {
+
+        for(Suite s: CommCareApplication._().getCurrentApp().getCommCarePlatform().getInstalledSuites()){
+            allAlerts.addAll(s.getAlerts());
+        }
+
+        if(allAlerts.isEmpty()){
+            return;
+        }
+
         mConnection = new ServiceConnection() {
 
             @Override
@@ -204,13 +207,11 @@ public class CommCareHomeActivity
                 synchronized(serviceLock) {
 
                     mBoundService = ((CommCareReminderService.LocalBinder)service).getService();
-
-                    //service available
                     mIsBound = true;
 
                     //Don't signal bind completion until the db is initialized.
                     mIsBinding = false;
-                    mBoundService.showNotice(alerts);
+                    mBoundService.startReminderThread(allAlerts);
                 }
             }
 

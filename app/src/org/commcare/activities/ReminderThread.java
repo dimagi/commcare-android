@@ -80,11 +80,24 @@ public class ReminderThread {
 
                     //Evaluate condition
                     for(TreeReference ref : refs) {
-                        EvaluationContext internal = new EvaluationContext(ec, ref);
-                        Log.d("Result", condition.eval(internal).toString());
 
-                        if((Boolean) condition.eval(internal)){
-                            playNoise();
+                        try{
+                            EvaluationContext internal = new EvaluationContext(ec, ref);
+
+                            Boolean result = (Boolean) condition.eval(internal);
+
+                            Log.d("Result", result.toString());
+
+                            if(result){
+                                playNoise();
+                            }
+
+                        }catch(ClassCastException e){
+                            Log.d("Reminder Thread", "Result of the xPath expression was not boolean!");
+                            //TODO: Get opinion from Clayton on whether this is appropriate handling
+                        }catch(Exception e){
+                            e.printStackTrace();
+                            //TODO: Restart the thread?
                         }
                     }
                     
