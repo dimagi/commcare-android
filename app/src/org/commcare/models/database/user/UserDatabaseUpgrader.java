@@ -122,6 +122,11 @@ class UserDatabaseUpgrader {
                 oldVersion = 13;
             }
         }
+        if (oldVersion == 13) {
+            if (upgradeThirteenFourteen(db)) {
+                oldVersion = 14;
+            }
+        }
     }
 
     private boolean upgradeOneTwo(final SQLiteDatabase db) {
@@ -374,6 +379,29 @@ class UserDatabaseUpgrader {
             return true;
         } catch (Exception e) {
             return false;
+        } finally {
+            db.endTransaction();
+        }
+    }
+
+    private boolean upgradeThirteenFourteen(SQLiteDatabase db) {
+        // This process could take a while, so tell the service to wait longer to make sure
+        // it can finish
+        CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
+
+        db.beginTransaction();
+        try {
+            SqlStorage<FormRecord> formRecordSqlStorage = new SqlStorage<>(
+                    FormRecord.STORAGE_KEY,
+                    FormRecord.class,
+                    new ConcreteAndroidDbHelper(c, db));
+
+            for (FormRecord formRecord : formRecordSqlStorage) {
+                formRecordSqlStorage.write(formRecord);
+            }
+
+            db.setTransactionSuccessful();
+            return true;
         } finally {
             db.endTransaction();
         }
