@@ -46,6 +46,8 @@ import java.util.Map;
  * Given cancel button type, pass true/false as a constructor param to the prototype
  * Given calendar type, pass it as a constructor param to the prototype and instantiate a different subclass of calendarfragment
  *
+ * TODO: Change setAnswer() method to reload an invalid widget with its actual state instead of defaulting to the most recently entered valid date
+ *
  */
 public class GregorianDateWidget extends AbstractUniversalDateWidget implements CalendarFragment.CalendarCloseListener {
 
@@ -394,5 +396,12 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
     public void onCalendarCancel(){
         calendar.setTimeInMillis(timeBeforeCalendarOpened);
         onCalendarClose();
+    }
+
+    @Override
+    protected void setAnswer(){
+        if(!(mPrompt.getAnswerValue() instanceof InvalidData)){
+            super.setAnswer();
+        }
     }
 }

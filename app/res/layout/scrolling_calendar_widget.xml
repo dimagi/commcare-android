@@ -15,7 +15,7 @@
         android:textStyle="bold"
         android:id="@+id/today"/>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="0dp"
         android:layout_weight=".05"
@@ -26,48 +26,19 @@
       <Spinner
           android:layout_width="wrap_content"
           android:layout_height="wrap_content"
-          android:id="@+id/calendar_spinner">
-
+          android:id="@+id/calendar_spinner"
+          android:layout_alignParentLeft="true">
       </Spinner>
 
-        <Button
-            android:id="@+id/prev_year_button"
-            android:layout_width="0dp"
-            android:layout_height="45dp"
-            android:layout_marginLeft="25dp"
-            android:layout_weight=".1"
-            android:layout_gravity="center"
-            android:text="&lt;"
-            android:background="@color/transparent"
-            android:textStyle="bold"
-            android:textColor="@color/blue"
-            android:textSize="30dp"
-            android:gravity="center" />
-
-        <TextView
-            android:id="@+id/current_year"
-            android:layout_width="0dp"
+        <Spinner
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:textStyle="bold"
-            android:layout_weight=".2"
-            android:layout_gravity="center"
-            android:gravity="center_horizontal" />
+            android:id="@+id/year_spinner"
+            android:layout_alignParentRight="true">
 
-        <Button
-            android:id="@+id/next_year_button"
-            android:layout_width="0dp"
-            android:layout_height="45dp"
-            android:layout_weight=".1"
-            android:layout_gravity="center"
-            android:text="&gt;"
-            android:background="@color/transparent"
-            android:textColor="@color/blue"
-            android:textStyle="bold"
-            android:textSize="30dp"
-            android:gravity="center" />
+        </Spinner>
 
-    </LinearLayout>
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="fill_parent"

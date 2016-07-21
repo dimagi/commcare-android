@@ -407,7 +407,7 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
     /**
      * Initial date display
      */
-    private void setAnswer() {
+    protected void setAnswer() {
         if (mPrompt.getAnswerValue() != null) {
             Date date = (Date)mPrompt.getAnswerValue().getValue();
 

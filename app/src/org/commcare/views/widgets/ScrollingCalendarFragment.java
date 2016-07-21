@@ -22,6 +22,7 @@ import java.util.Map;
 public class ScrollingCalendarFragment extends CalendarFragment{
 
     private Spinner monthSpinner;
+    private Spinner yearSpinner;
 
     @Override
     protected void initMonthComponents(){
@@ -35,7 +36,7 @@ public class ScrollingCalendarFragment extends CalendarFragment{
                 return monthMap.get(a) - monthMap.get(b);
             }
         });
-        monthSpinner.setAdapter(new ArrayAdapter<String>(getContext(), R.layout.calendar_date, monthList));
+        monthSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.calendar_date, monthList));
 
         monthSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -45,9 +46,7 @@ public class ScrollingCalendarFragment extends CalendarFragment{
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
     }
 
@@ -57,7 +56,37 @@ public class ScrollingCalendarFragment extends CalendarFragment{
     }
 
     @Override
+    protected void setupYearComponents() {
+        yearSpinner = (Spinner) myLayout.findViewById(R.id.year_spinner);
+
+        ArrayList<String> years = new ArrayList<>();
+
+        for(int i = 1900; i <= calendar.get(Calendar.YEAR)+4; i++){
+            years.add(String.valueOf(i));
+        }
+
+        ArrayAdapter<String> yearAdapter = new ArrayAdapter<String>(getContext(), R.layout.calendar_date, years);
+        yearSpinner.setAdapter(yearAdapter);
+
+        yearSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                calendar.set(Calendar.YEAR, position+1900);
+                refresh();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
+        });
+    }
+
+    @Override
     protected void updateMonthOnDateChange(){
         monthSpinner.setSelection(calendar.get(Calendar.MONTH));
+    }
+
+    @Override
+    protected void updateYearOnDateChange(){
+        yearSpinner.setSelection(calendar.get(Calendar.YEAR)-1900);
     }
 }

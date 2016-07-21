@@ -132,11 +132,31 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
     private void initDisplay(){
         myGrid = (GridView) myLayout.findViewById(R.id.calendar_grid);
         initMonthComponents();
+        setupYearComponents();
+        cancel = (ImageButton) myLayout.findViewById(R.id.cancel_calendar);
+        today = (Button) myLayout.findViewById(R.id.today);
+    }
+
+    protected void setupYearComponents() {
         decYear = (Button) myLayout.findViewById(R.id.prev_year_button);
         incYear = (Button) myLayout.findViewById(R.id.next_year_button);
         myYear = (TextView) myLayout.findViewById(R.id.current_year);
-        cancel = (ImageButton) myLayout.findViewById(R.id.cancel_calendar);
-        today = (Button) myLayout.findViewById(R.id.today);
+
+        decYear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                calendar.add(Calendar.YEAR, -1);
+                refresh();
+            }
+        });
+
+        incYear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                calendar.add(Calendar.YEAR, 1);
+                refresh();
+            }
+        });
     }
 
 
@@ -165,22 +185,6 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
     }
 
     private void initOnClick(){
-
-        decYear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                calendar.add(Calendar.YEAR, -1);
-                refresh();
-            }
-        });
-
-        incYear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                calendar.add(Calendar.YEAR, 1);
-                refresh();
-            }
-        });
 
         myGrid.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -229,9 +233,13 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         int totalDays = getNumDaysInMonth(populator);
         populateListOfDates(dateList, populator, totalDays);
 
-        myYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
+        updateYearOnDateChange();
         updateMonthOnDateChange();
         myGrid.setAdapter(new CalendarAdapter(getContext(), dateList));
+    }
+
+    protected void updateYearOnDateChange() {
+        myYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
     }
 
     protected void updateMonthOnDateChange() {
