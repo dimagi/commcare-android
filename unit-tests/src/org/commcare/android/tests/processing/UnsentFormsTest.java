@@ -30,11 +30,17 @@ public class UnsentFormsTest {
                 "jr://resource/commcare-apps/archive_form_tests/profile.ccpr",
                 "test", "123");
 
-        SavedFormLoader.loadFormsFromPayload("/commcare-apps/archive_form_tests/unsent_form_payload.xml", FormRecord.STATUS_UNSENT);
-        SavedFormLoader.loadFormsFromPayload("/commcare-apps/archive_form_tests/saved_form_payload.xml", FormRecord.STATUS_SAVED);
+        SavedFormLoader.loadFormsFromPayload(
+                "/commcare-apps/archive_form_tests/unsent_form_payload.xml",
+                FormRecord.STATUS_UNSENT);
+        // load some extra forms to make sure only unsent ones are processed
+        SavedFormLoader.loadFormsFromPayload(
+                "/commcare-apps/archive_form_tests/saved_form_payload.xml",
+                FormRecord.STATUS_SAVED);
     }
 
     /**
+     * Verify that unsent forms are correctly ordered when submitted
      */
     @Test
     public void testUnsentFormLookup() {
