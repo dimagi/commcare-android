@@ -26,6 +26,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_SMS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="org.commcare.dalvik.fcm"/>
+
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -314,6 +316,13 @@
 
         <receiver android:name="org.commcare.views.notifications.NotificationClearReceiver">
         </receiver>
+
+        <activity android:name="org.commcare.activities.DeviceRegistrationActivity">
+            <intent-filter android:priority="2">
+                <action android:name="org.commcare.dalvik.fcm.register"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
 
         <activity
             android:name="org.commcare.activities.ReportProblemActivity"
