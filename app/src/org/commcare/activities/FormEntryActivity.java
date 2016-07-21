@@ -105,7 +105,6 @@ import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
 import org.javarosa.xpath.XPathUnhandledException;
-import org.javarosa.xpath.expr.XPathExpression;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -489,7 +488,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 break;
             case SIGNATURE_CAPTURE:
                 boolean saved = ImageCaptureProcessing.processCaptureResponse(this, getInstanceFolder(), false);
-                if (saved) {
+                if (saved && !questionsView.isQuestionList()) {
                     // attempt to auto-advance if a signature was captured
                     advance();
                 }
