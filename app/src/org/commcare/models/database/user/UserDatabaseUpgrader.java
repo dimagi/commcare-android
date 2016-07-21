@@ -385,8 +385,8 @@ class UserDatabaseUpgrader {
     }
 
     private boolean upgradeThirteenFourteen(SQLiteDatabase db) {
-        // This process could take a while, so tell the service to wait longer to make sure
-        // it can finish
+        // This process could take a while, so tell the service to wait longer
+        // to make sure it can finish
         CommCareApplication._().setCustomServiceBindTimeout(60 * 5 * 1000);
 
         db.beginTransaction();
@@ -396,6 +396,9 @@ class UserDatabaseUpgrader {
                     FormRecord.class,
                     new ConcreteAndroidDbHelper(c, db));
 
+            // Re-store all the form records, forcing new date representation
+            // to be used.  Must happen proactively because the date parsing
+            // code was updated to handle new representation
             for (FormRecord formRecord : formRecordSqlStorage) {
                 formRecordSqlStorage.write(formRecord);
             }

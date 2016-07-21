@@ -1,16 +1,16 @@
 package org.commcare.utils;
 
+import android.support.annotation.NonNull;
+
 import org.commcare.CommCareApplication;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.javarosa.core.services.Logger;
 
-import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Vector;
 
 /**
@@ -21,6 +21,7 @@ import java.util.Vector;
  */
 public class StorageUtils {
 
+    @NonNull
     public static Vector<Integer> getUnsentOrUnprocessedFormsForCurrentApp(
             SqlStorage<FormRecord> storage) {
 
@@ -49,40 +50,35 @@ public class StorageUtils {
     }
 
     public static FormRecord[] getUnsentRecords(SqlStorage<FormRecord> storage) {
-        //TODO: This could all be one big sql query instead of doing it in code
+        // TODO: This could all be one big sql query instead of doing it in code
 
         Vector<Integer> ids;
         try {
             ids = getUnsentOrUnprocessedFormsForCurrentApp(storage);
         } catch (SessionUnavailableException e) {
-            // the db was closed down
-            return new FormRecord[0];
+            ids = new Vector<>();
         }
 
         if (ids.size() == 0) {
             return new FormRecord[0];
         }
 
-        //We need to give these ids a valid order so the server can process them correctly.
-        //NOTE: This is slower than it need be. We could batch query this with SQL.
-        final Hashtable<Integer, Long> idToDateIndex = new Hashtable<>();
+        // Order ids so they're submitted to and processed by the server in
+        // the correct order.
+        sortRecordsByDate(ids, storage);
 
-
-        for (int id : ids) {
-            //Last modified for a unsent and complete forms is the formEnd date that was captured and locked when form
-            //entry, so it's a safe cannonical ordering
-            String dateAsString = storage.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
-            long dateAsSeconds;
-            try {
-                dateAsSeconds = Long.valueOf(dateAsString);
-            } catch (NumberFormatException e) {
-                //For some reason this seems to be crashing on some devices... go with the next best ordering for now
-                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION, "Invalid date in last modified value: " + dateAsString);
-                idToDateIndex.put(id, (long)id);
-                continue;
-            }
-            idToDateIndex.put(id, dateAsSeconds);
+        // The records should now be in order and we can pass to the next phase
+        FormRecord[] records = new FormRecord[ids.size()];
+        for (int i = 0; i < ids.size(); ++i) {
+            records[i] = storage.read(ids.elementAt(i));
         }
+        return records;
+    }
+
+    private static void sortRecordsByDate(Vector<Integer> ids,
+                                          SqlStorage<FormRecord> storage) {
+        final HashMap<Integer, Long> idToDateIndex =
+                getIdToDateMap(ids, storage);
 
         Collections.sort(ids, new Comparator<Integer>() {
             @Override
@@ -98,12 +94,29 @@ public class StorageUtils {
                 return 0;
             }
         });
+    }
 
-        //The records should now be in order and we can pass to the next phase 
-        FormRecord[] records = new FormRecord[ids.size()];
-        for (int i = 0; i < ids.size(); ++i) {
-            records[i] = storage.read(ids.elementAt(i));
+    private static HashMap<Integer, Long> getIdToDateMap(Vector<Integer> ids,
+                                                         SqlStorage<FormRecord> storage) {
+        HashMap<Integer, Long> idToDateIndex = new HashMap<>();
+        for (int id : ids) {
+            // Last modified for a unsent and complete forms is the formEnd
+            // date that was captured and locked when form entry, so it's a
+            // safe cannonical ordering
+            String dateAsString =
+                    storage.getMetaDataFieldForRecord(id, FormRecord.META_LAST_MODIFIED);
+            long dateAsSeconds;
+            try {
+                dateAsSeconds = Long.valueOf(dateAsString);
+            } catch (NumberFormatException e) {
+                // Go with the next best ordering for now
+                Logger.log(AndroidLogger.TYPE_ERROR_ASSERTION,
+                        "Invalid date in last modified value: " + dateAsString);
+                idToDateIndex.put(id, (long)id);
+                continue;
+            }
+            idToDateIndex.put(id, dateAsSeconds);
         }
-        return records;
+        return idToDateIndex;
     }
 }
