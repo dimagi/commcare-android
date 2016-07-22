@@ -9,9 +9,7 @@
         android:id="@+id/universal_frame_tile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true">
-
-    </FrameLayout>
+        android:layout_alignParentTop="true"/>
 
     <FrameLayout
         android:layout_width="fill_parent"
@@ -22,14 +20,10 @@
         <include layout="@layout/component_drop_shadow"/>
 
         <ListView
+            android:id="@+id/screen_suite_menu_list"
+            style="@style/ListViewV2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/screen_suite_menu_list"
-            android:listSelector="@drawable/selector"
-            style="@style/ListViewV2"/>
-
-
+            android:listSelector="@drawable/selector"/>
     </FrameLayout>
-
-
 </RelativeLayout>

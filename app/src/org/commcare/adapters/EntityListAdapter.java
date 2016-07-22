@@ -52,8 +52,6 @@ import java.util.List;
  * @author wspride
  */
 public class EntityListAdapter implements ListAdapter {
-    private static final String KEY_ENTITY_LIST_EXTRA_DATA = "entity-list-data";
-
     public static final int ENTITY_TYPE = 0;
     public static final int ACTION_TYPE = 1;
     public static final int DIVIDER_TYPE = 2;
