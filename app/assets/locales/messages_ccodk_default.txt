@@ -309,10 +309,6 @@ mult.install.error=Unexpected Error installing the multimedia! Please try again.
 
 login.menu.demo=Enter as Demo User
 login.menu.password.mode=Forgot PIN?
-login.menu.invalidate.cache=Invalidate Cache on Next Restore
-
-invalidate.cache.dialog.title=Are you sure?
-invalidate.cache.dialog.message=Pressing 'OK' will make it so that the next restore request submitted to HQ will invalidate any existing cache for that user.
 
 main.sync.demo=You cannot sync data down from the server when logged in in demo mode
 login.menu.app.manager=Go To App Manager
