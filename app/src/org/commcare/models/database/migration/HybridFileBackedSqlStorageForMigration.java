@@ -5,7 +5,7 @@ import android.content.ContentValues;
 import org.commcare.CommCareApplication;
 import org.commcare.models.database.AndroidDbHelper;
 import org.commcare.models.database.HybridFileBackedSqlStorage;
-import org.commcare.models.encryption.CryptUtil;
+import org.commcare.core.encryption.CryptUtil;
 import org.commcare.modern.database.DatabaseHelper;
 import org.javarosa.core.services.storage.Persistable;
 

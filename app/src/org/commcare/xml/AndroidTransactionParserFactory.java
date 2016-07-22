@@ -12,6 +12,7 @@ import org.commcare.models.database.AndroidSandbox;
 import org.commcare.utils.GlobalConstants;
 import org.kxml2.io.KXmlParser;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
 
@@ -36,6 +37,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
 
     final private Context context;
     final private HttpRequestEndpoints generator;
+    final private ArrayList<String> createdAndUpdatedCases = new ArrayList<>();
 
     private TransactionParserFactory formInstanceParser;
     private boolean caseIndexesWereDisrupted = false;
@@ -81,18 +83,22 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
 
     @Override
     public void initCaseParser() {
-        final int[] tallies = new int[3];
         caseParser = new TransactionParserFactory() {
             CaseXmlParser created = null;
 
             @Override
             public TransactionParser<Case> getParser(KXmlParser parser) {
                 if (created == null) {
-                    created = new AndroidCaseXmlParser(parser, tallies, true, sandbox.getCaseStorage(), generator) {
+                    created = new AndroidCaseXmlParser(parser, true, sandbox.getCaseStorage(), generator) {
 
                         @Override
                         public void onIndexDisrupted(String caseId) {
                             caseIndexesWereDisrupted = true;
+                        }
+
+                        @Override
+                        protected void onCaseCreateUpdate(String caseId) {
+                            createdAndUpdatedCases.add(caseId);
                         }
                     };
                 }
@@ -100,6 +106,10 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
                 return created;
             }
         };
+    }
+
+    public ArrayList<String> getCreatedAndUpdatedCases() {
+        return createdAndUpdatedCases;
     }
 
 

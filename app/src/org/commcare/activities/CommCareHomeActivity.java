@@ -1092,10 +1092,13 @@ public class CommCareHomeActivity
 
     @Override
     protected void onResumeSessionSafe() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            refreshActionBar();
+        if (!sessionNavigationProceedingAfterOnResume) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+                refreshActionBar();
+            }
+            attemptDispatchHomeScreen();
         }
-        attemptDispatchHomeScreen();
+
         sessionNavigationProceedingAfterOnResume = false;
     }
 
@@ -1115,7 +1118,7 @@ public class CommCareHomeActivity
         if (CommCareApplication._().isSyncPending(false)) {
             // There is a sync pending
             handlePendingSync();
-        } else if (CommCareApplication._().isConsumerApp() && !sessionNavigationProceedingAfterOnResume) {
+        } else if (CommCareApplication._().isConsumerApp()) {
             // so that the user never sees the real home screen in a consumer app
             enterRootModule();
         } else {
@@ -1170,8 +1173,14 @@ public class CommCareHomeActivity
     }
 
     public static boolean isDemoUser() {
-        User u = CommCareApplication._().getSession().getLoggedInUser();
-        return (User.TYPE_DEMO.equals(u.getUserType()));
+        try {
+            User u = CommCareApplication._().getSession().getLoggedInUser();
+            return (User.TYPE_DEMO.equals(u.getUserType()));
+        } catch (SessionUnavailableException e) {
+            // Default to a normal user: this should only happen if session
+            // expires and hasn't redirected to login.
+            return false;
+        }
     }
 
     @Override
@@ -1200,8 +1209,7 @@ public class CommCareHomeActivity
         super.onPrepareOptionsMenu(menu);
         GoogleAnalyticsUtils.reportOptionsMenuEntry(GoogleAnalyticsFields.CATEGORY_HOME_SCREEN);
         //In Holo theme this gets called on startup
-        User u = CommCareApplication._().getSession().getLoggedInUser();
-        boolean enableMenus = !User.TYPE_DEMO.equals(u.getUserType());
+        boolean enableMenus = !isDemoUser();
         menu.findItem(MENU_UPDATE).setVisible(enableMenus);
         menu.findItem(MENU_SAVED_FORMS).setVisible(enableMenus);
         menu.findItem(MENU_CHANGE_LANGUAGE).setVisible(enableMenus);
@@ -1313,7 +1321,7 @@ public class CommCareHomeActivity
                 dialog.addProgressBar();
                 break;
             case DataPullTask.DATA_PULL_TASK_ID:
-                title = Localization.get("sync.progress.title");
+                title = Localization.get("sync.communicating.title");
                 message = Localization.get("sync.progress.purge");
                 dialog = CustomProgressDialog.newInstance(title, message, taskId);
                 if (isSyncUserLaunched) {

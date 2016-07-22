@@ -18,7 +18,7 @@ import org.commcare.logging.AndroidLogger;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.models.encryption.ByteEncrypter;
-import org.commcare.models.encryption.CryptUtil;
+import org.commcare.core.encryption.CryptUtil;
 import org.commcare.modern.models.RecordTooLargeException;
 import org.commcare.network.DataPullRequester;
 import org.commcare.network.RemoteDataPullResponse;
@@ -29,7 +29,7 @@ import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FormSaveUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.UnknownSyncError;
-import org.commcare.utils.bitcache.BitCache;
+import org.commcare.core.network.bitcache.BitCache;
 import org.commcare.xml.AndroidTransactionParserFactory;
 import org.javarosa.core.model.User;
 import org.javarosa.core.services.Logger;
@@ -59,7 +59,7 @@ public abstract class DataPullTask<R>
     private final String server;
     private final String username;
     private final String password;
-    private final Context context;
+    protected final Context context;
 
     private int mCurrentProgress;
     private int mTotalItems;
@@ -78,7 +78,10 @@ public abstract class DataPullTask<R>
     public static final int PROGRESS_PROCESSING = 128;
     public static final int PROGRESS_DOWNLOADING = 256;
     public static final int PROGRESS_DOWNLOADING_COMPLETE = 512;
+    public static final int PROGRESS_SERVER_PROCESSING = 1024;
+
     private DataPullRequester dataPullRequester;
+    private final AsyncRestoreHelper asyncRestoreHelper;
 
     private boolean loginNeeded;
     private UserKeyRecord ukrForLogin;
@@ -93,6 +96,7 @@ public abstract class DataPullTask<R>
         this.taskId = DATA_PULL_TASK_ID;
         this.dataPullRequester = dataPullRequester;
         this.requestor = dataPullRequester.getHttpGenerator(username, password);
+        this.asyncRestoreHelper = new AsyncRestoreHelper(this);
 
         TAG = DataPullTask.class.getSimpleName();
     }
@@ -145,41 +149,7 @@ public abstract class DataPullTask<R>
             CaseUtils.purgeCases();
         }
 
-        if (isCancelled()) {
-            // Avoid making http request if user cancelled the task (NOTE: In this case, the result
-            // returned is never processed since cancelled task results are sent to onCancelled)
-            return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
-        }
-
-        PullTaskResult responseError = PullTaskResult.UNKNOWN_FAILURE;
-        try {
-            return makeRequestAndHandleResponse(factory);
-        } catch (SocketTimeoutException e) {
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
-            responseError = PullTaskResult.CONNECTION_TIMEOUT;
-        } catch (ConnectTimeoutException e) {
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
-            responseError = PullTaskResult.CONNECTION_TIMEOUT;
-        } catch (ClientProtocolException e) {
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due network error|" + e.getMessage());
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
-            responseError = PullTaskResult.UNREACHABLE_HOST;
-        } catch (IOException e) {
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
-        } catch (UnknownSyncError e) {
-            e.printStackTrace();
-            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to Unknown Error|" + e.getMessage());
-        }
-
-        wipeLoginIfItOccurred();
-        this.publishProgress(PROGRESS_DONE);
-        return new ResultAndError<>(responseError);
+        return getRequestResultOrRetry(factory);
     }
 
     private void determineIfLoginNeeded() {
@@ -245,6 +215,51 @@ public abstract class DataPullTask<R>
         return keyServer == null || keyServer.equals("");
     }
 
+    private ResultAndError<PullTaskResult> getRequestResultOrRetry(AndroidTransactionParserFactory factory) {
+        while (asyncRestoreHelper.retryWaitPeriodInProgress()) {
+            if (isCancelled()) {
+                return new ResultAndError<>(PullTaskResult.UNKNOWN_FAILURE, "");
+            }
+        }
+
+        PullTaskResult responseError = PullTaskResult.UNKNOWN_FAILURE;
+        asyncRestoreHelper.retryAtTime = -1;
+        try {
+            ResultAndError<PullTaskResult> result = makeRequestAndHandleResponse(factory);
+            if (PullTaskResult.RETRY_NEEDED.equals(result.data)) {
+                asyncRestoreHelper.startReportingServerProgress();
+                return getRequestResultOrRetry(factory);
+            } else {
+                return result;
+            }
+        } catch (SocketTimeoutException e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
+            responseError = PullTaskResult.CONNECTION_TIMEOUT;
+        } catch (ConnectTimeoutException e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Timed out listening to receive data during sync");
+            responseError = PullTaskResult.CONNECTION_TIMEOUT;
+        } catch (ClientProtocolException e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due network error|" + e.getMessage());
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to bad network");
+            responseError = PullTaskResult.UNREACHABLE_HOST;
+        } catch (IOException e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to IO Error|" + e.getMessage());
+        } catch (UnknownSyncError e) {
+            e.printStackTrace();
+            Logger.log(AndroidLogger.TYPE_WARNING_NETWORK, "Couldn't sync due to Unknown Error|" + e.getMessage());
+        }
+
+        wipeLoginIfItOccurred();
+        this.publishProgress(PROGRESS_DONE);
+        return new ResultAndError<>(responseError);
+    }
+
     /*
      * @return the proper result, or null if we have not yet been able to determine the result to
      * return
@@ -255,16 +270,21 @@ public abstract class DataPullTask<R>
 
         RemoteDataPullResponse pullResponse =
                 dataPullRequester.makeDataPullRequest(this, requestor, server, !loginNeeded);
+        int responseCode = pullResponse.responseCode;
         Logger.log(AndroidLogger.TYPE_USER,
-                "Request opened. Response code: " + pullResponse.responseCode);
+                "Request opened. Response code: " + responseCode);
 
-        if (pullResponse.responseCode == 401) {
+        if (responseCode == 401) {
             return handleAuthFailed();
-        } else if (pullResponse.responseCode >= 200 && pullResponse.responseCode < 300) {
-            return handleSuccessResponseCode(pullResponse, factory);
-        } else if (pullResponse.responseCode == 412) {
+        } else if (responseCode >= 200 && responseCode < 300) {
+            if (responseCode == 202) {
+                return asyncRestoreHelper.handleRetryResponseCode(pullResponse);
+            } else {
+                return handleSuccessResponseCode(pullResponse, factory);
+            }
+        } else if (responseCode == 412) {
             return handleBadLocalState(factory);
-        } else if (pullResponse.responseCode == 500) {
+        } else if (responseCode == 500) {
             return handleServerError();
         } else {
             throw new UnknownSyncError();
@@ -286,6 +306,7 @@ public abstract class DataPullTask<R>
             RemoteDataPullResponse pullResponse, AndroidTransactionParserFactory factory)
             throws IOException, UnknownSyncError {
 
+        asyncRestoreHelper.completeServerProgressBarIfShowing();
         handleLoginNeededOnSuccess();
         this.publishProgress(PROGRESS_AUTHED, 0);
 
@@ -555,35 +576,24 @@ public abstract class DataPullTask<R>
     }
 
     @Override
-    public void statusUpdate(int statusNumber) {
-    }
-
-    @Override
     public void refreshView() {
     }
 
-    @Override
-    public void getCredentials() {
-    }
-
-    @Override
-    public void promptRetry(String msg) {
-    }
-
-    @Override
-    public void onSuccess() {
-    }
-
-    @Override
-    public void onFailure(String failMessage) {
+    protected void reportServerProgress(int completedSoFar, int total) {
+        publishProgress(PROGRESS_SERVER_PROCESSING, completedSoFar, total);
     }
 
     public void reportDownloadProgress(int totalRead) {
-        publishProgress(DataPullTask.PROGRESS_DOWNLOADING, totalRead);
+        publishProgress(PROGRESS_DOWNLOADING, totalRead);
+    }
+
+    public AsyncRestoreHelper getAsyncRestoreHelper() {
+        return this.asyncRestoreHelper;
     }
 
     public enum PullTaskResult {
         DOWNLOAD_SUCCESS(-1),
+        RETRY_NEEDED(-1),
         AUTH_FAILED(GoogleAnalyticsFields.VALUE_AUTH_FAILED),
         BAD_DATA(GoogleAnalyticsFields.VALUE_BAD_DATA),
         BAD_DATA_REQUIRES_INTERVENTION(GoogleAnalyticsFields.VALUE_BAD_DATA_REQUIRES_INTERVENTION),
