@@ -65,6 +65,12 @@ public class IntentCallout implements Externalizable {
     // Bundle of extra values
     public static final String INTENT_RESULT_BUNDLE = "odk_intent_bundle";
 
+    /**
+     * Intent flag to identify whether this callout should be included in attempts to compound
+     * similar intents
+     */
+    public static final String INTENT_EXTRA_CAN_AGGREGATE = "cc:compound_include";
+
     public IntentCallout() {
         // for serialization
     }
@@ -110,10 +116,17 @@ public class IntentCallout implements Externalizable {
         if (refs != null) {
             for (Enumeration<String> en = refs.keys(); en.hasMoreElements(); ) {
                 String key = en.nextElement();
+                Object xpathResult = refs.get(key).eval(ec);
 
-                String extraVal = XPathFuncExpr.toString(refs.get(key).eval(ec));
-                if (extraVal != null && !"".equals(extraVal)) {
-                    i.putExtra(key, extraVal);
+                if (INTENT_EXTRA_CAN_AGGREGATE.equals(key)) {
+                    if(key != null && !"".equals(key)) {
+                        i.putExtra(INTENT_EXTRA_CAN_AGGREGATE, XPathFuncExpr.toBoolean(xpathResult));
+                    }
+                } else{
+                    String extraVal = XPathFuncExpr.toString(xpathResult);
+                    if (extraVal != null && !"".equals(extraVal)) {
+                        i.putExtra(key, extraVal);
+                    }
                 }
             }
         }
@@ -298,9 +311,5 @@ public class IntentCallout implements Externalizable {
 
     public boolean getCancelled() {
         return isCancelled;
-    }
-
-    public boolean canCompound() {
-        return true;
     }
 }

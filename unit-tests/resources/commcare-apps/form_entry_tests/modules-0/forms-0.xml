@@ -49,12 +49,21 @@
             <setvalue event="xforms-ready" ref="/data/meta/deviceID" value="instance('commcaresession')/session/context/deviceid"/><setvalue event="xforms-ready" ref="/data/meta/timeStart" value="now()"/><bind nodeset="/data/meta/timeStart" type="xsd:dateTime"/><setvalue event="xforms-revalidate" ref="/data/meta/timeEnd" value="now()"/><bind nodeset="/data/meta/timeEnd" type="xsd:dateTime"/><setvalue event="xforms-ready" ref="/data/meta/username" value="instance('commcaresession')/session/context/username"/><setvalue event="xforms-ready" ref="/data/meta/userID" value="instance('commcaresession')/session/context/userid"/><setvalue event="xforms-ready" ref="/data/meta/instanceID" value="uuid()"/><setvalue event="xforms-ready" ref="/data/meta/appVersion" value="instance('commcaresession')/session/context/appversion"/></model>
         <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="lone_printout" class="org.commcare.dalvik.action.PRINT">
             <extra key="cc:print_template_reference" ref="'jr://file/commcare/text/question1.html'"/>
+            <extra key="cc:compound_include" ref="true()"/>
         </odkx:intent>
         <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="unique_nested" class="org.commcare.dalvik.action.PRINT">
             <extra key="cc:print_template_reference" ref="'jr://file/commcare/text/question4.html'"/>
+            <extra key="cc:compound_include" ref="true()"/>
         </odkx:intent>
         <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="internal_nested" class="org.commcare.dalvik.action.PRINT">
+            <extra key="contextualized_value" ref="/data/printout_list/nested_repeats/item/@id"/>
             <extra key="cc:print_template_reference" ref="'jr://file/commcare/text/question7.html'"/>
+            <extra key="cc:compound_include" ref="/data/printout_list/nested_repeats/item/@id &lt;= 2"/>
+        </odkx:intent>
+
+        <odkx:intent xmlns:odkx="http://opendatakit.org/xforms" id="unique_nested_incompatible" class="org.commcare.INVALID">
+            <extra key="cc:print_template_reference" ref="'jr://file/commcare/text/question7.html'"/>
+            <extra key="cc:compound_include" ref="true()"/>
         </odkx:intent>
     </h:head>
     <h:body>
@@ -64,6 +73,21 @@
         <group ref="/data/printout_list" appearance="field-list">
             <label ref="jr:itext('printout_list-label')"/>
             <input ref="/data/printout_list/unique_nested" appearance="intent:unique_nested">
+                <label ref="jr:itext('printout_list/unique_nested-label')"/>
+            </input>
+            <group>
+                <label ref="jr:itext('printout_list/nested_repeats/item-label')"/>
+                <repeat jr:count="/data/printout_list/nested_repeats/@count" jr:noAddRemove="true()" nodeset="/data/printout_list/nested_repeats/item">
+                    <input ref="/data/printout_list/nested_repeats/item/internal_nested" appearance="intent:internal_nested">
+                        <label ref="jr:itext('printout_list/nested_repeats/item/internal_nested-label')"/>
+                    </input>
+                </repeat>
+            </group>
+        </group>
+
+        <group ref="/data/printout_list" appearance="field-list">
+            <label ref="jr:itext('printout_list-label')"/>
+            <input ref="/data/printout_list/unique_nested" appearance="intent:unique_nested_incompatible">
                 <label ref="jr:itext('printout_list/unique_nested-label')"/>
             </input>
             <group>

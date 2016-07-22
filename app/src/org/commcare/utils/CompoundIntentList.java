@@ -8,7 +8,7 @@ import java.util.ArrayList;
  * Created by ctsims on 7/18/2016.
  */
 public class CompoundIntentList {
-    public static final String EXTRA_COMPOUND_DATA_INDICES = "compound_extra_indices";
+    public static final String EXTRA_COMPOUND_DATA_INDICES = "cc:compound_extra_indices";
 
     Intent intent;
 
@@ -25,12 +25,11 @@ public class CompoundIntentList {
         if(!toAdd.getAction().equals(intent.getAction())) {
             return false;
         }
-
         ArrayList<String>  indices = intent.getStringArrayListExtra(EXTRA_COMPOUND_DATA_INDICES);
 
         indices.add(index);
-        toAdd.putExtra(index, intent.getExtras());
-        toAdd.putExtra(EXTRA_COMPOUND_DATA_INDICES, indices);
+        intent.putExtra(index, toAdd.getExtras());
+        intent.putExtra(EXTRA_COMPOUND_DATA_INDICES, indices);
         return true;
     }
 
@@ -44,5 +43,9 @@ public class CompoundIntentList {
 
     public int getNumberOfCallouts() {
         return intent.getStringArrayListExtra(EXTRA_COMPOUND_DATA_INDICES).size();
+    }
+
+    public Intent getCompoundedIntent() {
+        return intent;
     }
 }

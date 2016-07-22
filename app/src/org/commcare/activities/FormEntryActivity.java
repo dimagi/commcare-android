@@ -36,6 +36,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -51,6 +52,7 @@ import org.commcare.activities.components.FormRelevancyUpdating;
 import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.utils.CompoundIntentList;
 import org.commcare.views.media.MediaLayout;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.android.javarosa.PollSensorAction;
@@ -154,6 +156,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static final int INTENT_CALLOUT = 10;
     private static final int HIERARCHY_ACTIVITY_FIRST_START = 11;
     public static final int SIGNATURE_CAPTURE = 12;
+    public static final int INTENT_COMPOUND_CALLOUT = 13;
 
     // Extra returned from gp activity
     public static final String LOCATION_RESULT = "LOCATION_RESULT";
@@ -342,6 +345,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
         ImageButton prevButton = (ImageButton)this.findViewById(R.id.nav_btn_prev);
 
+        Button multiIntentDispatchButton = (Button)this.findViewById(R.id.multiple_intent_dispatch_button);
+
         View finishButton = this.findViewById(R.id.nav_btn_finish);
 
         TextView finishText = (TextView)finishButton.findViewById(R.id.nav_btn_finish_text);
@@ -377,6 +382,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         GoogleAnalyticsFields.LABEL_ARROW,
                         GoogleAnalyticsFields.VALUE_FORM_DONE);
                 triggerUserFormComplete();
+            }
+        });
+
+        multiIntentDispatchButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fireCompoundIntentDispatch();
             }
         });
 
@@ -666,6 +678,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 questionsView.addQuestionToIndex(prompt, mFormController.getWidgetFactory(), i);
             }
         }
+        updateCompoundIntentButtonVisibility();
     }
 
 	/**
@@ -1159,18 +1172,36 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             hasGroupLabel = true;
             FormLayoutHelpers.updateGroupViewVisibility(this, true, shouldHideGroupLabel);
         }
-        updateIntentAggregateView();
+        updateCompoundIntentButtonVisibility();
     }
 
     /**
      * Identifies whether the questionlist featues an aggregatable intent callout and
      * displays the appropriate button if so.
      */
-    private void updateIntentAggregateView() {
-//        Intent i = getODKView().getAggregateIntentCallout();
-//        if(i == null) {
-//
-//        }
+    private void updateCompoundIntentButtonVisibility() {
+        CompoundIntentList i = this.questionsView.getAggregateIntentCallout();
+        if(i == null) {
+            hideCompoundIntentCalloutButton();
+        } else {
+            this.findViewById(R.id.multiple_intent_dispatch_button).setVisibility(View.VISIBLE);
+            //TODO: Update Text
+        }
+    }
+
+    private void hideCompoundIntentCalloutButton() {
+        this.findViewById(R.id.multiple_intent_dispatch_button).setVisibility(View.GONE);
+    }
+
+    private void fireCompoundIntentDispatch() {
+        CompoundIntentList i = this.questionsView.getAggregateIntentCallout();
+        if(i == null) {
+            hideCompoundIntentCalloutButton();
+            Log.e(TAG, "Multiple intent dispatch button shouldn't have been shown");
+            return;
+        }
+
+        this.startActivityForResult(i.getCompoundedIntent(), INTENT_COMPOUND_CALLOUT);
     }
 
     /**

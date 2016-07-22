@@ -131,16 +131,20 @@ public class IntentWidget extends QuestionWidget {
 
     private void performCallout() {
         try {
-            //Set Data
-            String data = mStringAnswer.getText().toString();
-            if (!"".equals(data)) {
-                intent.putExtra(IntentCallout.INTENT_RESULT_VALUE, data);
-            }
+            loadCurrentAnswerToIntent();
             ((Activity)getContext()).startActivityForResult(intent, calloutId);
             pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),
                     "Couldn't find intent for callout!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void loadCurrentAnswerToIntent() {
+        //Set Data
+        String data = mStringAnswer.getText().toString();
+        if (!"".equals(data)) {
+            intent.putExtra(IntentCallout.INTENT_RESULT_VALUE, data);
         }
     }
 
@@ -208,7 +212,7 @@ public class IntentWidget extends QuestionWidget {
 
 
     public CompoundIntentList addToCompoundIntent(CompoundIntentList compoundedCallout) {
-        if(!this.ic.canCompound()) {
+        if(!intent.getBooleanExtra(IntentCallout.INTENT_EXTRA_CAN_AGGREGATE, false)) {
             return compoundedCallout;
         }
         if(compoundedCallout == null) {
