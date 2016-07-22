@@ -644,7 +644,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
      * Archived form purging task cancelled, stop blocking user
      */
     @Override
-    public void handleTaskCancellation(Void result) {
+    public void handleTaskCancellation() {
         dismissProgressDialog();
     }
 }

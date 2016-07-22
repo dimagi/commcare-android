@@ -253,12 +253,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
     }
 
-    private void refreshUsernamesAdapter() {
-        ArrayAdapter<String> usernamesAdapter = new ArrayAdapter<>(activity,
-                android.R.layout.simple_dropdown_item_1line, getExistingUsernames());
-        username.setAdapter(usernamesAdapter);
-    }
-
     private static String[] getExistingUsernames() {
         SqlStorage<UserKeyRecord> existingUsers =
                 CommCareApplication._().getCurrentApp().getStorage(UserKeyRecord.class);

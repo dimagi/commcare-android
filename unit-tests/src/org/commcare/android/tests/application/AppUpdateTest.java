@@ -8,7 +8,6 @@ import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.resource.AppInstallStatus;
-import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.TaskListener;
@@ -168,7 +167,7 @@ public class AppUpdateTest {
             }
 
             @Override
-            public void handleTaskCancellation(AppInstallStatus result) {
+            public void handleTaskCancellation() {
             }
         };
     }

@@ -10,7 +10,6 @@ import net.sqlcipher.database.SQLiteDatabase;
 import org.commcare.CommCareApplication;
 import org.commcare.modern.database.DatabaseHelper;
 import org.commcare.modern.models.EncryptedModel;
-import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.services.storage.Persistable;
 import org.javarosa.core.util.externalizable.Externalizable;
 import org.javarosa.core.util.externalizable.PrototypeFactory;

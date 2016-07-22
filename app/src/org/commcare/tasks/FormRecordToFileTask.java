@@ -11,7 +11,6 @@ import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.templates.CommCareTask;
 import org.commcare.utils.FileUtil;

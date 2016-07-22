@@ -103,7 +103,6 @@ import org.commcare.utils.ODKPropertyManager;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionStateUninitException;
 import org.commcare.utils.SessionUnavailableException;
-import org.commcare.core.network.bitcache.BitCacheFactory;
 import org.commcare.views.notifications.NotificationClearReceiver;
 import org.commcare.views.notifications.NotificationMessage;
 import org.javarosa.core.model.User;
@@ -379,10 +378,6 @@ public class CommCareApplication extends Application {
             analyticsTracker.set("&uid", null);
         }
         return analyticsTracker;
-    }
-
-    public GoogleAnalytics getAnalyticsInstance() {
-        return analyticsInstance;
     }
 
     public int[] getCommCareVersion() {

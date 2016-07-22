@@ -613,7 +613,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     }
 
     @Override
-    public void handlePullTaskError(Exception e) {
+    public void handlePullTaskError() {
         raiseLoginMessage(StockMessages.Restore_Unknown, true);
     }
 }

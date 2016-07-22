@@ -39,7 +39,6 @@ import org.commcare.provider.InstanceProviderAPI.InstanceColumns;
 import org.commcare.resources.model.Resource;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.GlobalConstants;
-import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.User;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.services.Logger;

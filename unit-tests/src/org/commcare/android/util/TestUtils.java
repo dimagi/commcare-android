@@ -17,7 +17,6 @@ import org.commcare.android.database.user.models.ACase;
 import org.commcare.models.database.user.models.CaseIndexTable;
 import org.commcare.models.database.user.models.EntityStorageCache;
 import org.commcare.utils.AndroidInstanceInitializer;
-import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.FormSaveUtil;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.xml.AndroidCaseXmlParser;

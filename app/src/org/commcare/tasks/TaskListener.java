@@ -8,6 +8,6 @@ public interface TaskListener<Progress, Result> {
 
     void handleTaskCompletion(Result result);
 
-    void handleTaskCancellation(Result result);
+    void handleTaskCancellation();
 }
 
