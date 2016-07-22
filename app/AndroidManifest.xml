@@ -284,8 +284,7 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name="org.commcare.activities.UnrecoverableErrorActivity"
-            android:theme="@style/Theme.Transparent">
+            android:name="org.commcare.activities.UnrecoverableErrorActivity">
         </activity>
         <activity
             android:name="org.commcare.activities.KeyAccessRequestActivity"

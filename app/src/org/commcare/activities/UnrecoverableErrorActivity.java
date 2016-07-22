@@ -1,18 +1,18 @@
 package org.commcare.activities;
 
-import android.app.Activity;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 
 import org.commcare.CommCareApplication;
+import org.commcare.views.dialogs.AlertDialogFragment;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
 
 /**
  * @author ctsims
  */
-public class UnrecoverableErrorActivity extends Activity {
+public class UnrecoverableErrorActivity extends FragmentActivity {
 
     public static final String EXTRA_ERROR_TITLE = "UnrecoverableErrorActivity_Title";
     public static final String EXTRA_ERROR_MESSAGE = "UnrecoverableErrorActivity_Message";
@@ -28,11 +28,10 @@ public class UnrecoverableErrorActivity extends Activity {
         title = this.getIntent().getStringExtra(EXTRA_ERROR_TITLE);
         message = this.getIntent().getStringExtra(EXTRA_ERROR_MESSAGE);
         useExtraMessage = this.getIntent().getBooleanExtra(EXTRA_USE_MESSAGE, true);
-        this.showDialog(0);
+        createAlertDialog().show(getSupportFragmentManager(), "error-dialog");
     }
 
-    @Override
-    protected Dialog onCreateDialog(int id) {
+    private AlertDialogFragment createAlertDialog() {
         if (useExtraMessage) {
             message = message + "\n\n" + Localization.get("app.handled.error.explanation");
         }
@@ -43,6 +42,6 @@ public class UnrecoverableErrorActivity extends Activity {
             }
         };
         d.setPositiveButton(Localization.get("app.storage.missing.button"), buttonListener);
-        return d.getDialog();
+        return AlertDialogFragment.fromCommCareAlertDialog(d);
     }
 }

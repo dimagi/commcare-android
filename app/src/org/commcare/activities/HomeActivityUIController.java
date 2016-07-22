@@ -42,7 +42,10 @@ public class HomeActivityUIController implements CommCareActivityUIController {
 
     @Override
     public void refreshView() {
-        adapter.notifyDataSetChanged();
+        if (adapter != null) {
+            // adapter can be null if backstack was cleared for memory reasons
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private static Vector<String> getHiddenButtons() {
