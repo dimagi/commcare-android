@@ -61,13 +61,6 @@ public class AndroidResourceTable extends ResourceTable {
     }
 
     @Override
-    public void removeResource(Resource resource) {
-        super.removeResource(resource);
-        initResourcesInTable();
-        resourcesInTable.remove(resource.getResourceId());
-    }
-
-    @Override
     public void commit(Resource r) {
         super.commit(r);
         initResourcesInTable();
