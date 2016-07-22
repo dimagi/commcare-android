@@ -284,8 +284,7 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name="org.commcare.activities.UnrecoverableErrorActivity"
-            android:theme="@style/Theme.Transparent">
+            android:name="org.commcare.activities.UnrecoverableErrorActivity">
         </activity>
         <activity
             android:name="org.commcare.activities.KeyAccessRequestActivity"
@@ -323,6 +322,10 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="${applicationId}.api.action.LoginWithCreds"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="${applicationId}.api.action.TriggerSyncRecover"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>

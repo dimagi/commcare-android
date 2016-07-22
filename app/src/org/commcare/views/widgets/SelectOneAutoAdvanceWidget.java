@@ -56,7 +56,7 @@ public class SelectOneAutoAdvanceWidget extends QuestionWidget implements OnChec
         }
 
         //Is this safe enough from collisions?
-        buttonIdBase = Math.abs(prompt.getIndex().toString().hashCode());
+        buttonIdBase = Math.abs(prompt.getIndex().hashCode());
 
         if (prompt.getSelectChoices() != null) {
             for (int i = 0; i < mItems.size(); i++) {

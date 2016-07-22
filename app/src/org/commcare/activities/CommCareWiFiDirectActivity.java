@@ -58,6 +58,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Vector;
 
 /**
@@ -73,8 +74,6 @@ public class CommCareWiFiDirectActivity
         implements DeviceActionListener, FileServerListener, WifiDirectManagerListener, WithUIController {
 
     private static final String TAG = CommCareWiFiDirectActivity.class.getSimpleName();
-
-    public static final String KEY_NUMBER_DUMPED = "wd_num_dumped";
 
     private WifiP2pManager mManager;
     private Channel mChannel;
@@ -157,9 +156,7 @@ public class CommCareWiFiDirectActivity
     /**
      * register the broadcast receiver
      */
-    protected void onResume() {
-        super.onResume();
-
+    protected void onResumeSessionSafe() {
         Logger.log(TAG, "resuming wi-fi direct activity");
 
         final WiFiDirectManagementFragment fragment = (WiFiDirectManagementFragment)getSupportFragmentManager()
@@ -419,7 +416,7 @@ public class CommCareWiFiDirectActivity
             protected void deliverResult(CommCareWiFiDirectActivity receiver, Boolean result) {
                 if (result == Boolean.TRUE) {
                     Intent i = new Intent(getIntent());
-                    i.putExtra(KEY_NUMBER_DUMPED, formsOnSD);
+                    i.putExtra(AdvancedActionsActivity.KEY_NUMBER_DUMPED, formsOnSD);
                     receiver.setResult(BULK_SEND_ID, i);
                     Logger.log(TAG, "Sucessfully dumped " + formsOnSD);
                     receiver.finish();
@@ -658,11 +655,17 @@ public class CommCareWiFiDirectActivity
     }
 
 
-    private void onRecordPullCompleted(Pair<Long, FormRecord[]> result) {
-        // for the time being we're going to ignore the result of the record pull and proceed regardless
+    private void onRecordPullCompleted(Pair<Long, FormRecord[]> result, CommCareWiFiDirectActivity receiver) {
         myStatusText.setText(localize("wifi.direct.pull.successful"));
         if(result != null){
-            // we didn't pull any form records to file system, this is fine.
+            if(result.first > 0){
+                // if we had files but they failed, we should error and block
+                receiver.myStatusText.setText(localize("wifi.direct.pull.unsuccessful",
+                        "Problem transferring forms to file system"));
+                receiver.transplantStyle(receiver.myStatusText,
+                        R.layout.template_text_notification_problem);
+                return;
+            }
             this.cachedRecords = result.second;
         }
         updateStatusText();
@@ -675,7 +678,7 @@ public class CommCareWiFiDirectActivity
         FormRecordToFileTask formRecordToFileTask = new FormRecordToFileTask(this, toBeTransferredDirectory) {
             @Override
             protected void deliverResult(CommCareWiFiDirectActivity receiver, Pair<Long, FormRecord[]> result) {
-                receiver.onRecordPullCompleted(result);
+                receiver.onRecordPullCompleted(result, receiver);
             }
 
             @Override

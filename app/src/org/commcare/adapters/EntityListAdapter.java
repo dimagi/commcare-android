@@ -22,6 +22,7 @@ import org.commcare.models.AsyncNodeEntityFactory;
 import org.commcare.models.Entity;
 import org.commcare.models.NodeEntityFactory;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.DisplayData;
@@ -499,7 +500,7 @@ public class EntityListAdapter implements ListAdapter {
         OrderedHashtable<String, String> externalData =
                 (OrderedHashtable<String, String>)CommCareApplication._()
                         .getCurrentSession()
-                        .getCurrentFrameStepExtra(KEY_ENTITY_LIST_EXTRA_DATA);
+                        .getCurrentFrameStepExtra(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA);
         if (externalData != null) {
             filterByKeyedCalloutData(externalData);
         }
@@ -507,7 +508,7 @@ public class EntityListAdapter implements ListAdapter {
 
     public void saveCalloutDataToSession() {
         if (isFilteringByCalloutResult) {
-            CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(KEY_ENTITY_LIST_EXTRA_DATA, calloutResponseData);
+            CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_ENTITY_LIST_EXTRA_DATA, calloutResponseData);
         }
     }
 }

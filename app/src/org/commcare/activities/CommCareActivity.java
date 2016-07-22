@@ -33,6 +33,7 @@ import org.commcare.fragments.TaskConnectorFragment;
 import org.commcare.interfaces.WithUIController;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.session.SessionFrame;
+import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.Detail;
 import org.commcare.suite.model.StackFrameStep;
 import org.commcare.tasks.templates.CommCareTask;
@@ -84,7 +85,6 @@ public abstract class CommCareActivity<R> extends FragmentActivity
 
     private GestureDetector mGestureDetector;
 
-    private static final String KEY_LAST_QUERY_STRING = "LAST_QUERY_STRING";
     protected String lastQueryString;
 
     /**
@@ -412,11 +412,11 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     }
 
     protected void restoreLastQueryString() {
-        lastQueryString = (String)CommCareApplication._().getCurrentSession().getCurrentFrameStepExtra(KEY_LAST_QUERY_STRING);
+        lastQueryString = (String)CommCareApplication._().getCurrentSession().getCurrentFrameStepExtra(SessionInstanceBuilder.KEY_LAST_QUERY_STRING);
     }
 
     protected void saveLastQueryString() {
-        CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(KEY_LAST_QUERY_STRING, lastQueryString);
+        CommCareApplication._().getCurrentSession().addExtraToCurrentFrameStep(SessionInstanceBuilder.KEY_LAST_QUERY_STRING, lastQueryString);
     }
 
     //Graphical stuff below, needs to get modularized
@@ -498,11 +498,23 @@ public abstract class CommCareActivity<R> extends FragmentActivity
     // region - All methods for implementation of DialogController
 
     @Override
-    public void updateProgress(String updateText, int taskId) {
+    public void updateProgress(String newMessage, String newTitle, int taskId) {
+        updateDialogContent(newMessage, newTitle, taskId);
+    }
+
+    @Override
+    public void updateProgress(String newMessage, int taskId) {
+        updateDialogContent(newMessage, null, taskId);
+    }
+
+    private void updateDialogContent(String newMessage, String newTitle, int taskId) {
         CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
         if (mProgressDialog != null && !areFragmentsPaused) {
             if (mProgressDialog.getTaskId() == taskId) {
-                mProgressDialog.updateMessage(updateText);
+                mProgressDialog.updateMessage(newMessage);
+                if (newTitle != null) {
+                    mProgressDialog.updateTitle(newTitle);
+                }
             } else {
                 warnInvalidProgressUpdate(taskId);
             }
@@ -514,6 +526,14 @@ public abstract class CommCareActivity<R> extends FragmentActivity
         CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
         if (mProgressDialog != null) {
             mProgressDialog.removeCancelButton();
+        }
+    }
+
+    @Override
+    public void updateProgressBarVisibility(boolean visible) {
+        CustomProgressDialog mProgressDialog = getCurrentProgressDialog();
+        if (mProgressDialog != null && !areFragmentsPaused) {
+            mProgressDialog.updateProgressBarVisibility(visible);
         }
     }
 

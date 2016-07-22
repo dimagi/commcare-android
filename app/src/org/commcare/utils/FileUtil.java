@@ -16,6 +16,7 @@ import android.util.Pair;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.resources.model.MissingMediaException;
 import org.commcare.resources.model.Resource;
+import org.javarosa.core.io.StreamsUtil;
 import org.javarosa.core.reference.InvalidReferenceException;
 import org.javarosa.core.reference.Reference;
 import org.javarosa.core.reference.ReferenceManager;
@@ -152,7 +153,7 @@ public class FileUtil {
                 os = new CipherOutputStream(os, newWrite);
             }
 
-            AndroidStreamUtil.writeFromInputToOutputUnmanaged(is, os);
+            StreamsUtil.writeFromInputToOutputUnmanaged(is, os);
         } finally {
             try {
                 if (is != null) {

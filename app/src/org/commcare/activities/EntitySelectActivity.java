@@ -89,6 +89,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     private static final String CONTAINS_HERE_FUNCTION = "contains_here_function";
     private static final String MAPPING_ENABLED = "map_view_enabled";
     private static final String LOCATION_CHANGED_WHILE_LOADING = "location_changed_while_loading";
+    private static final String IS_AUTO_LAUNCHING = "is_auto_launching";
 
     private static final int CONFIRM_SELECT = 0;
     private static final int MAP_SELECT = 2;
@@ -137,6 +138,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private DataSetObserver mListStateObserver;
     private OnClickListener barcodeScanOnClickListener;
+    private boolean isCalloutAutoLaunching;
 
     private boolean resuming = false;
     private boolean isStartingDetailActivity = false;
@@ -174,15 +176,16 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         refreshTimer = new EntitySelectRefreshTimer();
         asw = CommCareApplication._().getCurrentSessionWrapper();
         session = asw.getSession();
-        // Don't show actions (e.g. 'register patient', 'claim patient') when
-        // in the middle on workflow triggered by an (sync) action.
-        hideActions = session.isSyncCommand(session.getCommand());
 
         // avoid session dependent when there is no command
         if (session.getCommand() != null) {
             selectDatum = (EntityDatum)session.getNeededDatum();
             shortSelect = session.getDetail(selectDatum.getShortDetail());
             mNoDetailMode = selectDatum.getLongDetail() == null;
+
+            // Don't show actions (e.g. 'register patient', 'claim patient') when
+            // in the middle on workflow triggered by an (sync) action.
+            hideActions = session.isSyncCommand(session.getCommand());
 
             boolean isOrientationChange = savedInstanceState != null;
             setupUI(isOrientationChange);
@@ -224,10 +227,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private void restoreSavedState(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
-            this.isMappingEnabled = savedInstanceState.getBoolean(MAPPING_ENABLED);
-            this.containsHereFunction = savedInstanceState.getBoolean(CONTAINS_HERE_FUNCTION);
-            this.locationChangedWhileLoading = savedInstanceState.getBoolean(
-                    LOCATION_CHANGED_WHILE_LOADING);
+            isMappingEnabled = savedInstanceState.getBoolean(MAPPING_ENABLED);
+            containsHereFunction = savedInstanceState.getBoolean(CONTAINS_HERE_FUNCTION);
+            locationChangedWhileLoading =
+                    savedInstanceState.getBoolean(LOCATION_CHANGED_WHILE_LOADING);
+            isCalloutAutoLaunching = savedInstanceState.getBoolean(IS_AUTO_LAUNCHING);
         }
     }
 
@@ -327,6 +331,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         if (callout == null) {
             barcodeScanOnClickListener = EntitySelectCalloutSetup.makeBarcodeClickListener(this);
         } else {
+            isCalloutAutoLaunching = callout.isAutoLaunching();
             barcodeScanOnClickListener = EntitySelectCalloutSetup.makeCalloutClickListener(this, callout);
             if (callout.getImage() != null) {
                 EntitySelectCalloutSetup.setupImageLayout(this, barcodeButton, callout.getImage());
@@ -385,9 +390,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
+    protected void onResumeSessionSafe() {
         if (!isFinishing() && !isStartingDetailActivity) {
             if (adapter != null) {
                 adapter.registerDataSetObserver(mListStateObserver);
@@ -405,6 +408,10 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             }
 
             refreshView();
+            if (isCalloutAutoLaunching) {
+                isCalloutAutoLaunching = false;
+                barcodeScanOnClickListener.onClick(null);
+            }
         }
     }
 
@@ -495,6 +502,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         savedInstanceState.putBoolean(CONTAINS_HERE_FUNCTION, containsHereFunction);
         savedInstanceState.putBoolean(MAPPING_ENABLED, isMappingEnabled);
         savedInstanceState.putBoolean(LOCATION_CHANGED_WHILE_LOADING, locationChangedWhileLoading);
+        savedInstanceState.putBoolean(IS_AUTO_LAUNCHING, isCalloutAutoLaunching);
     }
 
     @Override
