@@ -1,21 +1,15 @@
 package org.commcare.adapters;
 
 import android.database.DataSetObserver;
-import android.graphics.Bitmap;
-import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.CommCareActivity;
-import org.commcare.activities.EntitySelectActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
@@ -26,15 +20,12 @@ import org.commcare.preferences.CommCarePreferences;
 import org.commcare.session.SessionInstanceBuilder;
 import org.commcare.suite.model.Action;
 import org.commcare.suite.model.Detail;
-import org.commcare.suite.model.DisplayData;
 import org.commcare.utils.AndroidUtil;
 import org.commcare.utils.CachingAsyncImageLoader;
-import org.commcare.utils.FileUtil;
-import org.commcare.utils.MediaUtil;
 import org.commcare.utils.StringUtils;
+import org.commcare.views.EntityActionViewUtils;
 import org.commcare.views.EntityView;
 import org.commcare.views.GridEntityView;
-import org.commcare.views.media.AudioButton;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.core.util.OrderedHashtable;
@@ -223,7 +214,6 @@ public class EntityListAdapter implements ListAdapter {
             case ACTION_TYPE:
                 return dividerPosition + detail.getCustomActions().indexOf(getAction(position));
             case DIVIDER_TYPE:
-                // there are 2 dividers, so given them either -1 or -2 as IDs
                 return -2;
             default:
                 throw new RuntimeException("Invalid view type");
@@ -317,39 +307,9 @@ public class EntityListAdapter implements ListAdapter {
             actionCardView = (FrameLayout)LayoutInflater.from(parent.getContext()).inflate(R.layout.action_card, parent, false);
         }
 
-        final Action action = getAction(position);
-        DisplayData displayData = action.getDisplay().evaluate();
-
-        String audioURI = displayData.getAudioURI();
-        if (audioURI != null) {
-            AudioButton audioButton = (AudioButton)actionCardView.findViewById(R.id.audio);
-            if (FileUtil.referenceFileExists(audioURI)) {
-                audioButton.setVisibility(View.VISIBLE);
-                audioButton.resetButton(audioURI, true);
-            }
-        }
-
-        String imageURI = displayData.getImageURI();
-        if (imageURI != null) {
-            ImageView icon = (ImageView)actionCardView.findViewById(R.id.icon);
-            int iconDimension = (int)commCareActivity.getResources().getDimension(R.dimen.menu_icon_size);
-            Bitmap b = MediaUtil.inflateDisplayImage(commCareActivity, imageURI, iconDimension, iconDimension);
-            if (b != null) {
-                icon.setVisibility(View.VISIBLE);
-                icon.setImageBitmap(b);
-            }
-        }
-
-        TextView text = (TextView)actionCardView.findViewById(R.id.text);
-        text.setText(displayData.getName().toUpperCase());
-
-        CardView cardView = (CardView)actionCardView.findViewById(R.id.card_body);
-        cardView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EntitySelectActivity.triggerDetailAction(action, commCareActivity);
-            }
-        });
+        EntityActionViewUtils.buildActionView(actionCardView,
+                getAction(position),
+                commCareActivity);
 
         return actionCardView;
     }
