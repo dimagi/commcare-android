@@ -65,7 +65,9 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
     private static final int MENU_ABOUT = Menu.FIRST + 1;
     private static final int MENU_PERMISSIONS = Menu.FIRST + 2;
     private static final int MENU_PASSWORD_MODE = Menu.FIRST + 3;
-    private static final int MENU_INVALIDATE_CACHE = Menu.FIRST + 4;
+    private static final int MENU_APP_MANAGER = Menu.FIRST + 4;
+    private static final int MENU_INVALIDATE_CACHE = Menu.FIRST + 5;
+
 
     public static final String NOTIFICATION_MESSAGE_LOGIN = "login_message";
     public final static String KEY_LAST_APP = "id-last-seated-app";
@@ -352,6 +354,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         menu.add(0, MENU_PERMISSIONS, 1, Localization.get("permission.acquire.required")).setIcon(android.R.drawable.ic_menu_manage);
         menu.add(0, MENU_PASSWORD_MODE, 1, Localization.get("login.menu.password.mode"));
         menu.add(0, MENU_INVALIDATE_CACHE, 1, Localization.get("login.menu.invalidate.cache"));
+        menu.add(0, MENU_APP_MANAGER, 1, Localization.get("login.menu.app.manager"));
         return true;
     }
 
@@ -384,6 +387,11 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                 return true;
             case MENU_INVALIDATE_CACHE:
                 showInvalidateCacheConfirmationDialog();
+                return true;
+            case MENU_APP_MANAGER:
+                Intent i = new Intent(this, AppManagerActivity.class);
+                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
                 return true;
             default:
                 return otherResult;

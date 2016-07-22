@@ -31,6 +31,7 @@ import org.commcare.android.database.global.models.ApplicationRecord;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.utils.MediaUtil;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.views.CustomBanner;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.ManagedUiFramework;
@@ -187,7 +188,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         activity.restoreEnteredTextFromRotation();
 
         // Decide whether or not to show the app selection spinner based upon # of usable apps
-        ArrayList<ApplicationRecord> readyApps = CommCareApplication._().getUsableAppRecords();
+        ArrayList<ApplicationRecord> readyApps = MultipleAppsUtil.getUsableAppRecords();
 
         if (readyApps.size() == 1) {
             // Set this app as the last selected app, for use in choosing what app to initialize
