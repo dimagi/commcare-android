@@ -18,6 +18,8 @@ import org.commcare.utils.MediaUtil;
 import org.commcare.views.media.AudioButton;
 
 /**
+ * Setup view for entity list action ('register', 'claim case', etc)
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 public class EntityActionViewUtils {
