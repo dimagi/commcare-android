@@ -1,5 +1,6 @@
 package org.commcare;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 
@@ -23,6 +24,7 @@ import org.commcare.resources.model.ResourceTable;
 import org.commcare.util.CommCarePlatform;
 import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.GlobalConstants;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.utils.Stylizer;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -126,7 +128,7 @@ public class CommCareApp implements AppFilePathBuilder {
     }
 
     public SharedPreferences getAppPreferences() {
-        return CommCareApplication._().getSharedPreferences(getPreferencesFilename(), 0);
+        return CommCareApplication._().getSharedPreferences(getPreferencesFilename(), Context.MODE_PRIVATE);
     }
 
     public void setupSandbox() {
@@ -342,7 +344,7 @@ public class CommCareApp implements AppFilePathBuilder {
      * while its associated app is seated, so that the 2 are not out of sync
      */
     public void refreshAppRecord() {
-        this.record = CommCareApplication._().getAppById(this.record.getUniqueId());
+        this.record = MultipleAppsUtil.getAppById(this.record.getUniqueId());
     }
 
     /**

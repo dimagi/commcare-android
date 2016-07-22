@@ -255,6 +255,12 @@
         </activity>
         <activity android:name="org.commcare.activities.RefreshToLatestBuildActivity">
         </activity>
+        <activity android:name="org.commcare.activities.MultipleAppsLimitWarningActivity">
+        </activity>
+        <activity android:name="org.commcare.activities.GlobalPrivilegeClaimingActivity">
+        </activity>
+        <activity android:name="org.commcare.activities.AppManagerAdvancedSettings">
+        </activity>
 
         <uses-library
             android:name="org.javarosa"
