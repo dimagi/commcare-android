@@ -1,12 +1,9 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
-import android.content.res.Resources;
-
-import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
+import org.commcare.utils.UniversalDate;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.javarosa.xform.util.UniversalDate;
 import org.joda.time.Chronology;
 import org.joda.time.DateTime;
 import org.joda.time.chrono.EthiopicChronology;

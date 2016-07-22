@@ -1,13 +1,10 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
-import android.content.res.Resources;
-
-import org.commcare.dalvik.R;
 import org.javarosa.core.services.locale.Localization;
+import org.commcare.utils.NepaliDateUtilities;
+import org.commcare.utils.UniversalDate;
 import org.javarosa.form.api.FormEntryPrompt;
-import org.javarosa.xform.util.CalendarUtils;
-import org.javarosa.xform.util.UniversalDate;
 
 /**
  * Nepali Date Widget.
@@ -23,18 +20,18 @@ public class NepaliDateWidget extends AbstractUniversalDateWidget {
     @Override
     protected UniversalDate decrementMonth(long millisFromJavaEpoch) {
         UniversalDate origDate = fromMillis(millisFromJavaEpoch);
-        return CalendarUtils.decrementMonth(origDate);
+        return NepaliDateUtilities.decrementMonth(origDate);
     }
 
     @Override
     protected UniversalDate decrementYear(long millisFromJavaEpoch) {
         UniversalDate origDate = fromMillis(millisFromJavaEpoch);
-        return CalendarUtils.decrementYear(origDate);
+        return NepaliDateUtilities.decrementYear(origDate);
     }
 
     @Override
     protected UniversalDate fromMillis(long millisFromJavaEpoch) {
-        return CalendarUtils.fromMillis(millisFromJavaEpoch);
+        return NepaliDateUtilities.fromMillis(millisFromJavaEpoch);
     }
 
     @Override
@@ -45,17 +42,17 @@ public class NepaliDateWidget extends AbstractUniversalDateWidget {
     @Override
     protected UniversalDate incrementMonth(long millisFromJavaEpoch) {
         UniversalDate origDate = fromMillis(millisFromJavaEpoch);
-        return CalendarUtils.incrementMonth(origDate);
+        return NepaliDateUtilities.incrementMonth(origDate);
     }
 
     @Override
     protected UniversalDate incrementYear(long millisFromJavaEpoch) {
         UniversalDate origDate = fromMillis(millisFromJavaEpoch);
-        return CalendarUtils.incrementYear(origDate);
+        return NepaliDateUtilities.incrementYear(origDate);
     }
 
     @Override
     protected long toMillisFromJavaEpoch(int year, int month, int day, long millisOffset) {
-        return CalendarUtils.toMillisFromJavaEpoch(year, month, day, millisOffset);
+        return NepaliDateUtilities.toMillisFromJavaEpoch(year, month, day, millisOffset);
     }
 }

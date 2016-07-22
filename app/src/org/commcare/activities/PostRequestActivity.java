@@ -220,7 +220,7 @@ public class PostRequestActivity
         String title, message;
         switch (taskId) {
             case DataPullTask.DATA_PULL_TASK_ID:
-                title = Localization.get("sync.progress.title");
+                title = Localization.get("sync.communicating.title");
                 message = Localization.get("sync.progress.purge");
                 break;
             case SimpleHttpTask.SIMPLE_HTTP_TASK_ID:
