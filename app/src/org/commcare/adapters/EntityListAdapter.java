@@ -101,7 +101,7 @@ public class EntityListAdapter implements ListAdapter {
                              int[] sort, NodeEntityFactory factory,
                              boolean hideActions) {
         this.detail = detail;
-        if (detail.getCustomActions() == null || hideActions) {
+        if (detail.getCustomActions() == null || detail.getCustomActions().isEmpty() || hideActions) {
             actionsCount = 0;
             dividerCount = 0;
         } else {
