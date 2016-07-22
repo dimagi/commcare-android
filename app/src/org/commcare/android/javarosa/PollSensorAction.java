@@ -91,6 +91,7 @@ public class PollSensorAction extends Action implements LocationListener {
 
         // LocationManager needs to be dealt with in the main UI thread, so wrap GPS-checking logic in a Handler
         new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
             public void run() {
                 // Start requesting GPS updates
                 Context context = CommCareApplication._();
@@ -136,11 +137,13 @@ public class PollSensorAction extends Action implements LocationListener {
         timeout.schedule(new StopPollingTask(), GeoUtils.MAXIMUM_WAIT);
     }
 
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf) throws IOException, DeserializationException {
         super.readExternal(in, pf);
         target = (TreeReference)ExtUtil.read(in, new ExtWrapNullable(TreeReference.class), pf);
     }
 
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         super.writeExternal(out);
         ExtUtil.write(out, new ExtWrapNullable(target));

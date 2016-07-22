@@ -128,6 +128,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         setBannerLayoutLogic();
 
         loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View arg0) {
                 activity.initiateLoginAttempt(isRestoreSessionChecked());
             }

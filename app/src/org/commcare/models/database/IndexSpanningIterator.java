@@ -173,22 +173,27 @@ public class IndexSpanningIterator<T extends Persistable> extends SqlStorageIter
         return count;
     }
 
+    @Override
     public boolean hasNext() {
         return hasMore();
     }
 
+    @Override
     public T next() {
         return nextRecord();
     }
 
+    @Override
     public void remove() {
         throw new UnsupportedOperationException("Remove() is unsupported by IndexSpanningIterator objects");
     }
 
+    @Override
     public int peekID() {
         return current;
     }
 
+    @Override
     public String getPrimaryId() {
         throw new RuntimeException("Primary ID Not requested by this iterator");
     }

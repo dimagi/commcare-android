@@ -66,6 +66,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         return false;
     }
 
+    @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref,
                            ResourceTable table, AndroidCommCarePlatform instance, boolean upgrade)
             throws UnresolvedResourceException, UnfullfilledRequirementsException {
@@ -157,6 +158,7 @@ public class ProfileAndroidInstaller extends FileSystemInstaller {
         return true;
     }
 
+    @Override
     protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
         return Resource.RESOURCE_STATUS_LOCAL;
     }

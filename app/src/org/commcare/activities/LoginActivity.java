@@ -186,6 +186,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         }
     }
 
+    @Override
     public String getActivityTitle() {
         //TODO: "Login"?
         return null;

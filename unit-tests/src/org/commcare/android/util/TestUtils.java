@@ -85,6 +85,7 @@ public class TestUtils {
                             CommCareApplication._().getCurrentApp().fsPath(GlobalConstants.FILE_CC_FORMS));
                 } else if(CaseXmlParser.CASE_XML_NAMESPACE.equals(parser.getNamespace()) && "case".equalsIgnoreCase(parser.getName())) {
                     return new AndroidCaseXmlParser(parser, getCaseStorage(db), new EntityStorageCache("case", db), new CaseIndexTable(db)) {
+                        @Override
                         protected SQLiteDatabase getDbHandle() {
                             return db;
                         }

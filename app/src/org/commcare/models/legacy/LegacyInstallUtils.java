@@ -420,6 +420,7 @@ public class LegacyInstallUtils {
 
         //get the legacy storage
         final android.database.sqlite.SQLiteDatabase olddb = new LegacyCommCareOpenHelper(c, new LegacyCommCareDBCursorFactory(getLegacyEncryptedModels()) {
+            @Override
             protected CipherPool getCipherPool() {
                 return pool;
             }

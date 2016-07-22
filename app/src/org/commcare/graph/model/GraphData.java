@@ -44,26 +44,17 @@ public class GraphData implements ConfigurableData {
         return mAnnotations;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.graph.model.ConfigurableData#setConfiguration(java.lang.String, java.lang.String)
-     */
+    @Override
     public void setConfiguration(String key, String value) {
         mConfiguration.put(key, value);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.graph.model.ConfigurableData#getConfiguration(java.lang.String)
-     */
+    @Override
     public String getConfiguration(String key) {
         return mConfiguration.get(key);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.commcare.graph.model.ConfigurableData#getConfiguration(java.lang.String, java.lang.String)
-     */
+    @Override
     public String getConfiguration(String key, String defaultValue) {
         String value = getConfiguration(key);
         if (value == null) {

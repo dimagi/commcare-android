@@ -49,14 +49,17 @@ public class AndroidLogEntry extends LogEntry implements Persistable, IMetaData 
         super.writeExternal(out);
     }
 
+    @Override
     public Date getTime() {
         return time;
     }
 
+    @Override
     public String getType() {
         return type;
     }
 
+    @Override
     public String getMessage() {
         return message;
     }

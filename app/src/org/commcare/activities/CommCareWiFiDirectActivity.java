@@ -154,6 +154,7 @@ public class CommCareWiFiDirectActivity
     /**
      * register the broadcast receiver
      */
+    @Override
     protected void onResumeSessionSafe() {
         Logger.log(TAG, "resuming wi-fi direct activity");
 
@@ -542,6 +543,7 @@ public class CommCareWiFiDirectActivity
         });
     }
 
+    @Override
     public void resetData() {
         DeviceListFragment fragmentList = (DeviceListFragment)getSupportFragmentManager()
                 .findFragmentById(R.id.frag_list);

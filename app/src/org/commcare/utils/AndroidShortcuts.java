@@ -51,6 +51,7 @@ public class AndroidShortcuts extends Activity {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, "Select CommCare Shortcut");
         dialog.setChoiceItems(getChoiceItemList(dialog));
         dialog.setOnCancelListener(new OnCancelListener() {
+            @Override
             public void onCancel(DialogInterface dialog) {
                 AndroidShortcuts sc = AndroidShortcuts.this;
                 sc.setResult(RESULT_CANCELED);
@@ -79,6 +80,7 @@ public class AndroidShortcuts extends Activity {
         for (int i = 0; i < names.size(); i++) {
             final int index = i;
             View.OnClickListener listener = new View.OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     returnShortcut(AndroidShortcuts.this.names[index],
                             AndroidShortcuts.this.commands[index]);

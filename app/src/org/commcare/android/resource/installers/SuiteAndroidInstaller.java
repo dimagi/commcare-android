@@ -70,6 +70,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         return false;
     }
 
+    @Override
     public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, final AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
         super.install(r, location, ref, table, instance, upgrade);
@@ -93,6 +94,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         return false;
     }
 
+    @Override
     protected int customInstall(Resource r, Reference local, boolean upgrade) throws IOException, UnresolvedResourceException {
         return Resource.RESOURCE_STATUS_LOCAL;
     }
@@ -102,6 +104,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
         return true;
     }
 
+    @Override
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);

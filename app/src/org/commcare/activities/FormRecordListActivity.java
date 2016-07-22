@@ -287,6 +287,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         }
     }
 
+    @Override
     public String getActivityTitle() {
         if (adapter == null) {
             return Localization.get("app.workflow.saved.heading");
@@ -307,6 +308,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         listView.setAdapter(adapter);
     }
 
+    @Override
     protected void onResumeSessionSafe() {
         attachToPurgeTask();
 
@@ -408,6 +410,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
                 case DELETE_RECORD:
                     FormRecordCleanupTask.wipeRecord(this, CommCareApplication._().getUserStorage(FormRecord.class).read((int)info.id));
                     listView.post(new Runnable() {
+                        @Override
                         public void run() {
                             adapter.notifyDataSetInvalidated();
                         }
@@ -570,6 +573,7 @@ public class FormRecordListActivity extends SessionAwareCommCareActivity<FormRec
         return PowerManager.PARTIAL_WAKE_LOCK;
     }
 
+    @Override
     public void afterTextChanged(Editable s) {
         String filtertext = s.toString();
         if (searchbox.getText() == s) {

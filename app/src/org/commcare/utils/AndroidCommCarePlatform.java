@@ -76,10 +76,12 @@ public class AndroidCommCarePlatform extends CommCarePlatform {
         return recovery;
     }
 
+    @Override
     public Profile getCurrentProfile() {
         return profile;
     }
 
+    @Override
     public Vector<Suite> getInstalledSuites() {
         return installedSuites;
     }

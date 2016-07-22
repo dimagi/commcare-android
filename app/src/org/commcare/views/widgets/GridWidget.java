@@ -131,6 +131,7 @@ public class GridWidget extends QuestionWidget {
         ImageAdapter ia = new ImageAdapter(getContext(), choices, imageViews);
         gridview.setAdapter(ia);
         gridview.setOnItemClickListener(new OnItemClickListener() {
+            @Override
             public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
                 // Imitate the behavior of a radio button. Clear all buttons
                 // and then check the one clicked by the user. Update the

@@ -76,6 +76,7 @@ public class XYSeries implements Externalizable, Configurable {
         mYParse = null;
     }
 
+    @Override
     public void setConfiguration(String key, Text value) {
         mConfiguration.put(key, value);
     }
@@ -89,18 +90,17 @@ public class XYSeries implements Externalizable, Configurable {
         return mPointConfiguration.elements();
     }
 
+    @Override
     public Text getConfiguration(String key) {
         return mConfiguration.get(key);
     }
 
+    @Override
     public Enumeration getConfigurationKeys() {
         return mConfiguration.keys();
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         mX = ExtUtil.readString(in);
@@ -110,10 +110,7 @@ public class XYSeries implements Externalizable, Configurable {
         mPointConfiguration =  (Vector<String>)ExtUtil.read(in, new ExtWrapList(String.class), pf);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.writeString(out, mX);
         ExtUtil.writeString(out, mY);

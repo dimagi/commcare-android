@@ -171,6 +171,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
 
     public abstract void setFocus(Context context);
 
+    @Override
     public abstract void setOnLongClickListener(OnLongClickListener l);
 
     @Override
@@ -311,6 +312,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
         child.requestRectangleOnScreen(vitalPortionSaved);
     }
 
+    @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
 
@@ -569,6 +571,7 @@ public abstract class QuestionWidget extends LinearLayout implements QuestionExt
      * Every subclassed widget should override this, adding any views they may contain, and calling
      * super.cancelLongPress()
      */
+    @Override
     public void cancelLongPress() {
         super.cancelLongPress();
         if (mQuestionText != null) {
