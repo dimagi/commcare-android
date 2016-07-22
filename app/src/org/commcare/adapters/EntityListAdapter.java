@@ -2,14 +2,15 @@ package org.commcare.adapters;
 
 import android.database.DataSetObserver;
 import android.graphics.Bitmap;
+import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListAdapter;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import org.commcare.CommCareApplication;
@@ -105,7 +106,7 @@ public class EntityListAdapter implements ListAdapter {
             dividerCount = 0;
         } else {
             actionsCount = detail.getCustomActions().size();
-            dividerCount = 1;
+            dividerCount = 2;
         }
 
         this.full = full;
@@ -222,7 +223,8 @@ public class EntityListAdapter implements ListAdapter {
             case ACTION_TYPE:
                 return dividerPosition + detail.getCustomActions().indexOf(getAction(position));
             case DIVIDER_TYPE:
-                return DIVIDER_ID;
+                // there are 2 dividers, so given them either -1 or -2 as IDs
+                return -2;
             default:
                 throw new RuntimeException("Invalid view type");
         }
@@ -235,9 +237,9 @@ public class EntityListAdapter implements ListAdapter {
     @Override
     public int getItemViewType(int position) {
         if (actionsCount > 0) {
-            if (position > dividerPosition) {
+            if (position > dividerPosition && position != getCount() - 1) {
                 return ACTION_TYPE;
-            } else if (position == dividerPosition) {
+            } else if (position == dividerPosition || position == getCount() - 1) {
                 return DIVIDER_TYPE;
             }
         }
@@ -341,8 +343,8 @@ public class EntityListAdapter implements ListAdapter {
         TextView text = (TextView)actionCardView.findViewById(R.id.text);
         text.setText(displayData.getName().toUpperCase());
 
-        ImageButton performActionButton = (ImageButton)actionCardView.findViewById(R.id.launch_action);
-        performActionButton.setOnClickListener(new View.OnClickListener() {
+        CardView cardView = (CardView)actionCardView.findViewById(R.id.card_body);
+        cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 EntitySelectActivity.triggerDetailAction(action, commCareActivity);
@@ -356,6 +358,9 @@ public class EntityListAdapter implements ListAdapter {
         if (convertView == null) {
             return (LinearLayout)LayoutInflater.from(parent.getContext()).inflate(R.layout.line_separator, parent, false);
         }
+        convertView.setOnClickListener(null);
+        convertView.setEnabled(false);
+        convertView.setFocusable(false);
         return convertView;
     }
 

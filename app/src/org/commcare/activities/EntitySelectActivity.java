@@ -546,7 +546,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     @Override
     public void onItemClick(AdapterView<?> listView, View view, int position, long id) {
-        if (id != EntityListAdapter.DIVIDER_TYPE && id != EntityListAdapter.ACTION_TYPE) {
+        if (adapter.getItemViewType(position) == EntityListAdapter.ENTITY_TYPE) {
             TreeReference selection = adapter.getItem(position);
             if (CommCarePreferences.isEntityDetailLoggingEnabled()) {
                 Logger.log(EntityDetailActivity.class.getSimpleName(), selectDatum.getLongDetail());

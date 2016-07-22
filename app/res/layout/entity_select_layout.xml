@@ -2,8 +2,7 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/cc_brand_text">
+    android:layout_height="wrap_content" >
 
     <RelativeLayout
         android:id="@+id/search_result_banner"
@@ -65,8 +64,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/searchfooter"
-        android:layout_below="@+id/entity_select_filter_dropdown"
-        android:background="@color/cc_core_bg">
+        android:layout_below="@+id/entity_select_filter_dropdown">
 
         <ListView
             android:id="@+id/screen_entity_select_list"
