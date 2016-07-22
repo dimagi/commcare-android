@@ -48,7 +48,8 @@ public class SpinnerWidget extends QuestionWidget {
 
         // The spinner requires a custom adapter. It is defined below
         SpinnerAdapter adapter =
-                new SpinnerAdapter(getContext(), android.R.layout.simple_spinner_item, choices,
+                new SpinnerAdapter(getContext(), android.R.layout.simple_spinner_item,
+                        getChoicesWithEmptyFirstSlot(choices),
                         TypedValue.COMPLEX_UNIT_DIP, mQuestionFontsize);
 
         spinner.setAdapter(adapter);
@@ -66,7 +67,7 @@ public class SpinnerWidget extends QuestionWidget {
             for (int i = 0; i < mItems.size(); ++i) {
                 String sMatch = mItems.get(i).getValue();
                 if (sMatch.equals(s)) {
-                    spinner.setSelection(i);
+                    spinner.setSelection(i+1);
                 }
             }
         }
@@ -88,6 +89,14 @@ public class SpinnerWidget extends QuestionWidget {
 
     }
 
+    private static String[] getChoicesWithEmptyFirstSlot(String[] originalChoices) {
+        //Creates an empty option to be displayed the first time the widget is shown
+        String[] newChoicesList = new String[originalChoices.length+1];
+        newChoicesList[0] = "";
+        System.arraycopy(originalChoices, 0, newChoicesList, 1, originalChoices.length);
+        return newChoicesList;
+    }
+
 
     @Override
     public IAnswerData getAnswer() {
@@ -95,7 +104,7 @@ public class SpinnerWidget extends QuestionWidget {
         if (i < 1) {
             return null;
         } else {
-            SelectChoice sc = mItems.elementAt(i-1); // 0th spot is empty
+            SelectChoice sc = mItems.elementAt(i-1);
             return new SelectOneData(new Selection(sc));
         }
     }
@@ -129,14 +138,10 @@ public class SpinnerWidget extends QuestionWidget {
         public SpinnerAdapter(final Context context, final int textViewResourceId,
                               final String[] objects, int textUnit, float textSize) {
             super(context, textViewResourceId, objects);
+            this.items = objects;
             this.context = context;
             this.textUnit = textUnit;
             this.textSize = textSize;
-
-            //Creates an empty option to be displayed the first time the widget is shown
-            items = new String[objects.length+1];
-            items[0] = "";
-            System.arraycopy(objects, 0, items, 1, items.length - 1);
         }
 
 

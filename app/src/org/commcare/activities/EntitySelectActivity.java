@@ -176,15 +176,16 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         refreshTimer = new EntitySelectRefreshTimer();
         asw = CommCareApplication._().getCurrentSessionWrapper();
         session = asw.getSession();
-        // Don't show actions (e.g. 'register patient', 'claim patient') when
-        // in the middle on workflow triggered by an (sync) action.
-        hideActions = session.isSyncCommand(session.getCommand());
 
         // avoid session dependent when there is no command
         if (session.getCommand() != null) {
             selectDatum = (EntityDatum)session.getNeededDatum();
             shortSelect = session.getDetail(selectDatum.getShortDetail());
             mNoDetailMode = selectDatum.getLongDetail() == null;
+
+            // Don't show actions (e.g. 'register patient', 'claim patient') when
+            // in the middle on workflow triggered by an (sync) action.
+            hideActions = session.isSyncCommand(session.getCommand());
 
             boolean isOrientationChange = savedInstanceState != null;
             setupUI(isOrientationChange);

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.http.AndroidHttpClient;
 import android.util.Log;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.commcare.tasks.DataPullTask;
 import org.commcare.core.network.bitcache.BitCache;
@@ -128,5 +129,9 @@ public class RemoteDataPullResponse {
             }
         }
         return -1;
+    }
+
+    public Header getRetryHeader() {
+        return response.getFirstHeader("Retry-After");
     }
 }

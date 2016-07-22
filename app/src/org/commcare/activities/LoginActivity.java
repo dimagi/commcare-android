@@ -434,7 +434,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
                         Localization.get("key.manage.start"), taskId);
                 break;
             case DataPullTask.DATA_PULL_TASK_ID:
-                dialog = CustomProgressDialog.newInstance(Localization.get("sync.progress.title"),
+                dialog = CustomProgressDialog.newInstance(Localization.get("sync.communicating.title"),
                         Localization.get("sync.progress.starting"), taskId);
                 dialog.addCancelButton();
                 dialog.addProgressBar();
@@ -609,24 +609,7 @@ public class LoginActivity extends CommCareActivity<LoginActivity>
         if (CommCareApplication._().isConsumerApp()) {
             return;
         }
-        if (update[0] == DataPullTask.PROGRESS_STARTED) {
-            updateProgress(Localization.get("sync.progress.purge"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_CLEANED) {
-            updateProgress(Localization.get("sync.progress.authing"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_AUTHED) {
-            updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING) {
-            updateProgress(Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_DOWNLOADING_COMPLETE) {
-            hideTaskCancelButton();
-        } else if (update[0] == DataPullTask.PROGRESS_PROCESSING) {
-            updateProgress(Localization.get("sync.process.processing", new String[]{String.valueOf(update[1]), String.valueOf(update[2])}), DataPullTask.DATA_PULL_TASK_ID);
-            updateProgressBar(update[1], update[2], DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_NEEDED) {
-            updateProgress(Localization.get("sync.recover.needed"), DataPullTask.DATA_PULL_TASK_ID);
-        } else if (update[0] == DataPullTask.PROGRESS_RECOVERY_STARTED) {
-            updateProgress(Localization.get("sync.recover.started"), DataPullTask.DATA_PULL_TASK_ID);
-        }
+        SyncUIHandling.handleSyncUpdate(this, update);
     }
 
     @Override
