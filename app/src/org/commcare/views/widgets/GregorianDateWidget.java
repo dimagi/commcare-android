@@ -14,7 +14,8 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import org.commcare.dalvik.R;
-import org.commcare.utils.UniversalDate;
+import org.javarosa.core.model.data.InvalidDateData;
+import org.javarosa.xform.util.UniversalDate;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.InvalidData;
@@ -297,31 +298,31 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
 
         //Some but not all fields are empty - Error
         if(month.isEmpty() || day.isEmpty() || year.isEmpty()){
-            return new InvalidData(Localization.get("empty.fields"), new DateData(calendar.getTime()));
+            return new InvalidDateData(Localization.get("empty.fields"), new DateData(calendar.getTime()), day, month, year);
         }
 
         //Invalid year (too low)
         if(Integer.parseInt(year) < MINYEAR){
-            return new InvalidData(Localization.get("low.year"), new DateData(calendar.getTime()));
+            return new InvalidDateData(Localization.get("low.year"), new DateData(calendar.getTime()), day, month, year);
         }
         //Invalid month
         if(!monthList.contains(month)){
-            return new InvalidData(Localization.get("invalid.month"), new DateData(calendar.getTime()));
+            return new InvalidDateData(Localization.get("invalid.month"), new DateData(calendar.getTime()), day, month, year);
         }
 
         //Invalid day (too high)
         if(Integer.parseInt(day) > calendar.getActualMaximum(Calendar.DAY_OF_MONTH)){
-            return new InvalidData(Localization.get("high.date") + " " + String.valueOf(calendar.getActualMaximum(Calendar.DAY_OF_MONTH)), new DateData(calendar.getTime()));
+            return new InvalidDateData(Localization.get("high.date") + " " + String.valueOf(calendar.getActualMaximum(Calendar.DAY_OF_MONTH)), new DateData(calendar.getTime()), day, month, year);
         }
 
         //Invalid day (too high)
         if(Integer.parseInt(day)< 1){
-            return new InvalidData(Localization.get("low.date"), new DateData(calendar.getTime()));
+            return new InvalidDateData(Localization.get("low.date"), new DateData(calendar.getTime()), day, month, year);
         }
 
         //Invalid year (too high)
         if(Integer.parseInt(year) > maxYear){
-            return new InvalidData(Localization.get("high.year") + " " + String.valueOf(maxYear), new DateData(calendar.getTime()));
+            return new InvalidDateData(Localization.get("high.year") + " " + String.valueOf(maxYear), new DateData(calendar.getTime()), day, month, year);
         }
         return super.getAnswer();
     }
@@ -400,8 +401,24 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
 
     @Override
     protected void setAnswer(){
-        if(!(mPrompt.getAnswerValue() instanceof InvalidData)){
+        if(mPrompt.getAnswerValue() != null){
+
             super.setAnswer();
+
+            if(mPrompt.getAnswerValue() instanceof InvalidDateData){
+                InvalidDateData previousDate = (InvalidDateData) mPrompt.getAnswerValue();
+
+                String day = previousDate.getDayText();
+                String month = previousDate.getMonthText();
+                String year = previousDate.getYearText();
+
+                dayText.setText(day);
+                monthText.setText(month);
+                yearText.setText(year);
+            }
+
+        }else{
+            super.clearAnswer();
         }
     }
 }

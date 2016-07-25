@@ -9,10 +9,10 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 
 import org.commcare.dalvik.R;
-import org.commcare.utils.UniversalDate;
+import org.javarosa.core.model.data.InvalidDateData;
+import org.javarosa.xform.util.UniversalDate;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
-import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
@@ -46,7 +46,6 @@ import java.util.Locale;
 
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {
-
                 }
             });
         }
@@ -94,8 +93,10 @@ import java.util.Locale;
 
             if (num <= monthMax && num >= 1) {
                 calendar.set(Calendar.DAY_OF_MONTH, num);
-            }else{
+            }else if(num >= 1){
                 dayText.setText(String.valueOf(calendar.getActualMaximum(Calendar.DAY_OF_MONTH)));
+            }else{
+                dayText.setText(String.valueOf(calendar.getActualMinimum(Calendar.DAY_OF_MONTH)));
             }
 
             monthArrayPointer = monthSpinner.getSelectedItemPosition();
@@ -121,31 +122,27 @@ import java.util.Locale;
 
             //Some but not all fields are empty - Error
             if(month.isEmpty() || day.isEmpty() || year.isEmpty()){
-                return new InvalidData(Localization.get("empty.fields"), new DateData(calendar.getTime()));
+                return new InvalidDateData(Localization.get("empty.fields"), new DateData(calendar.getTime()), day, month, year);
             }
 
             //Invalid year (too low)
             if(Integer.parseInt(year) < MINYEAR){
-                return new InvalidData(Localization.get("low.year"), new DateData(calendar.getTime()));
-            }
-            //Invalid month
-            if(!monthList.contains(month)){
-                return new InvalidData(Localization.get("invalid.month"), new DateData(calendar.getTime()));
+                return new InvalidDateData(Localization.get("low.year"), new DateData(calendar.getTime()), day, month, year);
             }
 
             //Invalid day (too high)
             if(Integer.parseInt(day) > calendar.getActualMaximum(Calendar.DAY_OF_MONTH)){
-                return new InvalidData(Localization.get("high.date") + " " + String.valueOf(calendar.getActualMaximum(Calendar.DAY_OF_MONTH)), new DateData(calendar.getTime()));
+                return new InvalidDateData(Localization.get("high.date") + " " + String.valueOf(calendar.getActualMaximum(Calendar.DAY_OF_MONTH)), new DateData(calendar.getTime()), day, month, year);
             }
 
-            //Invalid day (too high)
+            //Invalid day (too low)
             if(Integer.parseInt(day)< 1){
-                return new InvalidData(Localization.get("low.date"), new DateData(calendar.getTime()));
+                return new InvalidDateData(Localization.get("low.date"), new DateData(calendar.getTime()), day, month, year);
             }
 
             //Invalid year (too high)
             if(Integer.parseInt(year) > maxYear){
-                return new InvalidData(Localization.get("high.year") + " " + String.valueOf(maxYear), new DateData(calendar.getTime()));
+                return new InvalidDateData(Localization.get("high.year") + " " + String.valueOf(maxYear), new DateData(calendar.getTime()), day, month, year);
             }
             Date date = getDateAsGregorian();
             return new DateData(date);
@@ -163,6 +160,31 @@ import java.util.Locale;
         public void setFocus(Context context) {
             dayText.setCursorVisible(false);
             yearText.setCursorVisible(false);
+        }
+
+        @Override
+        public void setAnswer(){
+            if(mPrompt.getAnswerValue() != null){
+
+                Date date = (Date)mPrompt.getAnswerValue().getValue();
+                updateDateDisplay(date.getTime());
+                updateGregorianDateHelperDisplay();
+
+                if(mPrompt.getAnswerValue() instanceof InvalidDateData){
+                    InvalidDateData previousDate = (InvalidDateData) mPrompt.getAnswerValue();
+
+                    String day = previousDate.getDayText();
+                    String month = previousDate.getMonthText();
+                    String year = previousDate.getYearText();
+
+                    dayText.setText(day);
+                    monthSpinner.setSelection(monthList.indexOf(month));
+                    yearText.setText(year);
+                }
+
+            }else{
+                super.clearAnswer();
+            }
         }
 
     }
