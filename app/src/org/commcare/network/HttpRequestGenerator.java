@@ -170,6 +170,8 @@ public class HttpRequestGenerator implements HttpRequestEndpoints {
         serverUri = serverUri.buildUpon().appendQueryParameter("items", "true").build();
 
         if (CommCareApplication._().shouldInvalidateCacheOnRestore()) {
+            // Currently used for testing purposes only, in order to ensure that a full sync will
+            // occur when we want to test one
             serverUri = serverUri.buildUpon().appendQueryParameter("overwrite_cache", "true").build();
             // Always wipe this flag after we have used it once
             CommCareApplication._().setInvalidateCacheFlag(false);
