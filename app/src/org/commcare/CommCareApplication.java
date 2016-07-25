@@ -207,6 +207,8 @@ public class CommCareApplication extends Application {
     // Indicates that a build refresh action has been triggered, but not yet completed
     private boolean latestBuildRefreshPending;
 
+    private boolean invalidateCacheOnRestore;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -1504,6 +1506,14 @@ public class CommCareApplication extends Application {
      */
     public boolean isConsumerApp() {
         return BuildConfig.IS_CONSUMER_APP;
+    }
+
+    public boolean shouldInvalidateCacheOnRestore() {
+        return invalidateCacheOnRestore;
+    }
+
+    public void setInvalidateCacheFlag(boolean b) {
+        invalidateCacheOnRestore = b;
     }
 
     public PrototypeFactory getPrototypeFactory(Context c) {
