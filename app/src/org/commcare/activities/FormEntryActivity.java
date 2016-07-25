@@ -489,7 +489,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 break;
             case SIGNATURE_CAPTURE:
                 boolean saved = ImageCaptureProcessing.processCaptureResponse(this, getInstanceFolder(), false);
-                if (saved) {
+                if (saved && !questionsView.isQuestionList()) {
                     // attempt to auto-advance if a signature was captured
                     advance();
                 }
@@ -622,7 +622,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
 
-        FormEntryPrompt[] newValidPrompts = mFormController.getQuestionPrompts();
+        FormEntryPrompt[] newValidPrompts;
+        try {
+            newValidPrompts = mFormController.getQuestionPrompts();
+        } catch (XPathException e) {
+            UserfacingErrorHandling.logErrorAndShowDialog(this, e, EXIT);
+            return;
+        }
         Set<FormEntryPrompt> promptsLeftInView = new HashSet<>();
 
         ArrayList<Integer> shouldRemoveFromView = new ArrayList<>();

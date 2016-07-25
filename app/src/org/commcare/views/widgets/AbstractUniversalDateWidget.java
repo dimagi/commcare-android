@@ -12,10 +12,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.TextView;
 import org.commcare.dalvik.R;
-import org.commcare.utils.UniversalDate;
 import org.javarosa.core.model.data.DateData;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.javarosa.xform.util.UniversalDate;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -25,7 +25,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static org.commcare.utils.UniversalDate.MILLIS_IN_DAY;
+import static org.javarosa.xform.util.UniversalDate.MILLIS_IN_DAY;
+
 
 /**
  * Universal Date Widget, extended to work with any calendar system.

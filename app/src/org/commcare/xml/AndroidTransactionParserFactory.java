@@ -12,6 +12,7 @@ import org.commcare.models.database.AndroidSandbox;
 import org.commcare.utils.GlobalConstants;
 import org.kxml2.io.KXmlParser;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Hashtable;
 
@@ -36,6 +37,7 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
 
     final private Context context;
     final private HttpRequestEndpoints generator;
+    final private ArrayList<String> createdAndUpdatedCases = new ArrayList<>();
 
     private TransactionParserFactory formInstanceParser;
     private boolean caseIndexesWereDisrupted = false;
@@ -93,12 +95,21 @@ public class AndroidTransactionParserFactory extends CommCareTransactionParserFa
                         public void onIndexDisrupted(String caseId) {
                             caseIndexesWereDisrupted = true;
                         }
+
+                        @Override
+                        protected void onCaseCreateUpdate(String caseId) {
+                            createdAndUpdatedCases.add(caseId);
+                        }
                     };
                 }
 
                 return created;
             }
         };
+    }
+
+    public ArrayList<String> getCreatedAndUpdatedCases() {
+        return createdAndUpdatedCases;
     }
 
 

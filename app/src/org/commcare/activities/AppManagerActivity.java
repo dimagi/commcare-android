@@ -18,6 +18,7 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.services.CommCareSessionService;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.SessionUnavailableException;
 import org.commcare.views.dialogs.StandardAlertDialog;
 import org.javarosa.core.services.locale.Localization;
@@ -34,7 +35,8 @@ import org.javarosa.core.services.locale.Localization;
 public class AppManagerActivity extends CommCareActivity implements OnItemClickListener {
 
     public static final String KEY_LAUNCH_FROM_MANAGER = "from_manager";
-    private static final int MENU_CONNECTION_DIAGNOSTIC = 0;
+    private static final int MENU_ADVANCED_SETTINGS = 0;
+    private static final int MENU_CONNECTION_DIAGNOSTIC = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +55,10 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 0, Localization.get("home.menu.connection.diagnostic")).setIcon(android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_ADVANCED_SETTINGS, 0, Localization.get("app.manager.advanced.settings.option"))
+                .setIcon(android.R.drawable.ic_menu_preferences);
+        menu.add(0, MENU_CONNECTION_DIAGNOSTIC, 1, Localization.get("home.menu.connection.diagnostic"))
+                .setIcon(android.R.drawable.ic_menu_preferences);
         return true;
     }
 
@@ -62,6 +67,10 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
         switch (item.getItemId()) {
             case MENU_CONNECTION_DIAGNOSTIC:
                 Intent i = new Intent(this, ConnectionDiagnosticActivity.class);
+                startActivity(i);
+                return true;
+            case MENU_ADVANCED_SETTINGS:
+                i = new Intent(this, AppManagerAdvancedSettings.class);
                 startActivity(i);
                 return true;
         }
@@ -75,7 +84,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     private void refreshView() {
         ListView lv = (ListView)findViewById(R.id.apps_list_view);
         lv.setAdapter(new AppManagerAdapter(this, android.R.layout.simple_list_item_1,
-                CommCareApplication._().appRecordArray()));
+                MultipleAppsUtil.appRecordArray()));
     }
 
     /**
@@ -110,9 +119,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         switch (requestCode) {
             case DispatchActivity.INIT_APP:
-                boolean installFailed = intent != null && intent.getBooleanExtra(
-                        CommCareSetupActivity.KEY_INSTALL_FAILED, false);
-                if (resultCode == RESULT_OK && !installFailed) {
+                if (resultCode == RESULT_OK) {
                     GoogleAnalyticsUtils.reportAppManagerAction(GoogleAnalyticsFields.ACTION_INSTALL_FROM_MANAGER);
                     // If we have just returned from installation and the currently-seated app's
                     // resources are not validated, launch the MM verification activity
@@ -122,8 +129,7 @@ public class AppManagerActivity extends CommCareActivity implements OnItemClickL
                         this.startActivityForResult(i, DispatchActivity.MISSING_MEDIA_ACTIVITY);
                     }
                 } else {
-                    Toast.makeText(this, R.string.no_installation,
-                            Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.no_installation, Toast.LENGTH_LONG).show();
                 }
                 return;
             case DispatchActivity.MISSING_MEDIA_ACTIVITY:
