@@ -23,13 +23,16 @@ public class DeviceRegistrationActivity extends Activity {
         new Thread(new Runnable() {
             public void run() {
                 try{
-                    registrationToken = copy.getToken("139642101642", "GCM");
+                    registrationToken = copy.getToken("139642101642", "GCM"); //Change the sender ID and make secret eventually
                     Intent intent = getIntent();
                     intent.putExtra("TOKEN", registrationToken);
                     setResult(RESULT_OK, intent);
                     finish();
                 }catch(Exception e){
+                    Intent intent = getIntent();
+                    setResult(RESULT_CANCELED, intent);
                     e.printStackTrace();
+                    finish();
                 }
             }
         }).start();

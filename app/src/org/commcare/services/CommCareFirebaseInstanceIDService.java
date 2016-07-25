@@ -1,5 +1,7 @@
 package org.commcare.services;
 
+import android.content.ComponentName;
+import android.content.Intent;
 import android.util.Log;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.FirebaseInstanceIdService;
@@ -18,7 +20,13 @@ public class CommCareFirebaseInstanceIDService extends FirebaseInstanceIdService
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
         Log.d( "Refreshed token: ",  refreshedToken);
 
-        // TODO: Implement this method to send any registration to your app's servers.
-      //  sendRegistrationToServer(refreshedToken);
+        sendRegistrationToServer(refreshedToken);
+    }
+
+    private void sendRegistrationToServer(String token){
+        ComponentName cn = new ComponentName("dalvik.commcare.org.commcaredevelopertoolkit", "dalvik.commcare.org.commcaredevelopertoolkit.activities.TokenRefreshService");
+        Intent i = new Intent();
+        i.setComponent(cn);
+        startService(i);
     }
 }
