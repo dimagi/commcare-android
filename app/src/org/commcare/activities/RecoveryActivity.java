@@ -2,8 +2,6 @@ package org.commcare.activities;
 
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,7 +14,6 @@ import org.commcare.dalvik.R;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
-import org.commcare.preferences.CommCarePreferences;
 import org.commcare.preferences.CommCareServerPreferences;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.utils.FormUploadUtil;

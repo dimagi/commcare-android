@@ -24,6 +24,7 @@ import org.javarosa.core.services.locale.Localization;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -62,7 +63,12 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
      * Return an int status code from FormUploadUtil corresponding to the outcome of the transfer
      */
     private long copyFileInstanceFromStorage(File formRecordFolder, SecretKeySpec decryptionKey) {
-        File[] files = formRecordFolder.listFiles();
+        File[] files = formRecordFolder.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return file.isFile();
+            }
+        });
         Logger.log(TAG, "Trying to get instance with: " + files.length + " files.");
 
         File myDir = new File(storedFormDirectory, formRecordFolder.getName());
@@ -190,7 +196,6 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
                         results[i] = copyFileInstanceFromStorage(folder, new SecretKeySpec(record.getAesKey(), "AES"));
                         if (results[i].intValue() == FormUploadUtil.FAILURE) {
                             publishProgress("Failure during zipping process");
-                            return null;
                         }
                     }
                 } catch (Exception e) {
@@ -200,7 +205,6 @@ public abstract class FormRecordToFileTask extends CommCareTask<String, String, 
             }
 
             long result = getLoopResult(results);
-
             return new Pair<>(result, records);
 
         } else {

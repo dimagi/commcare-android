@@ -37,6 +37,7 @@ import org.commcare.interfaces.RuntimePermissionRequester;
 import org.commcare.logging.analytics.GoogleAnalyticsFields;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.android.database.global.models.ApplicationRecord;
+import org.commcare.preferences.GlobalPrivilegesManager;
 import org.commcare.resources.model.UnresolvedResourceException;
 import org.commcare.tasks.ResourceEngineListener;
 import org.commcare.tasks.ResourceEngineTask;
@@ -44,6 +45,7 @@ import org.commcare.tasks.RetrieveParseVerifyMessageListener;
 import org.commcare.tasks.RetrieveParseVerifyMessageTask;
 import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.GlobalConstants;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.Permissions;
 import org.commcare.views.ManagedUi;
 import org.commcare.views.dialogs.CustomProgressDialog;
@@ -85,7 +87,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     private static final int SMS_PERMISSIONS_REQUEST = 2;
 
-    public static final String KEY_INSTALL_FAILED = "install_failed";
     private static final String FORCE_VALIDATE_KEY = "validate";
 
     /**
@@ -109,8 +110,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final int MODE_ARCHIVE = Menu.FIRST;
     private static final int MODE_SMS = Menu.FIRST + 2;
 
+    // Activity request codes
     public static final int BARCODE_CAPTURE = 1;
     private static final int ARCHIVE_INSTALL = 3;
+    private static final int MULTIPLE_APPS_LIMIT = 4;
+
+    // dialog ID
     private static final int DIALOG_INSTALL_PROGRESS = 4;
 
     private boolean startAllowed = true;
@@ -151,6 +156,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
         this.fromManager = this.getIntent().
                 getBooleanExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, false);
+
+        if (checkForMultipleAppsViolation()) {
+            return;
+        }
 
         //Retrieve instance state
         if (savedInstanceState == null) {
@@ -231,6 +240,21 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         }
     }
 
+    /**
+     *
+     * @return if installation is not allowed due to multiple apps limitations
+     */
+    private boolean checkForMultipleAppsViolation() {
+        if (CommCareApplication._().getInstalledAppRecords().size() >= 2
+                && !GlobalPrivilegesManager.isSuperuserPrivilegeEnabled()) {
+            Intent i = new Intent(this, MultipleAppsLimitWarningActivity.class);
+            i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, fromManager);
+            startActivityForResult(i, MULTIPLE_APPS_LIMIT);
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public void onAttachFragment(Fragment fragment) {
         super.onAttachFragment(fragment);
@@ -248,7 +272,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     protected void onResume() {
         super.onResume();
 
-        if (!fromManager && !fromExternal && CommCareApplication._().usableAppsPresent()) {
+        if (!fromManager && !fromExternal && MultipleAppsUtil.usableAppsPresent()) {
             // If clicking the regular app icon brought us to CommCareSetupActivity
             // (because that's where we were last time the app was up), but there are now
             // 1 or more available apps, we want to fall back to dispatch activity
@@ -365,6 +389,10 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     result = data.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE);
                 }
                 break;
+            case MULTIPLE_APPS_LIMIT:
+                setResult(RESULT_CANCELED);
+                finish();
+                return;
         }
         if (result == null) {
             return;
@@ -561,7 +589,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                 String textMessageBody = cursor.getString(cursor.getColumnIndex("body"));
                 if (textMessageBody.contains(GlobalConstants.SMS_INSTALL_KEY_STRING)) {
                     attemptedInstall = true;
-                    RetrieveParseVerifyMessageTask mTask =
+                    RetrieveParseVerifyMessageTask<CommCareSetupActivity> mTask =
                             new RetrieveParseVerifyMessageTask<CommCareSetupActivity>(this, installTriggeredManually) {
 
                                 @Override
@@ -607,6 +635,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                                     }
                                 }
                             };
+                    mTask.connect(this);
                     mTask.executeParallel(textMessageBody);
                     break;
                 }
@@ -633,36 +662,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return true;
     }
 
-    /**
-     * Return to or launch dispatch activity.
-     *
-     * @param failed did installation occur successfully?
-     */
-    private void done(boolean failed) {
-        if (Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
-            // app installed from external action
-            if (getIntent().getBooleanExtra(FORCE_VALIDATE_KEY, false)) {
-                // force multimedia validation to ensure app shows up in multiple apps list
-                Intent i = new Intent(this, CommCareVerificationActivity.class);
-                i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
-                startActivity(i);
-            } else {
-                //Call out to CommCare Home
-                Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
-                startActivity(i);
-            }
-        } else {
-            //Good to go
-            Intent i = new Intent(getIntent());
-            i.putExtra(KEY_INSTALL_FAILED, failed);
-            setResult(RESULT_OK, i);
-        }
-        finish();
-    }
-
-    /**
-     * Raise failure message and return to the home activity with cancel code
-     */
     private void fail(NotificationMessage message, boolean reportNotification) {
         String toastMessage;
         if (reportNotification) {
@@ -680,13 +679,12 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     // All final paths from the Update are handled here (Important! Some
     // interaction modes should always auto-exit this activity) Everything here
-    // should call one of: fail() or done() 
+    // should call one of: fail() or reportSuccess()
     
     /* All methods for implementation of ResourceEngineListener */
 
     @Override
     public void reportSuccess(boolean newAppInstalled) {
-        //If things worked, go ahead and clear out any warnings to the contrary
         CommCareApplication._().clearNotifications("install_update");
 
         if (newAppInstalled) {
@@ -695,7 +693,23 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             Toast.makeText(this, Localization.get("updates.success"), Toast.LENGTH_LONG).show();
         }
 
-        done(false);
+        if (Intent.ACTION_VIEW.equals(CommCareSetupActivity.this.getIntent().getAction())) {
+            // app installed from external action
+            if (getIntent().getBooleanExtra(FORCE_VALIDATE_KEY, false)) {
+                // force multimedia validation to ensure app shows up in multiple apps list
+                Intent i = new Intent(this, CommCareVerificationActivity.class);
+                i.putExtra(AppManagerActivity.KEY_LAUNCH_FROM_MANAGER, true);
+                startActivity(i);
+            } else {
+                //Call out to CommCare Home
+                Intent i = new Intent(getApplicationContext(), DispatchActivity.class);
+                startActivity(i);
+            }
+        } else {
+            Intent i = new Intent(getIntent());
+            setResult(RESULT_OK, i);
+        }
+        finish();
     }
 
     @Override
