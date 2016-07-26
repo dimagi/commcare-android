@@ -209,21 +209,21 @@ public abstract class AbstractUniversalDateWidget extends QuestionWidget {
             }
         });
 
-        // button touch listeners
-        btnDayUp.setOnTouchListener(new EDWTouchListener(btnDayUp, mDayHandler));
-        btnDayDown.setOnTouchListener(new EDWTouchListener(btnDayUp, mDayHandler));
-        btnMonthUp.setOnTouchListener(new EDWTouchListener(btnMonthUp, mMonthHandler));
-        btnMonthDown.setOnTouchListener(new EDWTouchListener(btnMonthUp, mMonthHandler));
-        btnYearUp.setOnTouchListener(new EDWTouchListener(btnYearUp, mYearHandler));
-        btnYearDown.setOnTouchListener(new EDWTouchListener(btnYearUp, mYearHandler));
-
-        // button key listeners
-        btnDayUp.setOnKeyListener(new EDWKeyListener(btnDayUp, mDayHandler));
-        btnDayDown.setOnKeyListener(new EDWKeyListener(btnDayUp, mDayHandler));
-        btnMonthUp.setOnKeyListener(new EDWKeyListener(btnMonthUp, mMonthHandler));
-        btnMonthDown.setOnKeyListener(new EDWKeyListener(btnMonthUp, mMonthHandler));
-        btnYearUp.setOnKeyListener(new EDWKeyListener(btnYearUp, mYearHandler));
-        btnYearDown.setOnKeyListener(new EDWKeyListener(btnYearUp, mYearHandler));
+//        // button touch listeners
+//        btnDayUp.setOnTouchListener(new EDWTouchListener(btnDayUp, mDayHandler));
+//        btnDayDown.setOnTouchListener(new EDWTouchListener(btnDayUp, mDayHandler));
+//        btnMonthUp.setOnTouchListener(new EDWTouchListener(btnMonthUp, mMonthHandler));
+//        btnMonthDown.setOnTouchListener(new EDWTouchListener(btnMonthUp, mMonthHandler));
+//        btnYearUp.setOnTouchListener(new EDWTouchListener(btnYearUp, mYearHandler));
+//        btnYearDown.setOnTouchListener(new EDWTouchListener(btnYearUp, mYearHandler));
+//
+//        // button key listeners
+//        btnDayUp.setOnKeyListener(new EDWKeyListener(btnDayUp, mDayHandler));
+//        btnDayDown.setOnKeyListener(new EDWKeyListener(btnDayUp, mDayHandler));
+//        btnMonthUp.setOnKeyListener(new EDWKeyListener(btnMonthUp, mMonthHandler));
+//        btnMonthDown.setOnKeyListener(new EDWKeyListener(btnMonthUp, mMonthHandler));
+//        btnYearUp.setOnKeyListener(new EDWKeyListener(btnYearUp, mYearHandler));
+//        btnYearDown.setOnKeyListener(new EDWKeyListener(btnYearUp, mYearHandler));
 
         // If there's an answer, use it.
         setAnswer();

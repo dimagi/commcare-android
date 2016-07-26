@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import org.javarosa.core.model.data.DateData;
 import org.commcare.dalvik.R;
@@ -38,25 +39,24 @@ import java.util.Map;
 public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
     protected GridView myGrid;
-    private Button decMonth;
-    private Button incMonth;
-    protected Button decYear;
-    protected Button incYear;
     protected ImageButton cancel;
     protected Button today;
-    private TextView myMonth;
-    protected TextView myYear;
-    protected Calendar calendar;
+    private Spinner monthSpinner;
+    private Spinner yearSpinner;
     protected LinearLayout myLayout;
+
+    protected Calendar calendar;
     protected CalendarCloseListener myListener;
+
     protected long todaysDateInMillis;
     protected static final int DAYSINWEEK = 7;
     protected static final String TIME = "TIME";
+    private final static int MIN_YEAR = 1900;
+    private final static int YEARS_IN_FUTURE = 4;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-
         inflateView(inflater, container);
 
         if(savedInstanceState != null && savedInstanceState.containsKey(TIME)){
@@ -69,17 +69,20 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         initWeekDays();
         initOnClick();
         refresh();
-
-        Rect displayRectangle = new Rect();
-        Window window = getActivity().getWindow();
-        window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
-        myLayout.setMinimumWidth((int)(displayRectangle.width() * 0.9f));
+        setWindowSize();
 
         return myLayout;
     }
 
-    protected void inflateView(LayoutInflater inflater, ViewGroup container) {
-        myLayout = (LinearLayout) inflater.inflate(R.layout.calendar_widget, container);
+    private void setWindowSize() {
+        Rect displayRectangle = new Rect();
+        Window window = getActivity().getWindow();
+        window.getDecorView().getWindowVisibleDisplayFrame(displayRectangle);
+        myLayout.setMinimumWidth((int)(displayRectangle.width() * 0.9f));
+    }
+
+    private void inflateView(LayoutInflater inflater, ViewGroup container) {
+        myLayout = (LinearLayout) inflater.inflate(R.layout.scrolling_calendar_widget, container);
     }
 
     @Override
@@ -137,50 +140,52 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         today = (Button) myLayout.findViewById(R.id.today);
     }
 
-    protected void setupYearComponents() {
-        decYear = (Button) myLayout.findViewById(R.id.prev_year_button);
-        incYear = (Button) myLayout.findViewById(R.id.next_year_button);
-        myYear = (TextView) myLayout.findViewById(R.id.current_year);
+    private void setupYearComponents() {
+        yearSpinner = (Spinner) myLayout.findViewById(R.id.year_spinner);
 
-        decYear.setOnClickListener(new View.OnClickListener() {
+        ArrayList<String> years = new ArrayList<>();
+
+        for(int i = MIN_YEAR; i <= calendar.get(Calendar.YEAR)+YEARS_IN_FUTURE; i++){
+            years.add(String.valueOf(i));
+        }
+
+        ArrayAdapter<String> yearAdapter = new ArrayAdapter<>(getContext(), R.layout.calendar_date, years);
+        yearSpinner.setAdapter(yearAdapter);
+
+        yearSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onClick(View v) {
-                calendar.add(Calendar.YEAR, -1);
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                calendar.set(Calendar.YEAR, position+MIN_YEAR);
                 refresh();
             }
-        });
 
-        incYear.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                calendar.add(Calendar.YEAR, 1);
-                refresh();
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
     }
 
+    private void initMonthComponents() {
+        monthSpinner = (Spinner) myLayout.findViewById(R.id.calendar_spinner);
 
-    //Refactored these into a separate method because we want to experiment with several
-    //different month behaviors in testing
-    protected void initMonthComponents() {
-        decMonth = (Button) myLayout.findViewById(R.id.prev_month_button);
-        incMonth = (Button) myLayout.findViewById(R.id.next_month_button);
-        myMonth = (TextView) myLayout.findViewById(R.id.current_month);
-
-        incMonth.setOnClickListener(new View.OnClickListener() {
+        final Map<String, Integer> monthMap = calendar.getDisplayNames(Calendar.MONTH, Calendar.LONG, Locale.getDefault());
+        ArrayList<String> monthList = new ArrayList<>(monthMap.keySet());
+        Collections.sort(monthList, new Comparator<String>(){
             @Override
-            public void onClick(View v) {
-                calendar.add(Calendar.MONTH, 1);
-                refresh();
+            public int compare(String a, String b){
+                return monthMap.get(a) - monthMap.get(b);
             }
         });
+        monthSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.calendar_date, monthList));
 
-        decMonth.setOnClickListener(new View.OnClickListener() {
+        monthSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onClick(View v) {
-                calendar.add(Calendar.MONTH, -1);
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                calendar.set(Calendar.MONTH, position);
                 refresh();
             }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
     }
 
@@ -233,17 +238,9 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         int totalDays = getNumDaysInMonth(populator);
         populateListOfDates(dateList, populator, totalDays);
 
-        updateYearOnDateChange();
-        updateMonthOnDateChange();
+        yearSpinner.setSelection(calendar.get(Calendar.YEAR)-MIN_YEAR);
+        monthSpinner.setSelection(calendar.get(Calendar.MONTH));
         myGrid.setAdapter(new CalendarAdapter(getContext(), dateList));
-    }
-
-    protected void updateYearOnDateChange() {
-        myYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
-    }
-
-    protected void updateMonthOnDateChange() {
-        myMonth.setText(calendar.getDisplayName(Calendar.MONTH, Calendar.SHORT, Locale.getDefault()));
     }
 
     //Populates an arraylist with dates
