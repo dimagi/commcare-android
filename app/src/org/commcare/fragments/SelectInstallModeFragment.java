@@ -36,6 +36,7 @@ import java.util.ArrayList;
 public class SelectInstallModeFragment extends Fragment implements NsdServiceListener {
 
     private View mFetchHubContainer;
+    private TextView mErrorTextView;
     private ArrayList<Pair<String, String>> mLocalApps = new ArrayList<>();
 
     @Override
@@ -108,6 +109,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         });
 
         mFetchHubContainer = view.findViewById(R.id.btn_fetch_hub_container);
+        mErrorTextView = (TextView)view.findViewById(R.id.install_error_text);
 
         return view;
     }
@@ -156,5 +158,10 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                 }
             });
         }
+    }
+
+    public void showErrorMessage(String msg) {
+        mErrorTextView.setText(msg);
+        mErrorTextView.setVisibility(View.VISIBLE);
     }
 }

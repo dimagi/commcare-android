@@ -20,6 +20,8 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApp;
@@ -663,18 +665,21 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private void fail(NotificationMessage message, boolean reportNotification) {
-        String toastMessage;
+        String displayMessage;
         if (reportNotification) {
             CommCareApplication._().reportNotificationMessage(message);
-            toastMessage = Localization.get("notification.for.details.wrapper", new String[]{message.getTitle()});
+            displayMessage = Localization.get("notification.for.details.wrapper", new String[]{message.getTitle()});
         } else {
-            toastMessage = message.getTitle();
+            displayMessage = message.getTitle();
         }
-        Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
+
+        //Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
 
         // Last install attempt failed, so restore to starting uistate to try again
         uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
         uiStateScreenTransition();
+
+        installFragment.showErrorMessage(displayMessage);
     }
 
     // All final paths from the Update are handled here (Important! Some
