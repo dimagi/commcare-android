@@ -1,11 +1,9 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
-import android.content.res.Resources;
-
-import org.commcare.dalvik.R;
-import org.commcare.utils.UniversalDate;
+import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.javarosa.xform.util.UniversalDate;
 import org.joda.time.Chronology;
 import org.joda.time.DateTime;
 import org.joda.time.chrono.EthiopicChronology;
@@ -57,9 +55,7 @@ public class EthiopianDateWidget extends AbstractUniversalDateWidget {
 
     @Override
     protected String[] getMonthsArray() {
-        Resources res = getResources();
-        // load the months - will automatically get correct strings for current phone locale
-        return res.getStringArray(R.array.ethiopian_months);
+        return Localization.getArray("ethiopian.months.list");
     }
 
     @Override

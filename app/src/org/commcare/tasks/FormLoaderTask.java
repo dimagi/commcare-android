@@ -12,7 +12,6 @@ import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.logging.ForceCloseLogger;
 import org.commcare.android.resource.installers.XFormAndroidInstaller;
 import org.commcare.core.process.CommCareInstanceInitializer;
-import org.commcare.engine.extensions.CalendaredDateFormatHandler;
 import org.commcare.logging.UserCausedRuntimeException;
 import org.commcare.logging.XPathErrorLogger;
 import org.javarosa.xpath.XPathException;
@@ -185,7 +184,6 @@ public abstract class FormLoaderTask<R> extends CommCareTask<Uri, String, FormLo
     }
 
     private FormEntryController initFormDef(FormDef formDef) {
-        formDef.exprEvalContext.addFunctionHandler(new CalendaredDateFormatHandler((Context)activity));
         // create FormEntryController from formdef
         FormEntryModel fem = new FormEntryModel(formDef);
         FormEntryController fec;
