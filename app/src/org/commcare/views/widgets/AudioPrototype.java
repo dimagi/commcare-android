@@ -5,11 +5,9 @@ import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.media.MediaPlayer;
-import android.media.MediaRecorder;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageButton;
@@ -17,14 +15,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.analytics.GoogleAnalytics;
-
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.utils.StringUtils;
-import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 
@@ -38,7 +33,7 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
     private FragmentManager fm;
     private LinearLayout layout;
     private ImageButton mPlayButton;
-    private TextView recordingText;
+    private TextView recordingNameText;
 
     public AudioPrototype(Context context, FormEntryPrompt prompt, PendingCalloutInterface pic){
         super(context, prompt, pic);
@@ -56,7 +51,6 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
         ImageButton mCaptureButton = (ImageButton) layout.findViewById(R.id.capture_button);
         ImageButton mChooseButton = (ImageButton) layout.findViewById(R.id.choose_file);
 
-        // launch capture intent on click
         mCaptureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -74,7 +68,7 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
                 i.setType("audio/*");
                 try {
                     ((Activity)getContext()).startActivityForResult(i, FormEntryActivity.AUDIO_VIDEO_FETCH);
-                    recordingText.setTextColor(getResources().getColor(R.color.black));
+                    recordingNameText.setTextColor(getResources().getColor(R.color.black));
                     pendingCalloutInterface.setPendingCalloutFormIndex(prompt.getIndex());
                 } catch (ActivityNotFoundException e) {
                     Toast.makeText(getContext(),
@@ -86,7 +80,7 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
             }
         });
 
-        // on play, launch the appropriate viewer
+
         mPlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -98,8 +92,8 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
 
     @Override
     public void setupLayout(){
-        recordingText = (TextView) layout.findViewById(R.id.recording_text);
-        recordingText.setText(Localization.get("recording.prompt"));
+        recordingNameText = (TextView) layout.findViewById(R.id.recording_text);
+        recordingNameText.setText(Localization.get("recording.prompt"));
         addView(layout);
     }
 
@@ -111,8 +105,8 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
     @Override
     public void setBinaryData(Object binaryuri){
         super.setBinaryData(binaryuri);
-        if(prevFileName != null){
-            recordingText.setText(prevFileName);
+        if(recordedFileName != null){
+            recordingNameText.setText(recordedFileName);
         }
     }
 
@@ -121,8 +115,8 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
         setBinaryData(recorder.getFileName());
         mPlayButton.setEnabled(true);
         mPlayButton.setBackgroundResource(R.drawable.play);
-        recordingText.setTextColor(getResources().getColor(R.color.black));
-        recordingText.setText(Localization.get("recording.custom"));
+        recordingNameText.setTextColor(getResources().getColor(R.color.black));
+        recordingNameText.setText(Localization.get("recording.custom"));
     }
 
     @Override
@@ -197,11 +191,11 @@ public class AudioPrototype extends AudioWidget implements RecordingFragment.Rec
     @Override
     protected void reloadFile(){
         super.reloadFile();
-        recordingText.setTextColor(getResources().getColor(R.color.black));
+        recordingNameText.setTextColor(getResources().getColor(R.color.black));
         if(mBinaryName.contains(CUSTOM_TAG)){
-            recordingText.setText(Localization.get("recording.custom"));
+            recordingNameText.setText(Localization.get("recording.custom"));
         }else{
-            recordingText.setText(mBinaryName);
+            recordingNameText.setText(mBinaryName);
         }
     }
 

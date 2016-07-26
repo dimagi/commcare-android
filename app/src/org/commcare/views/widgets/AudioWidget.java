@@ -45,7 +45,7 @@ public class AudioWidget extends QuestionWidget {
     private Button mChooseButton;
     protected final PendingCalloutInterface pendingCalloutInterface;
 
-    protected String prevFileName;
+    protected String recordedFileName;
     protected String mBinaryName;
     protected final String mInstanceFolder;
     protected String customFileTag;
@@ -233,7 +233,7 @@ public class AudioWidget extends QuestionWidget {
 
         String[] filePathSegments = binaryPath.split("/");
         if(filePathSegments.length >1){
-            prevFileName = filePathSegments[filePathSegments.length-1];
+            recordedFileName = filePathSegments[filePathSegments.length-1];
         }
 
         String destAudioPath = mInstanceFolder + System.currentTimeMillis() + customFileTag + extension;

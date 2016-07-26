@@ -43,18 +43,17 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     private ImageButton toggleRecording;
     private ImageButton discardRecording;
     private Button saveRecording;
-    private Button recycle;
+    private Button recordAgain;
     private TextView instruction;
-    private ProgressBar mpc;
+    private ProgressBar recordingProgress;
 
-    private Chronometer chron;
-    private long currentTime;
+    private Chronometer recordingDuration;
+    private long currentTimeMillis;
 
     private MediaRecorder recorder;
     private RecordingCompletionListener listener;
     private MediaPlayer player;
-
-
+    
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         layout = (LinearLayout) inflater.inflate(R.layout.recording_fragment, container);
         disableScreenRotation();
@@ -65,9 +64,9 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
         File f = new File(fileName);
         if(f.exists()){
-            recycle.setVisibility(View.VISIBLE);
+            recordAgain.setVisibility(View.VISIBLE);
             saveRecording.setVisibility(View.VISIBLE);
-            chron.setVisibility(View.VISIBLE);
+            recordingDuration.setVisibility(View.VISIBLE);
             toggleRecording.setBackgroundResource(R.drawable.play);
             toggleRecording.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -92,44 +91,22 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
     protected void prepareText() {
         TextView header = (TextView) layout.findViewById(R.id.recording_header);
-        instruction = (TextView) layout.findViewById(R.id.recording_instruction);
-
         header.setText(Localization.get("recording.header"));
+        instruction = (TextView) layout.findViewById(R.id.recording_instruction);
         instruction.setText(Localization.get("before.recording"));
-
-        chron = (Chronometer) layout.findViewById(R.id.recording_time);
+        recordingDuration = (Chronometer) layout.findViewById(R.id.recording_time);
     }
 
     private void prepareButtons() {
         discardRecording = (ImageButton) layout.findViewById(R.id.discardrecording);
         toggleRecording = (ImageButton) layout.findViewById(R.id.startrecording);
         saveRecording = (Button) layout.findViewById(R.id.saverecording);
-        recycle = (Button) layout.findViewById(R.id.recycle);
+        recordAgain = (Button) layout.findViewById(R.id.recycle);
 
-        recycle.setOnClickListener(new View.OnClickListener() {
+        recordAgain.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(recorder != null){
-                    recorder.release();
-                    recorder = null;
-                }
-
-                if(player != null){
-                    resetAudioPlayer(player);
-                }
-
-                toggleRecording.setBackgroundResource(R.drawable.record_start);
-                toggleRecording.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        startRecording();
-                    }
-                });
-                instruction.setText(Localization.get("before.recording"));
-                saveRecording.setVisibility(View.INVISIBLE);
-                recycle.setVisibility(View.INVISIBLE);
-                chron.setVisibility(View.INVISIBLE);
-                GoogleAnalyticsUtils.reportRecordingRecycled();
+                resetRecordingView();
             }
         });
 
@@ -155,16 +132,36 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
             }
         });
         saveRecording.setText(Localization.get("save"));
-        mpc = (ProgressBar) layout.findViewById(R.id.demo_mpc);
+        recordingProgress = (ProgressBar) layout.findViewById(R.id.demo_mpc);
+    }
+
+    private void resetRecordingView() {
+        if(recorder != null){
+            recorder.release();
+            recorder = null;
+        }
+
+        if(player != null){
+            resetAudioPlayer(player);
+        }
+
+        toggleRecording.setBackgroundResource(R.drawable.record_start);
+        toggleRecording.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startRecording();
+            }
+        });
+        instruction.setText(Localization.get("before.recording"));
+        saveRecording.setVisibility(View.INVISIBLE);
+        recordAgain.setVisibility(View.INVISIBLE);
+        recordingDuration.setVisibility(View.INVISIBLE);
+        GoogleAnalyticsUtils.reportRecordingRecycled();
     }
 
     private void startRecording(){
         disableScreenRotation();
         setCancelable(false);
-
-        if(recorder == null){
-            recorder = new MediaRecorder();
-        }
 
         setupRecorder();
         recorder.start();
@@ -179,14 +176,18 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         toggleRecording.setBackgroundResource(R.drawable.record_in_progress);
         instruction.setText(Localization.get("during.recording"));
 
-        mpc.setVisibility(View.VISIBLE);
-        chron.setVisibility(View.VISIBLE);
+        recordingProgress.setVisibility(View.VISIBLE);
+        recordingDuration.setVisibility(View.VISIBLE);
 
-        chron.setBase(SystemClock.elapsedRealtime());
-        chron.start();
+        recordingDuration.setBase(SystemClock.elapsedRealtime());
+        recordingDuration.start();
     }
 
     private void setupRecorder() {
+        if(recorder == null){
+            recorder = new MediaRecorder();
+        }
+
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         recorder.setOutputFile(fileName);
@@ -200,9 +201,9 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
     private void stopRecording(){
 
-        chron.stop();
-        recycle.setVisibility(View.VISIBLE);
-        mpc.setVisibility(View.INVISIBLE);
+        recordingDuration.stop();
+        recordAgain.setVisibility(View.VISIBLE);
+        recordingProgress.setVisibility(View.INVISIBLE);
         recorder.stop();
         toggleRecording.setBackgroundResource(R.drawable.play);
         toggleRecording.setOnClickListener(new View.OnClickListener() {
@@ -271,8 +272,8 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
                 resetAudioPlayer(mp);
             }
         });
-        chron.setBase(SystemClock.elapsedRealtime());
-        chron.start();
+        recordingDuration.setBase(SystemClock.elapsedRealtime());
+        recordingDuration.start();
         player.start();
         toggleRecording.setBackgroundResource(R.drawable.pause);
         toggleRecording.setOnClickListener(new View.OnClickListener() {
@@ -287,8 +288,8 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     private void pauseAudioPlayer(MediaPlayer player){
         final MediaPlayer mp = player;
         mp.pause();
-        chron.stop();
-        currentTime = chron.getBase();
+        recordingDuration.stop();
+        currentTimeMillis = recordingDuration.getBase();
         toggleRecording.setBackgroundResource(R.drawable.play);
         toggleRecording.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -301,8 +302,8 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
     private void resumeAudioPlayer(MediaPlayer player){
         final MediaPlayer mp = player;
-        chron.setBase(currentTime);
-        chron.start();
+        recordingDuration.setBase(currentTimeMillis);
+        recordingDuration.start();
         mp.start();
         toggleRecording.setBackgroundResource(R.drawable.pause);
         toggleRecording.setOnClickListener(new View.OnClickListener() {
@@ -316,7 +317,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
     private void resetAudioPlayer(MediaPlayer mp){
         mp.release();
-        chron.stop();
+        recordingDuration.stop();
         toggleRecording.setBackgroundResource(R.drawable.play);
         toggleRecording.setOnClickListener(new View.OnClickListener() {
             @Override
