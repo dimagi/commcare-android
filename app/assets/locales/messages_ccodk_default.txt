@@ -130,6 +130,7 @@ sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync a
 
 sync.communicating.title=Communicating with Server
 sync.waiting.title=Waiting for Server Progress
+sync.downloading.title=Downloading Data from Server
 sync.processing.title=Processing Data from Server
 
 sync.progress.starting=Requesting Data...
