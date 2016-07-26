@@ -41,9 +41,9 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
     protected EditText yearText;
     protected TextView dayOfWeek;
     protected Calendar calendar;
+    protected LinearLayout gregorianView;
     private Spinner monthSpinner;
     private ImageButton openCalButton;
-    protected LinearLayout gregorianView;
 
     protected List<String> monthList;
     protected int maxYear;
@@ -56,10 +56,11 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
     protected final int MINYEAR = 1900;
     protected final String DAYFORMAT = "%02d";
     protected final String YEARFORMAT = "%04d";
+    private final int YEARSINFUTURE = 4;
 
     public GregorianDateWidget(Context context, FormEntryPrompt prompt, boolean closeButton){
         super(context, prompt);
-        maxYear = calendar.get(Calendar.YEAR) + 1;
+        maxYear = calendar.get(Calendar.YEAR) + YEARSINFUTURE;
         todaysDateInMillis = calendar.getTimeInMillis();
         ImageButton clearAll = (ImageButton) findViewById(R.id.clear_all);
 
@@ -114,7 +115,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
         setupMonthComponents();
     }
 
-    protected void setupMonthComponents(){
+    private void setupMonthComponents(){
         monthSpinner = (Spinner) gregorianView.findViewById(R.id.month_spinner);
         monthList.add("");
         monthSpinner.setAdapter(new ArrayAdapter<>(getContext(), R.layout.calendar_date, monthList));
@@ -122,13 +123,14 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 validateDayTextOnButtonPress();
-
                 int previouslySelectedMonth = monthArrayPointer;
+                //Need to have a valid monthArrayPointer if they pick the empty option, so mod everything by 12
                 monthArrayPointer = position%12;
                 int monthDifference = monthArrayPointer - previouslySelectedMonth;
                 DateTime dt = new DateTime(calendar.getTimeInMillis()).plusMonths(monthDifference);
                 calendar.setTimeInMillis(dt.getMillis());
 
+                //No need to redraw the day/year if month is blank
                 if(position < 12){
                     refreshDisplay();
                 }
@@ -187,7 +189,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
         }
     }
 
-    //Checks if all text fields contain valid values, corrects fields with invalid values, updates calendar based on text fields. Called on button press.
+    //Checks if all text fields contain valid values, corrects fields with invalid values, updates calendar based on text fields.
     protected void validateTextOnButtonPress(){
         validateDayTextOnButtonPress();
 
@@ -198,6 +200,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
         calendar.set(Calendar.YEAR, Integer.parseInt(yearTextValue));
     }
 
+    //Day-specific validation. Refactored into a separate method because it's called during month selection.
     private void validateDayTextOnButtonPress() {
         String dayTextString = dayText.getText().toString();
         int dayTextValue = Integer.parseInt(dayTextString);
@@ -287,7 +290,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
             return null;
         }
 
-        //Some but not all fields are empty - Error
+        //Some but not all fields are empty
         if(month.isEmpty() || day.isEmpty() || year.isEmpty()){
             return new InvalidDateData(Localization.get("empty.fields"), new DateData(calendar.getTime()), day, month, year);
         }
@@ -324,7 +327,7 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
         );
     }
 
-    protected void clearAll(){
+    private void clearAll(){
         dayText.setText("");
         yearText.setText("");
         setFocus(getContext());
@@ -338,11 +341,11 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
 
     }
 
-    protected void refreshDisplay(){
+    private void refreshDisplay(){
         updateDateDisplay(calendar.getTimeInMillis());
     }
 
-    protected void openCalendar() {
+    private void openCalendar() {
         setFocus(getContext());
         timeBeforeCalendarOpened = calendar.getTimeInMillis();
         myCalendarFragment.show(fm, "Calendar Popup");
