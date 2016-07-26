@@ -33,7 +33,7 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_PLAY_AUDIO = "Click the button to play audio";
     public static final String ACTION_PAUSE_AUDIO = "Click the button to pause audio playback";
     public static final String ACTION_RECORD_AGAIN = "Click the button to Record Again";
-
+    public static final String CATEGORY_PRIVILEGE_ENABLED = "Global Privilege Enabled";
 
     // Actions for CATEGORY_HOME_SCREEN only
     public static final String ACTION_BUTTON = "Button Press";
@@ -77,6 +77,7 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_CLEAR_SAVED_SESSION = "Clear Saved Session";
     public static final String ACTION_FORCE_LOG_SUBMISSION = "Force Log Submission";
     public static final String ACTION_RECOVERY_MODE = "Recovery Mode";
+    public static final String ACTION_SUPERUSER_AUTH = "Authenticate as Superuser";
 
     // Actions for CATEGORY_FEATURE_USAGE
     public static final String ACTION_LOGIN_AS_DEMO_USER = "Login as Demo User";
