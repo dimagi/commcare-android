@@ -53,10 +53,10 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
     private CalendarFragment myCalendarFragment;
     private FragmentManager fm;
 
-    protected final int MINYEAR = 1900;
-    protected final String DAYFORMAT = "%02d";
-    protected final String YEARFORMAT = "%04d";
-    private final int YEARSINFUTURE = 4;
+    public static final int MINYEAR = 1900;
+    private static final String DAYFORMAT = "%02d";
+    private static final String YEARFORMAT = "%04d";
+    public static final int YEARSINFUTURE = 4;
 
     public GregorianDateWidget(Context context, FormEntryPrompt prompt, boolean closeButton){
         super(context, prompt);

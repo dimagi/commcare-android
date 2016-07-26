@@ -51,8 +51,6 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
     protected long todaysDateInMillis;
     protected static final int DAYSINWEEK = 7;
     protected static final String TIME = "TIME";
-    private final static int MIN_YEAR = 1900;
-    private final static int YEARS_IN_FUTURE = 4;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
@@ -87,7 +85,6 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
     @Override
     public void onSaveInstanceState(Bundle bundle){
-        Log.d("Time", String.valueOf(calendar.get(Calendar.DAY_OF_MONTH)));
         bundle.putLong(TIME, calendar.getTimeInMillis());
     }
 
@@ -145,7 +142,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
         ArrayList<String> years = new ArrayList<>();
 
-        for(int i = MIN_YEAR; i <= calendar.get(Calendar.YEAR)+YEARS_IN_FUTURE; i++){
+        for(int i =GregorianDateWidget.MINYEAR; i <= calendar.get(Calendar.YEAR)+GregorianDateWidget.YEARSINFUTURE; i++){
             years.add(String.valueOf(i));
         }
 
@@ -155,7 +152,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         yearSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                calendar.set(Calendar.YEAR, position+MIN_YEAR);
+                calendar.set(Calendar.YEAR, position+GregorianDateWidget.MINYEAR);
                 refresh();
             }
 
@@ -164,6 +161,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         });
     }
 
+    //Have to sort month names because Calendar can't return them in order
     private void initMonthComponents() {
         monthSpinner = (Spinner) myLayout.findViewById(R.id.calendar_spinner);
 
@@ -238,7 +236,7 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
         int totalDays = getNumDaysInMonth(populator);
         populateListOfDates(dateList, populator, totalDays);
 
-        yearSpinner.setSelection(calendar.get(Calendar.YEAR)-MIN_YEAR);
+        yearSpinner.setSelection(calendar.get(Calendar.YEAR)-GregorianDateWidget.MINYEAR);
         monthSpinner.setSelection(calendar.get(Calendar.MONTH));
         myGrid.setAdapter(new CalendarAdapter(getContext(), dateList));
     }
