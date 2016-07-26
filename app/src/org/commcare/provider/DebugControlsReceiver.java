@@ -23,6 +23,7 @@ import java.util.Date;
  * - log into the currently seated app
  * - invalidate sync token to force recovery on sync
  * - invalidate user key record, future login will hit HQ for a new UKR
+ * - set a flag that will include a param to clear the cache on the next restore request
  *
  * @author Phillip Mates (pmates@dimagi.com).
  */
@@ -42,6 +43,8 @@ public class DebugControlsReceiver extends BroadcastReceiver {
             storeFakeCaseDbHash();
         } else if (action.endsWith("ExpireUserKeyRecord")) {
             invalidateUserKeyRecord(intent.getStringExtra("username"));
+        } else if (action.endsWith("ClearCacheOnRestore")) {
+            CommCareApplication._().setInvalidateCacheFlag(true);
         }
     }
 
