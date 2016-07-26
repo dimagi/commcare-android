@@ -43,6 +43,7 @@ public class CustomProgressDialog extends DialogFragment {
     private final static String KEY_USING_PROGRESS_BAR = "using_progress_bar";
     private final static String KEY_PROGRESS_BAR_PROGRESS = "progress_bar_progress";
     private final static String KEY_PROGRESS_BAR_MAX = "progress_bar_max";
+    private final static String KEY_PROGRESS_BAR_VISIBILITY = "progress_bar_visibility";
 
     //id of the task that spawned this dialog, -1 if not associated with a CommCareTask
     private int taskId;
@@ -64,6 +65,7 @@ public class CustomProgressDialog extends DialogFragment {
 
     //for progress bar
     private boolean usingHorizontalProgressBar;
+    private boolean progressBarIsVisible;
     private int progressBarProgress;
     private int progressBarMax;
 
@@ -98,6 +100,7 @@ public class CustomProgressDialog extends DialogFragment {
 
     public void addProgressBar() {
         this.usingHorizontalProgressBar = true;
+        this.progressBarIsVisible = true;
         this.progressBarProgress = 0;
         this.progressBarMax = 0;
     }
@@ -130,6 +133,7 @@ public class CustomProgressDialog extends DialogFragment {
             this.usingHorizontalProgressBar = savedInstanceState.getBoolean(KEY_USING_PROGRESS_BAR);
             this.progressBarProgress = savedInstanceState.getInt(KEY_PROGRESS_BAR_PROGRESS);
             this.progressBarMax = savedInstanceState.getInt(KEY_PROGRESS_BAR_MAX);
+            this.progressBarIsVisible = savedInstanceState.getBoolean(KEY_PROGRESS_BAR_VISIBILITY);
         }
     }
 
@@ -182,6 +186,11 @@ public class CustomProgressDialog extends DialogFragment {
         ProgressBar bar = (ProgressBar)view.findViewById(R.id.progress_bar_horizontal);
         bar.setProgress(progressBarProgress);
         bar.setMax(progressBarMax);
+        if (progressBarIsVisible) {
+            bar.setVisibility(View.VISIBLE);
+        } else {
+            bar.setVisibility(View.GONE);
+        }
 
         if (usingCheckbox) {
             CheckBox cb = (CheckBox)view.findViewById(R.id.progress_dialog_checkbox);
@@ -267,14 +276,16 @@ public class CustomProgressDialog extends DialogFragment {
         outState.putBoolean(KEY_USING_PROGRESS_BAR, this.usingHorizontalProgressBar);
         outState.putInt(KEY_PROGRESS_BAR_PROGRESS, this.progressBarProgress);
         outState.putInt(KEY_PROGRESS_BAR_MAX, this.progressBarMax);
+        outState.putBoolean(KEY_PROGRESS_BAR_VISIBILITY, this.progressBarIsVisible);
     }
 
     public void updateProgressBarVisibility(boolean visible) {
         if (usingHorizontalProgressBar) {
+            progressBarIsVisible = visible;
             Dialog dialog = getDialog();
             if (dialog != null) {
                 ProgressBar bar = (ProgressBar) dialog.findViewById(R.id.progress_bar_horizontal);
-                if (visible) {
+                if (progressBarIsVisible) {
                     bar.setVisibility(View.VISIBLE);
                 } else {
                     bar.setVisibility(View.GONE);
