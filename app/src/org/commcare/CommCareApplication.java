@@ -98,6 +98,7 @@ import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.CommCareExceptionHandler;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.GlobalConstants;
+import org.commcare.utils.MultipleAppsUtil;
 import org.commcare.utils.ODKPropertyManager;
 import org.commcare.utils.SessionActivityRegistration;
 import org.commcare.utils.SessionStateUninitException;
@@ -205,6 +206,8 @@ public class CommCareApplication extends Application {
 
     // Indicates that a build refresh action has been triggered, but not yet completed
     private boolean latestBuildRefreshPending;
+
+    private boolean invalidateCacheOnRestore;
 
     @Override
     public void onCreate() {
@@ -489,7 +492,7 @@ public class CommCareApplication extends Application {
         String lastAppId = prefs.getString(LoginActivity.KEY_LAST_APP, "");
         if (!"".equals(lastAppId)) {
             // If there is a 'last app' set in shared preferences, try to initialize that application.
-            ApplicationRecord lastApp = getAppById(lastAppId);
+            ApplicationRecord lastApp = MultipleAppsUtil.getAppById(lastAppId);
             if (lastApp == null || !lastApp.isUsable()) {
                 // This app record could be null if it has since been uninstalled, or unusable if
                 // it has since been archived, etc. In either case, just revert to picking the
@@ -509,7 +512,7 @@ public class CommCareApplication extends Application {
      * if there is one
      */
     public void initFirstUsableAppRecord() {
-        for (ApplicationRecord record : getUsableAppRecords()) {
+        for (ApplicationRecord record : MultipleAppsUtil.getUsableAppRecords()) {
             initializeAppResources(new CommCareApp(record));
             break;
         }
@@ -1506,6 +1509,14 @@ public class CommCareApplication extends Application {
      */
     public boolean isConsumerApp() {
         return BuildConfig.IS_CONSUMER_APP;
+    }
+
+    public boolean shouldInvalidateCacheOnRestore() {
+        return invalidateCacheOnRestore;
+    }
+
+    public void setInvalidateCacheFlag(boolean b) {
+        invalidateCacheOnRestore = b;
     }
 
     public PrototypeFactory getPrototypeFactory(Context c) {

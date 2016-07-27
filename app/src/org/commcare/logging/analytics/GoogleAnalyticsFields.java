@@ -22,6 +22,7 @@ public final class GoogleAnalyticsFields {
     public static final String CATEGORY_MODULE_NAVIGATION = "Module Navigation";
     public static final String CATEGORY_FEATURE_USAGE = "Feature Usage";
     public static final String CATEGORY_APP_MANAGER = "App Manager";
+    public static final String CATEGORY_PRIVILEGE_ENABLED = "Global Privilege Enabled";
 
     // Actions for CATEGORY_HOME_SCREEN only
     public static final String ACTION_BUTTON = "Button Press";
@@ -65,6 +66,7 @@ public final class GoogleAnalyticsFields {
     public static final String ACTION_CLEAR_SAVED_SESSION = "Clear Saved Session";
     public static final String ACTION_FORCE_LOG_SUBMISSION = "Force Log Submission";
     public static final String ACTION_RECOVERY_MODE = "Recovery Mode";
+    public static final String ACTION_SUPERUSER_AUTH = "Authenticate as Superuser";
 
     // Actions for CATEGORY_FEATURE_USAGE
     public static final String ACTION_LOGIN_AS_DEMO_USER = "Login as Demo User";
