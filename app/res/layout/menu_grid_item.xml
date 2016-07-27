@@ -20,6 +20,7 @@
               android:gravity="center"
               android:maxLines="2"
               android:lines="2"
+              android:ellipsize="end"
               android:id="@+id/row_txt"
               style="@style/GridEntityItemTextView"
               android:textAppearance="@style/GridEntityItemText">
