@@ -213,7 +213,7 @@
         android:layout_above="@+id/screen_form_entry_bottom_anchor">
         <Button
             android:id="@+id/multiple_intent_dispatch_button"
-            android:text="Print [5] Labels"
+            android:text="Batch Dispatch"
             android:visibility="gone"
             style="@style/ScreenPinnedButtonNeutral"/>
     </FrameLayout>
