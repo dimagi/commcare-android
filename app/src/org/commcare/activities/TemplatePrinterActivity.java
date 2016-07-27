@@ -24,6 +24,7 @@ import org.commcare.dalvik.R;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.TemplatePrinterTask;
 import org.commcare.tasks.TemplatePrinterTask.PopulateListener;
+import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.FileUtil;
 import org.commcare.utils.TemplatePrinterUtils;
 import org.javarosa.core.reference.InvalidReferenceException;
@@ -33,6 +34,7 @@ import org.javarosa.core.services.locale.Localization;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
 
@@ -69,24 +71,29 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_template_printer);
 
-        String path = getPathOrThrowError();
+        String printStyle = this.getIntent().getExtras().getString(KEY_TEMPLATE_STYLE);
+        if(printStyle == null) {
+            if(CompoundIntentList.isIntentCompound(this.getIntent())) {
+                //Only zebra print jobs can compound
+                //TODO: This still isn't a particularly great way for us to be differentiating
+                printStyle = TEMPLATE_STYLE_ZPL;
+            } else {
+                printStyle = TEMPLATE_STYLE_HTML;
+            }
+        }
+
+        if(TEMPLATE_STYLE_ZPL.equals(printStyle)) {
+            doZebraPrint();
+            return;
+        }
+
+        String path = getPathOrThrowError(getIntent().getExtras());
 
         //A null return code from the path retriever means that it is displaying a message;
         if(path == null) {
             return;
         }
 
-        String printStyle = this.getIntent().getExtras().getString(KEY_TEMPLATE_STYLE);
-        if(printStyle == null) {
-            printStyle = TEMPLATE_STYLE_HTML;
-        }
-
-        if(TEMPLATE_STYLE_ZPL.equals(printStyle)) {
-            File file = new File(path);
-
-            doZebraPrint(path);
-            return;
-        }
 
 
         //Check to make sure we are targeting API 19 or above, which is where print is supported
@@ -101,13 +108,31 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         preparePrintDoc(path);
     }
 
-    private void doZebraPrint(String path) {
-        File destFile = new File(path);
-
+    private void doZebraPrint() {
         Intent i = new Intent("com.dimagi.android.zebraprinttool.action.PrintTemplate");
-        i.putExtra("zebra:template_file_path", destFile.getAbsolutePath());
-        i.putExtras(this.getIntent().getExtras());
+
+        //Annoyingly you cannot generalize betew
+        if(CompoundIntentList.isIntentCompound(this.getIntent())) {
+            ArrayList<String> keys = this.getIntent().getStringArrayListExtra(CompoundIntentList.EXTRA_COMPOUND_DATA_INDICES);
+            i.putStringArrayListExtra("zebra:bundle_list", keys);
+            for(String key : keys) {
+                Bundle b = this.getIntent().getBundleExtra(key);
+                prepareZebraBundleFromFile(b);
+                i.putExtra(key, b);
+            }
+        } else {
+            Bundle intentBundle = i.getExtras();
+            prepareZebraBundleFromFile(intentBundle);
+            i.putExtras(intentBundle);
+        }
         this.startActivityForResult(i, CALLOUT_ZPL);
+    }
+
+    private void prepareZebraBundleFromFile(Bundle bundle) {
+        String path = getPathOrThrowError(bundle);
+
+        File destFile = new File(path);
+        bundle.putString("zebra:template_file_path", destFile.getAbsolutePath());
     }
 
     /**
@@ -115,9 +140,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
      * display an error message to the user. If a message is displayed, the method will
      * return null and the activity should not continue attempting to print
      */
-    private String getPathOrThrowError() {
-        Bundle data = getIntent().getExtras();
-
+    private String getPathOrThrowError(Bundle data) {
         //Check to make sure key-value data has been passed with the intent
         if (data == null) {
             showErrorDialog(Localization.get("no.print.data"));

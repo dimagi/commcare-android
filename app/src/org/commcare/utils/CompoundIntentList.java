@@ -48,4 +48,8 @@ public class CompoundIntentList {
     public Intent getCompoundedIntent() {
         return intent;
     }
+
+    public static boolean isIntentCompound(Intent intent) {
+        return intent.getStringArrayListExtra(EXTRA_COMPOUND_DATA_INDICES) != null;
+    }
 }
