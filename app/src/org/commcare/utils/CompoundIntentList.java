@@ -5,6 +5,11 @@ import android.content.Intent;
 import java.util.ArrayList;
 
 /**
+ * A wrapper object which compounds multiple intent callouts into a single "compound" intent which
+ * contains the relevant bundle data associated with each question.
+ *
+ * Only intents which share a common action are capable of being compounded.
+ *
  * Created by ctsims on 7/18/2016.
  */
 public class CompoundIntentList {
