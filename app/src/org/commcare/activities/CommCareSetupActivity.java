@@ -86,6 +86,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     private static final String KEY_FROM_EXTERNAL = "from_external";
     private static final String KEY_FROM_MANAGER = "from_manager";
     private static final String KEY_MANUAL_SMS_INSTALL = "sms-install-triggered-manually";
+    private static final String KEY_ERROR_MESSAGE = "error-message";
 
     private static final int SMS_PERMISSIONS_REQUEST = 2;
 
@@ -108,6 +109,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     }
 
     private UiState uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
+    private String errorMessageToDisplay;
 
     private static final int MODE_ARCHIVE = Menu.FIRST;
     private static final int MODE_SMS = Menu.FIRST + 2;
@@ -224,6 +226,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         fromManager = savedInstanceState.getBoolean(KEY_FROM_MANAGER);
         manualSMSInstall = savedInstanceState.getBoolean(KEY_MANUAL_SMS_INSTALL);
         lastInstallMode = savedInstanceState.getInt(KEY_LAST_INSTALL_MODE);
+        errorMessageToDisplay = savedInstanceState.getString(KEY_ERROR_MESSAGE);
         // Uggggh, this might not be 100% legit depending on timing, what
         // if we've already reconnected and shut down the dialog?
         startAllowed = savedInstanceState.getBoolean("startAllowed");
@@ -287,6 +290,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     protected void onResumeFragments() {
         super.onResumeFragments();
 
+        installFragment.showOrHideErrorMessage();
         uiStateScreenTransition();
     }
 
@@ -368,6 +372,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         outState.putBoolean(KEY_FROM_EXTERNAL, fromExternal);
         outState.putBoolean(KEY_FROM_MANAGER, fromManager);
         outState.putBoolean(KEY_MANUAL_SMS_INSTALL, manualSMSInstall);
+        outState.putString(KEY_ERROR_MESSAGE, errorMessageToDisplay);
         Log.v("UiState", "Saving instance state: " + outState);
     }
 
@@ -605,7 +610,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                                             receiver.startResourceInstall();
                                         } else {
                                             // only notify if this was manually triggered, since most people won't use this
-                                            Toast.makeText(receiver, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
+                                            receiver.fail(Localization.get("menu.sms.not.found"));
                                         }
                                     } else {
                                         if (result != null) {
@@ -627,13 +632,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                                 protected void deliverError(CommCareSetupActivity receiver, Exception e) {
                                     if (e instanceof SignatureException) {
                                         e.printStackTrace();
-                                        Toast.makeText(receiver, Localization.get("menu.sms.not.verified"), Toast.LENGTH_LONG).show();
+                                        receiver.fail(Localization.get("menu.sms.not.verified"));
                                     } else if (e instanceof IOException) {
                                         e.printStackTrace();
-                                        Toast.makeText(receiver, Localization.get("menu.sms.not.retrieved"), Toast.LENGTH_LONG).show();
+                                        receiver.fail(Localization.get("menu.sms.not.retrieved"));
                                     } else {
                                         e.printStackTrace();
-                                        Toast.makeText(receiver, Localization.get("notification.install.unknown.title"), Toast.LENGTH_LONG).show();
+                                        receiver.fail(Localization.get("notification.install.unknown.title"));
                                     }
                                 }
                             };
@@ -642,10 +647,11 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     break;
                 }
             }
+
             // attemptedInstall will only be true if we found no texts with the SMS_INSTALL_KEY_STRING tag
             // if we found one, notification will be handle by the task receiver
             if (!attemptedInstall && installTriggeredManually) {
-                Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
+                fail(Localization.get("menu.sms.not.found"));
             }
         } finally {
             cursor.close();
@@ -655,31 +661,42 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == MODE_ARCHIVE) {
+            clearErrorMessage();
             Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
             startActivityForResult(i, ARCHIVE_INSTALL);
         }
         if (item.getItemId() == MODE_SMS) {
+            clearErrorMessage();
             performSMSInstall(true);
         }
         return true;
     }
 
-    private void fail(NotificationMessage message, boolean reportNotification) {
-        String displayMessage;
-        if (reportNotification) {
-            CommCareApplication._().reportNotificationMessage(message);
-            displayMessage = Localization.get("notification.for.details.wrapper", new String[]{message.getTitle()});
-        } else {
-            displayMessage = message.getTitle();
-        }
-
-        //Toast.makeText(this, toastMessage, Toast.LENGTH_LONG).show();
-
-        // Last install attempt failed, so restore to starting uistate to try again
+    private void fail(String message) {
+        errorMessageToDisplay = message;
+        installFragment.showOrHideErrorMessage();
         uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
         uiStateScreenTransition();
+    }
 
-        installFragment.showErrorMessage(displayMessage);
+    private void fail(NotificationMessage notificationMessage, boolean reportNotification) {
+        String message;
+        if (reportNotification) {
+            CommCareApplication._().reportNotificationMessage(notificationMessage);
+            message = Localization.get("notification.for.details.wrapper",
+                    new String[]{notificationMessage.getTitle()});
+        } else {
+            message = notificationMessage.getTitle();
+        }
+        fail(message);
+    }
+
+    public void clearErrorMessage() {
+        errorMessageToDisplay = null;
+    }
+
+    public String getErrorMessageToDisplay() {
+        return errorMessageToDisplay;
     }
 
     // All final paths from the Update are handled here (Important! Some
@@ -811,7 +828,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             lastInstallMode = INSTALL_MODE_URL;
         }
     }
-
 
     @Override
     public void downloadLinkReceived(String url) {

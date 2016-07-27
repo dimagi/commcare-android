@@ -36,7 +36,7 @@ import java.util.ArrayList;
 public class SelectInstallModeFragment extends Fragment implements NsdServiceListener {
 
     private View mFetchHubContainer;
-    private TextView mErrorTextView;
+    private TextView mErrorMessageView;
     private ArrayList<Pair<String, String>> mLocalApps = new ArrayList<>();
 
     @Override
@@ -68,8 +68,11 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
             @Override
             public void onClick(View v) {
                 try {
+                    Activity currentActivity = getActivity();
+                    if (currentActivity instanceof CommCareSetupActivity) {
+                        ((CommCareSetupActivity)currentActivity).clearErrorMessage();
+                    }
                     Intent i = new Intent("com.google.zxing.client.android.SCAN");
-                    //Barcode only
                     i.putExtra("SCAN_FORMATS", "QR_CODE");
                     getActivity().startActivityForResult(i, CommCareSetupActivity.BARCODE_CAPTURE);
                 } catch (ActivityNotFoundException e) {
@@ -87,6 +90,7 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
                 Activity currentActivity = getActivity();
                 if (currentActivity instanceof CommCareSetupActivity) {
                     ((CommCareSetupActivity)currentActivity).setUiState(CommCareSetupActivity.UiState.IN_URL_ENTRY);
+                    ((CommCareSetupActivity)currentActivity).clearErrorMessage();
                 }
                 // if we use getChildFragmentManager, we're going to have a crash
                 FragmentManager fm = getActivity().getSupportFragmentManager();
@@ -108,8 +112,10 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
             }
         });
 
+        mErrorMessageView = (TextView)view.findViewById(R.id.install_error_text);
+        showOrHideErrorMessage();
+
         mFetchHubContainer = view.findViewById(R.id.btn_fetch_hub_container);
-        mErrorTextView = (TextView)view.findViewById(R.id.install_error_text);
 
         return view;
     }
@@ -160,8 +166,16 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         }
     }
 
-    public void showErrorMessage(String msg) {
-        mErrorTextView.setText(msg);
-        mErrorTextView.setVisibility(View.VISIBLE);
+    public void showOrHideErrorMessage() {
+        Activity currentActivity = getActivity();
+        if (currentActivity instanceof CommCareSetupActivity) {
+            String msg = ((CommCareSetupActivity) currentActivity).getErrorMessageToDisplay();
+            if (msg != null && !"".equals(msg)) {
+                mErrorMessageView.setText(msg);
+                mErrorMessageView.setVisibility(View.VISIBLE);
+            } else {
+                mErrorMessageView.setVisibility(View.GONE);
+            }
+        }
     }
 }
