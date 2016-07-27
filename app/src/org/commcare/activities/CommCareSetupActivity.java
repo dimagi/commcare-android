@@ -661,17 +661,6 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return true;
     }
 
-    private void displayError(String message) {
-        errorMessageToDisplay = message;
-        installFragment.showOrHideErrorMessage();
-    }
-
-    private void fail(String message) {
-        displayError(message);
-        uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
-        uiStateScreenTransition();
-    }
-
     private void fail(NotificationMessage notificationMessage, boolean reportNotification) {
         String message;
         if (reportNotification) {
@@ -682,6 +671,23 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             message = notificationMessage.getTitle();
         }
         fail(message);
+    }
+
+    /**
+     * Display an error and perform a UI transition
+     */
+    private void fail(String message) {
+        displayError(message);
+        uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
+        uiStateScreenTransition();
+    }
+
+    /**
+     * Display an error without performing a UI transition
+     */
+    private void displayError(String message) {
+        errorMessageToDisplay = message;
+        installFragment.showOrHideErrorMessage();
     }
 
     public void clearErrorMessage() {
