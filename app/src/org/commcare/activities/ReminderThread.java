@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.commcare.CommCareApplication;
+import org.commcare.dalvik.R;
 import org.commcare.suite.model.Alert;
 import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.model.instance.DataInstance;
@@ -19,12 +20,19 @@ import org.javarosa.xpath.XPathParseTool;
 import org.javarosa.xpath.expr.XPathExpression;
 
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 /**
@@ -60,10 +68,12 @@ public class ReminderThread {
                 try{
                     evalulateAlertExpressions();
                 }catch(Exception e){
-                    if(!Thread.interrupted()){
-                        showAlertDialog("Alerts have stopped because of an error!");
-                    }
                     mContinuePolling = false;
+                    System.out.println("Stopping thread");
+
+                    if(!Thread.interrupted()){
+                        showNotification("Alerts have stopped because of an error!");
+                    }
                 }
             }
             
@@ -101,7 +111,7 @@ public class ReminderThread {
                 for(TreeReference ref : refs) {
                     EvaluationContext internal = new EvaluationContext(ec, ref);
                     Boolean result = (Boolean) condition.eval(internal);
-                    Log.d("Result", result.toString());
+                    System.out.println(result.toString());
                     if(result) {
                         playNoise();
                     }
@@ -159,20 +169,41 @@ public class ReminderThread {
         }
     }
 
-    private void showAlertDialog(String alertText){
-        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-        builder.setMessage(alertText);
-        builder.setPositiveButton(
-                "Dismiss",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                }
-        );
+    private void showAlertDialog(String alertText) {
 
-        AlertDialog warning = builder.create();
-        warning.show();
+        Handler handler = new Handler(Looper.getMainLooper()) {
+            @Override
+            public void handleMessage(Message inputMessage) {
+                String messageText = (String) inputMessage.obj;
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+                builder.setMessage(messageText);
+                builder.setPositiveButton(
+                        "Dismiss",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+                            }
+                        }
+                );
+
+                AlertDialog warning = builder.create();
+                warning.show();
+            }
+        };
+
+        Message warning = handler.obtainMessage(-1, alertText);
+        warning.sendToTarget();
+    }
+
+    private void showNotification(String text){
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext)
+                .setContentTitle("Alerts")
+                .setContentText("text")
+                .setSmallIcon(R.drawable.apply_update);
+
+        NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(0, builder.build());
     }
 }
