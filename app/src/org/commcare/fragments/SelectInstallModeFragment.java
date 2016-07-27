@@ -2,6 +2,7 @@ package org.commcare.fragments;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -12,6 +13,7 @@ import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -116,6 +118,9 @@ public class SelectInstallModeFragment extends Fragment implements NsdServiceLis
         showOrHideErrorMessage();
 
         mFetchHubContainer = view.findViewById(R.id.btn_fetch_hub_container);
+
+        InputMethodManager inputManager = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
         return view;
     }
