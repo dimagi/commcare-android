@@ -113,7 +113,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
 
     // Activity request codes
     public static final int BARCODE_CAPTURE = 1;
-    private static final int ARCHIVE_INSTALL = 3;
+    private static final int OFFLINE_INSTALL = 3;
     private static final int MULTIPLE_APPS_LIMIT = 4;
 
     // dialog ID
@@ -177,7 +177,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                         incomingRef = incomingRef.substring(incomingRef.indexOf("//") + 2);
                         Intent i = new Intent(this, InstallArchiveActivity.class);
                         i.putExtra(InstallArchiveActivity.ARCHIVE_FILEPATH, incomingRef);
-                        startActivityForResult(i, ARCHIVE_INSTALL);
+                        startActivityForResult(i, OFFLINE_INSTALL);
                     } else {
                         // currently down allow other locations like http://
                         fail(NotificationMessageFactory.message(NotificationMessageFactory.StockMessages.Bad_Archive_File), true);
@@ -386,7 +386,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                     lastInstallMode = INSTALL_MODE_BARCODE;
                 }
                 break;
-            case ARCHIVE_INSTALL:
+            case OFFLINE_INSTALL:
                 if (resultCode == Activity.RESULT_OK) {
                     lastInstallMode = INSTALL_MODE_OFFLINE;
                     result = data.getStringExtra(InstallArchiveActivity.ARCHIVE_JR_REFERENCE);
@@ -652,7 +652,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         if (item.getItemId() == MODE_ARCHIVE) {
             clearErrorMessage();
             Intent i = new Intent(getApplicationContext(), InstallArchiveActivity.class);
-            startActivityForResult(i, ARCHIVE_INSTALL);
+            startActivityForResult(i, OFFLINE_INSTALL);
         }
         if (item.getItemId() == MODE_SMS) {
             clearErrorMessage();
