@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.PowerManager;
@@ -20,8 +19,6 @@ import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.commcare.CommCareApp;
@@ -314,8 +311,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             case READY_TO_INSTALL:
                 if (incomingRef == null || incomingRef.length() == 0) {
                     Log.e(TAG, "During install: incomingRef is empty!");
-                    Toast.makeText(getApplicationContext(), "Empty URL provided",
-                            Toast.LENGTH_SHORT).show();
+                    displayError("Empty URL provided");
                     return;
                 }
 
@@ -413,22 +409,15 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         this.uiState = UiState.READY_TO_INSTALL;
 
         try {
-            // check if the reference can be derived without erroring out
             ReferenceManager._().DeriveReference(incomingRef);
+            if (lastInstallMode == INSTALL_MODE_OFFLINE) {
+                onStartInstallClicked();
+            } else {
+                uiStateScreenTransition();
+            }
         } catch (InvalidReferenceException ire) {
-            // Couldn't process reference, return to basic ui state to ask user
-            // for new install reference
             incomingRef = null;
-            Toast.makeText(getApplicationContext(),
-                    Localization.get("install.bad.ref"),
-                    Toast.LENGTH_LONG).show();
-            this.uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
-        }
-
-        if (lastInstallMode == INSTALL_MODE_OFFLINE) {
-            onStartInstallClicked();
-        } else {
-            uiStateScreenTransition();
+            fail(Localization.get("install.bad.ref"));
         }
     }
 
@@ -609,8 +598,8 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
                                             receiver.uiStateScreenTransition();
                                             receiver.startResourceInstall();
                                         } else {
-                                            // only notify if this was manually triggered, since most people won't use this
-                                            receiver.fail(Localization.get("menu.sms.not.found"));
+                                            // only notify if this was manually triggered
+                                            receiver.displayError(Localization.get("menu.sms.not.found"));
                                         }
                                     } else {
                                         if (result != null) {
@@ -651,7 +640,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             // attemptedInstall will only be true if we found no texts with the SMS_INSTALL_KEY_STRING tag
             // if we found one, notification will be handle by the task receiver
             if (!attemptedInstall && installTriggeredManually) {
-                fail(Localization.get("menu.sms.not.found"));
+                displayError(Localization.get("menu.sms.not.found"));
             }
         } finally {
             cursor.close();
@@ -672,9 +661,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
         return true;
     }
 
-    private void fail(String message) {
+    private void displayError(String message) {
         errorMessageToDisplay = message;
         installFragment.showOrHideErrorMessage();
+    }
+
+    private void fail(String message) {
+        displayError(message);
         uiState = UiState.CHOOSE_INSTALL_ENTRY_METHOD;
         uiStateScreenTransition();
     }
@@ -837,6 +830,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             uiStateScreenTransition();
             Toast.makeText(this, Localization.get("menu.sms.ready"), Toast.LENGTH_LONG).show();
         }
+        // Do not notify that url was null here because the install attempt was not user-triggered
     }
 
     @Override
@@ -847,8 +841,7 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
             uiStateScreenTransition();
             startResourceInstall();
         } else {
-            // only notify if this was manually triggered, since most people won't use this
-            Toast.makeText(this, Localization.get("menu.sms.not.found"), Toast.LENGTH_LONG).show();
+            displayError(Localization.get("menu.sms.not.found"));
         }
     }
 
@@ -856,13 +849,13 @@ public class CommCareSetupActivity extends CommCareActivity<CommCareSetupActivit
     public void exceptionReceived(Exception e) {
         if (e instanceof SignatureException) {
             e.printStackTrace();
-            Toast.makeText(this, Localization.get("menu.sms.not.verified"), Toast.LENGTH_LONG).show();
+            displayError(Localization.get("menu.sms.not.verified"));
         } else if (e instanceof IOException) {
             e.printStackTrace();
-            Toast.makeText(this, Localization.get("menu.sms.not.retrieved"), Toast.LENGTH_LONG).show();
+            displayError(Localization.get("menu.sms.not.retrieved"));
         } else {
             e.printStackTrace();
-            Toast.makeText(this, Localization.get("notification.install.unknown.title"), Toast.LENGTH_LONG).show();
+            displayError(Localization.get("notification.install.unknown.title"));
         }
     }
 
