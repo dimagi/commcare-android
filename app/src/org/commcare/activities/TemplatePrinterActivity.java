@@ -111,7 +111,6 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     private void doZebraPrint() {
         Intent i = new Intent("com.dimagi.android.zebraprinttool.action.PrintTemplate");
 
-        //Annoyingly you cannot generalize betew
         if(CompoundIntentList.isIntentCompound(this.getIntent())) {
             ArrayList<String> keys = this.getIntent().getStringArrayListExtra(CompoundIntentList.EXTRA_COMPOUND_DATA_INDICES);
             i.putStringArrayListExtra("zebra:bundle_list", keys);
@@ -121,9 +120,13 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
                 i.putExtra(key, b);
             }
         } else {
-            Bundle intentBundle = i.getExtras();
+            String key = "single_job";
+            Bundle intentBundle = this.getIntent().getExtras();
             prepareZebraBundleFromFile(intentBundle);
-            i.putExtras(intentBundle);
+            i.putExtra(key, intentBundle);
+            ArrayList<String> extraKeys = new ArrayList<>();
+            extraKeys.add(key);
+            i.putStringArrayListExtra("zebra:bundle_list", extraKeys);
         }
         this.startActivityForResult(i, CALLOUT_ZPL);
     }
