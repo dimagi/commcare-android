@@ -15,6 +15,7 @@ import net.sqlcipher.database.SQLiteDatabase;
 
 import org.commcare.CommCareApplication;
 import org.commcare.activities.DispatchActivity;
+import org.commcare.activities.ReminderThread;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.FormSaveCallback;
 import org.commcare.logging.AndroidLogger;
@@ -24,6 +25,8 @@ import org.commcare.models.database.user.UserSandboxUtils;
 import org.commcare.models.encryption.CipherPool;
 import org.commcare.core.encryption.CryptUtil;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.suite.model.Alert;
+import org.commcare.suite.model.Suite;
 import org.commcare.tasks.DataSubmissionListener;
 import org.commcare.tasks.ProcessAndSendTask;
 import org.commcare.utils.SessionStateUninitException;
@@ -35,9 +38,11 @@ import org.javarosa.core.util.NoLocalizedTextException;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.crypto.Cipher;
@@ -54,6 +59,7 @@ import javax.crypto.spec.SecretKeySpec;
 public class CommCareSessionService extends Service {
 
     private NotificationManager mNM;
+    private ReminderThread reminderJob;
 
     /**
      * Milliseconds to wait before rechecking if the session is still fresh.
@@ -574,5 +580,27 @@ public class CommCareSessionService extends Service {
     public void setCurrentUser(User user, String password) {
         this.user = user;
         this.user.setCachedPwd(password);
+    }
+
+    public void startReminderThread(){
+        Vector<Alert> allAlerts = new Vector<>();
+
+        for(Suite s: CommCareApplication._().getCurrentApp().getCommCarePlatform().getInstalledSuites()){
+            allAlerts.addAll(s.getAlerts());
+        }
+
+        if(allAlerts.isEmpty()){
+            return;
+        }
+
+        reminderJob = new ReminderThread(CommCareApplication._());
+        reminderJob.startPolling(allAlerts);
+    }
+
+    public void stopReminderThread(){
+        if(reminderJob != null){
+            reminderJob.stopService();
+            reminderJob = null;
+        }
     }
 }
