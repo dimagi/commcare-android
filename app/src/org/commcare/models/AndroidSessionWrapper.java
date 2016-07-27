@@ -7,6 +7,7 @@ import org.commcare.models.database.SqlStorage;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.session.CommCareSession;
+import org.commcare.session.SessionDescriptorUtil;
 import org.commcare.session.SessionFrame;
 import org.commcare.suite.model.ComputedDatum;
 import org.commcare.suite.model.EntityDatum;
@@ -51,7 +52,7 @@ public class AndroidSessionWrapper {
         this.reset();
         this.sessionStateRecordId = descriptor.getID();
         this.formRecordId = descriptor.getFormRecordId();
-        descriptor.loadSessionFromDescriptor(session);
+        SessionDescriptorUtil.loadSessionFromDescriptor(descriptor.getSessionDescriptor(), session);
     }
 
     /**

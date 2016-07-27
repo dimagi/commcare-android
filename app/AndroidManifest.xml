@@ -257,6 +257,12 @@
         </activity>
         <activity android:name="org.commcare.activities.RefreshToLatestBuildActivity">
         </activity>
+        <activity android:name="org.commcare.activities.MultipleAppsLimitWarningActivity">
+        </activity>
+        <activity android:name="org.commcare.activities.GlobalPrivilegeClaimingActivity">
+        </activity>
+        <activity android:name="org.commcare.activities.AppManagerAdvancedSettings">
+        </activity>
 
         <uses-library
             android:name="org.javarosa"
@@ -286,8 +292,7 @@
             android:windowSoftInputMode="adjustResize">
         </activity>
         <activity
-            android:name="org.commcare.activities.UnrecoverableErrorActivity"
-            android:theme="@style/Theme.Transparent">
+            android:name="org.commcare.activities.UnrecoverableErrorActivity">
         </activity>
         <activity
             android:name="org.commcare.activities.KeyAccessRequestActivity"
@@ -329,6 +334,10 @@
             </intent-filter>
             <intent-filter>
                 <action android:name="${applicationId}.api.action.TriggerSyncRecover"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="${applicationId}.api.action.ClearCacheOnRestore"/>
                 <category android:name="android.intent.category.DEFAULT"/>
             </intent-filter>
         </receiver>
