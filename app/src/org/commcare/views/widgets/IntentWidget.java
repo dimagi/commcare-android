@@ -216,7 +216,9 @@ public class IntentWidget extends QuestionWidget {
             return compoundedCallout;
         }
         if(compoundedCallout == null) {
-            return new CompoundIntentList(intent, this.getFormId().toString());
+            CompoundIntentList list = new CompoundIntentList(intent, this.getFormId().toString());
+            list.setTitle(this.getButtonLabel().toString());
+            return list;
         }
         if(!compoundedCallout.addIntentIfCompatible(intent,this.getFormId().toString() )) {
             return null;

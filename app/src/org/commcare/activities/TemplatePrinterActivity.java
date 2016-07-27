@@ -20,6 +20,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import org.commcare.CommCareApplication;
+import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.dalvik.R;
 import org.commcare.preferences.CommCarePreferences;
 import org.commcare.tasks.TemplatePrinterTask;
@@ -271,7 +272,11 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == CALLOUT_ZPL) {
-            this.setResult(resultCode);
+            Intent response = new Intent();
+            if(resultCode != Activity.RESULT_CANCELED) {
+                response.putExtra(IntentCallout.INTENT_RESULT_VALUE, "");
+            }
+            this.setResult(resultCode, response);
             this.finish();
             return;
         }

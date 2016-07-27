@@ -567,6 +567,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      */
     public QuestionWidget getPendingWidget() {
         if (mFormController != null) {
+            if(mFormController.isPendingCalloutBulk()) {
+                return null;
+            }
             FormIndex pendingIndex = mFormController.getPendingCalloutFormIndex();
             if (pendingIndex == null) {
                 Logger.log(AndroidLogger.SOFT_ASSERT,
@@ -591,6 +594,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // keep track of whether we should auto advance
         boolean wasAnswerSet = false;
         boolean quick = false;
+
+        //For now we don't process bulk callout responses
+        if(mFormController.isPendingCalloutBulk()) {
+            return true;
+        }
 
         IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
         if (pendingIntentWidget != null) {
@@ -1184,8 +1192,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         if(i == null) {
             hideCompoundIntentCalloutButton();
         } else {
-            this.findViewById(R.id.multiple_intent_dispatch_button).setVisibility(View.VISIBLE);
-            //TODO: Update Text
+            Button compoundDispatchButton =
+                    (Button)this.findViewById(R.id.multiple_intent_dispatch_button);
+            compoundDispatchButton.setVisibility(View.VISIBLE);
+            compoundDispatchButton.setText(i.getTitle() + ": " + i.getNumberOfCallouts());
         }
     }
 

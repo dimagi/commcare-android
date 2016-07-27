@@ -16,5 +16,9 @@ import org.javarosa.core.model.FormIndex;
 public interface PendingCalloutInterface {
     FormIndex getPendingCalloutFormIndex();
 
+    boolean isPendingCalloutBulk();
+
     void setPendingCalloutFormIndex(FormIndex pendingCalloutFormIndex);
+
+    void setPendingCalloutIsBulk();
 }

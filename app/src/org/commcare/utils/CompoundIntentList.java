@@ -1,6 +1,7 @@
 package org.commcare.utils;
 
 import android.content.Intent;
+import android.text.Spannable;
 
 import java.util.ArrayList;
 
@@ -16,6 +17,7 @@ public class CompoundIntentList {
     public static final String EXTRA_COMPOUND_DATA_INDICES = "cc:compound_extra_indices";
 
     Intent intent;
+    private String title;
 
     public CompoundIntentList(Intent baseIntent, String index) {
         copyFromIntent(baseIntent, index);
@@ -56,5 +58,13 @@ public class CompoundIntentList {
 
     public static boolean isIntentCompound(Intent intent) {
         return intent.getStringArrayListExtra(EXTRA_COMPOUND_DATA_INDICES) != null;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getTitle() {
+        return this.title;
     }
 }
