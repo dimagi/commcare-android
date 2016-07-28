@@ -22,11 +22,11 @@ public class SavedFormLoader {
      *
      * @param payloadFile xml file containing form instances
      */
-    public static void loadFormsFromPayload(String payloadFile, String status) {
+    public static void loadFormsFromPayload(String payloadFile, String recordStatus) {
         TestUtils.processResourceTransaction(payloadFile);
 
         CommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
-        FormRecordCleanupTask<Object> task = new FormRecordCleanupTask<Object>(CommCareApplication._(), platform, -1, status) {
+        FormRecordCleanupTask<Object> task = new FormRecordCleanupTask<Object>(CommCareApplication._(), platform, -1, recordStatus) {
             @Override
             protected void deliverResult(Object receiver, Integer result) {
             }

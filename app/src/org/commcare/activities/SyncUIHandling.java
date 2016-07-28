@@ -73,7 +73,10 @@ public class SyncUIHandling {
             activity.updateProgress(Localization.get("sync.progress.downloading"), DataPullTask.DATA_PULL_TASK_ID);
             activity.updateProgressBarVisibility(false);
         } else if (progressCode == DataPullTask.PROGRESS_DOWNLOADING) {
-            activity.updateProgress(Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}), DataPullTask.DATA_PULL_TASK_ID);
+            activity.updateProgress(
+                    Localization.get("sync.process.downloading.progress", new String[]{String.valueOf(update[1])}),
+                    Localization.get("sync.downloading.title"),
+                    DataPullTask.DATA_PULL_TASK_ID);
         } else if (progressCode == DataPullTask.PROGRESS_DOWNLOADING_COMPLETE) {
             activity.hideTaskCancelButton();
         } else if (progressCode == DataPullTask.PROGRESS_PROCESSING) {
