@@ -8,11 +8,14 @@ import org.commcare.android.CommCareTestRunner;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.engine.resource.AppInstallStatus;
+import org.commcare.models.database.AndroidSandbox;
 import org.commcare.suite.model.Profile;
 import org.commcare.tasks.InstallStagedUpdateTask;
 import org.commcare.tasks.TaskListener;
 import org.commcare.tasks.TaskListenerRegistrationException;
 import org.commcare.tasks.UpdateTask;
+import org.javarosa.core.model.instance.FormInstance;
+import org.javarosa.core.services.storage.IStorageUtilityIndexed;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +25,7 @@ import org.robolectric.annotation.Config;
 
 import java.io.File;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
@@ -139,6 +143,15 @@ public class AppUpdateTest {
     private void installUpdate(String appFolder,
                                TaskListener<Integer, AppInstallStatus> listener,
                                AppInstallStatus expectedInstallStatus) {
+        UpdateTask updateTask = stageUpdate(appFolder, listener);
+
+        assertEquals(expectedInstallStatus,
+                InstallStagedUpdateTask.installStagedUpdate());
+        updateTask.clearTaskInstance();
+    }
+
+    private UpdateTask stageUpdate(String appFolder,
+                                   TaskListener<Integer, AppInstallStatus> listener) {
         UpdateTask updateTask = UpdateTask.getNewInstance();
         try {
             updateTask.registerTaskListener(listener);
@@ -149,10 +162,7 @@ public class AppUpdateTest {
 
         Robolectric.flushBackgroundThreadScheduler();
         Robolectric.flushForegroundThreadScheduler();
-
-        Assert.assertEquals(expectedInstallStatus,
-                InstallStagedUpdateTask.installStagedUpdate());
-        updateTask.clearTaskInstance();
+        return updateTask;
     }
 
     private TaskListener<Integer, AppInstallStatus> taskListenerFactory(final AppInstallStatus expectedResult) {
@@ -170,5 +180,30 @@ public class AppUpdateTest {
             public void handleTaskCancellation() {
             }
         };
+    }
+
+    @Test
+    public void testAppUpdateWithSuiteFixture() {
+        Log.d(TAG, "Applying a app update with a suite fixture");
+
+        AndroidSandbox sandbox = new AndroidSandbox(CommCareApplication._());
+        IStorageUtilityIndexed<FormInstance> appFixtureStorage = sandbox.getAppFixtureStorage();
+        assertEquals(1, appFixtureStorage.getNumRecords());
+        assertEquals(1, appFixtureStorage.read(1).getRoot().getNumChildren());
+
+        UpdateTask updateTask = stageUpdate("update_with_suite_fixture",
+                taskListenerFactory(AppInstallStatus.UpdateStaged));
+
+        // ensure suite fixture didn't change if you only staged an update but haven't applied it
+        assertEquals(1, appFixtureStorage.getNumRecords());
+        assertEquals(1, appFixtureStorage.read(1).getRoot().getNumChildren());
+
+        assertEquals(AppInstallStatus.Installed,
+                InstallStagedUpdateTask.installStagedUpdate());
+        updateTask.clearTaskInstance();
+
+        // ensure suite fixture updated after actually applying a staged update
+        assertEquals(1, appFixtureStorage.getNumRecords());
+        assertEquals(2, appFixtureStorage.read(1).getRoot().getNumChildren());
     }
 }

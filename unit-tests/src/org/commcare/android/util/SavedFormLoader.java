@@ -2,7 +2,6 @@ package org.commcare.android.util;
 
 import org.commcare.CommCareApplication;
 import org.commcare.android.mocks.CommCareTaskConnectorFake;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.tasks.FormRecordCleanupTask;
 import org.commcare.util.CommCarePlatform;
 import org.robolectric.Robolectric;
@@ -23,11 +22,11 @@ public class SavedFormLoader {
      *
      * @param payloadFile xml file containing form instances
      */
-    public static void loadFormsFromPayload(String payloadFile) {
+    public static void loadFormsFromPayload(String payloadFile, String recordStatus) {
         TestUtils.processResourceTransaction(payloadFile);
 
         CommCarePlatform platform = CommCareApplication._().getCommCarePlatform();
-        FormRecordCleanupTask<Object> task = new FormRecordCleanupTask<Object>(CommCareApplication._(), platform, -1, FormRecord.STATUS_SAVED) {
+        FormRecordCleanupTask<Object> task = new FormRecordCleanupTask<Object>(CommCareApplication._(), platform, -1, recordStatus) {
             @Override
             protected void deliverResult(Object receiver, Integer result) {
             }

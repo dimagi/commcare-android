@@ -62,12 +62,10 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
 
     @Override
     public void cleanup() {
-        // TODO Auto-generated method stub
-
     }
 
     @Override
-    public abstract boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException;
+    public abstract boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) throws ResourceInitializationException;
 
     @Override
     public boolean install(Resource r, ResourceLocation location,

@@ -36,6 +36,7 @@ import java.util.Vector;
 public class SuiteAndroidInstaller extends FileSystemInstaller {
     private static final String TAG = SuiteAndroidInstaller.class.getSimpleName();
 
+    @SuppressWarnings("unused")
     public SuiteAndroidInstaller() {
         // for externalization
     }
@@ -45,16 +46,19 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(final AndroidCommCarePlatform instance) throws ResourceInitializationException {
+    public boolean initialize(final AndroidCommCarePlatform instance, boolean isUpgrade) throws ResourceInitializationException {
         try {
             if (localLocation == null) {
                 throw new ResourceInitializationException("The suite file's location is null!");
             }
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
-            SuiteParser parser = new AndroidSuiteParser(local.getStream(),
-                    instance.getGlobalResourceTable(), null, instance.getFixtureStorage());
-            parser.setSkipResources(true);
+            SuiteParser parser;
+            if (isUpgrade) {
+                parser = AndroidSuiteParser.buildUpgradeParser(local.getStream(), instance.getGlobalResourceTable(), instance.getFixtureStorage());
+            } else {
+                parser = AndroidSuiteParser.buildInitParser(local.getStream(), instance.getGlobalResourceTable(), instance.getFixtureStorage());
+            }
 
             Suite s = parser.parse();
 
@@ -74,13 +78,11 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     public boolean install(Resource r, ResourceLocation location, Reference ref, ResourceTable table, final AndroidCommCarePlatform instance, boolean upgrade) throws UnresolvedResourceException, UnfullfilledRequirementsException {
         //First, make sure all the file stuff is managed.
         super.install(r, location, ref, table, instance, upgrade);
+
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
 
-            SuiteParser parser = new AndroidSuiteParser(local.getStream(), table,
-                    r.getRecordGuid(), instance.getFixtureStorage());
-
-            Suite s = parser.parse();
+            AndroidSuiteParser.buildInstallParser(local.getStream(), table, r.getRecordGuid(), instance.getFixtureStorage()).parse();
 
             table.commitCompoundResource(r, upgrade ? Resource.RESOURCE_STATUS_UPGRADE : Resource.RESOURCE_STATUS_INSTALLED);
             return true;
@@ -108,12 +110,7 @@ public class SuiteAndroidInstaller extends FileSystemInstaller {
     public boolean verifyInstallation(Resource r, Vector<MissingMediaException> problems) {
         try {
             Reference local = ReferenceManager._().DeriveReference(localLocation);
-            Suite mSuite = (new AndroidSuiteParser(local.getStream(), new DummyResourceTable(), null, null) {
-                @Override
-                protected boolean inValidationMode() {
-                    return true;
-                }
-            }).parse();
+            Suite mSuite = AndroidSuiteParser.buildVerifyParser(local.getStream(), new DummyResourceTable()).parse();
             Hashtable<String, Entry> mHashtable = mSuite.getEntries();
             for (Enumeration en = mHashtable.keys(); en.hasMoreElements(); ) {
                 String key = (String)en.nextElement();

@@ -41,7 +41,7 @@ public class HttpRequestEndpointsMock implements HttpRequestEndpoints {
         if (responseCode == 202) {
             return HttpResponseMock.buildHttpResponseMockForAsyncRestore();
         } else {
-            return HttpResponseMock.buildHttpResponseMock(responseCode);
+            return HttpResponseMock.buildHttpResponseMock(responseCode, null);
         }
     }
 
