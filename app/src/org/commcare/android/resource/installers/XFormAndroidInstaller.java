@@ -54,6 +54,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     private String namespace;
     private String contentUri;
 
+    @SuppressWarnings("unused")
     public XFormAndroidInstaller() {
         // for externalization
     }
@@ -63,7 +64,7 @@ public class XFormAndroidInstaller extends FileSystemInstaller {
     }
 
     @Override
-    public boolean initialize(AndroidCommCarePlatform instance) throws ResourceInitializationException {
+    public boolean initialize(AndroidCommCarePlatform instance, boolean isUpgrade) throws ResourceInitializationException {
         instance.registerXmlns(namespace, contentUri);
         return true;
     }
