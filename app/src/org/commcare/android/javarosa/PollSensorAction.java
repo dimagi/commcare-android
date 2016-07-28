@@ -1,18 +1,8 @@
 package org.commcare.android.javarosa;
 
-import android.Manifest;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.support.v4.content.ContextCompat;
 
 import org.commcare.CommCareApplication;
 import org.commcare.utils.GeoUtils;
@@ -32,9 +22,6 @@ import org.javarosa.core.util.externalizable.PrototypeFactory;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * XForms Action extension to periodically poll a sensor and optionally save
@@ -42,17 +29,15 @@ import java.util.TimerTask;
  *
  * @author jschweers
  */
-@SuppressWarnings("ResourceType")
-public class PollSensorAction extends Action implements LocationListener {
+public class PollSensorAction extends Action {
 
     public static final String ELEMENT_NAME = "pollsensor";
     public static final String KEY_UNRESOLVED_XPATH = "unresolved_xpath";
     public static final String XPATH_ERROR_ACTION = "poll_sensor_xpath_error_action";
-    private TreeReference target;
 
-    private LocationManager mLocationManager;
-    private FormDef mModel;
-    private TreeReference mContextRef;
+    private FormDef formDef = null;
+    private TreeReference contextRef;
+    private TreeReference target;
 
     public PollSensorAction() {
         super(ELEMENT_NAME);
@@ -72,127 +57,39 @@ public class PollSensorAction extends Action implements LocationListener {
     @Override
     public TreeReference processAction(FormDef model, TreeReference contextRef, String event) {
         if (Action.EVENT_XFORMS_REVALIDATE.equals(event)) {
-            // form is done, grab the location manager out of the form def and stop listening
-            LocationManager locationManager = model.getExtension(AndroidXFormExtensions.class).getLocationManager();
-            if (hasLocationPerms() && locationManager != null) {
-                locationManager.removeUpdates(this);
-            }
+            // form is done so stop listening
+            PollSensorController.INSTANCE.remove();
         } else {
-            mModel = model;
-            mContextRef = contextRef;
-            startLocationPolling();
+            formDef = model;
+            this.contextRef = contextRef;
+            PollSensorController.INSTANCE.startLocationPolling(this);
         }
         return null;
     }
 
-    private void startLocationPolling() {
-        // LocationManager needs to be dealt with in the main UI thread, so
-        // wrap GPS-checking logic in a Handler
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            public void run() {
-                // Start requesting GPS updates
-                Context context = CommCareApplication._();
-                mLocationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
-
-                // store location manager in form def, so that when form is saved and exitted, we can stop that same location manager
-                mModel.getExtension(AndroidXFormExtensions.class).setLocationManager(mLocationManager);
-
-                Set<String> providers = GeoUtils.evaluateProviders(mLocationManager);
-                if (providers.isEmpty()) {
-                    context.registerReceiver(
-                            new ProvidersChangedHandler(),
-                            new IntentFilter(LocationManager.PROVIDERS_CHANGED_ACTION)
-                    );
-
-                    // This thread can't take action on the UI, so instead send
-                    // a message that actual activities notice and then display
-                    // a dialog asking user to enable location access
-                    Intent noGPSIntent = new Intent(GeoUtils.ACTION_CHECK_GPS_ENABLED);
-                    context.sendStickyBroadcast(noGPSIntent);
-                }
-                requestLocationUpdates(providers);
-            }
-        });
-    }
-
-    /**
-     * Start polling for location, based on whatever providers are given, and
-     * set up a timeout after MAXIMUM_WAIT is exceeded.
-     *
-     * @param providers Set of String objects that may contain
-     *                  LocationManager.GPS_PROVDER and/or LocationManager.NETWORK_PROVIDER
-     */
-    private void requestLocationUpdates(Set<String> providers) {
-        if (providers.isEmpty() && hasLocationPerms()) {
-            mLocationManager.removeUpdates(this);
-            mLocationManager = null;
-            return;
-        }
-
-        for (String provider : providers) {
-            if (hasLocationPerms()) {
-                mLocationManager.requestLocationUpdates(provider, 0, 0, this);
-            }
-        }
-
-        // Cancel polling after maximum time is exceeded
-        Timer timeout = new Timer();
-        timeout.schedule(new StopPollingTask(), GeoUtils.MAXIMUM_WAIT);
-    }
-
-    /**
-     * If this action has a target node, update its value with the given location.
-     */
-    @Override
-    public void onLocationChanged(Location location) {
-        if (location != null) {
-            if (target != null) {
-                String result = GeoUtils.locationToString(location);
-                TreeReference qualifiedReference = mContextRef == null ? target : target.contextualize(mContextRef);
-                EvaluationContext context = new EvaluationContext(mModel.getEvaluationContext(), qualifiedReference);
-                AbstractTreeElement node = context.resolveReference(qualifiedReference);
-                if (node == null) {
-                    Context applicationContext = CommCareApplication._();
-                    Intent xpathErrorIntent = new Intent(XPATH_ERROR_ACTION);
-                    xpathErrorIntent.putExtra(KEY_UNRESOLVED_XPATH, qualifiedReference.toString(true));
-                    applicationContext.sendStickyBroadcast(xpathErrorIntent);
+    void update(Location location) {
+        if (target != null) {
+            String result = GeoUtils.locationToString(location);
+            TreeReference qualifiedReference = contextRef == null ? target : target.contextualize(contextRef);
+            EvaluationContext context = new EvaluationContext(formDef.getEvaluationContext(), qualifiedReference);
+            AbstractTreeElement node = context.resolveReference(qualifiedReference);
+            if (node == null) {
+                Context applicationContext = CommCareApplication._();
+                Intent xpathErrorIntent = new Intent(XPATH_ERROR_ACTION);
+                xpathErrorIntent.putExtra(KEY_UNRESOLVED_XPATH, qualifiedReference.toString(true));
+                applicationContext.sendStickyBroadcast(xpathErrorIntent);
+            } else {
+                int dataType = node.getDataType();
+                IAnswerData val = Recalculate.wrapData(result, dataType);
+                if (val == null) {
+                    formDef.setValue(null, qualifiedReference);
                 } else {
-                    int dataType = node.getDataType();
-                    IAnswerData val = Recalculate.wrapData(result, dataType);
-                    if (val == null) {
-                        mModel.setValue(null, qualifiedReference);
-                    } else {
-                        IAnswerData answer =
-                                AnswerDataFactory.templateByDataType(dataType).cast(val.uncast());
-                        mModel.setValue(answer, qualifiedReference);
-                    }
+                    IAnswerData answer =
+                            AnswerDataFactory.templateByDataType(dataType).cast(val.uncast());
+                    formDef.setValue(answer, qualifiedReference);
                 }
             }
-
-            if (location.getAccuracy() <= GeoUtils.GOOD_ACCURACY
-                    && hasLocationPerms()) {
-                mLocationManager.removeUpdates(this);
-                mLocationManager = null;
-            }
         }
-    }
-
-    private boolean hasLocationPerms() {
-        Context context = CommCareApplication._().getApplicationContext();
-        return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
     }
 
     @Override
@@ -209,24 +106,4 @@ public class PollSensorAction extends Action implements LocationListener {
 
         ExtUtil.write(out, new ExtWrapNullable(target));
     }
-
-
-    private class ProvidersChangedHandler extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Set<String> providers = GeoUtils.evaluateProviders(mLocationManager);
-            requestLocationUpdates(providers);
-        }
-    }
-
-    private class StopPollingTask extends TimerTask {
-        @Override
-        public void run() {
-            if (hasLocationPerms()) {
-                mLocationManager.removeUpdates(PollSensorAction.this);
-                mLocationManager = null;
-            }
-        }
-    }
-
 }
