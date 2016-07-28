@@ -1,5 +1,7 @@
 package org.commcare.android.javarosa;
 
+import android.location.LocationManager;
+
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.XFormExtension;
 import org.javarosa.core.util.externalizable.DeserializationException;
@@ -17,8 +19,17 @@ import java.util.Hashtable;
  */
 public class AndroidXFormExtensions implements XFormExtension {
     private Hashtable<String, IntentCallout> intents = new Hashtable<>();
+    private LocationManager locationManager;
 
     public AndroidXFormExtensions() {
+    }
+
+    public void setLocationManager(LocationManager locationManager) {
+        this.locationManager = locationManager;
+    }
+
+    public LocationManager getLocationManager() {
+        return locationManager;
     }
 
     public void registerIntent(String id, IntentCallout callout) {

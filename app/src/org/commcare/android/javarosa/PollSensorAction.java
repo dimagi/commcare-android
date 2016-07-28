@@ -50,7 +50,7 @@ public class PollSensorAction extends Action implements LocationListener {
     public static final String XPATH_ERROR_ACTION = "poll_sensor_xpath_error_action";
     private TreeReference target;
 
-    private static LocationManager mLocationManager;
+    private LocationManager mLocationManager;
     private FormDef mModel;
     private TreeReference mContextRef;
 
@@ -72,10 +72,10 @@ public class PollSensorAction extends Action implements LocationListener {
     @Override
     public TreeReference processAction(FormDef model, TreeReference contextRef, String event) {
         if (Action.EVENT_XFORMS_REVALIDATE.equals(event)) {
-            // form is done, stop listening
-            if (hasLocationPerms() && mLocationManager != null) {
-                mLocationManager.removeUpdates(this);
-                mLocationManager = null;
+            // form is done, grab the location manager out of the form def and stop listening
+            LocationManager locationManager = model.getExtension(AndroidXFormExtensions.class).getLocationManager();
+            if (hasLocationPerms() && locationManager != null) {
+                locationManager.removeUpdates(this);
             }
         } else {
             mModel = model;
@@ -93,6 +93,10 @@ public class PollSensorAction extends Action implements LocationListener {
                 // Start requesting GPS updates
                 Context context = CommCareApplication._();
                 mLocationManager = (LocationManager)context.getSystemService(Context.LOCATION_SERVICE);
+
+                // store location manager in form def, so that when form is saved and exitted, we can stop that same location manager
+                mModel.getExtension(AndroidXFormExtensions.class).setLocationManager(mLocationManager);
+
                 Set<String> providers = GeoUtils.evaluateProviders(mLocationManager);
                 if (providers.isEmpty()) {
                     context.registerReceiver(
