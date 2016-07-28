@@ -111,7 +111,7 @@ public class CommCareHomeActivity
      */
     private static final int MODEL_RESULT = 4;
 
-    private static final int GET_INCOMPLETE_FORM = 16;
+    public static final int GET_INCOMPLETE_FORM = 16;
     public static final int REPORT_PROBLEM_ACTIVITY = 64;
 
     private static final int PREFERENCES_ACTIVITY=512;
