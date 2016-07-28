@@ -578,7 +578,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     private boolean processIntentResponse(Intent response, boolean wasIntentCancelled) {
         // keep track of whether we should auto advance
         boolean wasAnswerSet = false;
-        boolean quick = false;
+        boolean isQuick = false;
 
         IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
         if (pendingIntentWidget != null) {
@@ -589,7 +589,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             IntentCallout ic = pendingIntentWidget.getIntentCallout();
 
             if (!wasIntentCancelled) {
-                quick = "quick".equals(ic.getAppearance());
+                isQuick = "quick".equals(ic.getAppearance());
                 TreeReference context = null;
                 if (mFormController.getPendingCalloutFormIndex() != null) {
                     context = mFormController.getPendingCalloutFormIndex().getReference();
@@ -601,7 +601,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         // auto advance if we got a good result and are in quick mode
-        if (wasAnswerSet && quick) {
+        if (wasAnswerSet && isQuick) {
             showNextView();
         } else {
             refreshCurrentView();
