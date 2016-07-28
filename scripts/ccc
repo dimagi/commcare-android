@@ -15,10 +15,15 @@ HELP_MSG = """'capture' saves the current session for restoring later.
 'uninstall app_id' uninstalls an installed app.
 'login username password' logs into the currently seated app
 'invalidate' forces recovery on next sync by providing fake case db hash.
+'clear_restore_cache' sets a flag that will cause the next restore request to include a param that clears the cache on HQ.
 'remote domain app_id build' downloads an app from HQ and installs it.
                              The 'build' argument is optional
+'media_remote domain app_id build' downloads an app with multimedia from HQ and
+                                   installs it. The 'build' argument is optional
 'download domain app_id build' downloads an app from HQ.
                                The 'build' argument is optional
+'media_download domain app_id build' downloads an app with multimedia from HQ.
+                                     The 'build' argument is optional
 """
 BASE_RECEIVER_CMD = "adb shell am broadcast -a"
 BASE_ACTIVITY_CMD = "adb shell am start -n"
@@ -80,18 +85,18 @@ def receiver_command(action, extras={}):
     return cmd + get_extras_string(extras)
 
 
-# String String String -> None
-def remote_install(domain, app_id, build_number=None):
+# String String String Boolean -> None
+def remote_install(domain, app_id, build_number=None, with_media=False):
     """
     Downloads CCZ from HQ and installs it on Commcare.
     """
-    ccz_file = download(domain, app_id, build_number)
+    ccz_file = download(domain, app_id, build_number, with_media)
     install(ccz_file)
     os.remove(ccz_file)
 
 
-# String String String -> String
-def download(domain, app_id, build_number=None):
+# String String String Boolean -> String
+def download(domain, app_id, build_number=None, with_media=False):
     """
     Downloads CCZ from HQ and installs it on Commcare.
     """
@@ -99,6 +104,9 @@ def download(domain, app_id, build_number=None):
            "?app_id={app_id}").format(domain=domain, app_id=app_id)
     if build_number:
         url += "&version={build}".format(build=build_number)
+    if with_media:
+        url += "&include_multimedia=true".format(build=build_number)
+
     ccz_file = "{}.ccz".format(domain)
     try:
         urllib.request.urlretrieve(url, ccz_file)
@@ -122,6 +130,13 @@ def install(ccz_file):
                            "org.commcare.activities.CommCareSetupActivity",
                            get_android_file(basename(ccz_file)),
                            extras)
+    print(cmd)
+    subprocess.call(cmd, shell=True)
+
+
+def clear_restore_cache():
+    cmd = receiver_command("org.commcare.dalvik.api.action" +
+                           ".ClearCacheOnRestore")
     print(cmd)
     subprocess.call(cmd, shell=True)
 
@@ -177,13 +192,28 @@ def main():
         sys.exit(0)
 
     command = sys.argv[1]
-    dispatch = {'capture': lambda: capture(),
-                'uninstall': lambda: uninstall(sys.argv[2]),
-                'invalidate': lambda: stage_recover(),
-                'remote': lambda: remote_install(*sys.argv[2:5]),
-                'download': lambda: download(*sys.argv[2:5]),
-                'help': lambda: print(HELP_MSG),
-                'install': lambda: install(sys.argv[2])}
+    dispatch = {
+        'capture':
+            lambda: capture(),
+        'uninstall':
+            lambda: uninstall(sys.argv[2]),
+        'invalidate':
+            lambda: stage_recover(),
+        'remote':
+            lambda: remote_install(*sys.argv[2:5]),
+        'media_remote':
+            lambda: remote_install(*sys.argv[2:5], with_media=True),
+        'download':
+            lambda: download(*sys.argv[2:5]),
+        'media_download':
+            lambda: download(*sys.argv[2:5], with_media=True),
+        'help':
+            lambda: print(HELP_MSG),
+        'clear_restore_cache':
+            lambda: clear_restore_cache(),
+        'install':
+            lambda: install(sys.argv[2])}
+
 
     dispatch[command]()
 

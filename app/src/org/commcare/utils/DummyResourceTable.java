@@ -139,10 +139,6 @@ public class DummyResourceTable extends ResourceTable {
     }
 
     @Override
-    public void removeResource(Resource resource) {
-    }
-
-    @Override
     public void addResource(Resource resource, ResourceInstaller initializer, String parentId, int status) {
     }
 

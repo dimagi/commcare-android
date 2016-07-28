@@ -145,7 +145,7 @@ public class EntityView extends LinearLayout {
                 new String[columnTitles.length + 1];
         System.arraycopy(columnTitles, 0,
                 headerTextWithCalloutResponse, 0, columnTitles.length);
-        headerTextWithCalloutResponse[columnTitles.length - 1] =
+        headerTextWithCalloutResponse[columnTitles.length] =
                 calloutResponseDetailField.getHeader().evaluate();
         return headerTextWithCalloutResponse;
     }
