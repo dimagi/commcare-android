@@ -221,7 +221,8 @@ public class EntityListAdapter implements ListAdapter {
     }
 
     private Action getAction(int position) {
-        return detail.getCustomActions().get(position - (dividerPosition + 1));
+        int baseActionPosition = dividerPosition + 1;
+        return detail.getCustomActions().get(position - baseActionPosition);
     }
 
     @Override
