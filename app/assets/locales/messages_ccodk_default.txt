@@ -107,6 +107,8 @@ home.developer.options.enabled=Developer Mode Enabled
 
 menu.save.session=Save Your Session
 menu.clear.saved.session=Clear Saved Session
+menu.superusuer.auth=Authenticate as a Superuser
+menu.privilege.claim.disable=Disable Privilege
 
 install.version.mismatch=The application requires CommCare version ${0}. You are running ${1}.
 install.major.mismatch=Please uninstall your CommCare Application from the phone Settings Menu, navigate to the marketplace, and install the proper version.
@@ -128,6 +130,7 @@ sync.fail.unknown=An unexpected issue occurred during sync. Please try to sync a
 
 sync.communicating.title=Communicating with Server
 sync.waiting.title=Waiting for Server Progress
+sync.downloading.title=Downloading Data from Server
 sync.processing.title=Processing Data from Server
 
 sync.progress.starting=Requesting Data...
@@ -309,6 +312,7 @@ login.menu.demo=Enter as Demo User
 login.menu.password.mode=Forgot PIN?
 
 main.sync.demo=You cannot sync data down from the server when logged in in demo mode
+login.menu.app.manager=Go To App Manager
 
 main.sync.demo.has.forms=Your forms have been submitted to the server; however, you cannot retrieve forms from the server in Demo mode.
 main.sync.demo.no.forms=You have no forms to submit and you cannot retrieve forms from the server in Demo mode. 
@@ -731,6 +735,8 @@ settings.server.title=CommCare > Server Settings
 settings.developer.options=Developer Options
 settings.main.title=CommCare > Application Preferences
 settings.advanced.title=CommCare > Advanced
+app.manager.advanced.settings.title=App Manager > Advanced Settings
+app.manager.advanced.settings.option=Advanced
 clear.user.data=Clear User Data
 clear.user.data.warning.title=Clear User Data
 clear.user.data.warning.message=Are you sure you want to clear all mobile user data? All unsynced data will be lost!
@@ -744,3 +750,6 @@ repeat.dialog.add=Add Group
 repeat.dialog.add.another=Add another "${0}" group?
 repeat.dialog.add.new=Add a new "${0}" group?
 lookup.table.missing.error=Unable to find lookup table "${0}". Make sure it exists and this user has access to it.
+
+ethiopian.months.list=Meskerem,Tikimt,Hidar,Tahsas,Tir,Yekatit,Megabit,Miazia,Ginbot,Senie,Hamlie,Nehasie,Pagumien
+nepali.months.list=Baishakh,Jestha,Ashadh,Shrawan,Bhadra,Ashwin,Kartik,Mangsir,Poush,Magh,Falgun,Chaitra

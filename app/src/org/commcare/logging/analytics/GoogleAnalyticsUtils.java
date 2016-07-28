@@ -267,6 +267,10 @@ public class GoogleAnalyticsUtils {
         reportEvent(GoogleAnalyticsFields.CATEGORY_APP_MANAGER, action);
     }
 
+    public static void reportPrivilegeEnabled(String privilegeName, String username) {
+        reportEvent(GoogleAnalyticsFields.CATEGORY_PRIVILEGE_ENABLED, privilegeName, username);
+    }
+
     /**
      * Report the length of a certain user event/action/concept
      *
