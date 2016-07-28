@@ -1,12 +1,15 @@
 package org.commcare.provider;
 
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
 
 import com.simprints.libsimprints.Constants;
+import com.simprints.libsimprints.FingerIdentifier;
 import com.simprints.libsimprints.Identification;
 import com.simprints.libsimprints.Registration;
+import com.simprints.libsimprints.Tier;
 
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.condition.EvaluationContext;
@@ -57,10 +60,27 @@ public class SimprintsCalloutProcessing {
 
         OrderedHashtable<String, String> guidToConfidenceMap = new OrderedHashtable<>();
         for (Identification id : idReadings) {
-            guidToConfidenceMap.put(id.getGuid(), id.getConfidence() + "");
+            guidToConfidenceMap.put(id.getGuid(), getTierText(id.getTier()));
         }
 
         return guidToConfidenceMap;
+    }
+
+    private static String getTierText(@NonNull Tier tier) {
+        switch (tier) {
+            case TIER_1:
+                return Localization.get("fingerprint.match.100");
+            case TIER_2:
+                return Localization.get("fingerprint.match.75");
+            case TIER_3:
+                return Localization.get("fingerprint.match.50");
+            case TIER_4:
+                return Localization.get("fingerprint.match.25");
+            case TIER_5:
+                return Localization.get("fingerprint.match.0");
+            default:
+                return Localization.get("fingerprint.match.unknown");
+        }
     }
 
     private static Registration getRegistrationData(Intent intent) {
@@ -85,10 +105,10 @@ public class SimprintsCalloutProcessing {
                 rightThumbRefs != null && !rightThumbRefs.isEmpty() &&
                 leftIndexRefs != null && !leftIndexRefs.isEmpty() &&
                 leftThumbRefs != null && !leftThumbRefs.isEmpty()) {
-            storeFingerprintTemplate(formDef, rightIndexRefs, intentQuestionRef, registration.getRightIndex());
-            storeFingerprintTemplate(formDef, rightThumbRefs, intentQuestionRef, registration.getRightThumb());
-            storeFingerprintTemplate(formDef, leftIndexRefs, intentQuestionRef, registration.getLeftIndex());
-            storeFingerprintTemplate(formDef, leftThumbRefs, intentQuestionRef, registration.getLeftThumb());
+            storeFingerprintTemplate(formDef, rightIndexRefs, intentQuestionRef, registration.getTemplate(FingerIdentifier.RIGHT_INDEX_FINGER));
+            storeFingerprintTemplate(formDef, rightThumbRefs, intentQuestionRef, registration.getTemplate(FingerIdentifier.RIGHT_THUMB));
+            storeFingerprintTemplate(formDef, leftIndexRefs, intentQuestionRef, registration.getTemplate(FingerIdentifier.LEFT_INDEX_FINGER));
+            storeFingerprintTemplate(formDef, leftThumbRefs, intentQuestionRef, registration.getTemplate(FingerIdentifier.LEFT_THUMB));
             return true;
         } else {
             return false;
@@ -96,10 +116,10 @@ public class SimprintsCalloutProcessing {
     }
 
     private static int getFingerprintScanCount(Registration registration) {
-        return countTemplateScanned(registration.getLeftIndex())
-                + countTemplateScanned(registration.getRightIndex())
-                + countTemplateScanned(registration.getLeftThumb())
-                + countTemplateScanned(registration.getRightThumb());
+        return countTemplateScanned(registration.getTemplate(FingerIdentifier.LEFT_INDEX_FINGER))
+                + countTemplateScanned(registration.getTemplate(FingerIdentifier.RIGHT_INDEX_FINGER))
+                + countTemplateScanned(registration.getTemplate(FingerIdentifier.LEFT_THUMB))
+                + countTemplateScanned(registration.getTemplate(FingerIdentifier.RIGHT_THUMB));
     }
 
     private static int countTemplateScanned(byte[] template) {
