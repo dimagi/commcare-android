@@ -33,6 +33,8 @@ public class GoogleAnalyticsUtils {
                 .setCustomDimension(1, CommCareApplication._().getCurrentUserId())
                 .setCustomDimension(2, ReportingUtils.getDomain())
                 .setCustomDimension(3, BuildConfig.FLAVOR)
+                .setCustomDimension(4, "" + CommCareApplication._().isConsumerApp())
+                .setCustomDimension(5, ReportingUtils.getAppId())
                 .setCategory(category)
                 .setAction(action)
                 .build());
