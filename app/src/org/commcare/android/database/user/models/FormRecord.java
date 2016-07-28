@@ -155,6 +155,10 @@ public class FormRecord extends Persisted implements EncryptedModel {
         return this.appId;
     }
 
+    public String getInstanceID() {
+        return uuid;
+    }
+
     /**
      * Get the file system path to the encrypted XML submission file.
      *
