@@ -1216,14 +1216,26 @@ public class CommCareHomeActivity
         menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
         menu.findItem(MENU_ADVANCED).setVisible(enableMenus);
         menu.findItem(MENU_ABOUT).setVisible(enableMenus);
-        if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
+        preparePinMenu(menu, enableMenus);
+        return true;
+    }
+
+    private static void preparePinMenu(Menu menu, boolean enableMenus) {
+        boolean pinEnabled = enableMenus && DeveloperPreferences.shouldOfferPinForLogin();
+        menu.findItem(MENU_PIN).setVisible(pinEnabled);
+        boolean hasPinSet = false;
+
+        try {
+            hasPinSet = CommCareApplication._().getRecordForCurrentUser().hasPinSet();
+        } catch (SessionUnavailableException e) {
+            Log.d(TAG, "Session expired and menu is being created before redirect to login screen");
+        }
+
+        if (hasPinSet) {
             menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
         } else {
             menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.set"));
         }
-        menu.findItem(MENU_PIN).setVisible(enableMenus
-                && DeveloperPreferences.shouldOfferPinForLogin());
-        return true;
     }
 
     @Override
