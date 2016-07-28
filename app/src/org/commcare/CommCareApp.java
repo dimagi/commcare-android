@@ -215,7 +215,7 @@ public class CommCareApp implements AppFilePathBuilder {
 
         Resource profile = global.getResourceWithId(CommCarePlatform.APP_PROFILE_RESOURCE_ID);
         if (profile != null && profile.getStatus() == Resource.RESOURCE_STATUS_INSTALLED) {
-            platform.initialize(global);
+            platform.initialize(global, false);
             try {
                 Localization.setLocale(
                         getAppPreferences().getString(CommCarePreferences.PREFS_LOCALE_KEY, "default"));
