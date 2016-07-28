@@ -52,15 +52,6 @@
                 android:padding="@dimen/min_button_padding"
                 android:visibility="gone"/>
 
-            <View
-                android:id="@+id/divider"
-                android:layout_width="1dp"
-                android:layout_height="fill_parent"
-                android:layout_marginLeft="@dimen/content_min_margin"
-                android:layout_marginRight="@dimen/content_min_margin"
-                android:layout_toLeftOf="@+id/launch_action"
-                android:background="@android:color/darker_gray"/>
-
             <ImageView
                 android:id="@+id/launch_action"
                 android:layout_width="wrap_content"
