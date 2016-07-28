@@ -32,9 +32,11 @@ public class DbUtil {
         //Set up the hook to fire the right pragma ops
         SQLiteDatabaseHook updateHook = new SQLiteDatabaseHook() {
 
+            @Override
             public void preKey(SQLiteDatabase database) {
             }
 
+            @Override
             public void postKey(SQLiteDatabase database) {
                 database.rawExecSQL("PRAGMA cipher_migrate;");
             }

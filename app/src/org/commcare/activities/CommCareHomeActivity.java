@@ -1131,6 +1131,7 @@ public class CommCareHomeActivity
         String msg = Localization.get("app.workflow.incomplete.continue");
         StandardAlertDialog d = new StandardAlertDialog(this, title, msg);
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
                     case DialogInterface.BUTTON_POSITIVE:
@@ -1406,7 +1407,7 @@ public class CommCareHomeActivity
     }
 
     @Override
-    public void handlePullTaskError(Exception e) {
+    public void handlePullTaskError() {
         reportFailure(Localization.get("sync.fail.unknown"), true);
     }
 }

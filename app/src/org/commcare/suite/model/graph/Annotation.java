@@ -42,10 +42,7 @@ public class Annotation implements Externalizable {
         return mAnnotation;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#readExternal(java.io.DataInputStream, org.javarosa.core.util.externalizable.PrototypeFactory)
-     */
+    @Override
     public void readExternal(DataInputStream in, PrototypeFactory pf)
             throws IOException, DeserializationException {
         mX = (Text)ExtUtil.read(in, Text.class, pf);
@@ -53,10 +50,7 @@ public class Annotation implements Externalizable {
         mAnnotation = (Text)ExtUtil.read(in, Text.class, pf);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see org.javarosa.core.util.externalizable.Externalizable#writeExternal(java.io.DataOutputStream)
-     */
+    @Override
     public void writeExternal(DataOutputStream out) throws IOException {
         ExtUtil.write(out, mX);
         ExtUtil.write(out, mY);

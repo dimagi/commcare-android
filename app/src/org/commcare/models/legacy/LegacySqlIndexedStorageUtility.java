@@ -57,6 +57,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         return getIDsForValues(new String[]{fieldName}, new Object[]{value});
     }
 
+    @Override
     public Vector<Integer> getIDsForValues(String[] fieldNames, Object[] values) {
         Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
         Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.ID_COL}, whereClause.first, whereClause.second, null, null, null);
@@ -77,6 +78,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         }
     }
 
+    @Override
     public Vector<T> getRecordsForValues(String[] fieldNames, Object[] values) {
         Pair<String, String[]> whereClause = helper.createWhere(fieldNames, values, em, t);
         Cursor c = helper.getHandle().query(table, new String[]{DatabaseHelper.DATA_COL}, whereClause.first, whereClause.second, null, null, null);
@@ -97,6 +99,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         }
     }
 
+    @Override
     public String getMetaDataFieldForRecord(int recordId, String rawFieldName) {
         String rid = String.valueOf(recordId);
         String scrubbedName = AndroidTableBuilder.scrubName(rawFieldName);
@@ -243,6 +246,7 @@ public class LegacySqlIndexedStorageUtility<T extends Persistable> extends SqlSt
         return new SqlStorageIterator<>(c, this);
     }
 
+    @Override
     public Iterator<T> iterator() {
         return iterate();
     }

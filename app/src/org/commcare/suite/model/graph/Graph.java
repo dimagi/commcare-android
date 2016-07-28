@@ -64,14 +64,17 @@ public class Graph implements Externalizable, DetailTemplate, Configurable {
         mAnnotations.addElement(a);
     }
 
+    @Override
     public Text getConfiguration(String key) {
         return mConfiguration.get(key);
     }
 
+    @Override
     public void setConfiguration(String key, Text value) {
         mConfiguration.put(key, value);
     }
 
+    @Override
     public Enumeration getConfigurationKeys() {
         return mConfiguration.keys();
     }

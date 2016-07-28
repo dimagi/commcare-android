@@ -112,13 +112,6 @@ public class FormController implements PendingCalloutInterface {
     }
 
     /**
-     * @return the currently selected language.
-     */
-    public String getLanguage() {
-        return mFormEntryController.getModel().getLanguage();
-    }
-
-    /**
      * Returns a caption prompt for the given index. This is used to create a multi-question per
      * screen view.
      */
