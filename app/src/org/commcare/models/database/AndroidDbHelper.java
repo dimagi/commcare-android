@@ -73,6 +73,8 @@ public abstract class AndroidDbHelper extends DatabaseHelper {
                 contentValues.put(key, (String)obj);
             } else if (obj instanceof Integer) {
                 contentValues.put(key, (Integer)obj);
+            } else if (obj instanceof Long) {
+                contentValues.put(key, (Long)obj);
             } else if (obj instanceof byte[]) {
                 contentValues.put(key, (byte[])obj);
             } else {
