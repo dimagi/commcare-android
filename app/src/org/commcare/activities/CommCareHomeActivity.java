@@ -25,7 +25,6 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.interfaces.WithUIController;
@@ -60,7 +59,6 @@ import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.ConnectivityStatus;
-import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
@@ -111,7 +109,7 @@ public class CommCareHomeActivity
      */
     private static final int MODEL_RESULT = 4;
 
-    private static final int GET_INCOMPLETE_FORM = 16;
+    public static final int GET_INCOMPLETE_FORM = 16;
     public static final int REPORT_PROBLEM_ACTIVITY = 64;
 
     private static final int PREFERENCES_ACTIVITY=512;
@@ -1216,14 +1214,26 @@ public class CommCareHomeActivity
         menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
         menu.findItem(MENU_ADVANCED).setVisible(enableMenus);
         menu.findItem(MENU_ABOUT).setVisible(enableMenus);
-        if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
+        preparePinMenu(menu, enableMenus);
+        return true;
+    }
+
+    private static void preparePinMenu(Menu menu, boolean enableMenus) {
+        boolean pinEnabled = enableMenus && DeveloperPreferences.shouldOfferPinForLogin();
+        menu.findItem(MENU_PIN).setVisible(pinEnabled);
+        boolean hasPinSet = false;
+
+        try {
+            hasPinSet = CommCareApplication._().getRecordForCurrentUser().hasPinSet();
+        } catch (SessionUnavailableException e) {
+            Log.d(TAG, "Session expired and menu is being created before redirect to login screen");
+        }
+
+        if (hasPinSet) {
             menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
         } else {
             menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.set"));
         }
-        menu.findItem(MENU_PIN).setVisible(enableMenus
-                && DeveloperPreferences.shouldOfferPinForLogin());
-        return true;
     }
 
     @Override
