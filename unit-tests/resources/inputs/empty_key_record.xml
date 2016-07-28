@@ -1,0 +1,4 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<OpenRosaResponse xmlns="http://openrosa.org/http/response">
+  <message nature="submit_success">Here are your keys! Not!</message>
+</OpenRosaResponse>
