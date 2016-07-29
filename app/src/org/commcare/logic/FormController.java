@@ -34,6 +34,7 @@ public class FormController implements PendingCalloutInterface {
     private final FormEntryController mFormEntryController;
 
     private FormIndex mPendingCalloutFormIndex = null;
+    private boolean mPendingCalloutIsBulk = false;
 
     private final boolean mReadOnly;
 
