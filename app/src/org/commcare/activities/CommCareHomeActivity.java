@@ -34,6 +34,7 @@ import org.commcare.logging.analytics.GoogleAnalyticsUtils;
 import org.commcare.models.AndroidSessionWrapper;
 import org.commcare.models.database.SqlStorage;
 import org.commcare.preferences.CommCarePreferences;
+import org.commcare.preferences.DevSessionRestorer;
 import org.commcare.preferences.DeveloperPreferences;
 import org.commcare.provider.FormsProviderAPI;
 import org.commcare.provider.InstanceProviderAPI;
@@ -126,6 +127,8 @@ public class CommCareHomeActivity
     private static final int MENU_ABOUT = Menu.FIRST + 5;
     private static final int MENU_PIN = Menu.FIRST + 6;
 
+    public static final String IS_RESTORING = "IS_RESTORING";
+
     /**
      * Restart is a special CommCare return code which means that the session was invalidated in the
      * calling activity and that the current session should be resynced
@@ -180,11 +183,14 @@ public class CommCareHomeActivity
     }
 
     /**
-     * Set state that signifies activity was launch from external app.
+     * Set state that signifies activity was launch from external app, or restoration of a serialized session
      */
     private void processFromExternalLaunch(Bundle savedInstanceState) {
         if (savedInstanceState == null && getIntent().hasExtra(DispatchActivity.WAS_EXTERNAL)) {
             wasExternal = true;
+            if(getIntent().hasExtra(IS_RESTORING)){
+                this.isRestoringSession = true;
+            }
             sessionNavigator.startNextSessionStep();
         }
     }
@@ -954,6 +960,7 @@ public class CommCareHomeActivity
      * @param state Needed for FormRecord manipulations
      */
     private void startFormEntry(AndroidSessionWrapper state) {
+
         if (state.getFormRecordId() == -1) {
             if (CommCarePreferences.isIncompleteFormsEnabled()) {
                 // Are existing (incomplete) forms using the same case?

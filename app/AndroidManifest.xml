@@ -26,6 +26,8 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_SMS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="org.commcare.dalvik.fcm"/>
+
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -126,6 +128,22 @@
         </activity>
         <activity android:name="org.commcare.activities.CallOutActivity">
         </activity>
+
+        <activity
+            android:name="org.commcare.activities.RestoreActivity">
+            <intent-filter>
+                <action android:name="OPEN_ACTIVITY_4"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="org.commcare.activities.InstallationActivity">
+            <intent-filter>
+                <action android:name="OPEN_ACTIVITY_1"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name="org.commcare.activities.CommCareSetupActivity"
             android:windowSoftInputMode="adjustResize">
@@ -194,6 +212,19 @@
         <activity
             android:name="org.commcare.activities.UpdateActivity"
             android:windowSoftInputMode="adjustResize">
+
+            <intent-filter>
+                <action android:name="OPEN_ACTIVITY_2" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+
+        </activity>
+
+        <activity android:name="org.commcare.activities.UninstallActivity">
+            <intent-filter>
+                <action android:name="OPEN_ACTIVITY_3" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <activity
@@ -219,6 +250,20 @@
         <service
             android:name="org.commcare.services.CommCareSessionService"
             android:enabled="true">
+        </service>
+
+        <service
+            android:name="org.commcare.services.CommCareFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name="org.commcare.services.CommCareFirebaseInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
         </service>
 
         <activity
@@ -277,6 +322,13 @@
 
         <receiver android:name="org.commcare.views.notifications.NotificationClearReceiver">
         </receiver>
+
+        <activity android:name="org.commcare.activities.DeviceRegistrationActivity">
+            <intent-filter android:priority="2">
+                <action android:name="org.commcare.dalvik.fcm.register"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
 
         <activity
             android:name="org.commcare.activities.ReportProblemActivity"

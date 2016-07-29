@@ -68,6 +68,8 @@ dependencies {
     }
     compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
     compile 'net.sourceforge.htmlcleaner:htmlcleaner:2.16'
+    compile 'com.google.firebase:firebase-messaging:9.0.0'
+
 }
 
 ext {
@@ -308,9 +310,10 @@ android {
             minifyEnabled true
             debuggable true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'app/proguard.cfg'
-            // used in test suite to build the prototype factory; otherwise unneeded
+
             buildConfigField "String", "BUILD_DIR", fixEscaping("\"${buildDir}\"")
             buildConfigField "String", "PROJECT_DIR", fixEscaping("\"${projectDir}\"")
+
         }
 
         release {

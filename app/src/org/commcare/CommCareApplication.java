@@ -1518,4 +1518,8 @@ public class CommCareApplication extends Application {
     public PrototypeFactory getPrototypeFactory(Context c) {
         return AndroidPrototypeFactorySetup.getPrototypeFactory(c);
     }
+
+    public void setSessionWrapper(AndroidSessionWrapper wrapper){
+        CommCareApplication.this.sessionWrapper = wrapper;
+    }
 }
