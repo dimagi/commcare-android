@@ -1,6 +1,7 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
+import android.support.annotation.IdRes;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
@@ -33,17 +34,17 @@ import java.util.Map;
 
 public class GregorianDateWidget extends AbstractUniversalDateWidget implements CalendarFragment.CalendarCloseListener {
 
-    protected EditText dayText;
-    protected EditText yearText;
-    protected TextView dayOfWeek;
-    protected Calendar calendar;
-    protected LinearLayout gregorianView;
+    private EditText dayText;
+    private EditText yearText;
+    private TextView dayOfWeek;
+    private Calendar calendar;
+    private LinearLayout gregorianView;
     private Spinner monthSpinner;
     private ImageButton openCalButton;
 
-    protected List<String> monthList;
-    protected int maxYear;
-    protected long todaysDateInMillis;
+    private List<String> monthList;
+    private int maxYear;
+    private long todaysDateInMillis;
     private long timeBeforeCalendarOpened;
 
     private CalendarFragment myCalendarFragment;
@@ -272,6 +273,12 @@ public class GregorianDateWidget extends AbstractUniversalDateWidget implements 
 
     @Override
     protected void updateGregorianDateHelperDisplay(){}
+
+    @Override
+    protected void setupTouchListeners(){}
+
+    @Override
+    protected void setupKeyListeners(){}
 
     @Override
     public IAnswerData getAnswer(){
