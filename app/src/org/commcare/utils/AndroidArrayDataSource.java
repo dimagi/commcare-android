@@ -1,7 +1,9 @@
 package org.commcare.utils;
 
 import android.content.Context;
+import android.content.res.Resources;
 
+import org.commcare.dalvik.R;
 import org.commcare.util.ArrayDataSource;
 
 /**
@@ -18,7 +20,11 @@ public class AndroidArrayDataSource implements ArrayDataSource {
 
     @Override
     public String[] getArray(String key) {
-        int resourceId = context.getResources().getIdentifier(key, "array", context.getPackageName());
-        return context.getResources().getStringArray(resourceId);
+        if(key.contains("ethiopian")){
+            return context.getResources().getStringArray(R.array.ethiopian_months);
+        } else if(key.contains("nepali")){
+            return context.getResources().getStringArray(R.array.nepali_months);
+        }
+        throw new Resources.NotFoundException("Couldn't find Android array for key " + key);
     }
 }

@@ -281,9 +281,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
 
         loadStateFromBundle(savedInstanceState);
 
-        // Need to override CalendarUtil's month localizer
-        CalendarUtils.setArrayDataSource(new AndroidArrayDataSource(this));
-
         // Check to see if this is a screen flip or a new form load.
         Object data = this.getLastCustomNonConfigurationInstance();
         if (data instanceof FormLoaderTask) {

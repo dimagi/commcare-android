@@ -7,11 +7,13 @@ import android.util.Log;
 import org.commcare.android.javarosa.AndroidXFormExtensions;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
+import org.commcare.utils.AndroidArrayDataSource;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.QuestionDataExtension;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.javarosa.xform.util.CalendarUtils;
 
 /**
  * Convenience class that handles creation of widgets.
@@ -86,6 +88,8 @@ public class WidgetFactory {
             case Constants.DATATYPE_DATE_TIME:
                 return new DateTimeWidget(context, fep);
             case Constants.DATATYPE_DATE:
+                // Need to override CalendarUtil's month localizer
+                CalendarUtils.setArrayDataSource(new AndroidArrayDataSource(context));
                 if (appearance != null && appearance.toLowerCase().equals("ethiopian")) {
                     return new EthiopianDateWidget(context, fep);
                 } else if (appearance != null && appearance.toLowerCase().equals("nepali")) {
