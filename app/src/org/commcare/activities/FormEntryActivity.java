@@ -53,6 +53,7 @@ import org.commcare.activities.components.ImageCaptureProcessing;
 import org.commcare.android.javarosa.PollSensorController;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
+import org.commcare.utils.AndroidArrayDataSource;
 import org.commcare.utils.CompoundIntentList;
 import org.commcare.views.media.MediaLayout;
 import org.commcare.android.javarosa.IntentCallout;
@@ -105,6 +106,7 @@ import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.form.api.FormEntrySession;
 import org.javarosa.form.api.FormEntrySessionReplayer;
 import org.javarosa.model.xform.XFormsModule;
+import org.javarosa.xform.util.CalendarUtils;
 import org.javarosa.xpath.XPathArityException;
 import org.javarosa.xpath.XPathException;
 import org.javarosa.xpath.XPathTypeMismatchException;
@@ -282,6 +284,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 getApplicationContext()));
 
         loadStateFromBundle(savedInstanceState);
+
+        // Need to override CalendarUtil's month localizer
+        CalendarUtils.setArrayDataSource(new AndroidArrayDataSource(this));
 
         // Check to see if this is a screen flip or a new form load.
         Object data = this.getLastCustomNonConfigurationInstance();

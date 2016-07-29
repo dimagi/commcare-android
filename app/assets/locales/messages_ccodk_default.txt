@@ -758,8 +758,8 @@ repeat.dialog.add.another=Add another "${0}" group?
 repeat.dialog.add.new=Add a new "${0}" group?
 lookup.table.missing.error=Unable to find lookup table "${0}". Make sure it exists and this user has access to it.
 
-ethiopian.months.list=Meskerem,Tikimt,Hidar,Tahsas,Tir,Yekatit,Megabit,Miazia,Ginbot,Senie,Hamlie,Nehasie,Pagumien
-nepali.months.list=Baishakh,Jestha,Ashadh,Shrawan,Bhadra,Ashwin,Kartik,Mangsir,Poush,Magh,Falgun,Chaitra
+ethiopian_months=Meskerem,Tikimt,Hidar,Tahsas,Tir,Yekatit,Megabit,Miazia,Ginbot,Senie,Hamlie,Nehasie,Pagumien
+nepali_months=Baishakh,Jestha,Ashadh,Shrawan,Bhadra,Ashwin,Kartik,Mangsir,Poush,Magh,Falgun,Chaitra
 
 fingerprint.match.100=★★★★★
 fingerprint.match.75=★★★★
