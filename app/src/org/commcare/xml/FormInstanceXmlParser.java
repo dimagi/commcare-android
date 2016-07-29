@@ -66,6 +66,7 @@ public class FormInstanceXmlParser extends TransactionParser<FormRecord> {
         this.rootInstanceDir = destination;
     }
 
+    @Override
     public FormRecord parse() throws InvalidStructureException, IOException, XmlPullParserException {
         String xmlns = parser.getNamespace();
         //Parse this subdocument into a dom

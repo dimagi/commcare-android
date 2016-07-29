@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import org.commcare.CommCareApplication;
 import org.commcare.dalvik.R;
 import org.commcare.logging.analytics.GoogleAnalyticsUtils;
-import org.commcare.utils.StringUtils;
 
 import java.util.ArrayList;
 

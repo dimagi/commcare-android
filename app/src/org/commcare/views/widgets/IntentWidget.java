@@ -30,45 +30,52 @@ import org.javarosa.form.api.FormEntryPrompt;
  */
 public class IntentWidget extends QuestionWidget {
 
-    protected Button launchIntentButton;
-    private TextView mStringAnswer;
+    private final TextView mStringAnswer;
     private final Intent intent;
-    protected final IntentCallout ic;
-    private int calloutId = FormEntryActivity.INTENT_CALLOUT;
-    protected final PendingCalloutInterface pendingCalloutInterface;
+    private final int calloutId;
     private final String getButtonLocalizationKey;
     private final String updateButtonLocalizationKey;
 
-    public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
-                        PendingCalloutInterface pendingCalloutInterface, int calloutId) {
-        this(context, prompt, in, ic, pendingCalloutInterface, "intent.barcode.get", "intent.barcode.update");
+    protected final Button launchIntentButton;
+    protected final PendingCalloutInterface pendingCalloutInterface;
+    protected final IntentCallout ic;
 
-        this.calloutId = calloutId;
-    }
-
-    public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
-                        PendingCalloutInterface pendingCalloutInterface) {
-        this(context, prompt, in, ic, pendingCalloutInterface, "intent.callout.get", "intent.callout.update");
-    }
-
-    public IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
+    public IntentWidget(Context context, FormEntryPrompt prompt,
+                        Intent in, IntentCallout ic,
                         PendingCalloutInterface pendingCalloutInterface,
-                        String getButtonLocalizationKey, String updateButtonLocalizationKey) {
+                        int calloutId) {
+        this(context, prompt, in, ic, pendingCalloutInterface,
+                "intent.barcode.get", "intent.barcode.update", calloutId);
+    }
+
+    public IntentWidget(Context context, FormEntryPrompt prompt,
+                        Intent in, IntentCallout ic,
+                        PendingCalloutInterface pendingCalloutInterface) {
+        this(context, prompt, in, ic, pendingCalloutInterface,
+                "intent.callout.get", "intent.callout.update",
+                FormEntryActivity.INTENT_CALLOUT);
+    }
+
+    private IntentWidget(Context context, FormEntryPrompt prompt, Intent in, IntentCallout ic,
+                         PendingCalloutInterface pendingCalloutInterface,
+                         String getButtonLocalizationKey, String updateButtonLocalizationKey,
+                         int calloutId) {
         super(context, prompt);
 
         this.intent = in;
+        this.calloutId = calloutId;
         this.ic = ic;
         this.pendingCalloutInterface = pendingCalloutInterface;
         this.getButtonLocalizationKey = getButtonLocalizationKey;
         this.updateButtonLocalizationKey = updateButtonLocalizationKey;
 
-        makeTextView();
-        makeButton();
+        mStringAnswer = new TextView(getContext());
+        launchIntentButton = new Button(getContext());
+        setupTextView();
+        setupButton();
     }
 
-    public void makeTextView() {
-        // set text formatting
-        mStringAnswer = new TextView(getContext());
+    protected void setupTextView() {
         mStringAnswer.setTextSize(TypedValue.COMPLEX_UNIT_DIP, mAnswerFontsize);
         mStringAnswer.setGravity(Gravity.CENTER);
 
@@ -77,7 +84,6 @@ public class IntentWidget extends QuestionWidget {
             mStringAnswer.setText(s);
         }
 
-        // finish complex layout
         addView(mStringAnswer);
 
         //only auto advance if 1) we have no data 2) its quick 3) we weren't just cancelled
@@ -87,6 +93,24 @@ public class IntentWidget extends QuestionWidget {
             // reset the cancelled flag
             ic.setCancelled(false);
         }
+    }
+
+    protected void setupButton() {
+        setOrientation(LinearLayout.VERTICAL);
+
+        WidgetUtils.setupButton(launchIntentButton,
+                getButtonLabel(),
+                mAnswerFontsize,
+                !mPrompt.isReadOnly());
+
+        // launch barcode capture intent on click
+        launchIntentButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                performCallout();
+            }
+        });
+        addView(launchIntentButton);
     }
 
     protected Spannable getButtonLabel() {
@@ -103,26 +127,6 @@ public class IntentWidget extends QuestionWidget {
                 return new SpannableString(Localization.get(updateButtonLocalizationKey));
             }
         }
-    }
-
-    public void makeButton() {
-        setOrientation(LinearLayout.VERTICAL);
-
-        launchIntentButton = new Button(getContext());
-
-        WidgetUtils.setupButton(launchIntentButton,
-                getButtonLabel(),
-                mAnswerFontsize,
-                !mPrompt.isReadOnly());
-
-        // launch barcode capture intent on click
-        launchIntentButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                performCallout();
-            }
-        });
-        addView(launchIntentButton);
     }
 
     private void performCallout() {
@@ -152,12 +156,7 @@ public class IntentWidget extends QuestionWidget {
 
     @Override
     public IAnswerData getAnswer() {
-        String s = mStringAnswer.getText().toString();
-        if (s.equals("")) {
-            return null;
-        } else {
-            return new StringData(s);
-        }
+        return mPrompt.getAnswerValue();
     }
 
     @Override

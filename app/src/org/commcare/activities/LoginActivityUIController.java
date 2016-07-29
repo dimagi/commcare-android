@@ -128,6 +128,7 @@ public class LoginActivityUIController implements CommCareActivityUIController {
         setBannerLayoutLogic();
 
         loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View arg0) {
                 activity.initiateLoginAttempt(isRestoreSessionChecked());
             }
@@ -251,12 +252,6 @@ public class LoginActivityUIController implements CommCareActivityUIController {
 
         // Refresh welcome msg separately bc cannot set a single locale for its UiElement
         welcomeMessage.setText(Localization.get("login.welcome.multiple"));
-    }
-
-    private void refreshUsernamesAdapter() {
-        ArrayAdapter<String> usernamesAdapter = new ArrayAdapter<>(activity,
-                android.R.layout.simple_dropdown_item_1line, getExistingUsernames());
-        username.setAdapter(usernamesAdapter);
     }
 
     private static String[] getExistingUsernames() {

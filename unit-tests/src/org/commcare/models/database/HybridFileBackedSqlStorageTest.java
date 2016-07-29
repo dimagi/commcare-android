@@ -5,7 +5,6 @@ import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.android.CommCareTestRunner;
 import org.commcare.dalvik.BuildConfig;
-import org.commcare.utils.SessionUnavailableException;
 import org.javarosa.core.model.instance.FormInstance;
 import org.javarosa.core.model.instance.FormInstanceWithFailures;
 import org.junit.Assert;

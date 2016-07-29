@@ -763,3 +763,10 @@ lookup.table.missing.error=Unable to find lookup table "${0}". Make sure it exis
 
 ethiopian.months.list=Meskerem,Tikimt,Hidar,Tahsas,Tir,Yekatit,Megabit,Miazia,Ginbot,Senie,Hamlie,Nehasie,Pagumien
 nepali.months.list=Baishakh,Jestha,Ashadh,Shrawan,Bhadra,Ashwin,Kartik,Mangsir,Poush,Magh,Falgun,Chaitra
+
+fingerprint.match.100=★★★★★
+fingerprint.match.75=★★★★
+fingerprint.match.50=★★★
+fingerprint.match.25=★★
+fingerprint.match.0=★
+fingerprint.match.unknown=?

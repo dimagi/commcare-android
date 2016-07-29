@@ -74,6 +74,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
         updateCounters();
 
         btnSubmitForms.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
 
                 formsOnSD = getDumpFiles().length;
@@ -191,6 +192,7 @@ public class CommCareFormDumpActivity extends SessionAwareCommCareActivity<CommC
         StandardAlertDialog d = new StandardAlertDialog(this,
                 Localization.get("bulk.form.alert.title"), Localization.get("bulk.form.warning"));
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int id) {
                 dialog.dismiss();
                 if (id == AlertDialog.BUTTON_POSITIVE) {
