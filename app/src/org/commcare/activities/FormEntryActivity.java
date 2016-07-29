@@ -568,9 +568,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      */
     public QuestionWidget getPendingWidget() {
         if (mFormController != null) {
-            if(mFormController.isPendingCalloutBulk()) {
-                return null;
-            }
             FormIndex pendingIndex = mFormController.getPendingCalloutFormIndex();
             if (pendingIndex == null) {
                 Logger.log(AndroidLogger.SOFT_ASSERT,
@@ -595,11 +592,6 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         // keep track of whether we should auto advance
         boolean wasAnswerSet = false;
         boolean isQuick = false;
-
-        //For now we don't process bulk callout responses
-        if(mFormController.isPendingCalloutBulk()) {
-            return true;
-        }
 
         IntentWidget pendingIntentWidget = (IntentWidget)getPendingWidget();
         if (pendingIntentWidget != null) {
@@ -1217,6 +1209,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             return;
         }
 
+        // We don't process the result on this yet, but Android won't maintain the backstack
+        // state for the current activity unless it thinks we're going to process the callout
+        // result.
         this.startActivityForResult(i.getCompoundedIntent(), INTENT_COMPOUND_CALLOUT);
     }
 

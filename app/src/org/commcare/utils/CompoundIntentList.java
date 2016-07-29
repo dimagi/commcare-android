@@ -20,7 +20,7 @@ public class CompoundIntentList {
     private String title;
 
     public CompoundIntentList(Intent baseIntent, String index) {
-        copyFromIntent(baseIntent, index);
+        copyFromIntent(baseIntent);
         addIntentIfCompatible(baseIntent, index);
     }
 
@@ -40,7 +40,7 @@ public class CompoundIntentList {
         return true;
     }
 
-    private void copyFromIntent(Intent template, String index) {
+    private void copyFromIntent(Intent template) {
         intent = new Intent(template.getAction(), template.getData());
         intent.setType(template.getType());
         intent.setComponent(template.getComponent());

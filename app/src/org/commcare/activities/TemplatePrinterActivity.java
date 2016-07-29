@@ -83,18 +83,17 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             }
         }
 
-        //Since this and the callout activities are raised as "dialog" activities, they will
-        //recreate themselves on rotation. If we detect that we need to not "re-kick-off" the
-        //activity, it will result in duplicate activities.
-        if(printStyle == TEMPLATE_STYLE_ZPL) {
+        if(TEMPLATE_STYLE_ZPL.equals(printStyle)) {
+
+            //Since this and the callout activities are raised as "dialog" activities, they will
+            //recreate themselves on rotation. If we detect that we need to not "re-kick-off" the
+            //activity, it will result in duplicate activities.
             if(savedInstanceState != null) {
                 return;
+            } else {
+                doZebraPrint();
+                return;
             }
-        }
-
-        if(TEMPLATE_STYLE_ZPL.equals(printStyle)) {
-            doZebraPrint();
-            return;
         }
 
         String path = getPathOrThrowError(getIntent().getExtras());
@@ -279,7 +278,6 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
             }
             this.setResult(resultCode, response);
             this.finish();
-            return;
         }
     }
 

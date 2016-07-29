@@ -565,19 +565,8 @@ public class FormController implements PendingCalloutInterface {
     }
 
     @Override
-    public boolean isPendingCalloutBulk() {
-        return mPendingCalloutIsBulk;
-    }
-
-    @Override
     public void setPendingCalloutFormIndex(FormIndex pendingCalloutFormIndex) {
-        mPendingCalloutIsBulk = false;
         mPendingCalloutFormIndex = pendingCalloutFormIndex;
-    }
-
-    @Override
-    public void setPendingCalloutIsBulk() {
-        mPendingCalloutIsBulk = true;
     }
 
     //CTS: Added this to protect the JR internal classes, although it's not awesome that
