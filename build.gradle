@@ -312,6 +312,7 @@ android {
             // used in test suite to build the prototype factory; otherwise unneeded
             buildConfigField "String", "BUILD_DIR", fixEscaping("\"${buildDir}\"")
             buildConfigField "String", "PROJECT_DIR", fixEscaping("\"${projectDir}\"")
+
         }
 
         release {

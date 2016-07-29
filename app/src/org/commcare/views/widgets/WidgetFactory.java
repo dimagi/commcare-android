@@ -91,6 +91,8 @@ public class WidgetFactory {
                     return new EthiopianDateWidget(context, fep);
                 } else if (appearance != null && appearance.toLowerCase().equals("nepali")) {
                     return new NepaliDateWidget(context, fep);
+                } else if(appearance != null && appearance.toLowerCase().contains("gregorian")){
+                    return new DatePrototypeFactory().getWidget(context, fep, appearance.toLowerCase());
                 } else {
                     return new DateWidget(context, fep);
                 }
