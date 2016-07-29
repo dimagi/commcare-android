@@ -49,6 +49,7 @@ import org.commcare.activities.components.FormNavigationController;
 import org.commcare.activities.components.FormNavigationUI;
 import org.commcare.activities.components.FormRelevancyUpdating;
 import org.commcare.activities.components.ImageCaptureProcessing;
+import org.commcare.android.javarosa.PollSensorController;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.views.media.MediaLayout;
@@ -1553,6 +1554,10 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         }
 
         saveInlineVideoState();
+
+        if (isFinishing()) {
+            PollSensorController.INSTANCE.stopLocationPolling();
+        }
     }
 
     private void saveInlineVideoState() {
