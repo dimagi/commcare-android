@@ -25,7 +25,6 @@ import org.commcare.android.database.user.models.SessionStateDescriptor;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.fragments.BreadcrumbBarFragment;
 import org.commcare.interfaces.CommCareActivityUIController;
 import org.commcare.interfaces.ConnectorWithResultCallback;
 import org.commcare.interfaces.WithUIController;
@@ -60,7 +59,6 @@ import org.commcare.utils.AndroidCommCarePlatform;
 import org.commcare.utils.AndroidInstanceInitializer;
 import org.commcare.utils.ChangeLocaleUtil;
 import org.commcare.utils.ConnectivityStatus;
-import org.commcare.utils.ConsumerAppsUtil;
 import org.commcare.utils.EntityDetailUtils;
 import org.commcare.utils.GlobalConstants;
 import org.commcare.utils.SessionUnavailableException;
@@ -1133,6 +1131,7 @@ public class CommCareHomeActivity
         String msg = Localization.get("app.workflow.incomplete.continue");
         StandardAlertDialog d = new StandardAlertDialog(this, title, msg);
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
                     case DialogInterface.BUTTON_POSITIVE:
@@ -1216,14 +1215,26 @@ public class CommCareHomeActivity
         menu.findItem(MENU_PREFERENCES).setVisible(enableMenus);
         menu.findItem(MENU_ADVANCED).setVisible(enableMenus);
         menu.findItem(MENU_ABOUT).setVisible(enableMenus);
-        if (CommCareApplication._().getRecordForCurrentUser().hasPinSet()) {
+        preparePinMenu(menu, enableMenus);
+        return true;
+    }
+
+    private static void preparePinMenu(Menu menu, boolean enableMenus) {
+        boolean pinEnabled = enableMenus && DeveloperPreferences.shouldOfferPinForLogin();
+        menu.findItem(MENU_PIN).setVisible(pinEnabled);
+        boolean hasPinSet = false;
+
+        try {
+            hasPinSet = CommCareApplication._().getRecordForCurrentUser().hasPinSet();
+        } catch (SessionUnavailableException e) {
+            Log.d(TAG, "Session expired and menu is being created before redirect to login screen");
+        }
+
+        if (hasPinSet) {
             menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.change"));
         } else {
             menu.findItem(MENU_PIN).setTitle(Localization.get("home.menu.pin.set"));
         }
-        menu.findItem(MENU_PIN).setVisible(enableMenus
-                && DeveloperPreferences.shouldOfferPinForLogin());
-        return true;
     }
 
     @Override
@@ -1396,7 +1407,7 @@ public class CommCareHomeActivity
     }
 
     @Override
-    public void handlePullTaskError(Exception e) {
+    public void handlePullTaskError() {
         reportFailure(Localization.get("sync.fail.unknown"), true);
     }
 }

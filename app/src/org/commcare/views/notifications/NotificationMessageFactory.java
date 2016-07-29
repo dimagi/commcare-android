@@ -141,10 +141,12 @@ public class NotificationMessageFactory {
 
         private final String root;
 
+        @Override
         public String getLocaleKeyBase() {
             return root;
         }
 
+        @Override
         public String getCategory() {
             return "stock";
         }

@@ -84,7 +84,7 @@ public class PinnedNotificationWithProgress
     }
 
     @Override
-    public void handleTaskCancellation(AppInstallStatus result) {
+    public void handleTaskCancellation() {
         notificationManager.cancel(notificationId);
     }
 }

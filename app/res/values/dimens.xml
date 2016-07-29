@@ -15,7 +15,6 @@
 
     <dimen name="title_padding">10dp</dimen>
     <dimen name="title_paddingLeft">20dp</dimen>
-    <dimen name="title_logo_pad">8dp</dimen>
     <dimen name="tab_gradient_radius">300dp</dimen>
 
     <dimen name="spacer_small">5dp</dimen>
@@ -75,28 +74,10 @@
 
     <dimen name="entity_item_image_margins">8dp</dimen>
 
-    <dimen name="list_img_width">50dp</dimen>
-    <dimen name="list_img_height">50dp</dimen>
-
-    <dimen name="list_img_padding">15dp</dimen>
-    <dimen name="list_img_margin">5dp</dimen>
-
-    <dimen name="list_txt_width">75dp</dimen>
-    <dimen name="list_txt_height">35dp</dimen>
-
-    <dimen name="list_txt_padding">15dp</dimen>
-    <dimen name="list_txt_margin">5dp</dimen>
-
-    <dimen name="list_soundicon_width">40dp</dimen>
-    <dimen name="list_soundicon_height">40dp</dimen>
-
-    <dimen name="list_soundicon_padding">15dp</dimen>
-    <dimen name="list_soundicon_margin">5dp</dimen>
     <dimen name="content_start">8dp</dimen>
     <dimen name="content_start_quadruple">32dp</dimen>
     <dimen name="list_height">48dp</dimen>
 
-    <dimen name="divider_left_margin">64dp</dimen>
     <dimen name="help_text_padding">16dp</dimen>
 
     <!-- New progressbar dimensions -->
@@ -108,4 +89,6 @@
     <dimen name="form_label_padding">8dp</dimen>
 
     <dimen name="entity_select_divider_left_inset">120dp</dimen>
+
+    <dimen name="min_button_padding">20dp</dimen>
 </resources>

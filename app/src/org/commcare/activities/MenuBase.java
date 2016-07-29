@@ -67,6 +67,7 @@ public abstract class MenuBase
         return true;
     }
 
+    @Override
     protected boolean onBackwardSwipe() {
         onBackPressed();
         return true;

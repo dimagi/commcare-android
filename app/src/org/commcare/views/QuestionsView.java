@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Spannable;

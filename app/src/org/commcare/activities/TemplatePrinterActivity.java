@@ -163,6 +163,7 @@ public class TemplatePrinterActivity extends Activity implements PopulateListene
         WebView webView = new WebView(this);
         webView.setWebViewClient(new WebViewClient() {
 
+            @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 return false;
             }

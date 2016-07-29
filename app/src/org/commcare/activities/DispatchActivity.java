@@ -364,6 +364,7 @@ public class DispatchActivity extends FragmentActivity {
                 "With your permission CommCare can try to repair itself if you have network access.";
         StandardAlertDialog d = new StandardAlertDialog(this, title, message);
         DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            @Override
             public void onClick(DialogInterface dialog, int i) {
                 switch (i) {
                     case DialogInterface.BUTTON_POSITIVE: // attempt repair

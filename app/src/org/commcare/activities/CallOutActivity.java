@@ -118,6 +118,7 @@ public class CallOutActivity extends FragmentActivity
 
         dialog.setChoiceItems(new DialogChoiceItem[]{item1, item2});
         dialog.setOnCancelListener(new OnCancelListener() {
+            @Override
             public void onCancel(DialogInterface dialog) {
                 Intent i = new Intent(getIntent());
                 setResult(RESULT_CANCELED, i);

@@ -94,18 +94,22 @@ public class SqlStorageIterator<T extends Persistable> implements IStorageIterat
         return count;
     }
 
+    @Override
     public boolean hasNext() {
         return hasMore();
     }
 
+    @Override
     public T next() {
         return nextRecord();
     }
 
+    @Override
     public void remove() {
         //Unsupported for now
     }
 
+    @Override
     public int peekID() {
         return c.getInt(c.getColumnIndexOrThrow(DatabaseHelper.ID_COL));
     }
