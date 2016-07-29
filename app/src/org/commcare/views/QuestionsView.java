@@ -1,6 +1,7 @@
 package org.commcare.views;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Build;
@@ -15,14 +16,17 @@ import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
+import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.dalvik.R;
 import org.commcare.interfaces.WidgetChangedListener;
 import org.commcare.logging.AndroidLogger;
 import org.commcare.logic.PendingCalloutInterface;
 import org.commcare.models.ODKStorage;
 import org.commcare.preferences.FormEntryPreferences;
+import org.commcare.utils.CompoundIntentList;
 import org.commcare.utils.MarkupUtil;
 import org.commcare.views.widgets.DateTimeWidget;
+import org.commcare.views.widgets.IntentWidget;
 import org.commcare.views.widgets.QuestionWidget;
 import org.commcare.views.widgets.StringWidget;
 import org.commcare.views.widgets.TimeWidget;
@@ -499,4 +503,20 @@ public class QuestionsView extends ScrollView
         }
     }
 
+    public CompoundIntentList getAggregateIntentCallout() {
+        CompoundIntentList compoundedCallout = null;
+        for (QuestionWidget widget : this.getWidgets()) {
+            if(widget instanceof IntentWidget) {
+                boolean expectResult = compoundedCallout != null;
+                compoundedCallout = ((IntentWidget)widget).addToCompoundIntent(compoundedCallout);
+                if(compoundedCallout == null && expectResult) {
+                    return null;
+                }
+            }
+        }
+        if(compoundedCallout == null || compoundedCallout.getNumberOfCallouts() <= 1) {
+            return null;
+        }
+        return compoundedCallout;
+    }
 }
