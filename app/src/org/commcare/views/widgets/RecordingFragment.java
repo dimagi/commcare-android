@@ -37,11 +37,10 @@ import java.io.IOException;
 public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
     private String fileName;
-    private final String FILE_EXT = "/Android/data/org.commcare.dalvik/temp/Custom Recording.mp4";
+    private final String FILE_EXT = "/Android/data/org.commcare.dalvik/temp/Custom_Recording.mp4";
 
     private LinearLayout layout;
     private ImageButton toggleRecording;
-    private ImageButton discardRecording;
     private Button saveRecording;
     private Button recordAgain;
     private TextView instruction;
@@ -53,32 +52,37 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     private MediaRecorder recorder;
     private RecordingCompletionListener listener;
     private MediaPlayer player;
-    
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState){
         layout = (LinearLayout) inflater.inflate(R.layout.recording_fragment, container);
-        disableScreenRotation();
+        disableScreenRotation((Activity) getContext());
         prepareButtons();
         prepareText();
         setWindowSize();
-        fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_EXT;
+        fileName = Environment.getExternalStorageDirectory().getAbsolutePath() + FILE_EXT + listener.getFileExtension();
 
         File f = new File(fileName);
         if(f.exists()){
-            recordAgain.setVisibility(View.VISIBLE);
-            saveRecording.setVisibility(View.VISIBLE);
-            recordingDuration.setVisibility(View.VISIBLE);
-            toggleRecording.setBackgroundResource(R.drawable.play);
-            toggleRecording.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    playAudio();
-                }
-            });
-            saveRecording.setEnabled(true);
-            instruction.setText(Localization.get("after.recording"));
+            reloadSavedRecording();
         }
 
         return layout;
+    }
+
+    private void reloadSavedRecording() {
+        recordAgain.setVisibility(View.VISIBLE);
+        saveRecording.setVisibility(View.VISIBLE);
+        recordingDuration.setVisibility(View.VISIBLE);
+        toggleRecording.setBackgroundResource(R.drawable.play);
+        toggleRecording.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playAudio();
+            }
+        });
+        saveRecording.setEnabled(true);
+        instruction.setText(Localization.get("after.recording"));
     }
 
     protected void setWindowSize() {
@@ -98,7 +102,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     }
 
     private void prepareButtons() {
-        discardRecording = (ImageButton) layout.findViewById(R.id.discardrecording);
+        ImageButton discardRecording = (ImageButton) layout.findViewById(R.id.discardrecording);
         toggleRecording = (ImageButton) layout.findViewById(R.id.startrecording);
         saveRecording = (Button) layout.findViewById(R.id.saverecording);
         recordAgain = (Button) layout.findViewById(R.id.recycle);
@@ -142,7 +146,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         }
 
         if(player != null){
-            resetAudioPlayer(player);
+            resetAudioPlayer();
         }
 
         toggleRecording.setBackgroundResource(R.drawable.record_start);
@@ -160,7 +164,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     }
 
     private void startRecording(){
-        disableScreenRotation();
+        disableScreenRotation((Activity) getContext());
         setCancelable(false);
 
         setupRecorder();
@@ -227,6 +231,8 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
 
     public interface RecordingCompletionListener {
         void onRecordingCompletion();
+
+        String getFileExtension();
     }
 
     public void setListener(RecordingCompletionListener listener){
@@ -236,7 +242,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
     @Override
     public void onDismiss(DialogInterface dialog){
         super.onDismiss(dialog);
-        enableScreenRotation();
+        enableScreenRotation((Activity) getContext());
         if(recorder != null){
             recorder.release();
             this.recorder = null;
@@ -247,19 +253,19 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         return fileName;
     }
 
-    private void disableScreenRotation() {
-        int currentOrientation = getResources().getConfiguration().orientation;
+    public static void disableScreenRotation(Activity context) {
+        int currentOrientation = context.getResources().getConfiguration().orientation;
 
         if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
-            ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+            context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
         }
         else {
-            ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+            context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
         }
     }
 
-    private void enableScreenRotation() {
-        ((Activity) getContext()).setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
+    public static void enableScreenRotation(Activity context) {
+        context.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR);
     }
 
     protected void playAudio() {
@@ -269,7 +275,7 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
-                resetAudioPlayer(mp);
+                resetAudioPlayer();
             }
         });
         recordingDuration.setBase(SystemClock.elapsedRealtime());
@@ -280,14 +286,13 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
             @Override
             public void onClick(View v) {
                 GoogleAnalyticsUtils.reportAudioPaused();
-                pauseAudioPlayer(player);
+                pauseAudioPlayer();
             }
         });
     }
 
-    private void pauseAudioPlayer(MediaPlayer player){
-        final MediaPlayer mp = player;
-        mp.pause();
+    private void pauseAudioPlayer(){
+        player.pause();
         recordingDuration.stop();
         currentTimeMillis = recordingDuration.getBase();
         toggleRecording.setBackgroundResource(R.drawable.play);
@@ -295,28 +300,27 @@ public class RecordingFragment extends android.support.v4.app.DialogFragment{
             @Override
             public void onClick(View v) {
                 GoogleAnalyticsUtils.reportAudioPlayed();
-                resumeAudioPlayer(mp);
+                resumeAudioPlayer();
             }
         });
     }
 
-    private void resumeAudioPlayer(MediaPlayer player){
-        final MediaPlayer mp = player;
+    private void resumeAudioPlayer(){
         recordingDuration.setBase(currentTimeMillis);
         recordingDuration.start();
-        mp.start();
+        player.start();
         toggleRecording.setBackgroundResource(R.drawable.pause);
         toggleRecording.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 GoogleAnalyticsUtils.reportAudioPaused();
-                pauseAudioPlayer(mp);
+                pauseAudioPlayer();
             }
         });
     }
 
-    private void resetAudioPlayer(MediaPlayer mp){
-        mp.release();
+    private void resetAudioPlayer(){
+        player.release();
         recordingDuration.stop();
         toggleRecording.setBackgroundResource(R.drawable.play);
         toggleRecording.setOnClickListener(new View.OnClickListener() {

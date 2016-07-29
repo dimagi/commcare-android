@@ -108,7 +108,7 @@ public class WidgetFactory {
                 break;
             case Constants.CONTROL_AUDIO_CAPTURE:
                 if(appearance != null){
-                    questionWidget = new AudioPrototype(context, fep, pendingCalloutInterface);
+                    questionWidget = new CommCareAudioWidget(context, fep, pendingCalloutInterface);
                 }
                 else{
                     questionWidget = new AudioWidget(context, fep, pendingCalloutInterface);
