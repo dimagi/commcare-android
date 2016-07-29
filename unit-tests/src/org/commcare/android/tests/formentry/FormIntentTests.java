@@ -2,29 +2,21 @@ package org.commcare.android.tests.formentry;
 
 import android.content.Intent;
 import android.os.Environment;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageButton;
 
-import org.commcare.CommCareApplication;
 import org.commcare.CommCareTestApplication;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.CommCareTestRunner;
-import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.util.ActivityLaunchUtils;
 import org.commcare.android.util.TestAppInstaller;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
-import org.commcare.models.database.SqlStorage;
 import org.commcare.utils.CompoundIntentList;
-import org.commcare.views.QuestionsView;
-import org.commcare.views.widgets.IntegerWidget;
-import org.commcare.views.widgets.QuestionWidget;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.Shadows;
 import org.robolectric.annotation.Config;
 import org.robolectric.shadows.ShadowActivity;
 import org.robolectric.shadows.ShadowEnvironment;
@@ -36,14 +28,12 @@ import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.assertNull;
 
 /**
- * @author Phillip Mates (pmates@dimagi.com).
+ * @author Clayton Sims
  */
 @Config(application = CommCareTestApplication.class,
         constants = BuildConfig.class)
 @RunWith(CommCareTestRunner.class)
 public class FormIntentTests {
-
-    private static final String TAG = FormIntentTests.class.getSimpleName();
 
     @Before
     public void setup() {
@@ -122,6 +112,4 @@ public class FormIntentTests {
         assertNull("Should not have aggregated mixed intents", callout);
         assertEquals("Dispatch button visibility", View.GONE, formEntryActivity.findViewById(R.id.multiple_intent_dispatch_button).getVisibility());
     }
-
-
 }
