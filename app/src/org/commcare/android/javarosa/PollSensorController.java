@@ -23,6 +23,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 /**
+ * Singleton that controls location acquisition for Poll Sensor XForm extension
+ *
  * @author Phillip Mates (pmates@dimagi.com)
  */
 @SuppressWarnings("ResourceType")
@@ -30,10 +32,12 @@ public enum PollSensorController implements LocationListener {
     INSTANCE;
 
     private LocationManager mLocationManager;
-    private ArrayList<PollSensorAction> actions = new ArrayList<>();
+    private final ArrayList<PollSensorAction> actions = new ArrayList<>();
+    private Timer timeoutTimer = new Timer();
 
     void startLocationPolling(PollSensorAction action) {
         actions.add(action);
+        resetTimeoutTimer();
 
         // LocationManager needs to be dealt with in the main UI thread, so
         // wrap GPS-checking logic in a Handler
@@ -61,6 +65,12 @@ public enum PollSensorController implements LocationListener {
         });
     }
 
+    private void resetTimeoutTimer() {
+        timeoutTimer.cancel();
+        timeoutTimer.purge();
+        timeoutTimer = new Timer();
+    }
+
     /**
      * Start polling for location, based on whatever providers are given, and
      * set up a timeout after MAXIMUM_WAIT is exceeded.
@@ -70,19 +80,17 @@ public enum PollSensorController implements LocationListener {
      */
     private void requestLocationUpdates(Set<String> providers) {
         if (providers.isEmpty()) {
-            remove();
-            return;
-        }
-
-        for (String provider : providers) {
-            if (hasLocationPerms()) {
-                mLocationManager.requestLocationUpdates(provider, 0, 0, this);
+            stopLocationPolling();
+        } else {
+            for (String provider : providers) {
+                if (hasLocationPerms()) {
+                    mLocationManager.requestLocationUpdates(provider, 0, 0, this);
+                }
             }
-        }
 
-        // Cancel polling after maximum time is exceeded
-        Timer timeout = new Timer();
-        timeout.schedule(new StopPollingTask(), GeoUtils.MAXIMUM_WAIT);
+            // Cancel polling after maximum time is exceeded
+            timeoutTimer.schedule(new PollingTimeoutTask(), GeoUtils.MAXIMUM_WAIT);
+        }
     }
 
     /**
@@ -96,7 +104,7 @@ public enum PollSensorController implements LocationListener {
             }
 
             if (location.getAccuracy() <= GeoUtils.GOOD_ACCURACY) {
-                remove();
+                stopLocationPolling();
             }
         }
     }
@@ -121,23 +129,26 @@ public enum PollSensorController implements LocationListener {
         }
     }
 
-    private class StopPollingTask extends TimerTask {
+    private class PollingTimeoutTask extends TimerTask {
         @Override
         public void run() {
-            remove();
+            stopLocationPolling();
         }
     }
 
-    private boolean hasLocationPerms() {
-        Context context = CommCareApplication._().getApplicationContext();
-        return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
-                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
-    }
+    void stopLocationPolling() {
+        actions.clear();
+        resetTimeoutTimer();
 
-    void remove() {
         if (hasLocationPerms() && mLocationManager != null) {
             mLocationManager.removeUpdates(this);
             mLocationManager = null;
         }
+    }
+
+    private static boolean hasLocationPerms() {
+        Context context = CommCareApplication._().getApplicationContext();
+        return ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 }
