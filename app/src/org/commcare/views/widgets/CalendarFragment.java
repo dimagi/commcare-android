@@ -250,7 +250,10 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
             TextView text = (TextView) view;
 
             Date date = getItem(position);
-            text.setText(String.valueOf(date.getDate()));
+            Calendar gridPopulator = (Calendar) calendar.clone();
+            gridPopulator.setTime(date);
+
+            text.setText(String.valueOf(gridPopulator.get(Calendar.DAY_OF_MONTH)));
 
             Date current = calendar.getTime();
 
