@@ -1,6 +1,0 @@
-<OpenRosaResponse xmlns="http://openrosa.org/http/response">
-    <message nature='ota_restore_pending'>Asynchronous restore under way for {username}</message>
-    <Sync xmlns="http://commcarehq.org/sync">
-        <progress done="55" total="10000" retry-after="2"/>
-    </Sync>
-</OpenRosaResponse>
