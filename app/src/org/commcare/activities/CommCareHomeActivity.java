@@ -22,6 +22,7 @@ import org.commcare.CommCareApplication;
 import org.commcare.android.database.app.models.UserKeyRecord;
 import org.commcare.android.database.user.models.FormRecord;
 import org.commcare.android.database.user.models.SessionStateDescriptor;
+import org.commcare.android.javarosa.PollSensorController;
 import org.commcare.core.process.CommCareInstanceInitializer;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
@@ -591,6 +592,7 @@ public class CommCareHomeActivity
      * activity.
      */
     private boolean processReturnFromFormEntry(int resultCode, Intent intent) {
+        PollSensorController.INSTANCE.stopLocationPolling();
         // TODO: We might need to load this from serialized state?
         AndroidSessionWrapper currentState = CommCareApplication._().getCurrentSessionWrapper();
 

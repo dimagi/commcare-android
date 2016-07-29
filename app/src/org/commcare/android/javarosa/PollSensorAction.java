@@ -55,15 +55,10 @@ public class PollSensorAction extends Action {
      * @param model The FormDef that triggered the action
      */
     @Override
-    public TreeReference processAction(FormDef model, TreeReference contextRef, String event) {
-        if (Action.EVENT_XFORMS_REVALIDATE.equals(event)) {
-            // form is done so stop listening
-            PollSensorController.INSTANCE.stopLocationPolling();
-        } else {
-            formDef = model;
-            this.contextRef = contextRef;
-            PollSensorController.INSTANCE.startLocationPolling(this);
-        }
+    public TreeReference processAction(FormDef model, TreeReference contextRef) {
+        formDef = model;
+        this.contextRef = contextRef;
+        PollSensorController.INSTANCE.startLocationPolling(this);
         return null;
     }
 

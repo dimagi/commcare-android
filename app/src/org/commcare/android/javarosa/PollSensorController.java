@@ -36,7 +36,9 @@ public enum PollSensorController implements LocationListener {
     private Timer timeoutTimer = new Timer();
 
     void startLocationPolling(PollSensorAction action) {
-        actions.add(action);
+        synchronized (actions) {
+            actions.add(action);
+        }
         resetTimeoutTimer();
 
         // LocationManager needs to be dealt with in the main UI thread, so
@@ -98,13 +100,15 @@ public enum PollSensorController implements LocationListener {
      */
     @Override
     public void onLocationChanged(Location location) {
-        if (location != null) {
-            for (PollSensorAction action : actions) {
-                action.updateReference(location);
-            }
+        synchronized (actions) {
+            if (location != null) {
+                for (PollSensorAction action : actions) {
+                    action.updateReference(location);
+                }
 
-            if (location.getAccuracy() <= GeoUtils.GOOD_ACCURACY) {
-                stopLocationPolling();
+                if (location.getAccuracy() <= GeoUtils.GOOD_ACCURACY) {
+                    stopLocationPolling();
+                }
             }
         }
     }
@@ -136,8 +140,10 @@ public enum PollSensorController implements LocationListener {
         }
     }
 
-    void stopLocationPolling() {
-        actions.clear();
+    public void stopLocationPolling() {
+        synchronized (actions) {
+            actions.clear();
+        }
         resetTimeoutTimer();
 
         if (hasLocationPerms() && mLocationManager != null) {
