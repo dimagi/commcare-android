@@ -166,17 +166,20 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
     }
     
     
+    @Override
     public void dayEdited(int i, DotsDay day) {
         dotsData.days()[i] = day;
         curdose = -1;
         showView(curday(), AnimationType.fade);
     }
     
+    @Override
     public void cancelDoseEdit() {
         curdose = -1;
         showView(curday(), AnimationType.fade);
     }
 
+    @Override
     public void doneWithDOTS() {
         Intent i = new Intent(this.getIntent());
         i.putExtra(DOTS_DATA, dotsData.SerializeDotsData());
@@ -184,6 +187,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         finish();
     }
 
+    @Override
     public void editDotsDay(int i, Rect rect) {
         zX = rect.centerX();
         zY = rect.centerY();
@@ -295,6 +299,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         }
     }
     
+    @Override
     public void cancelDayEdit(int editing) {
         curday = -1;
         d= null;
@@ -321,15 +326,18 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         return super.onKeyDown(keyCode, event);
     }
 
+    @Override
     public void onAnimationEnd(Animation animation) {
         mBeenSwiped = false;
     }
 
+    @Override
     public void onAnimationRepeat(Animation animation) {
         // TODO Auto-generated method stub
         
     }
 
+    @Override
     public void onAnimationStart(Animation animation) {
         // TODO Auto-generated method stub
         
@@ -371,6 +379,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         return true;
     }
 
+    @Override
     public void shiftDay(int delta) {
         tryMove(-delta);
     }
@@ -397,6 +406,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
             
             doseView.setOnClickListener(new OnClickListener() {
 
+                @Override
                 public void onClick(View v) {
                     Rect hitRect = new Rect();
                     if(v.getParent() instanceof View) {
@@ -420,6 +430,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         } else{
             next.setOnClickListener(new OnClickListener() {
 
+                @Override
                 public void onClick(View v) {
                     tryMove(1);
                 }
@@ -432,6 +443,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         } else{
             prev.setOnClickListener(new OnClickListener() {
 
+                @Override
                 public void onClick(View v) {
                     tryMove(-1);
                 }
@@ -442,6 +454,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         Button done = (Button)dayView.findViewById(R.id.btn_dots_doses_done);
         done.setOnClickListener(new OnClickListener() {
 
+            @Override
             public void onClick(View v) {
                 DotsEntryActivity.this.cancelDayEdit(curday);
             }
@@ -521,6 +534,7 @@ public class DotsEntryActivity extends Activity implements DotsEditListener, Ani
         return doseView;
     }
 
+    @Override
     public void editDose(int dayIndex, int regimenIndex, DotsDay day, Rect hitRect) {
         curday = dayIndex;
         curdose = regimenIndex;

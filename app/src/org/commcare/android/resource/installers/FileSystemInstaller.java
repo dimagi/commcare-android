@@ -304,6 +304,7 @@ abstract class FileSystemInstaller implements ResourceInstaller<AndroidCommCareP
         }
     }
 
+    @Override
     public int rollback(Resource r) {
 
         //TODO: These filepath ops need to be the same for this all to work,

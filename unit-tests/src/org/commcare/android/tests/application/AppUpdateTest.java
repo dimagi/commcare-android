@@ -177,7 +177,7 @@ public class AppUpdateTest {
             }
 
             @Override
-            public void handleTaskCancellation(AppInstallStatus result) {
+            public void handleTaskCancellation() {
             }
         };
     }

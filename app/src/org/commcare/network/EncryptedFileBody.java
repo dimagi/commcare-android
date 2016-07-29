@@ -28,18 +28,22 @@ public class EncryptedFileBody extends AbstractContentBody {
         this.cipher = cipher;
     }
 
+    @Override
     public String getFilename() {
         return file.getName();
     }
 
+    @Override
     public String getCharset() {
         return MIME.DEFAULT_CHARSET.name();
     }
 
+    @Override
     public long getContentLength() {
         return -1;
     }
 
+    @Override
     public String getTransferEncoding() {
         return MIME.ENC_BINARY;
     }

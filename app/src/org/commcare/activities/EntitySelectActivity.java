@@ -872,11 +872,11 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
 
     private void createSortMenu() {
         final PaneledChoiceDialog dialog = new PaneledChoiceDialog(this, Localization.get("select.menu.sort"));
-        dialog.setChoiceItems(getSortOptionsList(dialog));
+        dialog.setChoiceItems(getSortOptionsList());
         showAlertDialog(dialog);
     }
 
-    private DialogChoiceItem[] getSortOptionsList(final PaneledChoiceDialog dialog) {
+    private DialogChoiceItem[] getSortOptionsList() {
         DetailField[] fields = session.getDetail(selectDatum.getShortDetail()).getFields();
         List<String> namesList = new ArrayList<>();
 
@@ -909,6 +909,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
         for (int i = 0; i < namesList.size(); i++) {
             final int index = i;
             View.OnClickListener listener = new View.OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     adapter.sortEntities(new int[]{keyArray[index]});
                     adapter.filterByString(getSearchText().toString());
@@ -1044,6 +1045,7 @@ public class EntitySelectActivity extends SaveSessionCommCareActivity
             //use the old method here because some Android versions don't like Spannables for titles
             next.setText(Localization.get("select.detail.confirm"));
             next.setOnClickListener(new OnClickListener() {
+                @Override
                 public void onClick(View v) {
                     performEntitySelect();
                 }

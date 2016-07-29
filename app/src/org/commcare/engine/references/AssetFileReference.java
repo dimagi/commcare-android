@@ -23,6 +23,7 @@ class AssetFileReference implements Reference {
         this.assetURI = assetURI;
     }
 
+    @Override
     public boolean doesBinaryExist() throws IOException {
         try {
             c.getAssets().openFd(assetURI).close();
@@ -32,32 +33,39 @@ class AssetFileReference implements Reference {
         }
     }
 
+    @Override
     public InputStream getStream() throws IOException {
         return c.getAssets().open(assetURI);
     }
 
+    @Override
     public String getURI() {
         return "jr://asset/" + assetURI;
     }
 
+    @Override
     public String getLocalURI() {
         return null;
     }
 
+    @Override
     public boolean isReadOnly() {
         //I think this is always true, not 100% sure.
         return true;
     }
 
+    @Override
     public OutputStream getOutputStream() throws IOException {
         throw new IOException("Asset references are read only!");
     }
 
+    @Override
     public void remove() throws IOException {
         //IOException? Do we use this for certain forms of installers? Probably not.
         throw new IOException("Cannot remove Asset files from the Package");
     }
 
+    @Override
     public Reference[] probeAlternativeReferences() {
         // TODO Auto-generated method stub
         return null;
