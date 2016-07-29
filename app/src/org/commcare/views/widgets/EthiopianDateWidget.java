@@ -1,8 +1,11 @@
 package org.commcare.views.widgets;
 
 import android.content.Context;
+
+import org.commcare.utils.AndroidArrayDataSource;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
+import org.javarosa.xform.util.CalendarUtils;
 import org.javarosa.xform.util.UniversalDate;
 import org.joda.time.Chronology;
 import org.joda.time.DateTime;
@@ -55,7 +58,7 @@ public class EthiopianDateWidget extends AbstractUniversalDateWidget {
 
     @Override
     protected String[] getMonthsArray() {
-        return Localization.getArray("ethiopian.months.list");
+        return CalendarUtils.getMonthsArray("ethiopian_months");
     }
 
     @Override
