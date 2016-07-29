@@ -19,6 +19,11 @@ public class AndroidArrayDataSource implements ArrayDataSource {
     @Override
     public String[] getArray(String key) {
         int resourceId = context.getResources().getIdentifier(key, "array", context.getPackageName());
+
+        if (resourceId == 0) {
+            throw new RuntimeException("Localized array data for '" + key + "' not found");
+        }
+
         return context.getResources().getStringArray(resourceId);
     }
 }
