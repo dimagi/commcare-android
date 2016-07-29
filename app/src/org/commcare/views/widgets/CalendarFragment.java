@@ -22,8 +22,6 @@ import android.widget.TextView;
 import org.commcare.dalvik.R;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -257,17 +255,17 @@ public class CalendarFragment extends android.support.v4.app.DialogFragment {
 
             Date current = calendar.getTime();
 
-            highlightCalendarGridCell(text, date, current);
+            highlightCalendarGridCell(text, gridPopulator, calendar);
             return text;
         }
 
         //Current month has white background, previous/next months have gray background, today's date has green background
-        protected void highlightCalendarGridCell(TextView text, Date date, Date current) {
-            if(date.equals(current)){
+        protected void highlightCalendarGridCell(TextView text, Calendar calendarDate, Calendar currentDate) {
+            if(calendarDate.equals(currentDate)){
                 text.setTextColor(getResources().getColor(R.color.white));
                 text.setBackgroundColor(getResources().getColor(R.color.cc_attention_positive_color));
             }
-            else if(date.getMonth() != current.getMonth()){
+            else if(calendarDate.get(Calendar.MONTH) != currentDate.get(Calendar.MONTH)){
                 text.setTextColor(getResources().getColor(R.color.grey_dark));
                 text.setBackgroundColor(getResources().getColor(R.color.grey_lighter));
             }
