@@ -406,6 +406,16 @@ template.malformed.chevron=The template file set for your print job has improper
 cannot.set.template=Could not set your print template
 no.file.browser=Your device does not have a file browser installed. Please download one from the playstore and then try again.
 
+start.recording=Start Recording
+stop.recording=Stop Recording
+recording.header=Record a sound
+before.recording=Tap to start recording...
+during.recording=Tap to stop recording...
+after.recording=Recording complete.
+save=Save
+recording.prompt=Record or choose sound below...
+recording.custom=Recorded Sound
+
 #Add new localization strings here
 
 callout.failure.dialer=Device is not currently configured to make telephone calls

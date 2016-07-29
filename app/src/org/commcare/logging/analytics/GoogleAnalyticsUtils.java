@@ -75,6 +75,47 @@ public class GoogleAnalyticsUtils {
                 .build());
     }
 
+    public static void reportAudioFileChosen(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                    GoogleAnalyticsFields.ACTION_CHOOSE_FILE);
+    }
+
+    public static void reportRecordingPopupOpened(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_START_RECORDING_DIALOG);
+    }
+
+    public static void reportAudioPlayed(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_PLAY_AUDIO);
+    }
+
+    public static void reportAudioPaused(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_PAUSE_AUDIO);
+    }
+
+    public static void reportAudioFileSaved(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_SAVE_RECORDING);
+    }
+
+    public static void reportRecordingStarted(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_START_RECORD);
+    }
+
+    public static void reportRecordingStopped(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                    GoogleAnalyticsFields.ACTION_STOP_RECORD);
+    }
+
+    public static void reportRecordingRecycled(){
+        reportEvent(GoogleAnalyticsFields.CATEGORY_AUDIO_WIDGET,
+                GoogleAnalyticsFields.ACTION_RECORD_AGAIN);
+    }
+
+
     /**
      * Report a user event of navigating forward in form entry
      *

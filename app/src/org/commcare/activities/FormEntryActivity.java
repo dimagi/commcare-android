@@ -36,6 +36,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -53,6 +54,7 @@ import org.commcare.android.javarosa.PollSensorController;
 import org.commcare.dalvik.BuildConfig;
 import org.commcare.dalvik.R;
 import org.commcare.utils.AndroidArrayDataSource;
+import org.commcare.utils.CompoundIntentList;
 import org.commcare.views.media.MediaLayout;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.android.javarosa.PollSensorAction;
@@ -94,6 +96,7 @@ import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.SelectChoice;
 import org.javarosa.core.model.data.IAnswerData;
+import org.javarosa.core.model.data.InvalidData;
 import org.javarosa.core.model.instance.TreeReference;
 import org.javarosa.core.services.Logger;
 import org.javarosa.core.services.locale.Localization;
@@ -157,6 +160,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
     public static final int INTENT_CALLOUT = 10;
     private static final int HIERARCHY_ACTIVITY_FIRST_START = 11;
     public static final int SIGNATURE_CAPTURE = 12;
+    public static final int INTENT_COMPOUND_CALLOUT = 13;
 
     // Extra returned from gp activity
     public static final String LOCATION_RESULT = "LOCATION_RESULT";
@@ -345,6 +349,8 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         ImageButton nextButton = (ImageButton)this.findViewById(R.id.nav_btn_next);
         ImageButton prevButton = (ImageButton)this.findViewById(R.id.nav_btn_prev);
 
+        Button multiIntentDispatchButton = (Button)this.findViewById(R.id.multiple_intent_dispatch_button);
+
         View finishButton = this.findViewById(R.id.nav_btn_finish);
 
         TextView finishText = (TextView)finishButton.findViewById(R.id.nav_btn_finish_text);
@@ -380,6 +386,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                         GoogleAnalyticsFields.LABEL_ARROW,
                         GoogleAnalyticsFields.VALUE_FORM_DONE);
                 triggerUserFormComplete();
+            }
+        });
+
+        multiIntentDispatchButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fireCompoundIntentDispatch();
             }
         });
 
@@ -636,6 +649,13 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         ArrayList<Integer> shouldRemoveFromView = new ArrayList<>();
         // Loop through all of the old widgets to determine which ones should stay in the new view
         for (int i = 0; i < oldWidgets.size(); i++) {
+
+            //Intent widgets need to be fully rebuilt to update their intent callouts
+            //depending on model changes.
+            if(oldWidgets.get(i) instanceof IntentWidget) {
+                shouldRemoveFromView.add(i);
+                continue;
+            }
             FormEntryPrompt oldPrompt = oldWidgets.get(i).getPrompt();
             String priorQuestionTextForThisWidget = oldQuestionTexts.get(i);
             Vector<SelectChoice> priorSelectChoicesForThisWidget = oldSelectChoices.get(i);
@@ -662,6 +682,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
                 questionsView.addQuestionToIndex(prompt, mFormController.getWidgetFactory(), i);
             }
         }
+        updateCompoundIntentButtonVisibility();
     }
 
 	/**
@@ -1048,6 +1069,9 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      */
     private void showPreviousView(boolean showSwipeAnimation) {
         // The answer is saved on a back swipe, but question constraints are ignored.
+
+
+
         if (currentPromptIsQuestion()) {
             saveAnswersForCurrentScreen(DO_NOT_EVALUATE_CONSTRAINTS);
         }
@@ -1160,6 +1184,41 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
             hasGroupLabel = true;
             FormLayoutHelpers.updateGroupViewVisibility(this, true, shouldHideGroupLabel);
         }
+        updateCompoundIntentButtonVisibility();
+    }
+
+    /**
+     * Identifies whether the questionlist featues an aggregatable intent callout and
+     * displays the appropriate button if so.
+     */
+    private void updateCompoundIntentButtonVisibility() {
+        CompoundIntentList i = this.questionsView.getAggregateIntentCallout();
+        if(i == null) {
+            hideCompoundIntentCalloutButton();
+        } else {
+            Button compoundDispatchButton =
+                    (Button)this.findViewById(R.id.multiple_intent_dispatch_button);
+            compoundDispatchButton.setVisibility(View.VISIBLE);
+            compoundDispatchButton.setText(i.getTitle() + ": " + i.getNumberOfCallouts());
+        }
+    }
+
+    private void hideCompoundIntentCalloutButton() {
+        this.findViewById(R.id.multiple_intent_dispatch_button).setVisibility(View.GONE);
+    }
+
+    private void fireCompoundIntentDispatch() {
+        CompoundIntentList i = this.questionsView.getAggregateIntentCallout();
+        if(i == null) {
+            hideCompoundIntentCalloutButton();
+            Log.e(TAG, "Multiple intent dispatch button shouldn't have been shown");
+            return;
+        }
+
+        // We don't process the result on this yet, but Android won't maintain the backstack
+        // state for the current activity unless it thinks we're going to process the callout
+        // result.
+        this.startActivityForResult(i.getCompoundedIntent(), INTENT_COMPOUND_CALLOUT);
     }
 
     /**
@@ -1167,6 +1226,7 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
      */
     private void showConstraintWarning(FormIndex index, String constraintText,
                                        int saveStatus, boolean requestFocus) {
+
         switch (saveStatus) {
             case FormEntryController.ANSWER_CONSTRAINT_VIOLATED:
                 if (constraintText == null) {
@@ -1182,6 +1242,11 @@ public class FormEntryActivity extends SaveSessionCommCareActivity<FormEntryActi
         //We need to see if question in violation is on the screen, so we can show this cleanly.
         for(QuestionWidget q : questionsView.getWidgets()) {
             if(index.equals(q.getFormId())) {
+
+                if(q.getAnswer() instanceof InvalidData){
+                    constraintText = ((InvalidData) q.getAnswer()).getErrorMessage();
+                }
+
                 q.notifyInvalid(constraintText, requestFocus);
                 displayed = true;
                 break;

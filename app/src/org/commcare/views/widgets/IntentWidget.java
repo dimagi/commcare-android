@@ -18,10 +18,14 @@ import android.widget.Toast;
 import org.commcare.activities.FormEntryActivity;
 import org.commcare.android.javarosa.IntentCallout;
 import org.commcare.logic.PendingCalloutInterface;
+import org.commcare.utils.CompoundIntentList;
+import org.javarosa.core.model.FormIndex;
 import org.javarosa.core.model.data.IAnswerData;
 import org.javarosa.core.model.data.StringData;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
+
+import java.util.ArrayList;
 
 /**
  * Widget that allows user to scan barcodes and add them to the form.
@@ -131,16 +135,20 @@ public class IntentWidget extends QuestionWidget {
 
     private void performCallout() {
         try {
-            //Set Data
-            String data = mStringAnswer.getText().toString();
-            if (!"".equals(data)) {
-                intent.putExtra(IntentCallout.INTENT_RESULT_VALUE, data);
-            }
+            loadCurrentAnswerToIntent();
             ((Activity)getContext()).startActivityForResult(intent, calloutId);
             pendingCalloutInterface.setPendingCalloutFormIndex(mPrompt.getIndex());
         } catch (ActivityNotFoundException e) {
             Toast.makeText(getContext(),
                     "Couldn't find intent for callout!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void loadCurrentAnswerToIntent() {
+        //Set Data
+        String data = mStringAnswer.getText().toString();
+        if (!"".equals(data)) {
+            intent.putExtra(IntentCallout.INTENT_RESULT_VALUE, data);
         }
     }
 
@@ -200,4 +208,22 @@ public class IntentWidget extends QuestionWidget {
         //is silly. It's not generalizable
         return ic;
     }
+
+
+    public CompoundIntentList addToCompoundIntent(CompoundIntentList compoundedCallout) {
+        if(!intent.getBooleanExtra(IntentCallout.INTENT_EXTRA_CAN_AGGREGATE, false)) {
+            return compoundedCallout;
+        }
+        if(compoundedCallout == null) {
+            CompoundIntentList list = new CompoundIntentList(intent, this.getFormId().toString());
+            list.setTitle(this.getButtonLabel().toString());
+            return list;
+        }
+        if(!compoundedCallout.addIntentIfCompatible(intent,this.getFormId().toString() )) {
+            return null;
+        } else {
+            return compoundedCallout;
+        }
+    }
+
 }

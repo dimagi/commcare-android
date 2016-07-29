@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:custom="http://schemas.android.com/tools"
+
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:layout_gravity="center_horizontal"
+    android:gravity="center_horizontal"
+    android:paddingTop="10dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/recording_header"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/text_large"
+            android:layout_alignParentLeft="true"
+            android:layout_marginBottom="10dp"/>
+
+        <ImageButton
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:id="@+id/discardrecording"
+            android:background="@drawable/icon_close_darkwarm"
+            android:layout_alignParentRight="true"/>
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/recording_instruction"
+        android:layout_gravity="left" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:id="@+id/recording_layout"
+        android:layout_weight=".5">
+
+        <ImageButton
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:background="@drawable/record_start"
+            android:layout_gravity="center"
+            android:id = "@+id/startrecording"/>
+
+        <ProgressBar
+            android:layout_width="220dp"
+            android:layout_height="220dp"
+            android:id="@+id/demo_mpc"
+            android:layout_gravity="center"
+            android:indeterminateDrawable="@drawable/progress_bar"
+            android:indeterminateDuration="2000"
+            android:visibility="invisible"/>
+
+    </FrameLayout>
+
+    <Chronometer
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/recording_time"
+        android:visibility="gone"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="15dp"
+        android:layout_weight=".1">
+
+        <Button
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/recycle"
+            android:layout_marginBottom="10dp"
+            android:background="@color/cc_brand_color"
+            android:textColor="@color/white"
+            android:text="Record Again"
+            android:visibility="invisible"
+            android:layout_marginLeft="15dp"/>
+
+        <Button
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/saverecording"
+            android:layout_gravity="right"
+            android:layout_marginBottom="10dp"
+            android:enabled="false"
+            android:background="@color/cc_attention_positive_color"
+            android:textColor="@color/white"
+            android:visibility="invisible"
+            android:layout_marginLeft="15dp" />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -11,6 +11,7 @@ import org.commcare.utils.AndroidArrayDataSource;
 import org.javarosa.core.model.Constants;
 import org.javarosa.core.model.FormDef;
 import org.javarosa.core.model.QuestionDataExtension;
+import org.javarosa.core.model.condition.EvaluationContext;
 import org.javarosa.core.services.locale.Localization;
 import org.javarosa.form.api.FormEntryPrompt;
 import org.javarosa.xform.util.CalendarUtils;
@@ -56,7 +57,12 @@ public class WidgetFactory {
                 }
                 break;
             case Constants.CONTROL_AUDIO_CAPTURE:
-                questionWidget = new AudioWidget(context, fep, pendingCalloutInterface);
+                if(appearance != null){
+                    questionWidget = new CommCareAudioWidget(context, fep, pendingCalloutInterface);
+                }
+                else{
+                    questionWidget = new AudioWidget(context, fep, pendingCalloutInterface);
+                }
                 break;
             case Constants.CONTROL_VIDEO_CAPTURE:
                 questionWidget = new VideoWidget(context, fep, pendingCalloutInterface);
@@ -94,6 +100,8 @@ public class WidgetFactory {
                     return new EthiopianDateWidget(context, fep);
                 } else if (appearance != null && appearance.toLowerCase().equals("nepali")) {
                     return new NepaliDateWidget(context, fep);
+                } else if(appearance != null && appearance.toLowerCase().contains("gregorian")){
+                    return new DatePrototypeFactory().getWidget(context, fep, appearance.toLowerCase());
                 } else {
                     return new DateWidget(context, fep);
                 }
@@ -132,7 +140,7 @@ public class WidgetFactory {
             throw new RuntimeException("No intent callout could be found for requested id " + intentId + "!");
         }
         //NOTE: No path specific stuff for now
-        Intent i = ic.generate(formDef.getEvaluationContext());
+        Intent i = ic.generate(new EvaluationContext(formDef.getEvaluationContext(),fep.getIndex().getReference()));
         return new IntentWidget(context, fep, i, ic, pendingCalloutInterface);
     }
 

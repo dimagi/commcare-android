@@ -66,7 +66,19 @@ public class CaseDbQueryTest {
                 "test_case_id_child_2", ec);
     }
 
-    public static void evaluate(String xpath, String expectedValue, EvaluationContext ec) {
+    @Test
+    public void testCaseOptimizationTriggers() {
+        TestUtils.processResourceTransaction("/inputs/case_test_db_optimizations.xml");
+        EvaluationContext ec = TestUtils.getInstanceBackedEvaluationContext();
+
+        evaluate("join(',',instance('casedb')/casedb/case[index/parent = 'test_case_parent']/@case_id)", "child_one,child_two,child_three", ec);
+        evaluate("join(',',instance('casedb')/casedb/case[index/parent = 'test_case_parent'][@case_id = 'child_two']/@case_id)", "child_two", ec);
+        evaluate("join(',',instance('casedb')/casedb/case[index/parent = 'test_case_parent'][@case_id != 'child_two']/@case_id)", "child_one,child_three", ec);
+
+
+    }
+
+        public static void evaluate(String xpath, String expectedValue, EvaluationContext ec) {
         XPathExpression expr;
         try {
             expr = XPathParseTool.parseXPath(xpath);

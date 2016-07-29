@@ -3,7 +3,7 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="org.commcare.dalvik"
           android:versionCode="106"
-          android:versionName="2.29">
+          android:versionName="2.30">
 
     <uses-permission android:name="android.permission.NFC"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -26,6 +26,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_SMS"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <uses-feature
         android:name="android.hardware.telephony"
@@ -40,6 +41,8 @@
         android:name="android.hardware.location.network"
         android:required="false"/>
 
+    <uses-sdk tools:overrideLibrary="com.dimagi.android.zebraprinttool"/>
+
     <permission
         android:name="${applicationId}.provider.cases.read"
         android:description="@string/permission_content_provider_description"
@@ -49,7 +52,7 @@
 
     <application
         android:allowBackup="false"
-        tools:replace="android:label,android:icon"
+        tools:replace="android:label,android:icon, android:allowBackup"
         android:name="org.commcare.CommCareApplication"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/application_name"
