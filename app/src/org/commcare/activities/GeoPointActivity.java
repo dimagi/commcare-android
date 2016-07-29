@@ -92,6 +92,7 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
             };
 
             DialogInterface.OnClickListener onChangeListener = new DialogInterface.OnClickListener() {
+                @Override
                 public void onClick(DialogInterface dialog, int i) {
                     switch (i) {
                         case DialogInterface.BUTTON_POSITIVE:
@@ -136,6 +137,7 @@ public class GeoPointActivity extends Activity implements LocationListener, Time
         };
 
         OnClickListener okButtonListener = new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 returnLocation();
             }

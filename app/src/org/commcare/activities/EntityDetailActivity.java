@@ -117,6 +117,7 @@ public class EntityDetailActivity
         }
 
         next.setOnClickListener(new OnClickListener() {
+            @Override
             public void onClick(View v) {
                 GoogleAnalyticsUtils.reportEntityDetailContinue(false, mDetailView.getTabCount() == 1);
                 select();
@@ -135,6 +136,7 @@ public class EntityDetailActivity
         isFinalSwipeActionEnabled = DeveloperPreferences.isDetailTabSwipeActionEnabled();
     }
 
+    @Override
     public Pair<Detail, TreeReference> requestEntityContext() {
         return mEntityContext;
     }

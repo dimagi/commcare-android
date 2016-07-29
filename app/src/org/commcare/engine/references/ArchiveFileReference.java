@@ -25,14 +25,17 @@ class ArchiveFileReference implements Reference {
         this.GUID = GUID;
     }
 
+    @Override
     public boolean doesBinaryExist() throws IOException {
         return false;
     }
 
+    @Override
     public OutputStream getOutputStream() throws IOException {
         throw new IOException("Archive references are read only!");
     }
 
+    @Override
     public InputStream getStream() throws IOException {
         File file = new File(getLocalURI());
         //CTS: Removed a thing here that created an empty file. Not sure why that was there.
@@ -43,22 +46,27 @@ class ArchiveFileReference implements Reference {
 
     }
 
+    @Override
     public String getURI() {
         return "jr://archive/" + GUID + "/" + archiveURI;
     }
 
+    @Override
     public boolean isReadOnly() {
         return true;
     }
 
+    @Override
     public void remove() throws IOException {
         throw new IOException("Cannot remove files from the archive");
     }
 
+    @Override
     public String getLocalURI() {
         return localroot + "/" + archiveURI;
     }
 
+    @Override
     public Reference[] probeAlternativeReferences() {
         return new Reference[0];
     }

@@ -22,10 +22,12 @@ public class ACase extends Case implements EncryptedModel {
         super(a, b);
     }
 
+    @Override
     public boolean isBlobEncrypted() {
         return true;
     }
 
+    @Override
     public boolean isEncrypted(String data) {
         if (data.equals("casetype")) {
             return true;

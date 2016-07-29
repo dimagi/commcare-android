@@ -63,10 +63,12 @@ public class CachingAsyncImageLoader implements ComponentCallbacks2 {
             mBoundingHeight = maxHeight;
         }
 
+        @Override
         protected Bitmap doInBackground(String... file) {
             return getImageBitmap(file[0]);
         }
 
+        @Override
         protected void onPostExecute(Bitmap result) {
             if (result != null && mImageView != null) {
                 mImageView.setImageBitmap(result);

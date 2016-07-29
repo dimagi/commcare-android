@@ -6,6 +6,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.simprints.libsimprints.Identification;
+import com.simprints.libsimprints.Tier;
 
 import junit.framework.Assert;
 
@@ -159,11 +160,11 @@ public class EntityListCalloutDataTest {
     private static Intent buildIdentificationResultIntent() {
         Intent i = new Intent();
         ArrayList<Identification> matchingList = new ArrayList<>();
-        matchingList.add(new Identification("b319e951-03f1-4172-b662-4fb3964a0be7", 0.99f)); // stan
-        matchingList.add(new Identification("8e011880-602f-4017-b9d6-ed9dcbba7516", 0.55f)); // ellen
-        matchingList.add(new Identification("c44c7ade-0cec-4401-b422-4c475f0043ae", 0.25f)); // pat
-        matchingList.add(new Identification("6b09e558-604c-4735-ac34-efbb2783b784", 0.22f)); // aria
-        matchingList.add(new Identification("16d31048-e8f8-40d5-a3e9-b35e9cde20da", 0.10f)); // gilbert
+        matchingList.add(new Identification("b319e951-03f1-4172-b662-4fb3964a0be7", 99, Tier.TIER_1)); // stan
+        matchingList.add(new Identification("8e011880-602f-4017-b9d6-ed9dcbba7516", 55, Tier.TIER_3)); // ellen
+        matchingList.add(new Identification("c44c7ade-0cec-4401-b422-4c475f0043ae", 25, Tier.TIER_4)); // pat
+        matchingList.add(new Identification("6b09e558-604c-4735-ac34-efbb2783b784", 22, Tier.TIER_4)); // aria
+        matchingList.add(new Identification("16d31048-e8f8-40d5-a3e9-b35e9cde20da", 10, Tier.TIER_5)); // gilbert
         return i.putExtra("identification", matchingList);
     }
 

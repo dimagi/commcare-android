@@ -24,11 +24,10 @@ public class EntitySelectViewSetup {
             dividerDrawable.setLayerInset(0, dividerWidth, 0, 0, 0);
 
             view.setDivider(dividerDrawable);
+            view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
+                    context.getResources().getDisplayMetrics()));
         } else {
             view.setDivider(null);
         }
-
-        view.setDividerHeight((int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1,
-                context.getResources().getDisplayMetrics()));
     }
 }

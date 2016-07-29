@@ -111,6 +111,7 @@ public class DatabaseAppOpenHelper extends SQLiteOpenHelper {
         return indexOnTableCommand(indexName, tableName, Resource.META_INDEX_PARENT_GUID);
     }
 
+    @Override
     public SQLiteDatabase getWritableDatabase(String key) {
         try {
             return super.getWritableDatabase(key);

@@ -84,7 +84,8 @@ public abstract class HttpCalloutTask<R> extends CommCareTask<Object, String, Ht
                 // Couldn't get a valid SSL certificate
                 outcome = HttpCalloutOutcomes.BadCertificate;
             } catch (IOException e) {
-                //This is probably related to local files, actually 
+                //This is probably related to local files, actually
+                e.printStackTrace();
                 outcome = HttpCalloutOutcomes.NetworkFailure;
             }
 

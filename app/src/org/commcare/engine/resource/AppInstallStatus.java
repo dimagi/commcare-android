@@ -36,6 +36,7 @@ public enum AppInstallStatus implements MessageTag {
 
     private final String root;
 
+    @Override
     public String getLocaleKeyBase() {
         return root;
     }
@@ -48,6 +49,7 @@ public enum AppInstallStatus implements MessageTag {
         return (this == UpdateStaged || this == UpToDate);
     }
 
+    @Override
     public String getCategory() {
         return "install_update";
     }

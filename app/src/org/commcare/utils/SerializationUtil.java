@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import org.commcare.CommCareApplication;
-import org.commcare.models.database.DbUtil;
 import org.javarosa.core.util.externalizable.DeserializationException;
 import org.javarosa.core.util.externalizable.Externalizable;
 
