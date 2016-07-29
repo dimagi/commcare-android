@@ -66,14 +66,10 @@ public class CalendarLocaleTest {
         String intentActivityName = formEntryIntent.getComponent().getClassName();
         assertTrue(intentActivityName.equals(FormEntryActivity.class.getName()));
 
-        ShadowActivity shadowFormEntryActivity = navigateCalendarForm(formEntryIntent);
-
-        shadowActivity.receiveResult(formEntryIntent,
-                shadowFormEntryActivity.getResultCode(),
-                shadowFormEntryActivity.getResultIntent());
+        navigateCalendarForm(formEntryIntent);
     }
 
-    private ShadowActivity navigateCalendarForm(Intent formEntryIntent) {
+    private void navigateCalendarForm(Intent formEntryIntent) {
         // launch form entry
         FormEntryActivity formEntryActivity =
                 Robolectric.buildActivity(FormEntryActivity.class).withIntent(formEntryIntent)
@@ -99,17 +95,6 @@ public class CalendarLocaleTest {
         assertEquals(ethiopianMonthText.getText(), "Senie");
         assertEquals(ethiopianDayText.getText(), "26");
         assertEquals(ethiopianYearText.getText(), "2008");
-
-        // Finish off the form even by clicking next.
-        // The form progress meter thinks there is more to do, but that is a bug.
-        nextButton.performClick();
-
-        ShadowActivity shadowFormEntryActivity = Shadows.shadowOf(formEntryActivity);
-        while (!shadowFormEntryActivity.isFinishing()) {
-            Log.d(TAG, "Waiting for the form to save and the form entry activity to finish");
-        }
-
-        return shadowFormEntryActivity;
     }
 
 
