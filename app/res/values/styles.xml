@@ -208,6 +208,25 @@
         <item name="odd_row_color">@color/drawer_pulldown_odd_row_color</item>
     </style>
 
+    <style name="ScreenPinnedButton">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:background">@color/cc_attention_positive_bg</item>
+        <item name="android:drawableRight">@drawable/icon_chevron_right_attnpos</item>
+        <item name="android:textColor">@color/cc_attention_positive_text</item>
+        <item name="android:gravity">left|center_vertical</item>
+        <item name="android:paddingLeft">@dimen/content_min_margin</item>
+        <item name="android:paddingRight">@dimen/content_min_margin</item>
+        <item name="android:textSize">@dimen/text_large</item>
+    </style>
+
+    <style name="ScreenPinnedButtonNeutral" parent="@style/ScreenPinnedButton">
+        <item name="android:background">@color/cc_light_cool_accent_bg</item>
+        <item name="android:textColor">@color/cc_light_cool_accent_text</item>
+        <item name="android:drawableRight">@drawable/icon_chevron_right_brand</item>
+    </style>
+
+
     <color name="login_edit_text_color">@color/cc_core_text</color>
     <color name="login_edit_text_color_error">@color/cc_attention_negative_color</color>
 </resources>
